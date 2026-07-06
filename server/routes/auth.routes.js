@@ -9,10 +9,13 @@ const db = require("../config/db");
 const { writeLog } = require("./audit.routes");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  family: 4,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
   },
 });
 
@@ -168,10 +171,10 @@ router.post("/forgot-password", async (req, res) => {
       [token, expiresAt, user.id]
     );
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
 
     await transporter.sendMail({
-      from: `PATH App <${process.env.EMAIL_USER}>`,
+      from: `PATH App <${process.env.MAIL_USER}>`,
       to: email,
       subject: "Password Reset Request",
       html: `
