@@ -1661,7 +1661,7 @@ export default function TaskAssigned() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 24px", borderTop: "1px solid #f0f0f0", fontSize: 11, color: "#aaa", background: "white", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <svg viewBox="0 0 16 16" fill="none" stroke="#aaa" strokeWidth="1.2" width="12" height="12"><path d="M8 1L1 4v5c0 4 3 6 7 7 4-1 7-3 7-7V4L8 1z"/></svg>
-            © 2024 TaskFlow Enterprise. All rights reserved.
+           © 2026 PATH Document Management System. All rights reserved.
           </div>
           <div style={{ display: "flex", gap: 18 }}>
             {["HELP CENTER","API STATUS","PRIVACY POLICY","TERMS"].map(l => (
