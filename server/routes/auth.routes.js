@@ -4,11 +4,17 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 const db = require("../config/db");
 const { writeLog } = require("./audit.routes");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // ─── REGISTER ────────────────────────────────────────────────────────────────
 router.post("/register", async (req, res) => {
@@ -164,8 +170,8 @@ router.post("/forgot-password", async (req, res) => {
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-    await resend.emails.send({
-      from: `PATH App <onboarding@resend.dev>`,
+    await transporter.sendMail({
+      from: `PATH App <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Password Reset Request",
       html: `
