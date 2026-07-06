@@ -4,20 +4,40 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 const db = require("../config/db");
 const { writeLog } = require("./audit.routes");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  family: 4,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
+// Sends email via SendGrid's HTTPS API (works on hosts like Render's free
+// tier that block outbound SMTP ports). Requires SENDGRID_API_KEY in env
+// vars. SENDGRID_FROM must be an email address you've verified in SendGrid
+// under Settings → Sender Authentication → Verify a Single Sender. Once
+// verified, you can send from that address to ANY real recipient — no
+// domain required.
+async function sendMail({ to, subject, html }) {
+  const from = process.env.SENDGRID_FROM; // e.g. "yourname@gmail.com"
+
+  const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: to }] }],
+      from: { email: from, name: "PATH App" },
+      subject,
+      content: [{ type: "text/html", value: html }],
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`SendGrid API error (${response.status}): ${errText}`);
+  }
+
+  // SendGrid returns 202 with an empty body on success — nothing to parse.
+  return true;
+}
 
 // ─── REGISTER ────────────────────────────────────────────────────────────────
 router.post("/register", async (req, res) => {
@@ -173,8 +193,7 @@ router.post("/forgot-password", async (req, res) => {
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
 
-    await transporter.sendMail({
-      from: `PATH App <${process.env.MAIL_USER}>`,
+    await sendMail({
       to: email,
       subject: "Password Reset Request",
       html: `
