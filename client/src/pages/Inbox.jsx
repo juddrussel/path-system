@@ -1248,6 +1248,19 @@ export default function Inbox() {
           </div>
         </div>
       )}
+      {/* Footer */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderTop: "0.5px solid #e5e7eb", fontSize: 10, color: "#aaa", background: "white" }}>
+          <span>© 2024 PATH Document Management System. All rights reserved.</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
+              System Operational
+            </span>
+            <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Privacy Policy</a>
+            <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Terms of Service</a>
+          </div>
+        </div>
+
     </div>
   );
 }
