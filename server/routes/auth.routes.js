@@ -161,11 +161,14 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
+      family: 4, // force IPv4 — avoids ENETUNREACH on hosts without IPv6 egress (e.g. Render)
     });
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
