@@ -156,6 +156,8 @@ const Icon = {
   Settings: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="2" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" /></svg>,
   AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" /><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /><circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" /><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>,
   Tracking: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" width="14" height="14"><path d="M2 8h2.5l1.5-4 3 8 1.5-4H14" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  Help: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="7" /><path d="M8 7v4M8 5v1" /></svg>,
+  Logout: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" /></svg>,
 };
 
 // ─── SIDEBAR ITEM ─────────────────────────────────────────────────────────────
@@ -308,6 +310,12 @@ export default function AuditTrail() {
           {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Assign Task" active={false} onClick={() => navigate("/assign-task")} />}
           {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Tasks Assigned" active={false} onClick={() => navigate("/task-assigned")} />}
           <SbItem icon={<Icon.Settings />} label="Settings" active={false} onClick={() => { }} />
+        </div>
+
+        {/* Bottom */}
+        <div style={{ paddingTop: 10, borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
+          <SbItem icon={<Icon.Help />} label="Help & Support" onClick={() => { }} />
+          <SbItem icon={<Icon.Logout />} label="Logout" onClick={handleLogout} />
         </div>
       </aside>
 

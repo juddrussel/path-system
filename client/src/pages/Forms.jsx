@@ -397,6 +397,12 @@ export default function Forms() {
           {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Tasks Assigned" active={false} onClick={() => navigate("/task-assigned")} />}
           <SbItem icon={<Icon.Settings />} label="Settings" active={false} onClick={() => { }} />
         </div>
+
+        {/* Bottom */}
+        <div style={{ paddingTop: 10, borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
+          <SbItem icon={<Icon.Help />} label="Help & Support" onClick={() => { }} />
+          <SbItem icon={<Icon.Logout />} label="Logout" onClick={handleLogout} />
+        </div>
       </div>
 
       {/* ── MAIN ── */}
