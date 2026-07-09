@@ -310,8 +310,8 @@ function SectionCard({ title, subtitle, icon: Icon, children, action, noPad }) {
     <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ width: 29, height: 29, borderRadius: 7, background: "var(--secondary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon style={{ width: 14, height: 14, color: "var(--primary)" }} />
+          <div style={{ width: 29, height: 29, borderRadius: 7, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon style={{ width: 14, height: 14, color: "#7c3aed" }} />
           </div>
           <div>
             <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{title}</p>
@@ -527,7 +527,7 @@ export default function Dashboard() {
                   <span style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Notifications</span>
                   {unread > 0 && <span style={{ fontSize: 11, fontWeight: 700, background: "#7c3aed", color: "#fff", padding: "1px 7px", borderRadius: 20 }}>{unread} new</span>}
                 </div>
-                <button onClick={() => setNotifOpen(false)} style={{ width: 26, height: 26, borderRadius: 6, background: "var(--muted)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <button onClick={() => setNotifOpen(false)} style={{ width: 26, height: 26, borderRadius: 6, background: "#f3f4f6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <XCircle style={{ width: 13, height: 13, color: "#6b7280" }} />
                 </button>
               </div>
@@ -549,7 +549,7 @@ export default function Dashboard() {
                 );
               })}
               <div style={{ padding: "10px 16px", textAlign: "center" }}>
-                <button style={{ fontSize: 12, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>View All Notifications</button>
+                <button style={{ fontSize: 12, color: "#7c3aed", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>View All Notifications</button>
               </div>
             </div>
           )}
@@ -615,7 +615,7 @@ export default function Dashboard() {
                             background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : idx % 2 === 0 ? "#fff" : "#fafafa",
                           }}
                         >
-                          <td style={{ padding: "9px 14px", fontFamily: "monospace", fontWeight: 700, color: "var(--primary)", fontSize: 11 }}>{row.id}</td>
+                          <td style={{ padding: "9px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{row.id}</td>
                           <td style={{ padding: "9px 14px", fontWeight: 500, color: "#111827" }}>{row.type}</td>
                           <td style={{ padding: "9px 14px", color: "#374151" }}>{row.submittedBy}</td>
                           <td style={{ padding: "9px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{row.date}</td>
@@ -679,7 +679,7 @@ export default function Dashboard() {
                 action={
                   <div style={{ display: "flex", gap: 4 }}>
                     {["All", "In Progress", "Not Started", "Overdue"].map(f => (
-                      <button key={f} onClick={() => setTaskFilter(f)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: taskFilter === f ? 600 : 400, background: taskFilter === f ? "var(--primary)" : "var(--muted)", color: taskFilter === f ? "#fff" : "#6b7280", border: "none", cursor: "pointer" }}>{f}</button>
+                      <button key={f} onClick={() => setTaskFilter(f)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: taskFilter === f ? 600 : 400, background: taskFilter === f ? "#7c3aed" : "#f3f4f6", color: taskFilter === f ? "#fff" : "#6b7280", border: "none", cursor: "pointer" }}>{f}</button>
                     ))}
                   </div>
                 }
@@ -750,7 +750,7 @@ export default function Dashboard() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontSize: 11, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
-                            <span style={{ color: a.actor === "You" ? "var(--primary)" : "#111827" }}>{a.actor}</span>
+                            <span style={{ color: a.actor === "You" ? "#7c3aed" : "#111827" }}>{a.actor}</span>
                             {" "}<span style={{ fontWeight: 400, color: "#374151" }}>{a.action}</span>
                           </p>
                           <p style={{ fontSize: 10, color: "#6b7280", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.target}</p>
