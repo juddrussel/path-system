@@ -1,16 +1,14 @@
 /**
  * facultyScoreService.js
  *
- * Computes a performance score per faculty member from the same three
- * sources the dashboard already tracks (tasks, forms, documents) and
- * writes the result back onto `users`.
+ * Computes a performance score per faculty member from the two sources
+ * the department tracks (tasks, form_submissions) and writes the result
+ * back onto `users`.
  *
- * ⚠️ ADJUST BEFORE USE — table/column names below are my best guess based
- * on the fields already referenced in Dashboard.jsx (t.faculty_id,
- * t.deadline, t.status, f.user_id/f.faculty_id, f.filing_date, d.submitted_by,
- * d.submitted_at, etc). Rename anything that doesn't match your actual
- * schema — everything you'd need to touch is confined to the three SELECTs
- * inside buildSourceQuery().
+ * Table/column names used below (confirmed from DESCRIBE output):
+ *   tasks:            faculty_id, status, deadline
+ *   form_submissions: submitted_by, status (no deadline column — forms
+ *                      never count as overdue, only pending/active)
  *
  * Scoring formula (feel free to tune the weights):
  *   base_rate   = completed / (completed + pending)          -> 0–100
@@ -24,7 +22,7 @@
 const DONE_STATUSES = ["approved", "rejected", "archived", "completed", "registered", "received"];
 
 /**
- * Builds one UNION ALL query across tasks / forms / documents.
+ * Builds one UNION ALL query across tasks / form_submissions.
  * Each branch must return: (user_id, is_done, is_overdue)
  */
 function buildSourceQuery() {
@@ -37,18 +35,10 @@ function buildSourceQuery() {
 
     UNION ALL
 
-    SELECT COALESCE(faculty_id, user_id) AS user_id,
-           LOWER(status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
-           FALSE AS is_overdue
-      FROM forms
-     WHERE COALESCE(faculty_id, user_id) IS NOT NULL
-
-    UNION ALL
-
     SELECT submitted_by AS user_id,
            LOWER(status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
            FALSE AS is_overdue
-      FROM documents
+      FROM form_submissions
      WHERE submitted_by IS NOT NULL
   `;
 }
@@ -75,9 +65,8 @@ async function recalculateAllScores(pool, opts = {}) {
   const { keepHistory = true } = opts;
 
   // Placeholder order must match buildSourceQuery()'s `?` occurrences exactly:
-  // tasks.is_done, tasks.is_overdue(NOT IN), forms.is_done, documents.is_done
+  // tasks.is_done, tasks.is_overdue(NOT IN), form_submissions.is_done
   const params = [
-    ...DONE_STATUSES,
     ...DONE_STATUSES,
     ...DONE_STATUSES,
     ...DONE_STATUSES,
@@ -144,4 +133,4 @@ async function recalculateAllScores(pool, opts = {}) {
   return { updated: updates.length, updatedAt: now };
 }
 
-module.exports = { recalculateAllScores, computeScore, DONE_STATUSES };
+module.exports = { recalculateAllScores, computeScore, DONE_STATUSES };c

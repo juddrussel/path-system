@@ -323,22 +323,23 @@ const CustomTip = ({ active, payload, label }) => {
   );
 };
 
-function SectionCard({ title, subtitle, icon: Icon, children, action, noPad }) {
+function SectionCard({ title, subtitle, icon: Icon, children, action, noPad, accentColor, titleColor, footer }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
+    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderTop: accentColor ? `3px solid ${accentColor}` : "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: accentColor ? `0 1px 4px ${accentColor}14` : "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ width: 29, height: 29, borderRadius: 7, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon style={{ width: 14, height: 14, color: "#7c3aed" }} />
+          <div style={{ width: 29, height: 29, borderRadius: 7, background: accentColor ? `${accentColor}18` : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon style={{ width: 14, height: 14, color: accentColor || "#7c3aed" }} />
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{title}</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: titleColor || "#111827", lineHeight: 1.2 }}>{title}</p>
             {subtitle && <p style={{ fontSize: 11, color: "#6b7280" }}>{subtitle}</p>}
           </div>
         </div>
         {action}
       </div>
       <div style={{ padding: noPad ? 0 : "14px 18px", flex: 1 }}>{children}</div>
+      {footer && <div style={{ padding: "10px 18px", borderTop: "1px solid rgba(0,0,0,0.07)", flexShrink: 0 }}>{footer}</div>}
     </div>
   );
 }
@@ -826,22 +827,22 @@ export default function Dashboard() {
                           key={row.id}
                           style={{
                             borderBottom: idx < trackedPageItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
-                            background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : idx % 2 === 0 ? "#fff" : "#fafafa",
+                            background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : "#fff",
                           }}
                         >
-                          <td style={{ padding: "9px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{row.id}</td>
-                          <td style={{ padding: "9px 14px" }}><TypeBadge type={row.sourceType} /></td>
-                          <td style={{ padding: "9px 14px", fontWeight: 500, color: "#111827" }}>{row.title}</td>
-                          <td style={{ padding: "9px 14px", color: "#374151" }}>{row.person}</td>
-                          <td style={{ padding: "9px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{row.date}</td>
-                          <td style={{ padding: "9px 14px" }}><PriorityPill p={row.priority} /></td>
-                          <td style={{ padding: "9px 14px" }}>
+                          <td style={{ padding: "12px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{row.id}</td>
+                          <td style={{ padding: "12px 14px" }}><TypeBadge type={row.sourceType} /></td>
+                          <td style={{ padding: "12px 14px", fontWeight: 500, color: "#111827" }}>{row.title}</td>
+                          <td style={{ padding: "12px 14px", color: "#374151" }}>{row.person}</td>
+                          <td style={{ padding: "12px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{row.date}</td>
+                          <td style={{ padding: "12px 14px" }}><PriorityPill p={row.priority} /></td>
+                          <td style={{ padding: "12px 14px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                               <StatusBadge s={row.status} />
                               {row.days >= 5 && <span style={{ fontSize: 10, color: "#dc2626", fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}><AlertTriangle style={{ width: 9, height: 9 }} />{row.days}d</span>}
                             </div>
                           </td>
-                          <td style={{ padding: "9px 14px" }}>
+                          <td style={{ padding: "12px 14px" }}>
                             <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f5f3ff", color: "#7c3aed", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
                               <Eye style={{ width: 11, height: 11 }} /> View
                             </button>
@@ -896,7 +897,21 @@ export default function Dashboard() {
               </SectionCard>
 
               {/* Bottleneck & Delay Alerts */}
-              <SectionCard title="Bottleneck & Alerts" subtitle="Items requiring immediate attention" icon={ShieldAlert}>
+              <SectionCard
+                title="Bottleneck & Alerts"
+                subtitle="Items requiring immediate attention"
+                icon={ShieldAlert}
+                accentColor="#dc2626"
+                titleColor="#dc2626"
+                footer={
+                  <button
+                    onClick={() => navigate("/tracking")}
+                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, background: "transparent", color: "#dc2626", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", letterSpacing: "0.03em" }}
+                  >
+                    VIEW ALL CRITICAL ALERTS
+                  </button>
+                }
+              >
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {ALERTS.map((alert, idx) => {
                     const cfg = SEVERITY_CFG[alert.level];
@@ -908,7 +923,9 @@ export default function Dashboard() {
                         <div style={{ flex: 1 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1 }}>
                             <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{alert.title}</span>
-                            <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>{cfg.label.toUpperCase()}</span>
+                            {alert.level === "critical" && (
+                              <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>{cfg.label.toUpperCase()}</span>
+                            )}
                           </div>
                           <p style={{ fontSize: 11, color: "#374151", lineHeight: 1.4 }}>{alert.desc}</p>
                         </div>
