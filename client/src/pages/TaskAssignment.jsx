@@ -136,6 +136,12 @@ function TaskAssignmentInner() {
   const canViewAdminNav = ["admin", "program_chair"].includes(user?.role);
 
   const [facultyList,    setFacultyList]    = useState([]);
+  const [roleOptions,    setRoleOptions]    = useState([]);
+  const [assignMode,     setAssignMode]     = useState("individual"); // "individual" | "role"
+  const [selectedFacultyIds, setSelectedFacultyIds] = useState([]);
+  const [selectedRole,   setSelectedRole]   = useState("");
+  const [facultyDropdownOpen, setFacultyDropdownOpen] = useState(false);
+  const facultyDropdownRef = useRef();
   const [assignments,    setAssignments]    = useState([]);
   const [assignSearch,   setAssignSearch]   = useState("");
   const [submitting,     setSubmitting]     = useState(false);
@@ -154,12 +160,21 @@ function TaskAssignmentInner() {
   };
 
   const [form, setForm] = useState({
-    faculty_id: "", title: "", doc_type: "",
+    title: "", doc_type: "",
     priority: "Medium", deadline: "", notes: "",
   });
 
   useEffect(() => { if (!token) navigate("/login"); }, []);
-  useEffect(() => { fetchFaculty(); fetchAssignments(); fetchNextTrackingId(); }, []);
+  useEffect(() => { fetchFaculty(); fetchAssignments(); fetchNextTrackingId(); fetchRoles(); }, []);
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (facultyDropdownRef.current && !facultyDropdownRef.current.contains(e.target)) {
+        setFacultyDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
 
   const fetchFaculty = async () => {
     try {
@@ -167,6 +182,16 @@ function TaskAssignmentInner() {
       const data = await res.json();
       setFacultyList(data.users || data || []);
     } catch { setFacultyList([]); }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const res  = await fetch(`${API}/api/users`, { headers: authH });
+      const data = await res.json();
+      const users = data.users || data || [];
+      const roles = [...new Set(users.map(u => u.role).filter(Boolean))];
+      setRoleOptions(roles);
+    } catch { setRoleOptions(["faculty"]); }
   };
 
   const fetchAssignments = async () => {
@@ -184,12 +209,21 @@ function TaskAssignmentInner() {
   };
 
   const handleSubmit = async () => {
-    if (!form.faculty_id || !form.title || !form.deadline)
-      return alert("Please fill in Faculty, Task Title, and Deadline.");
+    if (assignMode === "individual" && selectedFacultyIds.length === 0)
+      return alert("Please select at least one faculty member.");
+    if (assignMode === "role" && !selectedRole)
+      return alert("Please select a role to assign this task to.");
+    if (!form.title || !form.deadline)
+      return alert("Please fill in Task Title and Deadline.");
     setSubmitting(true);
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k,v]) => fd.append(k, v));
+      if (assignMode === "individual") {
+        selectedFacultyIds.forEach(id => fd.append("faculty_ids", id));
+      } else {
+        fd.append("assign_role", selectedRole);
+      }
       attachments.forEach(f => fd.append("attachments", f));
 
       const res = await fetch(`${API}/api/tasks`, {
@@ -201,7 +235,10 @@ function TaskAssignmentInner() {
         const created = await res.json();
         setLastTrackingId(created.tracking_id || "");
         setSuccessMsg(true);
-        setForm({ faculty_id:"", title:"", doc_type:"", priority:"Medium", deadline:"", notes:"" });
+        setForm({ title:"", doc_type:"", priority:"Medium", deadline:"", notes:"" });
+        setSelectedFacultyIds([]);
+        setSelectedRole("");
+        setAssignMode("individual");
         setAttachments([]);
         fetchAssignments();
         fetchNextTrackingId(); // refresh the preview for the next task
@@ -218,10 +255,27 @@ function TaskAssignmentInner() {
     try {
       const fd = new FormData();
       Object.entries({...form, status:"Draft"}).forEach(([k,v]) => fd.append(k, v));
+      if (assignMode === "individual") {
+        selectedFacultyIds.forEach(id => fd.append("faculty_ids", id));
+      } else {
+        fd.append("assign_role", selectedRole);
+      }
       attachments.forEach(f => fd.append("attachments", f));
       await fetch(`${API}/api/tasks/draft`, { method:"POST", headers:{ Authorization:`Bearer ${token}` }, body: fd });
       alert("Draft saved.");
     } catch { alert("Could not save draft."); }
+  };
+
+  const toggleFacultyId = (id) => {
+    setSelectedFacultyIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleAllFaculty = () => {
+    setSelectedFacultyIds(prev =>
+      prev.length === facultyList.length ? [] : facultyList.map(f => f.id)
+    );
   };
 
   const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
@@ -336,17 +390,87 @@ function TaskAssignmentInner() {
                 </div>
               </div>
 
-              {/* Row 1: Faculty + Tracking */}
+              {/* Row 1: Assign To + Tracking */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
                 <div>
                   <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
-                    Select Faculty Member <span style={{ color:"#dc2626" }}>*</span>
+                    Assign To <span style={{ color:"#dc2626" }}>*</span>
                   </label>
-                  <select value={form.faculty_id} onChange={e=>setForm(p=>({...p,faculty_id:e.target.value}))}
-                    style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13, color: form.faculty_id?"#111":"#9ca3af", background:"white" }}>
-                    <option value="">— Select faculty —</option>
-                    {facultyList.map(f => <option key={f.id} value={f.id}>{f.full_name}</option>)}
-                  </select>
+
+                  {/* Mode toggle */}
+                  <div style={{ display:"flex", gap:6, marginBottom:8 }}>
+                    <button type="button"
+                      onClick={() => { setAssignMode("individual"); setSelectedRole(""); }}
+                      style={{ flex:1, padding:"6px 8px", borderRadius:7, fontSize:11, fontWeight:700, cursor:"pointer",
+                        border: assignMode==="individual" ? "1px solid #7c3aed" : "1px solid #e5e7eb",
+                        background: assignMode==="individual" ? "#faf5ff" : "white",
+                        color: assignMode==="individual" ? "#7c3aed" : "#6b7280" }}>
+                      Specific Faculty
+                    </button>
+                    <button type="button"
+                      onClick={() => { setAssignMode("role"); setSelectedFacultyIds([]); setFacultyDropdownOpen(false); }}
+                      style={{ flex:1, padding:"6px 8px", borderRadius:7, fontSize:11, fontWeight:700, cursor:"pointer",
+                        border: assignMode==="role" ? "1px solid #7c3aed" : "1px solid #e5e7eb",
+                        background: assignMode==="role" ? "#faf5ff" : "white",
+                        color: assignMode==="role" ? "#7c3aed" : "#6b7280" }}>
+                      Entire Role
+                    </button>
+                  </div>
+
+                  {assignMode === "individual" ? (
+                    <div ref={facultyDropdownRef} style={{ position:"relative" }}>
+                      <div onClick={() => setFacultyDropdownOpen(o => !o)}
+                        style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13,
+                          color: selectedFacultyIds.length ? "#111" : "#9ca3af", background:"white", cursor:"pointer",
+                          display:"flex", alignItems:"center", justifyContent:"space-between", boxSizing:"border-box" }}>
+                        <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                          {selectedFacultyIds.length === 0
+                            ? "— Select faculty (multiple allowed) —"
+                            : selectedFacultyIds.length === 1
+                              ? (facultyList.find(f => f.id === selectedFacultyIds[0])?.full_name || "1 selected")
+                              : `${selectedFacultyIds.length} faculty selected`}
+                        </span>
+                        <span style={{ fontSize:10, color:"#9ca3af", marginLeft:6 }}>▾</span>
+                      </div>
+
+                      {facultyDropdownOpen && (
+                        <div style={{ position:"absolute", top:"calc(100% + 4px)", left:0, right:0, zIndex:20,
+                          background:"white", border:"1px solid #e5e7eb", borderRadius:8, boxShadow:"0 8px 20px rgba(0,0,0,0.1)",
+                          maxHeight:220, overflowY:"auto" }}>
+                          <label style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 12px", fontSize:12,
+                            fontWeight:700, color:"#7c3aed", cursor:"pointer", borderBottom:"1px solid #f3f4f6" }}>
+                            <input type="checkbox"
+                              checked={facultyList.length > 0 && selectedFacultyIds.length === facultyList.length}
+                              onChange={toggleAllFaculty} />
+                            Select all
+                          </label>
+                          {facultyList.map(f => (
+                            <label key={f.id} style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 12px",
+                              fontSize:12.5, color:"#374151", cursor:"pointer" }}
+                              onMouseEnter={e=>e.currentTarget.style.background="#faf5ff"}
+                              onMouseLeave={e=>e.currentTarget.style.background="white"}>
+                              <input type="checkbox"
+                                checked={selectedFacultyIds.includes(f.id)}
+                                onChange={() => toggleFacultyId(f.id)} />
+                              {f.full_name}
+                            </label>
+                          ))}
+                          {facultyList.length === 0 && (
+                            <div style={{ padding:"10px 12px", fontSize:12, color:"#9ca3af" }}>No faculty found.</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <select value={selectedRole} onChange={e=>setSelectedRole(e.target.value)}
+                      style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13,
+                        color: selectedRole ? "#111" : "#9ca3af", background:"white", boxSizing:"border-box" }}>
+                      <option value="">— Select a role —</option>
+                      {roleOptions.map(r => (
+                        <option key={r} value={r}>{r.replace(/_/g," ").replace(/\b\w/g, c => c.toUpperCase())}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div>
                   <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Task / Tracking #</label>

@@ -14,6 +14,11 @@
 //   INDEX idx_task_id (task_id),
 //   INDEX idx_group   (submission_group_id)
 // );
+//
+// ─── REQUIRED: run this SQL once to support multi-faculty / role assignment ───
+// ALTER TABLE tasks ADD COLUMN assignment_group_id VARCHAR(128) NULL;
+// (Lets the frontend/backend group multiple task rows created from a single
+//  "assign to several faculty" or "assign to a whole role" submission.)
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -126,6 +131,50 @@ async function enrichTasks(rows) {
     comments:    commentMap[r.id]    || [],
     submissions: submissionMap[r.id] || [],
   }));
+}
+
+// ─── HELPER: normalize faculty_ids from FormData (may arrive as a single
+// value, a repeated field, or a JSON string) into a clean array of ids ────────
+function normalizeFacultyIds(body) {
+  let raw = body.faculty_ids ?? body.faculty_id ?? null;
+  if (raw == null) return [];
+  if (!Array.isArray(raw)) {
+    // A single repeated FormData field arrives as a string; try JSON first
+    // (in case the caller sent a JSON-encoded array), then fall back to
+    // treating it as one id.
+    if (typeof raw === "string" && raw.trim().startsWith("[")) {
+      try { raw = JSON.parse(raw); } catch { raw = [raw]; }
+    } else {
+      raw = [raw];
+    }
+  }
+  return [...new Set(raw.map(id => parseInt(id, 10)).filter(id => !Number.isNaN(id)))];
+}
+
+// ─── HELPER: resolve the target faculty id list for a create/draft request.
+// Supports two input shapes from the client:
+//   - faculty_ids: [1,2,3]      → assign to those specific users
+//   - assign_role: "faculty"    → assign to every active user with that role
+// Returns { facultyIds, error } — error is a user-facing message if invalid.
+// ─────────────────────────────────────────────────────────────────────────────
+async function resolveTargetFacultyIds(body) {
+  const assignRole = (body.assign_role || "").trim();
+
+  if (assignRole) {
+    const [users] = await db.query(
+      "SELECT id FROM users WHERE role = ? AND is_active = 1", [assignRole]
+    );
+    if (users.length === 0) {
+      return { facultyIds: [], error: `No active users found with role "${assignRole}".` };
+    }
+    return { facultyIds: users.map(u => u.id), error: null };
+  }
+
+  const facultyIds = normalizeFacultyIds(body);
+  if (facultyIds.length === 0) {
+    return { facultyIds: [], error: "faculty_ids (or assign_role) is required." };
+  }
+  return { facultyIds, error: null };
 }
 
 // ─── SOCKET.IO: TYPING INDICATOR SETUP ───────────────────────────────────────
@@ -359,50 +408,77 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/tasks — create & assign a task ────────────────────────────────
+// Accepts either:
+//   faculty_ids  (repeated field or JSON array) → creates one task per faculty
+//   assign_role  (e.g. "faculty")                → creates one task per every
+//                                                   active user with that role
 router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), async (req, res) => {
-  const { faculty_id, title, doc_type, priority = "Medium", deadline, notes } = req.body;
-  if (!faculty_id || !title || !deadline)
-    return res.status(400).json({ message: "faculty_id, title, and deadline are required." });
+  const { title, doc_type, priority = "Medium", deadline, notes } = req.body;
+  if (!title || !deadline)
+    return res.status(400).json({ message: "title and deadline are required." });
 
   try {
-    const tracking_id = await generateTrackingId();
-    const [result] = await db.query(
-      `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW(), NOW())`,
-      [tracking_id, faculty_id, req.user.id, title, doc_type || null, priority, deadline, notes || null]
-    );
-    const taskId = result.insertId;
+    const { facultyIds, error } = await resolveTargetFacultyIds(req.body);
+    if (error) return res.status(400).json({ message: error });
 
-    if (req.files?.length > 0) {
-      const attachRows = req.files.map(f => [taskId, `/uploads/tasks/${f.filename}`, f.originalname]);
-      await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+    const assignmentGroupId = facultyIds.length > 1 ? `grp_${Date.now()}` : null;
+    const io = req.app.get("io");
+    const createdTasks = [];
+
+    // Sequential so generateTrackingId()'s count-based logic never collides
+    for (const facultyId of facultyIds) {
+      const tracking_id = await generateTrackingId();
+      const [result] = await db.query(
+        `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, assignment_group_id, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, NOW(), NOW())`,
+        [tracking_id, facultyId, req.user.id, title, doc_type || null, priority, deadline, notes || null, assignmentGroupId]
+      );
+      const taskId = result.insertId;
+
+      if (req.files?.length > 0) {
+        const attachRows = req.files.map(f => [taskId, `/uploads/tasks/${f.filename}`, f.originalname]);
+        await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+      }
+
+      if (io) {
+        io.to(`user_${facultyId}`).emit("task_assigned", {
+          message: `You have been assigned a new task: ${title}`,
+          tracking_id,
+          taskId,
+        });
+      }
+
+      createdTasks.push({ taskId, tracking_id, facultyId });
     }
 
     await writeLog({
       userId:    req.user.id,
       action:    "TASK_ASSIGN",
-      detail:    `Assigned task "${title}" (${tracking_id}) to user ID ${faculty_id}`,
+      detail:    req.body.assign_role
+        ? `Assigned task "${title}" to all users with role "${req.body.assign_role}" (${facultyIds.length} recipient(s))`
+        : `Assigned task "${title}" to ${facultyIds.length} faculty member(s): ${facultyIds.join(", ")}`,
       ipAddress: req.ip,
     });
 
-    const io = req.app.get("io");
-    if (io) {
-      io.to(`user_${faculty_id}`).emit("task_assigned", {
-        message: `You have been assigned a new task: ${title}`,
-        tracking_id,
-        taskId,
-      });
-    }
-
+    const taskIds = createdTasks.map(t => t.taskId);
     const [rows] = await db.query(
       `SELECT t.*, u1.full_name AS faculty_name, u2.full_name AS assigned_by_name
        FROM tasks t
        LEFT JOIN users u1 ON u1.id = t.faculty_id
        LEFT JOIN users u2 ON u2.id = t.assigned_by
-       WHERE t.id = ?`, [taskId]
+       WHERE t.id IN (?)`, [taskIds]
     );
-    const [enriched] = await enrichTasks(rows);
-    return res.status(201).json(enriched);
+    const enriched = await enrichTasks(rows);
+
+    // Keep the response shape close to the original single-task version
+    // (tracking_id = first one) while also exposing the full set.
+    return res.status(201).json({
+      ...enriched[0],
+      tracking_id:  createdTasks[0]?.tracking_id,
+      count:        createdTasks.length,
+      tracking_ids: createdTasks.map(t => t.tracking_id),
+      tasks:        enriched,
+    });
   } catch (err) {
     console.error("POST /api/tasks error:", err);
     return res.status(500).json({ message: "Internal server error." });
@@ -411,20 +487,42 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
 
 // ─── POST /api/tasks/draft ───────────────────────────────────────────────────
 router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachments"), async (req, res) => {
-  const { faculty_id, title, doc_type, priority = "Medium", deadline, notes } = req.body;
+  const { title, doc_type, priority = "Medium", deadline, notes } = req.body;
   try {
-    const tracking_id = await generateTrackingId();
-    const [result] = await db.query(
-      `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW(), NOW())`,
-      [tracking_id, faculty_id || null, req.user.id, title || "Untitled Draft", doc_type || null, priority, deadline || null, notes || null]
-    );
-    const taskId = result.insertId;
-    if (req.files?.length > 0) {
-      const attachRows = req.files.map(f => [taskId, `/uploads/tasks/${f.filename}`, f.originalname]);
-      await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+    // Drafts are allowed to have no target yet — only resolve if something was given
+    let facultyIds = [];
+    if (req.body.assign_role || req.body.faculty_ids || req.body.faculty_id) {
+      const resolved = await resolveTargetFacultyIds(req.body);
+      if (resolved.error) return res.status(400).json({ message: resolved.error });
+      facultyIds = resolved.facultyIds;
     }
-    return res.status(201).json({ message: "Draft saved.", tracking_id, id: taskId });
+    if (facultyIds.length === 0) facultyIds = [null]; // single draft with no assignee yet
+
+    const assignmentGroupId = facultyIds.length > 1 ? `grp_${Date.now()}` : null;
+    const createdDrafts = [];
+
+    for (const facultyId of facultyIds) {
+      const tracking_id = await generateTrackingId();
+      const [result] = await db.query(
+        `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, assignment_group_id, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', ?, NOW(), NOW())`,
+        [tracking_id, facultyId, req.user.id, title || "Untitled Draft", doc_type || null, priority, deadline || null, notes || null, assignmentGroupId]
+      );
+      const taskId = result.insertId;
+      if (req.files?.length > 0) {
+        const attachRows = req.files.map(f => [taskId, `/uploads/tasks/${f.filename}`, f.originalname]);
+        await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+      }
+      createdDrafts.push({ id: taskId, tracking_id });
+    }
+
+    return res.status(201).json({
+      message:      "Draft saved.",
+      tracking_id:  createdDrafts[0]?.tracking_id,
+      id:           createdDrafts[0]?.id,
+      count:        createdDrafts.length,
+      drafts:       createdDrafts,
+    });
   } catch (err) {
     console.error("POST /api/tasks/draft error:", err);
     return res.status(500).json({ message: "Internal server error." });
