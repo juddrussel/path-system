@@ -374,6 +374,8 @@ export default function Dashboard() {
   // ── Live data for the "Document, Form & Task Tracking" table ────────────────
   const [trackedItems, setTrackedItems] = useState([]);
   const [itemsLoading, setItemsLoading] = useState(true);
+  const [trackedPage, setTrackedPage] = useState(1);
+  const TRACKED_PAGE_SIZE = 10;
 
   const fetchTrackedItems = useCallback(async () => {
     setItemsLoading(true);
@@ -480,8 +482,13 @@ export default function Dashboard() {
         }
       } catch (err) { console.error("Forms fetch error:", err); }
 
-      // Most urgent / longest-waiting items first
-      merged.sort((a, b) => b.days - a.days);
+      // Most urgent items first (Urgent > High > Normal > Low), then longest-waiting as tiebreaker
+      const PRIORITY_RANK = { Urgent: 0, High: 1, Normal: 2, Low: 3 };
+      merged.sort((a, b) => {
+        const rankDiff = (PRIORITY_RANK[a.priority] ?? 4) - (PRIORITY_RANK[b.priority] ?? 4);
+        if (rankDiff !== 0) return rankDiff;
+        return b.days - a.days;
+      });
       setTrackedItems(merged);
     } finally {
       setItemsLoading(false);
@@ -492,6 +499,17 @@ export default function Dashboard() {
     if (!token) { navigate("/login"); return; }
     fetchTrackedItems();
   }, [token, fetchTrackedItems]);
+
+  // Reset to page 1 whenever the tracked list is refreshed/changes size
+  useEffect(() => {
+    setTrackedPage(1);
+  }, [trackedItems.length]);
+
+  const trackedTotalPages = Math.max(1, Math.ceil(trackedItems.length / TRACKED_PAGE_SIZE));
+  const trackedPageItems = trackedItems.slice(
+    (trackedPage - 1) * TRACKED_PAGE_SIZE,
+    trackedPage * TRACKED_PAGE_SIZE
+  );
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -763,7 +781,7 @@ export default function Dashboard() {
                       <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading tasks, forms, and documents…</td></tr>
                     ) : trackedItems.length === 0 ? (
                       <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Nothing in the system yet.</td></tr>
-                    ) : trackedItems.map((row, idx) => {
+                    ) : trackedPageItems.map((row, idx) => {
                       const isActed = approvalAction?.id === row.id;
                       const isForm = row.sourceType === "form";
                       const isActionable = isForm && ["Pending", "Under Review", "For Approval"].includes(row.status);
@@ -771,7 +789,7 @@ export default function Dashboard() {
                         <tr
                           key={row.id}
                           style={{
-                            borderBottom: idx < trackedItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
+                            borderBottom: idx < trackedPageItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
                             background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : idx % 2 === 0 ? "#fff" : "#fafafa",
                           }}
                         >
@@ -810,6 +828,48 @@ export default function Dashboard() {
                     })}
                   </tbody>
                 </table>
+
+                {/* Pagination controls */}
+                {!itemsLoading && trackedItems.length > 0 && (
+                  <div style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)",
+                  }}>
+                    <span style={{ fontSize: 11, color: "#6b7280" }}>
+                      Showing {(trackedPage - 1) * TRACKED_PAGE_SIZE + 1}
+                      –{Math.min(trackedPage * TRACKED_PAGE_SIZE, trackedItems.length)} of {trackedItems.length}
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <button
+                        onClick={() => setTrackedPage(p => Math.max(1, p - 1))}
+                        disabled={trackedPage === 1}
+                        style={{
+                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
+                          border: "1px solid #e5e7eb", background: trackedPage === 1 ? "#f9fafb" : "#fff",
+                          color: trackedPage === 1 ? "#c1c5cb" : "#374151",
+                          cursor: trackedPage === 1 ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Previous
+                      </button>
+                      <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
+                        Page {trackedPage} of {trackedTotalPages}
+                      </span>
+                      <button
+                        onClick={() => setTrackedPage(p => Math.min(trackedTotalPages, p + 1))}
+                        disabled={trackedPage === trackedTotalPages}
+                        style={{
+                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
+                          border: "1px solid #e5e7eb", background: trackedPage === trackedTotalPages ? "#f9fafb" : "#fff",
+                          color: trackedPage === trackedTotalPages ? "#c1c5cb" : "#374151",
+                          cursor: trackedPage === trackedTotalPages ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
               </SectionCard>
 
               {/* Bottleneck & Delay Alerts */}
