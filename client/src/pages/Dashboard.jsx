@@ -203,6 +203,29 @@ const APPROVAL_PIE = [
   { name: "Pending",    value: 6,  color: "#7c3aed" },
 ];
 
+const DOCUMENTS = [
+  { id: "DOC-2026-118", title: "Faculty Loading Report",           submittedBy: "Registrar's Office", date: "Jun 13, 2026", priority: "Normal", status: "Received" },
+  { id: "DOC-2026-115", title: "Accreditation Compliance Report",  submittedBy: "Dr. Kenneth Tan",     date: "Jun 11, 2026", priority: "High",   status: "Approved" },
+  { id: "DOC-2026-109", title: "Semester Enrollment Summary",      submittedBy: "Records Office",      date: "Jun 9, 2026",  priority: "Normal", status: "Archived" },
+];
+
+// ── Unified tracking list — mirrors how Tracking.jsx merges forms, tasks, and
+//    plain documents into one dataset (source_type + a shared shape) ──────────
+const TRACKED_ITEMS = [
+  ...APPROVAL_QUEUE.map(f => ({
+    id: f.id, sourceType: "form", title: f.type, person: f.submittedBy,
+    date: f.date, priority: f.priority, status: f.status, days: f.days,
+  })),
+  ...TASKS.map(t => ({
+    id: t.id, sourceType: "task", title: t.name, person: t.assignedTo,
+    date: t.deadline, priority: t.overdue ? "Urgent" : "Normal", status: t.status, days: null,
+  })),
+  ...DOCUMENTS.map(d => ({
+    id: d.id, sourceType: "document", title: d.title, person: d.submittedBy,
+    date: d.date, priority: d.priority, status: d.status, days: null,
+  })),
+];
+
 const NOTIFICATIONS = [
   { id: 1,  type: "submission",   text: "New form submitted by Juan Reyes",          sub: "Thesis Defense Schedule — FRM-2026-041", time: "5m ago",  read: false },
   { id: 2,  type: "completed",    text: "Task completed by Dr. Luisa Fernandez",     sub: "Finalize Elective Subjects List",         time: "22m ago", read: false },
@@ -240,13 +263,27 @@ const PRIORITY_CFG = {
   Low:    { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
 };
 
+// Dot-style status palette — mirrors Tracking.jsx's STATUS_STYLES, extended
+// with the extra statuses used across forms, tasks, and documents here.
 const STATUS_CFG = {
-  "Pending Review": { color: "#b45309", bg: "#fffbeb", border: "#fde68a" },
-  "Under Review":   { color: "#0369a1", bg: "#f0f9ff", border: "#bae6fd" },
-  "In Progress":    { color: "#5b21b6", bg: "#f5f3ff", border: "#c4b5fd" },
-  "Not Started":    { color: "#6b7280", bg: "#f9fafb", border: "#e5e7eb" },
-  "Overdue":        { color: "#dc2626", bg: "#fef2f2", border: "#fecaca" },
-  "Completed":      { color: "#065f46", bg: "#ecfdf5", border: "#a7f3d0" },
+  "pending review": { color: "#5b21b6", bg: "#ede9fe", dot: "#7c3aed" },
+  "under review":   { color: "#0369a1", bg: "#f0f9ff", dot: "#38bdf8" },
+  "in progress":    { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
+  "not started":    { color: "#6b7280", bg: "#f9fafb", dot: "#9ca3af" },
+  "overdue":        { color: "#991b1b", bg: "#fef2f2", dot: "#ef4444" },
+  "completed":      { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
+  "approved":       { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
+  "received":       { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
+  "rejected":       { color: "#991b1b", bg: "#fee2e2", dot: "#ef4444" },
+  "returned":       { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
+  "archived":       { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
+};
+
+// Type badge — same Task/Form pattern as Tracking.jsx, extended with Document
+const TYPE_CFG = {
+  task:     { label: "Task",     bg: "#ede9fe", color: "#6d28d9" },
+  form:     { label: "Form",     bg: "#dbeafe", color: "#1e40af" },
+  document: { label: "Document", bg: "#d1fae5", color: "#065f46" },
 };
 
 const ACTIVITY_CFG = {
@@ -275,10 +312,20 @@ const SEVERITY_CFG = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function StatusBadge({ s }) {
-  const cfg = STATUS_CFG[s] ?? { color: "#6b7280", bg: "#f3f4f6", border: "#e5e7eb" };
+  const cfg = STATUS_CFG[s?.toLowerCase()] ?? { color: "#374151", bg: "#f3f4f6", dot: "#9ca3af" };
   return (
-    <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, flexShrink: 0 }} />
       {s}
+    </span>
+  );
+}
+
+function TypeBadge({ type }) {
+  const cfg = TYPE_CFG[type] ?? { label: type, bg: "#f3f4f6", color: "#374151" };
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: cfg.bg, color: cfg.color, textTransform: "uppercase", letterSpacing: 0.4, whiteSpace: "nowrap" }}>
+      {cfg.label}
     </span>
   );
 }
@@ -584,40 +631,44 @@ export default function Dashboard() {
             {/* Row 1: Approval Queue + Alerts */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
 
-              {/* Approval Queue */}
+              {/* Document, Form & Task Tracking — merges forms, tasks, and
+                  documents into one table, the same way Tracking.jsx does */}
               <SectionCard
-                title="Approval Queue"
-                subtitle="Forms waiting for your action — ordered by urgency"
+                title="Document, Form & Task Tracking"
+                subtitle="All forms, tasks, and documents currently in your workflow"
                 icon={ClipboardList}
                 noPad
                 action={
                   <span style={{ fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 20, border: "1px solid #fecaca" }}>
-                    {APPROVAL_QUEUE.length} pending
+                    {TRACKED_ITEMS.length} tracked
                   </span>
                 }
               >
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead>
                     <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                      {["Form ID", "Form Type", "Submitted By", "Date", "Priority", "Status", "Actions"].map(col => (
+                      {["ID", "Type", "Title", "Submitted By / Assigned To", "Date", "Priority", "Status", "Actions"].map(col => (
                         <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {APPROVAL_QUEUE.map((row, idx) => {
+                    {TRACKED_ITEMS.map((row, idx) => {
                       const isActed = approvalAction?.id === row.id;
+                      const isForm = row.sourceType === "form";
+                      const isActionable = isForm && ["Pending Review", "Under Review"].includes(row.status);
                       return (
                         <tr
                           key={row.id}
                           style={{
-                            borderBottom: idx < APPROVAL_QUEUE.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
+                            borderBottom: idx < TRACKED_ITEMS.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
                             background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : idx % 2 === 0 ? "#fff" : "#fafafa",
                           }}
                         >
                           <td style={{ padding: "9px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{row.id}</td>
-                          <td style={{ padding: "9px 14px", fontWeight: 500, color: "#111827" }}>{row.type}</td>
-                          <td style={{ padding: "9px 14px", color: "#374151" }}>{row.submittedBy}</td>
+                          <td style={{ padding: "9px 14px" }}><TypeBadge type={row.sourceType} /></td>
+                          <td style={{ padding: "9px 14px", fontWeight: 500, color: "#111827" }}>{row.title}</td>
+                          <td style={{ padding: "9px 14px", color: "#374151" }}>{row.person}</td>
                           <td style={{ padding: "9px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{row.date}</td>
                           <td style={{ padding: "9px 14px" }}><PriorityPill p={row.priority} /></td>
                           <td style={{ padding: "9px 14px" }}>
@@ -632,12 +683,16 @@ export default function Dashboard() {
                                 <CheckCircle2 style={{ width: 12, height: 12 }} />
                                 {approvalAction.action}
                               </span>
-                            ) : (
+                            ) : isActionable ? (
                               <div style={{ display: "flex", gap: 4 }}>
                                 <button onClick={() => setApprovalAction({ id: row.id, action: "Approved" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#ecfdf5", color: "#059669", fontSize: 11, fontWeight: 600, border: "1px solid #a7f3d0", cursor: "pointer" }}>✓ Approve</button>
                                 <button onClick={() => setApprovalAction({ id: row.id, action: "Rejected" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#fef2f2", color: "#dc2626", fontSize: 11, fontWeight: 600, border: "1px solid #fecaca", cursor: "pointer" }}>✕ Reject</button>
                                 <button onClick={() => setApprovalAction({ id: row.id, action: "Returned" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#fffbeb", color: "#d97706", fontSize: 11, fontWeight: 600, border: "1px solid #fde68a", cursor: "pointer" }}>↩ Return</button>
                               </div>
+                            ) : (
+                              <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f5f3ff", color: "#7c3aed", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                <Eye style={{ width: 11, height: 11 }} /> View
+                              </button>
                             )}
                           </td>
                         </tr>
