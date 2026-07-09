@@ -366,6 +366,8 @@ export default function Dashboard() {
   const [itemsLoading, setItemsLoading] = useState(true);
   const [trackedPage, setTrackedPage] = useState(1);
   const TRACKED_PAGE_SIZE = 10;
+  const [taskPage, setTaskPage] = useState(1);
+  const TASK_PAGE_SIZE = 10;
 
   const fetchTrackedItems = useCallback(async () => {
     setItemsLoading(true);
@@ -540,6 +542,16 @@ export default function Dashboard() {
     taskFilter === "Overdue" ? t.overdue :
     t.status === taskFilter
   );
+
+  const taskTotalPages = Math.max(1, Math.ceil(filteredTasks.length / TASK_PAGE_SIZE));
+  const taskPageItems = filteredTasks.slice(
+    (taskPage - 1) * TASK_PAGE_SIZE,
+    taskPage * TASK_PAGE_SIZE
+  );
+
+  useEffect(() => {
+    setTaskPage(1);
+  }, [taskFilter, filteredTasks.length]);
 
   const kpis = [
     { label: "Pending Approvals",        value: "6",    delta: "+2",   up: false, color: "#7c3aed", icon: ClipboardList  },
@@ -932,8 +944,8 @@ export default function Dashboard() {
                         <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading tasks…</td></tr>
                       ) : filteredTasks.length === 0 ? (
                         <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No tasks found.</td></tr>
-                      ) : filteredTasks.map((task, idx) => (
-                        <tr key={task.id} style={{ borderBottom: idx < filteredTasks.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none", background: task.overdue ? "rgba(220,38,38,0.03)" : "#fff" }}>
+                      ) : taskPageItems.map((task, idx) => (
+                        <tr key={task.id} style={{ borderBottom: idx < taskPageItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none", background: task.overdue ? "rgba(220,38,38,0.03)" : "#fff" }}>
                           <td style={{ padding: "8px 12px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                               {task.overdue && <AlertTriangle style={{ width: 11, height: 11, color: "#dc2626", flexShrink: 0 }} />}
@@ -956,6 +968,48 @@ export default function Dashboard() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Pagination controls */}
+                {!itemsLoading && filteredTasks.length > 0 && (
+                  <div style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "10px 4px 0",
+                  }}>
+                    <span style={{ fontSize: 11, color: "#6b7280" }}>
+                      Showing {(taskPage - 1) * TASK_PAGE_SIZE + 1}
+                      –{Math.min(taskPage * TASK_PAGE_SIZE, filteredTasks.length)} of {filteredTasks.length}
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <button
+                        onClick={() => setTaskPage(p => Math.max(1, p - 1))}
+                        disabled={taskPage === 1}
+                        style={{
+                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
+                          border: "1px solid #e5e7eb", background: taskPage === 1 ? "#f9fafb" : "#fff",
+                          color: taskPage === 1 ? "#c1c5cb" : "#374151",
+                          cursor: taskPage === 1 ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Previous
+                      </button>
+                      <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
+                        Page {taskPage} of {taskTotalPages}
+                      </span>
+                      <button
+                        onClick={() => setTaskPage(p => Math.min(taskTotalPages, p + 1))}
+                        disabled={taskPage === taskTotalPages}
+                        style={{
+                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
+                          border: "1px solid #e5e7eb", background: taskPage === taskTotalPages ? "#f9fafb" : "#fff",
+                          color: taskPage === taskTotalPages ? "#c1c5cb" : "#374151",
+                          cursor: taskPage === taskTotalPages ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
               </SectionCard>
 
               {/* Activity Feed */}
