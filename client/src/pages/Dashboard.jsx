@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import {
@@ -19,6 +19,7 @@ import {
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
+const API = import.meta.env.VITE_API_URL || "";
 
 // ── Sidebar SVG Icons ────────────────────────────────────────────────────────
 const Icon = {
@@ -141,15 +142,9 @@ function SbItem({ icon, label, active, onClick }) {
 }
 
 // ─── Sample Data (Program Chair layout) ────────────────────────────────────────
-
-const APPROVAL_QUEUE = [
-  { id: "FRM-2026-041", type: "Leave of Absence",       submittedBy: "Prof. Ana Reyes",      date: "Jun 12, 2026", priority: "Urgent", status: "Pending Review", days: 3 },
-  { id: "FRM-2026-039", type: "Thesis Defense Schedule", submittedBy: "Juan Miguel Reyes",    date: "Jun 11, 2026", priority: "High",   status: "Pending Review", days: 4 },
-  { id: "FRM-2026-037", type: "Overload Request",        submittedBy: "Prof. Carlos Mendoza", date: "Jun 10, 2026", priority: "High",   status: "Pending Review", days: 5 },
-  { id: "FRM-2026-035", type: "Grade Revision Form",     submittedBy: "Patricia Dela Cruz",   date: "Jun 9, 2026",  priority: "Normal", status: "Under Review",   days: 6 },
-  { id: "FRM-2026-033", type: "Curriculum Change",       submittedBy: "Dr. Kenneth Tan",      date: "Jun 8, 2026",  priority: "Normal", status: "Pending Review", days: 7 },
-  { id: "FRM-2026-031", type: "Special Exam Request",    submittedBy: "Marco Santiago",       date: "Jun 7, 2026",  priority: "Low",    status: "Pending Review", days: 8 },
-];
+// Note: the "Document, Form & Task Tracking" table no longer uses sample data —
+// it fetches real tasks, forms, and documents from the API (see fetchTrackedItems
+// below). The arrays below still power the charts and the Task Overview widget.
 
 const TASKS = [
   { id: "TSK-001", name: "Review Q3 Curriculum Proposal",     assignedTo: "Dr. Kenneth Tan",      deadline: "Jun 15", progress: 70,  status: "In Progress", overdue: false },
@@ -203,28 +198,19 @@ const APPROVAL_PIE = [
   { name: "Pending",    value: 6,  color: "#7c3aed" },
 ];
 
-const DOCUMENTS = [
-  { id: "DOC-2026-118", title: "Faculty Loading Report",           submittedBy: "Registrar's Office", date: "Jun 13, 2026", priority: "Normal", status: "Received" },
-  { id: "DOC-2026-115", title: "Accreditation Compliance Report",  submittedBy: "Dr. Kenneth Tan",     date: "Jun 11, 2026", priority: "High",   status: "Approved" },
-  { id: "DOC-2026-109", title: "Semester Enrollment Summary",      submittedBy: "Records Office",      date: "Jun 9, 2026",  priority: "Normal", status: "Archived" },
-];
-
-// ── Unified tracking list — mirrors how Tracking.jsx merges forms, tasks, and
-//    plain documents into one dataset (source_type + a shared shape) ──────────
-const TRACKED_ITEMS = [
-  ...APPROVAL_QUEUE.map(f => ({
-    id: f.id, sourceType: "form", title: f.type, person: f.submittedBy,
-    date: f.date, priority: f.priority, status: f.status, days: f.days,
-  })),
-  ...TASKS.map(t => ({
-    id: t.id, sourceType: "task", title: t.name, person: t.assignedTo,
-    date: t.deadline, priority: t.overdue ? "Urgent" : "Normal", status: t.status, days: null,
-  })),
-  ...DOCUMENTS.map(d => ({
-    id: d.id, sourceType: "document", title: d.title, person: d.submittedBy,
-    date: d.date, priority: d.priority, status: d.status, days: null,
-  })),
-];
+// Maps raw backend status values to the display labels used by StatusBadge
+const REAL_STATUS_DISPLAY = {
+  "pending":        "Pending",
+  "in review":      "Under Review",
+  "for approval":   "For Approval",
+  "returned":       "Returned",
+  "received":       "Approved",
+  "approved":       "Approved",
+  "rejected":       "Rejected",
+  "archived":       "Archived",
+  "registered":     "Approved",
+  "draft":          "Pending",
+};
 
 const NOTIFICATIONS = [
   { id: 1,  type: "submission",   text: "New form submitted by Juan Reyes",          sub: "Thesis Defense Schedule — FRM-2026-041", time: "5m ago",  read: false },
@@ -266,8 +252,10 @@ const PRIORITY_CFG = {
 // Dot-style status palette — mirrors Tracking.jsx's STATUS_STYLES, extended
 // with the extra statuses used across forms, tasks, and documents here.
 const STATUS_CFG = {
+  "pending":        { color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
   "pending review": { color: "#5b21b6", bg: "#ede9fe", dot: "#7c3aed" },
   "under review":   { color: "#0369a1", bg: "#f0f9ff", dot: "#38bdf8" },
+  "for approval":   { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
   "in progress":    { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
   "not started":    { color: "#6b7280", bg: "#f9fafb", dot: "#9ca3af" },
   "overdue":        { color: "#991b1b", bg: "#fef2f2", dot: "#ef4444" },
@@ -383,9 +371,127 @@ export default function Dashboard() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [taskFilter, setTaskFilter] = useState("All");
 
+  // ── Live data for the "Document, Form & Task Tracking" table ────────────────
+  const [trackedItems, setTrackedItems] = useState([]);
+  const [itemsLoading, setItemsLoading] = useState(true);
+
+  const fetchTrackedItems = useCallback(async () => {
+    setItemsLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const merged = [];
+      const now = new Date();
+
+      // Resolve user ids -> display names (same approach as Tracking.jsx)
+      const userMap = {};
+      try {
+        const res = await fetch(`${API}/api/users`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const users = data.users ?? data ?? [];
+          (Array.isArray(users) ? users : []).forEach(u => {
+            userMap[u.id] = u.full_name || u.name || u.username || `User #${u.id}`;
+          });
+        }
+      } catch (err) { console.error("Users fetch error:", err); }
+      const nameOf = (id) => userMap[id] || (id ? `User #${id}` : "—");
+
+      const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+      const daysSince = (d) => d ? Math.max(0, Math.floor((now - new Date(d)) / 86400000)) : 0;
+      const displayStatus = (s) => REAL_STATUS_DISPLAY[s?.toLowerCase()] || s || "Pending";
+      const priorityFor = (days, done) => done ? "Low" : days >= 7 ? "Urgent" : days >= 4 ? "High" : "Normal";
+
+      // ── Plain tracked documents ──────────────────────────────────────────
+      try {
+        const res = await fetch(`${API}/api/tracking`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const documents = data.documents || data || [];
+          (Array.isArray(documents) ? documents : []).forEach(d => {
+            const rawDate = d.submitted_at || d.created_at;
+            const status = displayStatus(d.status);
+            const done = ["Approved", "Rejected", "Archived"].includes(status);
+            merged.push({
+              id: d.tracking_id || d.document_id || `DOC-${d.id}`,
+              sourceType: "document",
+              title: d.title || d.document_type || "Document",
+              person: d.submitted_by_name || (d.submitted_by ? nameOf(d.submitted_by) : null) || d.department || "—",
+              date: fmtDate(rawDate),
+              status,
+              days: daysSince(rawDate),
+              priority: priorityFor(daysSince(rawDate), done),
+            });
+          });
+        }
+      } catch (err) { console.error("Tracking fetch error:", err); }
+
+      // ── Tasks assigned ────────────────────────────────────────────────────
+      try {
+        const res = await fetch(`${API}/api/tasks`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const tasks = data.tasks ?? data ?? [];
+          (Array.isArray(tasks) ? tasks : []).forEach(t => {
+            const rawDate = t.created_at || t.deadline;
+            const status = displayStatus(t.status);
+            const done = ["Approved", "Rejected", "Archived"].includes(status);
+            const overdue = t.deadline && new Date(t.deadline) < now && !done;
+            merged.push({
+              id: t.tracking_id || `TSK-${t.id}`,
+              sourceType: "task",
+              title: t.title,
+              person: nameOf(t.faculty_id),
+              date: fmtDate(t.deadline || rawDate),
+              status: overdue ? "Overdue" : status,
+              days: daysSince(rawDate),
+              priority: overdue ? "Urgent" : priorityFor(daysSince(rawDate), done),
+            });
+          });
+        }
+      } catch (err) { console.error("Tasks fetch error:", err); }
+
+      // ── Forms submitted by faculty ───────────────────────────────────────
+      try {
+        const res = await fetch(`${API}/api/forms/all`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const forms = data.forms ?? data ?? [];
+          (Array.isArray(forms) ? forms : []).forEach(f => {
+            const rawDate = f.filing_date || f.created_at;
+            const status = displayStatus(f.status);
+            const done = ["Approved", "Rejected", "Archived"].includes(status);
+            const facultySubmitter =
+              f.full_name || f.submitter_name || f.submitted_by || f.faculty_name ||
+              f.user_name || f.username ||
+              (f.user_id    ? nameOf(f.user_id)    : null) ||
+              (f.faculty_id ? nameOf(f.faculty_id) : null) ||
+              "—";
+            merged.push({
+              id: f.tracking_id || `FRM-${f.id}`,
+              sourceType: "form",
+              title: f.category ? `${f.category} Form` : "Form Submission",
+              person: facultySubmitter,
+              date: fmtDate(rawDate),
+              status,
+              days: daysSince(rawDate),
+              priority: priorityFor(daysSince(rawDate), done),
+            });
+          });
+        }
+      } catch (err) { console.error("Forms fetch error:", err); }
+
+      // Most urgent / longest-waiting items first
+      merged.sort((a, b) => b.days - a.days);
+      setTrackedItems(merged);
+    } finally {
+      setItemsLoading(false);
+    }
+  }, [token]);
+
   useEffect(() => {
-    if (!token) { navigate("/login"); }
-  }, []);
+    if (!token) { navigate("/login"); return; }
+    fetchTrackedItems();
+  }, [token, fetchTrackedItems]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -640,7 +746,7 @@ export default function Dashboard() {
                 noPad
                 action={
                   <span style={{ fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 20, border: "1px solid #fecaca" }}>
-                    {TRACKED_ITEMS.length} tracked
+                    {itemsLoading ? "…" : trackedItems.length} tracked
                   </span>
                 }
               >
@@ -653,15 +759,19 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {TRACKED_ITEMS.map((row, idx) => {
+                    {itemsLoading ? (
+                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading tasks, forms, and documents…</td></tr>
+                    ) : trackedItems.length === 0 ? (
+                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Nothing in the system yet.</td></tr>
+                    ) : trackedItems.map((row, idx) => {
                       const isActed = approvalAction?.id === row.id;
                       const isForm = row.sourceType === "form";
-                      const isActionable = isForm && ["Pending Review", "Under Review"].includes(row.status);
+                      const isActionable = isForm && ["Pending", "Under Review", "For Approval"].includes(row.status);
                       return (
                         <tr
                           key={row.id}
                           style={{
-                            borderBottom: idx < TRACKED_ITEMS.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
+                            borderBottom: idx < trackedItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
                             background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : idx % 2 === 0 ? "#fff" : "#fafafa",
                           }}
                         >
