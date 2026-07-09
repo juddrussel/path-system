@@ -1,11 +1,26 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
+import {
+  FileText, Clock, AlertTriangle, CheckCircle2, XCircle, Users,
+  ChevronRight, TrendingUp, TrendingDown, Activity, Zap, Building2,
+  Bell, Flag, Eye, BarChart3, AlertCircle, Calendar, Layers,
+  TriangleAlert, ShieldAlert, Plus, Send, RotateCcw, UserCheck,
+  ClipboardList, Inbox, MessageSquare, Megaphone, RefreshCw,
+  Filter, Search, CircleCheck, Timer, ArrowUpRight, BookOpen,
+  GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
+  ListTodo, Gauge, PieChart,
+} from "lucide-react";
+import {
+  AreaChart, Area, BarChart, Bar, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart as RPie, Pie, Cell,
+} from "recharts";
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
-// ── SVG Icons ─────────────────────────────────────────────────────────────────
+// ── Sidebar SVG Icons ────────────────────────────────────────────────────────
 const Icon = {
   Grid: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
@@ -86,44 +101,6 @@ const Icon = {
       <path d="M8 1v9M4 7l4 4 4-4M2 13h12" />
     </svg>
   ),
-  Filter: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
-      <path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z" />
-    </svg>
-  ),
-  Eye: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
-      <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
-      <circle cx="8" cy="8" r="2" />
-    </svg>
-  ),
-  Edit: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
-      <path d="M11 2l3 3-8 8H3v-3L11 2z" />
-    </svg>
-  ),
-  Trash: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
-      <path d="M3 5h10M6 5V3h4v2M6 8v4M10 8v4" strokeLinecap="round" />
-    </svg>
-  ),
-  Clock: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="#d97706" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="6" />
-      <path d="M8 4v4l2 2" strokeLinecap="round" />
-    </svg>
-  ),
-  Check: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="1.5" width="14" height="14">
-      <path d="M13 5l-7 7-3-3" strokeLinecap="round" />
-    </svg>
-  ),
-  Alert: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="6" />
-      <path d="M8 5v3M8 10v1" strokeLinecap="round" />
-    </svg>
-  ),
   AssignTask: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
       <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
@@ -133,43 +110,10 @@ const Icon = {
       <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   ),
-  Doc: () => (
-    <svg viewBox="0 0 16 16" fill="#7c3aed" width="14" height="14">
-      <path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" />
-    </svg>
-  ),
   Tracking: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>)
-
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>
+  ),
 };
-
-// ── Badge ─────────────────────────────────────────────────────────────────────
-const badgeStyles = {
-  pending: { background: "#fef3c7", color: "#92400e" },
-  approved: { background: "#d1fae5", color: "#065f46" },
-  reviewing: { background: "#ede9fe", color: "#5b21b6" },
-  draft: { background: "#f3f4f6", color: "#374151" },
-  urgent: { background: "#fee2e2", color: "#991b1b" },
-  high: { background: "#fef3c7", color: "#92400e" },
-  medium: { background: "#ede9fe", color: "#5b21b6" },
-  low: { background: "#d1fae5", color: "#065f46" },
-};
-
-function Badge({ type, label }) {
-  const s = badgeStyles[type?.toLowerCase()] || badgeStyles.draft;
-  return (
-    <span style={{
-      ...s,
-      display: "inline-block",
-      padding: "3px 9px",
-      borderRadius: 20,
-      fontSize: 10,
-      fontWeight: "bold",
-    }}>
-      {label}
-    </span>
-  );
-}
 
 // ── Sidebar Item ──────────────────────────────────────────────────────────────
 function SbItem({ icon, label, active, onClick }) {
@@ -196,54 +140,205 @@ function SbItem({ icon, label, active, onClick }) {
   );
 }
 
+// ─── Sample Data (Program Chair layout) ────────────────────────────────────────
+
+const APPROVAL_QUEUE = [
+  { id: "FRM-2026-041", type: "Leave of Absence",       submittedBy: "Prof. Ana Reyes",      date: "Jun 12, 2026", priority: "Urgent", status: "Pending Review", days: 3 },
+  { id: "FRM-2026-039", type: "Thesis Defense Schedule", submittedBy: "Juan Miguel Reyes",    date: "Jun 11, 2026", priority: "High",   status: "Pending Review", days: 4 },
+  { id: "FRM-2026-037", type: "Overload Request",        submittedBy: "Prof. Carlos Mendoza", date: "Jun 10, 2026", priority: "High",   status: "Pending Review", days: 5 },
+  { id: "FRM-2026-035", type: "Grade Revision Form",     submittedBy: "Patricia Dela Cruz",   date: "Jun 9, 2026",  priority: "Normal", status: "Under Review",   days: 6 },
+  { id: "FRM-2026-033", type: "Curriculum Change",       submittedBy: "Dr. Kenneth Tan",      date: "Jun 8, 2026",  priority: "Normal", status: "Pending Review", days: 7 },
+  { id: "FRM-2026-031", type: "Special Exam Request",    submittedBy: "Marco Santiago",       date: "Jun 7, 2026",  priority: "Low",    status: "Pending Review", days: 8 },
+];
+
+const TASKS = [
+  { id: "TSK-001", name: "Review Q3 Curriculum Proposal",     assignedTo: "Dr. Kenneth Tan",      deadline: "Jun 15", progress: 70,  status: "In Progress", overdue: false },
+  { id: "TSK-002", name: "Prepare Department Report — June",  assignedTo: "Prof. Ana Reyes",       deadline: "Jun 14", progress: 40,  status: "In Progress", overdue: false },
+  { id: "TSK-003", name: "Conduct Faculty Evaluation",        assignedTo: "Self",                  deadline: "Jun 13", progress: 90,  status: "In Progress", overdue: false },
+  { id: "TSK-004", name: "Submit Accreditation Documents",    assignedTo: "Prof. Carlos Mendoza",  deadline: "Jun 10", progress: 20,  status: "Overdue",     overdue: true  },
+  { id: "TSK-005", name: "Review Research Proposals — Batch", assignedTo: "Dr. Luisa Fernandez",  deadline: "Jun 18", progress: 0,   status: "Not Started", overdue: false },
+  { id: "TSK-006", name: "Update Thesis Guidelines",          assignedTo: "Self",                  deadline: "Jun 20", progress: 55,  status: "In Progress", overdue: false },
+];
+
+const FACULTY = [
+  { name: "Dr. Kenneth Tan",       active: 4, completed: 18, pending: 2, rate: 92, avatar: "KT" },
+  { name: "Prof. Ana Reyes",       active: 3, completed: 14, pending: 3, rate: 87, avatar: "AR" },
+  { name: "Prof. Carlos Mendoza",  active: 5, completed: 11, pending: 1, rate: 83, avatar: "CM" },
+  { name: "Dr. Luisa Fernandez",   active: 2, completed: 20, pending: 0, rate: 96, avatar: "LF" },
+  { name: "Ms. Grace Villanueva",  active: 6, completed: 8,  pending: 4, rate: 71, avatar: "GV" },
+  { name: "Mr. Jose Ramos",        active: 1, completed: 15, pending: 1, rate: 89, avatar: "JR" },
+];
+
+const MONTHLY_SUBMISSIONS = [
+  { month: "Jan", submitted: 22, approved: 18, rejected: 2 },
+  { month: "Feb", submitted: 28, approved: 23, rejected: 3 },
+  { month: "Mar", submitted: 31, approved: 26, rejected: 4 },
+  { month: "Apr", submitted: 25, approved: 21, rejected: 2 },
+  { month: "May", submitted: 38, approved: 32, rejected: 4 },
+  { month: "Jun", submitted: 41, approved: 31, rejected: 5 },
+];
+
+const TASK_TREND = [
+  { week: "W1", assigned: 8, completed: 6 },
+  { week: "W2", assigned: 11, completed: 9 },
+  { week: "W3", assigned: 7, completed: 10 },
+  { week: "W4", assigned: 13, completed: 8 },
+  { week: "W5", assigned: 9, completed: 12 },
+  { week: "W6", assigned: 15, completed: 11 },
+];
+
+const PROCESSING_TREND = [
+  { month: "Jan", days: 5.8 },
+  { month: "Feb", days: 5.2 },
+  { month: "Mar", days: 4.9 },
+  { month: "Apr", days: 6.1 },
+  { month: "May", days: 4.5 },
+  { month: "Jun", days: 4.2 },
+];
+
+const APPROVAL_PIE = [
+  { name: "Approved",   value: 31, color: "#059669" },
+  { name: "Rejected",   value: 5,  color: "#dc2626" },
+  { name: "Returned",   value: 4,  color: "#d97706" },
+  { name: "Pending",    value: 6,  color: "#7c3aed" },
+];
+
+const NOTIFICATIONS = [
+  { id: 1,  type: "submission",   text: "New form submitted by Juan Reyes",          sub: "Thesis Defense Schedule — FRM-2026-041", time: "5m ago",  read: false },
+  { id: 2,  type: "completed",    text: "Task completed by Dr. Luisa Fernandez",     sub: "Finalize Elective Subjects List",         time: "22m ago", read: false },
+  { id: 3,  type: "revision",     text: "Revision requested by Records Office",      sub: "FRM-2026-028 — Leave Application",        time: "1h ago",  read: false },
+  { id: 4,  type: "announcement", text: "System Announcement",                       sub: "PATH Maintenance scheduled Jun 15, 10 PM",time: "2h ago",  read: true  },
+  { id: 5,  type: "submission",   text: "New form submitted by Prof. Mendoza",       sub: "Overload Request — FRM-2026-037",         time: "3h ago",  read: true  },
+  { id: 6,  type: "completed",    text: "Approval completed",                        sub: "FRM-2026-029 approved by Dean's Office",  time: "4h ago",  read: true  },
+];
+
+const ALERTS = [
+  { level: "critical", title: "Overdue Approval",     desc: "FRM-2026-031 has been waiting for 8 days. SLA exceeded by 3 days.",    doc: "FRM-2026-031" },
+  { level: "critical", title: "Overdue Task",         desc: "TSK-004 (Accreditation Documents) is 3 days past deadline.",            doc: "TSK-004"      },
+  { level: "high",     title: "High Workload",        desc: "Ms. Grace Villanueva has 6 active tasks. May need rebalancing.",        doc: null           },
+  { level: "high",     title: "Workflow Delay",       desc: "FRM-2026-033 (Curriculum Change) has been stagnant for 7 days.",        doc: "FRM-2026-033" },
+  { level: "moderate", title: "Pending Review",       desc: "5 forms have been pending for more than 5 days without action.",        doc: null           },
+];
+
+const ACTIVITY_FEED = [
+  { id: 1,  time: "9:48 AM",  actor: "You",                   action: "Approved",               target: "FRM-2026-029",                   type: "approved"   },
+  { id: 2,  time: "9:31 AM",  actor: "Juan Miguel Reyes",     action: "Submitted form",          target: "Thesis Defense Schedule",         type: "submitted"  },
+  { id: 3,  time: "9:15 AM",  actor: "Dr. Luisa Fernandez",   action: "Completed task",          target: "Finalize Elective Subjects List", type: "completed"  },
+  { id: 4,  time: "8:52 AM",  actor: "You",                   action: "Assigned task",           target: "TSK-006 → Self",                  type: "assigned"   },
+  { id: 5,  time: "8:40 AM",  actor: "Records Office",        action: "Returned for revision",   target: "FRM-2026-028",                    type: "revision"   },
+  { id: 6,  time: "8:22 AM",  actor: "Prof. Ana Reyes",       action: "Submitted form",          target: "Leave of Absence",                type: "submitted"  },
+  { id: 7,  time: "Yesterday", actor: "You",                  action: "Created workflow",        target: "Q3 Thesis Defense Flow",          type: "workflow"   },
+  { id: 8,  time: "Yesterday", actor: "Ms. Grace Villanueva", action: "Overdue — no update",   target: "TSK-004",                         type: "overdue"    },
+];
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+
+const PRIORITY_CFG = {
+  Urgent: { color: "#dc2626", bg: "#fef2f2", dot: "#ef4444" },
+  High:   { color: "#d97706", bg: "#fffbeb", dot: "#f59e0b" },
+  Normal: { color: "#0284c7", bg: "#e0f2fe", dot: "#38bdf8" },
+  Low:    { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
+};
+
+const STATUS_CFG = {
+  "Pending Review": { color: "#b45309", bg: "#fffbeb", border: "#fde68a" },
+  "Under Review":   { color: "#0369a1", bg: "#f0f9ff", border: "#bae6fd" },
+  "In Progress":    { color: "#5b21b6", bg: "#f5f3ff", border: "#c4b5fd" },
+  "Not Started":    { color: "#6b7280", bg: "#f9fafb", border: "#e5e7eb" },
+  "Overdue":        { color: "#dc2626", bg: "#fef2f2", border: "#fecaca" },
+  "Completed":      { color: "#065f46", bg: "#ecfdf5", border: "#a7f3d0" },
+};
+
+const ACTIVITY_CFG = {
+  approved:  { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2  },
+  submitted: { color: "#7c3aed", bg: "#f5f3ff", icon: FileText      },
+  completed: { color: "#059669", bg: "#ecfdf5", icon: CircleCheck   },
+  assigned:  { color: "#0284c7", bg: "#e0f2fe", icon: UserCheck     },
+  revision:  { color: "#d97706", bg: "#fffbeb", icon: RotateCcw     },
+  workflow:  { color: "#7c3aed", bg: "#ede9fe", icon: Layers        },
+  overdue:   { color: "#dc2626", bg: "#fef2f2", icon: AlertTriangle },
+};
+
+const NOTIF_CFG = {
+  submission:   { color: "#7c3aed", bg: "#f5f3ff", icon: Inbox        },
+  completed:    { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2 },
+  revision:     { color: "#d97706", bg: "#fffbeb", icon: RotateCcw    },
+  announcement: { color: "#0284c7", bg: "#e0f2fe", icon: Megaphone    },
+};
+
+const SEVERITY_CFG = {
+  critical: { color: "#dc2626", bg: "#fef2f2", border: "#fecaca", label: "Critical" },
+  high:     { color: "#d97706", bg: "#fffbeb", border: "#fde68a", label: "High"     },
+  moderate: { color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd", label: "Moderate" },
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function StatusBadge({ s }) {
+  const cfg = STATUS_CFG[s] ?? { color: "#6b7280", bg: "#f3f4f6", border: "#e5e7eb" };
+  return (
+    <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, whiteSpace: "nowrap" }}>
+      {s}
+    </span>
+  );
+}
+
+function PriorityPill({ p }) {
+  const cfg = PRIORITY_CFG[p] ?? PRIORITY_CFG.Normal;
+  return (
+    <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: cfg.bg, color: cfg.color, display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, flexShrink: 0 }} />
+      {p}
+    </span>
+  );
+}
+
+const CustomTip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: "#1e1b4b", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#fff" }}>
+      <p style={{ fontWeight: 700, marginBottom: 4, color: "#c4b5fd" }}>{label}</p>
+      {payload.map((p) => (
+        <p key={p.name} style={{ color: p.color ?? "#fff" }}>{p.name}: <strong>{p.value}</strong></p>
+      ))}
+    </div>
+  );
+};
+
+function SectionCard({ title, subtitle, icon: Icon, children, action, noPad }) {
+  return (
+    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+          <div style={{ width: 29, height: 29, borderRadius: 7, background: "var(--secondary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon style={{ width: 14, height: 14, color: "var(--primary)" }} />
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{title}</p>
+            {subtitle && <p style={{ fontSize: 11, color: "#6b7280" }}>{subtitle}</p>}
+          </div>
+        </div>
+        {action}
+      </div>
+      <div style={{ padding: noPad ? 0 : "14px 18px", flex: 1 }}>{children}</div>
+    </div>
+  );
+}
+
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const user = (() => { try { return JSON.parse(atob(token.split(".")[1])); } catch { return {}; } })();
 
-  const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ department: "", status: "", priority: "", date: "" });
-  const [docs, setDocs] = useState([]);
-  const [stats, setStats] = useState({ total: 0, draft: 0, registered: 0, urgent: 0 });
-  const [pulse, setPulse] = useState([]);
   const [activeNav, setActiveNav] = useState("dashboard");
-  const [loading, setLoading] = useState(true);
-
-  const API = import.meta.env.VITE_API_URL;
+  const [approvalAction, setApprovalAction] = useState(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [taskFilter, setTaskFilter] = useState("All");
 
   useEffect(() => {
-    if (!token) { navigate("/login"); return; }
-    fetchDashboard();
-  }, [filters, search]);
-
-  const fetchDashboard = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ ...filters, q: search }).toString();
-      const res = await fetch(`${API}/api/dashboard?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.status === 401) { navigate("/login"); return; }
-      const data = await res.json();
-      setDocs(data.recent_docs || []);
-      setStats(data.stats || { total: 0, draft: 0, registered: 0, urgent: 0 });
-      setPulse(data.pulse_docs || []);
-    } catch {
-      // keep existing state on error
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id, trackingId) => {
-    if (!window.confirm(`Delete ${trackingId}?`)) return;
-    await fetch(`${API}/api/documents/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    fetchDashboard();
-  };
+    if (!token) { navigate("/login"); }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -252,6 +347,27 @@ export default function Dashboard() {
 
   const displayName = user.username || "User";
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+  const unread = NOTIFICATIONS.filter(n => !n.read).length;
+
+  const filteredTasks = TASKS.filter(t =>
+    taskFilter === "All" ? true :
+    taskFilter === "Overdue" ? t.overdue :
+    t.status === taskFilter
+  );
+
+  const kpis = [
+    { label: "Pending Approvals",        value: "6",    delta: "+2",   up: false, color: "#7c3aed", icon: ClipboardList  },
+    { label: "Active Tasks",             value: "12",   delta: "+3",   up: false, color: "#d97706", icon: ListTodo       },
+    { label: "Documents Under Review",   value: "9",    delta: "-1",   up: true,  color: "#0284c7", icon: Eye            },
+    { label: "Overdue Items",            value: "4",    delta: "+1",   up: false, color: "#dc2626", icon: AlertTriangle  },
+    { label: "Approved This Month",      value: "31",   delta: "+8",   up: true,  color: "#059669", icon: CheckCircle2   },
+    { label: "Active Faculty Members",   value: "6",    delta: "0",    up: true,  color: "#5b21b6", icon: Users          },
+  ];
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
@@ -280,7 +396,7 @@ export default function Dashboard() {
           <SbItem icon={<Icon.Forms />} label="Forms" active={false} onClick={() => navigate("/forms")} />
           <SbItem icon={<Icon.Tracking />} label="Tracking" active={false} onClick={() => navigate("/tracking")} />
           <div style={{ fontSize: 10, color: "rgba(200,196,224,0.4)", letterSpacing: 1, padding: "12px 14px 4px", textTransform: "uppercase" }}>Administration</div>
-          
+
           <SbItem icon={<Icon.Reports />} label="Reports" active={false} onClick={() => { }} />
           {canViewAdminNav && <SbItem icon={<Icon.Workflow />} label="Workflow Designer" active={false} onClick={() => navigate("/workflow-dashboard")} />}
           {canViewAdminNav && <SbItem icon={<Icon.Users />} label="Users & Roles" active={false} onClick={() => navigate("/users")} />}
@@ -307,8 +423,6 @@ export default function Dashboard() {
               <Icon.Search />
               <input
                 type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
                 placeholder="Search tracking #, requester, keyword..."
                 style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%", fontFamily: "'DM Sans', sans-serif" }}
               />
@@ -322,228 +436,524 @@ export default function Dashboard() {
           </div>
         </TopBar>
 
-        {/* Content */}
-        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-          <div style={{ flex: 1, padding: 20, display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", minWidth: 0 }}>
+        {/* ── Content: Program Chair layout ── */}
+        <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto" }}>
 
-            {/* Page Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <h1 style={{ fontSize: 22, fontWeight: "bold", color: "#111" }}>Operational Dashboard</h1>
-                <p style={{ fontSize: 12, color: "#666", marginTop: 3 }}>
-                  Welcome back, <strong>{displayName}</strong>. Here's what's happening today.
-                </p>
-              </div>
-              <button onClick={() => navigate("/documents")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, fontSize: 12, fontWeight: "bold", cursor: "pointer", border: "1px solid #ddd", background: "white", color: "#333" }}>
-                <Icon.Reports /> View All Documents
-              </button>
-            </div>
+          {/* ── Welcome Banner ── */}
+          <div style={{
+            background: "linear-gradient(135deg, #1e1b4b 0%, #3b1fa8 60%, #5b21b6 100%)",
+            padding: "24px 32px",
+            position: "relative",
+            overflow: "hidden",
+          }}>
+            {/* Decorative circles */}
+            <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
+            <div style={{ position: "absolute", bottom: -60, right: 120, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.03)" }} />
 
-            {/* Stat Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-              {[
-                { label: "Total Documents", value: stats.total, delta: "All time", icon: <Icon.Doc />, bg: "#ede9fe" },
-                { label: "Pending / Draft", value: stats.draft, delta: "Awaiting action", icon: <Icon.Clock />, bg: "#fef3c7" },
-                { label: "Registered", value: stats.registered, delta: "Completed intake", icon: <Icon.Check />, bg: "#d1fae5" },
-                { label: "Urgent Items", value: stats.urgent, delta: "High priority", icon: <Icon.Alert />, bg: "#fee2e2" },
-              ].map(({ label, value, delta, icon, bg }) => (
-                <div key={label} style={{ background: "#f8f5ff", borderRadius: 10, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
-                  <div style={{ fontSize: 11, color: "#888", marginBottom: 4 }}>{label}</div>
-                  <div style={{ fontSize: 22, fontWeight: "bold", color: "#111" }}>{loading ? "—" : value}</div>
-                  <div style={{ fontSize: 11, color: "#888", marginTop: 5 }}>{delta}</div>
-                  <div style={{ position: "absolute", right: 14, top: 14, width: 30, height: 30, borderRadius: "50%", background: bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {icon}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+                {/* Avatar */}
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #a78bfa, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>{displayName.slice(0, 2).toUpperCase()}</span>
+                </div>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <Sparkles style={{ width: 14, height: 14, color: "#c4b5fd" }} />
+                    <span style={{ fontSize: 12, color: "#c4b5fd", fontWeight: 500 }}>Good morning</span>
+                  </div>
+                  <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 2 }}>
+                    {displayName}
+                  </h1>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>Program Chair — College of Information Technology</span>
+                    <span style={{ fontSize: 11, color: "#a78bfa", background: "rgba(167,139,250,0.15)", padding: "2px 8px", borderRadius: 20, border: "1px solid rgba(167,139,250,0.3)" }}>
+                      PATH Administrator
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Filters */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <Icon.Filter />
-              <span style={{ fontSize: 12, fontWeight: "bold", color: "#333" }}>Filters</span>
-              {[
-                { key: "department", label: "Department", options: ["All", "Human Resources", "Finance", "Operations", "Legal"] },
-                { key: "status", label: "Status", options: ["All", "Draft", "Registered"] },
-                { key: "priority", label: "Priority", options: ["All", "Low", "Medium", "High", "Urgent"] },
-              ].map(({ key, label, options }) => (
-                <div key={key} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f9f9f9", border: "0.5px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", fontSize: 11, color: "#666" }}>
-                  <span>{label}</span>
-                  <select
-                    value={filters[key]}
-                    onChange={e => setFilters(f => ({ ...f, [key]: e.target.value === "All" ? "" : e.target.value }))}
-                    style={{ border: "none", background: "transparent", fontSize: 11, color: "#333", outline: "none", cursor: "pointer" }}
-                  >
-                    {options.map(o => <option key={o} value={o === "All" ? "" : o}>{o}</option>)}
-                  </select>
-                </div>
-              ))}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#f9f9f9", border: "0.5px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", fontSize: 11, color: "#666" }}>
-                <span>Date</span>
-                <input type="date" value={filters.date} onChange={e => setFilters(f => ({ ...f, date: e.target.value }))} style={{ border: "none", background: "transparent", fontSize: 11, color: "#333", outline: "none", cursor: "pointer" }} />
               </div>
-            </div>
 
-            {/* Recent Documents Table */}
-            <div style={{ background: "white", border: "0.5px solid #e5e7eb", borderRadius: 10, overflow: "hidden" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", borderBottom: "0.5px solid #e5e7eb" }}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: "bold", color: "#111" }}>Recent Documents</div>
-                  <div style={{ fontSize: 11, color: "#888", marginTop: 2 }}>Live tracking of active document workflows</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                {/* Date/time */}
+                <div style={{ textAlign: "right" }}>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Today</p>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{dateStr}</p>
+                  <p style={{ fontSize: 12, color: "#c4b5fd" }}>{timeStr}</p>
                 </div>
-                <button onClick={() => navigate("/documents/new")} style={{ fontSize: 11, padding: "5px 10px", borderRadius: 8, border: "1px solid #ddd", background: "white", cursor: "pointer", fontWeight: "bold" }}>
-                  + New
+
+                {/* Notification bell */}
+                <button
+                  onClick={() => setNotifOpen(v => !v)}
+                  style={{ position: "relative", width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  <Bell style={{ width: 18, height: 18, color: "#fff" }} />
+                  {unread > 0 && (
+                    <span style={{ position: "absolute", top: 7, right: 7, width: 8, height: 8, borderRadius: "50%", background: "#ef4444", border: "2px solid #1e1b4b" }} />
+                  )}
+                </button>
+
+                {/* Quick refresh */}
+                <button style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <RefreshCw style={{ width: 16, height: 16, color: "#c4b5fd" }} />
                 </button>
               </div>
-
-              <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
-                <thead>
-                  <tr>
-                    {["Tracking #", "Subject & Type", "Status", "Priority", "Department", "Actions"].map((h, i) => (
-                      <th key={h} style={{ fontSize: 10, color: "#999", letterSpacing: 0.5, textTransform: "uppercase", padding: "9px 16px", textAlign: "left", borderBottom: "0.5px solid #e5e7eb", background: "#fafafa", width: ["18%", "28%", "13%", "13%", "18%", "10%"][i] }}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan={6} style={{ textAlign: "center", padding: 28, color: "#aaa", fontSize: 12 }}>Loading...</td>
-                    </tr>
-                  ) : docs.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} style={{ textAlign: "center", padding: 28, color: "#aaa", fontSize: 12 }}>
-                        No documents yet.{" "}
-                        <span onClick={() => navigate("/documents/new")} style={{ color: "#7c3aed", fontWeight: "bold", cursor: "pointer" }}>
-                          Create your first intake →
-                        </span>
-                      </td>
-                    </tr>
-                  ) : docs.map(doc => (
-                    <tr key={doc.id} onMouseEnter={e => e.currentTarget.querySelectorAll("td").forEach(td => td.style.background = "#fafafa")} onMouseLeave={e => e.currentTarget.querySelectorAll("td").forEach(td => td.style.background = "")}>
-                      <td style={{ padding: "10px 16px", fontSize: 12, color: "#7c3aed", fontWeight: "bold", borderBottom: "0.5px solid #f0f0f0", cursor: "pointer" }}>
-                        {doc.tracking_id}
-                      </td>
-                      <td style={{ padding: "10px 16px", fontSize: 12, color: "#333", borderBottom: "0.5px solid #f0f0f0" }}>
-                        {(doc.title || "(No title)").slice(0, 30)}
-                        <div style={{ fontSize: 10, color: "#aaa", textTransform: "uppercase", marginTop: 2 }}>{doc.document_type || "–"}</div>
-                      </td>
-                      <td style={{ padding: "10px 16px", borderBottom: "0.5px solid #f0f0f0" }}>
-                        <Badge type={doc.status === "Registered" ? "approved" : "draft"} label={doc.status} />
-                      </td>
-                      <td style={{ padding: "10px 16px", borderBottom: "0.5px solid #f0f0f0" }}>
-                        <Badge type={doc.priority?.toLowerCase()} label={doc.priority} />
-                      </td>
-                      <td style={{ padding: "10px 16px", fontSize: 12, color: "#333", borderBottom: "0.5px solid #f0f0f0" }}>
-                        {doc.department || "–"}
-                      </td>
-                      <td style={{ padding: "10px 16px", borderBottom: "0.5px solid #f0f0f0" }}>
-                        <div style={{ display: "flex", gap: 4 }}>
-                          <ActionBtn color="#059669" title="View" onClick={() => navigate(`/documents/${doc.id}`)}><Icon.Eye /></ActionBtn>
-                          <ActionBtn color="#7c3aed" title="Edit" onClick={() => navigate(`/documents/${doc.id}/edit`)}><Icon.Edit /></ActionBtn>
-                          <ActionBtn danger title="Delete" onClick={() => handleDelete(doc.id, doc.tracking_id)}><Icon.Trash /></ActionBtn>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div style={{ padding: "9px 16px", fontSize: 11, color: "#aaa", borderTop: "0.5px solid #f0f0f0" }}>
-                Showing {docs.length} of {stats.total} document{stats.total !== 1 ? "s" : ""} ·{" "}
-                <span onClick={() => navigate("/documents")} style={{ color: "#7c3aed", cursor: "pointer" }}>View all</span>
-              </div>
             </div>
 
+            {/* KPI strip */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10, marginTop: 20, position: "relative", zIndex: 1 }}>
+              {kpis.map(k => (
+                <div key={k.label} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "12px 14px", backdropFilter: "blur(4px)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 7, background: `${k.color}25`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <k.icon style={{ width: 13, height: 13, color: k.color === "#7c3aed" || k.color === "#5b21b6" ? "#c4b5fd" : k.color === "#059669" ? "#6ee7b7" : k.color === "#0284c7" ? "#7dd3fc" : k.color === "#d97706" ? "#fde68a" : "#fca5a5" }} />
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: k.up ? "#6ee7b7" : k.delta === "0" ? "#c4b5fd" : "#fca5a5", display: "flex", alignItems: "center", gap: 2 }}>
+                      {k.up ? <TrendingUp style={{ width: 10, height: 10 }} /> : k.delta !== "0" ? <TrendingDown style={{ width: 10, height: 10 }} /> : <span>—</span>}
+                      {k.delta}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{k.value}</p>
+                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 3, lineHeight: 1.3 }}>{k.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* ── Live Pulse Panel ── */}
-          <div style={{ width: 200, borderLeft: "0.5px solid #e5e7eb", display: "flex", flexDirection: "column", flexShrink: 0, overflowY: "auto" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 12px", borderBottom: "0.5px solid #e5e7eb", position: "sticky", top: 0, background: "white", zIndex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: "bold", color: "#333" }}>
-                <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e" }} />
-                Live Pulse
+          {/* Notification dropdown */}
+          {notifOpen && (
+            <div style={{ position: "fixed", top: 140, right: 32, width: 360, background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.1)", boxShadow: "0 12px 40px rgba(0,0,0,0.14)", zIndex: 200 }}>
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Notifications</span>
+                  {unread > 0 && <span style={{ fontSize: 11, fontWeight: 700, background: "#7c3aed", color: "#fff", padding: "1px 7px", borderRadius: 20 }}>{unread} new</span>}
+                </div>
+                <button onClick={() => setNotifOpen(false)} style={{ width: 26, height: 26, borderRadius: 6, background: "var(--muted)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <XCircle style={{ width: 13, height: 13, color: "#6b7280" }} />
+                </button>
               </div>
-              <span style={{ fontSize: 9, color: "#059669", background: "#d1fae5", padding: "2px 7px", borderRadius: 20, fontWeight: "bold" }}>
-                Real-Time
-              </span>
-            </div>
-
-            <div style={{ flex: 1 }}>
-              {pulse.length === 0 ? (
-                <div style={{ padding: "16px 12px", fontSize: 11, color: "#aaa", textAlign: "center" }}>No recent activity.</div>
-              ) : pulse.map((doc, i) => {
-                const initials = ((doc.created_by_name || "?")[0] || "?").toUpperCase();
+              {NOTIFICATIONS.map(n => {
+                const cfg = NOTIF_CFG[n.type];
+                const NIcon = cfg.icon;
                 return (
-                  <div key={i} style={{ padding: "9px 12px", borderBottom: "0.5px solid #f0f0f0", cursor: "pointer" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#fafafa"}
-                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
-                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: "bold", flexShrink: 0 }}>
-                        {initials}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 11, fontWeight: "bold", color: "#333" }}>{doc.created_by_name || "Unknown"}</div>
-                        <div style={{ fontSize: 10, color: "#888" }}>{doc.status}</div>
-                      </div>
+                  <div key={n.id} style={{ display: "flex", gap: 10, padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)", background: n.read ? "#fff" : "#faf5ff" }}>
+                    <div style={{ width: 30, height: 30, borderRadius: 8, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <NIcon style={{ width: 13, height: 13, color: cfg.color }} />
                     </div>
-                    <div style={{ fontSize: 10, color: "#7c3aed", marginBottom: 2 }}>{doc.tracking_id}</div>
-                    <div style={{ fontSize: 10, color: "#bbb" }}>{doc.time_ago} ago</div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 12, fontWeight: n.read ? 400 : 600, color: "#111827" }}>{n.text}</p>
+                      <p style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>{n.sub}</p>
+                      <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{n.time}</p>
+                    </div>
+                    {!n.read && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#7c3aed", marginTop: 4, flexShrink: 0 }} />}
                   </div>
                 );
               })}
+              <div style={{ padding: "10px 16px", textAlign: "center" }}>
+                <button style={{ fontSize: 12, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>View All Notifications</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Main grid ── */}
+          <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
+
+            {/* Quick Actions */}
+            <div style={{ display: "flex", gap: 8 }}>
+              {[
+                { label: "Create Task",          icon: Plus,        color: "#7c3aed", bg: "#f5f3ff" },
+                { label: "Assign Task",           icon: UserCheck,   color: "#0284c7", bg: "#e0f2fe" },
+                { label: "View Pending",          icon: ClipboardList,color: "#d97706",bg: "#fffbeb" },
+                { label: "Workflow Monitor",      icon: Gauge,       color: "#059669", bg: "#ecfdf5" },
+                { label: "Generate Report",       icon: BarChart3,   color: "#5b21b6", bg: "#ede9fe" },
+                { label: "Send Announcement",     icon: Megaphone,   color: "#0369a1", bg: "#e0f2fe" },
+              ].map(a => (
+                <button
+                  key={a.label}
+                  style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: "12px 8px", borderRadius: 10, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", cursor: "pointer", transition: "all 0.15s", boxShadow: "0 1px 3px rgba(91,33,182,0.04)" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = a.bg; e.currentTarget.style.borderColor = `${a.color}30`; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
+                >
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: a.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <a.icon style={{ width: 16, height: 16, color: a.color }} />
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#374151", textAlign: "center", lineHeight: 1.3 }}>{a.label}</span>
+                </button>
+              ))}
             </div>
 
-            {canViewAdminNav && (
-              <div onClick={() => navigate("/audit")} style={{ textAlign: "center", padding: 10, fontSize: 11, color: "#7c3aed", borderTop: "0.5px solid #e5e7eb", cursor: "pointer", fontWeight: "bold" }}
-                onMouseEnter={e => e.currentTarget.style.background = "#faf5ff"}
-                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            {/* Row 1: Approval Queue + Alerts */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
+
+              {/* Approval Queue */}
+              <SectionCard
+                title="Approval Queue"
+                subtitle="Forms waiting for your action — ordered by urgency"
+                icon={ClipboardList}
+                noPad
+                action={
+                  <span style={{ fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 20, border: "1px solid #fecaca" }}>
+                    {APPROVAL_QUEUE.length} pending
+                  </span>
+                }
               >
-                View Full Audit Log
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                      {["Form ID", "Form Type", "Submitted By", "Date", "Priority", "Status", "Actions"].map(col => (
+                        <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {APPROVAL_QUEUE.map((row, idx) => {
+                      const isActed = approvalAction?.id === row.id;
+                      return (
+                        <tr
+                          key={row.id}
+                          style={{
+                            borderBottom: idx < APPROVAL_QUEUE.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
+                            background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : idx % 2 === 0 ? "#fff" : "#fafafa",
+                          }}
+                        >
+                          <td style={{ padding: "9px 14px", fontFamily: "monospace", fontWeight: 700, color: "var(--primary)", fontSize: 11 }}>{row.id}</td>
+                          <td style={{ padding: "9px 14px", fontWeight: 500, color: "#111827" }}>{row.type}</td>
+                          <td style={{ padding: "9px 14px", color: "#374151" }}>{row.submittedBy}</td>
+                          <td style={{ padding: "9px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{row.date}</td>
+                          <td style={{ padding: "9px 14px" }}><PriorityPill p={row.priority} /></td>
+                          <td style={{ padding: "9px 14px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                              <StatusBadge s={row.status} />
+                              {row.days >= 5 && <span style={{ fontSize: 10, color: "#dc2626", fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}><AlertTriangle style={{ width: 9, height: 9 }} />{row.days}d</span>}
+                            </div>
+                          </td>
+                          <td style={{ padding: "9px 14px" }}>
+                            {isActed ? (
+                              <span style={{ fontSize: 11, color: "#059669", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                                <CheckCircle2 style={{ width: 12, height: 12 }} />
+                                {approvalAction.action}
+                              </span>
+                            ) : (
+                              <div style={{ display: "flex", gap: 4 }}>
+                                <button onClick={() => setApprovalAction({ id: row.id, action: "Approved" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#ecfdf5", color: "#059669", fontSize: 11, fontWeight: 600, border: "1px solid #a7f3d0", cursor: "pointer" }}>✓ Approve</button>
+                                <button onClick={() => setApprovalAction({ id: row.id, action: "Rejected" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#fef2f2", color: "#dc2626", fontSize: 11, fontWeight: 600, border: "1px solid #fecaca", cursor: "pointer" }}>✕ Reject</button>
+                                <button onClick={() => setApprovalAction({ id: row.id, action: "Returned" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#fffbeb", color: "#d97706", fontSize: 11, fontWeight: 600, border: "1px solid #fde68a", cursor: "pointer" }}>↩ Return</button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </SectionCard>
+
+              {/* Bottleneck & Delay Alerts */}
+              <SectionCard title="Bottleneck & Alerts" subtitle="Items requiring immediate attention" icon={ShieldAlert}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {ALERTS.map((alert, idx) => {
+                    const cfg = SEVERITY_CFG[alert.level];
+                    return (
+                      <div key={idx} style={{ display: "flex", gap: 9, padding: "9px 11px", borderRadius: 9, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                        <div style={{ width: 24, height: 24, borderRadius: 6, background: `${cfg.color}20`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                          <TriangleAlert style={{ width: 11, height: 11, color: cfg.color }} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{alert.title}</span>
+                            <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>{cfg.label.toUpperCase()}</span>
+                          </div>
+                          <p style={{ fontSize: 11, color: "#374151", lineHeight: 1.4 }}>{alert.desc}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+            </div>
+
+            {/* Row 2: Tasks + Activity */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
+
+              {/* Task Overview */}
+              <SectionCard title="Pending Tasks Overview" subtitle="Tasks assigned to you and your faculty" icon={ListTodo}
+                action={
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {["All", "In Progress", "Not Started", "Overdue"].map(f => (
+                      <button key={f} onClick={() => setTaskFilter(f)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: taskFilter === f ? 600 : 400, background: taskFilter === f ? "var(--primary)" : "var(--muted)", color: taskFilter === f ? "#fff" : "#6b7280", border: "none", cursor: "pointer" }}>{f}</button>
+                    ))}
+                  </div>
+                }
+              >
+                {/* Summary chips */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
+                  {[
+                    { label: "Assigned",    value: TASKS.length,                              color: "#7c3aed" },
+                    { label: "In Progress", value: TASKS.filter(t => t.status === "In Progress").length, color: "#0284c7" },
+                    { label: "Completed",   value: TASKS.filter(t => t.status === "Completed").length,  color: "#059669" },
+                    { label: "Overdue",     value: TASKS.filter(t => t.overdue).length,                 color: "#dc2626" },
+                  ].map(s => (
+                    <div key={s.label} style={{ padding: "8px 10px", borderRadius: 8, background: `${s.color}10`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
+                      <p style={{ fontSize: 20, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                      <p style={{ fontSize: 10, color: "#6b7280", marginTop: 2 }}>{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ overflowX: "auto", borderRadius: 8, border: "1px solid rgba(0,0,0,0.07)" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                        {["Task", "Assigned To", "Deadline", "Progress", "Status"].map(col => (
+                          <th key={col} style={{ padding: "8px 12px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTasks.map((task, idx) => (
+                        <tr key={task.id} style={{ borderBottom: idx < filteredTasks.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none", background: task.overdue ? "rgba(220,38,38,0.03)" : "#fff" }}>
+                          <td style={{ padding: "8px 12px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              {task.overdue && <AlertTriangle style={{ width: 11, height: 11, color: "#dc2626", flexShrink: 0 }} />}
+                              <span style={{ fontWeight: 500, color: "#111827" }}>{task.name}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: "8px 12px", color: "#374151", whiteSpace: "nowrap" }}>{task.assignedTo}</td>
+                          <td style={{ padding: "8px 12px", color: task.overdue ? "#dc2626" : "#6b7280", fontWeight: task.overdue ? 700 : 400, whiteSpace: "nowrap" }}>{task.deadline}</td>
+                          <td style={{ padding: "8px 12px", width: 120 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                              <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
+                                <div style={{ height: 5, borderRadius: 3, width: `${task.progress}%`, background: task.overdue ? "#dc2626" : task.progress > 70 ? "#059669" : "#7c3aed", transition: "width 0.3s" }} />
+                              </div>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: "#374151", width: 26, textAlign: "right" }}>{task.progress}%</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: "8px 12px" }}><StatusBadge s={task.status} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </SectionCard>
+
+              {/* Activity Feed */}
+              <SectionCard title="Recent Activity" subtitle="Latest actions in your department" icon={Activity}
+                action={<span style={{ width: 8, height: 8, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 0 3px #a7f3d050", display: "inline-block" }} />}
+              >
+                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                  {ACTIVITY_FEED.map((a, idx) => {
+                    const cfg = ACTIVITY_CFG[a.type];
+                    const AIcon = cfg.icon;
+                    return (
+                      <div key={a.id} style={{ display: "flex", gap: 9, padding: "8px 0", borderBottom: idx < ACTIVITY_FEED.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                        <div style={{ width: 26, height: 26, borderRadius: 6, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <AIcon style={{ width: 12, height: 12, color: cfg.color }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 11, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
+                            <span style={{ color: a.actor === "You" ? "var(--primary)" : "#111827" }}>{a.actor}</span>
+                            {" "}<span style={{ fontWeight: 400, color: "#374151" }}>{a.action}</span>
+                          </p>
+                          <p style={{ fontSize: 10, color: "#6b7280", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.target}</p>
+                        </div>
+                        <span style={{ fontSize: 10, color: "#9ca3af", whiteSpace: "nowrap", marginTop: 1 }}>{a.time}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+            </div>
+
+            {/* Row 3: Faculty + Charts */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+
+              {/* Faculty Performance */}
+              <SectionCard title="Faculty Performance Summary" subtitle="Activity and completion rates across department faculty" icon={Users}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {FACULTY.map((f, idx) => {
+                    const rateColor = f.rate >= 90 ? "#059669" : f.rate >= 80 ? "#d97706" : "#dc2626";
+                    return (
+                      <div key={f.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
+                        {/* Rank */}
+                        <span style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? "#f59e0b" : "#9ca3af", width: 16, flexShrink: 0 }}>
+                          {idx === 0 ? "★" : `#${idx + 1}`}
+                        </span>
+                        {/* Avatar */}
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${idx * 55 + 250}, 60%, 92%)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `2px solid hsl(${idx * 55 + 250}, 50%, 75%)` }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 50%, 35%)` }}>{f.avatar}</span>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{f.name}</p>
+                          <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
+                            <span style={{ fontSize: 10, color: "#6b7280" }}>Active: <strong style={{ color: "#374151" }}>{f.active}</strong></span>
+                            <span style={{ fontSize: 10, color: "#6b7280" }}>Done: <strong style={{ color: "#059669" }}>{f.completed}</strong></span>
+                            <span style={{ fontSize: 10, color: "#6b7280" }}>Pending: <strong style={{ color: "#d97706" }}>{f.pending}</strong></span>
+                          </div>
+                        </div>
+                        {/* Completion rate */}
+                        <div style={{ width: 80, textAlign: "right" }}>
+                          <p style={{ fontSize: 14, fontWeight: 800, color: rateColor, lineHeight: 1 }}>{f.rate}%</p>
+                          <div style={{ height: 4, borderRadius: 2, background: "#f3f4f6", marginTop: 4 }}>
+                            <div style={{ height: 4, borderRadius: 2, background: rateColor, width: `${f.rate}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+
+              {/* Analytics charts */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+                {/* Monthly submissions area */}
+                <SectionCard title="Monthly Form Submissions" subtitle="Jun 2026 — Submitted vs Approved" icon={BarChart3}>
+                  <ResponsiveContainer width="100%" height={130}>
+                    <AreaChart data={MONTHLY_SUBMISSIONS} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="gSub" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="gApp" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#059669" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                      <Tooltip content={<CustomTip />} />
+                      <Area type="monotone" dataKey="submitted" stroke="#7c3aed" strokeWidth={2} fill="url(#gSub)" name="Submitted" />
+                      <Area type="monotone" dataKey="approved"  stroke="#059669" strokeWidth={2} fill="url(#gApp)"  name="Approved"  />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </SectionCard>
+
+                {/* Approval pie + task trend */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <SectionCard title="Approval Rate" icon={PieChart} subtitle="This month">
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <ResponsiveContainer width={90} height={90}>
+                        <RPie>
+                          <Pie data={APPROVAL_PIE} cx="50%" cy="50%" innerRadius={26} outerRadius={42} paddingAngle={2} dataKey="value">
+                            {APPROVAL_PIE.map((e, i) => <Cell key={i} fill={e.color} />)}
+                          </Pie>
+                        </RPie>
+                      </ResponsiveContainer>
+                      <div style={{ flex: 1 }}>
+                        {APPROVAL_PIE.map(d => (
+                          <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
+                            <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
+                            <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>{d.name}</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{d.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </SectionCard>
+
+                  <SectionCard title="Task Completion" icon={TrendingUp} subtitle="6-week trend">
+                    <ResponsiveContainer width="100%" height={90}>
+                      <LineChart data={TASK_TREND} margin={{ top: 4, right: 8, left: -28, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+                        <XAxis dataKey="week" tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                        <Tooltip content={<CustomTip />} />
+                        <Line type="monotone" dataKey="assigned"  stroke="#7c3aed" strokeWidth={1.5} dot={false} name="Assigned"  />
+                        <Line type="monotone" dataKey="completed" stroke="#059669" strokeWidth={1.5} dot={false} name="Completed" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </SectionCard>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderTop: "0.5px solid #e5e7eb", fontSize: 10, color: "#aaa", background: "white" }}>
-          <span>© 2026 PATH Document Management System. All rights reserved.</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
-              System Operational
-            </span>
-            <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Privacy Policy</a>
-            <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Terms of Service</a>
-          </div>
-        </div>
+            {/* Row 4: Workflow Snapshot + Dept Overview */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 16 }}>
 
+              {/* Workflow monitoring snapshot */}
+              <SectionCard title="Workflow Monitoring Snapshot" subtitle="Live status of all documents currently in workflow" icon={Gauge}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
+                  {[
+                    { label: "In Workflow",     value: 34, icon: Layers,        color: "#7c3aed" },
+                    { label: "Awaiting Approval",value: 12, icon: Clock,        color: "#d97706" },
+                    { label: "Delayed",          value: 7,  icon: AlertCircle,  color: "#dc2626" },
+                    { label: "Avg. Proc. Time",  value: "4.8d", icon: Timer,    color: "#059669" },
+                  ].map(s => (
+                    <div key={s.label} style={{ padding: "12px", borderRadius: 9, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
+                      <div style={{ width: 28, height: 28, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
+                        <s.icon style={{ width: 14, height: 14, color: s.color }} />
+                      </div>
+                      <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                      <p style={{ fontSize: 10, color: "#6b7280", marginTop: 3 }}>{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={MONTHLY_SUBMISSIONS} margin={{ top: 0, right: 8, left: -22, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTip />} />
+                    <Bar dataKey="submitted" name="Submitted" fill="#7c3aed" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="approved"  name="Approved"  fill="#059669" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="rejected"  name="Rejected"  fill="#dc2626" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </SectionCard>
+
+              {/* Department Overview */}
+              <SectionCard title="Department Overview" subtitle="College of Information Technology" icon={Building2}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {[
+                    { label: "Total Faculty Members",     value: "6",    icon: Users,        color: "#5b21b6" },
+                    { label: "Active Workflows",          value: "11",   icon: Layers,       color: "#7c3aed" },
+                    { label: "Forms Submitted This Month",value: "41",   icon: FileText,     color: "#0284c7" },
+                    { label: "Tasks Completed This Month",value: "27",   icon: CheckCircle2, color: "#059669" },
+                    { label: "Average Approval Time",     value: "4.2d", icon: Timer,        color: "#d97706" },
+                  ].map(s => (
+                    <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 8, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${s.color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <s.icon style={{ width: 15, height: 15, color: s.color }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: 11, color: "#6b7280" }}>{s.label}</p>
+                      </div>
+                      <p style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>{s.value}</p>
+                    </div>
+                  ))}
+
+                  {/* Processing time trend mini */}
+                  <div style={{ marginTop: 4 }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", marginBottom: 6 }}>Processing Time Trend</p>
+                    <ResponsiveContainer width="100%" height={60}>
+                      <LineChart data={PROCESSING_TREND} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
+                        <Line type="monotone" dataKey="days" stroke="#7c3aed" strokeWidth={2} dot={{ fill: "#7c3aed", r: 3 }} name="Avg Days" />
+                        <Tooltip content={<CustomTip />} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
+
+          </div>
+
+          {/* Footer */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderTop: "0.5px solid #e5e7eb", fontSize: 10, color: "#aaa", background: "white" }}>
+            <span>© 2026 PATH Document Management System. All rights reserved.</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
+                System Operational
+              </span>
+              <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Privacy Policy</a>
+              <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Terms of Service</a>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
-  );
-}
-
-// ── Small reusable action button ──────────────────────────────────────────────
-function ActionBtn({ children, onClick, title, color, danger }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        width: 26, height: 26, borderRadius: 6,
-        border: `0.5px solid ${hov && danger ? "#fca5a5" : hov && color ? "#c4b5fd" : "#e5e7eb"}`,
-        background: hov && danger ? "#fee2e2" : hov && color ? "#ede9fe" : "white",
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        cursor: "pointer", color: danger ? (hov ? "#dc2626" : "#666") : color || "#666",
-        padding: 0,
-      }}
-    >
-      {children}
-    </button>
   );
 }
