@@ -146,15 +146,6 @@ function SbItem({ icon, label, active, onClick }) {
 // it fetches real tasks, forms, and documents from the API (see fetchTrackedItems
 // below). The arrays below still power the charts and the Task Overview widget.
 
-const FACULTY = [
-  { name: "Dr. Kenneth Tan",       active: 4, completed: 18, pending: 2, rate: 92, avatar: "KT" },
-  { name: "Prof. Ana Reyes",       active: 3, completed: 14, pending: 3, rate: 87, avatar: "AR" },
-  { name: "Prof. Carlos Mendoza",  active: 5, completed: 11, pending: 1, rate: 83, avatar: "CM" },
-  { name: "Dr. Luisa Fernandez",   active: 2, completed: 20, pending: 0, rate: 96, avatar: "LF" },
-  { name: "Ms. Grace Villanueva",  active: 6, completed: 8,  pending: 4, rate: 71, avatar: "GV" },
-  { name: "Mr. Jose Ramos",        active: 1, completed: 15, pending: 1, rate: 89, avatar: "JR" },
-];
-
 const MONTHLY_SUBMISSIONS = [
   { month: "Jan", submitted: 22, approved: 18, rejected: 2 },
   { month: "Feb", submitted: 28, approved: 23, rejected: 3 },
@@ -163,6 +154,7 @@ const MONTHLY_SUBMISSIONS = [
   { month: "May", submitted: 38, approved: 32, rejected: 4 },
   { month: "Jun", submitted: 41, approved: 31, rejected: 5 },
 ];
+
 
 const TASK_TREND = [
   { week: "W1", assigned: 8, completed: 6 },
@@ -369,6 +361,30 @@ export default function Dashboard() {
   const [taskPage, setTaskPage] = useState(1);
   const TASK_PAGE_SIZE = 10;
 
+  // ── Live data for the "Faculty Performance Summary" widget ──────────────────
+  const [facultyPerformance, setFacultyPerformance] = useState([]);
+  const [facultyLoading, setFacultyLoading] = useState(true);
+
+  const fetchFacultyPerformance = useCallback(async () => {
+    setFacultyLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API}/api/faculty/performance`, { headers: authH });
+      if (res.ok) {
+        const data = await res.json();
+        const rows = data.faculty ?? data ?? [];
+        setFacultyPerformance(Array.isArray(rows) ? rows : []);
+      } else {
+        setFacultyPerformance([]);
+      }
+    } catch (err) {
+      console.error("Faculty performance fetch error:", err);
+      setFacultyPerformance([]);
+    } finally {
+      setFacultyLoading(false);
+    }
+  }, [token]);
+
   const fetchTrackedItems = useCallback(async () => {
     setItemsLoading(true);
     try {
@@ -490,7 +506,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
     fetchTrackedItems();
-  }, [token, fetchTrackedItems]);
+    fetchFacultyPerformance();
+  }, [token, fetchTrackedItems, fetchFacultyPerformance]);
 
   // Reset to page 1 whenever the tracked list is refreshed/changes size
   useEffect(() => {
@@ -1046,31 +1063,43 @@ export default function Dashboard() {
               {/* Faculty Performance */}
               <SectionCard title="Faculty Performance Summary" subtitle="Activity and completion rates across department faculty" icon={Users}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {FACULTY.map((f, idx) => {
-                    const rateColor = f.rate >= 90 ? "#059669" : f.rate >= 80 ? "#d97706" : "#dc2626";
+                  {facultyLoading ? (
+                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading faculty performance…</p>
+                  ) : facultyPerformance.length === 0 ? (
+                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
+                  ) : facultyPerformance.map((f, idx) => {
+                    const rate = Number(f.performance_score) || 0;
+                    const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
+                    const initials = (f.full_name || "?")
+                      .split(" ")
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .map(w => w[0])
+                      .join("")
+                      .toUpperCase();
                     return (
-                      <div key={f.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
+                      <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
                         {/* Rank */}
                         <span style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? "#f59e0b" : "#9ca3af", width: 16, flexShrink: 0 }}>
                           {idx === 0 ? "★" : `#${idx + 1}`}
                         </span>
                         {/* Avatar */}
                         <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${idx * 55 + 250}, 60%, 92%)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `2px solid hsl(${idx * 55 + 250}, 50%, 75%)` }}>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 50%, 35%)` }}>{f.avatar}</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 50%, 35%)` }}>{initials}</span>
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{f.name}</p>
+                          <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{f.full_name}</p>
                           <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
-                            <span style={{ fontSize: 10, color: "#6b7280" }}>Active: <strong style={{ color: "#374151" }}>{f.active}</strong></span>
-                            <span style={{ fontSize: 10, color: "#6b7280" }}>Done: <strong style={{ color: "#059669" }}>{f.completed}</strong></span>
-                            <span style={{ fontSize: 10, color: "#6b7280" }}>Pending: <strong style={{ color: "#d97706" }}>{f.pending}</strong></span>
+                            <span style={{ fontSize: 10, color: "#6b7280" }}>Active: <strong style={{ color: "#374151" }}>{f.active_count}</strong></span>
+                            <span style={{ fontSize: 10, color: "#6b7280" }}>Done: <strong style={{ color: "#059669" }}>{f.completed_count}</strong></span>
+                            <span style={{ fontSize: 10, color: "#6b7280" }}>Pending: <strong style={{ color: "#d97706" }}>{f.pending_count}</strong></span>
                           </div>
                         </div>
                         {/* Completion rate */}
                         <div style={{ width: 80, textAlign: "right" }}>
-                          <p style={{ fontSize: 14, fontWeight: 800, color: rateColor, lineHeight: 1 }}>{f.rate}%</p>
+                          <p style={{ fontSize: 14, fontWeight: 800, color: rateColor, lineHeight: 1 }}>{rate}%</p>
                           <div style={{ height: 4, borderRadius: 2, background: "#f3f4f6", marginTop: 4 }}>
-                            <div style={{ height: 4, borderRadius: 2, background: rateColor, width: `${f.rate}%` }} />
+                            <div style={{ height: 4, borderRadius: 2, background: rateColor, width: `${rate}%` }} />
                           </div>
                         </div>
                       </div>
