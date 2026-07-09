@@ -146,6 +146,15 @@ function SbItem({ icon, label, active, onClick }) {
 // it fetches real tasks, forms, and documents from the API (see fetchTrackedItems
 // below). The arrays below still power the charts and the Task Overview widget.
 
+const TASKS = [
+  { id: "TSK-001", name: "Review Q3 Curriculum Proposal",     assignedTo: "Dr. Kenneth Tan",      deadline: "Jun 15", progress: 70,  status: "In Progress", overdue: false },
+  { id: "TSK-002", name: "Prepare Department Report — June",  assignedTo: "Prof. Ana Reyes",       deadline: "Jun 14", progress: 40,  status: "In Progress", overdue: false },
+  { id: "TSK-003", name: "Conduct Faculty Evaluation",        assignedTo: "Self",                  deadline: "Jun 13", progress: 90,  status: "In Progress", overdue: false },
+  { id: "TSK-004", name: "Submit Accreditation Documents",    assignedTo: "Prof. Carlos Mendoza",  deadline: "Jun 10", progress: 20,  status: "Overdue",     overdue: true  },
+  { id: "TSK-005", name: "Review Research Proposals — Batch", assignedTo: "Dr. Luisa Fernandez",  deadline: "Jun 18", progress: 0,   status: "Not Started", overdue: false },
+  { id: "TSK-006", name: "Update Thesis Guidelines",          assignedTo: "Self",                  deadline: "Jun 20", progress: 55,  status: "In Progress", overdue: false },
+];
+
 const FACULTY = [
   { name: "Dr. Kenneth Tan",       active: 4, completed: 18, pending: 2, rate: 92, avatar: "KT" },
   { name: "Prof. Ana Reyes",       active: 3, completed: 14, pending: 3, rate: 87, avatar: "AR" },
@@ -358,6 +367,7 @@ export default function Dashboard() {
   const user = (() => { try { return JSON.parse(atob(token.split(".")[1])); } catch { return {}; } })();
 
   const [activeNav, setActiveNav] = useState("dashboard");
+  const [approvalAction, setApprovalAction] = useState(null);
   const [notifOpen, setNotifOpen] = useState(false);
   const [taskFilter, setTaskFilter] = useState("All");
 
@@ -515,27 +525,7 @@ export default function Dashboard() {
 
   const unread = NOTIFICATIONS.filter(n => !n.read).length;
 
-  // Tasks for the "Pending Tasks Overview" widget — pulled from the same
-  // merged trackedItems used by the Document, Form & Task Tracking table
-  // (sourceType === "task"), instead of mock data.
-  const taskItems = trackedItems
-    .filter(t => t.sourceType === "task")
-    .map(t => {
-      const overdue = t.status === "Overdue";
-      const done = ["Approved", "Completed", "Archived"].includes(t.status);
-      const progress = done ? 100 : overdue ? 20 : t.status === "Pending" ? 0 : 50;
-      return {
-        id: t.id,
-        name: t.title,
-        assignedTo: t.person,
-        deadline: t.date,
-        status: t.status,
-        overdue,
-        progress,
-      };
-    });
-
-  const filteredTasks = taskItems.filter(t =>
+  const filteredTasks = TASKS.filter(t =>
     taskFilter === "All" ? true :
     taskFilter === "Overdue" ? t.overdue :
     t.status === taskFilter
@@ -792,6 +782,9 @@ export default function Dashboard() {
                     ) : trackedItems.length === 0 ? (
                       <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Nothing in the system yet.</td></tr>
                     ) : trackedPageItems.map((row, idx) => {
+                      const isActed = approvalAction?.id === row.id;
+                      const isForm = row.sourceType === "form";
+                      const isActionable = isForm && ["Pending", "Under Review", "For Approval"].includes(row.status);
                       return (
                         <tr
                           key={row.id}
@@ -813,9 +806,22 @@ export default function Dashboard() {
                             </div>
                           </td>
                           <td style={{ padding: "9px 14px" }}>
-                            <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f5f3ff", color: "#7c3aed", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                              <Eye style={{ width: 11, height: 11 }} /> View
-                            </button>
+                            {isActed ? (
+                              <span style={{ fontSize: 11, color: "#059669", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                                <CheckCircle2 style={{ width: 12, height: 12 }} />
+                                {approvalAction.action}
+                              </span>
+                            ) : isActionable ? (
+                              <div style={{ display: "flex", gap: 4 }}>
+                                <button onClick={() => setApprovalAction({ id: row.id, action: "Approved" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#ecfdf5", color: "#059669", fontSize: 11, fontWeight: 600, border: "1px solid #a7f3d0", cursor: "pointer" }}>✓ Approve</button>
+                                <button onClick={() => setApprovalAction({ id: row.id, action: "Rejected" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#fef2f2", color: "#dc2626", fontSize: 11, fontWeight: 600, border: "1px solid #fecaca", cursor: "pointer" }}>✕ Reject</button>
+                                <button onClick={() => setApprovalAction({ id: row.id, action: "Returned" })} style={{ padding: "4px 9px", borderRadius: 6, background: "#fffbeb", color: "#d97706", fontSize: 11, fontWeight: 600, border: "1px solid #fde68a", cursor: "pointer" }}>↩ Return</button>
+                              </div>
+                            ) : (
+                              <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f5f3ff", color: "#7c3aed", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                <Eye style={{ width: 11, height: 11 }} /> View
+                              </button>
+                            )}
                           </td>
                         </tr>
                       );
@@ -906,10 +912,10 @@ export default function Dashboard() {
                 {/* Summary chips */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
                   {[
-                    { label: "Assigned",    value: taskItems.length,                                          color: "#7c3aed" },
-                    { label: "In Progress", value: taskItems.filter(t => t.status === "In Progress").length,  color: "#0284c7" },
-                    { label: "Completed",   value: taskItems.filter(t => t.status === "Completed" || t.status === "Approved").length, color: "#059669" },
-                    { label: "Overdue",     value: taskItems.filter(t => t.overdue).length,                    color: "#dc2626" },
+                    { label: "Assigned",    value: TASKS.length,                              color: "#7c3aed" },
+                    { label: "In Progress", value: TASKS.filter(t => t.status === "In Progress").length, color: "#0284c7" },
+                    { label: "Completed",   value: TASKS.filter(t => t.status === "Completed").length,  color: "#059669" },
+                    { label: "Overdue",     value: TASKS.filter(t => t.overdue).length,                 color: "#dc2626" },
                   ].map(s => (
                     <div key={s.label} style={{ padding: "8px 10px", borderRadius: 8, background: `${s.color}10`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
                       <p style={{ fontSize: 20, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
@@ -928,11 +934,7 @@ export default function Dashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {itemsLoading ? (
-                        <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading tasks…</td></tr>
-                      ) : filteredTasks.length === 0 ? (
-                        <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No tasks found.</td></tr>
-                      ) : filteredTasks.map((task, idx) => (
+                      {filteredTasks.map((task, idx) => (
                         <tr key={task.id} style={{ borderBottom: idx < filteredTasks.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none", background: task.overdue ? "rgba(220,38,38,0.03)" : "#fff" }}>
                           <td style={{ padding: "8px 12px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
