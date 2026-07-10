@@ -362,9 +362,22 @@ function FacultyPerformanceRow({ f, idx }) {
   );
 }
 
-// ── Faculty Performance — full list modal ───────────────────────────────────
-function FacultyPerformanceModal({ open, onClose, faculty }) {
+// ── Faculty Performance — full list modal (with Delayed Documents tab) ─────
+function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs, delayedLoading }) {
+  const [tab, setTab] = useState("scores"); // "scores" | "delayed"
   if (!open) return null;
+
+  const tabBtnStyle = (active) => ({
+    background: active ? "#ede9fe" : "none",
+    color: active ? "#7c3aed" : "#6b7280",
+    border: "none",
+    borderRadius: 7,
+    padding: "6px 12px",
+    fontSize: 11,
+    fontWeight: 700,
+    cursor: "pointer",
+  });
+
   return (
     <div
       onClick={onClose}
@@ -372,25 +385,62 @@ function FacultyPerformanceModal({ open, onClose, faculty }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 560, maxHeight: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}
+        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 620, maxHeight: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}
       >
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-          <div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Faculty Performance — Full List</p>
-            <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{faculty.length} faculty member{faculty.length === 1 ? "" : "s"}</p>
+        <div style={{ padding: "16px 20px 0", borderBottom: "1px solid rgba(0,0,0,0.08)", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Faculty Performance</p>
+              <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+                {tab === "scores"
+                  ? `${faculty.length} faculty member${faculty.length === 1 ? "" : "s"}`
+                  : `${delayedDocs.length} delayed document${delayedDocs.length === 1 ? "" : "s"}`}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            >
+              <X style={{ width: 15, height: 15, color: "#374151" }} />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-          >
-            <X style={{ width: 15, height: 15, color: "#374151" }} />
-          </button>
+          <div style={{ display: "flex", gap: 6, padding: "10px 0" }}>
+            <button style={tabBtnStyle(tab === "scores")} onClick={() => setTab("scores")}>Faculty Scores</button>
+            <button style={tabBtnStyle(tab === "delayed")} onClick={() => setTab("delayed")}>
+              Delayed Documents{delayedDocs.length > 0 ? ` (${delayedDocs.length})` : ""}
+            </button>
+          </div>
         </div>
+
         <div style={{ padding: 16, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
-          {faculty.length === 0 ? (
-            <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
+          {tab === "scores" ? (
+            faculty.length === 0 ? (
+              <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
+            ) : (
+              faculty.map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} />)
+            )
+          ) : delayedLoading ? (
+            <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading delayed documents…</p>
+          ) : delayedDocs.length === 0 ? (
+            <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No delayed documents — everyone's on time.</p>
           ) : (
-            faculty.map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} />)
+            delayedDocs.map((d) => (
+              <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fef2f2", border: "1px solid rgba(220,38,38,0.15)" }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{d.title}</p>
+                  <div style={{ display: "flex", gap: 10, marginTop: 2, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 10, color: "#6b7280" }}>By: <strong style={{ color: "#374151" }}>{d.faculty_name}</strong></span>
+                    {d.doc_type && <span style={{ fontSize: 10, color: "#6b7280" }}>Type: <strong style={{ color: "#374151" }}>{d.doc_type}</strong></span>}
+                    <span style={{ fontSize: 10, color: "#6b7280" }}>Deadline: <strong style={{ color: "#374151" }}>{new Date(d.deadline).toLocaleDateString()}</strong></span>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 800, color: "#dc2626", lineHeight: 1 }}>
+                    {d.days_overdue}d late
+                  </p>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
@@ -441,6 +491,28 @@ export default function Dashboard() {
   const [facultyPerformance, setFacultyPerformance] = useState([]);
   const [facultyLoading, setFacultyLoading] = useState(true);
   const [facultyModalOpen, setFacultyModalOpen] = useState(false);
+  const [delayedDocs, setDelayedDocs] = useState([]);
+  const [delayedLoading, setDelayedLoading] = useState(true);
+
+  const fetchDelayedDocuments = useCallback(async () => {
+    setDelayedLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API}/api/faculty/delayed-documents`, { headers: authH });
+      if (res.ok) {
+        const data = await res.json();
+        const rows = data.delayed ?? [];
+        setDelayedDocs(Array.isArray(rows) ? rows : []);
+      } else {
+        setDelayedDocs([]);
+      }
+    } catch (err) {
+      console.error("Delayed documents fetch error:", err);
+      setDelayedDocs([]);
+    } finally {
+      setDelayedLoading(false);
+    }
+  }, [token]);
 
   const fetchFacultyPerformance = useCallback(async () => {
     setFacultyLoading(true);
@@ -584,7 +656,8 @@ export default function Dashboard() {
     if (!token) { navigate("/login"); return; }
     fetchTrackedItems();
     fetchFacultyPerformance();
-  }, [token, fetchTrackedItems, fetchFacultyPerformance]);
+    fetchDelayedDocuments();
+  }, [token, fetchTrackedItems, fetchFacultyPerformance, fetchDelayedDocuments]);
 
   // Reset to page 1 whenever the tracked list is refreshed/changes size
   useEffect(() => {
@@ -1187,6 +1260,8 @@ export default function Dashboard() {
                 open={facultyModalOpen}
                 onClose={() => setFacultyModalOpen(false)}
                 faculty={facultyPerformance}
+                delayedDocs={delayedDocs}
+                delayedLoading={delayedLoading}
               />
 
               {/* Analytics charts */}

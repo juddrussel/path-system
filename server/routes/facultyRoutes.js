@@ -7,7 +7,7 @@
  */
 
 const express = require("express");
-const { recalculateAllScores } = require("../services/facultyScoreService");
+const { recalculateAllScores, getDelayedDocuments } = require("../services/facultyScoreService");
 const { requireAuth, requireRole } = require("../middleware/auth");
 
 module.exports = function facultyRoutes(pool) {
@@ -31,6 +31,19 @@ module.exports = function facultyRoutes(pool) {
     } catch (err) {
       console.error("Faculty performance fetch error:", err);
       res.status(500).json({ error: "Failed to load faculty performance" });
+    }
+  });
+
+  // GET /api/faculty/delayed-documents
+  // Returns the actual overdue tasks, one row per document, with the
+  // responsible faculty member's name attached.
+  router.get("/delayed-documents", requireAuth, async (req, res) => {
+    try {
+      const rows = await getDelayedDocuments(pool);
+      res.json({ delayed: rows });
+    } catch (err) {
+      console.error("Delayed documents fetch error:", err);
+      res.status(500).json({ error: "Failed to load delayed documents" });
     }
   });
 

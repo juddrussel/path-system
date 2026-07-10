@@ -11,15 +11,23 @@
  *                      never count as overdue, only pending/active)
  *
  * Scoring formula (feel free to tune the weights):
- *   base_rate   = completed / (completed + pending)          -> 0–100
- *   overdue_hit = 4 points off per overdue item, capped at 40
- *   score       = clamp(base_rate - overdue_hit, 0, 100)
+ *   Every faculty member starts at 100%.
+ *   - Each item still active/pending (not overdue): −1 point
+ *   - Each item that's overdue:                     −5 points
+ *   score = clamp(100 − (active × 1) − (overdue × 5), 0, 100)
+ *
+ * Completed items don't add points back — they simply don't cost any.
+ * A faculty member with nothing outstanding stays at 100%.
  *
  * "done" statuses: approved, rejected, archived, completed, registered, received
  * (mirrors the `done` logic already used in Dashboard.jsx's fetchTrackedItems)
  */
 
 const DONE_STATUSES = ["approved", "rejected", "archived", "completed", "registered", "received"];
+
+// Tune these to change how harshly outstanding work affects the score.
+const ACTIVE_PENALTY = 1;   // points lost per item still in progress, on time
+const OVERDUE_PENALTY = 5;  // points lost per item past its deadline
 
 /**
  * Builds one UNION ALL query across tasks / form_submissions.
@@ -51,11 +59,39 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
-function computeScore({ completed, pending, overdue }) {
-  const denom = completed + pending;
-  const baseRate = denom > 0 ? (completed / denom) * 100 : 100; // no items yet -> neutral 100
-  const overduePenalty = Math.min(overdue * 4, 40);
-  return Math.round(clamp(baseRate - overduePenalty, 0, 100));
+function computeScore({ active, overdue }) {
+  const score = 100 - (active * ACTIVE_PENALTY) - (overdue * OVERDUE_PENALTY);
+  return Math.round(clamp(score, 0, 100));
+}
+
+/**
+ * Returns the actual list of overdue tasks — one row per delayed document,
+ * with the faculty member's name attached — for a "delayed by faculty" table.
+ * Only tasks have deadlines, so form_submissions are not included here.
+ *
+ * @param {import('mysql2/promise').Pool} pool
+ */
+async function getDelayedDocuments(pool) {
+  const [rows] = await pool.query(
+    `SELECT t.id,
+            t.title,
+            t.doc_type,
+            t.priority,
+            t.deadline,
+            t.status,
+            t.faculty_id,
+            u.full_name AS faculty_name,
+            DATEDIFF(CURDATE(), t.deadline) AS days_overdue
+       FROM tasks t
+       JOIN users u ON u.id = t.faculty_id
+      WHERE t.deadline IS NOT NULL
+        AND t.deadline < NOW()
+        AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
+        AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
+      ORDER BY t.deadline ASC`,
+    DONE_STATUSES
+  );
+  return rows;
 }
 
 /**
@@ -95,7 +131,7 @@ async function recalculateAllScores(pool, opts = {}) {
     const pending = Number(r.pending_count) || 0;
     const overdue = Number(r.overdue_count) || 0;
     const active = Number(r.active_count) || 0;
-    const score = computeScore({ completed, pending, overdue });
+    const score = computeScore({ active, overdue });
     return { userId: r.user_id, active, completed, pending, overdue, score };
   });
 
@@ -137,4 +173,4 @@ async function recalculateAllScores(pool, opts = {}) {
   return { updated: updates.length, updatedAt: now };
 }
 
-module.exports = { recalculateAllScores, computeScore, DONE_STATUSES };
+module.exports = { recalculateAllScores, computeScore, getDelayedDocuments, DONE_STATUSES };
