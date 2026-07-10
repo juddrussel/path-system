@@ -379,7 +379,16 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
 }
 
 // ── Faculty Performance — individual detail panel ───────────────────────────
-function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs }) {
+const DONE_STATUSES = ["Approved", "Completed", "Archived"];
+
+function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, trackedItems }) {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Reset the expanded category whenever a different faculty member is opened
+  useEffect(() => {
+    setSelectedCategory(null);
+  }, [faculty?.id]);
+
   if (!open || !faculty) return null;
 
   const rate = Number(faculty.performance_score) || 0;
@@ -391,16 +400,48 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs }) {
     .map(w => w[0])
     .join("")
     .toUpperCase();
-  const delayedCount = Array.isArray(delayedDocs)
-    ? delayedDocs.filter(d => d.faculty_name === faculty.full_name).length
-    : 0;
+
+  // Items (documents/tasks/forms) belonging to this faculty member, pulled
+  // from the same merged list that powers the tracking table.
+  const facultyItems = Array.isArray(trackedItems)
+    ? trackedItems.filter(t => t.person === faculty.full_name)
+    : [];
+
+  const facultyDelayedDocs = Array.isArray(delayedDocs)
+    ? delayedDocs.filter(d => d.faculty_name === faculty.full_name)
+    : [];
+
+  const doneItems    = facultyItems.filter(t => DONE_STATUSES.includes(t.status));
+  const pendingItems = facultyItems.filter(t => t.status === "Pending");
+  const delayedItems = facultyItems.filter(t => t.status === "Overdue");
+  // "Active" = everything still moving that isn't done, pending, or overdue
+  // (e.g. Under Review, For Approval, Returned).
+  const activeItems = facultyItems.filter(
+    t => !DONE_STATUSES.includes(t.status) && t.status !== "Pending" && t.status !== "Overdue"
+  );
+
+  const delayedCount = facultyDelayedDocs.length || delayedItems.length;
 
   const stats = [
-    { label: "Active",  value: faculty.active_count ?? 0,    icon: Layers,       color: "#7c3aed" },
-    { label: "Done",    value: faculty.completed_count ?? 0, icon: CheckCircle2, color: "#059669" },
-    { label: "Pending", value: faculty.pending_count ?? 0,   icon: Clock,        color: "#d97706" },
-    { label: "Delayed", value: delayedCount,                 icon: AlertCircle,  color: "#dc2626" },
+    { label: "Active",  value: faculty.active_count ?? activeItems.length,    icon: Layers,       color: "#7c3aed", items: activeItems  },
+    { label: "Done",    value: faculty.completed_count ?? doneItems.length,   icon: CheckCircle2, color: "#059669", items: doneItems    },
+    { label: "Pending", value: faculty.pending_count ?? pendingItems.length,  icon: Clock,        color: "#d97706", items: pendingItems },
+    { label: "Delayed", value: delayedCount,                                  icon: AlertCircle,  color: "#dc2626", items: delayedItems },
   ];
+
+  const activeStat = stats.find(s => s.label === selectedCategory);
+  // Fall back to the faculty's delayed-documents list (richer info) when a
+  // faculty member has delayed docs but no matching "Overdue" tracked item.
+  const listToShow = activeStat
+    ? (activeStat.label === "Delayed" && activeStat.items.length === 0 && facultyDelayedDocs.length > 0
+        ? facultyDelayedDocs.map(d => ({
+            id: d.tracking_id || d.document_id || d.id,
+            title: d.title || d.document_type || "Delayed document",
+            status: "Overdue",
+            date: d.deadline || d.due_date || d.submitted_at || null,
+          }))
+        : activeStat.items)
+    : [];
 
   return (
     <div
@@ -409,10 +450,10 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 440, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
+        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 440, maxHeight: "85vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
       >
         {/* Header */}
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
             {onBack && (
               <button
@@ -438,25 +479,37 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs }) {
           </button>
         </div>
 
-        {/* Stat boxes */}
-        <div style={{ padding: 20 }}>
+        <div style={{ padding: 20, overflowY: "auto" }}>
+          {/* Stat boxes */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 18 }}>
-            {stats.map(s => (
-              <div
-                key={s.label}
-                style={{ padding: "12px 8px", borderRadius: 10, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}
-              >
-                <div style={{ width: 26, height: 26, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
-                  <s.icon style={{ width: 13, height: 13, color: s.color }} />
+            {stats.map(s => {
+              const isSelected = selectedCategory === s.label;
+              return (
+                <div
+                  key={s.label}
+                  onClick={() => setSelectedCategory(isSelected ? null : s.label)}
+                  style={{
+                    padding: "12px 8px",
+                    borderRadius: 10,
+                    background: isSelected ? `${s.color}14` : `${s.color}09`,
+                    border: `1px solid ${isSelected ? s.color : `${s.color}20`}`,
+                    textAlign: "center",
+                    cursor: "pointer",
+                    transition: "background 0.15s, border-color 0.15s",
+                  }}
+                >
+                  <div style={{ width: 26, height: 26, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
+                    <s.icon style={{ width: 13, height: 13, color: s.color }} />
+                  </div>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                  <p style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>{s.label}</p>
                 </div>
-                <p style={{ fontSize: 18, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>{s.label}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Completion rate */}
-          <div>
+          <div style={{ marginBottom: selectedCategory ? 16 : 0 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
               <span style={{ fontSize: 11, color: "#6b7280" }}>Completion Rate</span>
               <span style={{ fontSize: 12, fontWeight: 800, color: rateColor }}>{rate}%</span>
@@ -465,6 +518,63 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs }) {
               <div style={{ height: 6, borderRadius: 3, background: rateColor, width: `${rate}%` }} />
             </div>
           </div>
+
+          {/* Expanded task list for the selected box */}
+          {activeStat && (
+            <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <activeStat.icon style={{ width: 13, height: 13, color: activeStat.color }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{activeStat.label} tasks</span>
+                  <span style={{ fontSize: 10, color: "#9ca3af" }}>({listToShow.length})</span>
+                </div>
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 11, padding: 2 }}
+                >
+                  <X style={{ width: 12, height: 12 }} />
+                </button>
+              </div>
+
+              {listToShow.length === 0 ? (
+                <p style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "14px 0" }}>
+                  No {activeStat.label.toLowerCase()} items found.
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {listToShow.map((item, i) => (
+                    <div
+                      key={item.id || i}
+                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}
+                    >
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: activeStat.color, flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 11.5, fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {item.title || "Untitled item"}
+                        </p>
+                        {item.date && (
+                          <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>{item.date}</p>
+                        )}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 9.5,
+                          fontWeight: 700,
+                          color: activeStat.color,
+                          background: `${activeStat.color}14`,
+                          padding: "2px 7px",
+                          borderRadius: 20,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1340,6 +1450,7 @@ export default function Dashboard() {
                 onBack={facultyModalOpen ? () => setSelectedFaculty(null) : null}
                 faculty={selectedFaculty}
                 delayedDocs={delayedDocs}
+                trackedItems={trackedItems}
               />
 
               {/* Analytics charts */}
