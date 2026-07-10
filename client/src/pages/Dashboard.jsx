@@ -440,17 +440,17 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs }) {
 
         {/* Stat boxes */}
         <div style={{ padding: 20 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 18 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 18 }}>
             {stats.map(s => (
               <div
                 key={s.label}
-                style={{ padding: "14px", borderRadius: 10, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}
+                style={{ padding: "12px 8px", borderRadius: 10, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}
               >
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
-                  <s.icon style={{ width: 15, height: 15, color: s.color }} />
+                <div style={{ width: 26, height: 26, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
+                  <s.icon style={{ width: 13, height: 13, color: s.color }} />
                 </div>
-                <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{s.label}</p>
+                <p style={{ fontSize: 18, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                <p style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>{s.label}</p>
               </div>
             ))}
           </div>
