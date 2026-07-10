@@ -323,7 +323,7 @@ const CustomTip = ({ active, payload, label }) => {
   );
 };
 
-function FacultyPerformanceRow({ f, idx, delayedDocs }) {
+function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
   const rate = Number(f.performance_score) || 0;
   const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
   const initials = (f.full_name || "?")
@@ -337,7 +337,16 @@ function FacultyPerformanceRow({ f, idx, delayedDocs }) {
     ? delayedDocs.filter(d => d.faculty_name === f.full_name).length
     : 0;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
+    <div
+      onClick={(e) => {
+        if (!onClick) return;
+        e.stopPropagation();
+        onClick(f);
+      }}
+      style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)", cursor: onClick ? "pointer" : "default", transition: "background 0.15s, box-shadow 0.15s" }}
+      onMouseEnter={e => { if (onClick) { e.currentTarget.style.background = "#f3f0ff"; e.currentTarget.style.boxShadow = "0 1px 6px rgba(124,58,237,0.12)"; } }}
+      onMouseLeave={e => { if (onClick) { e.currentTarget.style.background = "#fafafa"; e.currentTarget.style.boxShadow = "none"; } }}
+    >
       {/* Rank */}
       <span style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? "#f59e0b" : "#9ca3af", width: 16, flexShrink: 0 }}>
         {idx === 0 ? "★" : `#${idx + 1}`}
@@ -362,12 +371,108 @@ function FacultyPerformanceRow({ f, idx, delayedDocs }) {
           <div style={{ height: 4, borderRadius: 2, background: rateColor, width: `${rate}%` }} />
         </div>
       </div>
+      {onClick && (
+        <ChevronRight style={{ width: 14, height: 14, color: "#c4c4d4", flexShrink: 0 }} />
+      )}
+    </div>
+  );
+}
+
+// ── Faculty Performance — individual detail panel ───────────────────────────
+function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs }) {
+  if (!open || !faculty) return null;
+
+  const rate = Number(faculty.performance_score) || 0;
+  const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
+  const initials = (faculty.full_name || "?")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join("")
+    .toUpperCase();
+  const delayedCount = Array.isArray(delayedDocs)
+    ? delayedDocs.filter(d => d.faculty_name === faculty.full_name).length
+    : 0;
+
+  const stats = [
+    { label: "Active",  value: faculty.active_count ?? 0,    icon: Layers,       color: "#7c3aed" },
+    { label: "Done",    value: faculty.completed_count ?? 0, icon: CheckCircle2, color: "#059669" },
+    { label: "Pending", value: faculty.pending_count ?? 0,   icon: Clock,        color: "#d97706" },
+    { label: "Delayed", value: delayedCount,                 icon: AlertCircle,  color: "#dc2626" },
+  ];
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: 20 }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 440, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
+      >
+        {/* Header */}
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+            {onBack && (
+              <button
+                onClick={onBack}
+                style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+              >
+                <ChevronRight style={{ width: 14, height: 14, color: "#374151", transform: "rotate(180deg)" }} />
+              </button>
+            )}
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ede9fe", border: "2px solid #c4b5fd", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#5b21b6" }}>{initials}</span>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{faculty.full_name}</p>
+              <p style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>Performance breakdown</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+          >
+            <X style={{ width: 15, height: 15, color: "#374151" }} />
+          </button>
+        </div>
+
+        {/* Stat boxes */}
+        <div style={{ padding: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 18 }}>
+            {stats.map(s => (
+              <div
+                key={s.label}
+                style={{ padding: "14px", borderRadius: 10, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}
+              >
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                  <s.icon style={{ width: 15, height: 15, color: s.color }} />
+                </div>
+                <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Completion rate */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+              <span style={{ fontSize: 11, color: "#6b7280" }}>Completion Rate</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: rateColor }}>{rate}%</span>
+            </div>
+            <div style={{ height: 6, borderRadius: 3, background: "#f3f4f6" }}>
+              <div style={{ height: 6, borderRadius: 3, background: rateColor, width: `${rate}%` }} />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 // ── Faculty Performance — full list modal ──────────────────────────────────
-function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs }) {
+function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs, onSelectFaculty }) {
   if (!open) return null;
 
   return (
@@ -400,7 +505,9 @@ function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs }) {
           {faculty.length === 0 ? (
             <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
           ) : (
-            faculty.map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} />)
+            faculty.map((f, idx) => (
+              <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={onSelectFaculty} />
+            ))
           )}
         </div>
       </div>
@@ -451,6 +558,7 @@ export default function Dashboard() {
   const [facultyPerformance, setFacultyPerformance] = useState([]);
   const [facultyLoading, setFacultyLoading] = useState(true);
   const [facultyModalOpen, setFacultyModalOpen] = useState(false);
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [delayedDocs, setDelayedDocs] = useState([]);
   const [delayedLoading, setDelayedLoading] = useState(true);
 
@@ -1211,7 +1319,9 @@ export default function Dashboard() {
                   ) : facultyPerformance.length === 0 ? (
                     <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
                   ) : (
-                    facultyPerformance.slice(0, 4).map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} />)
+                    facultyPerformance.slice(0, 4).map((f, idx) => (
+                      <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />
+                    ))
                   )}
                 </div>
               </SectionCard>
@@ -1220,6 +1330,15 @@ export default function Dashboard() {
                 open={facultyModalOpen}
                 onClose={() => setFacultyModalOpen(false)}
                 faculty={facultyPerformance}
+                delayedDocs={delayedDocs}
+                onSelectFaculty={setSelectedFaculty}
+              />
+
+              <FacultyDetailPanel
+                open={!!selectedFaculty}
+                onClose={() => setSelectedFaculty(null)}
+                onBack={facultyModalOpen ? () => setSelectedFaculty(null) : null}
+                faculty={selectedFaculty}
                 delayedDocs={delayedDocs}
               />
 
