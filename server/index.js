@@ -27,6 +27,9 @@ const { router: auditRoutes } = require("./routes/audit.routes");
 const { router: taskRoutes, setupTypingEvents } = require("./routes/task.routes");
 const formRoutes = require("./routes/form.routes");
 const workflowRoutes = require("./routes/workflow.routes");
+const facultyRoutes = require("./routes/facultyRoutes");
+const startScoreCron = require("./jobs/scoreCron");
+const { recalculateAllScores } = require("./services/facultyScoreService");
 const db = require("./config/db");
 const jwt = require("jsonwebtoken");
 
@@ -117,6 +120,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/forms", formRoutes);
 app.use("/api/workflows", workflowRoutes);
+app.use("/api/faculty", facultyRoutes(db));
 
 // ── Catch unmatched routes ──
 app.use((req, res) => {
@@ -260,6 +264,12 @@ io.on("connection", (socket) => {
 
 // ── Typing indicators for task discussions ────────────────────────────────────
 setupTypingEvents(io);
+
+// ── Faculty performance scoring: seed once at boot, then nightly via cron ──────
+startScoreCron(db);
+recalculateAllScores(db, { keepHistory: false })
+  .then((result) => console.log("[facultyScore] Initial score seed complete:", result))
+  .catch((err) => console.error("[facultyScore] Initial score seed failed:", err));
 
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
