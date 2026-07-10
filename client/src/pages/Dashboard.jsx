@@ -1299,11 +1299,11 @@ export default function Dashboard() {
                 title="Faculty Performance Summary"
                 subtitle="Activity and completion rates across department faculty"
                 icon={Users}
-                action={
+                footer={
                   facultyPerformance.length > 4 && (
                     <button
                       onClick={() => setFacultyModalOpen(true)}
-                      style={{ background: "none", border: "none", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 2 }}
+                      style={{ width: "100%", background: "none", border: "none", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 0" }}
                     >
                       View all <ChevronRight style={{ width: 12, height: 12 }} />
                     </button>
