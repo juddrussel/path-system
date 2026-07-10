@@ -853,7 +853,7 @@ export default function Dashboard() {
     navigate("/login");
   };
 
-  const displayName = user.username || "User";
+  const displayName = user.full_name || user.fullName || user.name || user.username || "User";
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
   const now = new Date();
