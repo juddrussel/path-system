@@ -290,42 +290,94 @@ router.patch("/:id", requireAuth, async (req, res) => {
 });
 
 // ─── DELETE /api/users/:id ────────────────────────────────────────────────────
-// NOTE: this is a SOFT delete, not a real row deletion. Users have FK-referenced
-// history (task_comments.sender_id, and very likely tasks/workflow tables too) —
-// actually deleting the row throws FK constraint errors and destroys that history.
-// Instead we deactivate the account: is_active = 0. Deactivated users are excluded
-// from login/active lists but everything they authored (comments, tasks, etc.)
-// stays intact and correctly attributed.
+// PERMANENT delete. Requires a `mode` in the request body:
+//   - "preserve": content this user OWNS is deleted (their comments, their
+//     submissions, their tasks). Content they merely ACTED ON but belongs to
+//     someone else (a submission they reviewed, a task they assigned, a
+//     message addressed to them) is kept — the reference is set to NULL.
+//   - "cascade": same as above, but content they acted on is deleted too,
+//     even though it may belong to a different user. Use with caution.
+//
+// Requires the migration in migration_allow_null_for_user_delete.sql to have
+// been run first (reviewed_by / receiver_id / assigned_by columns need to
+// allow NULL for "preserve" mode).
 router.delete("/:id", requireAuth, requireAdminOrChair, async (req, res) => {
   const { id } = req.params;
+  const { mode } = req.body || {};
+
   if (parseInt(id) === req.user.id) {
     return res.status(400).json({ message: "You cannot delete your own account." });
   }
-  try {
-    const [rows] = await db.query("SELECT full_name, username, is_active FROM users WHERE id = ?", [id]);
-    if (rows.length === 0) return res.status(404).json({ message: "User not found." });
+  if (mode !== "cascade" && mode !== "preserve") {
+    return res.status(400).json({ message: "mode must be 'cascade' or 'preserve'." });
+  }
 
+  let conn;
+  try {
+    const [rows] = await db.query("SELECT full_name, username FROM users WHERE id = ?", [id]);
+    if (rows.length === 0) return res.status(404).json({ message: "User not found." });
     const target = rows[0];
-    if (target.is_active === 0) {
-      return res.status(400).json({ message: "User is already deactivated." });
+
+    conn = await db.getConnection();
+    await conn.beginTransaction();
+
+    // ── 1. Content this user OWNS — deleted in both modes ──────────────────
+    await conn.query("DELETE FROM document_comments WHERE sender_id = ?", [id]);
+    await conn.query("DELETE FROM faculty_score_history WHERE user_id = ?", [id]);
+    await conn.query("DELETE FROM form_submissions WHERE submitted_by = ?", [id]);
+    await conn.query("DELETE FROM form_templates WHERE created_by = ?", [id]);
+    await conn.query("DELETE FROM messages WHERE sender_id = ?", [id]);
+    await conn.query("DELETE FROM task_comments WHERE sender_id = ?", [id]);
+    await conn.query("DELETE FROM task_assignments WHERE assigned_to = ?", [id]);
+
+    // Tasks this user owns (faculty_id) — their comments must go first,
+    // or deleting the task itself will fail with the same FK error.
+    const [ownedTasks] = await conn.query("SELECT id FROM tasks WHERE faculty_id = ?", [id]);
+    if (ownedTasks.length > 0) {
+      const ownedIds = ownedTasks.map(t => t.id);
+      await conn.query("DELETE FROM task_comments WHERE task_id IN (?)", [ownedIds]);
+      await conn.query("DELETE FROM tasks WHERE faculty_id = ?", [id]);
     }
 
-    await db.query(
-      "UPDATE users SET is_active = 0, updated_at = NOW() WHERE id = ?",
-      [id]
-    );
+    // ── 2. Content this user only ACTED ON — mode dependent ────────────────
+    if (mode === "cascade") {
+      await conn.query("DELETE FROM form_submissions WHERE reviewed_by = ?", [id]);
+      await conn.query("DELETE FROM messages WHERE receiver_id = ?", [id]);
+      await conn.query("DELETE FROM task_assignments WHERE assigned_by = ?", [id]);
+
+      const [assignedTasks] = await conn.query("SELECT id FROM tasks WHERE assigned_by = ?", [id]);
+      if (assignedTasks.length > 0) {
+        const assignedIds = assignedTasks.map(t => t.id);
+        await conn.query("DELETE FROM task_comments WHERE task_id IN (?)", [assignedIds]);
+        await conn.query("DELETE FROM tasks WHERE assigned_by = ?", [id]);
+      }
+    } else {
+      // preserve — clear the reference, keep the other user's record intact
+      await conn.query("UPDATE form_submissions SET reviewed_by = NULL WHERE reviewed_by = ?", [id]);
+      await conn.query("UPDATE messages SET receiver_id = NULL WHERE receiver_id = ?", [id]);
+      await conn.query("UPDATE task_assignments SET assigned_by = NULL WHERE assigned_by = ?", [id]);
+      await conn.query("UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?", [id]);
+    }
+
+    // ── 3. Finally, the user row itself ─────────────────────────────────────
+    await conn.query("DELETE FROM users WHERE id = ?", [id]);
+
+    await conn.commit();
 
     await writeLog({
       userId: req.user.id,
-      action: "USER_DEACTIVATE",
-      detail: `Admin deactivated user account: ${target.full_name} (@${target.username}, ID: ${id})`,
+      action: "USER_DELETE",
+      detail: `Admin permanently deleted user account: ${target.full_name} (@${target.username}, ID: ${id}) — mode: ${mode}`,
       ipAddress: req.ip,
     });
 
-    return res.json({ message: "User deactivated." });
+    return res.json({ message: "User permanently deleted." });
   } catch (err) {
+    if (conn) { try { await conn.rollback(); } catch { } }
     console.error("DELETE /users/:id error:", err);
     return res.status(500).json({ message: err.message || "Internal server error." });
+  } finally {
+    if (conn) conn.release();
   }
 });
 

@@ -382,6 +382,82 @@ const Icon = {
 };
 
 // ─── USER DETAIL PANEL ────────────────────────────────────────────────────────
+// ─── DELETE USER MODAL ─────────────────────────────────────────────────────────
+function DeleteUserModal({ user, onClose, onConfirm }) {
+  const [mode, setMode] = useState("preserve");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!user) return null;
+
+  async function handleConfirm() {
+    setLoading(true);
+    setError("");
+    try {
+      await onConfirm(mode);
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      onClick={e => e.target === e.currentTarget && !loading && onClose()}
+    >
+      <div className="w-[480px] bg-white rounded-xl p-6 shadow-2xl">
+        <div className="flex gap-3 items-start mb-4">
+          <div className="w-9 h-9 bg-red-100 rounded-lg flex items-center justify-center text-red-600 shrink-0">
+            <TrashIcon />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-gray-900">Permanently Delete {user.name}?</h2>
+            <p className="text-xs text-gray-400 mt-0.5">This cannot be undone. Choose how to handle content this user was involved in.</p>
+          </div>
+        </div>
+
+        {error && <div className="bg-red-50 text-red-700 text-xs px-3 py-2 rounded-lg mb-4 border border-red-100">{error}</div>}
+
+        <div className="space-y-2.5 mb-5">
+          <label className={`flex gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${mode === "preserve" ? "border-violet-300 bg-violet-50/60" : "border-gray-200 hover:bg-gray-50"}`}>
+            <input type="radio" name="delete-mode" checked={mode === "preserve"} onChange={() => setMode("preserve")} className="mt-0.5" />
+            <div>
+              <div className="text-xs font-bold text-gray-800">Preserve others' content <span className="text-violet-500 font-semibold">(recommended)</span></div>
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                Comments, submissions, and tasks this user owns are deleted. If they only reviewed, assigned,
+                or received something belonging to someone else, that record stays — just shown as "Unknown user."
+              </p>
+            </div>
+          </label>
+
+          <label className={`flex gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${mode === "cascade" ? "border-red-300 bg-red-50/60" : "border-gray-200 hover:bg-gray-50"}`}>
+            <input type="radio" name="delete-mode" checked={mode === "cascade"} onChange={() => setMode("cascade")} className="mt-0.5" />
+            <div>
+              <div className="text-xs font-bold text-gray-800">Delete everything, including others' content</div>
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                Also deletes form submissions this user reviewed, tasks they assigned, and messages they received —
+                even though that content may belong to other users.
+              </p>
+            </div>
+          </label>
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <button onClick={onClose} disabled={loading} className="px-4 py-2 rounded-lg text-xs font-bold text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-50">
+            Cancel
+          </button>
+          <button onClick={handleConfirm} disabled={loading} className="px-4 py-2 rounded-lg text-xs font-bold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+            {loading ? "Deleting…" : "Permanently Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
   if (!user) return null;
   const [bg, fg] = avatarColor(`${user.first_name}${user.last_name}`);
@@ -467,6 +543,7 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editUser, setEditUser] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { id, name } — controls DeleteUserModal
   const [toast, setToast] = useState({ msg: "", type: "" });
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -519,16 +596,16 @@ export default function UserManagement() {
   }, []);
 
   // ── User actions ────────────────────────────────────────────────────────────
-  async function handleDelete(userId, name) {
-    if (!window.confirm(`Remove ${name}? This cannot be undone.`)) return;
-    try {
-      await apiFetch(`/users/${userId}`, { method: "DELETE" });
-      await logAction("USER_DELETE", `Admin deleted user account: ${name} (ID: ${userId})`);
-      setUsers(u => u.filter(x => x.id !== userId));
-      setStats(s => ({ ...s, total: (s.total ?? 1) - 1 }));
-      if (selectedUser?.id === userId) setSelectedUser(null);
-      notify(`${name} has been removed.`);
-    } catch (err) { notify(err.message, "error"); }
+  // Called from DeleteUserModal after the user picks a mode and confirms.
+  // Intentionally does NOT catch errors — the modal awaits this and shows
+  // its own inline error message on failure, so it stays open to retry.
+  async function handleDelete(userId, name, mode) {
+    await apiFetch(`/users/${userId}`, { method: "DELETE", body: JSON.stringify({ mode }) });
+    await logAction("USER_DELETE", `Admin permanently deleted user account: ${name} (ID: ${userId}, mode: ${mode})`);
+    setUsers(u => u.filter(x => x.id !== userId));
+    setStats(s => ({ ...s, total: (s.total ?? 1) - 1 }));
+    if (selectedUser?.id === userId) setSelectedUser(null);
+    notify(`${name} has been permanently deleted.`);
   }
 
   async function handleApprove(userId) {
@@ -813,7 +890,7 @@ export default function UserManagement() {
                                 )}
                                 {u.id !== currentUserId ? (
                                   <button
-                                    onClick={() => handleDelete(u.id, `${u.first_name} ${u.last_name}`)}
+                                    onClick={() => setDeleteTarget({ id: u.id, name: `${u.first_name} ${u.last_name}` })}
                                     className="w-6 h-6 rounded-md border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
                                     title="Remove user"
                                   >
@@ -1015,9 +1092,17 @@ export default function UserManagement() {
         <UserDetailPanel
           user={selectedUser}
           onClose={() => setSelectedUser(null)}
-          onDelete={handleDelete}
+          onDelete={(id, name) => setDeleteTarget({ id, name })}
           currentUserId={currentUserId}
           fmtDate={fmtDate}
+        />
+      )}
+
+      {deleteTarget && (
+        <DeleteUserModal
+          user={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={(mode) => handleDelete(deleteTarget.id, deleteTarget.name, mode)}
         />
       )}
     </div>
