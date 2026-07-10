@@ -240,7 +240,6 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 // ─── PATCH /api/users/:id — update profile ───────────────────────────────────
-// ─── PATCH /api/users/:id — update profile ───────────────────────────────────
 router.patch("/:id", requireAuth, async (req, res) => {
   const { id } = req.params;
 
@@ -289,26 +288,45 @@ router.patch("/:id", requireAuth, async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 });
+
 // ─── DELETE /api/users/:id ────────────────────────────────────────────────────
+// NOTE: this is a SOFT delete, not a real row deletion. Users have FK-referenced
+// history (task_comments.sender_id, and very likely tasks/workflow tables too) —
+// actually deleting the row throws FK constraint errors and destroys that history.
+// Instead we deactivate the account: is_active = 0. Deactivated users are excluded
+// from login/active lists but everything they authored (comments, tasks, etc.)
+// stays intact and correctly attributed.
 router.delete("/:id", requireAuth, requireAdminOrChair, async (req, res) => {
   const { id } = req.params;
   if (parseInt(id) === req.user.id) {
     return res.status(400).json({ message: "You cannot delete your own account." });
   }
   try {
-    const [rows] = await db.query("SELECT id FROM users WHERE id = ?", [id]);
+    const [rows] = await db.query("SELECT full_name, username, is_active FROM users WHERE id = ?", [id]);
     if (rows.length === 0) return res.status(404).json({ message: "User not found." });
 
-    const [[toDelete]] = await db.query("SELECT full_name, username FROM users WHERE id = ?", [id]);
-    try { await db.query("UPDATE audit_log SET user_id = NULL WHERE user_id = ?", [id]); } catch { }
-    try { await db.query("DELETE FROM messages WHERE sender_id = ? OR receiver_id = ?", [id, id]); } catch { }
-    await db.query("DELETE FROM users WHERE id = ?", [id]);
-    await writeLog({ userId: req.user.id, action: "USER_DELETE", detail: `Admin deleted user account: ${toDelete?.full_name} (ID: ${id})`, ipAddress: req.ip });
-    return res.json({ message: "User deleted." });
+    const target = rows[0];
+    if (target.is_active === 0) {
+      return res.status(400).json({ message: "User is already deactivated." });
+    }
+
+    await db.query(
+      "UPDATE users SET is_active = 0, updated_at = NOW() WHERE id = ?",
+      [id]
+    );
+
+    await writeLog({
+      userId: req.user.id,
+      action: "USER_DEACTIVATE",
+      detail: `Admin deactivated user account: ${target.full_name} (@${target.username}, ID: ${id})`,
+      ipAddress: req.ip,
+    });
+
+    return res.json({ message: "User deactivated." });
   } catch (err) {
     console.error("DELETE /users/:id error:", err);
     return res.status(500).json({ message: err.message || "Internal server error." });
   }
 });
 
-module.exports = router;  
+module.exports = router;
