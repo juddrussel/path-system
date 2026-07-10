@@ -1300,7 +1300,7 @@ export default function Dashboard() {
                 subtitle="Activity and completion rates across department faculty"
                 icon={Users}
                 footer={
-                  facultyPerformance.length > 4 && (
+                  facultyPerformance.length > 0 && (
                     <button
                       onClick={() => setFacultyModalOpen(true)}
                       style={{ width: "100%", background: "none", border: "none", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 0" }}
