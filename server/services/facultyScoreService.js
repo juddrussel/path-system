@@ -27,19 +27,23 @@ const DONE_STATUSES = ["approved", "rejected", "archived", "completed", "registe
  */
 function buildSourceQuery() {
   return `
-    SELECT faculty_id AS user_id,
-           LOWER(status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
-           (deadline IS NOT NULL AND deadline < NOW() AND LOWER(status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})) AS is_overdue
-      FROM tasks
-     WHERE faculty_id IS NOT NULL
+    SELECT t.faculty_id AS user_id,
+           LOWER(t.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
+           (t.deadline IS NOT NULL AND t.deadline < NOW() AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})) AS is_overdue
+      FROM tasks t
+      JOIN users u ON u.id = t.faculty_id
+     WHERE t.faculty_id IS NOT NULL
+       AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
 
     UNION ALL
 
-    SELECT submitted_by AS user_id,
-           LOWER(status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
+    SELECT fs.submitted_by AS user_id,
+           LOWER(fs.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
            FALSE AS is_overdue
-      FROM form_submissions
-     WHERE submitted_by IS NOT NULL
+      FROM form_submissions fs
+      JOIN users u ON u.id = fs.submitted_by
+     WHERE fs.submitted_by IS NOT NULL
+       AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
   `;
 }
 

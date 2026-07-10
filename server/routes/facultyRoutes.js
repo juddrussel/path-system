@@ -23,6 +23,8 @@ module.exports = function facultyRoutes(pool) {
                 overdue_count, performance_score, score_updated_at
            FROM users
           WHERE role = 'faculty'
+            AND status = 'approved'
+            AND is_active = 1
           ORDER BY performance_score DESC`
       );
       res.json({ faculty: rows });
