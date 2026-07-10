@@ -855,6 +855,11 @@ export default function Dashboard() {
 
   const displayName = user.full_name || user.fullName || user.name || user.username || "User";
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
+  const displayRole = (user.role || "")
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map(w => w[0].toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ") || "User";
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
@@ -1003,7 +1008,7 @@ export default function Dashboard() {
                     {displayName}
                   </h1>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>Program Chair — College of Information Technology</span>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{displayRole} — Bachelor of Science in Information Systems, College of Information Technology</span>
                     <span style={{ fontSize: 11, color: "#a78bfa", background: "rgba(167,139,250,0.15)", padding: "2px 8px", borderRadius: 20, border: "1px solid rgba(167,139,250,0.3)" }}>
                       PATH Administrator
                     </span>
