@@ -323,7 +323,7 @@ const CustomTip = ({ active, payload, label }) => {
   );
 };
 
-function FacultyPerformanceRow({ f, idx }) {
+function FacultyPerformanceRow({ f, idx, delayedDocs }) {
   const rate = Number(f.performance_score) || 0;
   const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
   const initials = (f.full_name || "?")
@@ -333,6 +333,9 @@ function FacultyPerformanceRow({ f, idx }) {
     .map(w => w[0])
     .join("")
     .toUpperCase();
+  const delayedCount = Array.isArray(delayedDocs)
+    ? delayedDocs.filter(d => d.faculty_name === f.full_name).length
+    : 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
       {/* Rank */}
@@ -345,10 +348,11 @@ function FacultyPerformanceRow({ f, idx }) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{f.full_name}</p>
-        <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
+        <div style={{ display: "flex", gap: 10, marginTop: 2, flexWrap: "wrap" }}>
           <span style={{ fontSize: 10, color: "#6b7280" }}>Active: <strong style={{ color: "#374151" }}>{f.active_count}</strong></span>
           <span style={{ fontSize: 10, color: "#6b7280" }}>Done: <strong style={{ color: "#059669" }}>{f.completed_count}</strong></span>
           <span style={{ fontSize: 10, color: "#6b7280" }}>Pending: <strong style={{ color: "#d97706" }}>{f.pending_count}</strong></span>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>Delayed: <strong style={{ color: delayedCount > 0 ? "#dc2626" : "#374151" }}>{delayedCount}</strong></span>
         </div>
       </div>
       {/* Completion rate */}
@@ -363,7 +367,7 @@ function FacultyPerformanceRow({ f, idx }) {
 }
 
 // ── Faculty Performance — full list modal ──────────────────────────────────
-function FacultyPerformanceModal({ open, onClose, faculty }) {
+function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs }) {
   if (!open) return null;
 
   return (
@@ -396,7 +400,7 @@ function FacultyPerformanceModal({ open, onClose, faculty }) {
           {faculty.length === 0 ? (
             <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
           ) : (
-            faculty.map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} />)
+            faculty.map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} />)
           )}
         </div>
       </div>
@@ -1207,7 +1211,7 @@ export default function Dashboard() {
                   ) : facultyPerformance.length === 0 ? (
                     <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
                   ) : (
-                    facultyPerformance.slice(0, 4).map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} />)
+                    facultyPerformance.slice(0, 4).map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} />)
                   )}
                 </div>
               </SectionCard>
@@ -1216,6 +1220,7 @@ export default function Dashboard() {
                 open={facultyModalOpen}
                 onClose={() => setFacultyModalOpen(false)}
                 faculty={facultyPerformance}
+                delayedDocs={delayedDocs}
               />
 
               {/* Analytics charts */}
