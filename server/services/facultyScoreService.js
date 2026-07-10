@@ -133,4 +133,4 @@ async function recalculateAllScores(pool, opts = {}) {
   return { updated: updates.length, updatedAt: now };
 }
 
-module.exports = { recalculateAllScores, computeScore, DONE_STATUSES };c
+module.exports = { recalculateAllScores, computeScore, DONE_STATUSES };
