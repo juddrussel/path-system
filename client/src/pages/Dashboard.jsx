@@ -9,7 +9,7 @@ import {
   ClipboardList, Inbox, MessageSquare, Megaphone, RefreshCw,
   Filter, Search, CircleCheck, Timer, ArrowUpRight, BookOpen,
   GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
-  ListTodo, Gauge, PieChart,
+  ListTodo, Gauge, PieChart, X,
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
@@ -323,6 +323,81 @@ const CustomTip = ({ active, payload, label }) => {
   );
 };
 
+function FacultyPerformanceRow({ f, idx }) {
+  const rate = Number(f.performance_score) || 0;
+  const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
+  const initials = (f.full_name || "?")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join("")
+    .toUpperCase();
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
+      {/* Rank */}
+      <span style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? "#f59e0b" : "#9ca3af", width: 16, flexShrink: 0 }}>
+        {idx === 0 ? "★" : `#${idx + 1}`}
+      </span>
+      {/* Avatar */}
+      <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${idx * 55 + 250}, 60%, 92%)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `2px solid hsl(${idx * 55 + 250}, 50%, 75%)` }}>
+        <span style={{ fontSize: 11, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 50%, 35%)` }}>{initials}</span>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{f.full_name}</p>
+        <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>Active: <strong style={{ color: "#374151" }}>{f.active_count}</strong></span>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>Done: <strong style={{ color: "#059669" }}>{f.completed_count}</strong></span>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>Pending: <strong style={{ color: "#d97706" }}>{f.pending_count}</strong></span>
+        </div>
+      </div>
+      {/* Completion rate */}
+      <div style={{ width: 80, textAlign: "right" }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: rateColor, lineHeight: 1 }}>{rate}%</p>
+        <div style={{ height: 4, borderRadius: 2, background: "#f3f4f6", marginTop: 4 }}>
+          <div style={{ height: 4, borderRadius: 2, background: rateColor, width: `${rate}%` }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Faculty Performance — full list modal ───────────────────────────────────
+function FacultyPerformanceModal({ open, onClose, faculty }) {
+  if (!open) return null;
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 560, maxHeight: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}
+      >
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Faculty Performance — Full List</p>
+            <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{faculty.length} faculty member{faculty.length === 1 ? "" : "s"}</p>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+          >
+            <X style={{ width: 15, height: 15, color: "#374151" }} />
+          </button>
+        </div>
+        <div style={{ padding: 16, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
+          {faculty.length === 0 ? (
+            <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
+          ) : (
+            faculty.map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} />)
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SectionCard({ title, subtitle, icon: Icon, children, action, noPad, accentColor, titleColor, footer }) {
   return (
     <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderTop: accentColor ? `3px solid ${accentColor}` : "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: accentColor ? `0 1px 4px ${accentColor}14` : "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
@@ -365,6 +440,7 @@ export default function Dashboard() {
   // ── Live data for the "Faculty Performance Summary" widget ──────────────────
   const [facultyPerformance, setFacultyPerformance] = useState([]);
   const [facultyLoading, setFacultyLoading] = useState(true);
+  const [facultyModalOpen, setFacultyModalOpen] = useState(false);
 
   const fetchFacultyPerformance = useCallback(async () => {
     setFacultyLoading(true);
@@ -1078,52 +1154,40 @@ export default function Dashboard() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
 
               {/* Faculty Performance */}
-              <SectionCard title="Faculty Performance Summary" subtitle="Activity and completion rates across department faculty" icon={Users}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <SectionCard
+                title="Faculty Performance Summary"
+                subtitle="Activity and completion rates across department faculty"
+                icon={Users}
+                action={
+                  facultyPerformance.length > 4 && (
+                    <button
+                      onClick={() => setFacultyModalOpen(true)}
+                      style={{ background: "none", border: "none", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 2 }}
+                    >
+                      View all <ChevronRight style={{ width: 12, height: 12 }} />
+                    </button>
+                  )
+                }
+              >
+                <div
+                  onClick={() => facultyPerformance.length > 0 && setFacultyModalOpen(true)}
+                  style={{ display: "flex", flexDirection: "column", gap: 8, cursor: facultyPerformance.length > 0 ? "pointer" : "default" }}
+                >
                   {facultyLoading ? (
                     <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading faculty performance…</p>
                   ) : facultyPerformance.length === 0 ? (
                     <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
-                  ) : facultyPerformance.map((f, idx) => {
-                    const rate = Number(f.performance_score) || 0;
-                    const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
-                    const initials = (f.full_name || "?")
-                      .split(" ")
-                      .filter(Boolean)
-                      .slice(0, 2)
-                      .map(w => w[0])
-                      .join("")
-                      .toUpperCase();
-                    return (
-                      <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
-                        {/* Rank */}
-                        <span style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? "#f59e0b" : "#9ca3af", width: 16, flexShrink: 0 }}>
-                          {idx === 0 ? "★" : `#${idx + 1}`}
-                        </span>
-                        {/* Avatar */}
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${idx * 55 + 250}, 60%, 92%)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `2px solid hsl(${idx * 55 + 250}, 50%, 75%)` }}>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 50%, 35%)` }}>{initials}</span>
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{f.full_name}</p>
-                          <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
-                            <span style={{ fontSize: 10, color: "#6b7280" }}>Active: <strong style={{ color: "#374151" }}>{f.active_count}</strong></span>
-                            <span style={{ fontSize: 10, color: "#6b7280" }}>Done: <strong style={{ color: "#059669" }}>{f.completed_count}</strong></span>
-                            <span style={{ fontSize: 10, color: "#6b7280" }}>Pending: <strong style={{ color: "#d97706" }}>{f.pending_count}</strong></span>
-                          </div>
-                        </div>
-                        {/* Completion rate */}
-                        <div style={{ width: 80, textAlign: "right" }}>
-                          <p style={{ fontSize: 14, fontWeight: 800, color: rateColor, lineHeight: 1 }}>{rate}%</p>
-                          <div style={{ height: 4, borderRadius: 2, background: "#f3f4f6", marginTop: 4 }}>
-                            <div style={{ height: 4, borderRadius: 2, background: rateColor, width: `${rate}%` }} />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  ) : (
+                    facultyPerformance.slice(0, 4).map((f, idx) => <FacultyPerformanceRow key={f.id} f={f} idx={idx} />)
+                  )}
                 </div>
               </SectionCard>
+
+              <FacultyPerformanceModal
+                open={facultyModalOpen}
+                onClose={() => setFacultyModalOpen(false)}
+                faculty={facultyPerformance}
+              />
 
               {/* Analytics charts */}
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
