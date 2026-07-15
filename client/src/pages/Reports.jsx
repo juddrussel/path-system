@@ -355,12 +355,7 @@ export default function Reports() {
   const [exportToast, setExportToast] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
 
-  // ── Returned / Rejected report — its own filter row + detail-view modal ──
-  const [rrDateRange, setRrDateRange] = useState("All Time");
-  const [rrDocType, setRrDocType] = useState("All Document Types");
-  const [rrFaculty, setRrFaculty] = useState("All Faculty");
-  const [rrStatus, setRrStatus] = useState("All Statuses");
-  const [rrDepartment, setRrDepartment] = useState("All Departments");
+  // ── Returned / Rejected report — detail-view modal state ──
   const [rrSelected, setRrSelected] = useState(null);
 
   /* ════════════════════════════════════════════════════════════════════
@@ -747,32 +742,13 @@ export default function Reports() {
 
   /* ════════════════════════════════════════════════════════════════════
      Returned / Rejected Transactions Report — dedicated dataset. Built
-     from rawItems (not the global-filter-bar `items`) since this tab has
-     its own filter row (Date Range, Document Type, Faculty, Status,
-     Department) so Program Chairs can slice returned/rejected activity
-     independently of whatever the page-level filters are set to.
+     from rawItems, scoped to only Returned/Rejected records — every card,
+     chart, and table on this tab is specific to that pool.
      ════════════════════════════════════════════════════════════════ */
 
   const RR_ALL = useMemo(() => (
     rawItems.filter(i => i.status === "Returned" || i.status === "Rejected")
   ), [rawItems]);
-
-  const RR_DEPARTMENTS = useMemo(() => (
-    Array.from(new Set(rawItems.map(i => i.department).filter(d => d && d !== "—"))).sort()
-  ), [rawItems]);
-
-  const RR_RANGE_DAYS = { "Last 7 Days": 7, "Last 30 Days": 30, "This Semester": 120, "This Year": 365, "All Time": null };
-  const RR_FILTERED = useMemo(() => {
-    const cutoff = RR_RANGE_DAYS[rrDateRange];
-    return RR_ALL.filter(i => {
-      if (cutoff && i.days > cutoff) return false;
-      if (rrStatus !== "All Statuses" && i.status !== rrStatus) return false;
-      if (rrDocType !== "All Document Types" && i.docType !== rrDocType) return false;
-      if (rrFaculty !== "All Faculty" && i.person !== rrFaculty) return false;
-      if (rrDepartment !== "All Departments" && i.department !== rrDepartment) return false;
-      return true;
-    });
-  }, [RR_ALL, rrDateRange, rrStatus, rrDocType, rrFaculty, rrDepartment]);
 
   // ── KPI summary: totals + rates + most common reason (computed off the
   //    full Returned/Rejected pool, not the filtered table, so the cards
@@ -821,35 +797,6 @@ export default function Reports() {
     RR_ALL.forEach(i => { counts[i.docType] = (counts[i.docType] || 0) + 1; });
     return Object.entries(counts).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count).slice(0, 8);
   }, [RR_ALL]);
-
-  // ── Faculty Compliance Report ──
-  const RR_FACULTY_COMPLIANCE = useMemo(() => {
-    const byFaculty = {};
-    rawItems.forEach(i => {
-      if (!i.person || i.person === "—") return;
-      byFaculty[i.person] ??= { name: i.person, submitted: 0, returned: 0, rejected: 0 };
-      byFaculty[i.person].submitted += 1;
-      if (i.status === "Returned") byFaculty[i.person].returned += 1;
-      if (i.status === "Rejected") byFaculty[i.person].rejected += 1;
-    });
-    return Object.values(byFaculty)
-      .map(f => ({ ...f, complianceRate: f.submitted ? Number((((f.submitted - f.returned - f.rejected) / f.submitted) * 100).toFixed(1)) : 0 }))
-      .sort((a, b) => b.submitted - a.submitted);
-  }, [rawItems]);
-
-  // ── Document Type Analysis ──
-  const RR_DOC_TYPE_ANALYSIS = useMemo(() => {
-    const byType = {};
-    rawItems.forEach(i => {
-      byType[i.docType] ??= { type: i.docType, total: 0, returned: 0, rejected: 0 };
-      byType[i.docType].total += 1;
-      if (i.status === "Returned") byType[i.docType].returned += 1;
-      if (i.status === "Rejected") byType[i.docType].rejected += 1;
-    });
-    return Object.values(byType)
-      .map(t => ({ ...t, successRate: t.total ? Number((((t.total - t.returned - t.rejected) / t.total) * 100).toFixed(1)) : 0 }))
-      .sort((a, b) => b.total - a.total);
-  }, [rawItems]);
 
   // ── Audit trail — sourced from GET /api/audit (see fetchAuditTrail) ──
   // Only document/task/form activity (TASK_APPROVE, TASK_SUBMIT, etc) shows
@@ -1563,25 +1510,9 @@ export default function Reports() {
               <KpiCard label="Most Common Reason" value={RR_KPI.mostCommonReason}      icon={AlertCircle} color="#0284c7" />
             </div>
 
-            {/* ── Dedicated filters for this report ── */}
-            <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
-              <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                <FilterSelect label="Date Range" value={rrDateRange} onChange={e => setRrDateRange(e.target.value)}
-                  options={["All Time", "Last 7 Days", "Last 30 Days", "This Semester", "This Year"]} />
-                <FilterSelect label="Document Type" value={rrDocType} onChange={e => setRrDocType(e.target.value)}
-                  options={["All Document Types", "Enrollment", "Completion", "Overload", "Leave", "Transfer", "Waiver", "Other"]} />
-                <FilterSelect label="Faculty Member" value={rrFaculty} onChange={e => setRrFaculty(e.target.value)}
-                  options={["All Faculty", ...FACULTY_WORKLOAD.map(f => f.name)]} />
-                <FilterSelect label="Status" value={rrStatus} onChange={e => setRrStatus(e.target.value)}
-                  options={["All Statuses", "Returned", "Rejected"]} />
-                <FilterSelect label="Department" value={rrDepartment} onChange={e => setRrDepartment(e.target.value)}
-                  options={["All Departments", ...RR_DEPARTMENTS]} />
-              </div>
-            </div>
-
             {/* ── Returned / Rejected Transactions Table ── */}
             <SectionCard title="Returned / Rejected Transactions" subtitle="Every document, task, or form bounced back for revision or rejected" icon={RotateCcw} noPad
-              footer={<TableFoot count={Math.min(RR_FILTERED.length, 12)} total={RR_FILTERED.length} label="returned/rejected transactions" />}>
+              footer={<TableFoot count={Math.min(RR_ALL.length, 12)} total={RR_ALL.length} label="returned/rejected transactions" />}>
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
@@ -1592,7 +1523,7 @@ export default function Reports() {
                     </tr>
                   </thead>
                   <tbody>
-                    {RR_FILTERED.slice(0, 12).map((r, i, arr) => (
+                    {RR_ALL.slice(0, 12).map((r, i, arr) => (
                       <tr key={r.id} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
                         <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11, whiteSpace: "nowrap" }}>{r.id}</td>
                         <td style={{ ...TD_STYLE, color: "#374151" }}>{r.docType}</td>
@@ -1613,7 +1544,7 @@ export default function Reports() {
                         </td>
                       </tr>
                     ))}
-                    {RR_FILTERED.length === 0 && (
+                    {RR_ALL.length === 0 && (
                       <tr><td colSpan={10} style={{ ...TD_STYLE, textAlign: "center", color: "#9ca3af", padding: "24px 16px" }}>No returned or rejected transactions match these filters.</td></tr>
                     )}
                   </tbody>
@@ -1695,92 +1626,6 @@ export default function Reports() {
               </ResponsiveContainer>
             </SectionCard>
 
-            {/* ── Faculty Compliance Report ── */}
-            <SectionCard title="Faculty Compliance Report" subtitle="Submission quality by assigned faculty member" icon={Users} noPad
-              footer={<TableFoot count={RR_FACULTY_COMPLIANCE.length} total={RR_FACULTY_COMPLIANCE.length} label="faculty members" />}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-                    {["Faculty Name", "Submitted", "Returned", "Rejected", "Compliance Rate"].map(h => (
-                      <th key={h} style={TH_STYLE}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {RR_FACULTY_COMPLIANCE.map((f, i, arr) => (
-                    <tr key={f.name} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={TD_STYLE}><NameCell name={f.name} /></td>
-                      <td style={{ ...TD_STYLE, color: "#374151" }}>{f.submitted}</td>
-                      <td style={{ ...TD_STYLE, color: "#c2410c" }}>{f.returned}</td>
-                      <td style={{ ...TD_STYLE, color: "#dc2626" }}>{f.rejected}</td>
-                      <td style={{ ...TD_STYLE, fontWeight: 700, color: f.complianceRate >= 80 ? "#059669" : f.complianceRate >= 60 ? "#d97706" : "#dc2626" }}>{f.complianceRate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </SectionCard>
-
-            {/* ── Document Type Analysis ── */}
-            <SectionCard title="Document Type Analysis" subtitle="Success rate by document/transaction category" icon={ClipboardList} noPad
-              footer={<TableFoot count={RR_DOC_TYPE_ANALYSIS.length} total={RR_DOC_TYPE_ANALYSIS.length} label="document types" />}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-                    {["Document Type", "Total Submitted", "Returned", "Rejected", "Success Rate"].map(h => (
-                      <th key={h} style={TH_STYLE}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {RR_DOC_TYPE_ANALYSIS.map((t, i, arr) => (
-                    <tr key={t.type} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ ...TD_STYLE, fontWeight: 600, color: "#111827" }}>{t.type}</td>
-                      <td style={{ ...TD_STYLE, color: "#374151" }}>{t.total}</td>
-                      <td style={{ ...TD_STYLE, color: "#c2410c" }}>{t.returned}</td>
-                      <td style={{ ...TD_STYLE, color: "#dc2626" }}>{t.rejected}</td>
-                      <td style={{ ...TD_STYLE, fontWeight: 700, color: t.successRate >= 80 ? "#059669" : t.successRate >= 60 ? "#d97706" : "#dc2626" }}>{t.successRate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </SectionCard>
-
-            {/* ── Export Options ── */}
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Export Reports</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-                {[
-                  { title: "Returned Transactions Report", desc: "All transactions returned for revision", color: "#c2410c", icon: RotateCcw },
-                  { title: "Rejected Transactions Report", desc: "All transactions rejected outright",     color: "#dc2626", icon: XCircle },
-                  { title: "Compliance Report",             desc: "Faculty submission compliance summary", color: "#7c3aed", icon: Users },
-                  { title: "Monthly Analysis Report",       desc: "Month-over-month return/rejection trends", color: "#0284c7", icon: BarChart3 },
-                ].map(r => (
-                  <div key={r.title} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: 16, boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column", gap: 10 }}>
-                    <div style={{ width: 34, height: 34, borderRadius: 9, background: `${r.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <r.icon style={{ width: 16, height: 16, color: r.color }} />
-                    </div>
-                    <div>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: "#111827", lineHeight: 1.3 }}>{r.title}</p>
-                      <p style={{ fontSize: 10.5, color: "#6b7280", marginTop: 3, lineHeight: 1.4 }}>{r.desc}</p>
-                    </div>
-                    <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
-                      <button
-                        onClick={() => handleExport(r.title, "PDF")}
-                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
-                      >
-                        <Printer style={{ width: 10, height: 10 }} /> PDF
-                      </button>
-                      <button
-                        onClick={() => handleExport(r.title, "Excel")}
-                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
-                      >
-                        <FileSpreadsheet style={{ width: 10, height: 10 }} /> Excel
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
               </>
             )}
 
