@@ -305,6 +305,18 @@ export default function Reports() {
   const [docTypeFilter, setDocTypeFilter] = useState("All Document Types");
   const [facultyFilter, setFacultyFilter] = useState("All Faculty");
   const [exportToast, setExportToast] = useState(null);
+  const [activeTab, setActiveTab] = useState("Overview");
+
+  const TABS = [
+    "Overview",
+    "Transactions",
+    "Processing Time",
+    "Faculty Workload",
+    "Bottleneck",
+    "Returned / Rejected",
+    "Audit Trail",
+    "Quick Reports",
+  ];
 
   // Placeholder export handler — wire this to your actual PDF/Excel export
   // endpoint (e.g. POST /api/reports/export) whenever that's ready.
@@ -385,6 +397,32 @@ export default function Reports() {
               </div>
             </div>
 
+            {/* ── Tab Bar ── */}
+            <div style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4 }}>
+              {TABS.map(t => (
+                <button
+                  key={t}
+                  onClick={() => setActiveTab(t)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "0 0 10px",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    color: activeTab === t ? "#7c3aed" : "#6b7280",
+                    borderBottom: activeTab === t ? "2px solid #7c3aed" : "2px solid transparent",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            {/* ── Overview tab ── */}
+            {activeTab === "Overview" && (
+              <>
             {/* ── 2. KPI Cards ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10 }}>
               {KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
@@ -445,7 +483,43 @@ export default function Reports() {
                 </ResponsiveContainer>
               </SectionCard>
             </div>
+              </>
+            )}
 
+            {/* ── Transactions tab ── */}
+            {activeTab === "Transactions" && (
+              <>
+            {/* ── 7. Delayed Transactions Table ── */}
+            <SectionCard title="Delayed Transactions" subtitle="Documents currently past their expected processing time" icon={Clock} accentColor="#dc2626" noPad
+              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} />}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                    {["Transaction ID", "Document Type", "Assigned Faculty", "Current Stage", "Days Waiting", "Status"].map(h => (
+                      <th key={h} style={{ textAlign: (h === "Transaction ID" || h === "Document Type" || h === "Assigned Faculty" || h === "Current Stage") ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {DELAYED_TRANSACTIONS.map((d, i) => (
+                    <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                      <td style={{ padding: "10px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{d.id}</td>
+                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.docType}</td>
+                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.faculty}</td>
+                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.stage}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#dc2626", fontWeight: 700 }}>{d.days}d</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center" }}><StatusBadge s={d.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </SectionCard>
+              </>
+            )}
+
+            {/* ── Processing Time tab ── */}
+            {activeTab === "Processing Time" && (
+              <>
             {/* ── 4. Processing Time Analytics ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
               <SectionCard title="Average Processing Time" icon={Gauge} accentColor="#7c3aed">
@@ -461,7 +535,12 @@ export default function Reports() {
                 <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{PROCESSING_TIME.slowest.doc}</p>
               </SectionCard>
             </div>
+              </>
+            )}
 
+            {/* ── Faculty Workload tab ── */}
+            {activeTab === "Faculty Workload" && (
+              <>
             {/* ── 5. Faculty Workload Report ── */}
             <SectionCard title="Faculty Workload Report" subtitle="Assigned transactions and completion rate per faculty member" icon={Users} accentColor="#0284c7" noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}>
@@ -493,7 +572,12 @@ export default function Reports() {
                 </tbody>
               </table>
             </SectionCard>
+              </>
+            )}
 
+            {/* ── Bottleneck tab ── */}
+            {activeTab === "Bottleneck" && (
+              <>
             {/* ── 6. Bottleneck Analysis ── */}
             <SectionCard title="Bottleneck Analysis" subtitle="Workflow stages exceeding expected processing time" icon={Activity} accentColor="#c2410c" noPad>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -517,33 +601,12 @@ export default function Reports() {
                 </tbody>
               </table>
             </SectionCard>
+              </>
+            )}
 
-            {/* ── 7. Delayed Transactions Table ── */}
-            <SectionCard title="Delayed Transactions" subtitle="Documents currently past their expected processing time" icon={Clock} accentColor="#dc2626" noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} />}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                    {["Transaction ID", "Document Type", "Assigned Faculty", "Current Stage", "Days Waiting", "Status"].map(h => (
-                      <th key={h} style={{ textAlign: (h === "Transaction ID" || h === "Document Type" || h === "Assigned Faculty" || h === "Current Stage") ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {DELAYED_TRANSACTIONS.map((d, i) => (
-                    <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ padding: "10px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{d.id}</td>
-                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.docType}</td>
-                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.faculty}</td>
-                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.stage}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#dc2626", fontWeight: 700 }}>{d.days}d</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center" }}><StatusBadge s={d.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </SectionCard>
-
+            {/* ── Returned / Rejected tab ── */}
+            {activeTab === "Returned / Rejected" && (
+              <>
             {/* ── 8. Returned/Rejection Analysis ── */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <SectionCard title="Rejection Analysis" subtitle="Most common reasons for returned or rejected transactions" icon={RotateCcw} accentColor="#dc2626">
@@ -583,7 +646,12 @@ export default function Reports() {
                 </ResponsiveContainer>
               </SectionCard>
             </div>
+              </>
+            )}
 
+            {/* ── Audit Trail tab ── */}
+            {activeTab === "Audit Trail" && (
+              <>
             {/* ── 10. Audit Trail Summary ── */}
             <SectionCard title="Audit Trail Summary" subtitle="Recent activity across the workflow system" icon={Shield} accentColor="#374151"
               footer={<button onClick={() => navigate("/audit")} style={{ width: "100%", background: "none", border: "none", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>View Full Audit Trail <ChevronRight style={{ width: 12, height: 12 }} /></button>}>
@@ -599,7 +667,12 @@ export default function Reports() {
                 ))}
               </div>
             </SectionCard>
+              </>
+            )}
 
+            {/* ── Quick Reports tab ── */}
+            {activeTab === "Quick Reports" && (
+              <>
             {/* ── 11. Quick Report Center ── */}
             <div>
               <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Quick Report Center</p>
@@ -636,6 +709,8 @@ export default function Reports() {
                 ))}
               </div>
             </div>
+              </>
+            )}
 
           </div>
         </div>
