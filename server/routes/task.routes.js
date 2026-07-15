@@ -19,6 +19,32 @@
 // ALTER TABLE tasks ADD COLUMN assignment_group_id VARCHAR(128) NULL;
 // (Lets the frontend/backend group multiple task rows created from a single
 //  "assign to several faculty" or "assign to a whole role" submission.)
+//
+// ─── REQUIRED: run this SQL once to fix tracking_id collisions ────────────────
+// The old generator derived the next sequence number from COUNT(*) of tasks
+// created this year. That breaks the moment a row is deleted (COUNT drops but
+// the highest tracking_id already issued doesn't), which is exactly what
+// caused "Duplicate entry 'TASK-2026-0018'" — a row had been deleted earlier,
+// so COUNT(*) produced a sequence number that had already been used.
+//
+// This dedicated counter table gives every request an atomically-incremented,
+// gap-proof sequence number regardless of deletions or concurrent requests:
+//
+// CREATE TABLE IF NOT EXISTS tracking_id_counters (
+//   year     INT NOT NULL PRIMARY KEY,
+//   last_seq INT NOT NULL DEFAULT 0
+// );
+//
+// One-time backfill so the counter starts above every tracking_id you've
+// already issued (safe to re-run; it only ever raises the counter):
+//
+// INSERT INTO tracking_id_counters (year, last_seq)
+// SELECT YEAR(created_at) AS year,
+//        MAX(CAST(SUBSTRING_INDEX(tracking_id, '-', -1) AS UNSIGNED)) AS last_seq
+// FROM tasks
+// WHERE tracking_id LIKE 'TASK-%'
+// GROUP BY YEAR(created_at)
+// ON DUPLICATE KEY UPDATE last_seq = GREATEST(last_seq, VALUES(last_seq));
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -66,18 +92,42 @@ function requireChairOrAdmin(req, res, next) {
 }
 
 // ─── HELPER: generate tracking ID ────────────────────────────────────────────
+// Atomically increments a per-year counter row so every caller gets a unique,
+// gap-proof sequence number — safe under concurrent requests AND unaffected
+// by deleted tasks (unlike the old COUNT(*)-based approach).
+//
+// Requires `db` to be a mysql2/promise pool (i.e. supports db.getConnection()).
+// If your db module only exposes db.query(), swap it for the pool instance
+// that config/db.js wraps, or expose a getConnection() passthrough there.
 async function generateTrackingId() {
   const year = new Date().getFullYear();
-  const [[{ count }]] = await db.query(
-    "SELECT COUNT(*) AS count FROM tasks WHERE YEAR(created_at) = ?", [year]
-  );
-  const seq = String(count + 1).padStart(4, "0");
-  const candidate = `TASK-${year}-${seq}`;
-  const [[{ id_count }]] = await db.query(
-    "SELECT COUNT(*) AS id_count FROM tasks WHERE tracking_id = ?", [candidate]
-  );
-  if (id_count) return `TASK-${year}-${String(count + 2).padStart(4, "0")}`;
-  return candidate;
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    // INSERT ... ON DUPLICATE KEY UPDATE takes an exclusive row lock for the
+    // duration of the transaction, so two concurrent requests for the same
+    // year can never read/increment the same value — the second one simply
+    // waits until the first commits.
+    await conn.query(
+      `INSERT INTO tracking_id_counters (year, last_seq) VALUES (?, 1)
+       ON DUPLICATE KEY UPDATE last_seq = last_seq + 1`,
+      [year]
+    );
+
+    const [[{ last_seq }]] = await conn.query(
+      "SELECT last_seq FROM tracking_id_counters WHERE year = ? FOR UPDATE",
+      [year]
+    );
+
+    await conn.commit();
+    return `TASK-${year}-${String(last_seq).padStart(4, "0")}`;
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
 }
 
 // ─── HELPER: attach comments + attachments + submissions to tasks ─────────────
@@ -425,7 +475,8 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
     const io = req.app.get("io");
     const createdTasks = [];
 
-    // Sequential so generateTrackingId()'s count-based logic never collides
+    // Sequential so each generateTrackingId() call commits its own counter
+    // increment before the next one runs.
     for (const facultyId of facultyIds) {
       const tracking_id = await generateTrackingId();
       const [result] = await db.query(
