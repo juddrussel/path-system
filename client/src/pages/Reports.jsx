@@ -71,13 +71,13 @@ function SbItem({ icon, label, active, onClick }) {
   );
 }
 
-function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, accentColor, footer }) {
+function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, footer }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderTop: accentColor ? `3px solid ${accentColor}` : "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: accentColor ? `0 1px 4px ${accentColor}14` : "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
+    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, flexWrap: "wrap", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ width: 29, height: 29, borderRadius: 7, background: accentColor ? `${accentColor}18` : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <IconCmp style={{ width: 14, height: 14, color: accentColor || "#7c3aed" }} />
+          <div style={{ width: 29, height: 29, borderRadius: 7, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <IconCmp style={{ width: 14, height: 14, color: "#7c3aed" }} />
           </div>
           <div>
             <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{title}</p>
@@ -512,7 +512,7 @@ export default function Reports() {
 
             {/* ── Transaction Overview ── */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
-              <SectionCard title="By Status" icon={PieIcon} accentColor="#7c3aed">
+              <SectionCard title="By Status" icon={PieIcon}>
                 <ResponsiveContainer width="100%" height={190}>
                   <RPie>
                     <Pie data={STATUS_PIE} dataKey="value" nameKey="name" innerRadius={45} outerRadius={72} paddingAngle={2}>
@@ -530,7 +530,7 @@ export default function Reports() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="By Document Type" icon={BarChart3} accentColor="#0284c7">
+              <SectionCard title="By Document Type" icon={BarChart3}>
                 <ResponsiveContainer width="100%" height={230}>
                   <BarChart data={DOC_TYPE_BAR} barSize={22}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -542,7 +542,7 @@ export default function Reports() {
                 </ResponsiveContainer>
               </SectionCard>
 
-              <SectionCard title="Monthly Transaction Trend" subtitle="AY 2023–2024" icon={TrendingUp} accentColor="#059669">
+              <SectionCard title="Monthly Transaction Trend" subtitle="AY 2023–2024" icon={TrendingUp}>
                 <ResponsiveContainer width="100%" height={230}>
                   <LineChart data={MONTHLY_TREND}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -559,7 +559,7 @@ export default function Reports() {
             </div>
 
             {/* ── Delayed Transactions Table ── */}
-            <SectionCard title="Delayed Transactions" subtitle={`${DELAYED_TRANSACTIONS.length} records currently past their expected processing time`} icon={Clock} accentColor="#dc2626" noPad
+            <SectionCard title="Delayed Transactions" subtitle={`${DELAYED_TRANSACTIONS.length} records currently past their expected processing time`} icon={Clock} noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} />}
               footer={<TableFoot count={DELAYED_TRANSACTIONS.length} total={DELAYED_TRANSACTIONS.length} label="delayed transactions" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -596,19 +596,19 @@ export default function Reports() {
               <>
             {/* ── Processing Time Summary ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-              <SectionCard title="Average Processing Time" icon={Activity} accentColor="#7c3aed">
+              <SectionCard title="Average Processing Time" icon={Activity}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>
                   {(PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length).toFixed(1)} days
                 </p>
                 <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
               </SectionCard>
-              <SectionCard title="Fastest Processing Time" icon={TrendingUp} accentColor="#059669">
+              <SectionCard title="Fastest Processing Time" icon={TrendingUp}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#059669" }}>
                   {Math.min(...PROCESSING_TIME_DATA.map(d => d.fastest)).toFixed(1)} days
                 </p>
                 <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
               </SectionCard>
-              <SectionCard title="Slowest Processing Time" icon={Clock} accentColor="#dc2626">
+              <SectionCard title="Slowest Processing Time" icon={Clock}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#dc2626" }}>
                   {Math.max(...PROCESSING_TIME_DATA.map(d => d.slowest)).toFixed(1)} days
                 </p>
@@ -616,7 +616,7 @@ export default function Reports() {
               </SectionCard>
             </div>
 
-            <SectionCard title="Processing Time per Document Type" subtitle="Fastest, average, and slowest turnaround in days" icon={Gauge} accentColor="#5b21b6">
+            <SectionCard title="Processing Time per Document Type" subtitle="Fastest, average, and slowest turnaround in days" icon={Gauge}>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={PROCESSING_TIME_DATA} barSize={16}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -632,7 +632,7 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Processing Time Breakdown Table ── */}
-            <SectionCard title="Processing Time Breakdown" subtitle="Fastest, average, and slowest turnaround per document type" icon={ClipboardList} accentColor="#5b21b6" noPad
+            <SectionCard title="Processing Time Breakdown" subtitle="Fastest, average, and slowest turnaround per document type" icon={ClipboardList} noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Processing Time Report", fmt)} />}
               footer={<TableFoot count={PROCESSING_TIME_DATA.length} total={PROCESSING_TIME_DATA.length} label="document types" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -662,7 +662,7 @@ export default function Reports() {
             {activeTab === "Faculty Workload" && (
               <>
             {/* ── Workload Comparison ── */}
-            <SectionCard title="Workload Comparison" subtitle="Completed vs. pending transactions per faculty member" icon={Users} accentColor="#0284c7">
+            <SectionCard title="Workload Comparison" subtitle="Completed vs. pending transactions per faculty member" icon={Users}>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={FACULTY_WORKLOAD} layout="vertical" barSize={14}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
@@ -677,7 +677,7 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Faculty Performance Table ── */}
-            <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions and completion rate per faculty member" icon={ClipboardList} accentColor="#0284c7" noPad
+            <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions and completion rate per faculty member" icon={ClipboardList} noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}
               footer={<TableFoot count={FACULTY_WORKLOAD.length} total={FACULTY_WORKLOAD.length} label="faculty" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -715,7 +715,7 @@ export default function Reports() {
             {activeTab === "Bottleneck" && (
               <>
             {/* ── Documents Waiting by Stage ── */}
-            <SectionCard title="Documents Waiting by Stage" icon={Activity} accentColor="#c2410c">
+            <SectionCard title="Documents Waiting by Stage" icon={Activity}>
               <ResponsiveContainer width="100%" height={230}>
                 <BarChart data={BOTTLENECKS} barSize={28}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -732,7 +732,7 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Bottleneck Summary ── */}
-            <SectionCard title="Bottleneck Summary" subtitle="Workflow stages exceeding expected processing time" icon={AlertTriangle} accentColor="#c2410c" noPad
+            <SectionCard title="Bottleneck Summary" subtitle="Workflow stages exceeding expected processing time" icon={AlertTriangle} noPad
               footer={<TableFoot count={BOTTLENECKS.length} total={BOTTLENECKS.length} label="stages" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -771,7 +771,7 @@ export default function Reports() {
             </div>
 
             {/* ── Monthly Rejection & Return Trend ── */}
-            <SectionCard title="Monthly Rejection & Return Trend" icon={RotateCcw} accentColor="#dc2626">
+            <SectionCard title="Monthly Rejection & Return Trend" icon={RotateCcw}>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={REJECTION_TREND} barSize={20}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -786,7 +786,7 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Rejection Log ── */}
-            <SectionCard title="Rejection Log" icon={XCircle} accentColor="#dc2626" noPad
+            <SectionCard title="Rejection Log" icon={XCircle} noPad
               footer={<TableFoot count={REJECTED_DOCS.length} total={REJECTED_DOCS.length} label="rejected records" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -815,7 +815,7 @@ export default function Reports() {
             {activeTab === "Audit Trail" && (
               <>
             {/* ── Audit Trail Table ── */}
-            <SectionCard title="Audit Trail" subtitle="Immutable log of all system actions and document state changes" icon={Shield} accentColor="#374151" noPad
+            <SectionCard title="Audit Trail" subtitle="Immutable log of all system actions and document state changes" icon={Shield} noPad
               footer={<TableFoot count={AUDIT_TRAIL.length} total={AUDIT_TRAIL.length} label="log entries" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
