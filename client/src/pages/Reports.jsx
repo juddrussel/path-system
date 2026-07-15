@@ -128,8 +128,11 @@ function SeverityBadge({ level }) {
 
 /* Audit-trail action → readable label + color, so the programchair/admin can
    scan the "Action" column and immediately see what changed on a document
-   (approved, rejected, returned, updated, etc). Falls back gracefully for
-   any action string the backend sends that isn't explicitly mapped. */
+   (approved, rejected, returned, updated, etc). Backend sends codes like
+   "TASK_APPROVE", "TASK_STATUS_UPDATE" — we strip the entity prefix so the
+   base verb (approve, return, status_update...) matches regardless of
+   whether it's a TASK_/DOCUMENT_/FORM_ action. Falls back gracefully for
+   anything not explicitly mapped. */
 const ACTION_CFG = {
   approve:        { label: "Approved",        color: "#059669", bg: "#d1fae5" },
   approved:       { label: "Approved",        color: "#059669", bg: "#d1fae5" },
@@ -146,6 +149,7 @@ const ACTION_CFG = {
   update:         { label: "Updated",         color: "#374151", bg: "#f3f4f6" },
   updated:        { label: "Updated",         color: "#374151", bg: "#f3f4f6" },
   status_change:  { label: "Status Updated",  color: "#374151", bg: "#f3f4f6" },
+  status_update:  { label: "Status Updated",  color: "#374151", bg: "#f3f4f6" },
   forward:        { label: "Forwarded",       color: "#7c3aed", bg: "#ede9fe" },
   forwarded:      { label: "Forwarded",       color: "#7c3aed", bg: "#ede9fe" },
   assign:         { label: "Assigned",        color: "#7c3aed", bg: "#ede9fe" },
@@ -153,9 +157,14 @@ const ACTION_CFG = {
   delete:         { label: "Deleted",         color: "#dc2626", bg: "#fee2e2" },
   deleted:        { label: "Deleted",         color: "#dc2626", bg: "#fee2e2" },
 };
+// Entity prefixes the backend uses on action codes (TASK_APPROVE,
+// DOCUMENT_SUBMIT, FORM_DELETE...). Stripped before matching ACTION_CFG.
+const ACTION_ENTITY_PREFIXES = ["task_", "document_", "doc_", "form_"];
 function formatAuditAction(raw) {
   if (!raw) return { label: "—", color: "#6b7280", bg: "#f3f4f6" };
-  const key = String(raw).toLowerCase().trim().replace(/\s+/g, "_");
+  let key = String(raw).toLowerCase().trim().replace(/\s+/g, "_");
+  const prefix = ACTION_ENTITY_PREFIXES.find(p => key.startsWith(p));
+  if (prefix) key = key.slice(prefix.length);
   if (ACTION_CFG[key]) return ACTION_CFG[key];
   // Unrecognized action from the backend: title-case it rather than
   // showing a raw snake_case/enum value.
@@ -716,21 +725,16 @@ export default function Reports() {
 
   // ── Audit trail — sourced from GET /api/audit (see fetchAuditTrail) ──
   // Reports only cares about document/form/task activity — not account
-  // events like login, logout, password changes, or user CRUD. We drop
-  // those two ways: (1) if the backend tags the entity type, exclude
-  // anything that isn't a document/form/task; (2) otherwise fall back to
-  // matching common auth/account keywords in the action string.
-  const EXCLUDED_ENTITY_TYPES = ["user", "account", "auth", "session"];
-  const EXCLUDED_ACTION_KEYWORDS = [
-    "login", "logout", "signin", "sign_in", "signout", "sign_out", "session",
-    "password", "register", "user_create", "user_update", "user_delete",
-    "account", "auth",
-  ];
+  // events like LOGIN, REGISTER, FORGOT_PASSWORD, RESET_PASSWORD, or any
+  // USER_* action (USER_APPROVE, USER_EDIT, USER_DEACTIVATE, USER_DELETE,
+  // etc). Whitelisting the TASK_/DOCUMENT_/FORM_ prefix is safer here than
+  // blacklisting auth/user keywords, since the backend's action taxonomy
+  // (see /audit filter dropdown) is USER_/TASK_/plain-auth prefixed.
   const isDocumentRelated = (a) => {
     const entity = (a.entity_type || a.entity || a.target_type || "").toLowerCase();
-    if (entity) return !EXCLUDED_ENTITY_TYPES.includes(entity);
+    if (entity) return ["task", "document", "doc", "form"].includes(entity);
     const action = String(a.action || "").toLowerCase();
-    return !EXCLUDED_ACTION_KEYWORDS.some(kw => action.includes(kw));
+    return ["task_", "document_", "doc_", "form_"].some(p => action.startsWith(p));
   };
 
   const AUDIT_TRAIL = useMemo(() => {
