@@ -398,17 +398,18 @@ export default function Reports() {
         <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto" }}>
           <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* ── 1. Header: title + filters + export ── */}
-            <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
-                <div>
-                  <h1 style={{ fontSize: 19, fontWeight: 800, color: "#111827" }}>Reports &amp; Analytics</h1>
-                  <p style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>Transaction performance, workload, and bottleneck insights across the department</p>
-                </div>
-                <ExportButtons onExport={(fmt) => handleExport("Full Analytics Report", fmt)} />
+            {/* ── 1. Header: title + export (no card) ── */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
+              <div>
+                <h1 style={{ fontSize: 19, fontWeight: 800, color: "#111827" }}>Reports &amp; Analytics</h1>
+                <p style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>Transaction performance, workload, and bottleneck insights across the department</p>
               </div>
+              <ExportButtons onExport={(fmt) => handleExport("Full Analytics Report", fmt)} />
+            </div>
 
-              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+            {/* ── 2. Filters card ── */}
+            <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                 <FilterSelect label="Date Range" value={dateRange} onChange={e => setDateRange(e.target.value)}
                   options={["Last 7 Days", "Last 30 Days", "This Semester", "This Year", "Custom Range"]} />
                 <FilterSelect label="Status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
