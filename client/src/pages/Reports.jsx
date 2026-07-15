@@ -356,17 +356,17 @@ export default function Reports() {
     }
   }, [token]);
 
-  // Best-effort audit log fetch. If your backend exposes this under a
-  // different path, update the URL below — the page degrades gracefully
-  // (empty table + note) if the endpoint 404s or isn't wired up yet.
+  // Audit log fetch — same endpoint AuditTrail.jsx uses (GET /api/audit,
+  // response is either a bare array or { logs: [...] }).
   const fetchAuditTrail = useCallback(async () => {
+    if (!canViewAdminNav) { setAuditLoading(false); return; } // matches AUDIT_ROLES in AuditTrail.jsx
     setAuditLoading(true);
     try {
       const authH = { Authorization: `Bearer ${token}` };
-      const res = await fetch(`${API}/api/audit-trail`, { headers: authH });
+      const res = await fetch(`${API}/api/audit`, { headers: authH });
       if (res.ok) {
         const data = await res.json();
-        const rows = data.logs ?? data.audit ?? data ?? [];
+        const rows = Array.isArray(data) ? data : (data.logs || []);
         setAuditTrail(Array.isArray(rows) ? rows : []);
         setAuditUnavailable(false);
       } else {
@@ -380,7 +380,7 @@ export default function Reports() {
     } finally {
       setAuditLoading(false);
     }
-  }, [token]);
+  }, [token, canViewAdminNav]);
 
   const fetchTrackedItems = useCallback(async () => {
     setItemsLoading(true);
@@ -676,14 +676,16 @@ export default function Reports() {
     ];
   }, [items, dateRange]);
 
-  // ── Audit trail (best-effort — see fetchAuditTrail above) ──
+  // ── Audit trail — sourced from GET /api/audit (see fetchAuditTrail) ──
   const AUDIT_TRAIL = useMemo(() => {
     return auditTrail.map(a => ({
-      date: a.date || a.created_at || a.timestamp || "—",
-      user: a.user || a.actor || a.full_name || "—",
-      action: a.action || a.event || "—",
-      transaction: a.transaction || a.tracking_id || "—",
-      remarks: a.remarks || a.notes || "",
+      date: a.timestamp
+        ? new Date(a.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
+        : "—",
+      user: a.user?.full_name || a.user?.username || "System",
+      action: a.action || "—",
+      transaction: a.document_id ? `#${a.document_id}` : "—",
+      remarks: a.detail || "",
     }));
   }, [auditTrail]);
 
@@ -771,7 +773,7 @@ export default function Reports() {
             )}
             {auditUnavailable && activeTab === "Audit Trail" && (
               <div style={{ fontSize: 11, color: "#9a3412", background: "#ffedd5", border: "1px solid #fed7aa", borderRadius: 8, padding: "8px 14px" }}>
-                Couldn't reach the audit-log endpoint (/api/audit-trail). Update the URL in Reports.jsx once your backend route is confirmed.
+                Couldn't reach the audit-log endpoint (/api/audit). Check that the API is reachable and the token has admin/program_chair access.
               </div>
             )}
 
