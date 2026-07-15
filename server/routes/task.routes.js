@@ -20,31 +20,19 @@
 // (Lets the frontend/backend group multiple task rows created from a single
 //  "assign to several faculty" or "assign to a whole role" submission.)
 //
-// ─── REQUIRED: run this SQL once to fix tracking_id collisions ────────────────
+// ─── NOTE: tracking_id generation fix (no new table required) ────────────────
 // The old generator derived the next sequence number from COUNT(*) of tasks
 // created this year. That breaks the moment a row is deleted (COUNT drops but
 // the highest tracking_id already issued doesn't), which is exactly what
 // caused "Duplicate entry 'TASK-2026-0018'" — a row had been deleted earlier,
 // so COUNT(*) produced a sequence number that had already been used.
 //
-// This dedicated counter table gives every request an atomically-incremented,
-// gap-proof sequence number regardless of deletions or concurrent requests:
-//
-// CREATE TABLE IF NOT EXISTS tracking_id_counters (
-//   year     INT NOT NULL PRIMARY KEY,
-//   last_seq INT NOT NULL DEFAULT 0
-// );
-//
-// One-time backfill so the counter starts above every tracking_id you've
-// already issued (safe to re-run; it only ever raises the counter):
-//
-// INSERT INTO tracking_id_counters (year, last_seq)
-// SELECT YEAR(created_at) AS year,
-//        MAX(CAST(SUBSTRING_INDEX(tracking_id, '-', -1) AS UNSIGNED)) AS last_seq
-// FROM tasks
-// WHERE tracking_id LIKE 'TASK-%'
-// GROUP BY YEAR(created_at)
-// ON DUPLICATE KEY UPDATE last_seq = GREATEST(last_seq, VALUES(last_seq));
+// This version derives the next number from MAX(sequence number already used
+// this year) instead of COUNT(*), so deleted rows can never cause reuse — it
+// reads straight from your existing `tasks` table, no schema changes needed.
+// The actual INSERT is also wrapped in a small retry loop that regenerates
+// the id and tries again if it ever collides (e.g. two requests landing at
+// the same instant), so this is safe under concurrency too.
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -92,41 +80,40 @@ function requireChairOrAdmin(req, res, next) {
 }
 
 // ─── HELPER: generate tracking ID ────────────────────────────────────────────
-// Atomically increments a per-year counter row so every caller gets a unique,
-// gap-proof sequence number — safe under concurrent requests AND unaffected
-// by deleted tasks (unlike the old COUNT(*)-based approach).
+// Looks at the highest sequence number already used THIS YEAR (parsed out of
+// existing tracking_id values) and returns the next one. Unlike COUNT(*),
+// this is unaffected by deleted rows — MAX only ever goes up.
 //
-// Requires `db` to be a mysql2/promise pool (i.e. supports db.getConnection()).
-// If your db module only exposes db.query(), swap it for the pool instance
-// that config/db.js wraps, or expose a getConnection() passthrough there.
-async function generateTrackingId() {
+// `offset` lets callers skip ahead when retrying after a collision (see
+// insertTaskWithUniqueTrackingId below) without needing a re-query loop here.
+async function generateTrackingId(offset = 0) {
   const year = new Date().getFullYear();
-  const conn = await db.getConnection();
-  try {
-    await conn.beginTransaction();
+  const [[{ max_seq }]] = await db.query(
+    `SELECT MAX(CAST(SUBSTRING_INDEX(tracking_id, '-', -1) AS UNSIGNED)) AS max_seq
+     FROM tasks
+     WHERE tracking_id LIKE ?`,
+    [`TASK-${year}-%`]
+  );
+  const seq = (max_seq || 0) + 1 + offset;
+  return `TASK-${year}-${String(seq).padStart(4, "0")}`;
+}
 
-    // INSERT ... ON DUPLICATE KEY UPDATE takes an exclusive row lock for the
-    // duration of the transaction, so two concurrent requests for the same
-    // year can never read/increment the same value — the second one simply
-    // waits until the first commits.
-    await conn.query(
-      `INSERT INTO tracking_id_counters (year, last_seq) VALUES (?, 1)
-       ON DUPLICATE KEY UPDATE last_seq = last_seq + 1`,
-      [year]
-    );
-
-    const [[{ last_seq }]] = await conn.query(
-      "SELECT last_seq FROM tracking_id_counters WHERE year = ? FOR UPDATE",
-      [year]
-    );
-
-    await conn.commit();
-    return `TASK-${year}-${String(last_seq).padStart(4, "0")}`;
-  } catch (err) {
-    await conn.rollback();
-    throw err;
-  } finally {
-    conn.release();
+// ─── HELPER: insert a task row with a guaranteed-unique tracking_id ──────────
+// Generates a tracking_id, attempts the insert, and if it ever collides
+// (ER_DUP_ENTRY — e.g. two requests landing at the same instant before either
+// commits) regenerates a higher number and retries, up to maxAttempts times.
+// `runInsert(tracking_id)` should perform the INSERT and return its result.
+async function insertTaskWithUniqueTrackingId(runInsert, maxAttempts = 5) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const tracking_id = await generateTrackingId(attempt);
+    try {
+      const result = await runInsert(tracking_id);
+      return { tracking_id, result };
+    } catch (err) {
+      const isDup = err.code === "ER_DUP_ENTRY" && /tracking_id/.test(err.sqlMessage || "");
+      if (isDup && attempt < maxAttempts - 1) continue;
+      throw err;
+    }
   }
 }
 
@@ -475,14 +462,15 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
     const io = req.app.get("io");
     const createdTasks = [];
 
-    // Sequential so each generateTrackingId() call commits its own counter
-    // increment before the next one runs.
+    // Sequential so each generateTrackingId() call sees the previous
+    // iteration's insert when it re-reads MAX(...) from the tasks table.
     for (const facultyId of facultyIds) {
-      const tracking_id = await generateTrackingId();
-      const [result] = await db.query(
-        `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, assignment_group_id, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, NOW(), NOW())`,
-        [tracking_id, facultyId, req.user.id, title, doc_type || null, priority, deadline, notes || null, assignmentGroupId]
+      const { tracking_id, result } = await insertTaskWithUniqueTrackingId((tid) =>
+        db.query(
+          `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, assignment_group_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, NOW(), NOW())`,
+          [tid, facultyId, req.user.id, title, doc_type || null, priority, deadline, notes || null, assignmentGroupId]
+        ).then(([r]) => r)
       );
       const taskId = result.insertId;
 
@@ -553,11 +541,12 @@ router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachment
     const createdDrafts = [];
 
     for (const facultyId of facultyIds) {
-      const tracking_id = await generateTrackingId();
-      const [result] = await db.query(
-        `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, assignment_group_id, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', ?, NOW(), NOW())`,
-        [tracking_id, facultyId, req.user.id, title || "Untitled Draft", doc_type || null, priority, deadline || null, notes || null, assignmentGroupId]
+      const { tracking_id, result } = await insertTaskWithUniqueTrackingId((tid) =>
+        db.query(
+          `INSERT INTO tasks (tracking_id, faculty_id, assigned_by, title, doc_type, priority, deadline, notes, status, assignment_group_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', ?, NOW(), NOW())`,
+          [tid, facultyId, req.user.id, title || "Untitled Draft", doc_type || null, priority, deadline || null, notes || null, assignmentGroupId]
+        ).then(([r]) => r)
       );
       const taskId = result.insertId;
       if (req.files?.length > 0) {
