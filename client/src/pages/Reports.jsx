@@ -93,35 +93,93 @@ function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, 
 }
 
 const STATUS_CFG = {
-  pending:   { color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
-  approved:  { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  completed: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  rejected:  { color: "#991b1b", bg: "#fee2e2", dot: "#ef4444" },
-  returned:  { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
-  delayed:   { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
-  overdue:   { color: "#991b1b", bg: "#fef2f2", dot: "#ef4444" },
+  pending:   { color: "#92400e", bg: "#fef3c7" },
+  approved:  { color: "#059669", bg: "#d1fae5" },
+  completed: { color: "#059669", bg: "#d1fae5" },
+  rejected:  { color: "#dc2626", bg: "#fee2e2" },
+  returned:  { color: "#c2410c", bg: "#ffedd5" },
+  delayed:   { color: "#c2410c", bg: "#ffedd5" },
+  overdue:   { color: "#dc2626", bg: "#fef2f2" },
 };
 function StatusBadge({ s }) {
-  const cfg = STATUS_CFG[s?.toLowerCase()] ?? { color: "#374151", bg: "#f3f4f6", dot: "#9ca3af" };
+  const cfg = STATUS_CFG[s?.toLowerCase()] ?? { color: "#374151", bg: "#f3f4f6" };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, flexShrink: 0 }} />{s}
+    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
+      {s}
     </span>
   );
 }
 
 const SEVERITY_CFG = {
-  Low:      { color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd" },
-  Medium:   { color: "#d97706", bg: "#fffbeb", border: "#fde68a" },
-  High:     { color: "#c2410c", bg: "#ffedd5", border: "#fdba74" },
-  Critical: { color: "#dc2626", bg: "#fef2f2", border: "#fecaca" },
+  Low:      { color: "#0284c7", bg: "#e0f2fe" },
+  Medium:   { color: "#d97706", bg: "#fffbeb" },
+  High:     { color: "#c2410c", bg: "#ffedd5" },
+  Critical: { color: "#dc2626", bg: "#fef2f2" },
 };
 function SeverityBadge({ level }) {
   const cfg = SEVERITY_CFG[level] ?? SEVERITY_CFG.Low;
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
       {level === "Critical" && <AlertTriangle style={{ width: 10, height: 10 }} />}{level}
     </span>
+  );
+}
+
+/* Flat rounded-rect badge for role/category-style values (e.g. table pills). */
+function Pill({ text, color, bg }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: bg, color, whiteSpace: "nowrap" }}>
+      {text}
+    </span>
+  );
+}
+
+/* Colored initials avatar, used next to names/identities in tables. */
+const AVATAR_PALETTE = [
+  { bg: "#dcfce7", color: "#059669" }, { bg: "#fce7f3", color: "#db2777" },
+  { bg: "#dbeafe", color: "#2563eb" }, { bg: "#ede9fe", color: "#7c3aed" },
+  { bg: "#fef3c7", color: "#b45309" }, { bg: "#e0f2fe", color: "#0284c7" },
+  { bg: "#fee2e2", color: "#dc2626" }, { bg: "#d1fae5", color: "#047857" },
+];
+function initials(name = "") {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function Avatar({ name, size = 28 }) {
+  const cfg = AVATAR_PALETTE[hashStr(name) % AVATAR_PALETTE.length];
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: "50%", background: cfg.bg, color: cfg.color, fontSize: size * 0.36, fontWeight: 700, flexShrink: 0 }}>
+      {initials(name)}
+    </span>
+  );
+}
+function NameCell({ name, sub }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+      <Avatar name={name} />
+      <div>
+        <div style={{ fontWeight: 600, color: "#111827" }}>{name}</div>
+        {sub && <div style={{ fontSize: 10.5, color: "#9ca3af" }}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* Shared table header/footer styling so every table in this file matches. */
+const TH_STYLE = { padding: "12px 16px", fontSize: 10.5, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.5 };
+const TD_STYLE = { padding: "12px 16px" };
+function TableFoot({ count, total, label }) {
+  return (
+    <div style={{ padding: "10px 16px", fontSize: 11.5, color: "#9ca3af" }}>
+      Showing {count} of {total} {label}
+    </div>
   );
 }
 
@@ -502,24 +560,25 @@ export default function Reports() {
 
             {/* ── Delayed Transactions Table ── */}
             <SectionCard title="Delayed Transactions" subtitle={`${DELAYED_TRANSACTIONS.length} records currently past their expected processing time`} icon={Clock} accentColor="#dc2626" noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} />}>
+              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} />}
+              footer={<TableFoot count={DELAYED_TRANSACTIONS.length} total={DELAYED_TRANSACTIONS.length} label="delayed transactions" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                     {["Transaction ID", "Document Type", "Assigned Faculty", "Status", "Current Stage", "Days Waiting"].map(h => (
-                      <th key={h} style={{ textAlign: h === "Days Waiting" ? "center" : "left", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                      <th key={h} style={{ ...TH_STYLE, textAlign: h === "Days Waiting" ? "center" : "left" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {DELAYED_TRANSACTIONS.map((d, i) => (
-                    <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none", background: d.overdue ? "#fef2f2" : "transparent" }}>
-                      <td style={{ padding: "10px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{d.id}</td>
-                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.docType}</td>
-                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.faculty}</td>
-                      <td style={{ padding: "10px 14px" }}><StatusBadge s={d.status} /></td>
-                      <td style={{ padding: "10px 14px", color: "#6b7280" }}>{d.stage}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center" }}>
+                    <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                      <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{d.id}</td>
+                      <td style={{ ...TD_STYLE, color: "#374151" }}>{d.docType}</td>
+                      <td style={TD_STYLE}><NameCell name={d.faculty} /></td>
+                      <td style={TD_STYLE}><StatusBadge s={d.status} /></td>
+                      <td style={{ ...TD_STYLE, color: "#6b7280" }}>{d.stage}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center" }}>
                         <span style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 700, color: d.overdue ? "#dc2626" : "#d97706" }}>
                           {d.days}d{d.overdue && <AlertCircle style={{ width: 11, height: 11, marginLeft: 3, verticalAlign: "-2px" }} />}
                         </span>
@@ -574,22 +633,23 @@ export default function Reports() {
 
             {/* ── Processing Time Breakdown Table ── */}
             <SectionCard title="Processing Time Breakdown" subtitle="Fastest, average, and slowest turnaround per document type" icon={ClipboardList} accentColor="#5b21b6" noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Processing Time Report", fmt)} />}>
+              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Processing Time Report", fmt)} />}
+              footer={<TableFoot count={PROCESSING_TIME_DATA.length} total={PROCESSING_TIME_DATA.length} label="document types" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                     {["Document Type", "Fastest", "Average", "Slowest"].map(h => (
-                      <th key={h} style={{ textAlign: h === "Document Type" ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                      <th key={h} style={{ ...TH_STYLE, textAlign: h === "Document Type" ? "left" : "center" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {PROCESSING_TIME_DATA.map((p, i) => (
                     <tr key={p.type} style={{ borderBottom: i < PROCESSING_TIME_DATA.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{p.type}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{p.fastest.toFixed(1)}d</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#7c3aed", fontWeight: 600 }}>{p.avg.toFixed(1)}d</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#dc2626", fontWeight: 600 }}>{p.slowest.toFixed(1)}d</td>
+                      <td style={{ ...TD_STYLE, fontWeight: 600, color: "#111827" }}>{p.type}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{p.fastest.toFixed(1)}d</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#7c3aed", fontWeight: 600 }}>{p.avg.toFixed(1)}d</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#dc2626", fontWeight: 600 }}>{p.slowest.toFixed(1)}d</td>
                     </tr>
                   ))}
                 </tbody>
@@ -618,23 +678,24 @@ export default function Reports() {
 
             {/* ── Faculty Performance Table ── */}
             <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions and completion rate per faculty member" icon={ClipboardList} accentColor="#0284c7" noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}>
+              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}
+              footer={<TableFoot count={FACULTY_WORKLOAD.length} total={FACULTY_WORKLOAD.length} label="faculty" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                     {["Faculty Name", "Assigned", "Pending", "Completed", "Completion Rate"].map(h => (
-                      <th key={h} style={{ textAlign: h === "Faculty Name" ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                      <th key={h} style={{ ...TH_STYLE, textAlign: h === "Faculty Name" ? "left" : "center" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {FACULTY_WORKLOAD.map((f, i) => (
                     <tr key={f.name} style={{ borderBottom: i < FACULTY_WORKLOAD.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{f.name}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{f.assigned}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center" }}>
+                      <td style={TD_STYLE}><NameCell name={f.name} /></td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{f.assigned}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center" }}>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, width: 110 }}>
                           <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
                             <div style={{ height: 5, borderRadius: 3, width: `${f.rate}%`, background: f.rate >= 75 ? "#059669" : f.rate >= 60 ? "#d97706" : "#dc2626" }} />
@@ -671,22 +732,23 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Bottleneck Summary ── */}
-            <SectionCard title="Bottleneck Summary" subtitle="Workflow stages exceeding expected processing time" icon={AlertTriangle} accentColor="#c2410c" noPad>
+            <SectionCard title="Bottleneck Summary" subtitle="Workflow stages exceeding expected processing time" icon={AlertTriangle} accentColor="#c2410c" noPad
+              footer={<TableFoot count={BOTTLENECKS.length} total={BOTTLENECKS.length} label="stages" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                     {["Workflow Stage", "Docs Waiting", "Avg Wait Time", "Severity"].map(h => (
-                      <th key={h} style={{ textAlign: h === "Workflow Stage" ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                      <th key={h} style={{ ...TH_STYLE, textAlign: h === "Workflow Stage" ? "left" : "center" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {BOTTLENECKS.map((b, i) => (
-                    <tr key={b.stage} style={{ borderBottom: i < BOTTLENECKS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none", background: b.severity === "Critical" ? "#fef2f2" : "transparent" }}>
-                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{b.stage}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.waiting}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.avgWait}d avg</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center" }}><SeverityBadge level={b.severity} /></td>
+                    <tr key={b.stage} style={{ borderBottom: i < BOTTLENECKS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                      <td style={{ ...TD_STYLE, fontWeight: 600, color: "#111827" }}>{b.stage}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.waiting}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.avgWait}d avg</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center" }}><SeverityBadge level={b.severity} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -724,22 +786,23 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Rejection Log ── */}
-            <SectionCard title="Rejection Log" icon={XCircle} accentColor="#dc2626" noPad>
+            <SectionCard title="Rejection Log" icon={XCircle} accentColor="#dc2626" noPad
+              footer={<TableFoot count={REJECTED_DOCS.length} total={REJECTED_DOCS.length} label="rejected records" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                     {["Transaction ID", "Document Type", "Rejection Reason", "Date Returned"].map(h => (
-                      <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                      <th key={h} style={TH_STYLE}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {REJECTED_DOCS.map((r, i) => (
                     <tr key={r.id} style={{ borderBottom: i < REJECTED_DOCS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ padding: "10px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{r.id}</td>
-                      <td style={{ padding: "10px 14px", color: "#374151" }}>{r.type}</td>
-                      <td style={{ padding: "10px 14px", color: "#dc2626" }}>{r.reason}</td>
-                      <td style={{ padding: "10px 14px", color: "#6b7280" }}>{r.date}</td>
+                      <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{r.id}</td>
+                      <td style={{ ...TD_STYLE, color: "#374151" }}>{r.type}</td>
+                      <td style={{ ...TD_STYLE, color: "#dc2626" }}>{r.reason}</td>
+                      <td style={{ ...TD_STYLE, color: "#6b7280" }}>{r.date}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -752,25 +815,24 @@ export default function Reports() {
             {activeTab === "Audit Trail" && (
               <>
             {/* ── Audit Trail Table ── */}
-            <SectionCard title="Audit Trail" subtitle="Immutable log of all system actions and document state changes" icon={Shield} accentColor="#374151" noPad>
+            <SectionCard title="Audit Trail" subtitle="Immutable log of all system actions and document state changes" icon={Shield} accentColor="#374151" noPad
+              footer={<TableFoot count={AUDIT_TRAIL.length} total={AUDIT_TRAIL.length} label="log entries" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                     {["Date & Time", "User", "Action", "Transaction", "Remarks"].map(h => (
-                      <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                      <th key={h} style={TH_STYLE}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {AUDIT_TRAIL.map((a, i) => (
                     <tr key={i} style={{ borderBottom: i < AUDIT_TRAIL.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ padding: "10px 14px", fontFamily: "monospace", color: "#6b7280", whiteSpace: "nowrap", fontSize: 11 }}>{a.date}</td>
-                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{a.user}</td>
-                      <td style={{ padding: "10px 14px" }}>
-                        <span style={{ padding: "3px 9px", borderRadius: 6, background: "#f3f4f6", color: "#374151", fontSize: 10.5, fontWeight: 600 }}>{a.action}</span>
-                      </td>
-                      <td style={{ padding: "10px 14px", fontFamily: "monospace", color: "#374151", fontSize: 11 }}>{a.transaction}</td>
-                      <td style={{ padding: "10px 14px", color: "#6b7280" }}>{a.remarks}</td>
+                      <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#6b7280", whiteSpace: "nowrap", fontSize: 11 }}>{a.date}</td>
+                      <td style={TD_STYLE}><NameCell name={a.user} /></td>
+                      <td style={TD_STYLE}><Pill text={a.action} bg="#f3f4f6" color="#374151" /></td>
+                      <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#374151", fontSize: 11 }}>{a.transaction}</td>
+                      <td style={{ ...TD_STYLE, color: "#6b7280" }}>{a.remarks}</td>
                     </tr>
                   ))}
                 </tbody>
