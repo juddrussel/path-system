@@ -765,6 +765,72 @@ export default function Reports() {
     });
   }, [auditTrail]);
 
+  /* ════════════════════════════════════════════════════════════════════
+     Overview-tab-only data. Kept separate from KPI_DATA / STATUS_PIE /
+     DOC_TYPE_BAR / MONTHLY_TREND above so the Transactions tab (and every
+     other tab) keeps behaving exactly as before — only Overview reads
+     from these.
+     ════════════════════════════════════════════════════════════════ */
+
+  // ── KPI cards: Total / Pending / Completed / Rejected+Returned / Delayed / Avg Processing Time ──
+  const OVERVIEW_KPI_DATA = useMemo(() => {
+    const count = (pred) => items.filter(pred).length;
+    const avgProcessing = PROCESSING_TIME_DATA.length
+      ? PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length
+      : 0;
+    return [
+      { label: "Total Transactions",   value: items.length,                                          icon: Layers,        color: "#7c3aed" },
+      { label: "Pending",              value: count(i => i.status === "Pending"),                     icon: Clock,         color: "#d97706" },
+      { label: "Completed",            value: count(i => i.status === "Completed"),                   icon: CheckCircle2,  color: "#059669" },
+      { label: "Rejected / Returned",  value: count(i => i.status === "Rejected") + count(i => i.status === "Returned"), icon: XCircle, color: "#dc2626" },
+      { label: "Delayed",              value: count(i => i.status === "Delayed"),                     icon: AlertTriangle, color: "#f97316" },
+      { label: "Avg. Processing Time", value: `${avgProcessing.toFixed(1)}d`,                         icon: Gauge,         color: "#0284c7" },
+    ];
+  }, [items, PROCESSING_TIME_DATA]);
+
+  // ── Transaction Status Overview donut: Pending / Under Review / Approved / Completed / Rejected / Returned ──
+  const OVERVIEW_STATUS_DONUT = useMemo(() => {
+    const cfg = [
+      { name: "Pending",      color: "#d97706" },
+      { name: "Under Review", color: "#0ea5e9" },
+      { name: "Approved",     color: "#0284c7" },
+      { name: "Completed",    color: "#059669" },
+      { name: "Rejected",     color: "#dc2626" },
+      { name: "Returned",     color: "#c2410c" },
+    ];
+    return cfg.map(c => ({ ...c, value: items.filter(i => i.status === c.name).length }));
+  }, [items]);
+
+  // ── Monthly trend growth indicator (first vs. last month in view) ──
+  const OVERVIEW_TREND_GROWTH = useMemo(() => {
+    if (MONTHLY_TREND.length < 2) return null;
+    const first = MONTHLY_TREND[0].submitted;
+    const last = MONTHLY_TREND[MONTHLY_TREND.length - 1].submitted;
+    if (!first) return null;
+    return Number((((last - first) / first) * 100).toFixed(1));
+  }, [MONTHLY_TREND]);
+
+  // ── Faculty Workload Snapshot: top 5 by assigned load ──
+  const FACULTY_SNAPSHOT = useMemo(() => (
+    [...FACULTY_WORKLOAD].sort((a, b) => b.assigned - a.assigned).slice(0, 5)
+  ), [FACULTY_WORKLOAD]);
+
+  // ── Bottleneck Snapshot: top 3 stages by transactions waiting ──
+  const BOTTLENECK_SNAPSHOT = useMemo(() => BOTTLENECKS.slice(0, 3), [BOTTLENECKS]);
+
+  // ── Processing Performance: fastest / average / slowest across all document types ──
+  const PROCESSING_SUMMARY = useMemo(() => {
+    if (!PROCESSING_TIME_DATA.length) return { fastest: 0, avg: 0, slowest: 0 };
+    return {
+      fastest: Math.min(...PROCESSING_TIME_DATA.map(d => d.fastest)),
+      avg: PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length,
+      slowest: Math.max(...PROCESSING_TIME_DATA.map(d => d.slowest)),
+    };
+  }, [PROCESSING_TIME_DATA]);
+
+  // ── Recent Activity Feed: latest workflow activity ──
+  const RECENT_ACTIVITY = useMemo(() => AUDIT_TRAIL.slice(0, 6), [AUDIT_TRAIL]);
+
   const TABS = [
     "Overview",
     "Transactions",
@@ -890,8 +956,209 @@ export default function Reports() {
               ))}
             </div>
 
-            {/* ── Overview & Transactions tabs ── */}
-            {(activeTab === "Overview" || activeTab === "Transactions") && (
+            {/* ── Overview tab ── */}
+            {activeTab === "Overview" && (
+              <>
+            {/* ── KPI Summary Cards ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10 }}>
+              {OVERVIEW_KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
+            </div>
+
+            {/* ── Transaction Status Overview · Most Requested Transaction Types · Monthly Transaction Trend ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
+              <SectionCard title="Transaction Status Overview" subtitle="Live distribution across the workflow" icon={PieIcon}>
+                <ResponsiveContainer width="100%" height={190}>
+                  <RPie>
+                    <Pie data={OVERVIEW_STATUS_DONUT} dataKey="value" nameKey="name" innerRadius={45} outerRadius={72} paddingAngle={2}>
+                      {OVERVIEW_STATUS_DONUT.map(s => <Cell key={s.name} fill={s.color} />)}
+                    </Pie>
+                    <Tooltip />
+                  </RPie>
+                </ResponsiveContainer>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 6 }}>
+                  {OVERVIEW_STATUS_DONUT.map(s => (
+                    <span key={s.name} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#6b7280" }}>
+                      <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.color }} />{s.name}
+                    </span>
+                  ))}
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Most Requested Transaction Types" subtitle="Document/form type by volume" icon={BarChart3}>
+                <ResponsiveContainer width="100%" height={230}>
+                  <BarChart data={DOC_TYPE_BAR} barSize={22}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip formatter={(v) => [v, "Requests"]} />
+                    <Bar dataKey="count" name="Requests" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </SectionCard>
+
+              <SectionCard
+                title="Monthly Transaction Trend"
+                subtitle="Total transactions per month"
+                icon={TrendingUp}
+                action={OVERVIEW_TREND_GROWTH !== null && (
+                  <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: OVERVIEW_TREND_GROWTH >= 0 ? "#059669" : "#dc2626", background: OVERVIEW_TREND_GROWTH >= 0 ? "#d1fae5" : "#fee2e2", padding: "3px 8px", borderRadius: 6 }}>
+                    {OVERVIEW_TREND_GROWTH >= 0 ? <TrendingUp style={{ width: 11, height: 11 }} /> : <TrendingDown style={{ width: 11, height: 11 }} />}
+                    {Math.abs(OVERVIEW_TREND_GROWTH)}%
+                  </span>
+                )}
+              >
+                <ResponsiveContainer width="100%" height={230}>
+                  <LineChart data={MONTHLY_TREND}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip formatter={(v) => [v, "Total Transactions"]} />
+                    <Line type="monotone" dataKey="submitted" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} name="Total Transactions" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </SectionCard>
+            </div>
+
+            {/* ── Faculty Workload Snapshot · Bottleneck Snapshot ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, alignItems: "start" }}>
+              <SectionCard title="Faculty Workload Snapshot" subtitle="Top faculty by assigned transaction volume" icon={Users} noPad
+                footer={
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 12, color: "#9ca3af" }}>Showing {FACULTY_SNAPSHOT.length} of {FACULTY_WORKLOAD.length} faculty</span>
+                    <button
+                      onClick={() => setActiveTab("Faculty Workload")}
+                      style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                    >
+                      View Full Report <ChevronRight style={{ width: 12, height: 12 }} />
+                    </button>
+                  </div>
+                }>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+                      {["Faculty Name", "Assigned", "Pending", "Completed", "Completion Rate"].map(h => (
+                        <th key={h} style={{ ...TH_STYLE, textAlign: h === "Faculty Name" ? "left" : "center" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {FACULTY_SNAPSHOT.map((f, i) => (
+                      <tr key={f.name} style={{ borderBottom: i < FACULTY_SNAPSHOT.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                        <td style={TD_STYLE}><NameCell name={f.name} /></td>
+                        <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{f.assigned}</td>
+                        <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
+                        <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
+                        <td style={{ ...TD_STYLE, textAlign: "center" }}>
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, width: 100 }}>
+                            <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
+                              <div style={{ height: 5, borderRadius: 3, width: `${f.rate}%`, background: f.rate >= 75 ? "#059669" : f.rate >= 60 ? "#d97706" : "#dc2626" }} />
+                            </div>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{f.rate}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {FACULTY_SNAPSHOT.length === 0 && (
+                      <tr><td colSpan={5} style={{ ...TD_STYLE, textAlign: "center", color: "#9ca3af", padding: "20px 16px" }}>No faculty workload data yet.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </SectionCard>
+
+              <SectionCard title="Bottleneck Snapshot" subtitle="Slowest workflow stages right now" icon={AlertTriangle}
+                footer={
+                  <button
+                    onClick={() => setActiveTab("Bottleneck")}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, width: "100%", padding: "7px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    View Full Bottleneck Report <ChevronRight style={{ width: 12, height: 12 }} />
+                  </button>
+                }>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {BOTTLENECK_SNAPSHOT.map(b => (
+                    <div key={b.stage} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderRadius: 10, background: "#f8f8fb", border: "1px solid rgba(0,0,0,0.05)" }}>
+                      <div>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{b.stage}</p>
+                        <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{b.waiting} waiting · {b.avgWait}d avg wait</p>
+                      </div>
+                      <SeverityBadge level={b.severity} />
+                    </div>
+                  ))}
+                  {BOTTLENECK_SNAPSHOT.length === 0 && (
+                    <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "20px 0" }}>No active bottlenecks — everything is moving smoothly.</p>
+                  )}
+                </div>
+              </SectionCard>
+            </div>
+
+            {/* ── Processing Performance ── */}
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Processing Performance</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+                <SectionCard title="Fastest Processing Time" icon={TrendingUp}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                    <p style={{ fontSize: 26, fontWeight: 800, color: "#059669" }}>{PROCESSING_SUMMARY.fastest.toFixed(1)}d</p>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 700, color: "#059669", background: "#d1fae5", padding: "3px 8px", borderRadius: 6 }}>
+                      <TrendingUp style={{ width: 10, height: 10 }} /> Best
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
+                </SectionCard>
+                <SectionCard title="Average Processing Time" icon={Gauge}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                    <p style={{ fontSize: 26, fontWeight: 800, color: "#7c3aed" }}>{PROCESSING_SUMMARY.avg.toFixed(1)}d</p>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 700, color: "#7c3aed", background: "#ede9fe", padding: "3px 8px", borderRadius: 6 }}>
+                      <Activity style={{ width: 10, height: 10 }} /> Typical
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
+                </SectionCard>
+                <SectionCard title="Slowest Processing Time" icon={Clock}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                    <p style={{ fontSize: 26, fontWeight: 800, color: "#dc2626" }}>{PROCESSING_SUMMARY.slowest.toFixed(1)}d</p>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 700, color: "#dc2626", background: "#fee2e2", padding: "3px 8px", borderRadius: 6 }}>
+                      <TrendingDown style={{ width: 10, height: 10 }} /> Watch
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Worst-case turnaround recorded</p>
+                </SectionCard>
+              </div>
+            </div>
+
+            {/* ── Recent Activity Feed ── */}
+            <SectionCard title="Recent Activity Feed" subtitle="Latest submissions, approvals, rejections, and workflow updates" icon={ListTodo} noPad
+              footer={
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 12, color: "#9ca3af" }}>Showing {RECENT_ACTIVITY.length} of {AUDIT_TRAIL.length} log entries</span>
+                  <button
+                    onClick={() => setActiveTab("Audit Trail")}
+                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    View Full Activity Log <ChevronRight style={{ width: 12, height: 12 }} />
+                  </button>
+                </div>
+              }>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {RECENT_ACTIVITY.map((a, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 18px", borderBottom: i < RECENT_ACTIVITY.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                      <NameCell name={a.user} />
+                      <Pill text={a.action.label} bg={a.action.bg} color={a.action.color} />
+                      <span style={{ fontFamily: "monospace", fontSize: 11, color: "#374151" }}>{a.transaction}</span>
+                    </div>
+                    <span style={{ fontFamily: "monospace", fontSize: 11, color: "#9ca3af", whiteSpace: "nowrap" }}>{a.date}</span>
+                  </div>
+                ))}
+                {RECENT_ACTIVITY.length === 0 && (
+                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No recent activity to show yet.</p>
+                )}
+              </div>
+            </SectionCard>
+              </>
+            )}
+
+            {/* ── Transactions tab ── */}
+            {activeTab === "Transactions" && (
               <>
             {/* ── KPI Cards ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10 }}>
