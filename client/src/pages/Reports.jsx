@@ -5,11 +5,11 @@ import {
   FileText, Download, Calendar, Users, ClipboardList, CheckCircle2,
   Clock, AlertTriangle, XCircle, TrendingUp, TrendingDown, BarChart3,
   PieChart as PieIcon, FileSpreadsheet, Eye, RotateCcw, Layers, Shield,
-  Activity, Gauge, ListTodo, ChevronRight, Printer,
+  Activity, Gauge, ListTodo, ChevronRight, Printer, AlertCircle,
 } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart as RPie, Pie, Cell,
 } from "recharts";
 
@@ -98,6 +98,7 @@ const STATUS_CFG = {
   completed: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
   rejected:  { color: "#991b1b", bg: "#fee2e2", dot: "#ef4444" },
   returned:  { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
+  delayed:   { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
   overdue:   { color: "#991b1b", bg: "#fef2f2", dot: "#ef4444" },
 };
 function StatusBadge({ s }) {
@@ -152,7 +153,7 @@ function KpiCard({ label, value, icon: IconCmp, color, delta, up }) {
           </span>
         )}
       </div>
-      <p style={{ fontSize: 22, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{value}</p>
+      <p style={{ fontSize: 22, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{typeof value === "number" ? value.toLocaleString() : value}</p>
       <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{label}</p>
     </div>
   );
@@ -180,109 +181,131 @@ function ExportButtons({ onExport, size = "normal" }) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   Sample data — realistic placeholder figures for demo/defense purposes.
-   Swap these for live fetches (e.g. GET /api/faculty/performance and
-   GET /api/bottlenecks/report, both already built) whenever you're ready
-   to wire this page to real data.
+   Sample data — copied from the updated report mockup (App.tsx). Swap these
+   for live fetches whenever you're ready to wire this page to real data.
    ══════════════════════════════════════════════════════════════════════ */
 
 const KPI_DATA = [
-  { label: "Total Transactions",     value: 428, icon: Layers,        color: "#7c3aed", delta: "+12%", up: true  },
-  { label: "Pending Transactions",   value: 56,  icon: Clock,         color: "#d97706", delta: "+4%",  up: false },
-  { label: "Approved Transactions",  value: 214, icon: CheckCircle2,  color: "#059669", delta: "+9%",  up: true  },
-  { label: "Completed Transactions", value: 189, icon: ClipboardList, color: "#0284c7", delta: "+6%",  up: true  },
-  { label: "Rejected Transactions",  value: 25,  icon: XCircle,       color: "#dc2626", delta: "-2%",  up: true  },
-  { label: "Delayed Transactions",   value: 34,  icon: AlertTriangle, color: "#c2410c", delta: "+3%",  up: false },
+  { label: "Total Transactions", value: 1284, icon: Layers,        color: "#7c3aed", delta: "+12.4%", up: true  },
+  { label: "Pending",            value: 218,  icon: Clock,         color: "#d97706", delta: "+3.1%",  up: true  },
+  { label: "Approved",           value: 396,  icon: CheckCircle2,  color: "#0284c7", delta: "+8.7%",  up: true  },
+  { label: "Completed",          value: 541,  icon: TrendingUp,    color: "#059669", delta: "+15.2%", up: true  },
+  { label: "Rejected",           value: 87,   icon: XCircle,       color: "#dc2626", delta: "-4.3%",  up: false },
+  { label: "Delayed",            value: 42,   icon: AlertTriangle, color: "#f97316", delta: "-1.8%",  up: false },
 ];
 
 const STATUS_PIE = [
-  { name: "Approved",  value: 214, color: "#10b981" },
-  { name: "Pending",   value: 56,  color: "#f59e0b" },
-  { name: "Completed", value: 189, color: "#0284c7" },
-  { name: "Rejected",  value: 25,  color: "#ef4444" },
-  { name: "Returned",  value: 18,  color: "#f97316" },
+  { name: "Pending",   value: 218, color: "#d97706" },
+  { name: "Approved",  value: 396, color: "#0284c7" },
+  { name: "Completed", value: 541, color: "#059669" },
+  { name: "Rejected",  value: 87,  color: "#dc2626" },
+  { name: "Delayed",   value: 42,  color: "#f97316" },
 ];
 
 const DOC_TYPE_BAR = [
-  { type: "Grade Change",       count: 96 },
-  { type: "Leave Request",      count: 74 },
-  { type: "Course Add/Drop",    count: 61 },
-  { type: "Curriculum Proposal",count: 48 },
-  { type: "Clearance Form",     count: 88 },
-  { type: "Research Proposal",  count: 33 },
+  { type: "Enrollment", count: 312 },
+  { type: "Completion", count: 248 },
+  { type: "Overload",   count: 187 },
+  { type: "Leave",      count: 156 },
+  { type: "Transfer",   count: 143 },
+  { type: "Waiver",     count: 98  },
+  { type: "Other",      count: 140 },
 ];
 
 const MONTHLY_TREND = [
-  { month: "Feb", submitted: 58, completed: 49 },
-  { month: "Mar", submitted: 71, completed: 60 },
-  { month: "Apr", submitted: 64, completed: 58 },
-  { month: "May", submitted: 82, completed: 70 },
-  { month: "Jun", submitted: 77, completed: 68 },
-  { month: "Jul", submitted: 76, completed: 65 },
-];
-
-const PROCESSING_TIME = {
-  average: "3.2 days",
-  fastest: { time: "0.5 days", doc: "Leave Request — Prof. Ana Reyes" },
-  slowest: { time: "14.8 days", doc: "Curriculum Proposal — Dr. Kenneth Tan" },
-};
-
-const FACULTY_WORKLOAD = [
-  { name: "Dr. Kenneth Tan",      assigned: 24, pending: 4, completed: 18, rate: 92 },
-  { name: "Prof. Ana Reyes",      assigned: 20, pending: 3, completed: 14, rate: 87 },
-  { name: "Prof. Carlos Mendoza", assigned: 17, pending: 5, completed: 11, rate: 83 },
-  { name: "Dr. Luisa Fernandez",  assigned: 22, pending: 2, completed: 20, rate: 96 },
-  { name: "Ms. Grace Villanueva", assigned: 18, pending: 6, completed: 8,  rate: 71 },
-  { name: "Mr. Jose Ramos",       assigned: 17, pending: 1, completed: 15, rate: 89 },
-];
-
-const BOTTLENECKS = [
-  { stage: "Program Chair Approval",  waiting: 9, avgWait: "7.0 days", threshold: "2.0 days", severity: "Critical" },
-  { stage: "Dean's Office Review",    waiting: 5, avgWait: "4.2 days", threshold: "3.0 days", severity: "High"     },
-  { stage: "Registrar Processing",    waiting: 6, avgWait: "3.1 days", threshold: "2.0 days", severity: "Medium"   },
-  { stage: "Department Endorsement",  waiting: 3, avgWait: "1.4 days", threshold: "2.0 days", severity: "Low"      },
+  { month: "Aug", submitted: 98,  completed: 74,  delayed: 8  },
+  { month: "Sep", submitted: 143, completed: 118, delayed: 11 },
+  { month: "Oct", submitted: 187, completed: 152, delayed: 14 },
+  { month: "Nov", submitted: 162, completed: 131, delayed: 9  },
+  { month: "Dec", submitted: 89,  completed: 79,  delayed: 4  },
+  { month: "Jan", submitted: 201, completed: 164, delayed: 17 },
+  { month: "Feb", submitted: 178, completed: 145, delayed: 12 },
+  { month: "Mar", submitted: 226, completed: 188, delayed: 19 },
 ];
 
 const DELAYED_TRANSACTIONS = [
-  { id: "TRX-2201", docType: "Curriculum Proposal", faculty: "Dr. Kenneth Tan",      stage: "Program Chair Approval", days: 9.5, status: "Pending"  },
-  { id: "TRX-2198", docType: "Grade Change",         faculty: "Ms. Grace Villanueva", stage: "Dean's Office Review",   days: 7.2, status: "Pending"  },
-  { id: "TRX-2189", docType: "Clearance Form",       faculty: "Prof. Carlos Mendoza", stage: "Registrar Processing",   days: 6.8, status: "Overdue"  },
-  { id: "TRX-2177", docType: "Leave Request",        faculty: "Mr. Jose Ramos",       stage: "Program Chair Approval", days: 5.4, status: "Pending"  },
-  { id: "TRX-2165", docType: "Research Proposal",    faculty: "Prof. Ana Reyes",      stage: "Dean's Office Review",   days: 4.9, status: "Overdue"  },
+  { id: "TXN-2024-0891", docType: "Enrollment Form",   faculty: "Dr. R. Santos",   status: "Delayed", stage: "Dean Approval",      days: 14, overdue: true  },
+  { id: "TXN-2024-0876", docType: "Completion Form",   faculty: "Prof. M. Cruz",   status: "Pending", stage: "Registrar Review",   days: 11, overdue: true  },
+  { id: "TXN-2024-0843", docType: "Overload Form",     faculty: "Dr. J. Reyes",    status: "Delayed", stage: "Adviser Sign-off",   days: 9,  overdue: true  },
+  { id: "TXN-2024-0812", docType: "Leave of Absence",  faculty: "Dr. A. Flores",   status: "Pending", stage: "VPAA Review",        days: 7,  overdue: false },
+  { id: "TXN-2024-0798", docType: "Transfer Form",     faculty: "Prof. L. Garcia", status: "Delayed", stage: "Dean Approval",      days: 6,  overdue: false },
+  { id: "TXN-2024-0765", docType: "Waiver Request",    faculty: "Dr. R. Santos",   status: "Pending", stage: "Program Chair",      days: 5,  overdue: false },
 ];
 
-const REJECTION_REASONS = [
-  { reason: "Incomplete Documentation",   count: 9 },
-  { reason: "Missing Signature",          count: 6 },
-  { reason: "Policy Non-compliance",      count: 4 },
-  { reason: "Duplicate Submission",       count: 3 },
-  { reason: "Incorrect Form Version",     count: 3 },
+const PROCESSING_TIME_DATA = [
+  { type: "Enrollment", avg: 4.2, fastest: 1.1, slowest: 12.4 },
+  { type: "Completion", avg: 5.8, fastest: 2.0, slowest: 14.7 },
+  { type: "Overload",   avg: 3.1, fastest: 0.8, slowest: 9.2  },
+  { type: "Leave",      avg: 6.4, fastest: 2.5, slowest: 18.1 },
+  { type: "Transfer",   avg: 7.2, fastest: 3.0, slowest: 16.3 },
+  { type: "Waiver",     avg: 4.9, fastest: 1.4, slowest: 11.8 },
 ];
 
-const SEMESTRAL_SUMMARY = {
-  period: "1st Semester, A.Y. 2025–2026",
-  totalProcessed: 403,
-  approvalRate: 84,
-  completionRate: 76,
-};
+const FACULTY_WORKLOAD = [
+  { name: "Dr. R. Santos",     assigned: 52, pending: 18, completed: 34, rate: 65 },
+  { name: "Prof. M. Cruz",     assigned: 47, pending: 12, completed: 35, rate: 74 },
+  { name: "Dr. J. Reyes",      assigned: 61, pending: 21, completed: 40, rate: 66 },
+  { name: "Dr. A. Flores",     assigned: 38, pending: 9,  completed: 29, rate: 76 },
+  { name: "Prof. L. Garcia",   assigned: 44, pending: 14, completed: 30, rate: 68 },
+  { name: "Dr. T. Mercado",    assigned: 29, pending: 6,  completed: 23, rate: 79 },
+  { name: "Prof. C. Bautista", assigned: 55, pending: 24, completed: 31, rate: 56 },
+];
+
+const BOTTLENECKS = [
+  { stage: "Dean Approval",          waiting: 38, avgWait: 4.8, severity: "Critical" },
+  { stage: "VPAA Review",            waiting: 27, avgWait: 3.9, severity: "High"     },
+  { stage: "Registrar Review",       waiting: 21, avgWait: 2.7, severity: "High"     },
+  { stage: "Adviser Sign-off",       waiting: 14, avgWait: 1.8, severity: "Medium"   },
+  { stage: "Program Chair",          waiting: 9,  avgWait: 1.2, severity: "Low"      },
+  { stage: "Document Verification",  waiting: 6,  avgWait: 0.6, severity: "Low"      },
+];
+
+const REJECTED_DOCS = [
+  { id: "TXN-2024-0834", type: "Enrollment Form",  reason: "Incomplete requirements",       date: "Mar 12, 2024" },
+  { id: "TXN-2024-0821", type: "Overload Form",     reason: "Exceeded unit load limit",      date: "Mar 10, 2024" },
+  { id: "TXN-2024-0809", type: "Waiver Request",    reason: "Missing faculty endorsement",   date: "Mar 8, 2024"  },
+  { id: "TXN-2024-0795", type: "Transfer Form",     reason: "GWA below requirement",         date: "Mar 6, 2024"  },
+  { id: "TXN-2024-0783", type: "Leave of Absence",  reason: "Insufficient documentation",    date: "Mar 4, 2024"  },
+  { id: "TXN-2024-0771", type: "Completion Form",   reason: "Adviser not approved",          date: "Mar 1, 2024"  },
+];
+
+const REJECTION_TREND = [
+  { month: "Aug", rejected: 6,  returned: 4 },
+  { month: "Sep", rejected: 8,  returned: 5 },
+  { month: "Oct", rejected: 11, returned: 7 },
+  { month: "Nov", rejected: 9,  returned: 6 },
+  { month: "Dec", rejected: 5,  returned: 3 },
+  { month: "Jan", rejected: 12, returned: 8 },
+  { month: "Feb", rejected: 10, returned: 7 },
+  { month: "Mar", rejected: 14, returned: 9 },
+];
+
+const RETURNED_SUMMARY = [
+  { label: "Total Processed",  value: "1,284", sub: "This academic year",                color: "#7c3aed" },
+  { label: "Completion Rate",  value: "87.4%", sub: "vs 81.2% last year",                 color: "#059669" },
+  { label: "Approval Rate",    value: "72.8%", sub: "Approved on first submission",       color: "#0284c7" },
+];
 
 const AUDIT_TRAIL = [
-  { actor: "Dr. Kenneth Tan",      action: "approved",  item: "Grade Change — TRX-2210",      time: "12 min ago" },
-  { actor: "Prof. Ana Reyes",      action: "submitted", item: "Leave Request — TRX-2209",     time: "48 min ago" },
-  { actor: "Program Chair Office", action: "returned",  item: "Curriculum Proposal — TRX-2201", time: "2 hr ago"  },
-  { actor: "Ms. Grace Villanueva", action: "assigned",  item: "Clearance Form — TRX-2205",    time: "3 hr ago"   },
-  { actor: "Registrar's Office",   action: "completed", item: "Course Add/Drop — TRX-2190",   time: "5 hr ago"   },
+  { date: "Mar 15, 2024 09:14", user: "Admin J. Dela Cruz",     action: "Document Approved",   transaction: "TXN-2024-0901", remarks: "All requirements complete"     },
+  { date: "Mar 15, 2024 08:52", user: "Dr. R. Santos",          action: "Forwarded to Dean",    transaction: "TXN-2024-0899", remarks: "Endorsed for review"           },
+  { date: "Mar 14, 2024 16:30", user: "Registrar Office",       action: "Document Returned",    transaction: "TXN-2024-0891", remarks: "Missing TOR copy"              },
+  { date: "Mar 14, 2024 15:18", user: "Prof. M. Cruz",          action: "Status Updated",       transaction: "TXN-2024-0887", remarks: "Changed to Pending VPAA"       },
+  { date: "Mar 14, 2024 14:05", user: "Admin J. Dela Cruz",     action: "Document Rejected",    transaction: "TXN-2024-0883", remarks: "GWA requirement not met"       },
+  { date: "Mar 14, 2024 11:47", user: "Dr. J. Reyes",           action: "Document Reviewed",    transaction: "TXN-2024-0879", remarks: "Approved at dept level"        },
+  { date: "Mar 13, 2024 16:22", user: "Admin J. Dela Cruz",     action: "Report Generated",     transaction: "—",             remarks: "Monthly summary exported"      },
+  { date: "Mar 13, 2024 10:09", user: "Program Chair Santos",   action: "Workflow Forwarded",   transaction: "TXN-2024-0871", remarks: "Sent to registrar"             },
 ];
 
 const QUICK_REPORTS = [
-  { title: "Transaction Summary Report",  icon: Layers,        color: "#7c3aed" },
-  { title: "Pending Transactions Report", icon: Clock,         color: "#d97706" },
-  { title: "Completed Transactions Report", icon: CheckCircle2, color: "#059669" },
-  { title: "Delayed Transactions Report", icon: AlertTriangle, color: "#c2410c" },
-  { title: "Faculty Workload Report",     icon: Users,         color: "#0284c7" },
-  { title: "Processing Time Report",      icon: Gauge,         color: "#5b21b6" },
-  { title: "Monthly/Semestral Report",    icon: BarChart3,     color: "#0369a1" },
-  { title: "Audit Trail Report",          icon: Shield,        color: "#374151" },
+  { title: "Transaction Summary",         icon: Layers,        desc: "Complete overview of all transactions",       color: "#7c3aed" },
+  { title: "Pending Transactions",        icon: Clock,         desc: "All transactions awaiting action",            color: "#d97706" },
+  { title: "Completed Transactions",      icon: CheckCircle2,  desc: "Successfully processed transactions",         color: "#059669" },
+  { title: "Delayed Transactions",        icon: AlertTriangle, desc: "Transactions past SLA thresholds",            color: "#f97316" },
+  { title: "Faculty Workload",            icon: Users,         desc: "Per-faculty load and completion rates",       color: "#0284c7" },
+  { title: "Processing Time",             icon: Activity,      desc: "Average times per document type",             color: "#8b5cf6" },
+  { title: "Monthly / Semestral Report",  icon: Calendar,      desc: "Aggregated performance by period",            color: "#ec4899" },
+  { title: "Audit Trail",                 icon: Shield,        desc: "Full system activity log",                   color: "#64748b" },
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -389,9 +412,9 @@ export default function Reports() {
                 <FilterSelect label="Date Range" value={dateRange} onChange={e => setDateRange(e.target.value)}
                   options={["Last 7 Days", "Last 30 Days", "This Semester", "This Year", "Custom Range"]} />
                 <FilterSelect label="Status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                  options={["All Statuses", "Pending", "Approved", "Completed", "Rejected", "Returned"]} />
+                  options={["All Statuses", "Pending", "Approved", "Completed", "Rejected", "Delayed"]} />
                 <FilterSelect label="Document Type" value={docTypeFilter} onChange={e => setDocTypeFilter(e.target.value)}
-                  options={["All Document Types", "Grade Change", "Leave Request", "Course Add/Drop", "Curriculum Proposal", "Clearance Form", "Research Proposal"]} />
+                  options={["All Document Types", "Enrollment", "Completion", "Overload", "Leave", "Transfer", "Waiver", "Other"]} />
                 <FilterSelect label="Faculty" value={facultyFilter} onChange={e => setFacultyFilter(e.target.value)}
                   options={["All Faculty", ...FACULTY_WORKLOAD.map(f => f.name)]} />
               </div>
@@ -420,17 +443,17 @@ export default function Reports() {
               ))}
             </div>
 
-            {/* ── Overview tab ── */}
-            {activeTab === "Overview" && (
+            {/* ── Overview & Transactions tabs ── */}
+            {(activeTab === "Overview" || activeTab === "Transactions") && (
               <>
-            {/* ── 2. KPI Cards ── */}
+            {/* ── KPI Cards ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10 }}>
               {KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
             </div>
 
-            {/* ── 3. Transaction Analytics ── */}
+            {/* ── Transaction Overview ── */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
-              <SectionCard title="Transactions by Status" icon={PieIcon} accentColor="#7c3aed">
+              <SectionCard title="By Status" icon={PieIcon} accentColor="#7c3aed">
                 <ResponsiveContainer width="100%" height={190}>
                   <RPie>
                     <Pie data={STATUS_PIE} dataKey="value" nameKey="name" innerRadius={45} outerRadius={72} paddingAngle={2}>
@@ -450,65 +473,56 @@ export default function Reports() {
 
               <SectionCard title="By Document Type" icon={BarChart3} accentColor="#0284c7">
                 <ResponsiveContainer width="100%" height={230}>
-                  <BarChart data={DOC_TYPE_BAR} layout="vertical" margin={{ left: 8 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                    <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="type" tick={{ fontSize: 10 }} width={100} axisLine={false} tickLine={false} />
+                  <BarChart data={DOC_TYPE_BAR} barSize={22}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#7c3aed" radius={[0, 3, 3, 0]} />
+                    <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </SectionCard>
 
-              <SectionCard title="Monthly Transaction Trend" icon={TrendingUp} accentColor="#059669">
+              <SectionCard title="Monthly Transaction Trend" subtitle="AY 2023–2024" icon={TrendingUp} accentColor="#059669">
                 <ResponsiveContainer width="100%" height={230}>
-                  <AreaChart data={MONTHLY_TREND}>
-                    <defs>
-                      <linearGradient id="gSubmitted" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.18} />
-                        <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="gCompleted" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#059669" stopOpacity={0.18} />
-                        <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
+                  <LineChart data={MONTHLY_TREND}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                     <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                     <Tooltip />
-                    <Area type="monotone" dataKey="submitted" stroke="#7c3aed" strokeWidth={2} fill="url(#gSubmitted)" name="Submitted" />
-                    <Area type="monotone" dataKey="completed" stroke="#059669" strokeWidth={2} fill="url(#gCompleted)" name="Completed" />
-                  </AreaChart>
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Line type="monotone" dataKey="submitted" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} name="Submitted" />
+                    <Line type="monotone" dataKey="completed" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="Completed" />
+                    <Line type="monotone" dataKey="delayed" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 2" name="Delayed" />
+                  </LineChart>
                 </ResponsiveContainer>
               </SectionCard>
             </div>
-              </>
-            )}
 
-            {/* ── Transactions tab ── */}
-            {activeTab === "Transactions" && (
-              <>
-            {/* ── 7. Delayed Transactions Table ── */}
-            <SectionCard title="Delayed Transactions" subtitle="Documents currently past their expected processing time" icon={Clock} accentColor="#dc2626" noPad
+            {/* ── Delayed Transactions Table ── */}
+            <SectionCard title="Delayed Transactions" subtitle={`${DELAYED_TRANSACTIONS.length} records currently past their expected processing time`} icon={Clock} accentColor="#dc2626" noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                    {["Transaction ID", "Document Type", "Assigned Faculty", "Current Stage", "Days Waiting", "Status"].map(h => (
-                      <th key={h} style={{ textAlign: (h === "Transaction ID" || h === "Document Type" || h === "Assigned Faculty" || h === "Current Stage") ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                    {["Transaction ID", "Document Type", "Assigned Faculty", "Status", "Current Stage", "Days Waiting"].map(h => (
+                      <th key={h} style={{ textAlign: h === "Days Waiting" ? "center" : "left", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {DELAYED_TRANSACTIONS.map((d, i) => (
-                    <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                    <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none", background: d.overdue ? "#fef2f2" : "transparent" }}>
                       <td style={{ padding: "10px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{d.id}</td>
                       <td style={{ padding: "10px 14px", color: "#374151" }}>{d.docType}</td>
                       <td style={{ padding: "10px 14px", color: "#374151" }}>{d.faculty}</td>
-                      <td style={{ padding: "10px 14px", color: "#374151" }}>{d.stage}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#dc2626", fontWeight: 700 }}>{d.days}d</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center" }}><StatusBadge s={d.status} /></td>
+                      <td style={{ padding: "10px 14px" }}><StatusBadge s={d.status} /></td>
+                      <td style={{ padding: "10px 14px", color: "#6b7280" }}>{d.stage}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center" }}>
+                        <span style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 700, color: d.overdue ? "#dc2626" : "#d97706" }}>
+                          {d.days}d{d.overdue && <AlertCircle style={{ width: 11, height: 11, marginLeft: 3, verticalAlign: "-2px" }} />}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -520,29 +534,65 @@ export default function Reports() {
             {/* ── Processing Time tab ── */}
             {activeTab === "Processing Time" && (
               <>
-            {/* ── 4. Processing Time Analytics ── */}
+            {/* ── Processing Time Summary ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-              <SectionCard title="Average Processing Time" icon={Gauge} accentColor="#7c3aed">
-                <p style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>{PROCESSING_TIME.average}</p>
-                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Across all document types and stages</p>
+              <SectionCard title="Average Processing Time" icon={Activity} accentColor="#7c3aed">
+                <p style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>
+                  {(PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length).toFixed(1)} days
+                </p>
+                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
               </SectionCard>
-              <SectionCard title="Fastest Processing Time" icon={CheckCircle2} accentColor="#059669">
-                <p style={{ fontSize: 28, fontWeight: 800, color: "#059669" }}>{PROCESSING_TIME.fastest.time}</p>
-                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{PROCESSING_TIME.fastest.doc}</p>
+              <SectionCard title="Fastest Processing Time" icon={TrendingUp} accentColor="#059669">
+                <p style={{ fontSize: 28, fontWeight: 800, color: "#059669" }}>
+                  {Math.min(...PROCESSING_TIME_DATA.map(d => d.fastest)).toFixed(1)} days
+                </p>
+                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
               </SectionCard>
-              <SectionCard title="Slowest Processing Time" icon={AlertTriangle} accentColor="#dc2626">
-                <p style={{ fontSize: 28, fontWeight: 800, color: "#dc2626" }}>{PROCESSING_TIME.slowest.time}</p>
-                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{PROCESSING_TIME.slowest.doc}</p>
+              <SectionCard title="Slowest Processing Time" icon={Clock} accentColor="#dc2626">
+                <p style={{ fontSize: 28, fontWeight: 800, color: "#dc2626" }}>
+                  {Math.max(...PROCESSING_TIME_DATA.map(d => d.slowest)).toFixed(1)} days
+                </p>
+                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Worst-case turnaround recorded</p>
               </SectionCard>
             </div>
+
+            <SectionCard title="Processing Time per Document Type" subtitle="Fastest, average, and slowest turnaround in days" icon={Gauge} accentColor="#5b21b6">
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={PROCESSING_TIME_DATA} barSize={16}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} unit="d" />
+                  <Tooltip formatter={(v) => [`${v} days`]} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="fastest" fill="#059669" radius={[3, 3, 0, 0]} name="Fastest" />
+                  <Bar dataKey="avg" fill="#7c3aed" radius={[3, 3, 0, 0]} name="Average" />
+                  <Bar dataKey="slowest" fill="#dc2626" radius={[3, 3, 0, 0]} name="Slowest" />
+                </BarChart>
+              </ResponsiveContainer>
+            </SectionCard>
               </>
             )}
 
             {/* ── Faculty Workload tab ── */}
             {activeTab === "Faculty Workload" && (
               <>
-            {/* ── 5. Faculty Workload Report ── */}
-            <SectionCard title="Faculty Workload Report" subtitle="Assigned transactions and completion rate per faculty member" icon={Users} accentColor="#0284c7" noPad
+            {/* ── Workload Comparison ── */}
+            <SectionCard title="Workload Comparison" subtitle="Completed vs. pending transactions per faculty member" icon={Users} accentColor="#0284c7">
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={FACULTY_WORKLOAD} layout="vertical" barSize={14}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                  <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={120} axisLine={false} tickLine={false} />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="completed" fill="#059669" radius={[0, 3, 3, 0]} name="Completed" stackId="a" />
+                  <Bar dataKey="pending" fill="#d97706" radius={[0, 3, 3, 0]} name="Pending" stackId="a" />
+                </BarChart>
+              </ResponsiveContainer>
+            </SectionCard>
+
+            {/* ── Faculty Performance Table ── */}
+            <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions and completion rate per faculty member" icon={ClipboardList} accentColor="#0284c7" noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -556,13 +606,13 @@ export default function Reports() {
                   {FACULTY_WORKLOAD.map((f, i) => (
                     <tr key={f.name} style={{ borderBottom: i < FACULTY_WORKLOAD.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
                       <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{f.name}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#374151" }}>{f.assigned}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{f.assigned}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
                       <td style={{ padding: "10px 14px", textAlign: "center" }}>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, width: 110 }}>
                           <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
-                            <div style={{ height: 5, borderRadius: 3, width: `${f.rate}%`, background: f.rate >= 90 ? "#059669" : f.rate >= 80 ? "#d97706" : "#dc2626" }} />
+                            <div style={{ height: 5, borderRadius: 3, width: `${f.rate}%`, background: f.rate >= 75 ? "#059669" : f.rate >= 60 ? "#d97706" : "#dc2626" }} />
                           </div>
                           <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{f.rate}%</span>
                         </div>
@@ -578,12 +628,29 @@ export default function Reports() {
             {/* ── Bottleneck tab ── */}
             {activeTab === "Bottleneck" && (
               <>
-            {/* ── 6. Bottleneck Analysis ── */}
-            <SectionCard title="Bottleneck Analysis" subtitle="Workflow stages exceeding expected processing time" icon={Activity} accentColor="#c2410c" noPad>
+            {/* ── Documents Waiting by Stage ── */}
+            <SectionCard title="Documents Waiting by Stage" icon={Activity} accentColor="#c2410c">
+              <ResponsiveContainer width="100%" height={230}>
+                <BarChart data={BOTTLENECKS} barSize={28}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="stage" tick={{ fontSize: 9.5 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip />
+                  <Bar dataKey="waiting" name="Docs Waiting" radius={[4, 4, 0, 0]}>
+                    {BOTTLENECKS.map(b => (
+                      <Cell key={b.stage} fill={b.severity === "Critical" ? "#dc2626" : b.severity === "High" ? "#f97316" : b.severity === "Medium" ? "#d97706" : "#059669"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </SectionCard>
+
+            {/* ── Bottleneck Summary ── */}
+            <SectionCard title="Bottleneck Summary" subtitle="Workflow stages exceeding expected processing time" icon={AlertTriangle} accentColor="#c2410c" noPad>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                    {["Workflow Stage", "Documents Waiting", "Avg Wait Time", "Threshold", "Severity"].map(h => (
+                    {["Workflow Stage", "Docs Waiting", "Avg Wait Time", "Severity"].map(h => (
                       <th key={h} style={{ textAlign: h === "Workflow Stage" ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
                     ))}
                   </tr>
@@ -592,9 +659,8 @@ export default function Reports() {
                   {BOTTLENECKS.map((b, i) => (
                     <tr key={b.stage} style={{ borderBottom: i < BOTTLENECKS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none", background: b.severity === "Critical" ? "#fef2f2" : "transparent" }}>
                       <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{b.stage}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#374151" }}>{b.waiting}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#dc2626", fontWeight: 700 }}>{b.avgWait}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", color: "#6b7280" }}>{b.threshold}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.waiting}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.avgWait}d avg</td>
                       <td style={{ padding: "10px 14px", textAlign: "center" }}><SeverityBadge level={b.severity} /></td>
                     </tr>
                   ))}
@@ -607,65 +673,83 @@ export default function Reports() {
             {/* ── Returned / Rejected tab ── */}
             {activeTab === "Returned / Rejected" && (
               <>
-            {/* ── 8. Returned/Rejection Analysis ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <SectionCard title="Rejection Analysis" subtitle="Most common reasons for returned or rejected transactions" icon={RotateCcw} accentColor="#dc2626">
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={REJECTION_REASONS} layout="vertical" margin={{ left: 8 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                    <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="reason" tick={{ fontSize: 9.5 }} width={140} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#dc2626" radius={[0, 3, 3, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </SectionCard>
-
-              <SectionCard title="Monthly / Semestral Summary" subtitle={SEMESTRAL_SUMMARY.period} icon={BarChart3} accentColor="#5b21b6">
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 14 }}>
-                  <div>
-                    <p style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>{SEMESTRAL_SUMMARY.totalProcessed}</p>
-                    <p style={{ fontSize: 10, color: "#6b7280" }}>Total Processed</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 20, fontWeight: 800, color: "#059669" }}>{SEMESTRAL_SUMMARY.approvalRate}%</p>
-                    <p style={{ fontSize: 10, color: "#6b7280" }}>Approval Rate</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 20, fontWeight: 800, color: "#0284c7" }}>{SEMESTRAL_SUMMARY.completionRate}%</p>
-                    <p style={{ fontSize: 10, color: "#6b7280" }}>Completion Rate</p>
-                  </div>
-                </div>
-                <ResponsiveContainer width="100%" height={110}>
-                  <LineChart data={MONTHLY_TREND}>
-                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis hide />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="completed" stroke="#5b21b6" strokeWidth={2} dot={{ fill: "#5b21b6", r: 3 }} name="Completed" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </SectionCard>
+            {/* ── Summary cards ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+              {RETURNED_SUMMARY.map(c => (
+                <SectionCard key={c.label} title={c.label}>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: c.color }}>{c.value}</p>
+                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{c.sub}</p>
+                </SectionCard>
+              ))}
             </div>
+
+            {/* ── Monthly Rejection & Return Trend ── */}
+            <SectionCard title="Monthly Rejection & Return Trend" icon={RotateCcw} accentColor="#dc2626">
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={REJECTION_TREND} barSize={20}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="rejected" fill="#dc2626" radius={[3, 3, 0, 0]} name="Rejected" />
+                  <Bar dataKey="returned" fill="#d97706" radius={[3, 3, 0, 0]} name="Returned" />
+                </BarChart>
+              </ResponsiveContainer>
+            </SectionCard>
+
+            {/* ── Rejection Log ── */}
+            <SectionCard title="Rejection Log" icon={XCircle} accentColor="#dc2626" noPad>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                    {["Transaction ID", "Document Type", "Rejection Reason", "Date Returned"].map(h => (
+                      <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {REJECTED_DOCS.map((r, i) => (
+                    <tr key={r.id} style={{ borderBottom: i < REJECTED_DOCS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                      <td style={{ padding: "10px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{r.id}</td>
+                      <td style={{ padding: "10px 14px", color: "#374151" }}>{r.type}</td>
+                      <td style={{ padding: "10px 14px", color: "#dc2626" }}>{r.reason}</td>
+                      <td style={{ padding: "10px 14px", color: "#6b7280" }}>{r.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </SectionCard>
               </>
             )}
 
             {/* ── Audit Trail tab ── */}
             {activeTab === "Audit Trail" && (
               <>
-            {/* ── 10. Audit Trail Summary ── */}
-            <SectionCard title="Audit Trail Summary" subtitle="Recent activity across the workflow system" icon={Shield} accentColor="#374151"
-              footer={<button onClick={() => navigate("/audit")} style={{ width: "100%", background: "none", border: "none", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>View Full Audit Trail <ChevronRight style={{ width: 12, height: 12 }} /></button>}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {AUDIT_TRAIL.map((a, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#7c3aed", flexShrink: 0 }} />
-                    <span style={{ color: "#111827", fontWeight: 600 }}>{a.actor}</span>
-                    <span style={{ color: "#6b7280" }}>{a.action}</span>
-                    <span style={{ color: "#374151", flex: 1 }}>{a.item}</span>
-                    <span style={{ color: "#9ca3af", fontSize: 10, flexShrink: 0 }}>{a.time}</span>
-                  </div>
-                ))}
-              </div>
+            {/* ── Audit Trail Table ── */}
+            <SectionCard title="Audit Trail" subtitle="Immutable log of all system actions and document state changes" icon={Shield} accentColor="#374151" noPad>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                    {["Date & Time", "User", "Action", "Transaction", "Remarks"].map(h => (
+                      <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {AUDIT_TRAIL.map((a, i) => (
+                    <tr key={i} style={{ borderBottom: i < AUDIT_TRAIL.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                      <td style={{ padding: "10px 14px", fontFamily: "monospace", color: "#6b7280", whiteSpace: "nowrap", fontSize: 11 }}>{a.date}</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{a.user}</td>
+                      <td style={{ padding: "10px 14px" }}>
+                        <span style={{ padding: "3px 9px", borderRadius: 6, background: "#f3f4f6", color: "#374151", fontSize: 10.5, fontWeight: 600 }}>{a.action}</span>
+                      </td>
+                      <td style={{ padding: "10px 14px", fontFamily: "monospace", color: "#374151", fontSize: 11 }}>{a.transaction}</td>
+                      <td style={{ padding: "10px 14px", color: "#6b7280" }}>{a.remarks}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </SectionCard>
               </>
             )}
@@ -673,7 +757,7 @@ export default function Reports() {
             {/* ── Quick Reports tab ── */}
             {activeTab === "Quick Reports" && (
               <>
-            {/* ── 11. Quick Report Center ── */}
+            {/* ── Quick Report Center ── */}
             <div>
               <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Quick Report Center</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
@@ -682,7 +766,10 @@ export default function Reports() {
                     <div style={{ width: 34, height: 34, borderRadius: 9, background: `${r.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <r.icon style={{ width: 16, height: 16, color: r.color }} />
                     </div>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: "#111827", lineHeight: 1.3 }}>{r.title}</p>
+                    <div>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: "#111827", lineHeight: 1.3 }}>{r.title}</p>
+                      <p style={{ fontSize: 10.5, color: "#6b7280", marginTop: 3, lineHeight: 1.4 }}>{r.desc}</p>
+                    </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: "auto" }}>
                       <button
                         onClick={() => handleExport(r.title, "View")}
