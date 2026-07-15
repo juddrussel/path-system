@@ -570,30 +570,6 @@ export default function Reports() {
                 </BarChart>
               </ResponsiveContainer>
             </SectionCard>
-
-            {/* ── Processing Time Breakdown Table ── */}
-            <SectionCard title="Processing Time Breakdown" subtitle="Fastest, average, and slowest turnaround per document type" icon={ClipboardList} accentColor="#5b21b6" noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Processing Time Report", fmt)} />}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                    {["Document Type", "Fastest", "Average", "Slowest"].map(h => (
-                      <th key={h} style={{ textAlign: h === "Document Type" ? "left" : "center", padding: "10px 14px", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {PROCESSING_TIME_DATA.map((p, i) => (
-                    <tr key={p.type} style={{ borderBottom: i < PROCESSING_TIME_DATA.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{p.type}</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{p.fastest.toFixed(1)}d</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#7c3aed", fontWeight: 600 }}>{p.avg.toFixed(1)}d</td>
-                      <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "#dc2626", fontWeight: 600 }}>{p.slowest.toFixed(1)}d</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </SectionCard>
               </>
             )}
 
@@ -781,11 +757,6 @@ export default function Reports() {
             {/* ── Quick Reports tab ── */}
             {activeTab === "Quick Reports" && (
               <>
-            {/* ── KPI Cards (top part, matching Overview) ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10 }}>
-              {KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
-            </div>
-
             {/* ── Quick Report Center ── */}
             <div>
               <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Quick Report Center</p>
