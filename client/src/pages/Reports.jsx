@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import {
@@ -243,117 +243,14 @@ function ExportButtons({ onExport, size = "normal" }) {
    for live fetches whenever you're ready to wire this page to real data.
    ══════════════════════════════════════════════════════════════════════ */
 
-const KPI_DATA = [
-  { label: "Total Transactions", value: 1284, icon: Layers,        color: "#7c3aed", delta: "+12.4%", up: true  },
-  { label: "Pending",            value: 218,  icon: Clock,         color: "#d97706", delta: "+3.1%",  up: true  },
-  { label: "Approved",           value: 396,  icon: CheckCircle2,  color: "#0284c7", delta: "+8.7%",  up: true  },
-  { label: "Completed",          value: 541,  icon: TrendingUp,    color: "#059669", delta: "+15.2%", up: true  },
-  { label: "Rejected",           value: 87,   icon: XCircle,       color: "#dc2626", delta: "-4.3%",  up: false },
-  { label: "Delayed",            value: 42,   icon: AlertTriangle, color: "#f97316", delta: "-1.8%",  up: false },
-];
+/* ══════════════════════════════════════════════════════════════════════════
+   NOTE: KPI_DATA, STATUS_PIE, DOC_TYPE_BAR, MONTHLY_TREND, DELAYED_TRANSACTIONS,
+   PROCESSING_TIME_DATA, FACULTY_WORKLOAD, BOTTLENECKS, REJECTED_DOCS,
+   REJECTION_TREND, RETURNED_SUMMARY, and AUDIT_TRAIL are no longer static
+   sample arrays — they are computed inside the Reports() component below
+   from live API data (see the fetch* functions and useMemo blocks).
+   ══════════════════════════════════════════════════════════════════════ */
 
-const STATUS_PIE = [
-  { name: "Pending",   value: 218, color: "#d97706" },
-  { name: "Approved",  value: 396, color: "#0284c7" },
-  { name: "Completed", value: 541, color: "#059669" },
-  { name: "Rejected",  value: 87,  color: "#dc2626" },
-  { name: "Delayed",   value: 42,  color: "#f97316" },
-];
-
-const DOC_TYPE_BAR = [
-  { type: "Enrollment", count: 312 },
-  { type: "Completion", count: 248 },
-  { type: "Overload",   count: 187 },
-  { type: "Leave",      count: 156 },
-  { type: "Transfer",   count: 143 },
-  { type: "Waiver",     count: 98  },
-  { type: "Other",      count: 140 },
-];
-
-const MONTHLY_TREND = [
-  { month: "Aug", submitted: 98,  completed: 74,  delayed: 8  },
-  { month: "Sep", submitted: 143, completed: 118, delayed: 11 },
-  { month: "Oct", submitted: 187, completed: 152, delayed: 14 },
-  { month: "Nov", submitted: 162, completed: 131, delayed: 9  },
-  { month: "Dec", submitted: 89,  completed: 79,  delayed: 4  },
-  { month: "Jan", submitted: 201, completed: 164, delayed: 17 },
-  { month: "Feb", submitted: 178, completed: 145, delayed: 12 },
-  { month: "Mar", submitted: 226, completed: 188, delayed: 19 },
-];
-
-const DELAYED_TRANSACTIONS = [
-  { id: "TXN-2024-0891", docType: "Enrollment Form",   faculty: "Dr. R. Santos",   status: "Delayed", stage: "Dean Approval",      days: 14, overdue: true  },
-  { id: "TXN-2024-0876", docType: "Completion Form",   faculty: "Prof. M. Cruz",   status: "Pending", stage: "Registrar Review",   days: 11, overdue: true  },
-  { id: "TXN-2024-0843", docType: "Overload Form",     faculty: "Dr. J. Reyes",    status: "Delayed", stage: "Adviser Sign-off",   days: 9,  overdue: true  },
-  { id: "TXN-2024-0812", docType: "Leave of Absence",  faculty: "Dr. A. Flores",   status: "Pending", stage: "VPAA Review",        days: 7,  overdue: false },
-  { id: "TXN-2024-0798", docType: "Transfer Form",     faculty: "Prof. L. Garcia", status: "Delayed", stage: "Dean Approval",      days: 6,  overdue: false },
-  { id: "TXN-2024-0765", docType: "Waiver Request",    faculty: "Dr. R. Santos",   status: "Pending", stage: "Program Chair",      days: 5,  overdue: false },
-];
-
-const PROCESSING_TIME_DATA = [
-  { type: "Enrollment", avg: 4.2, fastest: 1.1, slowest: 12.4 },
-  { type: "Completion", avg: 5.8, fastest: 2.0, slowest: 14.7 },
-  { type: "Overload",   avg: 3.1, fastest: 0.8, slowest: 9.2  },
-  { type: "Leave",      avg: 6.4, fastest: 2.5, slowest: 18.1 },
-  { type: "Transfer",   avg: 7.2, fastest: 3.0, slowest: 16.3 },
-  { type: "Waiver",     avg: 4.9, fastest: 1.4, slowest: 11.8 },
-];
-
-const FACULTY_WORKLOAD = [
-  { name: "Dr. R. Santos",     assigned: 52, pending: 18, completed: 34, rate: 65 },
-  { name: "Prof. M. Cruz",     assigned: 47, pending: 12, completed: 35, rate: 74 },
-  { name: "Dr. J. Reyes",      assigned: 61, pending: 21, completed: 40, rate: 66 },
-  { name: "Dr. A. Flores",     assigned: 38, pending: 9,  completed: 29, rate: 76 },
-  { name: "Prof. L. Garcia",   assigned: 44, pending: 14, completed: 30, rate: 68 },
-  { name: "Dr. T. Mercado",    assigned: 29, pending: 6,  completed: 23, rate: 79 },
-  { name: "Prof. C. Bautista", assigned: 55, pending: 24, completed: 31, rate: 56 },
-];
-
-const BOTTLENECKS = [
-  { stage: "Dean Approval",          waiting: 38, avgWait: 4.8, severity: "Critical" },
-  { stage: "VPAA Review",            waiting: 27, avgWait: 3.9, severity: "High"     },
-  { stage: "Registrar Review",       waiting: 21, avgWait: 2.7, severity: "High"     },
-  { stage: "Adviser Sign-off",       waiting: 14, avgWait: 1.8, severity: "Medium"   },
-  { stage: "Program Chair",          waiting: 9,  avgWait: 1.2, severity: "Low"      },
-  { stage: "Document Verification",  waiting: 6,  avgWait: 0.6, severity: "Low"      },
-];
-
-const REJECTED_DOCS = [
-  { id: "TXN-2024-0834", type: "Enrollment Form",  reason: "Incomplete requirements",       date: "Mar 12, 2024" },
-  { id: "TXN-2024-0821", type: "Overload Form",     reason: "Exceeded unit load limit",      date: "Mar 10, 2024" },
-  { id: "TXN-2024-0809", type: "Waiver Request",    reason: "Missing faculty endorsement",   date: "Mar 8, 2024"  },
-  { id: "TXN-2024-0795", type: "Transfer Form",     reason: "GWA below requirement",         date: "Mar 6, 2024"  },
-  { id: "TXN-2024-0783", type: "Leave of Absence",  reason: "Insufficient documentation",    date: "Mar 4, 2024"  },
-  { id: "TXN-2024-0771", type: "Completion Form",   reason: "Adviser not approved",          date: "Mar 1, 2024"  },
-];
-
-const REJECTION_TREND = [
-  { month: "Aug", rejected: 6,  returned: 4 },
-  { month: "Sep", rejected: 8,  returned: 5 },
-  { month: "Oct", rejected: 11, returned: 7 },
-  { month: "Nov", rejected: 9,  returned: 6 },
-  { month: "Dec", rejected: 5,  returned: 3 },
-  { month: "Jan", rejected: 12, returned: 8 },
-  { month: "Feb", rejected: 10, returned: 7 },
-  { month: "Mar", rejected: 14, returned: 9 },
-];
-
-const RETURNED_SUMMARY = [
-  { label: "Total Processed",  value: "1,284", sub: "This academic year",                color: "#7c3aed" },
-  { label: "Completion Rate",  value: "87.4%", sub: "vs 81.2% last year",                 color: "#059669" },
-  { label: "Approval Rate",    value: "72.8%", sub: "Approved on first submission",       color: "#0284c7" },
-];
-
-const AUDIT_TRAIL = [
-  { date: "Mar 15, 2024 09:14", user: "Admin J. Dela Cruz",     action: "Document Approved",   transaction: "TXN-2024-0901", remarks: "All requirements complete"     },
-  { date: "Mar 15, 2024 08:52", user: "Dr. R. Santos",          action: "Forwarded to Dean",    transaction: "TXN-2024-0899", remarks: "Endorsed for review"           },
-  { date: "Mar 14, 2024 16:30", user: "Registrar Office",       action: "Document Returned",    transaction: "TXN-2024-0891", remarks: "Missing TOR copy"              },
-  { date: "Mar 14, 2024 15:18", user: "Prof. M. Cruz",          action: "Status Updated",       transaction: "TXN-2024-0887", remarks: "Changed to Pending VPAA"       },
-  { date: "Mar 14, 2024 14:05", user: "Admin J. Dela Cruz",     action: "Document Rejected",    transaction: "TXN-2024-0883", remarks: "GWA requirement not met"       },
-  { date: "Mar 14, 2024 11:47", user: "Dr. J. Reyes",           action: "Document Reviewed",    transaction: "TXN-2024-0879", remarks: "Approved at dept level"        },
-  { date: "Mar 13, 2024 16:22", user: "Admin J. Dela Cruz",     action: "Report Generated",     transaction: "—",             remarks: "Monthly summary exported"      },
-  { date: "Mar 13, 2024 10:09", user: "Program Chair Santos",   action: "Workflow Forwarded",   transaction: "TXN-2024-0871", remarks: "Sent to registrar"             },
-];
 
 const QUICK_REPORTS = [
   { title: "Transaction Summary",         icon: Layers,        desc: "Complete overview of all transactions",       color: "#7c3aed" },
@@ -387,6 +284,402 @@ export default function Reports() {
   const [facultyFilter, setFacultyFilter] = useState("All Faculty");
   const [exportToast, setExportToast] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
+
+  /* ════════════════════════════════════════════════════════════════════
+     Live data — same fetch pattern as Dashboard.jsx (fetchTrackedItems /
+     fetchFacultyPerformance / fetchDelayedDocuments), plus an audit-log
+     fetch. Everything below this block (KPI_DATA, STATUS_PIE, etc.) is
+     derived from these via useMemo instead of hard-coded sample data.
+     ════════════════════════════════════════════════════════════════════ */
+
+  const [rawItems, setRawItems] = useState([]);       // merged documents + tasks + forms
+  const [itemsLoading, setItemsLoading] = useState(true);
+  const [facultyPerformance, setFacultyPerformance] = useState([]);
+  const [facultyLoading, setFacultyLoading] = useState(true);
+  const [delayedDocs, setDelayedDocs] = useState([]);
+  const [delayedLoading, setDelayedLoading] = useState(true);
+  const [auditTrail, setAuditTrail] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(true);
+  const [auditUnavailable, setAuditUnavailable] = useState(false);
+
+  const REAL_STATUS_DISPLAY = {
+    "pending":        "Pending",
+    "in review":      "Under Review",
+    "for approval":   "For Approval",
+    "returned":       "Returned",
+    "received":       "Approved",
+    "approved":       "Approved",
+    "rejected":       "Rejected",
+    "archived":       "Completed",
+    "registered":     "Approved",
+    "completed":      "Completed",
+    "draft":          "Pending",
+  };
+
+  const fetchFacultyPerformance = useCallback(async () => {
+    setFacultyLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API}/api/faculty/performance`, { headers: authH });
+      if (res.ok) {
+        const data = await res.json();
+        const rows = data.faculty ?? data ?? [];
+        setFacultyPerformance(Array.isArray(rows) ? rows : []);
+      } else {
+        setFacultyPerformance([]);
+      }
+    } catch (err) {
+      console.error("Faculty performance fetch error:", err);
+      setFacultyPerformance([]);
+    } finally {
+      setFacultyLoading(false);
+    }
+  }, [token]);
+
+  const fetchDelayedDocuments = useCallback(async () => {
+    setDelayedLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API}/api/faculty/delayed-documents`, { headers: authH });
+      if (res.ok) {
+        const data = await res.json();
+        const rows = data.delayed ?? [];
+        setDelayedDocs(Array.isArray(rows) ? rows : []);
+      } else {
+        setDelayedDocs([]);
+      }
+    } catch (err) {
+      console.error("Delayed documents fetch error:", err);
+      setDelayedDocs([]);
+    } finally {
+      setDelayedLoading(false);
+    }
+  }, [token]);
+
+  // Best-effort audit log fetch. If your backend exposes this under a
+  // different path, update the URL below — the page degrades gracefully
+  // (empty table + note) if the endpoint 404s or isn't wired up yet.
+  const fetchAuditTrail = useCallback(async () => {
+    setAuditLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API}/api/audit-trail`, { headers: authH });
+      if (res.ok) {
+        const data = await res.json();
+        const rows = data.logs ?? data.audit ?? data ?? [];
+        setAuditTrail(Array.isArray(rows) ? rows : []);
+        setAuditUnavailable(false);
+      } else {
+        setAuditTrail([]);
+        setAuditUnavailable(true);
+      }
+    } catch (err) {
+      console.error("Audit trail fetch error:", err);
+      setAuditTrail([]);
+      setAuditUnavailable(true);
+    } finally {
+      setAuditLoading(false);
+    }
+  }, [token]);
+
+  const fetchTrackedItems = useCallback(async () => {
+    setItemsLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const merged = [];
+      const now = new Date();
+
+      const userMap = {};
+      try {
+        const res = await fetch(`${API}/api/users`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const users = data.users ?? data ?? [];
+          (Array.isArray(users) ? users : []).forEach(u => {
+            userMap[u.id] = u.full_name || u.name || u.username || `User #${u.id}`;
+          });
+        }
+      } catch (err) { console.error("Users fetch error:", err); }
+      const nameOf = (id) => userMap[id] || (id ? `User #${id}` : "—");
+
+      const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+      const monthOf = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short" }) : null;
+      const daysSince = (d) => d ? Math.max(0, Math.floor((now - new Date(d)) / 86400000)) : 0;
+      const displayStatus = (s) => REAL_STATUS_DISPLAY[s?.toLowerCase()] || s || "Pending";
+      const DONE = ["Approved", "Rejected", "Completed"];
+
+      // ── Documents ──
+      try {
+        const res = await fetch(`${API}/api/tracking`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const documents = data.documents || data || [];
+          (Array.isArray(documents) ? documents : []).forEach(d => {
+            const rawDate = d.submitted_at || d.created_at;
+            const status = displayStatus(d.status);
+            merged.push({
+              id: d.tracking_id || d.document_id || `DOC-${d.id}`,
+              sourceType: "document",
+              docType: d.document_type || d.category || "Other",
+              title: d.title || d.document_type || "Document",
+              person: d.submitted_by_name || (d.submitted_by ? nameOf(d.submitted_by) : null) || d.department || "—",
+              rawDate, date: fmtDate(rawDate), month: monthOf(rawDate),
+              status, done: DONE.includes(status),
+              days: daysSince(rawDate),
+              stage: d.current_stage || d.stage || status,
+            });
+          });
+        }
+      } catch (err) { console.error("Tracking fetch error:", err); }
+
+      // ── Tasks ──
+      try {
+        const res = await fetch(`${API}/api/tasks`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const tasks = data.tasks ?? data ?? [];
+          (Array.isArray(tasks) ? tasks : []).forEach(t => {
+            const rawDate = t.created_at || t.deadline;
+            const status = displayStatus(t.status);
+            const done = DONE.includes(status);
+            const overdue = t.deadline && new Date(t.deadline) < now && !done;
+            merged.push({
+              id: t.tracking_id || `TSK-${t.id}`,
+              sourceType: "task",
+              docType: t.category || "Task",
+              title: t.title,
+              person: nameOf(t.faculty_id),
+              rawDate, date: fmtDate(t.deadline || rawDate), month: monthOf(rawDate),
+              status: overdue ? "Delayed" : status, done,
+              days: daysSince(rawDate),
+              stage: overdue ? "Delayed" : status,
+              overdue,
+            });
+          });
+        }
+      } catch (err) { console.error("Tasks fetch error:", err); }
+
+      // ── Forms ──
+      try {
+        const res = await fetch(`${API}/api/forms/all`, { headers: authH });
+        if (res.ok) {
+          const data = await res.json();
+          const forms = data.forms ?? data ?? [];
+          (Array.isArray(forms) ? forms : []).forEach(f => {
+            const rawDate = f.filing_date || f.created_at;
+            const status = displayStatus(f.status);
+            const facultySubmitter =
+              f.full_name || f.submitter_name || f.submitted_by || f.faculty_name ||
+              f.user_name || f.username ||
+              (f.user_id    ? nameOf(f.user_id)    : null) ||
+              (f.faculty_id ? nameOf(f.faculty_id) : null) ||
+              "—";
+            merged.push({
+              id: f.tracking_id || `FRM-${f.id}`,
+              sourceType: "form",
+              docType: f.category || "Form",
+              title: f.category ? `${f.category} Form` : "Form Submission",
+              person: facultySubmitter,
+              rawDate, date: fmtDate(rawDate), month: monthOf(rawDate),
+              status, done: DONE.includes(status),
+              days: daysSince(rawDate),
+              stage: status,
+            });
+          });
+        }
+      } catch (err) { console.error("Forms fetch error:", err); }
+
+      setRawItems(merged);
+    } finally {
+      setItemsLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) { navigate("/login"); return; }
+    fetchTrackedItems();
+    fetchFacultyPerformance();
+    fetchDelayedDocuments();
+    fetchAuditTrail();
+  }, [token, fetchTrackedItems, fetchFacultyPerformance, fetchDelayedDocuments, fetchAuditTrail]);
+
+  // ── Apply the filter bar to the merged item list ──
+  const RANGE_DAYS = { "Last 7 Days": 7, "Last 30 Days": 30, "This Semester": 120, "This Year": 365 };
+  const items = useMemo(() => {
+    const cutoffDays = RANGE_DAYS[dateRange];
+    return rawItems.filter(it => {
+      if (cutoffDays && it.days > cutoffDays) return false;
+      if (statusFilter !== "All Statuses" && it.status !== statusFilter) return false;
+      if (docTypeFilter !== "All Document Types" && it.docType !== docTypeFilter) return false;
+      if (facultyFilter !== "All Faculty" && it.person !== facultyFilter) return false;
+      return true;
+    });
+  }, [rawItems, dateRange, statusFilter, docTypeFilter, facultyFilter]);
+
+  // ── KPI cards ──
+  const KPI_DATA = useMemo(() => {
+    const count = (pred) => items.filter(pred).length;
+    return [
+      { label: "Total Transactions", value: items.length, icon: Layers,        color: "#7c3aed" },
+      { label: "Pending",            value: count(i => i.status === "Pending"),          icon: Clock,         color: "#d97706" },
+      { label: "Approved",           value: count(i => i.status === "Approved"),         icon: CheckCircle2,  color: "#0284c7" },
+      { label: "Completed",          value: count(i => i.status === "Completed"),        icon: TrendingUp,    color: "#059669" },
+      { label: "Rejected",           value: count(i => i.status === "Rejected"),         icon: XCircle,       color: "#dc2626" },
+      { label: "Delayed",            value: count(i => i.status === "Delayed"),          icon: AlertTriangle, color: "#f97316" },
+    ];
+  }, [items]);
+
+  // ── By-status pie ──
+  const STATUS_PIE = useMemo(() => {
+    const cfg = [
+      { name: "Pending",   color: "#d97706" },
+      { name: "Approved",  color: "#0284c7" },
+      { name: "Completed", color: "#059669" },
+      { name: "Rejected",  color: "#dc2626" },
+      { name: "Delayed",   color: "#f97316" },
+    ];
+    return cfg.map(c => ({ ...c, value: items.filter(i => i.status === c.name).length }));
+  }, [items]);
+
+  // ── By document type bar ──
+  const DOC_TYPE_BAR = useMemo(() => {
+    const counts = {};
+    items.forEach(i => { counts[i.docType] = (counts[i.docType] || 0) + 1; });
+    return Object.entries(counts)
+      .map(([type, count]) => ({ type, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [items]);
+
+  // ── Monthly submitted / completed / delayed trend (last 7 months present in the data) ──
+  const MONTHLY_TREND = useMemo(() => {
+    const byMonth = {};
+    rawItems.forEach(i => {
+      if (!i.month) return;
+      byMonth[i.month] ??= { month: i.month, submitted: 0, completed: 0, delayed: 0, order: new Date(i.rawDate).getTime() };
+      byMonth[i.month].submitted += 1;
+      if (i.status === "Completed" || i.status === "Approved") byMonth[i.month].completed += 1;
+      if (i.status === "Delayed") byMonth[i.month].delayed += 1;
+    });
+    return Object.values(byMonth).sort((a, b) => a.order - b.order).slice(-7);
+  }, [rawItems]);
+
+  // ── Delayed transactions table (from the dedicated delayed-documents endpoint) ──
+  const DELAYED_TRANSACTIONS = useMemo(() => {
+    const now = new Date();
+    if (delayedDocs.length > 0) {
+      return delayedDocs.map(d => {
+        const rawDate = d.deadline || d.due_date || d.submitted_at;
+        const days = rawDate ? Math.max(0, Math.floor((now - new Date(rawDate)) / 86400000)) : 0;
+        return {
+          id: d.tracking_id || d.document_id || d.id,
+          docType: d.document_type || d.title || "Document",
+          faculty: d.faculty_name || "—",
+          status: d.status || "Delayed",
+          stage: d.stage || d.current_stage || "—",
+          days,
+          overdue: days >= 7,
+        };
+      });
+    }
+    // Fallback: derive from the merged item list when the endpoint has nothing
+    return items.filter(i => i.status === "Delayed").map(i => ({
+      id: i.id, docType: i.docType, faculty: i.person, status: i.status,
+      stage: i.stage, days: i.days, overdue: i.days >= 7,
+    }));
+  }, [delayedDocs, items]);
+
+  // ── Processing time per document type ──
+  // Approximated from elapsed days (submission → now) for items already
+  // marked done, since the API doesn't expose an explicit completion
+  // timestamp. Treat this as an estimate, not an exact turnaround metric.
+  const PROCESSING_TIME_DATA = useMemo(() => {
+    const byType = {};
+    rawItems.filter(i => i.done).forEach(i => {
+      byType[i.docType] ??= [];
+      byType[i.docType].push(i.days);
+    });
+    return Object.entries(byType).map(([type, arr]) => ({
+      type,
+      avg: arr.reduce((a, b) => a + b, 0) / arr.length,
+      fastest: Math.min(...arr),
+      slowest: Math.max(...arr),
+    }));
+  }, [rawItems]);
+
+  // ── Faculty workload (from /api/faculty/performance) ──
+  const FACULTY_WORKLOAD = useMemo(() => {
+    return facultyPerformance.map(f => {
+      const pending = f.pending_count ?? 0;
+      const completed = f.completed_count ?? 0;
+      const active = f.active_count ?? 0;
+      return {
+        name: f.full_name || f.name || "—",
+        assigned: active + pending + completed,
+        pending,
+        completed,
+        rate: Math.round(f.performance_score ?? (active + pending + completed > 0 ? (completed / (active + pending + completed)) * 100 : 0)),
+      };
+    });
+  }, [facultyPerformance]);
+
+  // ── Bottleneck view — grouped by current status/stage since the API doesn't
+  //    expose a distinct workflow-stage field beyond status. ──
+  const BOTTLENECKS = useMemo(() => {
+    const groups = {};
+    items.filter(i => !i.done).forEach(i => {
+      groups[i.stage] ??= { stage: i.stage, waiting: 0, totalDays: 0 };
+      groups[i.stage].waiting += 1;
+      groups[i.stage].totalDays += i.days;
+    });
+    return Object.values(groups)
+      .map(g => {
+        const avgWait = g.waiting ? g.totalDays / g.waiting : 0;
+        const severity = avgWait >= 6 ? "Critical" : avgWait >= 4 ? "High" : avgWait >= 2 ? "Medium" : "Low";
+        return { stage: g.stage, waiting: g.waiting, avgWait: Number(avgWait.toFixed(1)), severity };
+      })
+      .sort((a, b) => b.waiting - a.waiting);
+  }, [items]);
+
+  // ── Rejected / returned ──
+  const REJECTED_DOCS = useMemo(() => {
+    return items.filter(i => i.status === "Rejected").map(i => ({
+      id: i.id, type: i.title, reason: i.rejectionReason || "See document remarks", date: i.date,
+    }));
+  }, [items]);
+
+  const REJECTION_TREND = useMemo(() => {
+    const byMonth = {};
+    rawItems.forEach(i => {
+      if (!i.month) return;
+      byMonth[i.month] ??= { month: i.month, rejected: 0, returned: 0, order: new Date(i.rawDate).getTime() };
+      if (i.status === "Rejected") byMonth[i.month].rejected += 1;
+      if (i.status === "Returned") byMonth[i.month].returned += 1;
+    });
+    return Object.values(byMonth).sort((a, b) => a.order - b.order).slice(-8);
+  }, [rawItems]);
+
+  const RETURNED_SUMMARY = useMemo(() => {
+    const total = items.length;
+    const completed = items.filter(i => i.status === "Completed").length;
+    const approved = items.filter(i => i.status === "Approved").length;
+    const rejected = items.filter(i => i.status === "Rejected").length;
+    return [
+      { label: "Total Processed", value: total.toLocaleString(), sub: dateRange, color: "#7c3aed" },
+      { label: "Completion Rate", value: total ? `${((completed / total) * 100).toFixed(1)}%` : "0%", sub: "Of filtered records", color: "#059669" },
+      { label: "Approval Rate",   value: (approved + rejected) ? `${((approved / (approved + rejected)) * 100).toFixed(1)}%` : "0%", sub: "Approved vs rejected", color: "#0284c7" },
+    ];
+  }, [items, dateRange]);
+
+  // ── Audit trail (best-effort — see fetchAuditTrail above) ──
+  const AUDIT_TRAIL = useMemo(() => {
+    return auditTrail.map(a => ({
+      date: a.date || a.created_at || a.timestamp || "—",
+      user: a.user || a.actor || a.full_name || "—",
+      action: a.action || a.event || "—",
+      transaction: a.transaction || a.tracking_id || "—",
+      remarks: a.remarks || a.notes || "",
+    }));
+  }, [auditTrail]);
 
   const TABS = [
     "Overview",
@@ -464,6 +757,17 @@ export default function Reports() {
               </div>
               <ExportButtons onExport={(fmt) => handleExport("Full Analytics Report", fmt)} />
             </div>
+
+            {(itemsLoading || facultyLoading || delayedLoading) && (
+              <div style={{ fontSize: 11, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 8, padding: "8px 14px" }}>
+                Loading live report data…
+              </div>
+            )}
+            {auditUnavailable && activeTab === "Audit Trail" && (
+              <div style={{ fontSize: 11, color: "#9a3412", background: "#ffedd5", border: "1px solid #fed7aa", borderRadius: 8, padding: "8px 14px" }}>
+                Couldn't reach the audit-log endpoint (/api/audit-trail). Update the URL in Reports.jsx once your backend route is confirmed.
+              </div>
+            )}
 
             {/* ── 2. Filters card ── */}
             <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
@@ -598,19 +902,19 @@ export default function Reports() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
               <SectionCard title="Average Processing Time" icon={Activity}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>
-                  {(PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length).toFixed(1)} days
+                  {PROCESSING_TIME_DATA.length ? (PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length).toFixed(1) : "0.0"} days
                 </p>
                 <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
               </SectionCard>
               <SectionCard title="Fastest Processing Time" icon={TrendingUp}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#059669" }}>
-                  {Math.min(...PROCESSING_TIME_DATA.map(d => d.fastest)).toFixed(1)} days
+                  {PROCESSING_TIME_DATA.length ? Math.min(...PROCESSING_TIME_DATA.map(d => d.fastest)).toFixed(1) : "0.0"} days
                 </p>
                 <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
               </SectionCard>
               <SectionCard title="Slowest Processing Time" icon={Clock}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#dc2626" }}>
-                  {Math.max(...PROCESSING_TIME_DATA.map(d => d.slowest)).toFixed(1)} days
+                  {PROCESSING_TIME_DATA.length ? Math.max(...PROCESSING_TIME_DATA.map(d => d.slowest)).toFixed(1) : "0.0"} days
                 </p>
                 <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Worst-case turnaround recorded</p>
               </SectionCard>
