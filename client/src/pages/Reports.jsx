@@ -727,14 +727,18 @@ export default function Reports() {
   // Reports only cares about document/form/task activity — not account
   // events like LOGIN, REGISTER, FORGOT_PASSWORD, RESET_PASSWORD, or any
   // USER_* action (USER_APPROVE, USER_EDIT, USER_DEACTIVATE, USER_DELETE,
-  // etc). Whitelisting the TASK_/DOCUMENT_/FORM_ prefix is safer here than
-  // blacklisting auth/user keywords, since the backend's action taxonomy
-  // (see /audit filter dropdown) is USER_/TASK_/plain-auth prefixed.
+  // etc). Two ways an entry qualifies: (1) its action code carries the
+  // TASK_/DOCUMENT_/FORM_ prefix, or (2) it's tied to an actual document
+  // (has a document_id/task_id/form_id) — a login or user-account action
+  // never has one, so this is a safe fallback if a future action code
+  // doesn't happen to follow the TASK_ naming convention.
   const isDocumentRelated = (a) => {
     const entity = (a.entity_type || a.entity || a.target_type || "").toLowerCase();
     if (entity) return ["task", "document", "doc", "form"].includes(entity);
     const action = String(a.action || "").toLowerCase();
-    return ["task_", "document_", "doc_", "form_"].some(p => action.startsWith(p));
+    if (["task_", "document_", "doc_", "form_"].some(p => action.startsWith(p))) return true;
+    const hasDocRef = a.document_id || a.task_id || a.form_id;
+    return Boolean(hasDocRef) && !action.startsWith("user_") && !["login", "logout", "register", "forgot_password", "reset_password"].includes(action);
   };
 
   const AUDIT_TRAIL = useMemo(() => {
