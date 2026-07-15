@@ -606,21 +606,27 @@ export default function Reports() {
     }));
   }, [rawItems]);
 
-  // ── Faculty workload (from /api/faculty/performance) ──
+  // ── Faculty workload (from /api/faculty/performance), with delayed count
+  //    matched from /api/faculty/delayed-documents (falls back to counting
+  //    "Delayed" items in the merged tracked list for that faculty member). ──
   const FACULTY_WORKLOAD = useMemo(() => {
     return facultyPerformance.map(f => {
       const pending = f.pending_count ?? 0;
       const completed = f.completed_count ?? 0;
       const active = f.active_count ?? 0;
+      const name = f.full_name || f.name || "—";
+      const delayedFromEndpoint = delayedDocs.filter(d => d.faculty_name === name).length;
+      const delayedFromItems = rawItems.filter(i => i.person === name && i.status === "Delayed").length;
       return {
-        name: f.full_name || f.name || "—",
+        name,
         assigned: active + pending + completed,
         pending,
         completed,
+        delayed: delayedFromEndpoint || delayedFromItems,
         rate: Math.round(f.performance_score ?? (active + pending + completed > 0 ? (completed / (active + pending + completed)) * 100 : 0)),
       };
     });
-  }, [facultyPerformance]);
+  }, [facultyPerformance, delayedDocs, rawItems]);
 
   // ── Bottleneck view — grouped by current status/stage since the API doesn't
   //    expose a distinct workflow-stage field beyond status. ──
@@ -981,13 +987,13 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Faculty Performance Table ── */}
-            <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions and completion rate per faculty member" icon={ClipboardList} noPad
+            <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions, delays, and completion rate per faculty member" icon={ClipboardList} noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}
               footer={<TableFoot count={FACULTY_WORKLOAD.length} total={FACULTY_WORKLOAD.length} label="faculty" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-                    {["Faculty Name", "Assigned", "Pending", "Completed", "Completion Rate"].map(h => (
+                    {["Faculty Name", "Assigned", "Pending", "Completed", "Delayed", "Completion Rate"].map(h => (
                       <th key={h} style={{ ...TH_STYLE, textAlign: h === "Faculty Name" ? "left" : "center" }}>{h}</th>
                     ))}
                   </tr>
@@ -999,6 +1005,7 @@ export default function Reports() {
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{f.assigned}</td>
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
+                      <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: f.delayed > 0 ? "#dc2626" : "#9ca3af", fontWeight: 600 }}>{f.delayed}</td>
                       <td style={{ ...TD_STYLE, textAlign: "center" }}>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, width: 110 }}>
                           <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
