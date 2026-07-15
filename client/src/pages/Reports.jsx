@@ -165,19 +165,19 @@ function NameCell({ name, sub }) {
     <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
       <Avatar name={name} />
       <div>
-        <div style={{ fontWeight: 600, color: "#111827" }}>{name}</div>
-        {sub && <div style={{ fontSize: 10.5, color: "#9ca3af" }}>{sub}</div>}
+        <div style={{ fontWeight: 500, color: "#1f2937" }}>{name}</div>
+        {sub && <div style={{ fontSize: 10, color: "#9ca3af" }}>{sub}</div>}
       </div>
     </div>
   );
 }
 
 /* Shared table header/footer styling so every table in this file matches. */
-const TH_STYLE = { padding: "12px 16px", fontSize: 10.5, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.5 };
-const TD_STYLE = { padding: "12px 16px" };
+const TH_STYLE = { padding: "10px 16px", fontSize: 10, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5 };
+const TD_STYLE = { padding: "10px 16px", fontSize: 12 };
 function TableFoot({ count, total, label }) {
   return (
-    <div style={{ padding: "10px 16px", fontSize: 11.5, color: "#9ca3af" }}>
+    <div style={{ padding: "10px 16px", fontSize: 12, color: "#9ca3af" }}>
       Showing {count} of {total} {label}
     </div>
   );
