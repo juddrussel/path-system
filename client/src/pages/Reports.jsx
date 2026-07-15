@@ -15,6 +15,7 @@ import {
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 const API = import.meta.env.VITE_API_URL || "";
+const AUDIT_PREVIEW_LIMIT = 8; // rows shown on the Reports "Audit Trail" tab before linking to /audit
 
 /* ══════════════════════════════════════════════════════════════════════════
    Shared visual primitives — mirrored from Dashboard.jsx so this page stays
@@ -1127,9 +1128,21 @@ export default function Reports() {
             {/* ── Audit Trail tab ── */}
             {activeTab === "Audit Trail" && (
               <>
-            {/* ── Audit Trail Table ── */}
+            {/* ── Audit Trail Table (preview — full filterable log lives on /audit) ── */}
             <SectionCard title="Audit Trail" subtitle="Immutable log of all system actions and document state changes" icon={Shield} noPad
-              footer={<TableFoot count={AUDIT_TRAIL.length} total={AUDIT_TRAIL.length} label="log entries" />}>
+              footer={
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 12, color: "#9ca3af" }}>
+                    Showing {Math.min(AUDIT_TRAIL.length, AUDIT_PREVIEW_LIMIT)} of {AUDIT_TRAIL.length} log entries
+                  </span>
+                  <button
+                    onClick={() => navigate("/audit")}
+                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    View More <ChevronRight style={{ width: 12, height: 12 }} />
+                  </button>
+                </div>
+              }>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
@@ -1139,8 +1152,8 @@ export default function Reports() {
                   </tr>
                 </thead>
                 <tbody>
-                  {AUDIT_TRAIL.map((a, i) => (
-                    <tr key={i} style={{ borderBottom: i < AUDIT_TRAIL.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                  {AUDIT_TRAIL.slice(0, AUDIT_PREVIEW_LIMIT).map((a, i, arr) => (
+                    <tr key={i} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
                       <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#6b7280", whiteSpace: "nowrap", fontSize: 11 }}>{a.date}</td>
                       <td style={TD_STYLE}><NameCell name={a.user} /></td>
                       <td style={TD_STYLE}><Pill text={a.action} bg="#f3f4f6" color="#374151" /></td>
