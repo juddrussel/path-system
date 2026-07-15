@@ -6,6 +6,7 @@ import {
   Clock, AlertTriangle, XCircle, TrendingUp, TrendingDown, BarChart3,
   PieChart as PieIcon, FileSpreadsheet, Eye, RotateCcw, Layers, Shield,
   Activity, Gauge, ListTodo, ChevronRight, Printer, AlertCircle,
+  X, Percent, Paperclip, History, MessageSquare,
 } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
@@ -172,6 +173,28 @@ function formatAuditAction(raw) {
   return { label, color: "#374151", bg: "#f3f4f6" };
 }
 
+/* Standard reason buckets for the Returned / Rejected report's "Common Reasons
+   Analysis". Backends rarely send a clean enum for why something bounced, so
+   free-text (rejection_reason / return_reason / remarks / notes) is matched
+   against keywords and sorted into one of these categories. Anything that
+   doesn't match, or has no reason text at all, falls into "Other Reasons". */
+const REASON_CATEGORIES = [
+  { name: "Missing Requirements",              color: "#dc2626", keywords: ["missing", "requirement", "lacking", "not attached", "not submitted"] },
+  { name: "Incomplete Information",            color: "#d97706", keywords: ["incomplete", "information", "detail", "field", "unfilled", "blank"] },
+  { name: "Incorrect Document Format",         color: "#7c3aed", keywords: ["format", "template", "layout", "wrong file", "file type"] },
+  { name: "Invalid Supporting Documents",      color: "#0284c7", keywords: ["supporting document", "attachment", "invalid document", "proof", "unreadable", "expired document"] },
+  { name: "Policy/Guideline Non-Compliance",   color: "#c2410c", keywords: ["policy", "guideline", "non-compliance", "noncompliant", "violat", "not compliant"] },
+  { name: "Other Reasons",                     color: "#6b7280", keywords: [] },
+];
+function classifyReason(raw) {
+  if (!raw) return "Other Reasons";
+  const s = String(raw).toLowerCase();
+  for (const cat of REASON_CATEGORIES) {
+    if (cat.keywords.some(k => s.includes(k))) return cat.name;
+  }
+  return "Other Reasons";
+}
+
 /* Flat rounded-rect badge for role/category-style values (e.g. table pills). */
 function Pill({ text, color, bg }) {
   return (
@@ -332,6 +355,14 @@ export default function Reports() {
   const [exportToast, setExportToast] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
 
+  // ── Returned / Rejected report — its own filter row + detail-view modal ──
+  const [rrDateRange, setRrDateRange] = useState("All Time");
+  const [rrDocType, setRrDocType] = useState("All Document Types");
+  const [rrFaculty, setRrFaculty] = useState("All Faculty");
+  const [rrStatus, setRrStatus] = useState("All Statuses");
+  const [rrDepartment, setRrDepartment] = useState("All Departments");
+  const [rrSelected, setRrSelected] = useState(null);
+
   /* ════════════════════════════════════════════════════════════════════
      Live data — same fetch pattern as Dashboard.jsx (fetchTrackedItems /
      fetchFacultyPerformance / fetchDelayedDocuments), plus an audit-log
@@ -464,16 +495,23 @@ export default function Reports() {
           (Array.isArray(documents) ? documents : []).forEach(d => {
             const rawDate = d.submitted_at || d.created_at;
             const status = displayStatus(d.status);
+            const reasonRaw = d.rejection_reason || d.return_reason || d.reason || d.remarks || d.notes || null;
+            const actionDateRaw = d.reviewed_at || d.action_date || d.updated_at || rawDate;
             merged.push({
               id: d.tracking_id || d.document_id || `DOC-${d.id}`,
               sourceType: "document",
               docType: d.document_type || d.category || "Other",
               title: d.title || d.document_type || "Document",
               person: d.submitted_by_name || (d.submitted_by ? nameOf(d.submitted_by) : null) || d.department || "—",
+              department: d.department || d.dept || "—",
               rawDate, date: fmtDate(rawDate), month: monthOf(rawDate),
               status, done: DONE.includes(status),
               days: daysSince(rawDate),
               stage: d.current_stage || d.stage || status,
+              reasonRaw, reasonCategory: classifyReason(reasonRaw),
+              actionDate: fmtDate(actionDateRaw),
+              reviewerRemarks: d.reviewer_remarks || d.remarks || null,
+              attachments: d.attachments || d.documents || d.files || [],
             });
           });
         }
@@ -490,17 +528,24 @@ export default function Reports() {
             const status = displayStatus(t.status);
             const done = DONE.includes(status);
             const overdue = t.deadline && new Date(t.deadline) < now && !done;
+            const reasonRaw = t.rejection_reason || t.return_reason || t.reason || t.remarks || null;
+            const actionDateRaw = t.reviewed_at || t.updated_at || rawDate;
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
               sourceType: "task",
               docType: t.category || "Task",
               title: t.title,
               person: nameOf(t.faculty_id),
+              department: t.department || "—",
               rawDate, date: fmtDate(t.deadline || rawDate), month: monthOf(rawDate),
               status: overdue ? "Delayed" : status, done,
               days: daysSince(rawDate),
               stage: overdue ? "Delayed" : status,
               overdue,
+              reasonRaw, reasonCategory: classifyReason(reasonRaw),
+              actionDate: fmtDate(actionDateRaw),
+              reviewerRemarks: t.reviewer_remarks || t.remarks || null,
+              attachments: t.attachments || [],
             });
           });
         }
@@ -521,16 +566,23 @@ export default function Reports() {
               (f.user_id    ? nameOf(f.user_id)    : null) ||
               (f.faculty_id ? nameOf(f.faculty_id) : null) ||
               "—";
+            const reasonRaw = f.rejection_reason || f.return_reason || f.reason || f.remarks || null;
+            const actionDateRaw = f.reviewed_at || f.updated_at || rawDate;
             merged.push({
               id: f.tracking_id || `FRM-${f.id}`,
               sourceType: "form",
               docType: f.category || "Form",
               title: f.category ? `${f.category} Form` : "Form Submission",
               person: facultySubmitter,
+              department: f.department || "—",
               rawDate, date: fmtDate(rawDate), month: monthOf(rawDate),
               status, done: DONE.includes(status),
               days: daysSince(rawDate),
               stage: status,
+              reasonRaw, reasonCategory: classifyReason(reasonRaw),
+              actionDate: fmtDate(actionDateRaw),
+              reviewerRemarks: f.reviewer_remarks || f.remarks || null,
+              attachments: f.attachments || [],
             });
           });
         }
@@ -693,35 +745,111 @@ export default function Reports() {
       .sort((a, b) => b.waiting - a.waiting);
   }, [items]);
 
-  // ── Rejected / returned ──
-  const REJECTED_DOCS = useMemo(() => {
-    return items.filter(i => i.status === "Rejected").map(i => ({
-      id: i.id, type: i.title, reason: i.rejectionReason || "See document remarks", date: i.date,
-    }));
-  }, [items]);
+  /* ════════════════════════════════════════════════════════════════════
+     Returned / Rejected Transactions Report — dedicated dataset. Built
+     from rawItems (not the global-filter-bar `items`) since this tab has
+     its own filter row (Date Range, Document Type, Faculty, Status,
+     Department) so Program Chairs can slice returned/rejected activity
+     independently of whatever the page-level filters are set to.
+     ════════════════════════════════════════════════════════════════ */
 
-  const REJECTION_TREND = useMemo(() => {
-    const byMonth = {};
-    rawItems.forEach(i => {
-      if (!i.month) return;
-      byMonth[i.month] ??= { month: i.month, rejected: 0, returned: 0, order: new Date(i.rawDate).getTime() };
-      if (i.status === "Rejected") byMonth[i.month].rejected += 1;
-      if (i.status === "Returned") byMonth[i.month].returned += 1;
+  const RR_ALL = useMemo(() => (
+    rawItems.filter(i => i.status === "Returned" || i.status === "Rejected")
+  ), [rawItems]);
+
+  const RR_DEPARTMENTS = useMemo(() => (
+    Array.from(new Set(rawItems.map(i => i.department).filter(d => d && d !== "—"))).sort()
+  ), [rawItems]);
+
+  const RR_RANGE_DAYS = { "Last 7 Days": 7, "Last 30 Days": 30, "This Semester": 120, "This Year": 365, "All Time": null };
+  const RR_FILTERED = useMemo(() => {
+    const cutoff = RR_RANGE_DAYS[rrDateRange];
+    return RR_ALL.filter(i => {
+      if (cutoff && i.days > cutoff) return false;
+      if (rrStatus !== "All Statuses" && i.status !== rrStatus) return false;
+      if (rrDocType !== "All Document Types" && i.docType !== rrDocType) return false;
+      if (rrFaculty !== "All Faculty" && i.person !== rrFaculty) return false;
+      if (rrDepartment !== "All Departments" && i.department !== rrDepartment) return false;
+      return true;
     });
-    return Object.values(byMonth).sort((a, b) => a.order - b.order).slice(-8);
+  }, [RR_ALL, rrDateRange, rrStatus, rrDocType, rrFaculty, rrDepartment]);
+
+  // ── KPI summary: totals + rates + most common reason (computed off the
+  //    full Returned/Rejected pool, not the filtered table, so the cards
+  //    read as department-wide health metrics while the table below can
+  //    still be sliced by the filter row). ──
+  const RR_KPI = useMemo(() => {
+    const totalReturned = RR_ALL.filter(i => i.status === "Returned").length;
+    const totalRejected = RR_ALL.filter(i => i.status === "Rejected").length;
+    const totalAll = rawItems.length || 1;
+    const reasonCounts = {};
+    RR_ALL.forEach(i => { reasonCounts[i.reasonCategory] = (reasonCounts[i.reasonCategory] || 0) + 1; });
+    const topReason = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1])[0];
+    return {
+      totalReturned,
+      totalRejected,
+      returnRate: ((totalReturned / totalAll) * 100).toFixed(1),
+      rejectionRate: ((totalRejected / totalAll) * 100).toFixed(1),
+      mostCommonReason: topReason ? topReason[0] : "—",
+    };
+  }, [RR_ALL, rawItems]);
+
+  // ── Common Reasons Analysis (bar + pie) ──
+  const RR_REASON_BREAKDOWN = useMemo(() => (
+    REASON_CATEGORIES.map(c => ({ name: c.name, color: c.color, value: RR_ALL.filter(i => i.reasonCategory === c.name).length }))
+  ), [RR_ALL]);
+
+  // ── Trends & Analytics: returned/rejected per month + combined rate ──
+  const RR_MONTHLY_TREND = useMemo(() => {
+    const byMonth = {};
+    RR_ALL.forEach(i => {
+      if (!i.month) return;
+      byMonth[i.month] ??= { month: i.month, returned: 0, rejected: 0, order: new Date(i.rawDate).getTime(), totalThatMonth: 0 };
+      if (i.status === "Returned") byMonth[i.month].returned += 1;
+      if (i.status === "Rejected") byMonth[i.month].rejected += 1;
+    });
+    rawItems.forEach(i => { if (i.month && byMonth[i.month]) byMonth[i.month].totalThatMonth += 1; });
+    return Object.values(byMonth)
+      .sort((a, b) => a.order - b.order)
+      .slice(-8)
+      .map(m => ({ ...m, rate: m.totalThatMonth ? Number((((m.returned + m.rejected) / m.totalThatMonth) * 100).toFixed(1)) : 0 }));
+  }, [RR_ALL, rawItems]);
+
+  // ── Most affected document types ──
+  const RR_DOC_TYPE_AFFECTED = useMemo(() => {
+    const counts = {};
+    RR_ALL.forEach(i => { counts[i.docType] = (counts[i.docType] || 0) + 1; });
+    return Object.entries(counts).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count).slice(0, 8);
+  }, [RR_ALL]);
+
+  // ── Faculty Compliance Report ──
+  const RR_FACULTY_COMPLIANCE = useMemo(() => {
+    const byFaculty = {};
+    rawItems.forEach(i => {
+      if (!i.person || i.person === "—") return;
+      byFaculty[i.person] ??= { name: i.person, submitted: 0, returned: 0, rejected: 0 };
+      byFaculty[i.person].submitted += 1;
+      if (i.status === "Returned") byFaculty[i.person].returned += 1;
+      if (i.status === "Rejected") byFaculty[i.person].rejected += 1;
+    });
+    return Object.values(byFaculty)
+      .map(f => ({ ...f, complianceRate: f.submitted ? Number((((f.submitted - f.returned - f.rejected) / f.submitted) * 100).toFixed(1)) : 0 }))
+      .sort((a, b) => b.submitted - a.submitted);
   }, [rawItems]);
 
-  const RETURNED_SUMMARY = useMemo(() => {
-    const total = items.length;
-    const completed = items.filter(i => i.status === "Completed").length;
-    const approved = items.filter(i => i.status === "Approved").length;
-    const rejected = items.filter(i => i.status === "Rejected").length;
-    return [
-      { label: "Total Processed", value: total.toLocaleString(), sub: dateRange, color: "#7c3aed" },
-      { label: "Completion Rate", value: total ? `${((completed / total) * 100).toFixed(1)}%` : "0%", sub: "Of filtered records", color: "#059669" },
-      { label: "Approval Rate",   value: (approved + rejected) ? `${((approved / (approved + rejected)) * 100).toFixed(1)}%` : "0%", sub: "Approved vs rejected", color: "#0284c7" },
-    ];
-  }, [items, dateRange]);
+  // ── Document Type Analysis ──
+  const RR_DOC_TYPE_ANALYSIS = useMemo(() => {
+    const byType = {};
+    rawItems.forEach(i => {
+      byType[i.docType] ??= { type: i.docType, total: 0, returned: 0, rejected: 0 };
+      byType[i.docType].total += 1;
+      if (i.status === "Returned") byType[i.docType].returned += 1;
+      if (i.status === "Rejected") byType[i.docType].rejected += 1;
+    });
+    return Object.values(byType)
+      .map(t => ({ ...t, successRate: t.total ? Number((((t.total - t.returned - t.rejected) / t.total) * 100).toFixed(1)) : 0 }))
+      .sort((a, b) => b.total - a.total);
+  }, [rawItems]);
 
   // ── Audit trail — sourced from GET /api/audit (see fetchAuditTrail) ──
   // Only document/task/form activity (TASK_APPROVE, TASK_SUBMIT, etc) shows
@@ -764,6 +892,16 @@ export default function Reports() {
       };
     });
   }, [auditTrail]);
+
+  // Best-effort match of a transaction's workflow history from the global
+  // audit trail (audit rows only carry a document_id, not the tracking_id
+  // shown in this table, so we match on the numeric id when possible).
+  const rrWorkflowHistory = (item) => {
+    if (!item) return [];
+    const idDigits = String(item.id).replace(/\D/g, "");
+    if (!idDigits) return [];
+    return AUDIT_TRAIL.filter(a => a.transaction && a.transaction.replace(/\D/g, "") === idDigits);
+  };
 
   /* ════════════════════════════════════════════════════════════════════
      Overview-tab-only data. Kept separate from KPI_DATA / STATUS_PIE /
@@ -1416,54 +1554,233 @@ export default function Reports() {
             {/* ── Returned / Rejected tab ── */}
             {activeTab === "Returned / Rejected" && (
               <>
-            {/* ── Summary cards ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-              {RETURNED_SUMMARY.map(c => (
-                <SectionCard key={c.label} title={c.label}>
-                  <p style={{ fontSize: 24, fontWeight: 800, color: c.color }}>{c.value}</p>
-                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{c.sub}</p>
-                </SectionCard>
-              ))}
+            {/* ── KPI Summary Cards ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
+              <KpiCard label="Total Returned"   value={RR_KPI.totalReturned}          icon={RotateCcw}   color="#c2410c" />
+              <KpiCard label="Total Rejected"   value={RR_KPI.totalRejected}           icon={XCircle}     color="#dc2626" />
+              <KpiCard label="Return Rate"      value={`${RR_KPI.returnRate}%`}        icon={Percent}     color="#d97706" />
+              <KpiCard label="Rejection Rate"   value={`${RR_KPI.rejectionRate}%`}     icon={Gauge}       color="#7c3aed" />
+              <KpiCard label="Most Common Reason" value={RR_KPI.mostCommonReason}      icon={AlertCircle} color="#0284c7" />
             </div>
 
-            {/* ── Monthly Rejection & Return Trend ── */}
-            <SectionCard title="Monthly Rejection & Return Trend" icon={RotateCcw}>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={REJECTION_TREND} barSize={20}>
+            {/* ── Dedicated filters for this report ── */}
+            <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                <FilterSelect label="Date Range" value={rrDateRange} onChange={e => setRrDateRange(e.target.value)}
+                  options={["All Time", "Last 7 Days", "Last 30 Days", "This Semester", "This Year"]} />
+                <FilterSelect label="Document Type" value={rrDocType} onChange={e => setRrDocType(e.target.value)}
+                  options={["All Document Types", "Enrollment", "Completion", "Overload", "Leave", "Transfer", "Waiver", "Other"]} />
+                <FilterSelect label="Faculty Member" value={rrFaculty} onChange={e => setRrFaculty(e.target.value)}
+                  options={["All Faculty", ...FACULTY_WORKLOAD.map(f => f.name)]} />
+                <FilterSelect label="Status" value={rrStatus} onChange={e => setRrStatus(e.target.value)}
+                  options={["All Statuses", "Returned", "Rejected"]} />
+                <FilterSelect label="Department" value={rrDepartment} onChange={e => setRrDepartment(e.target.value)}
+                  options={["All Departments", ...RR_DEPARTMENTS]} />
+              </div>
+            </div>
+
+            {/* ── Returned / Rejected Transactions Table ── */}
+            <SectionCard title="Returned / Rejected Transactions" subtitle="Every document, task, or form bounced back for revision or rejected" icon={RotateCcw} noPad
+              footer={<TableFoot count={Math.min(RR_FILTERED.length, 12)} total={RR_FILTERED.length} label="returned/rejected transactions" />}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+                      {["Transaction ID", "Document Type", "Submitted By", "Assigned Faculty", "Date Submitted", "Date Returned/Rejected", "Status", "Reason", "Workflow Stage", "Actions"].map(h => (
+                        <th key={h} style={TH_STYLE}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {RR_FILTERED.slice(0, 12).map((r, i, arr) => (
+                      <tr key={r.id} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                        <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11, whiteSpace: "nowrap" }}>{r.id}</td>
+                        <td style={{ ...TD_STYLE, color: "#374151" }}>{r.docType}</td>
+                        <td style={TD_STYLE}>{r.person}</td>
+                        <td style={TD_STYLE}>{r.person}</td>
+                        <td style={{ ...TD_STYLE, color: "#6b7280", whiteSpace: "nowrap" }}>{r.date}</td>
+                        <td style={{ ...TD_STYLE, color: "#6b7280", whiteSpace: "nowrap" }}>{r.actionDate}</td>
+                        <td style={TD_STYLE}><StatusBadge s={r.status} /></td>
+                        <td style={{ ...TD_STYLE, color: "#374151" }}>{r.reasonRaw || r.reasonCategory}</td>
+                        <td style={{ ...TD_STYLE, color: "#6b7280" }}>{r.stage}</td>
+                        <td style={TD_STYLE}>
+                          <button
+                            onClick={() => setRrSelected(r)}
+                            style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 10.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+                          >
+                            <Eye style={{ width: 11, height: 11 }} /> View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {RR_FILTERED.length === 0 && (
+                      <tr><td colSpan={10} style={{ ...TD_STYLE, textAlign: "center", color: "#9ca3af", padding: "24px 16px" }}>No returned or rejected transactions match these filters.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </SectionCard>
+
+            {/* ── Common Reasons Analysis ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 16 }}>
+              <SectionCard title="Common Reasons Analysis" subtitle="Distribution of return/rejection causes" icon={BarChart3}>
+                <ResponsiveContainer width="100%" height={230}>
+                  <BarChart data={RR_REASON_BREAKDOWN} layout="vertical" margin={{ left: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                    <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <YAxis type="category" dataKey="name" width={170} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Occurrences">
+                      {RR_REASON_BREAKDOWN.map((c, i) => <Cell key={i} fill={c.color} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </SectionCard>
+              <SectionCard title="Reason Share" subtitle="Proportion of total cases" icon={PieIcon}>
+                <ResponsiveContainer width="100%" height={230}>
+                  <RPie>
+                    <Pie data={RR_REASON_BREAKDOWN} dataKey="value" nameKey="name" innerRadius={45} outerRadius={80} paddingAngle={2}>
+                      {RR_REASON_BREAKDOWN.map((c, i) => <Cell key={i} fill={c.color} />)}
+                    </Pie>
+                    <Tooltip />
+                  </RPie>
+                </ResponsiveContainer>
+                <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 6 }}>
+                  {RR_REASON_BREAKDOWN.map(c => (
+                    <div key={c.name} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, color: "#374151" }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: c.color, flexShrink: 0 }} />
+                      {c.name}<span style={{ marginLeft: "auto", fontWeight: 700, color: "#111827" }}>{c.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            </div>
+
+            {/* ── Trends & Analytics ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <SectionCard title="Returned vs Rejected per Month" icon={Activity}>
+                <ResponsiveContainer width="100%" height={210}>
+                  <BarChart data={RR_MONTHLY_TREND} barSize={18}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Bar dataKey="returned" fill="#c2410c" radius={[3, 3, 0, 0]} name="Returned" />
+                    <Bar dataKey="rejected" fill="#dc2626" radius={[3, 3, 0, 0]} name="Rejected" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </SectionCard>
+              <SectionCard title="Return / Rejection Rate Trend" icon={TrendingUp}>
+                <ResponsiveContainer width="100%" height={210}>
+                  <LineChart data={RR_MONTHLY_TREND}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} unit="%" />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="rate" stroke="#7c3aed" strokeWidth={2.5} dot={{ r: 3 }} name="Combined Rate" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </SectionCard>
+            </div>
+            <SectionCard title="Most Affected Document Types" icon={FileText}>
+              <ResponsiveContainer width="100%" height={210}>
+                <BarChart data={RR_DOC_TYPE_AFFECTED} barSize={26}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="rejected" fill="#dc2626" radius={[3, 3, 0, 0]} name="Rejected" />
-                  <Bar dataKey="returned" fill="#d97706" radius={[3, 3, 0, 0]} name="Returned" />
+                  <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} name="Returned + Rejected" />
                 </BarChart>
               </ResponsiveContainer>
             </SectionCard>
 
-            {/* ── Rejection Log ── */}
-            <SectionCard title="Rejection Log" icon={XCircle} noPad
-              footer={<TableFoot count={REJECTED_DOCS.length} total={REJECTED_DOCS.length} label="rejected records" />}>
+            {/* ── Faculty Compliance Report ── */}
+            <SectionCard title="Faculty Compliance Report" subtitle="Submission quality by assigned faculty member" icon={Users} noPad
+              footer={<TableFoot count={RR_FACULTY_COMPLIANCE.length} total={RR_FACULTY_COMPLIANCE.length} label="faculty members" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-                    {["Transaction ID", "Document Type", "Rejection Reason", "Date Returned"].map(h => (
+                    {["Faculty Name", "Submitted", "Returned", "Rejected", "Compliance Rate"].map(h => (
                       <th key={h} style={TH_STYLE}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {REJECTED_DOCS.map((r, i) => (
-                    <tr key={r.id} style={{ borderBottom: i < REJECTED_DOCS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{r.id}</td>
-                      <td style={{ ...TD_STYLE, color: "#374151" }}>{r.type}</td>
-                      <td style={{ ...TD_STYLE, color: "#dc2626" }}>{r.reason}</td>
-                      <td style={{ ...TD_STYLE, color: "#6b7280" }}>{r.date}</td>
+                  {RR_FACULTY_COMPLIANCE.map((f, i, arr) => (
+                    <tr key={f.name} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                      <td style={TD_STYLE}><NameCell name={f.name} /></td>
+                      <td style={{ ...TD_STYLE, color: "#374151" }}>{f.submitted}</td>
+                      <td style={{ ...TD_STYLE, color: "#c2410c" }}>{f.returned}</td>
+                      <td style={{ ...TD_STYLE, color: "#dc2626" }}>{f.rejected}</td>
+                      <td style={{ ...TD_STYLE, fontWeight: 700, color: f.complianceRate >= 80 ? "#059669" : f.complianceRate >= 60 ? "#d97706" : "#dc2626" }}>{f.complianceRate}%</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </SectionCard>
+
+            {/* ── Document Type Analysis ── */}
+            <SectionCard title="Document Type Analysis" subtitle="Success rate by document/transaction category" icon={ClipboardList} noPad
+              footer={<TableFoot count={RR_DOC_TYPE_ANALYSIS.length} total={RR_DOC_TYPE_ANALYSIS.length} label="document types" />}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+                    {["Document Type", "Total Submitted", "Returned", "Rejected", "Success Rate"].map(h => (
+                      <th key={h} style={TH_STYLE}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {RR_DOC_TYPE_ANALYSIS.map((t, i, arr) => (
+                    <tr key={t.type} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                      <td style={{ ...TD_STYLE, fontWeight: 600, color: "#111827" }}>{t.type}</td>
+                      <td style={{ ...TD_STYLE, color: "#374151" }}>{t.total}</td>
+                      <td style={{ ...TD_STYLE, color: "#c2410c" }}>{t.returned}</td>
+                      <td style={{ ...TD_STYLE, color: "#dc2626" }}>{t.rejected}</td>
+                      <td style={{ ...TD_STYLE, fontWeight: 700, color: t.successRate >= 80 ? "#059669" : t.successRate >= 60 ? "#d97706" : "#dc2626" }}>{t.successRate}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </SectionCard>
+
+            {/* ── Export Options ── */}
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Export Reports</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                {[
+                  { title: "Returned Transactions Report", desc: "All transactions returned for revision", color: "#c2410c", icon: RotateCcw },
+                  { title: "Rejected Transactions Report", desc: "All transactions rejected outright",     color: "#dc2626", icon: XCircle },
+                  { title: "Compliance Report",             desc: "Faculty submission compliance summary", color: "#7c3aed", icon: Users },
+                  { title: "Monthly Analysis Report",       desc: "Month-over-month return/rejection trends", color: "#0284c7", icon: BarChart3 },
+                ].map(r => (
+                  <div key={r.title} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: 16, boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 9, background: `${r.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <r.icon style={{ width: 16, height: 16, color: r.color }} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: "#111827", lineHeight: 1.3 }}>{r.title}</p>
+                      <p style={{ fontSize: 10.5, color: "#6b7280", marginTop: 3, lineHeight: 1.4 }}>{r.desc}</p>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
+                      <button
+                        onClick={() => handleExport(r.title, "PDF")}
+                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        <Printer style={{ width: 10, height: 10 }} /> PDF
+                      </button>
+                      <button
+                        onClick={() => handleExport(r.title, "Excel")}
+                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        <FileSpreadsheet style={{ width: 10, height: 10 }} /> Excel
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
               </>
             )}
 
@@ -1567,6 +1884,134 @@ export default function Reports() {
       {exportToast && (
         <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "#111827", color: "#fff", padding: "10px 18px", borderRadius: 10, fontSize: 12, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 2000, display: "flex", alignItems: "center", gap: 8 }}>
           <FileText style={{ width: 13, height: 13 }} />{exportToast}
+        </div>
+      )}
+
+      {/* ── Detailed Transaction View modal (Returned/Rejected report) ── */}
+      {rrSelected && (
+        <div
+          onClick={() => setRrSelected(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2500, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 20px", overflowY: "auto" }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 640, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden" }}
+          >
+            {/* Header */}
+            <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5 }}>Transaction Detail</p>
+                <p style={{ fontSize: 15, fontWeight: 800, color: "#111827", fontFamily: "monospace" }}>{rrSelected.id}</p>
+              </div>
+              <button
+                onClick={() => setRrSelected(null)}
+                style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "#f3f4f6", color: "#6b7280", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <X style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
+
+            <div style={{ padding: "18px 22px", display: "flex", flexDirection: "column", gap: 18, maxHeight: "70vh", overflowY: "auto" }}>
+              {/* Transaction Information */}
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Transaction Information</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {[
+                    ["Document Type", rrSelected.docType],
+                    ["Submitted By", rrSelected.person],
+                    ["Assigned Faculty", rrSelected.person],
+                    ["Department", rrSelected.department || "—"],
+                    ["Date Submitted", rrSelected.date],
+                    ["Date Returned/Rejected", rrSelected.actionDate],
+                  ].map(([label, val]) => (
+                    <div key={label}>
+                      <p style={{ fontSize: 10, color: "#9ca3af" }}>{label}</p>
+                      <p style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{val}</p>
+                    </div>
+                  ))}
+                  <div>
+                    <p style={{ fontSize: 10, color: "#9ca3af" }}>Status</p>
+                    <StatusBadge s={rrSelected.status} />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 10, color: "#9ca3af" }}>Current Workflow Stage</p>
+                    <p style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{rrSelected.stage}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Return / Rejection Reason + Reviewer Remarks */}
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Return / Rejection Reason</p>
+                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px" }}>
+                  <Pill text={rrSelected.reasonCategory} color={REASON_CATEGORIES.find(c => c.name === rrSelected.reasonCategory)?.color || "#6b7280"} bg="#fff" />
+                  <p style={{ fontSize: 12, color: "#374151", marginTop: 8 }}>{rrSelected.reasonRaw || "No specific reason text was recorded for this transaction."}</p>
+                </div>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 7, marginTop: 10 }}>
+                  <MessageSquare style={{ width: 13, height: 13, color: "#9ca3af", marginTop: 2, flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontSize: 10, color: "#9ca3af" }}>Reviewer Remarks</p>
+                    <p style={{ fontSize: 12, color: "#374151" }}>{rrSelected.reviewerRemarks || "No additional remarks left by the reviewer."}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Supporting Documents */}
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Supporting Documents</p>
+                {rrSelected.attachments && rrSelected.attachments.length > 0 ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {rrSelected.attachments.map((a, idx) => (
+                      <div key={idx} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "#374151" }}>
+                        <Paperclip style={{ width: 12, height: 12, color: "#9ca3af" }} />
+                        {typeof a === "string" ? a : (a.name || a.filename || `Attachment ${idx + 1}`)}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ fontSize: 12, color: "#9ca3af" }}>No supporting documents on record.</p>
+                )}
+              </div>
+
+              {/* Complete Workflow History */}
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Complete Workflow History</p>
+                {rrWorkflowHistory(rrSelected).length > 0 ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {rrWorkflowHistory(rrSelected).map((h, idx) => (
+                      <div key={idx} style={{ display: "flex", gap: 10 }}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7c3aed", flexShrink: 0, marginTop: 4 }} />
+                          {idx < rrWorkflowHistory(rrSelected).length - 1 && <div style={{ width: 1, flex: 1, background: "#e5e7eb", marginTop: 2 }} />}
+                        </div>
+                        <div style={{ paddingBottom: 6 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                            <Pill text={h.action.label} bg={h.action.bg} color={h.action.color} />
+                            <span style={{ fontSize: 10.5, color: "#9ca3af" }}>{h.date}</span>
+                          </div>
+                          <p style={{ fontSize: 11.5, color: "#6b7280", marginTop: 3 }}>{h.user} — {h.remarks}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "#9ca3af" }}>
+                    <History style={{ width: 13, height: 13 }} /> No detailed workflow history available for this transaction.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div style={{ padding: "14px 22px", borderTop: "1px solid rgba(0,0,0,0.07)", display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button
+                onClick={() => setRrSelected(null)}
+                style={{ padding: "8px 16px", borderRadius: 8, background: "#f3f4f6", color: "#374151", border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+              >
+                Close
+              </button>
+              <ExportButtons onExport={(fmt) => handleExport(`Transaction ${rrSelected.id}`, fmt)} size="small" />
+            </div>
+          </div>
         </div>
       )}
     </div>
