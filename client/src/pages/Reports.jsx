@@ -416,20 +416,9 @@ export default function Reports() {
         const rows = Array.isArray(data) ? data : (data.logs || []);
         setAuditTrail(Array.isArray(rows) ? rows : []);
         setAuditUnavailable(false);
-        // TEMP DEBUG — remove once the Audit Trail filter is confirmed
-        // working. Logs the raw shape of the first entry and every
-        // distinct action string so we can see exactly what the backend
-        // sends (field names, casing, prefixes) vs what the filter expects.
-        if (Array.isArray(rows) && rows.length) {
-          console.log("[AuditTrail debug] sample raw entry:", rows[0]);
-          console.log("[AuditTrail debug] distinct actions:", [...new Set(rows.map(r => r.action))]);
-        } else {
-          console.log("[AuditTrail debug] /api/audit returned 0 rows total");
-        }
       } else {
         setAuditTrail([]);
         setAuditUnavailable(true);
-        console.log("[AuditTrail debug] /api/audit responded with status", res.status);
       }
     } catch (err) {
       console.error("Audit trail fetch error:", err);
@@ -735,21 +724,15 @@ export default function Reports() {
   }, [items, dateRange]);
 
   // ── Audit trail — sourced from GET /api/audit (see fetchAuditTrail) ──
-  // Reports only cares about document/form/task activity — not account
-  // events like LOGIN, REGISTER, FORGOT_PASSWORD, RESET_PASSWORD, or any
-  // USER_* action (USER_APPROVE, USER_EDIT, USER_DEACTIVATE, USER_DELETE,
-  // etc). Two ways an entry qualifies: (1) its action code carries the
-  // TASK_/DOCUMENT_/FORM_ prefix, or (2) it's tied to an actual document
-  // (has a document_id/task_id/form_id) — a login or user-account action
-  // never has one, so this is a safe fallback if a future action code
-  // doesn't happen to follow the TASK_ naming convention.
+  // Only document/task/form activity (TASK_APPROVE, TASK_SUBMIT, etc) shows
+  // here — every entry that's ever been logged with one of those action
+  // codes, old and new alike. Login and user-account events (LOGIN,
+  // USER_DELETE, USER_DEACTIVATE, etc) are always excluded.
   const isDocumentRelated = (a) => {
     const entity = (a.entity_type || a.entity || a.target_type || "").toLowerCase();
     if (entity) return ["task", "document", "doc", "form"].includes(entity);
     const action = String(a.action || "").toLowerCase();
-    if (["task_", "document_", "doc_", "form_"].some(p => action.startsWith(p))) return true;
-    const hasDocRef = a.document_id || a.task_id || a.form_id;
-    return Boolean(hasDocRef) && !action.startsWith("user_") && !["login", "logout", "register", "forgot_password", "reset_password"].includes(action);
+    return ["task_", "document_", "doc_", "form_"].some(p => action.startsWith(p));
   };
 
   const AUDIT_TRAIL = useMemo(() => {
