@@ -421,15 +421,15 @@ export default function Reports() {
         // distinct action string so we can see exactly what the backend
         // sends (field names, casing, prefixes) vs what the filter expects.
         if (Array.isArray(rows) && rows.length) {
-          console.debug("[AuditTrail debug] sample raw entry:", rows[0]);
-          console.debug("[AuditTrail debug] distinct actions:", [...new Set(rows.map(r => r.action))]);
+          console.log("[AuditTrail debug] sample raw entry:", rows[0]);
+          console.log("[AuditTrail debug] distinct actions:", [...new Set(rows.map(r => r.action))]);
         } else {
-          console.debug("[AuditTrail debug] /api/audit returned 0 rows total");
+          console.log("[AuditTrail debug] /api/audit returned 0 rows total");
         }
       } else {
         setAuditTrail([]);
         setAuditUnavailable(true);
-        console.debug("[AuditTrail debug] /api/audit responded with status", res.status);
+        console.log("[AuditTrail debug] /api/audit responded with status", res.status);
       }
     } catch (err) {
       console.error("Audit trail fetch error:", err);
