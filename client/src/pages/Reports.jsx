@@ -126,6 +126,43 @@ function SeverityBadge({ level }) {
   );
 }
 
+/* Audit-trail action → readable label + color, so the programchair/admin can
+   scan the "Action" column and immediately see what changed on a document
+   (approved, rejected, returned, updated, etc). Falls back gracefully for
+   any action string the backend sends that isn't explicitly mapped. */
+const ACTION_CFG = {
+  approve:        { label: "Approved",        color: "#059669", bg: "#d1fae5" },
+  approved:       { label: "Approved",        color: "#059669", bg: "#d1fae5" },
+  reject:         { label: "Rejected",        color: "#dc2626", bg: "#fee2e2" },
+  rejected:       { label: "Rejected",        color: "#dc2626", bg: "#fee2e2" },
+  return:         { label: "Returned",        color: "#c2410c", bg: "#ffedd5" },
+  returned:       { label: "Returned",        color: "#c2410c", bg: "#ffedd5" },
+  complete:       { label: "Completed",       color: "#059669", bg: "#d1fae5" },
+  completed:      { label: "Completed",       color: "#059669", bg: "#d1fae5" },
+  create:         { label: "Created",         color: "#0284c7", bg: "#e0f2fe" },
+  created:        { label: "Created",         color: "#0284c7", bg: "#e0f2fe" },
+  submit:         { label: "Submitted",       color: "#0284c7", bg: "#e0f2fe" },
+  submitted:      { label: "Submitted",       color: "#0284c7", bg: "#e0f2fe" },
+  update:         { label: "Updated",         color: "#374151", bg: "#f3f4f6" },
+  updated:        { label: "Updated",         color: "#374151", bg: "#f3f4f6" },
+  status_change:  { label: "Status Updated",  color: "#374151", bg: "#f3f4f6" },
+  forward:        { label: "Forwarded",       color: "#7c3aed", bg: "#ede9fe" },
+  forwarded:      { label: "Forwarded",       color: "#7c3aed", bg: "#ede9fe" },
+  assign:         { label: "Assigned",        color: "#7c3aed", bg: "#ede9fe" },
+  assigned:       { label: "Assigned",        color: "#7c3aed", bg: "#ede9fe" },
+  delete:         { label: "Deleted",         color: "#dc2626", bg: "#fee2e2" },
+  deleted:        { label: "Deleted",         color: "#dc2626", bg: "#fee2e2" },
+};
+function formatAuditAction(raw) {
+  if (!raw) return { label: "—", color: "#6b7280", bg: "#f3f4f6" };
+  const key = String(raw).toLowerCase().trim().replace(/\s+/g, "_");
+  if (ACTION_CFG[key]) return ACTION_CFG[key];
+  // Unrecognized action from the backend: title-case it rather than
+  // showing a raw snake_case/enum value.
+  const label = String(raw).replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  return { label, color: "#374151", bg: "#f3f4f6" };
+}
+
 /* Flat rounded-rect badge for role/category-style values (e.g. table pills). */
 function Pill({ text, color, bg }) {
   return (
@@ -679,15 +716,31 @@ export default function Reports() {
 
   // ── Audit trail — sourced from GET /api/audit (see fetchAuditTrail) ──
   const AUDIT_TRAIL = useMemo(() => {
-    return auditTrail.map(a => ({
-      date: a.timestamp
-        ? new Date(a.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
-        : "—",
-      user: a.user?.full_name || a.user?.username || "System",
-      action: a.action || "—",
-      transaction: a.document_id ? `#${a.document_id}` : "—",
-      remarks: a.detail || "",
-    }));
+    return auditTrail.map(a => {
+      const oldStatus = a.old_status || a.previous_status || a.from_status || null;
+      const newStatus = a.new_status || a.current_status || a.to_status || a.status || null;
+
+      // Remarks: prefer an explicit change (old → new status), then any
+      // free-text detail from the backend, then a plain fallback.
+      let remarks = a.detail || "";
+      if (oldStatus && newStatus && oldStatus !== newStatus) {
+        remarks = `Status changed: ${oldStatus} → ${newStatus}${a.detail ? ` — ${a.detail}` : ""}`;
+      } else if (!remarks && newStatus) {
+        remarks = `Status set to ${newStatus}`;
+      } else if (!remarks) {
+        remarks = "—";
+      }
+
+      return {
+        date: a.timestamp
+          ? new Date(a.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
+          : "—",
+        user: a.user?.full_name || a.user?.username || "System",
+        action: formatAuditAction(a.action),
+        transaction: a.document_id ? `#${a.document_id}` : "—",
+        remarks,
+      };
+    });
   }, [auditTrail]);
 
   const TABS = [
@@ -1156,7 +1209,7 @@ export default function Reports() {
                     <tr key={i} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
                       <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#6b7280", whiteSpace: "nowrap", fontSize: 11 }}>{a.date}</td>
                       <td style={TD_STYLE}><NameCell name={a.user} /></td>
-                      <td style={TD_STYLE}><Pill text={a.action} bg="#f3f4f6" color="#374151" /></td>
+                      <td style={TD_STYLE}><Pill text={a.action.label} bg={a.action.bg} color={a.action.color} /></td>
                       <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#374151", fontSize: 11 }}>{a.transaction}</td>
                       <td style={{ ...TD_STYLE, color: "#6b7280" }}>{a.remarks}</td>
                     </tr>
