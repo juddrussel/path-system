@@ -715,8 +715,28 @@ export default function Reports() {
   }, [items, dateRange]);
 
   // ── Audit trail — sourced from GET /api/audit (see fetchAuditTrail) ──
+  // Reports only cares about document/form/task activity — not account
+  // events like login, logout, password changes, or user CRUD. We drop
+  // those two ways: (1) if the backend tags the entity type, exclude
+  // anything that isn't a document/form/task; (2) otherwise fall back to
+  // matching common auth/account keywords in the action string.
+  const EXCLUDED_ENTITY_TYPES = ["user", "account", "auth", "session"];
+  const EXCLUDED_ACTION_KEYWORDS = [
+    "login", "logout", "signin", "sign_in", "signout", "sign_out", "session",
+    "password", "register", "user_create", "user_update", "user_delete",
+    "account", "auth",
+  ];
+  const isDocumentRelated = (a) => {
+    const entity = (a.entity_type || a.entity || a.target_type || "").toLowerCase();
+    if (entity) return !EXCLUDED_ENTITY_TYPES.includes(entity);
+    const action = String(a.action || "").toLowerCase();
+    return !EXCLUDED_ACTION_KEYWORDS.some(kw => action.includes(kw));
+  };
+
   const AUDIT_TRAIL = useMemo(() => {
-    return auditTrail.map(a => {
+    return auditTrail
+      .filter(isDocumentRelated)
+      .map(a => {
       const oldStatus = a.old_status || a.previous_status || a.from_status || null;
       const newStatus = a.new_status || a.current_status || a.to_status || a.status || null;
 
