@@ -53,6 +53,7 @@ function AppRoutes() {
       <Route path="/tracking" element={<Tracking />} />
       <Route path="/workflow-designer" element={<WorkflowDesigner />} />
       <Route path="/workflow-dashboard" element={<WorkflowDashboard />} />
+      <Route path="/reports" element={<Reports />} />
     </Routes>
   );
 }
