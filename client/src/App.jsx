@@ -16,7 +16,7 @@ import TaskAssigned from "./pages/TaskAssigned";
 import Tracking from "./pages/Tracking";
 import WorkflowDesigner from "./pages/WorkflowDesigner";
 import WorkflowDashboard from "./pages/WorkflowDashboard";
-import Reports from "./Reports";
+import Reports from "./pages/Reports";
 
 
 // Separated so useLocation works inside BrowserRouter
