@@ -1381,29 +1381,65 @@ export default function Dashboard() {
                 {itemsLoading ? (
                   <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>Loading alerts…</p>
                 ) : BOTTLENECK_ALERTS.length === 0 ? (
-                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No active alerts — everything is moving smoothly.</p>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, height: "100%", padding: "24px 0" }}>
+                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <CheckCircle2 style={{ width: 20, height: 20, color: "#059669" }} />
+                    </div>
+                    <p style={{ fontSize: 12.5, fontWeight: 600, color: "#374151" }}>No active alerts</p>
+                    <p style={{ fontSize: 11, color: "#9ca3af" }}>Everything is moving smoothly.</p>
+                  </div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {BOTTLENECK_ALERTS.slice(0, 5).map(a => {
-                      const cfg = ALERT_TIER_CFG[a.tier];
-                      const AlertIcon = a.icon;
-                      return (
-                        <div key={a.key} style={{ display: "flex", gap: 9, padding: "9px 11px", borderRadius: 9, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                          <div style={{ width: 24, height: 24, borderRadius: 6, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                            <AlertIcon style={{ width: 11, height: 11, color: cfg.iconColor }} />
+                  <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+                    {/* Severity breakdown strip — quick read on the mix of
+                        alerts without having to scan the whole list */}
+                    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                      {Object.entries(ALERT_TIER_CFG).map(([tier, cfg]) => {
+                        const count = BOTTLENECK_ALERTS.filter(a => a.tier === tier).length;
+                        return (
+                          <div key={tier} style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, padding: "7px 9px", borderRadius: 8, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                            <span style={{ fontSize: 14, fontWeight: 800, color: cfg.color, lineHeight: 1 }}>{count}</span>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: cfg.color, opacity: 0.85 }}>{cfg.label}</span>
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1, flexWrap: "wrap" }}>
-                              <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{a.title}</span>
-                              {cfg.showPill && (
-                                <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>CRITICAL</span>
-                              )}
+                        );
+                      })}
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {BOTTLENECK_ALERTS.slice(0, 5).map(a => {
+                        const cfg = ALERT_TIER_CFG[a.tier];
+                        const AlertIcon = a.icon;
+                        return (
+                          <div key={a.key} style={{ display: "flex", gap: 9, padding: "9px 11px", borderRadius: 9, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                            <div style={{ width: 24, height: 24, borderRadius: 6, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                              <AlertIcon style={{ width: 11, height: 11, color: cfg.iconColor }} />
                             </div>
-                            <p style={{ fontSize: 11, color: "#374151", lineHeight: 1.4 }}>{a.message}</p>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1, flexWrap: "wrap" }}>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{a.title}</span>
+                                {cfg.showPill && (
+                                  <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>CRITICAL</span>
+                                )}
+                              </div>
+                              <p style={{ fontSize: 11, color: "#374151", lineHeight: 1.4 }}>{a.message}</p>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+
+                    {/* When there are only one or two alerts, the card would
+                        otherwise trail off into dead space before the footer
+                        (it stretches to match the taller table card next to
+                        it). Fill that leftover room with a calm status note
+                        instead of leaving it blank. */}
+                    {BOTTLENECK_ALERTS.length <= 2 && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, padding: "14px 0", borderRadius: 9, background: "#fafafa", border: "1px dashed #e5e7eb" }}>
+                        <CheckCircle2 style={{ width: 16, height: 16, color: "#059669" }} />
+                        <p style={{ fontSize: 11, color: "#6b7280", textAlign: "center" }}>
+                          No other bottlenecks detected — the rest of the workflow is on track.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </SectionCard>
