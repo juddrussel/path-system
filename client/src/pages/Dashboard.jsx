@@ -1389,10 +1389,10 @@ export default function Dashboard() {
                 titleColor="#dc2626"
                 footer={
                   <button
-                    onClick={() => (BOTTLENECK_ALERTS.length > 5 ? setAlertsModalOpen(true) : navigate("/reports"))}
+                    onClick={() => (BOTTLENECK_ALERTS.length > 6 ? setAlertsModalOpen(true) : navigate("/reports"))}
                     style={{ width: "100%", padding: "8px 10px", borderRadius: 8, background: "transparent", color: "#dc2626", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", letterSpacing: "0.03em" }}
                   >
-                    {BOTTLENECK_ALERTS.length > 5 ? `VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})` : "VIEW ALL CRITICAL ALERTS"}
+                    {BOTTLENECK_ALERTS.length > 6 ? `VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})` : "VIEW ALL CRITICAL ALERTS"}
                   </button>
                 }
               >
@@ -1423,7 +1423,7 @@ export default function Dashboard() {
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {BOTTLENECK_ALERTS.slice(0, 5).map(a => {
+                      {BOTTLENECK_ALERTS.slice(0, 6).map(a => {
                         const cfg = ALERT_TIER_CFG[a.tier];
                         const AlertIcon = a.icon;
                         return (
@@ -1450,7 +1450,7 @@ export default function Dashboard() {
                         (it stretches to match the taller table card next to
                         it). Fill that leftover room with a calm status note
                         instead of leaving it blank. */}
-                    {BOTTLENECK_ALERTS.length <= 2 && (
+                    {BOTTLENECK_ALERTS.length <= 3 && (
                       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, padding: "14px 0", borderRadius: 9, background: "#fafafa", border: "1px dashed #e5e7eb" }}>
                         <CheckCircle2 style={{ width: 16, height: 16, color: "#059669" }} />
                         <p style={{ fontSize: 11, color: "#6b7280", textAlign: "center" }}>
