@@ -70,13 +70,13 @@ function RoleBadge({ role }) {
   const map = {
     admin:         "bg-violet-100 text-violet-700",
     program_chair: "bg-blue-100 text-blue-700",
-    user:          "bg-blue-100 text-blue-700",
+    faculty:       "bg-blue-100 text-blue-700",
     guest:         "bg-gray-100 text-gray-600",
   };
   const labels = {
     admin:         "Admin",
     program_chair: "Program Chair",
-    user:          "Faculty",
+    faculty:       "Faculty",
     guest:         "Guest",
   };
   const label = labels[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : "Unknown");
@@ -169,7 +169,7 @@ function AddUserModal({ onClose, onCreated }) {
                 <option value="">Select role…</option>
                 <option value="admin">Admin</option>
                 <option value="program_chair">Program Chair</option>
-                <option value="user">Faculty</option>
+                <option value="faculty">Faculty</option>
               </select>
             </Field>
             <Field label="Status">
@@ -301,7 +301,7 @@ function EditUserModal({ user, onClose, onUpdated, currentUserRole }) {
                 <option value="">Select role…</option>
                 <option value="admin">Admin</option>
                 <option value="program_chair">Program Chair</option>
-                <option value="user">Faculty</option>
+                <option value="faculty">Faculty</option>
               </select>
             </Field>
             <Field label={canChangeStatus ? "Status" : "Status (read-only)"}>
@@ -820,7 +820,7 @@ export default function UserManagement() {
                         <option value="all">All</option>
                         <option value="admin">Admin</option>
                         <option value="program_chair">Program Chair</option>
-                        <option value="user">Faculty</option>
+                        <option value="faculty">Faculty</option>
                       </select>
                     </div>
                     <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-500">
