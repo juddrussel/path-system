@@ -911,7 +911,7 @@ export default function Dashboard() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const pendingApprovalsCount = trackedItems.filter(
-    t => t.status === "Pending" || t.status === "For Approval"
+    t => t.status === "Pending"
   ).length;
 
   const activeTasksCount = trackedItems.filter(
@@ -919,7 +919,7 @@ export default function Dashboard() {
   ).length;
 
   const documentsUnderReviewCount = trackedItems.filter(
-    t => t.sourceType === "document" && t.status === "Under Review"
+    t => t.sourceType === "document" && (t.status === "Under Review" || t.status === "For Approval")
   ).length;
 
   const overdueItemsCount = trackedItems.filter(t => t.status === "Overdue").length;
