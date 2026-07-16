@@ -168,8 +168,8 @@ function AddUserModal({ onClose, onCreated }) {
               <select required value={form.role} onChange={e => set("role", e.target.value)}>
                 <option value="">Select role…</option>
                 <option value="admin">Admin</option>
-                <option value="user">Staff</option>
-                <option value="guest">Guest</option>
+                <option value="program_chair">Program Chair</option>
+                <option value="user">Faculty</option>
               </select>
             </Field>
             <Field label="Status">
@@ -301,8 +301,7 @@ function EditUserModal({ user, onClose, onUpdated, currentUserRole }) {
                 <option value="">Select role…</option>
                 <option value="admin">Admin</option>
                 <option value="program_chair">Program Chair</option>
-                <option value="user">Staff / Faculty</option>
-                <option value="guest">Guest</option>
+                <option value="user">Faculty</option>
               </select>
             </Field>
             <Field label={canChangeStatus ? "Status" : "Status (read-only)"}>
@@ -820,8 +819,8 @@ export default function UserManagement() {
                       <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-transparent text-xs text-gray-700 outline-none cursor-pointer">
                         <option value="all">All</option>
                         <option value="admin">Admin</option>
-                        <option value="user">Staff</option>
-                        <option value="guest">Guest</option>
+                        <option value="program_chair">Program Chair</option>
+                        <option value="user">Faculty</option>
                       </select>
                     </div>
                     <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-500">
