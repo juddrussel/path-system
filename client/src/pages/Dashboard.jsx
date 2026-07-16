@@ -919,7 +919,7 @@ export default function Dashboard() {
   ).length;
 
   const documentsUnderReviewCount = trackedItems.filter(
-    t => t.sourceType === "document" && (t.status === "Under Review" || t.status === "For Approval")
+    t => t.status === "Under Review" || t.status === "For Approval"
   ).length;
 
   const overdueItemsCount = trackedItems.filter(t => t.status === "Overdue").length;
