@@ -621,7 +621,7 @@ function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs, onSelect
 
 function SectionCard({ title, subtitle, icon: Icon, children, action, noPad, accentColor, titleColor, footer }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderTop: accentColor ? `3px solid ${accentColor}` : "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: accentColor ? `0 1px 4px ${accentColor}14` : "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
+    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderTop: accentColor ? `3px solid ${accentColor}` : "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <div style={{ width: 29, height: 29, borderRadius: 7, background: accentColor ? `${accentColor}18` : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
