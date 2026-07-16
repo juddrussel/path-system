@@ -555,8 +555,8 @@ export default function WorkflowDesigner() {
   const [workflowId, setWorkflowId] = useState(null); // null = not yet saved to DB
   const [isSaving, setIsSaving] = useState(false);
 
-  const API = "http://localhost:5000/api";
-
+  const API = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api`;
+  
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
