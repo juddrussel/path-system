@@ -358,6 +358,7 @@ export default function Reports() {
 
   // ── Returned / Rejected report — detail-view modal state ──
   const [rrSelected, setRrSelected] = useState(null);
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
 
   /* ════════════════════════════════════════════════════════════════════
      Live data — same fetch pattern as Dashboard.jsx (fetchTrackedItems /
@@ -754,6 +755,102 @@ export default function Reports() {
       })
       .sort((a, b) => b.waiting - a.waiting);
   }, [items]);
+
+  // ── Bottleneck & Alerts — real-time list of items requiring immediate
+  //    attention, derived straight from rawItems/FACULTY_WORKLOAD (not
+  //    scoped to the date/status filter bar, since these are department-
+  //    wide operational alerts). Each threshold below is the SLA/rule
+  //    used to decide whether something gets flagged. ──
+  const ALERT_SLA = {
+    approvalWaitDays: 5,   // "For Approval" items waiting longer than this breach SLA
+    workflowStagnantDays: 5, // non-task items sitting untouched this long count as a workflow delay
+    pendingReviewDays: 5,  // forms pending longer than this get bundled into one alert
+    highWorkloadTasks: 6,  // active (not-yet-completed) tasks per faculty before flagging
+  };
+
+  const BOTTLENECK_ALERTS = useMemo(() => {
+    const alerts = [];
+    const active = rawItems.filter(i => !i.done);
+
+    // 1) Overdue Approvals
+    active
+      .filter(i => i.status === "For Approval" && i.days >= ALERT_SLA.approvalWaitDays)
+      .sort((a, b) => b.days - a.days)
+      .forEach(i => {
+        const over = i.days - ALERT_SLA.approvalWaitDays;
+        alerts.push({
+          key: `approval-${i.id}`,
+          tier: "critical",
+          title: "Overdue Approval",
+          message: `${i.id} has been waiting for ${i.days} day${i.days === 1 ? "" : "s"}. SLA exceeded by ${over} day${over === 1 ? "" : "s"}.`,
+          icon: AlertTriangle,
+        });
+      });
+
+    // 2) Overdue Tasks
+    active
+      .filter(i => i.sourceType === "task" && i.overdue)
+      .sort((a, b) => b.days - a.days)
+      .forEach(i => {
+        alerts.push({
+          key: `task-${i.id}`,
+          tier: "critical",
+          title: "Overdue Task",
+          message: `${i.id} (${i.title || i.docType}) is ${i.days} day${i.days === 1 ? "" : "s"} past deadline.`,
+          icon: AlertTriangle,
+        });
+      });
+
+    // 3) High Workload — faculty carrying more active tasks than the threshold
+    FACULTY_WORKLOAD
+      .map(f => ({ ...f, active: Math.max(0, f.assigned - f.completed) }))
+      .filter(f => f.active >= ALERT_SLA.highWorkloadTasks)
+      .sort((a, b) => b.active - a.active)
+      .forEach(f => {
+        alerts.push({
+          key: `workload-${f.name}`,
+          tier: "warning",
+          title: "High Workload",
+          message: `${f.name} has ${f.active} active task${f.active === 1 ? "" : "s"}. May need rebalancing.`,
+          icon: Users,
+        });
+      });
+
+    // 4) Workflow Delay — non-task items stagnant in their current stage
+    active
+      .filter(i => i.sourceType !== "task" && i.status !== "For Approval" && i.days >= ALERT_SLA.workflowStagnantDays)
+      .sort((a, b) => b.days - a.days)
+      .forEach(i => {
+        alerts.push({
+          key: `workflow-${i.id}`,
+          tier: "warning",
+          title: "Workflow Delay",
+          message: `${i.id} (${i.title || i.docType}) has been stagnant for ${i.days} day${i.days === 1 ? "" : "s"}.`,
+          icon: Clock,
+        });
+      });
+
+    // 5) Pending Review — bundled into a single alert
+    const pendingCount = active.filter(i => i.status === "Pending" && i.days >= ALERT_SLA.pendingReviewDays).length;
+    if (pendingCount > 0) {
+      alerts.push({
+        key: "pending-review",
+        tier: "info",
+        title: "Pending Review",
+        message: `${pendingCount} form${pendingCount === 1 ? "" : "s"} have been pending for more than ${ALERT_SLA.pendingReviewDays} days without action.`,
+        icon: ClipboardList,
+      });
+    }
+
+    const tierRank = { critical: 0, warning: 1, info: 2 };
+    return alerts.sort((a, b) => tierRank[a.tier] - tierRank[b.tier]);
+  }, [rawItems, FACULTY_WORKLOAD]);
+
+  const ALERT_TIER_CFG = {
+    critical: { bg: "#fef2f2", border: "#dc2626", iconBg: "#fee2e2", iconColor: "#dc2626", showPill: true },
+    warning:  { bg: "#fffbeb", border: "#d97706", iconBg: "#fef3c7", iconColor: "#d97706", showPill: false },
+    info:     { bg: "#f5f3ff", border: "#7c3aed", iconBg: "#ede9fe", iconColor: "#7c3aed", showPill: false },
+  };
 
   /* ════════════════════════════════════════════════════════════════════
      Returned / Rejected Transactions Report — dedicated dataset. Built
@@ -1668,6 +1765,57 @@ export default function Reports() {
             {/* ── Bottleneck tab ── */}
             {activeTab === "Bottleneck" && (
               <>
+            {/* ── Bottleneck & Alerts ── */}
+            <SectionCard title="Bottleneck & Alerts" subtitle="Items requiring immediate attention" icon={Shield} noPad>
+              {BOTTLENECK_ALERTS.length === 0 ? (
+                <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 18px" }}>No active alerts — everything is moving smoothly.</p>
+              ) : (
+                <>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 18px" }}>
+                    {(showAllAlerts ? BOTTLENECK_ALERTS : BOTTLENECK_ALERTS.slice(0, 5)).map(a => {
+                      const cfg = ALERT_TIER_CFG[a.tier];
+                      const AlertIcon = a.icon;
+                      return (
+                        <div
+                          key={a.key}
+                          style={{
+                            display: "flex", alignItems: "flex-start", gap: 12,
+                            background: cfg.bg, borderLeft: `3px solid ${cfg.border}`,
+                            borderRadius: 10, padding: "12px 14px",
+                          }}
+                        >
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <AlertIcon style={{ width: 14, height: 14, color: cfg.iconColor }} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                              <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{a.title}</p>
+                              {cfg.showPill && (
+                                <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9.5, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
+                                  CRITICAL
+                                </span>
+                              )}
+                            </div>
+                            <p style={{ fontSize: 11.5, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {BOTTLENECK_ALERTS.length > 5 && (
+                    <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", padding: "10px 18px", textAlign: "center" }}>
+                      <button
+                        onClick={() => setShowAllAlerts(v => !v)}
+                        style={{ background: "none", border: "none", color: "#dc2626", fontSize: 11.5, fontWeight: 700, letterSpacing: 0.3, cursor: "pointer" }}
+                      >
+                        {showAllAlerts ? "SHOW LESS" : `VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})`}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </SectionCard>
+
             {/* ── Documents Waiting by Stage ── */}
             <SectionCard title="Documents Waiting by Stage" icon={Activity}>
               <ResponsiveContainer width="100%" height={230}>
