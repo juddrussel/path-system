@@ -6,6 +6,7 @@ const multer   = require("multer");
 const path     = require("path");
 const fs       = require("fs");
 const db       = require("../config/db");
+const workflowExecution = require("../services/workflowExecution.service");
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
@@ -274,6 +275,24 @@ router.post("/:id/approve", requireAuth, requireReviewer, async (req, res) => {
       });
     }
 
+    // Workflow integration — no-op if this form isn't attached to an active
+    // instance. Runs AFTER the approve logic above, never instead of it, so
+    // forms not attached to any workflow behave exactly as before.
+    try {
+      await workflowExecution.advanceWorkflow({
+        subjectType: "form_submission",
+        subjectId:   Number(req.params.id),
+        edgeLabel:   "Approved",
+        actionTaken: "Approval",
+        performedBy: req.user.id,
+        notes:       note,
+      });
+    } catch (wfErr) {
+      console.error(`[workflow] advance failed for form_submission ${req.params.id}:`, wfErr);
+      // Not surfaced to the client — the approval itself already succeeded
+      // and must not be rolled back or blocked by a workflow-side error.
+    }
+
     return res.json({ message: "Form approved." });
   } catch (err) {
     console.error("POST /forms/:id/approve error:", err);
@@ -304,6 +323,19 @@ router.post("/:id/reject", requireAuth, requireReviewer, async (req, res) => {
         status: "Rejected",
         review_note: note,
       });
+    }
+
+    try {
+      await workflowExecution.advanceWorkflow({
+        subjectType: "form_submission",
+        subjectId:   Number(req.params.id),
+        edgeLabel:   "Rejected",
+        actionTaken: "Rejection",
+        performedBy: req.user.id,
+        notes:       note,
+      });
+    } catch (wfErr) {
+      console.error(`[workflow] advance failed for form_submission ${req.params.id}:`, wfErr);
     }
 
     return res.json({ message: "Form rejected." });
@@ -341,6 +373,19 @@ router.post("/:id/revise", requireAuth, requireReviewer, async (req, res) => {
       console.log(`[REVISE] Socket emit sent to user_${rows[0].submitted_by}`);
     } else {
       console.log("[REVISE] io not found on app!");
+    }
+
+    try {
+      await workflowExecution.advanceWorkflow({
+        subjectType: "form_submission",
+        subjectId:   Number(req.params.id),
+        edgeLabel:   "Revision",
+        actionTaken: "Return for Revision",
+        performedBy: req.user.id,
+        notes:       note,
+      });
+    } catch (wfErr) {
+      console.error(`[workflow] advance failed for form_submission ${req.params.id}:`, wfErr);
     }
 
     return res.json({ message: "Revision requested." });
