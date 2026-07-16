@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import {
@@ -204,14 +204,6 @@ const NOTIFICATIONS = [
   { id: 6,  type: "completed",    text: "Approval completed",                        sub: "FRM-2026-029 approved by Dean's Office",  time: "4h ago",  read: true  },
 ];
 
-const ALERTS = [
-  { level: "critical", title: "Overdue Approval",     desc: "FRM-2026-031 has been waiting for 8 days. SLA exceeded by 3 days.",    doc: "FRM-2026-031" },
-  { level: "critical", title: "Overdue Task",         desc: "TSK-004 (Accreditation Documents) is 3 days past deadline.",            doc: "TSK-004"      },
-  { level: "high",     title: "High Workload",        desc: "Ms. Grace Villanueva has 6 active tasks. May need rebalancing.",        doc: null           },
-  { level: "high",     title: "Workflow Delay",       desc: "FRM-2026-033 (Curriculum Change) has been stagnant for 7 days.",        doc: "FRM-2026-033" },
-  { level: "moderate", title: "Pending Review",       desc: "5 forms have been pending for more than 5 days without action.",        doc: null           },
-];
-
 const ACTIVITY_FEED = [
   { id: 1,  time: "9:48 AM",  actor: "You",                   action: "Approved",               target: "FRM-2026-029",                   type: "approved"   },
   { id: 2,  time: "9:31 AM",  actor: "Juan Miguel Reyes",     action: "Submitted form",          target: "Thesis Defense Schedule",         type: "submitted"  },
@@ -274,10 +266,12 @@ const NOTIF_CFG = {
   announcement: { color: "#0284c7", bg: "#e0f2fe", icon: Megaphone    },
 };
 
-const SEVERITY_CFG = {
-  critical: { color: "#dc2626", bg: "#fef2f2", border: "#fecaca", label: "Critical" },
-  high:     { color: "#d97706", bg: "#fffbeb", border: "#fde68a", label: "High"     },
-  moderate: { color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd", label: "Moderate" },
+// Bottleneck & Alerts tier styling — mirrors Reports.jsx's ALERT_TIER_CFG so
+// this widget's live alerts render consistently with the full report.
+const ALERT_TIER_CFG = {
+  critical: { color: "#dc2626", bg: "#fef2f2", border: "#fecaca", iconBg: "#fee2e2", iconColor: "#dc2626", label: "Critical", showPill: true },
+  warning:  { color: "#d97706", bg: "#fffbeb", border: "#fde68a", iconBg: "#fef3c7", iconColor: "#d97706", label: "Warning",  showPill: false },
+  info:     { color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd", iconBg: "#ede9fe", iconColor: "#7c3aed", label: "Info",     showPill: false },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -669,6 +663,7 @@ export default function Dashboard() {
   const [facultyLoading, setFacultyLoading] = useState(true);
   const [facultyModalOpen, setFacultyModalOpen] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [alertsModalOpen, setAlertsModalOpen] = useState(false);
   const [delayedDocs, setDelayedDocs] = useState([]);
   const [delayedLoading, setDelayedLoading] = useState(true);
 
@@ -869,6 +864,119 @@ export default function Dashboard() {
   const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
   const unread = NOTIFICATIONS.filter(n => !n.read).length;
+
+  /* ════════════════════════════════════════════════════════════════════
+     Bottleneck & Alerts — live, ported from Reports.jsx so this widget
+     shows the same real-time alerts as the full Bottleneck report instead
+     of static sample data. Derived from trackedItems / facultyPerformance
+     (not scoped to any filter bar, since these are department-wide
+     operational alerts). Each threshold below is the SLA/rule used to
+     decide whether something gets flagged. ══════════════════════════ */
+  const DONE_STATUSES = ["Approved", "Rejected", "Archived", "Completed"];
+
+  const FACULTY_WORKLOAD = useMemo(() => {
+    return facultyPerformance.map(f => {
+      const pending = f.pending_count ?? 0;
+      const completed = f.completed_count ?? 0;
+      const active = f.active_count ?? 0;
+      const name = f.full_name || f.name || "—";
+      const delayedFromEndpoint = delayedDocs.filter(d => d.faculty_name === name).length;
+      const delayedFromItems = trackedItems.filter(i => i.person === name && i.status === "Overdue").length;
+      return {
+        name,
+        assigned: active + pending + completed,
+        pending,
+        completed,
+        delayed: delayedFromEndpoint || delayedFromItems,
+        rate: Math.round(f.performance_score ?? (active + pending + completed > 0 ? (completed / (active + pending + completed)) * 100 : 0)),
+      };
+    });
+  }, [facultyPerformance, delayedDocs, trackedItems]);
+
+  const ALERT_SLA = {
+    approvalWaitDays: 5,     // "For Approval" items waiting longer than this breach SLA
+    workflowStagnantDays: 5, // non-task items sitting untouched this long count as a workflow delay
+    pendingReviewDays: 5,    // forms pending longer than this get bundled into one alert
+    highWorkloadTasks: 6,    // active (not-yet-completed) tasks per faculty before flagging
+  };
+
+  const BOTTLENECK_ALERTS = useMemo(() => {
+    const alerts = [];
+    const active = trackedItems.filter(i => !DONE_STATUSES.includes(i.status));
+
+    // 1) Overdue Approvals
+    active
+      .filter(i => i.status === "For Approval" && i.days >= ALERT_SLA.approvalWaitDays)
+      .sort((a, b) => b.days - a.days)
+      .forEach(i => {
+        const over = i.days - ALERT_SLA.approvalWaitDays;
+        alerts.push({
+          key: `approval-${i.id}`,
+          tier: "critical",
+          title: "Overdue Approval",
+          message: `${i.id} has been waiting for ${i.days} day${i.days === 1 ? "" : "s"}. SLA exceeded by ${over} day${over === 1 ? "" : "s"}.`,
+          icon: AlertTriangle,
+        });
+      });
+
+    // 2) Overdue Tasks
+    active
+      .filter(i => i.sourceType === "task" && i.status === "Overdue")
+      .sort((a, b) => b.days - a.days)
+      .forEach(i => {
+        alerts.push({
+          key: `task-${i.id}`,
+          tier: "critical",
+          title: "Overdue Task",
+          message: `${i.id} (${i.title}) is ${i.days} day${i.days === 1 ? "" : "s"} past deadline.`,
+          icon: AlertTriangle,
+        });
+      });
+
+    // 3) High Workload — faculty carrying more active tasks than the threshold
+    FACULTY_WORKLOAD
+      .map(f => ({ ...f, active: Math.max(0, f.assigned - f.completed) }))
+      .filter(f => f.active >= ALERT_SLA.highWorkloadTasks)
+      .sort((a, b) => b.active - a.active)
+      .forEach(f => {
+        alerts.push({
+          key: `workload-${f.name}`,
+          tier: "warning",
+          title: "High Workload",
+          message: `${f.name} has ${f.active} active task${f.active === 1 ? "" : "s"}. May need rebalancing.`,
+          icon: Users,
+        });
+      });
+
+    // 4) Workflow Delay — non-task items stagnant in their current stage
+    active
+      .filter(i => i.sourceType !== "task" && i.status !== "For Approval" && i.days >= ALERT_SLA.workflowStagnantDays)
+      .sort((a, b) => b.days - a.days)
+      .forEach(i => {
+        alerts.push({
+          key: `workflow-${i.id}`,
+          tier: "warning",
+          title: "Workflow Delay",
+          message: `${i.id} (${i.title}) has been stagnant for ${i.days} day${i.days === 1 ? "" : "s"}.`,
+          icon: Clock,
+        });
+      });
+
+    // 5) Pending Review — bundled into a single alert
+    const pendingCount = active.filter(i => i.status === "Pending" && i.days >= ALERT_SLA.pendingReviewDays).length;
+    if (pendingCount > 0) {
+      alerts.push({
+        key: "pending-review",
+        tier: "info",
+        title: "Pending Review",
+        message: `${pendingCount} form${pendingCount === 1 ? "" : "s"} have been pending for more than ${ALERT_SLA.pendingReviewDays} days without action.`,
+        icon: ClipboardList,
+      });
+    }
+
+    const tierRank = { critical: 0, warning: 1, info: 2 };
+    return alerts.sort((a, b) => tierRank[a.tier] - tierRank[b.tier]);
+  }, [trackedItems, FACULTY_WORKLOAD]);
 
   // Tasks for the "Pending Tasks Overview" widget — pulled from the same
   // merged trackedItems used by the Document, Form & Task Tracking table
@@ -1253,7 +1361,8 @@ export default function Dashboard() {
                 )}
               </SectionCard>
 
-              {/* Bottleneck & Delay Alerts */}
+              {/* Bottleneck & Delay Alerts — live data, same source/logic as
+                  the Bottleneck tab on Reports.jsx */}
               <SectionCard
                 title="Bottleneck & Alerts"
                 subtitle="Items requiring immediate attention"
@@ -1262,34 +1371,41 @@ export default function Dashboard() {
                 titleColor="#dc2626"
                 footer={
                   <button
-                    onClick={() => navigate("/tracking")}
+                    onClick={() => (BOTTLENECK_ALERTS.length > 5 ? setAlertsModalOpen(true) : navigate("/reports"))}
                     style={{ width: "100%", padding: "8px 10px", borderRadius: 8, background: "transparent", color: "#dc2626", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", letterSpacing: "0.03em" }}
                   >
-                    VIEW ALL CRITICAL ALERTS
+                    {BOTTLENECK_ALERTS.length > 5 ? `VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})` : "VIEW ALL CRITICAL ALERTS"}
                   </button>
                 }
               >
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {ALERTS.map((alert, idx) => {
-                    const cfg = SEVERITY_CFG[alert.level];
-                    return (
-                      <div key={idx} style={{ display: "flex", gap: 9, padding: "9px 11px", borderRadius: 9, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                        <div style={{ width: 24, height: 24, borderRadius: 6, background: `${cfg.color}20`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                          <TriangleAlert style={{ width: 11, height: 11, color: cfg.color }} />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1 }}>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{alert.title}</span>
-                            {alert.level === "critical" && (
-                              <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>{cfg.label.toUpperCase()}</span>
-                            )}
+                {itemsLoading ? (
+                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>Loading alerts…</p>
+                ) : BOTTLENECK_ALERTS.length === 0 ? (
+                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No active alerts — everything is moving smoothly.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {BOTTLENECK_ALERTS.slice(0, 5).map(a => {
+                      const cfg = ALERT_TIER_CFG[a.tier];
+                      const AlertIcon = a.icon;
+                      return (
+                        <div key={a.key} style={{ display: "flex", gap: 9, padding: "9px 11px", borderRadius: 9, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                          <div style={{ width: 24, height: 24, borderRadius: 6, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                            <AlertIcon style={{ width: 11, height: 11, color: cfg.iconColor }} />
                           </div>
-                          <p style={{ fontSize: 11, color: "#374151", lineHeight: 1.4 }}>{alert.desc}</p>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1, flexWrap: "wrap" }}>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{a.title}</span>
+                              {cfg.showPill && (
+                                <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>CRITICAL</span>
+                              )}
+                            </div>
+                            <p style={{ fontSize: 11, color: "#374151", lineHeight: 1.4 }}>{a.message}</p>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </SectionCard>
             </div>
 
@@ -1619,6 +1735,60 @@ export default function Dashboard() {
             </div>
 
           </div>
+
+          {/* All Alerts modal (Bottleneck & Alerts) */}
+          {alertsModalOpen && (
+            <div
+              onClick={() => setAlertsModalOpen(false)}
+              style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2500, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 20px", overflowY: "auto" }}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 640, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden", display: "flex", flexDirection: "column" }}
+              >
+                <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+                  <div>
+                    <p style={{ fontSize: 15, fontWeight: 800, color: "#111827" }}>All Alerts</p>
+                    <p style={{ fontSize: 11.5, color: "#6b7280" }}>{BOTTLENECK_ALERTS.length} items requiring immediate attention</p>
+                  </div>
+                  <button
+                    onClick={() => setAlertsModalOpen(false)}
+                    style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "#f3f4f6", color: "#6b7280", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                  >
+                    <X style={{ width: 14, height: 14 }} />
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 22px", maxHeight: "70vh", overflowY: "auto" }}>
+                  {BOTTLENECK_ALERTS.map(a => {
+                    const cfg = ALERT_TIER_CFG[a.tier];
+                    const AlertIcon = a.icon;
+                    return (
+                      <div
+                        key={a.key}
+                        style={{ display: "flex", alignItems: "flex-start", gap: 12, background: cfg.bg, borderLeft: `3px solid ${cfg.border}`, borderRadius: 10, padding: "12px 14px" }}
+                      >
+                        <div style={{ width: 30, height: 30, borderRadius: 8, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <AlertIcon style={{ width: 14, height: 14, color: cfg.iconColor }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                            <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{a.title}</p>
+                            {cfg.showPill && (
+                              <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9.5, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
+                                CRITICAL
+                              </span>
+                            )}
+                          </div>
+                          <p style={{ fontSize: 11.5, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Footer */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderTop: "0.5px solid #e5e7eb", fontSize: 10, color: "#aaa", background: "white" }}>
