@@ -724,7 +724,15 @@ export default function Reports() {
   }, [facultyPerformance, delayedDocs, rawItems]);
 
   // ── Bottleneck view — grouped by current status/stage since the API doesn't
-  //    expose a distinct workflow-stage field beyond status. ──
+  //    expose a distinct workflow-stage field beyond status. "Pending",
+  //    "Returned", and "For Approval" are statuses rather than true workflow
+  //    stages, so we show a friendlier label for them here without touching
+  //    the underlying status value used for grouping/filtering elsewhere. ──
+  const BOTTLENECK_STAGE_LABELS = {
+    "Pending":      "Awaiting Faculty Submission",
+    "Returned":     "Awaiting for Revision/Resubmission",
+    "For Approval": "Waiting for Approval",
+  };
   const BOTTLENECKS = useMemo(() => {
     const groups = {};
     items.filter(i => !i.done).forEach(i => {
@@ -736,7 +744,13 @@ export default function Reports() {
       .map(g => {
         const avgWait = g.waiting ? g.totalDays / g.waiting : 0;
         const severity = avgWait >= 6 ? "Critical" : avgWait >= 4 ? "High" : avgWait >= 2 ? "Medium" : "Low";
-        return { stage: g.stage, waiting: g.waiting, avgWait: Number(avgWait.toFixed(1)), severity };
+        return {
+          stage: g.stage,
+          label: BOTTLENECK_STAGE_LABELS[g.stage] || g.stage,
+          waiting: g.waiting,
+          avgWait: Number(avgWait.toFixed(1)),
+          severity,
+        };
       })
       .sort((a, b) => b.waiting - a.waiting);
   }, [items]);
@@ -874,17 +888,20 @@ export default function Reports() {
     ];
   }, [items, PROCESSING_TIME_DATA]);
 
-  // ── Transaction Status Overview donut: Pending / Under Review / Approved / Completed / Rejected / Returned ──
+  // ── Transaction Status Overview donut: full status distribution, including
+  //    Delayed and For Approval alongside the standard workflow statuses ──
   const OVERVIEW_STATUS_DONUT = useMemo(() => {
     const cfg = [
       { name: "Pending",      color: "#d97706" },
+      { name: "For Approval", color: "#0891b2" },
       { name: "Under Review", color: "#0ea5e9" },
       { name: "Approved",     color: "#0284c7" },
-      { name: "Completed",    color: "#059669" },
-      { name: "Rejected",     color: "#dc2626" },
+      { name: "Delayed",      color: "#f97316" },
       { name: "Returned",     color: "#c2410c" },
+      { name: "Rejected",     color: "#dc2626" },
+      { name: "Completed",    color: "#059669" },
     ];
-    return cfg.map(c => ({ ...c, value: items.filter(i => i.status === c.name).length }));
+    return cfg.map(c => ({ ...c, value: items.filter(i => i.status === c.name).length })).filter(c => c.value > 0);
   }, [items]);
 
   // ── Monthly trend growth indicator (first vs. last month in view) ──
@@ -1656,7 +1673,7 @@ export default function Reports() {
               <ResponsiveContainer width="100%" height={230}>
                 <BarChart data={BOTTLENECKS} barSize={28}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="stage" tick={{ fontSize: 9.5 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 9.5 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip />
                   <Bar dataKey="waiting" name="Docs Waiting" radius={[4, 4, 0, 0]}>
@@ -1682,7 +1699,7 @@ export default function Reports() {
                 <tbody>
                   {BOTTLENECKS.map((b, i) => (
                     <tr key={b.stage} style={{ borderBottom: i < BOTTLENECKS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ ...TD_STYLE, fontWeight: 600, color: "#111827" }}>{b.stage}</td>
+                      <td style={{ ...TD_STYLE, fontWeight: 600, color: "#111827" }}>{b.label}</td>
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.waiting}</td>
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{b.avgWait}d avg</td>
                       <td style={{ ...TD_STYLE, textAlign: "center" }}><SeverityBadge level={b.severity} /></td>
