@@ -218,6 +218,8 @@ export default function AuditTrail() {
   const canViewAdminNav = ADMIN_ROLES.includes(currentUser?.role);
 
   const [logs, setLogs] = useState([]);
+  const [totalLogs, setTotalLogs] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [stats, setStats] = useState({});
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -238,6 +240,9 @@ export default function AuditTrail() {
   };
 
   // ── Fetch (only runs when role is allowed) ─────────────────────────────────
+  // Server-side pagination: the backend defaults to limit=20 per page if we
+  // don't say otherwise, so we explicitly pass page/limit and read back the
+  // real total row count instead of assuming the whole log fits in one batch.
   const fetchData = useCallback(async () => {
     if (!canViewAudit) return;
     setLoading(true);
@@ -248,6 +253,8 @@ export default function AuditTrail() {
       if (filterDocument) params.set("document", filterDocument);
       if (filterDate) params.set("date", filterDate);
       if (filterQ) params.set("q", filterQ);
+      params.set("page", String(page));
+      params.set("limit", String(PAGE_SIZE));
 
       const [logsData, statsData, actionsData] = await Promise.all([
         apiFetch(`/audit?${params}`),
@@ -255,6 +262,8 @@ export default function AuditTrail() {
         apiFetch("/audit/actions"),
       ]);
       setLogs(Array.isArray(logsData) ? logsData : (logsData.logs || []));
+      setTotalLogs(logsData.total ?? (Array.isArray(logsData) ? logsData.length : (logsData.logs || []).length));
+      setTotalPages(Math.max(1, logsData.pages ?? 1));
       setStats(statsData);
       setActions(actionsData);
     } catch (err) {
@@ -262,11 +271,11 @@ export default function AuditTrail() {
     } finally {
       setLoading(false);
     }
-  }, [filterAction, filterDocument, filterDate, filterQ, canViewAudit]);
+  }, [filterAction, filterDocument, filterDate, filterQ, page, canViewAudit]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // ── Client-side topbar search (on top of server filters) ──────────────────
+  // ── Client-side topbar search (further narrows the current page only) ──────
   const displayed = logs.filter(l => {
     if (!search) return true;
     const q = search.toLowerCase();
@@ -281,11 +290,10 @@ export default function AuditTrail() {
 
   const hasFilters = filterAction || filterDocument || filterDate || filterQ;
 
-  // Reset to page 1 whenever the filtered/searched result set changes
-  useEffect(() => { setPage(1); }, [displayed.length, filterAction, filterDocument, filterDate, filterQ, search]);
+  // Reset to page 1 whenever a server-side filter changes (new result set)
+  useEffect(() => { setPage(1); }, [filterAction, filterDocument, filterDate, filterQ]);
 
-  const totalPages = Math.max(1, Math.ceil(displayed.length / PAGE_SIZE));
-  const pageItems = displayed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pageItems = displayed;
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -385,8 +393,8 @@ export default function AuditTrail() {
                 icon={<svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" /></svg>}
               />
               <StatCard
-                label="Total Log Entries" value={stats.total_entries ?? displayed.length}
-                delta="Showing (max 100)"
+                label="Total Log Entries" value={stats.total ?? totalLogs}
+                delta="All-time count"
                 iconBg="bg-emerald-100"
                 icon={<svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="1.5" width="14" height="14"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>}
               />
@@ -475,7 +483,7 @@ export default function AuditTrail() {
                   <p className="text-xs text-gray-400 mt-0.5">All system actions — documents, users, auth events</p>
                 </div>
                 <span className="text-xs text-gray-400">
-                  {loading ? "Loading…" : `${displayed.length} ${displayed.length === 1 ? "entry" : "entries"}`}
+                  {loading ? "Loading…" : `${totalLogs} ${totalLogs === 1 ? "entry" : "entries"}`}
                 </span>
               </div>
 
@@ -571,7 +579,7 @@ export default function AuditTrail() {
 
               <div className="flex items-center justify-between px-4 py-2.5 text-xs text-gray-400 border-t border-gray-50">
                 <span>
-                  Showing {displayed.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, displayed.length)} of {displayed.length} log {displayed.length === 1 ? "entry" : "entries"} · Logs are retained for 365 days per compliance policy.
+                  Showing {totalLogs === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalLogs)} of {totalLogs} log {totalLogs === 1 ? "entry" : "entries"} · Logs are retained for 365 days per compliance policy.
                 </span>
                 {totalPages > 1 && (
                   <div className="flex items-center gap-2 shrink-0 ml-4">
