@@ -1184,7 +1184,7 @@ export default function Dashboard() {
                           key={row.id}
                           style={{
                             borderBottom: idx < trackedPageItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
-                            background: row.days >= 7 ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : "#fff",
+                            background: row.days >= 7 && !["Approved", "Rejected", "Archived"].includes(row.status) ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : "#fff",
                           }}
                         >
                           <td style={{ padding: "12px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{row.id}</td>
@@ -1196,7 +1196,7 @@ export default function Dashboard() {
                           <td style={{ padding: "12px 14px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                               <StatusBadge s={row.status} />
-                              {row.days >= 5 && <span style={{ fontSize: 10, color: "#dc2626", fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}><AlertTriangle style={{ width: 9, height: 9 }} />{row.days}d</span>}
+                              {row.days >= 5 && !["Approved", "Rejected", "Archived"].includes(row.status) && <span style={{ fontSize: 10, color: "#dc2626", fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}><AlertTriangle style={{ width: 9, height: 9 }} />{row.days}d</span>}
                             </div>
                           </td>
                           <td style={{ padding: "12px 14px" }}>
