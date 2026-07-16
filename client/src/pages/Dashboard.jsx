@@ -754,6 +754,7 @@ export default function Dashboard() {
               title: d.title || d.document_type || "Document",
               person: d.submitted_by_name || (d.submitted_by ? nameOf(d.submitted_by) : null) || d.department || "—",
               date: fmtDate(rawDate),
+              dateObj: rawDate ? new Date(rawDate) : null,
               status,
               days: daysSince(rawDate),
               priority: priorityFor(daysSince(rawDate), done),
@@ -779,6 +780,7 @@ export default function Dashboard() {
               title: t.title,
               person: nameOf(t.faculty_id),
               date: fmtDate(t.deadline || rawDate),
+              dateObj: rawDate ? new Date(rawDate) : null,
               status: overdue ? "Overdue" : status,
               days: daysSince(rawDate),
               priority: overdue ? "Urgent" : priorityFor(daysSince(rawDate), done),
@@ -809,6 +811,7 @@ export default function Dashboard() {
               title: f.category ? `${f.category} Form` : "Form Submission",
               person: facultySubmitter,
               date: fmtDate(rawDate),
+              dateObj: rawDate ? new Date(rawDate) : null,
               status,
               days: daysSince(rawDate),
               priority: priorityFor(daysSince(rawDate), done),
@@ -903,14 +906,40 @@ export default function Dashboard() {
     setTaskPage(1);
   }, [taskFilter, filteredTasks.length]);
 
+  // ── KPI strip values — derived from the same live trackedItems / faculty
+  // data used elsewhere on the dashboard, instead of hardcoded sample numbers.
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const pendingApprovalsCount = trackedItems.filter(
+    t => t.status === "Pending" || t.status === "For Approval"
+  ).length;
+
+  const activeTasksCount = trackedItems.filter(
+    t => t.sourceType === "task" && !["Approved", "Completed", "Archived", "Rejected"].includes(t.status)
+  ).length;
+
+  const documentsUnderReviewCount = trackedItems.filter(
+    t => t.sourceType === "document" && t.status === "Under Review"
+  ).length;
+
+  const overdueItemsCount = trackedItems.filter(t => t.status === "Overdue").length;
+
+  const approvedThisMonthCount = trackedItems.filter(
+    t => t.status === "Approved" && t.dateObj && t.dateObj >= monthStart
+  ).length;
+
+  const activeFacultyCount = facultyPerformance.length;
+
   const kpis = [
-    { label: "Pending Approvals",        value: "6",    delta: "+2",   up: false, color: "#7c3aed", icon: ClipboardList  },
-    { label: "Active Tasks",             value: "12",   delta: "+3",   up: false, color: "#d97706", icon: ListTodo       },
-    { label: "Documents Under Review",   value: "9",    delta: "-1",   up: true,  color: "#0284c7", icon: Eye            },
-    { label: "Overdue Items",            value: "4",    delta: "+1",   up: false, color: "#dc2626", icon: AlertTriangle  },
-    { label: "Approved This Month",      value: "31",   delta: "+8",   up: true,  color: "#059669", icon: CheckCircle2   },
-    { label: "Active Faculty Members",   value: "6",    delta: "0",    up: true,  color: "#5b21b6", icon: Users          },
+    { label: "Pending Approvals",      value: String(pendingApprovalsCount),      color: "#7c3aed", icon: ClipboardList },
+    { label: "Active Tasks",           value: String(activeTasksCount),           color: "#d97706", icon: ListTodo      },
+    { label: "Documents Under Review", value: String(documentsUnderReviewCount),  color: "#0284c7", icon: Eye           },
+    { label: "Overdue Items",          value: String(overdueItemsCount),          color: "#dc2626", icon: AlertTriangle },
+    { label: "Approved This Month",    value: String(approvedThisMonthCount),     color: "#059669", icon: CheckCircle2  },
+    { label: "Active Faculty Members", value: String(activeFacultyCount),         color: "#5b21b6", icon: Users         },
   ];
+
+  const kpisLoading = itemsLoading || facultyLoading;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
@@ -1050,12 +1079,8 @@ export default function Dashboard() {
                     <div style={{ width: 28, height: 28, borderRadius: 7, background: `${k.color}25`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <k.icon style={{ width: 13, height: 13, color: k.color === "#7c3aed" || k.color === "#5b21b6" ? "#c4b5fd" : k.color === "#059669" ? "#6ee7b7" : k.color === "#0284c7" ? "#7dd3fc" : k.color === "#d97706" ? "#fde68a" : "#fca5a5" }} />
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: k.up ? "#6ee7b7" : k.delta === "0" ? "#c4b5fd" : "#fca5a5", display: "flex", alignItems: "center", gap: 2 }}>
-                      {k.up ? <TrendingUp style={{ width: 10, height: 10 }} /> : k.delta !== "0" ? <TrendingDown style={{ width: 10, height: 10 }} /> : <span>—</span>}
-                      {k.delta}
-                    </span>
                   </div>
-                  <p style={{ fontSize: 24, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{k.value}</p>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{kpisLoading ? "—" : k.value}</p>
                   <p style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 3, lineHeight: 1.3 }}>{k.label}</p>
                 </div>
               ))}
