@@ -1765,7 +1765,8 @@ export default function Reports() {
             {/* ── Bottleneck tab ── */}
             {activeTab === "Bottleneck" && (
               <>
-            {/* ── Bottleneck & Alerts ── */}
+            {/* ── Bottleneck & Alerts + Documents Waiting by Stage (side by side) ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 18, alignItems: "start" }}>
             <SectionCard title="Bottleneck & Alerts" subtitle="Items requiring immediate attention" icon={Shield} noPad>
               {BOTTLENECK_ALERTS.length === 0 ? (
                 <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 18px" }}>No active alerts — everything is moving smoothly.</p>
@@ -1819,19 +1820,20 @@ export default function Reports() {
             {/* ── Documents Waiting by Stage ── */}
             <SectionCard title="Documents Waiting by Stage" icon={Activity}>
               <ResponsiveContainer width="100%" height={230}>
-                <BarChart data={BOTTLENECKS} barSize={28}>
+                <BarChart data={BOTTLENECKS.filter(b => b.stage !== "Delayed")} barSize={28}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                   <XAxis dataKey="label" tick={{ fontSize: 9.5 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip />
                   <Bar dataKey="waiting" name="Docs Waiting" radius={[4, 4, 0, 0]}>
-                    {BOTTLENECKS.map(b => (
+                    {BOTTLENECKS.filter(b => b.stage !== "Delayed").map(b => (
                       <Cell key={b.stage} fill={b.severity === "Critical" ? "#dc2626" : b.severity === "High" ? "#f97316" : b.severity === "Medium" ? "#d97706" : "#059669"} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </SectionCard>
+            </div>
 
             {/* ── Bottleneck Summary ── */}
             <SectionCard title="Bottleneck Summary" subtitle="Workflow stages exceeding expected processing time" icon={AlertTriangle} noPad
