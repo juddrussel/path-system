@@ -1,6 +1,9 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+// Imported from the /dist build so bundlers (Vite, CRA, etc.) don't try to
+// pull in ExcelJS's Node-only code paths (fs, Buffer polyfills) meant for
+// server-side use — this build is the browser-safe one.
+import ExcelJS from "exceljs/dist/exceljs.min.js";
 
 /* ══════════════════════════════════════════════════════════════════════════
    reportExport.js — shared PDF / Excel export engine for the Reports page.
@@ -192,34 +195,157 @@ export async function exportReportToPDF({ title, subtitle, meta = [], kpis = [],
 
 /* ── Excel export ───────────────────────────────────────────────────── */
 
-export function exportReportToExcel({ title, subtitle, meta = [], kpis = [], tables = [] }) {
-  const wb = XLSX.utils.book_new();
+const BRAND_ARGB = "FF7C3AED";        // #7c3aed header / banner fill
+const BRAND_TINT_ARGB = "FFF3F0FD";   // light purple — alternating rows
+const HEADER_TINT_ARGB = "FFEDE9FE";  // pale purple — column header row
+const WHITE_ARGB = "FFFFFFFF";
+const BORDER_ARGB = "FFE4E4EC";
+const INK_ARGB = "FF111827";
+const MUTED_ARGB = "FF6B7280";
+const HEADER_TEXT_ARGB = "FF3F2E77";
 
-  const summaryRows = [
-    ["PATH — " + title],
-    [`Generated ${new Date().toLocaleString()}`],
-  ];
-  if (subtitle) summaryRows.push([subtitle]);
-  if (meta.length) summaryRows.push([meta.join(" | ")]);
-  if (kpis.length) {
-    summaryRows.push([]);
-    summaryRows.push(["Metric", "Value"]);
-    kpis.forEach(k => summaryRows.push([k.label, k.value]));
+const THIN_BORDER = { style: "thin", color: { argb: BORDER_ARGB } };
+const ALL_BORDERS = { top: THIN_BORDER, left: THIN_BORDER, bottom: THIN_BORDER, right: THIN_BORDER };
+
+function safeSheetName(name, fallback) {
+  // Excel sheet names: no \ / * ? : [ ], max 31 chars, can't be blank.
+  const cleaned = String(name || fallback).replace(/[\\/*?:[\]]/g, "").slice(0, 31);
+  return cleaned || fallback;
+}
+
+function triggerBlobDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function exportReportToExcel({ title, subtitle, meta = [], kpis = [], tables = [] }) {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "PATH";
+  wb.created = new Date();
+
+  /* ── Summary sheet: title banner, generated/filters line, KPI table ── */
+  const summary = wb.addWorksheet("Summary", { views: [{ showGridLines: false }] });
+  summary.columns = [{ width: 36 }, { width: 22 }];
+
+  summary.mergeCells("A1:B1");
+  const banner = summary.getCell("A1");
+  banner.value = `PATH — ${title}`;
+  banner.font = { bold: true, size: 14, color: { argb: WHITE_ARGB } };
+  banner.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BRAND_ARGB } };
+  banner.alignment = { vertical: "middle", indent: 1 };
+  summary.getRow(1).height = 30;
+
+  let r = 2;
+  summary.getCell(`A${r}`).value = `Generated ${new Date().toLocaleString()}`;
+  summary.getCell(`A${r}`).font = { italic: true, size: 9, color: { argb: MUTED_ARGB } };
+  r++;
+
+  if (subtitle) {
+    summary.getCell(`A${r}`).value = subtitle;
+    summary.getCell(`A${r}`).font = { size: 10.5, color: { argb: "FF374151" } };
+    r++;
   }
-  const summaryWs = XLSX.utils.aoa_to_sheet(summaryRows);
-  summaryWs["!cols"] = [{ wch: 42 }, { wch: 20 }];
-  XLSX.utils.book_append_sheet(wb, summaryWs, "Summary");
 
-  tables.forEach((t, idx) => {
-    const rows = t.rows.length ? t.rows : [t.columns.map(() => "—")];
-    const aoa = [t.columns, ...rows];
-    const ws = XLSX.utils.aoa_to_sheet(aoa);
-    ws["!cols"] = t.columns.map((c, i) => ({
-      wch: Math.min(60, Math.max(String(c ?? "").length + 2, ...rows.map(r => String(r[i] ?? "").length + 2), 10)),
-    }));
-    const sheetName = (t.title || `Data ${idx + 1}`).slice(0, 31);
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  meta.forEach(m => {
+    summary.getCell(`A${r}`).value = m;
+    summary.getCell(`A${r}`).font = { size: 9, color: { argb: MUTED_ARGB } };
+    r++;
   });
 
-  XLSX.writeFile(wb, `${slugify(title)}.xlsx`);
+  if (kpis.length) {
+    r++; // spacer row
+    const headerRow = summary.getRow(r);
+    ["Metric", "Value"].forEach((label, i) => {
+      const cell = headerRow.getCell(i + 1);
+      cell.value = label;
+      cell.font = { bold: true, size: 10, color: { argb: WHITE_ARGB } };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BRAND_ARGB } };
+      cell.border = ALL_BORDERS;
+      cell.alignment = { vertical: "middle" };
+    });
+    headerRow.height = 20;
+    r++;
+
+    kpis.forEach((k, i) => {
+      const row = summary.getRow(r);
+      const labelCell = row.getCell(1);
+      const valueCell = row.getCell(2);
+      labelCell.value = k.label;
+      valueCell.value = k.value;
+      [labelCell, valueCell].forEach(cell => {
+        cell.border = ALL_BORDERS;
+        if (i % 2 === 1) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BRAND_TINT_ARGB } };
+      });
+      labelCell.font = { size: 10, color: { argb: INK_ARGB } };
+      valueCell.font = { size: 10, bold: true, color: { argb: INK_ARGB } };
+      valueCell.alignment = { horizontal: "right" };
+      r++;
+    });
+  }
+
+  /* ── One styled sheet per data table ── */
+  tables.forEach((t, idx) => {
+    const sheetName = safeSheetName(t.title, `Data ${idx + 1}`);
+    const ws = wb.addWorksheet(sheetName, {
+      views: [{ state: "frozen", ySplit: 2, showGridLines: false }],
+    });
+
+    const colCount = t.columns.length;
+    const rows = t.rows.length ? t.rows : [t.columns.map(() => "—")];
+
+    // Title banner spanning every column
+    ws.mergeCells(1, 1, 1, colCount);
+    const bannerCell = ws.getCell(1, 1);
+    bannerCell.value = t.title || sheetName;
+    bannerCell.font = { bold: true, size: 12, color: { argb: WHITE_ARGB } };
+    bannerCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BRAND_ARGB } };
+    bannerCell.alignment = { vertical: "middle", indent: 1 };
+    ws.getRow(1).height = 24;
+
+    // Column header row
+    const headerRow = ws.getRow(2);
+    t.columns.forEach((colName, i) => {
+      const cell = headerRow.getCell(i + 1);
+      cell.value = colName;
+      cell.font = { bold: true, size: 9.5, color: { argb: HEADER_TEXT_ARGB } };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: HEADER_TINT_ARGB } };
+      cell.border = ALL_BORDERS;
+      cell.alignment = { vertical: "middle", horizontal: "left" };
+    });
+    headerRow.height = 20;
+
+    // Data rows, alternately shaded, numbers right-aligned
+    rows.forEach((rowData, ri) => {
+      const row = ws.getRow(ri + 3);
+      rowData.forEach((val, ci) => {
+        const cell = row.getCell(ci + 1);
+        cell.value = val;
+        cell.border = ALL_BORDERS;
+        cell.font = { size: 9.5, color: { argb: "FF1F2937" } };
+        if (ri % 2 === 1) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BRAND_TINT_ARGB } };
+        if (typeof val === "number") cell.alignment = { horizontal: "right" };
+      });
+    });
+
+    // Auto-filter dropdown on the header row
+    ws.autoFilter = { from: { row: 2, column: 1 }, to: { row: 2, column: colCount } };
+
+    // Column widths sized to content, capped so nothing runs away
+    t.columns.forEach((colName, i) => {
+      const maxLen = Math.max(String(colName).length, ...rows.map(row => String(row[i] ?? "").length));
+      ws.getColumn(i + 1).width = Math.min(48, Math.max(12, maxLen + 3));
+    });
+  });
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  triggerBlobDownload(blob, `${slugify(title)}.xlsx`);
 }

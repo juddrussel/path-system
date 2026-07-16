@@ -1120,7 +1120,7 @@ export default function Reports() {
       const payload = buildReportPayload(reportName, context);
       if (!payload) throw new Error(`No data available for "${reportName}"`);
       if (format === "PDF") await exportReportToPDF(payload);
-      else exportReportToExcel(payload);
+      else await exportReportToExcel(payload);
       setExportToast(`"${reportName}" exported as ${format}.`);
     } catch (err) {
       console.error("Export error:", err);
