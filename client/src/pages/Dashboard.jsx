@@ -769,6 +769,9 @@ export default function Dashboard() {
             const status = displayStatus(t.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
             const overdue = t.deadline && new Date(t.deadline) < now && !done;
+            // For overdue tasks, "days" should reflect how long past the deadline
+            // it is — not how long ago the task was created.
+            const taskDays = overdue ? daysSince(t.deadline) : daysSince(rawDate);
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
               sourceType: "task",
@@ -777,8 +780,8 @@ export default function Dashboard() {
               date: fmtDate(t.deadline || rawDate),
               dateObj: rawDate ? new Date(rawDate) : null,
               status: overdue ? "Overdue" : status,
-              days: daysSince(rawDate),
-              priority: overdue ? "Urgent" : priorityFor(daysSince(rawDate), done),
+              days: taskDays,
+              priority: overdue ? "Urgent" : priorityFor(taskDays, done),
             });
           });
         }
