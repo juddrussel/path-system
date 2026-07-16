@@ -358,7 +358,7 @@ export default function Reports() {
 
   // ── Returned / Rejected report — detail-view modal state ──
   const [rrSelected, setRrSelected] = useState(null);
-  const [showAllAlerts, setShowAllAlerts] = useState(false);
+  const [alertsModalOpen, setAlertsModalOpen] = useState(false);
 
   /* ════════════════════════════════════════════════════════════════════
      Live data — same fetch pattern as Dashboard.jsx (fetchTrackedItems /
@@ -1766,14 +1766,14 @@ export default function Reports() {
             {activeTab === "Bottleneck" && (
               <>
             {/* ── Bottleneck & Alerts + Documents Waiting by Stage (side by side) ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 18, alignItems: "start" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 18, alignItems: "stretch" }}>
             <SectionCard title="Bottleneck & Alerts" subtitle="Items requiring immediate attention" icon={Shield} noPad>
               {BOTTLENECK_ALERTS.length === 0 ? (
                 <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 18px" }}>No active alerts — everything is moving smoothly.</p>
               ) : (
                 <>
                   <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 18px" }}>
-                    {(showAllAlerts ? BOTTLENECK_ALERTS : BOTTLENECK_ALERTS.slice(0, 5)).map(a => {
+                    {BOTTLENECK_ALERTS.slice(0, 5).map(a => {
                       const cfg = ALERT_TIER_CFG[a.tier];
                       const AlertIcon = a.icon;
                       return (
@@ -1806,10 +1806,10 @@ export default function Reports() {
                   {BOTTLENECK_ALERTS.length > 5 && (
                     <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", padding: "10px 18px", textAlign: "center" }}>
                       <button
-                        onClick={() => setShowAllAlerts(v => !v)}
+                        onClick={() => setAlertsModalOpen(true)}
                         style={{ background: "none", border: "none", color: "#dc2626", fontSize: 11.5, fontWeight: 700, letterSpacing: 0.3, cursor: "pointer" }}
                       >
-                        {showAllAlerts ? "SHOW LESS" : `VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})`}
+                        {`VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})`}
                       </button>
                     </div>
                   )}
@@ -2092,6 +2092,65 @@ export default function Reports() {
       {exportToast && (
         <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "#111827", color: "#fff", padding: "10px 18px", borderRadius: 10, fontSize: 12, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 2000, display: "flex", alignItems: "center", gap: 8 }}>
           <FileText style={{ width: 13, height: 13 }} />{exportToast}
+        </div>
+      )}
+
+      {/* ── All Alerts modal (Bottleneck & Alerts) ── */}
+      {alertsModalOpen && (
+        <div
+          onClick={() => setAlertsModalOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2500, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 20px", overflowY: "auto" }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 640, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden", display: "flex", flexDirection: "column" }}
+          >
+            {/* Header */}
+            <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+              <div>
+                <p style={{ fontSize: 15, fontWeight: 800, color: "#111827" }}>All Alerts</p>
+                <p style={{ fontSize: 11.5, color: "#6b7280" }}>{BOTTLENECK_ALERTS.length} items requiring immediate attention</p>
+              </div>
+              <button
+                onClick={() => setAlertsModalOpen(false)}
+                style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "#f3f4f6", color: "#6b7280", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+              >
+                <X style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 22px", maxHeight: "70vh", overflowY: "auto" }}>
+              {BOTTLENECK_ALERTS.map(a => {
+                const cfg = ALERT_TIER_CFG[a.tier];
+                const AlertIcon = a.icon;
+                return (
+                  <div
+                    key={a.key}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 12,
+                      background: cfg.bg, borderLeft: `3px solid ${cfg.border}`,
+                      borderRadius: 10, padding: "12px 14px",
+                    }}
+                  >
+                    <div style={{ width: 30, height: 30, borderRadius: 8, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <AlertIcon style={{ width: 14, height: 14, color: cfg.iconColor }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{a.title}</p>
+                        {cfg.showPill && (
+                          <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9.5, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
+                            CRITICAL
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ fontSize: 11.5, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 
