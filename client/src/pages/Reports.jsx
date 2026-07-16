@@ -13,6 +13,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart as RPie, Pie, Cell,
 } from "recharts";
+import { exportReportToPDF, exportReportToExcel } from "./reportExport";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 const API = import.meta.env.VITE_API_URL || "";
@@ -927,11 +928,206 @@ export default function Reports() {
     "Quick Reports",
   ];
 
-  // Placeholder export handler — wire this to your actual PDF/Excel export
-  // endpoint (e.g. POST /api/reports/export) whenever that's ready.
-  const handleExport = (reportName, format) => {
+  // ── Export engine ──────────────────────────────────────────────────
+  // Every "Export PDF" / "Export Excel" button on this page calls
+  // handleExport(reportName, format[, context]). buildReportPayload()
+  // turns whichever report was requested into the shared
+  // { title, subtitle, meta, kpis, tables } shape that reportExport.js
+  // knows how to render into a branded PDF or a multi-sheet workbook.
+  const activeFilterSummary = [
+    `Date range: ${dateRange}`,
+    `Status: ${statusFilter}`,
+    `Document type: ${docTypeFilter}`,
+    `Faculty: ${facultyFilter}`,
+  ];
+
+  const buildReportPayload = (reportName, context) => {
+    switch (reportName) {
+      case "Full Analytics Report":
+      case "Monthly / Semestral Report":
+        return {
+          title: "Full Analytics Report",
+          subtitle: "Complete overview of transaction analytics",
+          meta: activeFilterSummary,
+          kpis: OVERVIEW_KPI_DATA.map(k => ({ label: k.label, value: k.value })),
+          tables: [
+            { title: "Status Breakdown", columns: ["Status", "Count"], rows: OVERVIEW_STATUS_DONUT.map(s => [s.name, s.value]) },
+            { title: "By Document Type", columns: ["Document Type", "Count"], rows: DOC_TYPE_BAR.map(d => [d.type, d.count]) },
+            { title: "Monthly Trend", columns: ["Month", "Submitted", "Completed", "Delayed"], rows: MONTHLY_TREND.map(m => [m.month, m.submitted, m.completed, m.delayed]) },
+          ],
+        };
+
+      case "Delayed Transactions Report":
+      case "Delayed Transactions":
+        return {
+          title: "Delayed Transactions Report",
+          subtitle: "Transactions past SLA thresholds",
+          meta: activeFilterSummary,
+          kpis: [
+            { label: "Total Delayed", value: DELAYED_TRANSACTIONS.length },
+            { label: "Overdue (7+ days)", value: DELAYED_TRANSACTIONS.filter(d => d.overdue).length },
+          ],
+          tables: [{
+            title: "Delayed Transactions",
+            columns: ["Transaction ID", "Document Type", "Faculty", "Status", "Stage", "Days Delayed", "Overdue"],
+            rows: DELAYED_TRANSACTIONS.map(d => [d.id, d.docType, d.faculty, d.status, d.stage, d.days, d.overdue ? "Yes" : "No"]),
+          }],
+        };
+
+      case "Processing Time Report":
+      case "Processing Time":
+        return {
+          title: "Processing Time Report",
+          subtitle: "Average, fastest, and slowest turnaround per document type",
+          meta: activeFilterSummary,
+          kpis: [
+            { label: "Fastest", value: `${PROCESSING_SUMMARY.fastest}d` },
+            { label: "Average", value: `${PROCESSING_SUMMARY.avg.toFixed(1)}d` },
+            { label: "Slowest", value: `${PROCESSING_SUMMARY.slowest}d` },
+          ],
+          tables: [{
+            title: "Processing Time by Document Type",
+            columns: ["Document Type", "Avg (days)", "Fastest (days)", "Slowest (days)"],
+            rows: PROCESSING_TIME_DATA.map(p => [p.type, p.avg.toFixed(1), p.fastest, p.slowest]),
+          }],
+        };
+
+      case "Faculty Workload Report":
+      case "Faculty Workload":
+        return {
+          title: "Faculty Workload Report",
+          subtitle: "Per-faculty load and completion rates",
+          meta: activeFilterSummary,
+          kpis: [
+            { label: "Faculty Tracked", value: FACULTY_WORKLOAD.length },
+            {
+              label: "Avg Completion Rate",
+              value: `${FACULTY_WORKLOAD.length ? Math.round(FACULTY_WORKLOAD.reduce((a, b) => a + b.rate, 0) / FACULTY_WORKLOAD.length) : 0}%`,
+            },
+          ],
+          tables: [{
+            title: "Faculty Workload",
+            columns: ["Faculty", "Assigned", "Pending", "Completed", "Delayed", "Completion Rate"],
+            rows: FACULTY_WORKLOAD.map(f => [f.name, f.assigned, f.pending, f.completed, f.delayed, `${f.rate}%`]),
+          }],
+        };
+
+      case "Transaction Summary":
+        return {
+          title: "Transaction Summary",
+          subtitle: "Complete overview of all transactions",
+          meta: activeFilterSummary,
+          kpis: KPI_DATA.map(k => ({ label: k.label, value: k.value })),
+          tables: [{
+            title: "All Transactions",
+            columns: ["ID", "Document Type", "Person", "Status", "Stage", "Date", "Days"],
+            rows: items.map(i => [i.id, i.docType, i.person, i.status, i.stage, i.date, i.days]),
+          }],
+        };
+
+      case "Pending Transactions":
+      case "Completed Transactions": {
+        const statusWanted = reportName === "Pending Transactions" ? "Pending" : "Completed";
+        const filtered = items.filter(i => i.status === statusWanted);
+        return {
+          title: reportName,
+          subtitle: `All transactions currently ${statusWanted.toLowerCase()}`,
+          meta: activeFilterSummary,
+          kpis: [{ label: `Total ${statusWanted}`, value: filtered.length }],
+          tables: [{
+            title: reportName,
+            columns: ["ID", "Document Type", "Person", "Status", "Stage", "Date", "Days"],
+            rows: filtered.map(i => [i.id, i.docType, i.person, i.status, i.stage, i.date, i.days]),
+          }],
+        };
+      }
+
+      case "Audit Trail":
+        return {
+          title: "Audit Trail",
+          subtitle: "Full system activity log",
+          meta: activeFilterSummary,
+          kpis: [{ label: "Total Log Entries", value: AUDIT_TRAIL.length }],
+          tables: [{
+            title: "Audit Trail",
+            columns: ["Date & Time", "User", "Action", "Transaction", "Remarks"],
+            rows: AUDIT_TRAIL.map(a => [a.date, a.user, a.action.label, a.transaction, a.remarks]),
+          }],
+        };
+
+      default: {
+        // Single "Transaction {id}" export from the Returned/Rejected detail modal.
+        if (reportName.startsWith("Transaction ") && context) {
+          const r = context;
+          const history = rrWorkflowHistory(r);
+          return {
+            title: `Transaction ${r.id}`,
+            subtitle: `${r.docType} — ${r.status}`,
+            meta: [
+              `Submitted by: ${r.person}`,
+              `Department: ${r.department || "—"}`,
+              `Date submitted: ${r.date}`,
+              `Date ${(r.status || "").toLowerCase()}: ${r.actionDate}`,
+            ],
+            kpis: [],
+            tables: [
+              {
+                title: "Return / Rejection Reason",
+                columns: ["Category", "Details"],
+                rows: [[r.reasonCategory, r.reasonRaw || "No specific reason text was recorded for this transaction."]],
+              },
+              {
+                title: "Reviewer Remarks",
+                columns: ["Remarks"],
+                rows: [[r.reviewerRemarks || "No additional remarks left by the reviewer."]],
+              },
+              {
+                title: "Complete Workflow History",
+                columns: ["Date", "Action", "User", "Remarks"],
+                rows: history.length
+                  ? history.map(h => [h.date, h.action.label, h.user, h.remarks])
+                  : [["—", "—", "—", "No detailed workflow history available for this transaction."]],
+              },
+            ],
+          };
+        }
+        return null;
+      }
+    }
+  };
+
+  // Quick Reports "View" jumps straight to the tab that already renders
+  // that data live, instead of duplicating the view in a new place.
+  const QUICK_REPORT_TAB = {
+    "Transaction Summary": "Transactions",
+    "Pending Transactions": "Transactions",
+    "Completed Transactions": "Transactions",
+    "Delayed Transactions": "Transactions",
+    "Faculty Workload": "Faculty Workload",
+    "Processing Time": "Processing Time",
+    "Monthly / Semestral Report": "Overview",
+    "Audit Trail": "Audit Trail",
+  };
+
+  const handleExport = async (reportName, format, context) => {
+    if (format === "View") {
+      if (QUICK_REPORT_TAB[reportName]) setActiveTab(QUICK_REPORT_TAB[reportName]);
+      return;
+    }
+
     setExportToast(`Exporting "${reportName}" as ${format}…`);
-    setTimeout(() => setExportToast(null), 2500);
+    try {
+      const payload = buildReportPayload(reportName, context);
+      if (!payload) throw new Error(`No data available for "${reportName}"`);
+      if (format === "PDF") await exportReportToPDF(payload);
+      else exportReportToExcel(payload);
+      setExportToast(`"${reportName}" exported as ${format}.`);
+    } catch (err) {
+      console.error("Export error:", err);
+      setExportToast(`Couldn't export "${reportName}". Please try again.`);
+    } finally {
+      setTimeout(() => setExportToast(null), 2500);
+    }
   };
 
   return (
@@ -1854,7 +2050,7 @@ export default function Reports() {
               >
                 Close
               </button>
-              <ExportButtons onExport={(fmt) => handleExport(`Transaction ${rrSelected.id}`, fmt)} size="small" />
+              <ExportButtons onExport={(fmt) => handleExport(`Transaction ${rrSelected.id}`, fmt, rrSelected)} size="small" />
             </div>
           </div>
         </div>
