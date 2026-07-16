@@ -1389,7 +1389,7 @@ export default function Dashboard() {
                 titleColor="#dc2626"
                 footer={
                   <button
-                    onClick={() => (BOTTLENECK_ALERTS.length > 6 ? setAlertsModalOpen(true) : navigate("/reports"))}
+                    onClick={() => navigate("/reports", { state: { tab: "Bottleneck" } })}
                     style={{ width: "100%", padding: "8px 10px", borderRadius: 8, background: "transparent", color: "#dc2626", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", letterSpacing: "0.03em" }}
                   >
                     {BOTTLENECK_ALERTS.length > 6 ? `VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})` : "VIEW ALL CRITICAL ALERTS"}
