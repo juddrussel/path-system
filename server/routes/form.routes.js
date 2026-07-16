@@ -104,6 +104,25 @@ router.post("/submit", requireAuth, upload.single("file"), async (req, res) => {
     const io = req.app.get("io");
     if (io) io.to("program_chairs").emit("new_form_submission", rows[0]);
 
+    // Auto-start a workflow — no-op if no Published workflow has
+    // auto_trigger_category matching this form's category. Runs AFTER the
+    // submission already succeeded and is soft-failed, same as the
+    // approve/reject/revise hooks below, so a workflow-side error can
+    // never block or roll back a form submission.
+    try {
+      const matchedWorkflow = await workflowExecution.findAutoTriggerWorkflow(category);
+      if (matchedWorkflow) {
+        await workflowExecution.startWorkflowInstance({
+          workflowId:  matchedWorkflow.id,
+          subjectType: "form_submission",
+          subjectId:   result.insertId,
+          initiatedBy: req.user.id,
+        });
+      }
+    } catch (wfErr) {
+      console.error(`[workflow] auto-start failed for form_submission ${result.insertId}:`, wfErr);
+    }
+
     return res.status(201).json({ message: "Form submitted successfully.", form: rows[0] });
   } catch (err) {
     console.error("POST /forms/submit error:", err);

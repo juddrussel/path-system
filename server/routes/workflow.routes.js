@@ -125,10 +125,14 @@ async function replaceNodesAndEdges(conn, workflowId, nodes = [], edges = []) {
 
 // ─── GET /api/workflows — list, for a picker / management screen ─────────
 router.get("/", requireAuth, async (req, res) => {
+  const { status } = req.query;
   try {
+    const statusFilter = status ? "WHERE status = ?" : "";
+    const params        = status ? [status] : [];
     const [rows] = await db.query(
       `SELECT id, name, description, status, version, total_sla_days, created_by, published_at, created_at, updated_at
-       FROM workflows ORDER BY updated_at DESC`
+       FROM workflows ${statusFilter} ORDER BY updated_at DESC`,
+      params
     );
     return res.json({ data: rows });
   } catch (err) {
@@ -165,7 +169,7 @@ router.get("/:id", requireAuth, async (req, res) => {
 
 // ─── POST /api/workflows — save as a NEW workflow ─────────────────────────
 router.post("/", requireAuth, requireChairOrAdmin, async (req, res) => {
-  const { name, description = "", status = "Draft", nodes = [], edges = [] } = req.body;
+  const { name, description = "", status = "Draft", auto_trigger_category = null, nodes = [], edges = [] } = req.body;
   if (!name?.trim()) return res.status(400).json({ message: "name is required." });
 
   const conn = await db.getConnection();
@@ -173,9 +177,9 @@ router.post("/", requireAuth, requireChairOrAdmin, async (req, res) => {
     await conn.beginTransaction();
 
     const [result] = await conn.query(
-      `INSERT INTO workflows (name, description, status, created_by, created_at)
-       VALUES (?, ?, ?, ?, NOW())`,
-      [name.trim(), description, status, req.user.id]
+      `INSERT INTO workflows (name, description, status, auto_trigger_category, created_by, created_at)
+       VALUES (?, ?, ?, ?, ?, NOW())`,
+      [name.trim(), description, status, auto_trigger_category || null, req.user.id]
     );
     const workflowId = result.insertId;
 
@@ -200,7 +204,7 @@ router.post("/", requireAuth, requireChairOrAdmin, async (req, res) => {
 // This is what the designer's "Save" button calls on every edit — full
 // replace of nodes/edges, matching the "single live definition" decision.
 router.put("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
-  const { name, description, nodes = [], edges = [] } = req.body;
+  const { name, description, auto_trigger_category, nodes = [], edges = [] } = req.body;
 
   const conn = await db.getConnection();
   try {
@@ -210,8 +214,8 @@ router.put("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
     await conn.beginTransaction();
 
     await conn.query(
-      `UPDATE workflows SET name = COALESCE(?, name), description = COALESCE(?, description), updated_at = NOW() WHERE id = ?`,
-      [name?.trim() || null, description ?? null, req.params.id]
+      `UPDATE workflows SET name = COALESCE(?, name), description = COALESCE(?, description), auto_trigger_category = ?, updated_at = NOW() WHERE id = ?`,
+      [name?.trim() || null, description ?? null, auto_trigger_category !== undefined ? (auto_trigger_category || null) : existing[0].auto_trigger_category, req.params.id]
     );
 
     await replaceNodesAndEdges(conn, req.params.id, nodes, edges);

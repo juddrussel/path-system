@@ -69,6 +69,27 @@ function subjectColumn(subjectType) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// findAutoTriggerWorkflow
+// Look up a Published workflow whose auto_trigger_category matches the
+// given category (e.g. a form_submission's category). Returns null if
+// none match — the normal case for any category that hasn't had a
+// workflow configured for it, or when auto-trigger isn't used at all.
+// If more than one Published workflow somehow shares a category, the most
+// recently published one wins rather than erroring — auto-start should
+// never block a form submission over an ambiguous workflow config.
+// ═══════════════════════════════════════════════════════════════════════
+async function findAutoTriggerWorkflow(category) {
+  if (!category) return null;
+  const [rows] = await db.query(
+    `SELECT * FROM workflows
+     WHERE status = 'Published' AND auto_trigger_category = ?
+     ORDER BY published_at DESC LIMIT 1`,
+    [category]
+  );
+  return rows[0] || null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // findActiveInstance
 // Look up the Active workflow_instances row for a given form_submission or
 // task, if any. Returns null if this record isn't attached to a workflow —
@@ -294,4 +315,5 @@ module.exports = {
   startWorkflowInstance,
   advanceWorkflow,
   findActiveInstance,
+  findAutoTriggerWorkflow,
 };
