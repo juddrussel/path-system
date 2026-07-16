@@ -44,6 +44,13 @@ function slugify(s) {
   );
 }
 
+// Every export shares one filename shape: DSPATH-<report-title>-<date>.<ext>
+// e.g. DSPATH-delayed-transactions-report-2026-07-16.pdf
+function buildFileName(title, ext) {
+  const datePart = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  return `DSPATH-${slugify(title)}-${datePart}.${ext}`;
+}
+
 // The PATH logo is loaded once and cached as a data URL so every PDF export
 // can stamp it in the header without re-fetching it each time. If it can't
 // be loaded (missing asset, offline, etc.) exports still work — the header
@@ -190,7 +197,7 @@ export async function exportReportToPDF({ title, subtitle, meta = [], kpis = [],
     doc.text(`PATH  •  Confidential Report  •  Page ${p} of ${pageCount}`, pageWidth / 2, pageHeight - 16, { align: "center" });
   }
 
-  doc.save(`${slugify(title)}.pdf`);
+  doc.save(buildFileName(title, "pdf"));
 }
 
 /* ── Excel export ───────────────────────────────────────────────────── */
@@ -347,5 +354,5 @@ export async function exportReportToExcel({ title, subtitle, meta = [], kpis = [
   const blob = new Blob([buffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
-  triggerBlobDownload(blob, `${slugify(title)}.xlsx`);
+  triggerBlobDownload(blob, buildFileName(title, "xlsx"));
 }
