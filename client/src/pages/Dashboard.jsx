@@ -898,6 +898,7 @@ export default function Dashboard() {
     workflowStagnantDays: 5, // non-task items sitting untouched this long count as a workflow delay
     pendingReviewDays: 5,    // forms pending longer than this get bundled into one alert
     highWorkloadTasks: 6,    // active (not-yet-completed) tasks per faculty before flagging
+    returnedStagnantDays: 3, // items sent back for revision that haven't been resubmitted
   };
 
   const BOTTLENECK_ALERTS = useMemo(() => {
@@ -973,6 +974,20 @@ export default function Dashboard() {
         icon: ClipboardList,
       });
     }
+
+    // 6) Returned for Revision — sent back to the submitter and left untouched
+    active
+      .filter(i => i.status === "Returned" && i.days >= ALERT_SLA.returnedStagnantDays)
+      .sort((a, b) => b.days - a.days)
+      .forEach(i => {
+        alerts.push({
+          key: `returned-${i.id}`,
+          tier: "warning",
+          title: "Returned for Revision",
+          message: `${i.id} (${i.title}) was returned to ${i.person} ${i.days} day${i.days === 1 ? "" : "s"} ago and hasn't been resubmitted.`,
+          icon: RotateCcw,
+        });
+      });
 
     const tierRank = { critical: 0, warning: 1, info: 2 };
     return alerts.sort((a, b) => tierRank[a.tier] - tierRank[b.tier]);
