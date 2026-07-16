@@ -130,7 +130,7 @@ router.get("/", requireAuth, async (req, res) => {
       `SELECT id, name, description, status, version, total_sla_days, created_by, published_at, created_at, updated_at
        FROM workflows ORDER BY updated_at DESC`
     );
-    return res.json(rows);
+    return res.json({ data: rows });
   } catch (err) {
     console.error("GET /api/workflows error:", err);
     return res.status(500).json({ message: "Internal server error." });
@@ -151,9 +151,11 @@ router.get("/:id", requireAuth, async (req, res) => {
     );
 
     return res.json({
-      ...wfRows[0],
-      nodes: nodeRows.map(nodeRowToFrontend),
-      edges: edgeRows.map(edgeRowToFrontend),
+      data: {
+        ...wfRows[0],
+        nodes: nodeRows.map(nodeRowToFrontend),
+        edges: edgeRows.map(edgeRowToFrontend),
+      },
     });
   } catch (err) {
     console.error("GET /api/workflows/:id error:", err);
@@ -184,7 +186,7 @@ router.post("/", requireAuth, requireChairOrAdmin, async (req, res) => {
     await writeLog({ userId: req.user.id, action: "WORKFLOW_CREATE", detail: `Created workflow "${name}" (#${workflowId})`, ipAddress: req.ip });
 
     const [rows] = await db.query("SELECT * FROM workflows WHERE id = ?", [workflowId]);
-    return res.status(201).json(rows[0]);
+    return res.status(201).json({ message: "Workflow created.", data: rows[0] });
   } catch (err) {
     await conn.rollback();
     console.error("POST /api/workflows error:", err);
@@ -219,7 +221,7 @@ router.put("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
     await writeLog({ userId: req.user.id, action: "WORKFLOW_UPDATE", detail: `Updated workflow "${existing[0].name}" (#${req.params.id})`, ipAddress: req.ip });
 
     const [rows] = await db.query("SELECT * FROM workflows WHERE id = ?", [req.params.id]);
-    return res.json(rows[0]);
+    return res.json({ message: "Workflow updated.", data: rows[0] });
   } catch (err) {
     await conn.rollback();
     console.error("PUT /api/workflows/:id error:", err);
