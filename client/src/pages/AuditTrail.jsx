@@ -229,6 +229,8 @@ export default function AuditTrail() {
   const [filterDate, setFilterDate] = useState("");
   const [filterQ, setFilterQ] = useState("");
   const [search, setSearch] = useState(""); // topbar search
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -278,6 +280,12 @@ export default function AuditTrail() {
   });
 
   const hasFilters = filterAction || filterDocument || filterDate || filterQ;
+
+  // Reset to page 1 whenever the filtered/searched result set changes
+  useEffect(() => { setPage(1); }, [displayed.length, filterAction, filterDocument, filterDate, filterQ, search]);
+
+  const totalPages = Math.max(1, Math.ceil(displayed.length / PAGE_SIZE));
+  const pageItems = displayed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -507,7 +515,7 @@ export default function AuditTrail() {
                           <p className="text-gray-400 text-xs">No audit logs found.{hasFilters ? " Try clearing the filters." : ""}</p>
                         </td>
                       </tr>
-                    ) : displayed.map(log => (
+                    ) : pageItems.map(log => (
                       <tr key={log.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
 
                         {/* Timestamp */}
@@ -561,8 +569,29 @@ export default function AuditTrail() {
                 </table>
               )}
 
-              <div className="px-4 py-2.5 text-xs text-gray-400 border-t border-gray-50">
-                Showing {displayed.length} log {displayed.length === 1 ? "entry" : "entries"} · Logs are retained for 365 days per compliance policy.
+              <div className="flex items-center justify-between px-4 py-2.5 text-xs text-gray-400 border-t border-gray-50">
+                <span>
+                  Showing {displayed.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, displayed.length)} of {displayed.length} log {displayed.length === 1 ? "entry" : "entries"} · Logs are retained for 365 days per compliance policy.
+                </span>
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-2 shrink-0 ml-4">
+                    <button
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      ← Previous
+                    </button>
+                    <span className="text-gray-400">Page {page} of {totalPages}</span>
+                    <button
+                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                      className="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
