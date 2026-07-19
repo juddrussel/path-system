@@ -6,7 +6,7 @@ import {
   Clock, AlertTriangle, XCircle, TrendingUp, TrendingDown, BarChart3,
   PieChart as PieIcon, FileSpreadsheet, Eye, RotateCcw, Layers, Shield,
   Activity, Gauge, ListTodo, ChevronRight, Printer, AlertCircle,
-  X, Percent, Paperclip, History, MessageSquare,
+  X, Percent, Paperclip, History, MessageSquare, Search,
 } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
@@ -359,6 +359,8 @@ export default function Reports() {
   // ── Returned / Rejected report — detail-view modal state ──
   const [rrSelected, setRrSelected] = useState(null);
   const [alertsModalOpen, setAlertsModalOpen] = useState(false);
+  const [alertsTierFilter, setAlertsTierFilter] = useState("all");
+  const [alertsSearch, setAlertsSearch] = useState("");
 
   /* ════════════════════════════════════════════════════════════════════
      Live data — same fetch pattern as Dashboard.jsx (fetchTrackedItems /
@@ -851,6 +853,24 @@ export default function Reports() {
     warning:  { bg: "#fffbeb", border: "#d97706", iconBg: "#fef3c7", iconColor: "#d97706", showPill: false },
     info:     { bg: "#f5f3ff", border: "#7c3aed", iconBg: "#ede9fe", iconColor: "#7c3aed", showPill: false },
   };
+
+  // ── All Alerts modal: tier counts (for the filter tabs) + the filtered/
+  //    searched list actually rendered. Lets someone jump straight to just
+  //    the Critical items, or type a task ID, instead of scrolling all 11+. ──
+  const ALERT_TIER_COUNTS = useMemo(() => ({
+    critical: BOTTLENECK_ALERTS.filter(a => a.tier === "critical").length,
+    warning: BOTTLENECK_ALERTS.filter(a => a.tier === "warning").length,
+    info: BOTTLENECK_ALERTS.filter(a => a.tier === "info").length,
+  }), [BOTTLENECK_ALERTS]);
+
+  const FILTERED_ALERTS = useMemo(() => {
+    const q = alertsSearch.trim().toLowerCase();
+    return BOTTLENECK_ALERTS.filter(a => {
+      if (alertsTierFilter !== "all" && a.tier !== alertsTierFilter) return false;
+      if (q && !`${a.title} ${a.message}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [BOTTLENECK_ALERTS, alertsTierFilter, alertsSearch]);
 
   /* ════════════════════════════════════════════════════════════════════
      Returned / Rejected Transactions Report — dedicated dataset. Built
@@ -2098,7 +2118,7 @@ export default function Reports() {
       {/* ── All Alerts modal (Bottleneck & Alerts) ── */}
       {alertsModalOpen && (
         <div
-          onClick={() => setAlertsModalOpen(false)}
+          onClick={() => { setAlertsModalOpen(false); setAlertsTierFilter("all"); setAlertsSearch(""); }}
           style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2500, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 20px", overflowY: "auto" }}
         >
           <div
@@ -2112,15 +2132,51 @@ export default function Reports() {
                 <p style={{ fontSize: 11.5, color: "#6b7280" }}>{BOTTLENECK_ALERTS.length} items requiring immediate attention</p>
               </div>
               <button
-                onClick={() => setAlertsModalOpen(false)}
+                onClick={() => { setAlertsModalOpen(false); setAlertsTierFilter("all"); setAlertsSearch(""); }}
                 style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "#f3f4f6", color: "#6b7280", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
               >
                 <X style={{ width: 14, height: 14 }} />
               </button>
             </div>
 
+            {/* Tier filter tabs + search — lets you jump straight to just the
+                Critical items or find a specific task instead of scrolling everything */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 22px", borderBottom: "1px solid rgba(0,0,0,0.07)", flexShrink: 0, flexWrap: "wrap" }}>
+              {[
+                { key: "all", label: "All", count: BOTTLENECK_ALERTS.length, color: "#374151", bg: "#f3f4f6" },
+                { key: "critical", label: "Critical", count: ALERT_TIER_COUNTS.critical, color: "#dc2626", bg: "#fef2f2" },
+                { key: "warning", label: "Warning", count: ALERT_TIER_COUNTS.warning, color: "#d97706", bg: "#fffbeb" },
+                { key: "info", label: "Info", count: ALERT_TIER_COUNTS.info, color: "#7c3aed", bg: "#f5f3ff" },
+              ].map(t => (
+                <button
+                  key={t.key}
+                  onClick={() => setAlertsTierFilter(t.key)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999,
+                    border: alertsTierFilter === t.key ? `1.5px solid ${t.color}` : "1.5px solid transparent",
+                    background: t.bg, color: t.color, fontSize: 11.5, fontWeight: 700, cursor: "pointer",
+                    opacity: alertsTierFilter === t.key ? 1 : 0.55, transition: "opacity 0.15s",
+                  }}
+                >
+                  {t.label} <span style={{ fontWeight: 800 }}>{t.count}</span>
+                </button>
+              ))}
+              <div style={{ position: "relative", marginLeft: "auto", flex: "1 1 160px", minWidth: 140 }}>
+                <Search style={{ width: 13, height: 13, color: "#9ca3af", position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)" }} />
+                <input
+                  value={alertsSearch}
+                  onChange={e => setAlertsSearch(e.target.value)}
+                  placeholder="Search task ID or type…"
+                  style={{ width: "100%", boxSizing: "border-box", fontSize: 11.5, padding: "6px 10px 6px 28px", borderRadius: 8, border: "1px solid rgba(0,0,0,0.1)", outline: "none" }}
+                />
+              </div>
+            </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 22px", maxHeight: "70vh", overflowY: "auto" }}>
-              {BOTTLENECK_ALERTS.map(a => {
+              {FILTERED_ALERTS.length === 0 && (
+                <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No alerts match this filter.</p>
+              )}
+              {FILTERED_ALERTS.map(a => {
                 const cfg = ALERT_TIER_CFG[a.tier];
                 const AlertIcon = a.icon;
                 return (
