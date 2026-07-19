@@ -1838,20 +1838,37 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Documents Waiting by Stage ── */}
-            <SectionCard title="Documents Waiting by Stage" icon={Activity}>
-              <ResponsiveContainer width="100%" height={230}>
-                <BarChart data={BOTTLENECKS.filter(b => b.stage !== "Delayed")} barSize={28}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="label" tick={{ fontSize: 9.5 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Bar dataKey="waiting" name="Docs Waiting" radius={[4, 4, 0, 0]}>
-                    {BOTTLENECKS.filter(b => b.stage !== "Delayed").map(b => (
-                      <Cell key={b.stage} fill={b.severity === "Critical" ? "#dc2626" : b.severity === "High" ? "#f97316" : b.severity === "Medium" ? "#d97706" : "#059669"} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <SectionCard title="Documents Waiting by Stage" subtitle="Where documents are piling up right now" icon={Activity}>
+              {(() => {
+                const stageData = BOTTLENECKS.filter(b => b.stage !== "Delayed");
+                const maxWaiting = Math.max(1, ...stageData.map(b => b.waiting));
+                const severityColor = { Critical: "#dc2626", High: "#f97316", Medium: "#d97706", Low: "#059669" };
+                return stageData.length === 0 ? (
+                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No documents currently waiting — everything is moving smoothly.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    {stageData.map(b => {
+                      const color = severityColor[b.severity] || "#6b7280";
+                      return (
+                        <div key={b.stage}>
+                          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{b.label}</p>
+                            <p style={{ fontSize: 11, color: "#6b7280", whiteSpace: "nowrap", flexShrink: 0 }}>
+                              <span style={{ fontWeight: 800, color: "#111827" }}>{b.waiting}</span> waiting · {b.avgWait}d avg
+                            </p>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{ flex: 1, height: 8, borderRadius: 5, background: "#f3f4f6", overflow: "hidden" }}>
+                              <div style={{ height: 8, borderRadius: 5, width: `${Math.max(6, (b.waiting / maxWaiting) * 100)}%`, background: color, transition: "width 0.3s" }} />
+                            </div>
+                            <SeverityBadge level={b.severity} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </SectionCard>
             </div>
 
