@@ -1840,28 +1840,35 @@ export default function Reports() {
             {/* ── Documents Waiting by Stage ── */}
             <SectionCard title="Documents Waiting by Stage" subtitle="Where documents are piling up right now" icon={Activity}>
               {(() => {
-                const stageData = BOTTLENECKS.filter(b => b.stage !== "Delayed");
+                // Show every known workflow stage, not just the ones that
+                // currently have a backlog — stages with nothing waiting
+                // are still worth seeing (confirms that stage is clear).
+                const knownStages = Object.keys(BOTTLENECK_STAGE_LABELS);
+                const byStage = new Map(BOTTLENECKS.filter(b => b.stage !== "Delayed").map(b => [b.stage, b]));
+                const extraStages = [...byStage.keys()].filter(s => !knownStages.includes(s));
+                const stageData = [...knownStages, ...extraStages].map(stage =>
+                  byStage.get(stage) || { stage, label: BOTTLENECK_STAGE_LABELS[stage] || stage, waiting: 0, avgWait: 0, severity: "Low" }
+                );
                 const maxWaiting = Math.max(1, ...stageData.map(b => b.waiting));
                 const severityColor = { Critical: "#dc2626", High: "#f97316", Medium: "#d97706", Low: "#059669" };
-                return stageData.length === 0 ? (
-                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No documents currently waiting — everything is moving smoothly.</p>
-                ) : (
+                return (
                   <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                     {stageData.map(b => {
+                      const isEmpty = b.waiting === 0;
                       const color = severityColor[b.severity] || "#6b7280";
                       return (
-                        <div key={b.stage}>
+                        <div key={b.stage} style={{ opacity: isEmpty ? 0.55 : 1 }}>
                           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
                             <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{b.label}</p>
                             <p style={{ fontSize: 11, color: "#6b7280", whiteSpace: "nowrap", flexShrink: 0 }}>
-                              <span style={{ fontWeight: 800, color: "#111827" }}>{b.waiting}</span> waiting · {b.avgWait}d avg
+                              {isEmpty ? "Nothing waiting" : (<><span style={{ fontWeight: 800, color: "#111827" }}>{b.waiting}</span> waiting · {b.avgWait}d avg</>)}
                             </p>
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             <div style={{ flex: 1, height: 8, borderRadius: 5, background: "#f3f4f6", overflow: "hidden" }}>
-                              <div style={{ height: 8, borderRadius: 5, width: `${Math.max(6, (b.waiting / maxWaiting) * 100)}%`, background: color, transition: "width 0.3s" }} />
+                              <div style={{ height: 8, borderRadius: 5, width: isEmpty ? "0%" : `${Math.max(6, (b.waiting / maxWaiting) * 100)}%`, background: color, transition: "width 0.3s" }} />
                             </div>
-                            <SeverityBadge level={b.severity} />
+                            {!isEmpty && <SeverityBadge level={b.severity} />}
                           </div>
                         </div>
                       );
