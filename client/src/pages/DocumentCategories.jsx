@@ -145,7 +145,7 @@ const CATEGORIES = [
     name: "Faculty Task Assignment",
     code: "FTA-004",
     description: "Template for assigning tasks and deliverables to faculty members.",
-    type: "Task",
+    type: "Document",
     fields: 6,
     status: "Active",
     dateCreated: "Feb 10, 2024",
@@ -228,7 +228,7 @@ const CATEGORIES = [
 ];
 
 const TYPE_CFG = {
-  Task: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe" },
+  Document: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe" },
   Form: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
 };
 
@@ -322,7 +322,8 @@ function EditCategoryModal({ category, onClose, onSave }) {
   };
 
   const handleSave = () => {
-    onSave({ ...category, name, code, description, type, status, formFields: fields, fields: fields.length });
+    const savedFields = type === "Document" ? [] : fields;
+    onSave({ ...category, name, code, description, type, status, formFields: savedFields, fields: savedFields.length });
   };
 
   return (
@@ -401,7 +402,7 @@ function EditCategoryModal({ category, onClose, onSave }) {
               </label>
               <div style={{ display: "flex", gap: 8 }}>
                 <SegButton label="Form" active={type === "Form"} onClick={() => setType("Form")} />
-                <SegButton label="Task" active={type === "Task"} onClick={() => setType("Task")} />
+                <SegButton label="Document" active={type === "Document"} onClick={() => setType("Document")} />
               </div>
             </div>
             <div style={{ flex: 1 }}>
@@ -415,65 +416,78 @@ function EditCategoryModal({ category, onClose, onSave }) {
 
           <div style={{ borderTop: "1px solid #eee", margin: "0 0 18px" }} />
 
-          {/* Form Fields */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827" }}>Form Fields</h3>
-            <button
-              onClick={addField}
-              style={{
-                display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
-                borderRadius: 8, border: "1px solid #ddd6fe", background: "#f5f3ff",
-                color: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer",
-              }}
-            >
-              <Plus style={{ width: 13, height: 13 }} /> Add Field
-            </button>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {fields.map((f, idx) => (
-              <div key={f.id} style={{
-                display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
-              }}>
-                <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
-                <span style={{
-                  width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
-                  fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                }}>
-                  {idx + 1}
-                </span>
-                <input
-                  value={f.name}
-                  onChange={e => updateField(f.id, { name: e.target.value })}
-                  placeholder="Field label"
-                  style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
-                />
-                <select
-                  value={f.fieldType}
-                  onChange={e => updateField(f.id, { fieldType: e.target.value })}
-                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
-                >
-                  {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
-                </select>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                  <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
-                  <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
-                </div>
+          {/* Form Fields — only applicable when Transaction Type is "Form" */}
+          {type === "Document" ? (
+            <div style={{
+              padding: "16px 18px", borderRadius: 10, background: "#f9fafb",
+              border: "1px dashed #e5e7eb", textAlign: "center",
+            }}>
+              <p style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>
+                Document categories don't use custom form fields — only the description above is required for this category.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827" }}>Form Fields</h3>
                 <button
-                  onClick={() => removeField(f.id)}
-                  style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
-                  onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
-                  onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
+                  onClick={addField}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
+                    borderRadius: 8, border: "1px solid #ddd6fe", background: "#f5f3ff",
+                    color: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer",
+                  }}
                 >
-                  <X style={{ width: 14, height: 14 }} />
+                  <Plus style={{ width: 13, height: 13 }} /> Add Field
                 </button>
               </div>
-            ))}
-            {fields.length === 0 && (
-              <p style={{ fontSize: 12.5, color: "#9ca3af", textAlign: "center", padding: "16px 0" }}>No fields yet — click "Add Field" to create one.</p>
-            )}
-          </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {fields.map((f, idx) => (
+                  <div key={f.id} style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                    border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
+                  }}>
+                    <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
+                    <span style={{
+                      width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
+                      fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    }}>
+                      {idx + 1}
+                    </span>
+                    <input
+                      value={f.name}
+                      onChange={e => updateField(f.id, { name: e.target.value })}
+                      placeholder="Field label"
+                      style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
+                    />
+                    <select
+                      value={f.fieldType}
+                      onChange={e => updateField(f.id, { fieldType: e.target.value })}
+                      style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
+                    >
+                      {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
+                    </select>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                      <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
+                      <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
+                    </div>
+                    <button
+                      onClick={() => removeField(f.id)}
+                      style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
+                      onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
+                      onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
+                    >
+                      <X style={{ width: 14, height: 14 }} />
+                    </button>
+                  </div>
+                ))}
+                {fields.length === 0 && (
+                  <p style={{ fontSize: 12.5, color: "#9ca3af", textAlign: "center", padding: "16px 0" }}>No fields yet — click "Add Field" to create one.</p>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer */}
