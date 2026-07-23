@@ -512,6 +512,244 @@ function EditCategoryModal({ category, onClose, onSave }) {
   );
 }
 
+// ── Add Category Modal ───────────────────────────────────────────────────────
+function AddCategoryModal({ onClose, onCreate }) {
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState("Form");
+  const [status, setStatus] = useState("Active");
+  const [fields, setFields] = useState([]);
+
+  const updateField = (id, patch) => {
+    setFields(prev => prev.map(f => f.id === id ? { ...f, ...patch } : f));
+  };
+  const removeField = (id) => setFields(prev => prev.filter(f => f.id !== id));
+  const addField = () => {
+    nextFieldId += 1;
+    setFields(prev => [...prev, { id: nextFieldId, name: "", fieldType: "Text Input", required: false }]);
+  };
+
+  const canCreate = name.trim().length > 0 && code.trim().length > 0;
+
+  const handleCreate = () => {
+    if (!canCreate) return;
+    const savedFields = type === "Document" ? [] : fields;
+    onCreate({
+      id: Date.now(),
+      name: name.trim(),
+      code: code.trim(),
+      description: description.trim(),
+      type,
+      status,
+      formFields: savedFields,
+      fields: savedFields.length,
+      dateCreated: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    });
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2000,
+        display: "flex", alignItems: "flex-start", justifyContent: "center",
+        padding: "40px 20px", overflowY: "auto",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "white", borderRadius: 16, width: "100%", maxWidth: 620,
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column",
+          maxHeight: "calc(100vh - 80px)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid #eee", flexShrink: 0 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>Add New Category</h2>
+          <button
+            onClick={onClose}
+            style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f3f4f6"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            <X style={{ width: 16, height: 16 }} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "20px 24px", overflowY: "auto" }}>
+
+          {/* Name / Code */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                Category Name <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="e.g. Student Request Form"
+                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                Category Code <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                value={code}
+                onChange={e => setCode(e.target.value)}
+                placeholder="e.g. SRF-001"
+                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Description</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={2}
+              placeholder="Describe the purpose of this category..."
+              style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", resize: "vertical", fontFamily: "'DM Sans', sans-serif" }}
+            />
+          </div>
+
+          {/* Transaction Type / Status */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                Transaction Type <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <SegButton label="Form" active={type === "Form"} onClick={() => setType("Form")} />
+                <SegButton label="Document" active={type === "Document"} onClick={() => setType("Document")} />
+              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Status</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <SegButton label="Active" active={status === "Active"} onClick={() => setStatus("Active")} />
+                <SegButton label="Inactive" active={status === "Inactive"} onClick={() => setStatus("Inactive")} />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: "1px solid #eee", margin: "0 0 18px" }} />
+
+          {/* Form Fields — only applicable when Transaction Type is "Form" */}
+          {type === "Document" ? (
+            <div style={{
+              padding: "16px 18px", borderRadius: 10, background: "#f9fafb",
+              border: "1px dashed #e5e7eb", textAlign: "center",
+            }}>
+              <p style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>
+                Document categories don't use custom form fields — only the description above is required for this category.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827" }}>Form Fields</h3>
+                <button
+                  onClick={addField}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
+                    borderRadius: 8, border: "1px solid #ddd6fe", background: "#f5f3ff",
+                    color: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer",
+                  }}
+                >
+                  <Plus style={{ width: 13, height: 13 }} /> Add Field
+                </button>
+              </div>
+
+              {fields.length === 0 ? (
+                <div style={{
+                  padding: "28px 18px", borderRadius: 10, background: "#fafafa",
+                  border: "1px dashed #e5e7eb", textAlign: "center",
+                }}>
+                  <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
+                    No fields added yet. Click "Add Field" to start building your form.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {fields.map((f, idx) => (
+                    <div key={f.id} style={{
+                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                      border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
+                    }}>
+                      <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
+                      <span style={{
+                        width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
+                        fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                      }}>
+                        {idx + 1}
+                      </span>
+                      <input
+                        value={f.name}
+                        onChange={e => updateField(f.id, { name: e.target.value })}
+                        placeholder="Field label"
+                        style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
+                      />
+                      <select
+                        value={f.fieldType}
+                        onChange={e => updateField(f.id, { fieldType: e.target.value })}
+                        style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
+                      >
+                        {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
+                      </select>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                        <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
+                        <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
+                      </div>
+                      <button
+                        onClick={() => removeField(f.id)}
+                        style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
+                        onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
+                        onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
+                      >
+                        <X style={{ width: 14, height: 14 }} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
+          <button
+            onClick={onClose}
+            style={{ padding: "9px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "white", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCreate}
+            disabled={!canCreate}
+            style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 9, border: "none",
+              background: canCreate ? "#2563eb" : "#93c5fd", color: "white", fontSize: 12.5, fontWeight: 700,
+              cursor: canCreate ? "pointer" : "not-allowed",
+            }}
+            onMouseEnter={e => { if (canCreate) e.currentTarget.style.background = "#1d4ed8"; }}
+            onMouseLeave={e => { if (canCreate) e.currentTarget.style.background = "#2563eb"; }}
+          >
+            <Check style={{ width: 14, height: 14 }} /> Create Category
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StatCard({ label, value, valueColor, sub }) {
   return (
     <div style={{
@@ -532,10 +770,16 @@ export default function DocumentCategories() {
   const [sortBy, setSortBy] = useState("Date Created");
   const [categories, setCategories] = useState(CATEGORIES);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const handleSaveCategory = (updated) => {
     setCategories(prev => prev.map(c => c.id === updated.id ? updated : c));
     setEditingCategory(null);
+  };
+
+  const handleCreateCategory = (newCategory) => {
+    setCategories(prev => [newCategory, ...prev]);
+    setShowAddModal(false);
   };
 
   const role = (typeof window !== "undefined" && localStorage.getItem("role")) || "admin";
@@ -623,7 +867,7 @@ export default function DocumentCategories() {
                 style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%", fontFamily: "'DM Sans', sans-serif" }}
               />
             </div>
-            <button onClick={() => {}} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 whitespace-nowrap" style={{ cursor: "pointer" }}>
+            <button onClick={() => setShowAddModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 whitespace-nowrap" style={{ cursor: "pointer" }}>
               <Icon.Plus /> Add Category
             </button>
           </div>
@@ -639,7 +883,7 @@ export default function DocumentCategories() {
               <p style={{ fontSize: 13, color: "#6b7280" }}>Create and manage document categories with custom form fields.</p>
             </div>
             <button
-              onClick={() => {}}
+              onClick={() => setShowAddModal(true)}
               style={{
                 display: "flex", alignItems: "center", gap: 6, padding: "10px 16px",
                 borderRadius: 9, border: "none", background: "#7c3aed", color: "white",
@@ -813,6 +1057,13 @@ export default function DocumentCategories() {
           category={editingCategory}
           onClose={() => setEditingCategory(null)}
           onSave={handleSaveCategory}
+        />
+      )}
+
+      {showAddModal && (
+        <AddCategoryModal
+          onClose={() => setShowAddModal(false)}
+          onCreate={handleCreateCategory}
         />
       )}
     </div>
