@@ -17,7 +17,7 @@ import Tracking from "./pages/Tracking";
 import WorkflowDesigner from "./pages/WorkflowDesigner";
 import WorkflowDashboard from "./pages/WorkflowDashboard";
 import Reports from "./pages/Reports";
-import DocumentCategories from ".pages/DocumentCategories";
+import DocumentCategories from "./pages/DocumentCategories";
 
 
 // Separated so useLocation works inside BrowserRouter
