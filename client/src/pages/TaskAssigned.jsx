@@ -392,17 +392,22 @@ export default function TaskAssigned() {
     if (!deadlineDraft) { pushToast("Error", "Please pick a date.", "error"); return; }
     setSavingDeadline(true);
     try {
-      await fetch(`${API}/api/tasks/${taskId}/deadline`, {
+      const res = await fetch(`${API}/api/tasks/${taskId}/deadline`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ deadline: deadlineDraft }),
       });
+      if (!res.ok) {
+        let msg = `Server returned ${res.status}`;
+        try { const body = await res.json(); if (body?.error) msg = body.error; } catch {}
+        throw new Error(msg);
+      }
       pushToast("Deadline updated", "The faculty member has been notified of the new due date.");
       setSelected(prev => prev ? { ...prev, deadline: deadlineDraft } : prev);
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, deadline: deadlineDraft } : t));
       setEditingDeadline(false);
       fetchTasks();
-    } catch { pushToast("Error", "Could not update the deadline.", "error"); }
+    } catch (err) { pushToast("Error", err.message || "Could not update the deadline.", "error"); }
     finally   { setSavingDeadline(false); }
   };
 

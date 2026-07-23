@@ -662,6 +662,44 @@ router.patch("/:id/archive", requireAuth, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/tasks/:id/deadline ───────────────────────────────────────────
+// Dedicated endpoint used by the "Change" deadline control on the
+// Tasks Assigned detail panel. Frontend calls PATCH /api/tasks/:id/deadline
+// with { deadline: "YYYY-MM-DD" } and reads body.error on failure.
+router.patch("/:id/deadline", requireAuth, requireChairOrAdmin, async (req, res) => {
+  const { deadline } = req.body;
+  if (!deadline) return res.status(400).json({ error: "deadline is required." });
+
+  try {
+    const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Task not found." });
+    const task = rows[0];
+
+    await db.query(
+      "UPDATE tasks SET deadline = ?, updated_at = NOW() WHERE id = ?",
+      [deadline, req.params.id]
+    );
+    await writeLog({
+      userId:    req.user.id,
+      action:    "TASK_DEADLINE_UPDATE",
+      detail:    `Updated deadline for task ${task.tracking_id} to ${deadline}`,
+      ipAddress: req.ip,
+    });
+
+    const io = req.app.get("io");
+    if (io) {
+      const payload = { taskId: parseInt(req.params.id), deadline, updatedBy: req.user.full_name || req.user.username };
+      io.to(`user_${task.faculty_id}`).emit("task:deadline_changed", payload);
+      io.to(`user_${task.assigned_by}`).emit("task:deadline_changed", payload);
+    }
+
+    return res.json({ message: "Deadline updated.", deadline });
+  } catch (err) {
+    console.error("PATCH /api/tasks/:id/deadline error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 // ─── PATCH /api/tasks/:id — edit task details ────────────────────────────────
 router.patch("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
   const { title, doc_type, priority, deadline, notes, faculty_id } = req.body;
@@ -799,30 +837,42 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
 // ─── POST /api/tasks/:id/submit ──────────────────────────────────────────────
 // Faculty submits their completed work. Files go to task_submissions (NOT
 // task_attachments), so they always render as a separate post from the task brief.
+//
+// Wrapped in a transaction so the status update and the file/note inserts
+// either all land or none do — e.g. if a file insert fails partway through,
+// the task never gets stuck at "For Approval" with only some files recorded.
+// Re-uses the existing `upload` middleware (writes to ./uploads/tasks/, same
+// as every other upload route in this file) and req.app.get("io") for the
+// socket instance, consistent with the rest of the router.
 router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) => {
   const taskId            = parseInt(req.params.id);
   const note              = req.body.note              || null;
   const submissionGroupId = req.body.submission_group_id || `sub_${Date.now()}`;
   const submittedAt       = new Date();
 
+  const conn = await db.getConnection();
   try {
-    const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
-    if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
+    const [rows] = await conn.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
+    if (rows.length === 0) { conn.release(); return res.status(404).json({ message: "Task not found." }); }
     const task = rows[0];
-    if (task.faculty_id !== req.user.id)
+    if (task.faculty_id !== req.user.id) {
+      conn.release();
       return res.status(403).json({ message: "Only the assigned faculty can submit this task." });
+    }
 
-    // Update task status → For Approval
-    await db.query(
+    await conn.beginTransaction();
+
+    // 1. Update task status → For Approval
+    await conn.query(
       "UPDATE tasks SET status = 'For Approval', updated_at = NOW() WHERE id = ?",
       [taskId]
     );
 
-    // Save each uploaded file to task_submissions
+    // 2. Save each uploaded file to task_submissions
     const savedFiles = [];
     for (const file of req.files || []) {
       const fileUrl = `/uploads/tasks/${file.filename}`;
-      const [result] = await db.query(
+      const [result] = await conn.query(
         `INSERT INTO task_submissions
            (task_id, faculty_id, file_name, file_url, size, note, submission_group_id, submitted_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -841,9 +891,9 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
       });
     }
 
-    // If no files but there's a note, still record the submission event
+    // 3. If no files but there's a note, still record the submission event
     if (!req.files?.length) {
-      const [result] = await db.query(
+      const [result] = await conn.query(
         `INSERT INTO task_submissions
            (task_id, faculty_id, file_name, file_url, size, note, submission_group_id, submitted_at)
          VALUES (?, ?, NULL, NULL, 0, ?, ?, ?)`,
@@ -862,6 +912,8 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
         _noteOnly:           true,
       });
     }
+
+    await conn.commit();
 
     await writeLog({
       userId:    req.user.id,
@@ -885,8 +937,11 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
 
     return res.status(201).json({ success: true, files: savedFiles });
   } catch (err) {
+    try { await conn.rollback(); } catch (_) {}
     console.error("POST /api/tasks/:id/submit error:", err);
     return res.status(500).json({ message: "Internal server error." });
+  } finally {
+    conn.release();
   }
 });
 
