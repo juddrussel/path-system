@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import {
@@ -138,6 +138,22 @@ const FIELD_TYPES = ["Text Input", "Text Area", "Date", "Dropdown", "Number", "C
 
 let nextFieldId = 100;
 const mkField = (name, fieldType, required) => ({ id: nextFieldId++, name, fieldType, required });
+
+// ── Auto-generate a category code from the name (e.g. "Student Request Form" → SRF-006) ──
+function generateCategoryCode(name, existingCodes) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  let letters = words.map(w => w[0]).join("").toUpperCase().replace(/[^A-Z]/g, "");
+  if (letters.length < 2) letters = (name.replace(/[^a-zA-Z]/g, "").toUpperCase() + "XXX").slice(0, 3);
+  letters = letters.slice(0, 4) || "CAT";
+
+  let n = 1;
+  let candidate;
+  do {
+    candidate = `${letters}-${String(n).padStart(3, "0")}`;
+    n += 1;
+  } while (existingCodes.includes(candidate));
+  return candidate;
+}
 
 const CATEGORIES = [
   {
@@ -513,13 +529,18 @@ function EditCategoryModal({ category, onClose, onSave }) {
 }
 
 // ── Add Category Modal ───────────────────────────────────────────────────────
-function AddCategoryModal({ onClose, onCreate }) {
+function AddCategoryModal({ onClose, onCreate, existingCodes = [] }) {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("Form");
   const [status, setStatus] = useState("Active");
   const [fields, setFields] = useState([]);
+
+  // Code is derived automatically from the name and can't be hand-edited.
+  useEffect(() => {
+    setCode(name.trim() ? generateCategoryCode(name, existingCodes) : "");
+  }, [name, existingCodes]);
 
   const updateField = (id, patch) => {
     setFields(prev => prev.map(f => f.id === id ? { ...f, ...patch } : f));
@@ -596,14 +617,19 @@ function AddCategoryModal({ onClose, onCreate }) {
             </div>
             <div style={{ flex: 1 }}>
               <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
-                Category Code <span style={{ color: "#ef4444" }}>*</span>
+                Category Code
               </label>
               <input
                 value={code}
-                onChange={e => setCode(e.target.value)}
-                placeholder="e.g. SRF-001"
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+                readOnly
+                placeholder="Auto-generated from name"
+                style={{
+                  width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb",
+                  fontSize: 13, color: "#6b7280", outline: "none", background: "#f3f4f6",
+                  fontFamily: "'DM Sans', sans-serif", cursor: "not-allowed",
+                }}
               />
+              <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 5 }}>Auto-generated, can't be edited</p>
             </div>
           </div>
 
@@ -750,6 +776,171 @@ function AddCategoryModal({ onClose, onCreate }) {
   );
 }
 
+// ── View Category Modal (read-only) ──────────────────────────────────────────
+function ViewCategoryModal({ category, onClose, onEdit }) {
+  const tCfg = TYPE_CFG[category.type];
+  const sCfg = STATUS_CFG[category.status] || STATUS_CFG.Active;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2000,
+        display: "flex", alignItems: "flex-start", justifyContent: "center",
+        padding: "40px 20px", overflowY: "auto",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "white", borderRadius: 16, width: "100%", maxWidth: 620,
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column",
+          maxHeight: "calc(100vh - 80px)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid #eee", flexShrink: 0 }}>
+          <div>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>{category.name}</h2>
+            <span style={{
+              fontSize: 11, fontWeight: 700, color: "#6b7280", background: "#f3f4f6",
+              border: "1px solid #e5e7eb", borderRadius: 6, padding: "2px 7px", marginTop: 4, display: "inline-block",
+            }}>
+              {category.code}
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f3f4f6"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            <X style={{ width: 16, height: 16 }} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "20px 24px", overflowY: "auto" }}>
+
+          {/* Type / Status badges */}
+          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+            <span style={{
+              fontSize: 11.5, fontWeight: 700, padding: "4px 12px", borderRadius: 6,
+              background: tCfg.bg, color: tCfg.color, border: `1px solid ${tCfg.border}`,
+            }}>
+              {category.type}
+            </span>
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              fontSize: 11.5, fontWeight: 700, padding: "4px 12px", borderRadius: 20,
+              background: sCfg.bg, color: sCfg.color,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: sCfg.dot, display: "inline-block" }} />
+              {category.status}
+            </span>
+          </div>
+
+          {/* Description */}
+          <div style={{ marginBottom: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Description</p>
+            <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
+              {category.description || "No description provided."}
+            </p>
+          </div>
+
+          {/* Meta */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Date Created</p>
+              <p style={{ fontSize: 13, color: "#111827", fontWeight: 600 }}>{category.dateCreated}</p>
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Fields</p>
+              <p style={{ fontSize: 13, color: "#111827", fontWeight: 600 }}>{category.fields}</p>
+            </div>
+          </div>
+
+          <div style={{ borderTop: "1px solid #eee", margin: "0 0 18px" }} />
+
+          {/* Form Fields (read-only) */}
+          {category.type === "Document" ? (
+            <div style={{
+              padding: "16px 18px", borderRadius: 10, background: "#f9fafb",
+              border: "1px dashed #e5e7eb", textAlign: "center",
+            }}>
+              <p style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>
+                Document categories don't use custom form fields.
+              </p>
+            </div>
+          ) : (
+            <>
+              <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827", marginBottom: 12 }}>Form Fields</h3>
+              {(!category.formFields || category.formFields.length === 0) ? (
+                <div style={{
+                  padding: "28px 18px", borderRadius: 10, background: "#fafafa",
+                  border: "1px dashed #e5e7eb", textAlign: "center",
+                }}>
+                  <p style={{ fontSize: 12.5, color: "#9ca3af" }}>No fields defined for this category.</p>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {category.formFields.map((f, idx) => (
+                    <div key={f.id} style={{
+                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                      border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
+                    }}>
+                      <span style={{
+                        width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
+                        fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                      }}>
+                        {idx + 1}
+                      </span>
+                      <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: "#111827", fontWeight: 600 }}>
+                        {f.name || "Untitled field"}
+                      </span>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6,
+                        background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", flexShrink: 0,
+                      }}>
+                        {f.fieldType}
+                      </span>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6, flexShrink: 0,
+                        background: f.required ? "#fef2f2" : "#f3f4f6",
+                        color: f.required ? "#dc2626" : "#9ca3af",
+                      }}>
+                        {f.required ? "Required" : "Optional"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
+          <button
+            onClick={onClose}
+            style={{ padding: "9px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "white", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+          >
+            Close
+          </button>
+          <button
+            onClick={onEdit}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 9, border: "none", background: "#2563eb", color: "white", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#1d4ed8"}
+            onMouseLeave={e => e.currentTarget.style.background = "#2563eb"}
+          >
+            <Pencil style={{ width: 13, height: 13 }} /> Edit Category
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StatCard({ label, value, valueColor, sub }) {
   return (
     <div style={{
@@ -770,6 +961,7 @@ export default function DocumentCategories() {
   const [sortBy, setSortBy] = useState("Date Created");
   const [categories, setCategories] = useState(CATEGORIES);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [viewingCategory, setViewingCategory] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   const handleSaveCategory = (updated) => {
@@ -1008,7 +1200,7 @@ export default function DocumentCategories() {
                       <td style={{ padding: "14px 16px", fontSize: 12.5, color: "#6b7280", whiteSpace: "nowrap" }}>{c.dateCreated}</td>
                       <td style={{ padding: "14px 16px" }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
-                          <ActionBtn title="View"><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
+                          <ActionBtn title="View" onClick={() => setViewingCategory(c)}><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
                           <ActionBtn title="Edit" onClick={() => setEditingCategory(c)}><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
                           {c.status !== "Archived" && (
                             <ActionBtn title="Archive"><Archive style={{ width: 14, height: 14 }} /></ActionBtn>
@@ -1052,6 +1244,14 @@ export default function DocumentCategories() {
 
       </div>
 
+      {viewingCategory && (
+        <ViewCategoryModal
+          category={viewingCategory}
+          onClose={() => setViewingCategory(null)}
+          onEdit={() => { setEditingCategory(viewingCategory); setViewingCategory(null); }}
+        />
+      )}
+
       {editingCategory && (
         <EditCategoryModal
           category={editingCategory}
@@ -1064,6 +1264,7 @@ export default function DocumentCategories() {
         <AddCategoryModal
           onClose={() => setShowAddModal(false)}
           onCreate={handleCreateCategory}
+          existingCodes={categories.map(c => c.code)}
         />
       )}
     </div>
