@@ -170,6 +170,14 @@ export default function Forms() {
   const [resubmitFile, setResubmitFile] = useState(null);
   const resubmitFileRef = useRef();
 
+  // Existing Forms (program chair): full history, any status — separate
+  // from the Review Queue above, which only ever shows Pending items.
+  const [allForms, setAllForms] = useState([]);
+  const [allFormsLoading, setAllFormsLoading] = useState(true);
+  const [allFormsPage, setAllFormsPage] = useState(1);
+  const [allFormsTotalPages, setAllFormsTotalPages] = useState(1);
+  const [allFormsStatusFilter, setAllFormsStatusFilter] = useState("All");
+
   // Program chair: add form template
   const [addModal, setAddModal] = useState(false);
   const [templateData, setTemplateData] = useState({ name: "", description: "", category: "", required_fields: "" });
@@ -256,6 +264,23 @@ export default function Forms() {
     } catch { setForms([]); } finally { setLoading(false); }
   };
 
+  const fetchAllForms = async () => {
+    setAllFormsLoading(true);
+    try {
+      const statusParam = allFormsStatusFilter !== "All" ? `&status=${allFormsStatusFilter}` : "";
+      const params = new URLSearchParams({ page: allFormsPage, q: search, per_page: 5 }).toString();
+      const res = await fetch(`${API}/api/forms/all?${params}${statusParam}`, { headers: authHeaders });
+      if (!res.ok) return;
+      const data = await res.json();
+      setAllForms(data.forms || []);
+      setAllFormsTotalPages(data.total_pages || 1);
+    } catch { setAllForms([]); } finally { setAllFormsLoading(false); }
+  };
+
+  useEffect(() => {
+    if (isProgramChair && activeTab === "review") fetchAllForms();
+  }, [isProgramChair, activeTab, allFormsPage, allFormsStatusFilter, search]);
+
   const handleFile = (file) => {
     if (!file) return;
     const allowed = ["application/pdf", "image/jpeg", "image/png"];
@@ -318,6 +343,7 @@ export default function Forms() {
     await fetch(`${API}/api/forms/${selectedForm.id}/approve`, { method: "POST", headers: { ...authHeaders, "Content-Type": "application/json" }, body: JSON.stringify({ note: reviewNote }) });
     setReviewModal(false);
     fetchForms();
+    fetchAllForms();
     addToast(`Form ${selectedForm.tracking_id || selectedForm.id} approved successfully.`, "success");
   };
 
@@ -327,6 +353,7 @@ export default function Forms() {
     await fetch(`${API}/api/forms/${selectedForm.id}/reject`, { method: "POST", headers: { ...authHeaders, "Content-Type": "application/json" }, body: JSON.stringify({ note: reviewNote }) });
     setReviewModal(false);
     fetchForms();
+    fetchAllForms();
     addToast(`Form ${selectedForm.tracking_id || selectedForm.id} rejected.`, "error");
   };
 
@@ -340,6 +367,7 @@ export default function Forms() {
     });
     setReviewModal(false);
     fetchForms();
+    fetchAllForms();
     addToast(`Revision requested for form ${selectedForm.tracking_id || selectedForm.id}.`, "info");
   };
 
@@ -600,6 +628,7 @@ export default function Forms() {
 
           {/* ── REVIEW QUEUE (Program Chair) / MY SUBMISSIONS (Faculty) ── */}
           {(activeTab === "history" || activeTab === "review") && (
+            <>
             <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, overflow: "hidden" }}>
               <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f3f4f6" }}>
                 <div>
@@ -708,6 +737,72 @@ export default function Forms() {
                 </div>
               </div>
             </div>
+
+            {/* ── EXISTING FORMS (Program Chair): full history, any status ── */}
+            {isProgramChair && (
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, overflow: "hidden", marginTop: 20 }}>
+                <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f3f4f6" }}>
+                  <div>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 2px" }}>Existing Forms</h3>
+                    <p style={{ fontSize: 11, color: "#888", margin: 0 }}>Every form ever submitted, regardless of status — approved, rejected, or in progress.</p>
+                  </div>
+                  <select value={allFormsStatusFilter} onChange={e => { setAllFormsStatusFilter(e.target.value); setAllFormsPage(1); }}
+                    style={{ padding: "6px 12px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer" }}>
+                    {["All", "Pending", "Reviewing", "Approved", "Rejected", "Revision"].map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ background: "#fafafa" }}>
+                      {["Document ID", "Student Name", "Category", "Filing Date", "Status", "Submitted By"].map(h => (
+                        <th key={h} style={{ padding: "10px 20px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#6b7280", borderBottom: "1px solid #f3f4f6" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allFormsLoading ? (
+                      <tr><td colSpan={6} style={{ padding: 40, textAlign: "center", color: "#aaa", fontSize: 13 }}>Loading...</td></tr>
+                    ) : allForms.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ padding: 48, textAlign: "center" }}>
+                          <div style={{ color: "#aaa", fontSize: 13 }}>No forms found{allFormsStatusFilter !== "All" ? ` with status "${allFormsStatusFilter}"` : ""}.</div>
+                        </td>
+                      </tr>
+                    ) : allForms.map(row => (
+                      <tr key={row.id} style={{ borderBottom: "1px solid #f9f9f9" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#fafafa"}
+                        onMouseLeave={e => e.currentTarget.style.background = "white"}>
+                        <td style={{ padding: "12px 20px" }}>
+                          <span style={{ color: "#7c3aed", fontWeight: 700, fontSize: 12 }}>{row.tracking_id || row.id}</span>
+                        </td>
+                        <td style={{ padding: "12px 20px" }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{row.full_name}</div>
+                          <div style={{ fontSize: 11, color: "#aaa" }}>{row.student_id}</div>
+                        </td>
+                        <td style={{ padding: "12px 20px", fontSize: 12, color: "#374151" }}>{row.category}</td>
+                        <td style={{ padding: "12px 20px", fontSize: 12, color: "#374151" }}>{row.filing_date}</td>
+                        <td style={{ padding: "12px 20px" }}><StatusBadge status={row.status} /></td>
+                        <td style={{ padding: "12px 20px", fontSize: 12, color: "#374151" }}>{row.submitter_name || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Pagination */}
+                <div style={{ padding: "12px 20px", borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 11, color: "#888" }}>Showing page {allFormsPage} of {allFormsTotalPages}</span>
+                  <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                    <button onClick={() => setAllFormsPage(p => Math.max(1, p - 1))} disabled={allFormsPage === 1} style={{ padding: "4px 10px", border: "1px solid #e5e7eb", borderRadius: 6, background: "white", cursor: "pointer", fontSize: 12, color: "#374151" }}>Previous</button>
+                    {Array.from({ length: Math.min(allFormsTotalPages, 3) }, (_, i) => i + 1).map(n => (
+                      <button key={n} onClick={() => setAllFormsPage(n)} style={{ width: 28, height: 28, border: "1px solid #e5e7eb", borderRadius: 6, background: allFormsPage === n ? "#7c3aed" : "white", color: allFormsPage === n ? "white" : "#374151", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>{n}</button>
+                    ))}
+                    <button onClick={() => setAllFormsPage(p => Math.min(allFormsTotalPages, p + 1))} disabled={allFormsPage === allFormsTotalPages} style={{ padding: "4px 10px", border: "1px solid #e5e7eb", borderRadius: 6, background: "white", cursor: "pointer", fontSize: 12, color: "#374151" }}>Next</button>
+                  </div>
+                </div>
+              </div>
+            )}
+            </>
           )}
 
           {/* ── PROGRAM CHAIR: FORM TEMPLATES TAB ── */}
