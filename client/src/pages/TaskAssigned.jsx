@@ -39,6 +39,7 @@ const Icon = {
   Live:       () => <svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><circle cx="8" cy="8" r="8"/></svg>,
   Submitted:  () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/><path d="M8 2v12M2 6l6 2 6-2" strokeLinecap="round"/></svg>,
   Tracking:   () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" width="14" height="14"><path d="M2 8h2.5l1.5-4 3 8 1.5-4H14" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  Categories:() => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2"/></svg>,
 };
 
 // ── Badge system ──────────────────────────────────────────────────────────────

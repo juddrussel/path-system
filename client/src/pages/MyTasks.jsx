@@ -7,47 +7,48 @@ const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const Icon = {
-  Grid: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>,
-  Inbox: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z"/></svg>,
-  Plus: ({ color = "currentColor", size = 14 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" width={size} height={size}><path d="M8 1v14M1 8h14"/></svg>,
-  Tasks: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z"/></svg>,
-  Workflow: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5"/></svg>,
-  Reports: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z"/></svg>,
-  Forms: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z"/></svg>,
-  Users: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5s5 2 5 5"/><path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3"/></svg>,
-  Shield: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z"/></svg>,
-  Settings: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5"/></svg>,
-  Help: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="7"/><path d="M8 7v4M8 5v1"/></svg>,
-  Logout: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6"/></svg>,
-  Search: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14" strokeLinecap="round"/></svg>,
-  Filter: () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z"/></svg>,
-  Check: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M13 5l-7 7-3-3" strokeLinecap="round"/></svg>,
-  Clock: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2" strokeLinecap="round"/></svg>,
-  Alert: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 10v1" strokeLinecap="round"/></svg>,
-  Eye: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>,
-  Close: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M12 4L4 12M4 4l8 8" strokeLinecap="round"/></svg>,
-  Share: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="12" cy="3" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="13" r="2"/><path d="M6 7l4-3M6 9l4 3" strokeLinecap="round"/></svg>,
-  More: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>,
-  Return: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M12 4H6a4 4 0 000 8h2M9 11l3 3 3-3" strokeLinecap="round" strokeLinejoin="round"/></svg>,
-  Reassign: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5M11 8l3 3-3 3M14 11H9" strokeLinecap="round"/></svg>,
-  Download: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" strokeLinecap="round"/></svg>,
-  Attach: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M13 7l-5 5a4 4 0 01-5.7-5.7l5-5a2.5 2.5 0 013.5 3.5l-5 5a1 1 0 01-1.4-1.4l4-4" strokeLinecap="round"/></svg>,
-  AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><circle cx="12.5" cy="12.5" r="3" fill="#7c3aed"/><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>,
-  Tracking:   () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2" strokeLinecap="round"/><circle cx="8" cy="8" r="1" fill="currentColor"/></svg>,
+  Grid: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1" y="1" width="6" height="6" rx="1" /><rect x="9" y="1" width="6" height="6" rx="1" /><rect x="1" y="9" width="6" height="6" rx="1" /><rect x="9" y="9" width="6" height="6" rx="1" /></svg>,
+  Inbox: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" /></svg>,
+  Plus: ({ color = "currentColor", size = 14 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" width={size} height={size}><path d="M8 1v14M1 8h14" /></svg>,
+  Tasks: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" /></svg>,
+  Workflow: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="3" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" /></svg>,
+  Reports: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" /></svg>,
+  Forms: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" /></svg>,
+  Users: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-5 5-5s5 2 5 5" /><path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" /></svg>,
+  Shield: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" /></svg>,
+  Settings: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="2" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" /></svg>,
+  Help: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="7" /><path d="M8 7v4M8 5v1" /></svg>,
+  Logout: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" /></svg>,
+  Search: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6.5" cy="6.5" r="4.5" /><path d="M10.5 10.5L14 14" strokeLinecap="round" /></svg>,
+  Filter: () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z" /></svg>,
+  Check: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>,
+  Clock: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l2 2" strokeLinecap="round" /></svg>,
+  Alert: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>,
+  Eye: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" /><circle cx="8" cy="8" r="2" /></svg>,
+  Close: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M12 4L4 12M4 4l8 8" strokeLinecap="round" /></svg>,
+  Share: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="12" cy="3" r="2" /><circle cx="4" cy="8" r="2" /><circle cx="12" cy="13" r="2" /><path d="M6 7l4-3M6 9l4 3" strokeLinecap="round" /></svg>,
+  More: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="4" cy="8" r="1.5" /><circle cx="8" cy="8" r="1.5" /><circle cx="12" cy="8" r="1.5" /></svg>,
+  Return: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M12 4H6a4 4 0 000 8h2M9 11l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  Reassign: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-5 5-5M11 8l3 3-3 3M14 11H9" strokeLinecap="round" /></svg>,
+  Download: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" strokeLinecap="round" /></svg>,
+  Attach: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M13 7l-5 5a4 4 0 01-5.7-5.7l5-5a2.5 2.5 0 013.5 3.5l-5 5a1 1 0 01-1.4-1.4l4-4" strokeLinecap="round" /></svg>,
+  AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" /><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /><circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" /><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>,
+  Tracking: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>,
+  Categories: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" /><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" /><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" /><rect x="9" y="9" width="5.5" height="5.5" rx="1.2" /></svg>,
 };
 
 // ── Badge ─────────────────────────────────────────────────────────────────────
 const BADGE = {
   "pending approval": { bg: "#fef3c7", color: "#92400e" },
-  "in progress":      { bg: "#ede9fe", color: "#5b21b6" },
-  "done":             { bg: "#d1fae5", color: "#065f46" },
-  "overdue":          { bg: "#fee2e2", color: "#991b1b" },
-  "financial":        { bg: "#dbeafe", color: "#1e40af" },
-  "legal":            { bg: "#fce7f3", color: "#9d174d" },
-  "sales":            { bg: "#d1fae5", color: "#065f46" },
-  "high":             { bg: "#fee2e2", color: "#991b1b" },
-  "medium":           { bg: "#fef3c7", color: "#92400e" },
-  "low":              { bg: "#d1fae5", color: "#065f46" },
+  "in progress": { bg: "#ede9fe", color: "#5b21b6" },
+  "done": { bg: "#d1fae5", color: "#065f46" },
+  "overdue": { bg: "#fee2e2", color: "#991b1b" },
+  "financial": { bg: "#dbeafe", color: "#1e40af" },
+  "legal": { bg: "#fce7f3", color: "#9d174d" },
+  "sales": { bg: "#d1fae5", color: "#065f46" },
+  "high": { bg: "#fee2e2", color: "#991b1b" },
+  "medium": { bg: "#fef3c7", color: "#92400e" },
+  "low": { bg: "#d1fae5", color: "#065f46" },
 };
 
 function Badge({ label }) {
@@ -230,7 +231,7 @@ export default function MyTasks() {
       await fetch(`${API}/api/tasks/${taskId}/approve`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } });
       fetchTasks();
       fetchSelectedTask(taskId); // refresh detail in place instead of clearing
-    } catch {}
+    } catch { }
   };
 
   const handleReturn = async (taskId) => {
@@ -238,7 +239,7 @@ export default function MyTasks() {
       await fetch(`${API}/api/tasks/${taskId}/return`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } });
       fetchTasks();
       fetchSelectedTask(taskId); // refresh detail in place instead of clearing
-    } catch {}
+    } catch { }
   };
 
   const handleMarkDone = async () => {
@@ -248,7 +249,7 @@ export default function MyTasks() {
       setCheckedIds([]);
       setSelectAll(false);
       fetchTasks();
-    } catch {}
+    } catch { }
   };
 
   const handleArchive = async () => {
@@ -258,7 +259,7 @@ export default function MyTasks() {
       setCheckedIds([]);
       setSelectAll(false);
       fetchTasks();
-    } catch {}
+    } catch { }
   };
 
   const handlePostComment = async () => {
@@ -298,10 +299,10 @@ export default function MyTasks() {
           });
           if (uploadRes.ok) {
             const uploadData = await uploadRes.json();
-            const saved    = uploadData.files?.[0];
-            const fileUrl  = saved?.url          || `/uploads/tasks/${file.name}`;
+            const saved = uploadData.files?.[0];
+            const fileUrl = saved?.url || `/uploads/tasks/${file.name}`;
             const fileName = saved?.originalname || file.name;
-            const isImg    = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+            const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
             const attachContent = `__attachment__${JSON.stringify({ name: fileName, isImg, url: fileUrl })}`;
 
             // Optimistically show the attachment in the discussion immediately
@@ -328,7 +329,7 @@ export default function MyTasks() {
       }
       // Single fetchTasks after all files are done to sync state cleanly
       if (filesToSend.length > 0) fetchTasks();
-    } catch {}
+    } catch { }
   };
 
   // ── Socket.IO — real-time comments ──────────────────────────────────────────
@@ -578,14 +579,14 @@ export default function MyTasks() {
           <span style={{ fontSize: 15, fontWeight: "bold", color: "white", letterSpacing: 2 }}>PATH</span>
         </div>
         <div style={{ padding: "8px 0", flex: 1 }}>
-         <SbItem icon={<Icon.Grid />} label="Dashboard" active={false} onClick={() => navigate("/dashboard")} />
+          <SbItem icon={<Icon.Grid />} label="Dashboard" active={false} onClick={() => navigate("/dashboard")} />
           <SbItem icon={<Icon.Inbox />} label="Inbox / Received" active={false} onClick={() => navigate("/inbox")} />
           <SbItem icon={<Icon.Plus />} label="New Document" active={false} onClick={() => navigate("/documents/new")} />
           <SbItem icon={<Icon.Tasks />} label="My Tasks" active={true} onClick={() => navigate("/tasks")} />
           <SbItem icon={<Icon.Forms />} label="Forms" active={false} onClick={() => navigate("/forms")} />
           <SbItem icon={<Icon.Tracking />} label="Tracking" active={false} onClick={() => navigate("/tracking")} />
           <div style={{ fontSize: 10, color: "rgba(200,196,224,0.4)", letterSpacing: 1, padding: "12px 14px 4px", textTransform: "uppercase" }}>Administration</div>
-          
+
           {canViewAdminNav && <SbItem icon={<Icon.Reports />} label="Reports" active={false} onClick={() => navigate("/reports")} />}
           {canViewAdminNav && <SbItem icon={<Icon.Workflow />} label="Workflow Designer" active={false} onClick={() => navigate("/workflow-designer")} />}
           {canViewAdminNav && <SbItem icon={<Icon.Categories />} label="Document Categories" active={false} onClick={() => navigate("/document-categories")} />}
@@ -634,7 +635,7 @@ export default function MyTasks() {
                   <Icon.Download /> Export CSV
                 </button>
                 <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "1px solid #7c3aed", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#7c3aed" }}>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="12" height="12"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M10 2v4h4"/></svg> Export PDF
+                  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="12" height="12"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M10 2v4h4" /></svg> Export PDF
                 </button>
                 <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 8, border: "none", background: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "white" }}>
                   <Icon.Plus color="white" size={12} /> Create Task
@@ -645,10 +646,10 @@ export default function MyTasks() {
             {/* Stat Cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 18 }}>
               {[
-                { label: "Total Assigned",   value: stats.total ?? 24,          icon: <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="16" height="16"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z"/></svg>, bg: "#ede9fe" },
-                { label: "Due Today",         value: stats.dueToday ?? 4,        icon: <svg viewBox="0 0 16 16" fill="none" stroke="#374151" strokeWidth="1.5" width="16" height="16"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>, bg: "#f3f4f6" },
-                { label: "Overdue",           value: stats.overdue ?? 2,         icon: <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 10v1" strokeLinecap="round"/></svg>, bg: "#fee2e2" },
-                { label: "Pending Approval",  value: stats.pendingApproval ?? 12,icon: <svg viewBox="0 0 16 16" fill="none" stroke="#374151" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2" strokeLinecap="round"/></svg>, bg: "#f3f4f6" },
+                { label: "Total Assigned", value: stats.total ?? 24, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="16" height="16"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" /></svg>, bg: "#ede9fe" },
+                { label: "Due Today", value: stats.dueToday ?? 4, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#374151" strokeWidth="1.5" width="16" height="16"><rect x="2" y="3" width="12" height="11" rx="1" /><path d="M5 1v3M11 1v3M2 7h12" /></svg>, bg: "#f3f4f6" },
+                { label: "Overdue", value: stats.overdue ?? 2, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>, bg: "#fee2e2" },
+                { label: "Pending Approval", value: stats.pendingApproval ?? 12, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#374151" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l2 2" strokeLinecap="round" /></svg>, bg: "#f3f4f6" },
               ].map(({ label, value, icon, bg }) => (
                 <div key={label} style={{ background: "white", border: "1px solid #f0f0f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
@@ -668,14 +669,14 @@ export default function MyTasks() {
                   style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%" }} />
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12, color: "#374151" }}>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><rect x="2" y="3" width="12" height="11" rx="1" /><path d="M5 1v3M11 1v3M2 7h12" /></svg>
                 <span style={{ color: "#888" }}>Date Range</span>
                 <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: "none", background: "transparent", fontSize: 12, outline: "none", cursor: "pointer", color: "#374151" }} />
               </div>
               {[
-                { label: "Priority", value: priorityFilter, set: setPriorityFilter, opts: ["All","High","Medium","Low"] },
-                { label: "Status",   value: statusFilter,   set: setStatusFilter,   opts: ["All","Pending Approval","In Progress","Done","Overdue"] },
-                { label: "Doc Type", value: docTypeFilter,  set: setDocTypeFilter,  opts: ["All","Financial","Legal","Sales","HR","Operations"] },
+                { label: "Priority", value: priorityFilter, set: setPriorityFilter, opts: ["All", "High", "Medium", "Low"] },
+                { label: "Status", value: statusFilter, set: setStatusFilter, opts: ["All", "Pending Approval", "In Progress", "Done", "Overdue"] },
+                { label: "Doc Type", value: docTypeFilter, set: setDocTypeFilter, opts: ["All", "Financial", "Legal", "Sales", "HR", "Operations"] },
               ].map(({ label, value, set, opts }) => (
                 <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12 }}>
                   <Icon.Filter />
@@ -702,7 +703,7 @@ export default function MyTasks() {
                 <div style={{ display: "flex", gap: 6 }}>
                   <button style={{ width: 26, height: 26, border: "1px solid #e5e7eb", borderRadius: 6, background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon.Filter /></button>
                   <button style={{ width: 26, height: 26, border: "1px solid #e5e7eb", borderRadius: 6, background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><rect x="1" y="1" width="6" height="6" rx="1" /><rect x="9" y="1" width="6" height="6" rx="1" /><rect x="1" y="9" width="6" height="6" rx="1" /><rect x="9" y="9" width="6" height="6" rx="1" /></svg>
                   </button>
                 </div>
               </div>
@@ -756,15 +757,15 @@ export default function MyTasks() {
 
               {/* Pagination */}
               <div style={{ padding: "10px 16px", borderTop: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11, color: "#888" }}>Showing {Math.min((taskPage-1)*PER_PAGE+1, filteredTasks.length)}-{Math.min(taskPage*PER_PAGE, filteredTasks.length)} of {filteredTasks.length} tasks</span>
+                <span style={{ fontSize: 11, color: "#888" }}>Showing {Math.min((taskPage - 1) * PER_PAGE + 1, filteredTasks.length)}-{Math.min(taskPage * PER_PAGE, filteredTasks.length)} of {filteredTasks.length} tasks</span>
                 <div style={{ display: "flex", gap: 4 }}>
-                  <button onClick={() => setTaskPage(p => Math.max(1,p-1))} disabled={taskPage===1}
-                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage===1?"not-allowed":"pointer", display:"flex",alignItems:"center",justifyContent:"center", opacity: taskPage===1?0.4:1 }}>
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M10 12L6 8l4-4"/></svg>
+                  <button onClick={() => setTaskPage(p => Math.max(1, p - 1))} disabled={taskPage === 1}
+                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage === 1 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: taskPage === 1 ? 0.4 : 1 }}>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M10 12L6 8l4-4" /></svg>
                   </button>
-                  <button onClick={() => setTaskPage(p => Math.min(totalTaskPages,p+1))} disabled={taskPage===totalTaskPages}
-                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage===totalTaskPages?"not-allowed":"pointer", display:"flex",alignItems:"center",justifyContent:"center", opacity: taskPage===totalTaskPages?0.4:1 }}>
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M6 12l4-4-4-4"/></svg>
+                  <button onClick={() => setTaskPage(p => Math.min(totalTaskPages, p + 1))} disabled={taskPage === totalTaskPages}
+                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage === totalTaskPages ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: taskPage === totalTaskPages ? 0.4 : 1 }}>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M6 12l4-4-4-4" /></svg>
                   </button>
                 </div>
               </div>
@@ -774,7 +775,7 @@ export default function MyTasks() {
             <div style={{ flex: 1, overflow: "hidden", background: "white", display: "flex", flexDirection: "column" }}>
               {!selected ? (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 10 }}>
-                  <svg viewBox="0 0 40 40" fill="none" stroke="#e5e7eb" strokeWidth="1.5" width="48" height="48"><path d="M5 8h30v20H5zM5 28l7 6v-6"/></svg>
+                  <svg viewBox="0 0 40 40" fill="none" stroke="#e5e7eb" strokeWidth="1.5" width="48" height="48"><path d="M5 8h30v20H5zM5 28l7 6v-6" /></svg>
                   <div style={{ fontSize: 14, color: "#aaa", fontWeight: 600 }}>Select a task to view details</div>
                 </div>
               ) : detailLoading ? (
@@ -840,12 +841,12 @@ export default function MyTasks() {
 
                       {/* ACTIVITY — task brief post card (matches TaskAssigned layout) */}
                       {selected.attachments?.length > 0 && (() => {
-                        const assignerName    = selected.assigned_by_name || "Admin";
+                        const assignerName = selected.assigned_by_name || "Admin";
                         const assignerInitial = (assignerName[0] || "?").toUpperCase();
-                        const assignedAt      = selected.created_at;
-                        const docType         = selected.doc_type || null;
-                        const assignerRole    = selected.assigned_by_role || "admin";
-                        const roleBadgeLabel  = assignerRole === "program_chair" ? "Program Chair" : "Admin";
+                        const assignedAt = selected.created_at;
+                        const docType = selected.doc_type || null;
+                        const assignerRole = selected.assigned_by_role || "admin";
+                        const roleBadgeLabel = assignerRole === "program_chair" ? "Program Chair" : "Admin";
                         return (
                           <>
                             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Activity</div>
@@ -909,12 +910,12 @@ export default function MyTasks() {
                               {/* File chips */}
                               <div style={{ padding: "12px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
                                 {selected.attachments.map((a, i) => {
-                                  const url  = `${API}${a.file_url || a.url || ""}`;
+                                  const url = `${API}${a.file_url || a.url || ""}`;
                                   const name = a.file_name || a.name || "file";
-                                  const ext  = name.split(".").pop().toLowerCase();
-                                  const isPdf  = ext === "pdf";
-                                  const isXlsx = ["xlsx","xls","csv"].includes(ext);
-                                  const isImg  = ["jpg","jpeg","png","gif","webp"].includes(ext);
+                                  const ext = name.split(".").pop().toLowerCase();
+                                  const isPdf = ext === "pdf";
+                                  const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
+                                  const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
                                   const sizeBytes = a.size || a.file_size || 0;
                                   const sizeLabel = sizeBytes >= 1_048_576
                                     ? `${(sizeBytes / 1_048_576).toFixed(1)} MB`
@@ -1023,7 +1024,7 @@ export default function MyTasks() {
                               if (event.type === "revision") {
                                 const c = event.comment;
                                 let revisionMeta = null;
-                                try { revisionMeta = JSON.parse(c.content.replace("__revision__", "")); } catch {}
+                                try { revisionMeta = JSON.parse(c.content.replace("__revision__", "")); } catch { }
                                 if (!revisionMeta) return null;
                                 const senderInitial = (c.sender_name?.[0] || "?").toUpperCase();
                                 return (
@@ -1055,7 +1056,7 @@ export default function MyTasks() {
                                     <div style={{ height: 1, background: "#fecaca", margin: "0 16px" }} />
                                     {/* Action banner */}
                                     <div style={{ margin: "10px 16px 4px", padding: "8px 12px", background: "#fff1f2", border: "1px solid #fecaca", borderRadius: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                                      <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 10v1" strokeLinecap="round"/></svg>
+                                      <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>
                                       <span style={{ fontSize: 12, color: "#dc2626", fontWeight: 600 }}>Action required — please revise and resubmit your document.</span>
                                     </div>
                                     {/* Note body */}
@@ -1071,10 +1072,10 @@ export default function MyTasks() {
                                         {revisionMeta.files.map((f, fi) => {
                                           const url = `${API}${f.url}`;
                                           const ext = f.name?.split(".").pop().toLowerCase();
-                                          const isPdf  = ext === "pdf";
-                                          const isXlsx = ["xlsx","xls","csv"].includes(ext);
-                                          const isImg  = f.isImg || ["jpg","jpeg","png","gif","webp"].includes(ext);
-                                          const sizeLabel = f.size >= 1_048_576 ? `${(f.size/1_048_576).toFixed(1)} MB` : f.size > 0 ? `${(f.size/1024).toFixed(0)} KB` : null;
+                                          const isPdf = ext === "pdf";
+                                          const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
+                                          const isImg = f.isImg || ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+                                          const sizeLabel = f.size >= 1_048_576 ? `${(f.size / 1_048_576).toFixed(1)} MB` : f.size > 0 ? `${(f.size / 1024).toFixed(0)} KB` : null;
                                           return isImg ? (
                                             <img key={fi} src={url} alt={f.name}
                                               style={{ maxWidth: 160, maxHeight: 120, borderRadius: 8, border: "1px solid #fecaca", cursor: "pointer", objectFit: "cover" }}
@@ -1174,9 +1175,9 @@ export default function MyTasks() {
                                         const url = a._pending ? null : `${API}${a.file_url || a.url || ""}`;
                                         const name = a.file_name || a.name || "file";
                                         const ext = name.split(".").pop().toLowerCase();
-                                        const isPdf  = ext === "pdf";
-                                        const isXlsx = ["xlsx","xls","csv"].includes(ext);
-                                        const isImg  = ["jpg","jpeg","png","gif","webp"].includes(ext);
+                                        const isPdf = ext === "pdf";
+                                        const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
+                                        const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
                                         const sizeBytes = a.size || a.file_size || 0;
                                         const sizeLabel = sizeBytes >= 1_048_576
                                           ? `${(sizeBytes / 1_048_576).toFixed(1)} MB`
@@ -1220,122 +1221,122 @@ export default function MyTasks() {
                       {(() => {
                         const alreadySubmitted = ["for approval", "approved", "done"].includes(selected.status?.toLowerCase());
                         return (
-                      <div style={{ marginBottom: 24, padding: "16px", background: alreadySubmitted ? "#f0fdf4" : "#f8f5ff", border: `1px solid ${alreadySubmitted ? "#bbf7d0" : "#e9d5ff"}`, borderRadius: 12 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: alreadySubmitted ? "#059669" : "#7c3aed", textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                          {alreadySubmitted ? (
-                            <>
-                              <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="2" width="12" height="12"><path d="M13 5l-7 7-3-3" strokeLinecap="round"/></svg>
-                              Task Submitted
-                            </>
-                          ) : "Submit Task"}
-                        </div>
-
-                        {alreadySubmitted ? (
-                          <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#dcfce7", border: "1px solid #bbf7d0", borderRadius: 8, marginBottom: submitFiles.length ? 10 : 0 }}>
-                              <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6"/><path d="M5 8l2.5 2.5L11 5.5" strokeLinecap="round"/></svg>
-                              <span style={{ fontSize: 12, color: "#065f46", fontWeight: 600 }}>
-                                Submitted — awaiting review by the assigning officer.
-                              </span>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <textarea
-                              value={submitNote}
-                              onChange={e => setSubmitNote(e.target.value)}
-                              rows={3}
-                              placeholder="Add a note about your submission (optional)..."
-                              style={{ width: "100%", padding: "10px 12px", border: "1px solid #e9d5ff", borderRadius: 8, fontSize: 13, color: "#111", resize: "vertical", fontFamily: "inherit", lineHeight: 1.5, background: "white", boxSizing: "border-box", outline: "none", marginBottom: 10 }}
-                            />
-
-                            {/* File attachment drop zone */}
-                            <div
-                              onDragOver={e => { e.preventDefault(); setSubmitDragOver(true); }}
-                              onDragLeave={() => setSubmitDragOver(false)}
-                              onDrop={e => {
-                                e.preventDefault();
-                                setSubmitDragOver(false);
-                                const dropped = Array.from(e.dataTransfer.files);
-                                setSubmitFiles(prev => [...prev, ...dropped]);
-                              }}
-                              onClick={() => document.getElementById("submit-file-input").click()}
-                              style={{
-                                border: `2px dashed ${submitDragOver ? "#7c3aed" : "#d8b4fe"}`,
-                                borderRadius: 8,
-                                padding: "14px 12px",
-                                background: submitDragOver ? "#f5f0ff" : "white",
-                                cursor: "pointer",
-                                textAlign: "center",
-                                marginBottom: 10,
-                                transition: "all 0.15s",
-                              }}
-                            >
-                              <input
-                                id="submit-file-input"
-                                type="file"
-                                multiple
-                                style={{ display: "none" }}
-                                onChange={e => {
-                                  const picked = Array.from(e.target.files);
-                                  setSubmitFiles(prev => [...prev, ...picked]);
-                                  e.target.value = "";
-                                }}
-                              />
-                              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, color: "#7c3aed" }}>
-                                <Icon.Attach />
-                                <span style={{ fontSize: 12, fontWeight: 600, color: "#7c3aed" }}>Attach files</span>
-                                <span style={{ fontSize: 11, color: "#a78bfa" }}>or drag & drop here</span>
-                              </div>
-                              <div style={{ fontSize: 10, color: "#c4b5fd", marginTop: 4 }}>PDF, Word, images and more — up to 20 MB each</div>
+                          <div style={{ marginBottom: 24, padding: "16px", background: alreadySubmitted ? "#f0fdf4" : "#f8f5ff", border: `1px solid ${alreadySubmitted ? "#bbf7d0" : "#e9d5ff"}`, borderRadius: 12 }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: alreadySubmitted ? "#059669" : "#7c3aed", textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                              {alreadySubmitted ? (
+                                <>
+                                  <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="2" width="12" height="12"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>
+                                  Task Submitted
+                                </>
+                              ) : "Submit Task"}
                             </div>
 
-                            {/* Staged file chips */}
-                            {submitFiles.length > 0 && (
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
-                                {submitFiles.map((f, i) => {
-                                  const ext = f.name.split(".").pop().toLowerCase();
-                                  const isPdf = ext === "pdf";
-                                  const isXlsx = ["xlsx","xls","csv"].includes(ext);
-                                  const isImg = ["jpg","jpeg","png","gif","webp"].includes(ext);
-                                  return (
-                                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, background: "white", border: "1px solid #e9d5ff", borderRadius: 10, padding: "8px 12px 8px 10px", minWidth: 160 }}>
-                                      <div style={{
-                                        width: 32, height: 32, borderRadius: 6, flexShrink: 0,
-                                        background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#ede9fe",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                      }}>
-                                        <span style={{ fontSize: 13 }}>{isPdf ? "📄" : isXlsx ? "📊" : isImg ? "🖼️" : "📎"}</span>
-                                      </div>
-                                      <div style={{ minWidth: 0, flex: 1 }}>
-                                        <div style={{ fontSize: 11, fontWeight: 700, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 130 }}>{f.name}</div>
-                                        <div style={{ fontSize: 10, color: "#a78bfa" }}>{(f.size / 1024).toFixed(0)} KB</div>
-                                      </div>
-                                      <button
-                                        onClick={e => { e.stopPropagation(); setSubmitFiles(prev => prev.filter((_, idx) => idx !== i)); }}
-                                        style={{ background: "none", border: "none", cursor: "pointer", color: "#a78bfa", padding: 0, display: "flex", alignItems: "center", flexShrink: 0 }}
-                                      >
-                                        <Icon.Close />
-                                      </button>
-                                    </div>
-                                  );
-                                })}
+                            {alreadySubmitted ? (
+                              <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#dcfce7", border: "1px solid #bbf7d0", borderRadius: 8, marginBottom: submitFiles.length ? 10 : 0 }}>
+                                  <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M5 8l2.5 2.5L11 5.5" strokeLinecap="round" /></svg>
+                                  <span style={{ fontSize: 12, color: "#065f46", fontWeight: 600 }}>
+                                    Submitted — awaiting review by the assigning officer.
+                                  </span>
+                                </div>
                               </div>
+                            ) : (
+                              <>
+                                <textarea
+                                  value={submitNote}
+                                  onChange={e => setSubmitNote(e.target.value)}
+                                  rows={3}
+                                  placeholder="Add a note about your submission (optional)..."
+                                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e9d5ff", borderRadius: 8, fontSize: 13, color: "#111", resize: "vertical", fontFamily: "inherit", lineHeight: 1.5, background: "white", boxSizing: "border-box", outline: "none", marginBottom: 10 }}
+                                />
+
+                                {/* File attachment drop zone */}
+                                <div
+                                  onDragOver={e => { e.preventDefault(); setSubmitDragOver(true); }}
+                                  onDragLeave={() => setSubmitDragOver(false)}
+                                  onDrop={e => {
+                                    e.preventDefault();
+                                    setSubmitDragOver(false);
+                                    const dropped = Array.from(e.dataTransfer.files);
+                                    setSubmitFiles(prev => [...prev, ...dropped]);
+                                  }}
+                                  onClick={() => document.getElementById("submit-file-input").click()}
+                                  style={{
+                                    border: `2px dashed ${submitDragOver ? "#7c3aed" : "#d8b4fe"}`,
+                                    borderRadius: 8,
+                                    padding: "14px 12px",
+                                    background: submitDragOver ? "#f5f0ff" : "white",
+                                    cursor: "pointer",
+                                    textAlign: "center",
+                                    marginBottom: 10,
+                                    transition: "all 0.15s",
+                                  }}
+                                >
+                                  <input
+                                    id="submit-file-input"
+                                    type="file"
+                                    multiple
+                                    style={{ display: "none" }}
+                                    onChange={e => {
+                                      const picked = Array.from(e.target.files);
+                                      setSubmitFiles(prev => [...prev, ...picked]);
+                                      e.target.value = "";
+                                    }}
+                                  />
+                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, color: "#7c3aed" }}>
+                                    <Icon.Attach />
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: "#7c3aed" }}>Attach files</span>
+                                    <span style={{ fontSize: 11, color: "#a78bfa" }}>or drag & drop here</span>
+                                  </div>
+                                  <div style={{ fontSize: 10, color: "#c4b5fd", marginTop: 4 }}>PDF, Word, images and more — up to 20 MB each</div>
+                                </div>
+
+                                {/* Staged file chips */}
+                                {submitFiles.length > 0 && (
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                                    {submitFiles.map((f, i) => {
+                                      const ext = f.name.split(".").pop().toLowerCase();
+                                      const isPdf = ext === "pdf";
+                                      const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
+                                      const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+                                      return (
+                                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, background: "white", border: "1px solid #e9d5ff", borderRadius: 10, padding: "8px 12px 8px 10px", minWidth: 160 }}>
+                                          <div style={{
+                                            width: 32, height: 32, borderRadius: 6, flexShrink: 0,
+                                            background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#ede9fe",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                          }}>
+                                            <span style={{ fontSize: 13 }}>{isPdf ? "📄" : isXlsx ? "📊" : isImg ? "🖼️" : "📎"}</span>
+                                          </div>
+                                          <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div style={{ fontSize: 11, fontWeight: 700, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 130 }}>{f.name}</div>
+                                            <div style={{ fontSize: 10, color: "#a78bfa" }}>{(f.size / 1024).toFixed(0)} KB</div>
+                                          </div>
+                                          <button
+                                            onClick={e => { e.stopPropagation(); setSubmitFiles(prev => prev.filter((_, idx) => idx !== i)); }}
+                                            style={{ background: "none", border: "none", cursor: "pointer", color: "#a78bfa", padding: 0, display: "flex", alignItems: "center", flexShrink: 0 }}
+                                          >
+                                            <Icon.Close />
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                <button
+                                  onClick={() => handleSubmitTask(selected.id)}
+                                  disabled={submitting}
+                                  style={{ width: "100%", padding: "10px", borderRadius: 8, border: "none", background: "#7c3aed", color: "white", fontSize: 13, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                                  onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = "#6d28d9"; }}
+                                  onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = "#7c3aed"; }}
+                                >
+                                  <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2" width="13" height="13"><path d="M8 1v10M4 7l4 4 4-4M2 14h12" strokeLinecap="round" /></svg>
+                                  {submitting ? "Submitting..." : "Submit Task"}
+                                </button>
+                              </>
                             )}
-
-                            <button
-                              onClick={() => handleSubmitTask(selected.id)}
-                              disabled={submitting}
-                              style={{ width: "100%", padding: "10px", borderRadius: 8, border: "none", background: "#7c3aed", color: "white", fontSize: 13, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                              onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = "#6d28d9"; }}
-                              onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = "#7c3aed"; }}
-                            >
-                              <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2" width="13" height="13"><path d="M8 1v10M4 7l4 4 4-4M2 14h12" strokeLinecap="round"/></svg>
-                              {submitting ? "Submitting..." : "Submit Task"}
-                            </button>
-                          </>
-                        )}
-                      </div>
+                          </div>
                         );
                       })()}
 
@@ -1345,86 +1346,86 @@ export default function MyTasks() {
                         {(selected.comments || []).length === 0
                           ? <div style={{ fontSize: 12, color: "#ccc", fontStyle: "italic" }}>No comments yet.</div>
                           : (selected.comments || []).map((c, i) => {
-                          const isAttachment = c.content?.startsWith("__attachment__");
-                          const isRevision   = c.content?.startsWith("__revision__");
-                          // Revision posts are shown in the Activity feed above — skip in Discussion
-                          if (isRevision) return null;
-                          let attachMeta   = null;
-                          if (isAttachment) { try { attachMeta   = JSON.parse(c.content.replace("__attachment__", "")); } catch {} }
+                            const isAttachment = c.content?.startsWith("__attachment__");
+                            const isRevision = c.content?.startsWith("__revision__");
+                            // Revision posts are shown in the Activity feed above — skip in Discussion
+                            if (isRevision) return null;
+                            let attachMeta = null;
+                            if (isAttachment) { try { attachMeta = JSON.parse(c.content.replace("__attachment__", "")); } catch { } }
 
-                          const isSubmission = c.content?.startsWith("📤 Task submitted:");
+                            const isSubmission = c.content?.startsWith("📤 Task submitted:");
 
-                          // If this submission was later returned for revision, show a "Returned" indicator
-                          let wasReturned = false;
-                          if (isSubmission && c.created_at) {
-                            const cts = new Date(c.created_at).getTime();
-                            wasReturned = (selected.comments || []).some(rc => {
-                              if (!rc.content?.startsWith("__revision__") || !rc.created_at) return false;
-                              return new Date(rc.created_at).getTime() > cts;
-                            });
-                          }
+                            // If this submission was later returned for revision, show a "Returned" indicator
+                            let wasReturned = false;
+                            if (isSubmission && c.created_at) {
+                              const cts = new Date(c.created_at).getTime();
+                              wasReturned = (selected.comments || []).some(rc => {
+                                if (!rc.content?.startsWith("__revision__") || !rc.created_at) return false;
+                                return new Date(rc.created_at).getTime() > cts;
+                              });
+                            }
 
-                          return (
-                          <div key={i} style={{ display: "flex", gap: 10, opacity: c._pending ? 0.55 : 1, transition: "opacity 0.3s" }}>
-                            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
-                              {(c.sender_name?.[0] || "?").toUpperCase()}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 5 }}>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{c.sender_name}</span>
-                                <span style={{ fontSize: 11, color: "#aaa" }}>{c._pending ? "Sending..." : fmtDateTime(c.created_at)}</span>
-                              </div>
-                              {isAttachment && attachMeta ? (
-                                attachMeta.isImg ? (
-                                  <img
-                                    src={`${API}${attachMeta.url}`}
-                                    alt={attachMeta.name}
-                                    style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, border: "1px solid #e5e7eb", display: "block", cursor: "pointer" }}
-                                    onClick={() => setFileViewer({ url: `${API}${attachMeta.url}`, name: attachMeta.name, isPdf: false, isImg: true })}
-                                  />
-                                ) : (
-                                  <div
-                                    onClick={() => setFileViewer({ url: `${API}${attachMeta.url}`, name: attachMeta.name, isPdf: attachMeta.name?.toLowerCase().endsWith(".pdf"), isImg: false })}
-                                    style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f5f3ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "8px 12px", cursor: "pointer", maxWidth: 280 }}
-                                  >
-                                    <div style={{ width: 30, height: 30, background: "#ede9fe", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                      <Icon.Attach />
-                                    </div>
-                                    <div style={{ minWidth: 0 }}>
-                                      <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{attachMeta.name}</div>
-                                      <div style={{ fontSize: 10, color: "#7c3aed", fontWeight: 600 }}>Click to preview</div>
-                                    </div>
+                            return (
+                              <div key={i} style={{ display: "flex", gap: 10, opacity: c._pending ? 0.55 : 1, transition: "opacity 0.3s" }}>
+                                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                                  {(c.sender_name?.[0] || "?").toUpperCase()}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 5 }}>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{c.sender_name}</span>
+                                    <span style={{ fontSize: 11, color: "#aaa" }}>{c._pending ? "Sending..." : fmtDateTime(c.created_at)}</span>
                                   </div>
-                                )
-                              ) : isSubmission ? (
-                                <div style={{
-                                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-                                  fontSize: 13, color: "#374151", lineHeight: 1.6,
-                                  background: wasReturned ? "#fff8f8" : "#f0fdf4",
-                                  border: `1px solid ${wasReturned ? "#fecaca" : "#bbf7d0"}`,
-                                  borderRadius: 8, padding: "8px 12px",
-                                }}>
-                                  <span>{c.content}</span>
-                                  {wasReturned && (
-                                    <span style={{ flexShrink: 0, fontSize: 9, background: "#fee2e2", color: "#991b1b", padding: "2px 8px", borderRadius: 20, fontWeight: 700, whiteSpace: "nowrap" }}>
-                                      ↺ Returned
-                                    </span>
+                                  {isAttachment && attachMeta ? (
+                                    attachMeta.isImg ? (
+                                      <img
+                                        src={`${API}${attachMeta.url}`}
+                                        alt={attachMeta.name}
+                                        style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, border: "1px solid #e5e7eb", display: "block", cursor: "pointer" }}
+                                        onClick={() => setFileViewer({ url: `${API}${attachMeta.url}`, name: attachMeta.name, isPdf: false, isImg: true })}
+                                      />
+                                    ) : (
+                                      <div
+                                        onClick={() => setFileViewer({ url: `${API}${attachMeta.url}`, name: attachMeta.name, isPdf: attachMeta.name?.toLowerCase().endsWith(".pdf"), isImg: false })}
+                                        style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f5f3ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "8px 12px", cursor: "pointer", maxWidth: 280 }}
+                                      >
+                                        <div style={{ width: 30, height: 30, background: "#ede9fe", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                          <Icon.Attach />
+                                        </div>
+                                        <div style={{ minWidth: 0 }}>
+                                          <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{attachMeta.name}</div>
+                                          <div style={{ fontSize: 10, color: "#7c3aed", fontWeight: 600 }}>Click to preview</div>
+                                        </div>
+                                      </div>
+                                    )
+                                  ) : isSubmission ? (
+                                    <div style={{
+                                      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+                                      fontSize: 13, color: "#374151", lineHeight: 1.6,
+                                      background: wasReturned ? "#fff8f8" : "#f0fdf4",
+                                      border: `1px solid ${wasReturned ? "#fecaca" : "#bbf7d0"}`,
+                                      borderRadius: 8, padding: "8px 12px",
+                                    }}>
+                                      <span>{c.content}</span>
+                                      {wasReturned && (
+                                        <span style={{ flexShrink: 0, fontSize: 9, background: "#fee2e2", color: "#991b1b", padding: "2px 8px", borderRadius: 20, fontWeight: 700, whiteSpace: "nowrap" }}>
+                                          ↺ Returned
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>{c.content}</div>
                                   )}
                                 </div>
-                              ) : (
-                                <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>{c.content}</div>
-                              )}
-                            </div>
-                          </div>
-                          );
-                        })}
+                              </div>
+                            );
+                          })}
                       </div>
 
                       {/* Typing indicator */}
                       {typingUsers.length > 0 && (
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                           <div style={{ display: "flex", gap: 3, alignItems: "center" }}>
-                            {[0,1,2].map(i => (
+                            {[0, 1, 2].map(i => (
                               <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: "#7c3aed", animation: "typingBounce 1.2s infinite ease-in-out", animationDelay: `${i * 0.2}s` }} />
                             ))}
                           </div>
@@ -1432,8 +1433,8 @@ export default function MyTasks() {
                             {typingUsers.length === 1
                               ? `${typingUsers[0].name} is typing…`
                               : typingUsers.length === 2
-                              ? `${typingUsers[0].name} and ${typingUsers[1].name} are typing…`
-                              : `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing…`}
+                                ? `${typingUsers[0].name} and ${typingUsers[1].name} are typing…`
+                                : `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing…`}
                           </span>
                         </div>
                       )}
@@ -1489,7 +1490,7 @@ export default function MyTasks() {
                               style={{ display: "none" }}
                               onChange={e => {
                                 const newFiles = Array.from(e.target.files);
-                                const newUrls  = newFiles.map(f => URL.createObjectURL(f));
+                                const newUrls = newFiles.map(f => URL.createObjectURL(f));
                                 setCommentFiles(prev => [...prev, ...newFiles]);
                                 setCommentFilePreviews(prev => [...prev, ...newUrls]);
                                 e.target.value = "";
@@ -1516,11 +1517,11 @@ export default function MyTasks() {
                     <div style={{ width: 260, flexShrink: 0, padding: "20px", overflowY: "auto", position: "sticky", top: 0, alignSelf: "flex-start", maxHeight: "100vh", borderLeft: "1px solid #f0f0f0" }}>
 
                       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Task Timeline</div>
-                      <TimelineItem label="Task Created"        value={`by ${selected.assigned_by_name || "—"}`}  sub={fmtDate(selected.created_at)} dot="#7c3aed" />
-                      <TimelineItem label="Assigned to You"     value={selected.assigned_by_name || "—"}          sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#7c3aed" />
-                      {selected.submitted_at && <TimelineItem label="Submitted"          value="by You"                                    sub={fmtDateTime(selected.submitted_at)} dot="#059669" />}
-                      {selected.approved_at  && <TimelineItem label="Approved"           value={`by ${selected.approved_by_name || "—"}`}  sub={fmtDateTime(selected.approved_at)} dot="#059669" />}
-                      {selected.returned_at  && <TimelineItem label="Returned"           value={`by ${selected.returned_by_name || "—"}`}  sub={fmtDateTime(selected.returned_at)} dot="#dc2626" />}
+                      <TimelineItem label="Task Created" value={`by ${selected.assigned_by_name || "—"}`} sub={fmtDate(selected.created_at)} dot="#7c3aed" />
+                      <TimelineItem label="Assigned to You" value={selected.assigned_by_name || "—"} sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#7c3aed" />
+                      {selected.submitted_at && <TimelineItem label="Submitted" value="by You" sub={fmtDateTime(selected.submitted_at)} dot="#059669" />}
+                      {selected.approved_at && <TimelineItem label="Approved" value={`by ${selected.approved_by_name || "—"}`} sub={fmtDateTime(selected.approved_at)} dot="#059669" />}
+                      {selected.returned_at && <TimelineItem label="Returned" value={`by ${selected.returned_by_name || "—"}`} sub={fmtDateTime(selected.returned_at)} dot="#dc2626" />}
                       <TimelineItem label="Current Status" value={selected.status || "—"} dot={selected.status?.toLowerCase() === "approved" || selected.status?.toLowerCase() === "done" ? "#059669" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#dc2626" : "#d1d5db"} isLast />
 
                       {/* Assigned-by card */}
@@ -1557,11 +1558,11 @@ export default function MyTasks() {
         {/* Footer */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 24px", borderTop: "1px solid #f0f0f0", fontSize: 11, color: "#aaa", background: "white" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <svg viewBox="0 0 16 16" fill="none" stroke="#aaa" strokeWidth="1.2" width="12" height="12"><path d="M8 1L1 4v5c0 4 3 6 7 7 4-1 7-3 7-7V4L8 1z"/></svg>
+            <svg viewBox="0 0 16 16" fill="none" stroke="#aaa" strokeWidth="1.2" width="12" height="12"><path d="M8 1L1 4v5c0 4 3 6 7 7 4-1 7-3 7-7V4L8 1z" /></svg>
             © 2024 TaskFlow Enterprise. All rights reserved.
           </div>
           <div style={{ display: "flex", gap: 18 }}>
-            {["HELP CENTER","API STATUS","PRIVACY POLICY","TERMS"].map(l => (
+            {["HELP CENTER", "API STATUS", "PRIVACY POLICY", "TERMS"].map(l => (
               <a key={l} href="#" style={{ color: "#aaa", textDecoration: "none", fontSize: 10, fontWeight: 600, letterSpacing: 0.5 }}>{l}</a>
             ))}
           </div>
