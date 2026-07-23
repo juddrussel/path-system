@@ -4,6 +4,7 @@ import TopBar from "./TopBar";
 import {
   Plus, Eye, Pencil, Archive, Trash2, Search, ChevronDown,
   Layers, CheckCircle2, Inbox as InboxIcon, BarChart3,
+  X, GripVertical, Check,
 } from "lucide-react";
 
 // ── Role-based nav visibility (matches Dashboard.jsx) ──────────────────────
@@ -133,6 +134,11 @@ function SbItem({ icon, label, active, onClick }) {
 }
 
 // ── Sample category data (mirrors the reference screenshot) ────────────────
+const FIELD_TYPES = ["Text Input", "Text Area", "Date", "Dropdown", "Number", "Checkbox", "File Upload"];
+
+let nextFieldId = 100;
+const mkField = (name, fieldType, required) => ({ id: nextFieldId++, name, fieldType, required });
+
 const CATEGORIES = [
   {
     id: 1,
@@ -143,6 +149,14 @@ const CATEGORIES = [
     fields: 6,
     status: "Active",
     dateCreated: "Feb 10, 2024",
+    formFields: [
+      mkField("Task Title", "Text Input", true),
+      mkField("Assigned Faculty", "Dropdown", true),
+      mkField("Due Date", "Date", true),
+      mkField("Priority Level", "Dropdown", true),
+      mkField("Instructions", "Text Area", true),
+      mkField("Attachments", "File Upload", false),
+    ],
   },
   {
     id: 2,
@@ -153,6 +167,12 @@ const CATEGORIES = [
     fields: 4,
     status: "Active",
     dateCreated: "Feb 1, 2024",
+    formFields: [
+      mkField("Student Name", "Text Input", true),
+      mkField("Student ID", "Text Input", true),
+      mkField("Program", "Dropdown", true),
+      mkField("Remarks", "Text Area", false),
+    ],
   },
   {
     id: 3,
@@ -163,6 +183,13 @@ const CATEGORIES = [
     fields: 5,
     status: "Active",
     dateCreated: "Jan 20, 2024",
+    formFields: [
+      mkField("Student Name", "Text Input", true),
+      mkField("Course Code", "Text Input", true),
+      mkField("Reason for Incomplete", "Text Area", true),
+      mkField("Requested Completion Date", "Date", true),
+      mkField("Instructor Endorsement", "Checkbox", false),
+    ],
   },
   {
     id: 4,
@@ -173,16 +200,30 @@ const CATEGORIES = [
     fields: 6,
     status: "Active",
     dateCreated: "Jan 15, 2024",
+    formFields: [
+      mkField("Student Name", "Text Input", true),
+      mkField("Student ID", "Text Input", true),
+      mkField("Request Type", "Dropdown", true),
+      mkField("Details", "Text Area", true),
+      mkField("Preferred Contact", "Text Input", false),
+      mkField("Supporting Document", "File Upload", false),
+    ],
   },
   {
     id: 5,
     name: "Document Endorsement",
     code: "DEN-005",
-    description: "Endorsement form for routing documents through approvers.",
+    description: "Endorsement form for routing documents through academic offices.",
     type: "Form",
     fields: 4,
     status: "Archived",
     dateCreated: "Nov 5, 2023",
+    formFields: [
+      mkField("Document Title", "Text Input", true),
+      mkField("Originating Office", "Text Input", true),
+      mkField("Endorsement Date", "Date", true),
+      mkField("Remarks", "Text Area", false),
+    ],
   },
 ];
 
@@ -224,6 +265,239 @@ function ActionBtn({ children, title, onClick, danger }) {
   );
 }
 
+// ── Toggle switch (used for Required flag) ──────────────────────────────────
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      style={{
+        width: 34, height: 19, borderRadius: 20, border: "none", cursor: "pointer",
+        background: checked ? "#7c3aed" : "#e2e2e7", position: "relative", flexShrink: 0,
+        transition: "background 0.15s",
+      }}
+    >
+      <span style={{
+        position: "absolute", top: 2, left: checked ? 17 : 2,
+        width: 15, height: 15, borderRadius: "50%", background: "white",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.25)", transition: "left 0.15s",
+      }} />
+    </button>
+  );
+}
+
+// ── Segmented pill toggle (Transaction Type / Status) ───────────────────────
+function SegButton({ label, active, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        flex: 1, padding: "10px 0", borderRadius: 9, fontSize: 13, fontWeight: 700,
+        cursor: "pointer", border: active ? "1px solid #7c3aed" : "1px solid #e5e7eb",
+        background: active ? "#7c3aed" : "white", color: active ? "white" : "#374151",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ── Edit Category Modal ──────────────────────────────────────────────────────
+function EditCategoryModal({ category, onClose, onSave }) {
+  const [name, setName] = useState(category.name);
+  const [code, setCode] = useState(category.code);
+  const [description, setDescription] = useState(category.description);
+  const [type, setType] = useState(category.type);
+  const [status, setStatus] = useState(category.status === "Archived" ? "Active" : category.status);
+  const [fields, setFields] = useState(category.formFields || []);
+
+  const updateField = (id, patch) => {
+    setFields(prev => prev.map(f => f.id === id ? { ...f, ...patch } : f));
+  };
+  const removeField = (id) => setFields(prev => prev.filter(f => f.id !== id));
+  const addField = () => {
+    nextFieldId += 1;
+    setFields(prev => [...prev, { id: nextFieldId, name: "", fieldType: "Text Input", required: false }]);
+  };
+
+  const handleSave = () => {
+    onSave({ ...category, name, code, description, type, status, formFields: fields, fields: fields.length });
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2000,
+        display: "flex", alignItems: "flex-start", justifyContent: "center",
+        padding: "40px 20px", overflowY: "auto",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "white", borderRadius: 16, width: "100%", maxWidth: 620,
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column",
+          maxHeight: "calc(100vh - 80px)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid #eee", flexShrink: 0 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>Edit Category</h2>
+          <button
+            onClick={onClose}
+            style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f3f4f6"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            <X style={{ width: 16, height: 16 }} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "20px 24px", overflowY: "auto" }}>
+
+          {/* Name / Code */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                Category Name <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                value={name}
+                onChange={e => setName(e.target.value)}
+                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                Category Code <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                value={code}
+                onChange={e => setCode(e.target.value)}
+                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Description</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={2}
+              style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", resize: "vertical", fontFamily: "'DM Sans', sans-serif" }}
+            />
+          </div>
+
+          {/* Transaction Type / Status */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                Transaction Type <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <SegButton label="Form" active={type === "Form"} onClick={() => setType("Form")} />
+                <SegButton label="Task" active={type === "Task"} onClick={() => setType("Task")} />
+              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Status</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <SegButton label="Active" active={status === "Active"} onClick={() => setStatus("Active")} />
+                <SegButton label="Inactive" active={status === "Inactive"} onClick={() => setStatus("Inactive")} />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: "1px solid #eee", margin: "0 0 18px" }} />
+
+          {/* Form Fields */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827" }}>Form Fields</h3>
+            <button
+              onClick={addField}
+              style={{
+                display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
+                borderRadius: 8, border: "1px solid #ddd6fe", background: "#f5f3ff",
+                color: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer",
+              }}
+            >
+              <Plus style={{ width: 13, height: 13 }} /> Add Field
+            </button>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {fields.map((f, idx) => (
+              <div key={f.id} style={{
+                display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
+              }}>
+                <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
+                <span style={{
+                  width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
+                  fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                }}>
+                  {idx + 1}
+                </span>
+                <input
+                  value={f.name}
+                  onChange={e => updateField(f.id, { name: e.target.value })}
+                  placeholder="Field label"
+                  style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
+                />
+                <select
+                  value={f.fieldType}
+                  onChange={e => updateField(f.id, { fieldType: e.target.value })}
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
+                >
+                  {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
+                </select>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                  <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
+                  <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
+                </div>
+                <button
+                  onClick={() => removeField(f.id)}
+                  style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
+                  onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
+                >
+                  <X style={{ width: 14, height: 14 }} />
+                </button>
+              </div>
+            ))}
+            {fields.length === 0 && (
+              <p style={{ fontSize: 12.5, color: "#9ca3af", textAlign: "center", padding: "16px 0" }}>No fields yet — click "Add Field" to create one.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
+          <button
+            onClick={onClose}
+            style={{ padding: "9px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "white", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 9, border: "none", background: "#2563eb", color: "white", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#1d4ed8"}
+            onMouseLeave={e => e.currentTarget.style.background = "#2563eb"}
+          >
+            <Check style={{ width: 14, height: 14 }} /> Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StatCard({ label, value, valueColor, sub }) {
   return (
     <div style={{
@@ -242,6 +516,13 @@ export default function DocumentCategories() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState("Date Created");
+  const [categories, setCategories] = useState(CATEGORIES);
+  const [editingCategory, setEditingCategory] = useState(null);
+
+  const handleSaveCategory = (updated) => {
+    setCategories(prev => prev.map(c => c.id === updated.id ? updated : c));
+    setEditingCategory(null);
+  };
 
   const role = (typeof window !== "undefined" && localStorage.getItem("role")) || "admin";
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(role);
@@ -252,13 +533,13 @@ export default function DocumentCategories() {
     navigate("/login");
   };
 
-  const totalCategories = CATEGORIES.length;
-  const activeCategories = CATEGORIES.filter(c => c.status === "Active").length;
-  const archivedCategories = CATEGORIES.filter(c => c.status === "Archived").length;
+  const totalCategories = categories.length;
+  const activeCategories = categories.filter(c => c.status === "Active").length;
+  const archivedCategories = categories.filter(c => c.status === "Archived").length;
   const usedThisMonth = 113;
 
   const filtered = useMemo(() => {
-    return CATEGORIES.filter(c => {
+    return categories.filter(c => {
       const matchesStatus = statusFilter === "All" ? true : c.status === statusFilter;
       const q = search.trim().toLowerCase();
       const matchesSearch = !q
@@ -267,7 +548,7 @@ export default function DocumentCategories() {
         || c.description.toLowerCase().includes(q);
       return matchesStatus && matchesSearch;
     });
-  }, [search, statusFilter]);
+  }, [search, statusFilter, categories]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
@@ -470,7 +751,7 @@ export default function DocumentCategories() {
                       <td style={{ padding: "14px 16px" }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
                           <ActionBtn title="View"><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
-                          <ActionBtn title="Edit"><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
+                          <ActionBtn title="Edit" onClick={() => setEditingCategory(c)}><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
                           {c.status !== "Archived" && (
                             <ActionBtn title="Archive"><Archive style={{ width: 14, height: 14 }} /></ActionBtn>
                           )}
@@ -512,6 +793,14 @@ export default function DocumentCategories() {
         </div>
 
       </div>
+
+      {editingCategory && (
+        <EditCategoryModal
+          category={editingCategory}
+          onClose={() => setEditingCategory(null)}
+          onSave={handleSaveCategory}
+        />
+      )}
     </div>
   );
 }
