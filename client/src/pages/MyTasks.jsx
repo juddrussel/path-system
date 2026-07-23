@@ -104,6 +104,35 @@ function AttachCard({ name, size }) {
   );
 }
 
+function Toast({ toasts, onDismiss }) {
+  return (
+    <div style={{ position: "fixed", top: 16, right: 16, zIndex: 200, display: "flex", flexDirection: "column", gap: 8 }}>
+      {toasts.map(t => (
+        <div key={t.id} style={{
+          background: t.type === "error" ? "#fef2f2" : "white",
+          color: t.type === "error" ? "#dc2626" : "#111",
+          border: `1px solid ${t.type === "error" ? "#fecaca" : "#e5e7eb"}`,
+          borderRadius: 10, padding: "10px 14px", fontSize: 12, fontWeight: 600,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.12)", minWidth: 260, maxWidth: 340,
+          display: "flex", alignItems: "flex-start", gap: 10,
+          animation: "slideIn 0.2s ease",
+        }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>
+            {t.type === "error" ? "⚠️" : "🗓️"}
+          </span>
+          <div style={{ flex: 1 }}>
+            <div style={{ marginBottom: 1 }}>{t.title}</div>
+            {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400 }}>{t.body}</div>}
+          </div>
+          <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit" }}>
+            <Icon.Close />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function MyTasks() {
   const navigate = useNavigate();
@@ -139,6 +168,14 @@ export default function MyTasks() {
   const selectedRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const [typingUsers, setTypingUsers] = useState([]);
+  const [toasts, setToasts] = useState([]);
+
+  const pushToast = useCallback((title, body, type = "info") => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev.slice(-4), { id, title, body, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000);
+  }, []);
+  const dismissToast = useCallback(id => setToasts(prev => prev.filter(t => t.id !== id)), []);
   useEffect(() => { selectedRef.current = selected; }, [selected]);
 
   const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
@@ -358,6 +395,16 @@ export default function MyTasks() {
       setSelected(prev => prev?.id === taskId ? { ...prev, status: newStatus } : prev);
     });
 
+    // Deadline changed by admin/program chair
+    socket.on("task:deadline_changed", ({ taskId, taskTitle, newDeadline, changedBy }) => {
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, deadline: newDeadline } : t));
+      setSelected(prev => prev?.id === taskId ? { ...prev, deadline: newDeadline } : prev);
+      pushToast(
+        "Deadline updated",
+        `${changedBy || "The assigning officer"} moved the due date for "${taskTitle || "your task"}" to ${fmtDate(newDeadline)}.`
+      );
+    });
+
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       socket.disconnect();
@@ -507,12 +554,14 @@ export default function MyTasks() {
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+      <Toast toasts={toasts} onDismiss={dismissToast} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
         input, select, textarea { font-family: 'DM Sans', sans-serif; }
         input:focus, select:focus, textarea:focus { border-color: #7c3aed !important; outline: none; }
         @keyframes typingBounce { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-4px); opacity:1; } }
+        @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }

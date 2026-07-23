@@ -165,6 +165,9 @@ export default function TaskAssigned() {
   const [socketConnected, setSocketConnected] = useState(false);
   const [newSubmissions, setNewSubmissions] = useState({});   // taskId → true
   const [actionLoading,  setActionLoading]  = useState(null); // "approve"|"return"|"reassign"
+  const [editingDeadline, setEditingDeadline] = useState(false);
+  const [deadlineDraft,   setDeadlineDraft]   = useState("");
+  const [savingDeadline,  setSavingDeadline]  = useState(false);
   const [returnNote,         setReturnNote]         = useState("");
   const [showReturnBox,      setShowReturnBox]      = useState(false);
   const [returnFiles,        setReturnFiles]        = useState([]);
@@ -383,6 +386,24 @@ export default function TaskAssigned() {
       fetchTasks();
     } catch { pushToast("Error", "Could not approve task.", "error"); }
     finally   { setActionLoading(null); }
+  };
+
+  const handleUpdateDeadline = async (taskId) => {
+    if (!deadlineDraft) { pushToast("Error", "Please pick a date.", "error"); return; }
+    setSavingDeadline(true);
+    try {
+      await fetch(`${API}/api/tasks/${taskId}/deadline`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ deadline: deadlineDraft }),
+      });
+      pushToast("Deadline updated", "The faculty member has been notified of the new due date.");
+      setSelected(prev => prev ? { ...prev, deadline: deadlineDraft } : prev);
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, deadline: deadlineDraft } : t));
+      setEditingDeadline(false);
+      fetchTasks();
+    } catch { pushToast("Error", "Could not update the deadline.", "error"); }
+    finally   { setSavingDeadline(false); }
   };
 
   const handleReturn = async (taskId) => {
@@ -746,7 +767,7 @@ export default function TaskAssigned() {
                   return (
                     <div key={task.id}
                       className="task-row"
-                      onClick={() => { setSelected(task); fetchSelectedTask(task.id); setNewSubmissions(prev => { const n = { ...prev }; delete n[task.id]; return n; }); setActiveTab("info"); setShowReturnBox(false); }}
+                      onClick={() => { setSelected(task); fetchSelectedTask(task.id); setNewSubmissions(prev => { const n = { ...prev }; delete n[task.id]; return n; }); setActiveTab("info"); setShowReturnBox(false); setEditingDeadline(false); }}
                       style={{
                         padding: "12px 16px",
                         borderBottom: "1px solid #f5f5f5",
@@ -878,7 +899,43 @@ export default function TaskAssigned() {
                         </div>
                         <div>
                           <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Due Date</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDate(selected.deadline)}</div>
+                          {editingDeadline ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <input
+                                type="date"
+                                value={deadlineDraft}
+                                onChange={e => setDeadlineDraft(e.target.value)}
+                                style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #ddd", borderRadius: 6, color: "#111" }}
+                              />
+                              <button
+                                onClick={() => handleUpdateDeadline(selected.id)}
+                                disabled={savingDeadline}
+                                style={{ fontSize: 11, fontWeight: 700, color: "white", background: "#7c3aed", border: "none", borderRadius: 6, padding: "5px 10px", cursor: savingDeadline ? "not-allowed" : "pointer" }}
+                              >
+                                {savingDeadline ? "Saving…" : "Save"}
+                              </button>
+                              <button
+                                onClick={() => setEditingDeadline(false)}
+                                disabled={savingDeadline}
+                                style={{ fontSize: 11, fontWeight: 600, color: "#666", background: "transparent", border: "none", cursor: "pointer" }}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDate(selected.deadline)}</div>
+                              <button
+                                onClick={() => {
+                                  setDeadlineDraft(selected.deadline ? new Date(selected.deadline).toISOString().split("T")[0] : "");
+                                  setEditingDeadline(true);
+                                }}
+                                style={{ fontSize: 10, fontWeight: 700, color: "#7c3aed", background: "#ede9fe", border: "none", borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}
+                              >
+                                Change
+                              </button>
+                            </div>
+                          )}
                         </div>
                         <div>
                           <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Project Category</div>
