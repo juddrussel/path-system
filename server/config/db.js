@@ -1,5 +1,15 @@
 // config/db.js — mysql2 pool setup
 const mysql = require("mysql2/promise");
+const fs = require("fs");
+
+// Aiven requires SSL. If a CA cert path is provided, use it.
+// (On Render, this will be the path to your Secret File, e.g. /etc/secrets/ca.pem)
+const sslConfig = process.env.DB_CA_CERT_PATH
+  ? {
+      ca: fs.readFileSync(process.env.DB_CA_CERT_PATH),
+      rejectUnauthorized: true,
+    }
+  : undefined;
 
 const db = mysql.createPool({
   host:               process.env.DB_HOST || "localhost",
@@ -10,6 +20,7 @@ const db = mysql.createPool({
   waitForConnections: true,
   connectionLimit:    10,
   timezone:           "+00:00",
+  ssl:                sslConfig,
 });
 
 // Confirm connectivity at startup
