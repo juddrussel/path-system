@@ -138,6 +138,7 @@ function TaskAssignmentInner() {
 
   const [facultyList,    setFacultyList]    = useState([]);
   const [roleOptions,    setRoleOptions]    = useState([]);
+  const [docTypes,       setDocTypes]       = useState(["Select Type…"]);
   const [assignMode,     setAssignMode]     = useState("individual"); // "individual" | "role"
   const [selectedFacultyIds, setSelectedFacultyIds] = useState([]);
   const [selectedRole,   setSelectedRole]   = useState("");
@@ -166,7 +167,7 @@ function TaskAssignmentInner() {
   });
 
   useEffect(() => { if (!token) navigate("/login"); }, []);
-  useEffect(() => { fetchFaculty(); fetchAssignments(); fetchNextTrackingId(); fetchRoles(); }, []);
+  useEffect(() => { fetchFaculty(); fetchAssignments(); fetchNextTrackingId(); fetchRoles(); fetchDocTypes(); }, []);
   useEffect(() => {
     const onClickOutside = (e) => {
       if (facultyDropdownRef.current && !facultyDropdownRef.current.contains(e.target)) {
@@ -193,6 +194,15 @@ function TaskAssignmentInner() {
       const roles = [...new Set(users.map(u => u.role).filter(Boolean))];
       setRoleOptions(roles);
     } catch { setRoleOptions(["faculty"]); }
+  };
+
+  const fetchDocTypes = async () => {
+    try {
+      const res  = await fetch(`${API}/api/categories?status=Active`, { headers: authH });
+      const data = await res.json();
+      const names = (data.categories || []).map(c => c.name);
+      setDocTypes(["Select Type…", ...names]);
+    } catch { setDocTypes(["Select Type…"]); }
   };
 
   const fetchAssignments = async () => {
@@ -300,8 +310,6 @@ function TaskAssignmentInner() {
     .map(([name, count]) => ({ name, percent: Math.round((count/maxLoad)*100), isOver: count > 3 }))
     .sort((a,b) => b.percent - a.percent)
     .slice(0, 4);
-
-  const docTypes = ["Select Type…","Internship","Capstone Proposal","Medical Certificate","Transfer Credential","Intent to Graduate","Clearance","Enrollment","Grade Appeal","Lab Report","Other"];
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", fontFamily:"'DM Sans', sans-serif", fontSize:13, color:"#111", background:"#f4f4f8" }}>
