@@ -10,6 +10,36 @@ import {
 // ── Role-based nav visibility (matches Dashboard.jsx) ──────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
+// ── API base URL ────────────────────────────────────────────────────────────
+// Points at your Render backend. Set VITE_API_URL (Vite) or
+// REACT_APP_API_URL (CRA) in Vercel's project env vars to your Render URL,
+// e.g. https://path-backend.onrender.com — falls back to same-origin "/api"
+// if neither is set, which only works if you're proxying through Vercel.
+const API_BASE_URL =
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
+  (typeof process !== "undefined" && process.env && process.env.REACT_APP_API_URL) ||
+  "";
+
+async function apiFetch(path, options = {}) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  });
+
+  let body = null;
+  try { body = await res.json(); } catch { /* no JSON body */ }
+
+  if (!res.ok) {
+    throw new Error(body?.message || `Request failed (${res.status})`);
+  }
+  return body;
+}
+
 // ── Sidebar SVG Icons (kept identical to Dashboard.jsx) ─────────────────────
 const Icon = {
   Grid: () => (
@@ -155,93 +185,6 @@ function generateCategoryCode(name, existingCodes) {
   return candidate;
 }
 
-const CATEGORIES = [
-  {
-    id: 1,
-    name: "Faculty Task Assignment",
-    code: "FTA-004",
-    description: "Template for assigning tasks and deliverables to faculty members.",
-    type: "Document",
-    fields: 6,
-    status: "Active",
-    dateCreated: "Feb 10, 2024",
-    formFields: [
-      mkField("Task Title", "Text Input", true),
-      mkField("Assigned Faculty", "Dropdown", true),
-      mkField("Due Date", "Date", true),
-      mkField("Priority Level", "Dropdown", true),
-      mkField("Instructions", "Text Area", true),
-      mkField("Attachments", "File Upload", false),
-    ],
-  },
-  {
-    id: 2,
-    name: "Clearance Request",
-    code: "CLR-003",
-    description: "Submission form for student clearance processing.",
-    type: "Form",
-    fields: 4,
-    status: "Active",
-    dateCreated: "Feb 1, 2024",
-    formFields: [
-      mkField("Student Name", "Text Input", true),
-      mkField("Student ID", "Text Input", true),
-      mkField("Program", "Dropdown", true),
-      mkField("Remarks", "Text Area", false),
-    ],
-  },
-  {
-    id: 3,
-    name: "Completion Form",
-    code: "CPF-002",
-    description: "Form used by students to request completion of incomplete grades.",
-    type: "Form",
-    fields: 5,
-    status: "Active",
-    dateCreated: "Jan 20, 2024",
-    formFields: [
-      mkField("Student Name", "Text Input", true),
-      mkField("Course Code", "Text Input", true),
-      mkField("Reason for Incomplete", "Text Area", true),
-      mkField("Requested Completion Date", "Date", true),
-      mkField("Instructor Endorsement", "Checkbox", false),
-    ],
-  },
-  {
-    id: 4,
-    name: "Student Request Form",
-    code: "SRF-001",
-    description: "General student request form for academic-related concerns.",
-    type: "Form",
-    fields: 6,
-    status: "Active",
-    dateCreated: "Jan 15, 2024",
-    formFields: [
-      mkField("Student Name", "Text Input", true),
-      mkField("Student ID", "Text Input", true),
-      mkField("Request Type", "Dropdown", true),
-      mkField("Details", "Text Area", true),
-      mkField("Preferred Contact", "Text Input", false),
-      mkField("Supporting Document", "File Upload", false),
-    ],
-  },
-  {
-    id: 5,
-    name: "Document Endorsement",
-    code: "DEN-005",
-    description: "Endorsement form for routing documents through academic offices.",
-    type: "Form",
-    fields: 4,
-    status: "Archived",
-    dateCreated: "Nov 5, 2023",
-    formFields: [
-      mkField("Document Title", "Text Input", true),
-      mkField("Originating Office", "Text Input", true),
-      mkField("Endorsement Date", "Date", true),
-      mkField("Remarks", "Text Area", false),
-    ],
-  },
-];
 
 const TYPE_CFG = {
   Document: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe" },
@@ -959,19 +902,102 @@ export default function DocumentCategories() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState("Date Created");
-  const [categories, setCategories] = useState(CATEGORIES);
+  const [categories, setCategories] = useState([]);
+  const [stats, setStats] = useState({ total: 0, active: 0, archived: 0, usedThisMonth: 0 });
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
   const [viewingCategory, setViewingCategory] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
-  const handleSaveCategory = (updated) => {
-    setCategories(prev => prev.map(c => c.id === updated.id ? updated : c));
-    setEditingCategory(null);
+  const loadCategories = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await apiFetch("/api/categories");
+      setCategories(data.categories || []);
+      setStats(data.stats || { total: 0, active: 0, archived: 0, usedThisMonth: 0 });
+    } catch (err) {
+      console.error("Failed to load categories:", err);
+      setLoadError(err.message || "Failed to load categories.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCreateCategory = (newCategory) => {
-    setCategories(prev => [newCategory, ...prev]);
-    setShowAddModal(false);
+  useEffect(() => {
+    loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSaveCategory = async (updated) => {
+    setActionError(null);
+    try {
+      const saved = await apiFetch(`/api/categories/${updated.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          name: updated.name,
+          description: updated.description,
+          type: updated.type,
+          status: updated.status,
+          formFields: updated.formFields,
+        }),
+      });
+      setCategories(prev => prev.map(c => c.id === saved.id ? saved : c));
+      setEditingCategory(null);
+    } catch (err) {
+      console.error("Failed to save category:", err);
+      setActionError(err.message || "Failed to save category.");
+    }
+  };
+
+  const handleCreateCategory = async (newCategory) => {
+    setActionError(null);
+    try {
+      const created = await apiFetch("/api/categories", {
+        method: "POST",
+        body: JSON.stringify({
+          name: newCategory.name,
+          description: newCategory.description,
+          type: newCategory.type,
+          status: newCategory.status,
+          formFields: newCategory.formFields,
+        }),
+      });
+      setCategories(prev => [created, ...prev]);
+      setStats(prev => ({ ...prev, total: prev.total + 1, active: created.status === "Active" ? prev.active + 1 : prev.active }));
+      setShowAddModal(false);
+    } catch (err) {
+      console.error("Failed to create category:", err);
+      setActionError(err.message || "Failed to create category.");
+    }
+  };
+
+  const handleArchiveCategory = async (category) => {
+    setActionError(null);
+    try {
+      await apiFetch(`/api/categories/${category.id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "Archived" }),
+      });
+      setCategories(prev => prev.map(c => c.id === category.id ? { ...c, status: "Archived" } : c));
+    } catch (err) {
+      console.error("Failed to archive category:", err);
+      setActionError(err.message || "Failed to archive category.");
+    }
+  };
+
+  const handleDeleteCategory = async (category) => {
+    if (!window.confirm(`Delete "${category.name}"? This can't be undone.`)) return;
+    setActionError(null);
+    try {
+      await apiFetch(`/api/categories/${category.id}`, { method: "DELETE" });
+      setCategories(prev => prev.filter(c => c.id !== category.id));
+    } catch (err) {
+      console.error("Failed to delete category:", err);
+      setActionError(err.message || "Failed to delete category.");
+    }
   };
 
   const role = (typeof window !== "undefined" && localStorage.getItem("role")) || "admin";
@@ -986,7 +1012,7 @@ export default function DocumentCategories() {
   const totalCategories = categories.length;
   const activeCategories = categories.filter(c => c.status === "Active").length;
   const archivedCategories = categories.filter(c => c.status === "Archived").length;
-  const usedThisMonth = 113;
+  const usedThisMonth = stats.usedThisMonth ?? 0;
 
   const filtered = useMemo(() => {
     return categories.filter(c => {
@@ -1144,7 +1170,38 @@ export default function DocumentCategories() {
             </div>
           </div>
 
-          <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 10 }}>{filtered.length} categories found</p>
+          {actionError && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
+              borderRadius: 9, padding: "10px 14px", fontSize: 12.5, marginBottom: 12,
+            }}>
+              <span>{actionError}</span>
+              <button onClick={() => setActionError(null)} style={{ background: "transparent", border: "none", color: "#dc2626", cursor: "pointer", fontWeight: 700 }}>
+                <X style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
+          )}
+
+          <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 10 }}>
+            {loading ? "Loading categories…" : `${filtered.length} categories found`}
+          </p>
+
+          {loadError && !loading && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
+              borderRadius: 9, padding: "12px 14px", fontSize: 12.5, marginBottom: 12,
+            }}>
+              <span>Couldn't load categories: {loadError}</span>
+              <button
+                onClick={loadCategories}
+                style={{ background: "white", border: "1px solid #fecaca", color: "#dc2626", borderRadius: 7, padding: "5px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
 
           {/* Table */}
           <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
@@ -1163,7 +1220,14 @@ export default function DocumentCategories() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((c, idx) => {
+                {loading && (
+                  <tr>
+                    <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
+                      Loading categories…
+                    </td>
+                  </tr>
+                )}
+                {!loading && filtered.map((c, idx) => {
                   const tCfg = TYPE_CFG[c.type];
                   const sCfg = STATUS_CFG[c.status];
                   return (
@@ -1203,15 +1267,15 @@ export default function DocumentCategories() {
                           <ActionBtn title="View" onClick={() => setViewingCategory(c)}><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
                           <ActionBtn title="Edit" onClick={() => setEditingCategory(c)}><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
                           {c.status !== "Archived" && (
-                            <ActionBtn title="Archive"><Archive style={{ width: 14, height: 14 }} /></ActionBtn>
+                            <ActionBtn title="Archive" onClick={() => handleArchiveCategory(c)}><Archive style={{ width: 14, height: 14 }} /></ActionBtn>
                           )}
-                          <ActionBtn title="Delete" danger><Trash2 style={{ width: 14, height: 14 }} /></ActionBtn>
+                          <ActionBtn title="Delete" danger onClick={() => handleDeleteCategory(c)}><Trash2 style={{ width: 14, height: 14 }} /></ActionBtn>
                         </div>
                       </td>
                     </tr>
                   );
                 })}
-                {filtered.length === 0 && (
+                {!loading && filtered.length === 0 && (
                   <tr>
                     <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
                       No categories match your search.
