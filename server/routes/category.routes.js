@@ -116,21 +116,25 @@ function validatePayload(body) {
   return null;
 }
 
-// ─── GET /api/categories — list (with optional ?status=&q=) ─────────────────
+// ─── GET /api/categories — list (with optional ?status=&q=&type=) ───────────
 router.get("/", requireAuth, async (req, res) => {
-  const { status = "", q = "" } = req.query;
+  const { status = "", q = "", type = "" } = req.query;
   const like = `%${q}%`;
 
   try {
     const statusFilter = status && status !== "All" ? "AND status = ?" : "";
     const statusParam  = status && status !== "All" ? [status] : [];
 
+    const typeFilter = type && type !== "All" ? "AND type = ?" : "";
+    const typeParam   = type && type !== "All" ? [type] : [];
+
     const [rows] = await db.query(
       `SELECT * FROM document_categories
        WHERE (name LIKE ? OR code LIKE ? OR description LIKE ?)
        ${statusFilter}
+       ${typeFilter}
        ORDER BY created_at DESC`,
-      [like, like, like, ...statusParam]
+      [like, like, like, ...statusParam, ...typeParam]
     );
 
     const categories = await attachFields(rows);

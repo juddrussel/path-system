@@ -198,7 +198,7 @@ function TaskAssignmentInner() {
 
   const fetchDocTypes = async () => {
     try {
-      const res  = await fetch(`${API}/api/categories?status=Active`, { headers: authH });
+      const res  = await fetch(`${API}/api/categories?status=Active&type=Document`, { headers: authH });
       const data = await res.json();
       const names = (data.categories || []).map(c => c.name);
       setDocTypes(["Select Type…", ...names]);
