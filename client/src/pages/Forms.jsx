@@ -258,21 +258,22 @@ export default function Forms() {
 
   // ── Load Document Categories from the database ───────────────────────────
   // Same /api/categories endpoint DocumentCategories.jsx uses. Only "Active"
-  // categories are surfaced here — these are the categories that have
-  // actually been created/managed in the database, not a hardcoded list.
+  // categories whose Type is "Form" are surfaced here — "Document" type
+  // categories (e.g. Masterlist of Section) aren't things faculty submit
+  // as a form, so they're excluded.
   const fetchCategories = async () => {
     setCategoriesLoading(true);
     try {
       const res = await fetch(`${API}/api/categories`, { headers: authHeaders });
       if (!res.ok) return;
       const data = await res.json();
-      const activeNames = (data.categories || [])
-        .filter(c => c.status === "Active")
+      const formNames = (data.categories || [])
+        .filter(c => c.status === "Active" && c.type === "Form")
         .map(c => c.name);
-      setCategories(activeNames);
-      // Keep the submit-form category valid: default to the first active
-      // category if nothing usable is currently selected.
-      setFormData(prev => (activeNames.includes(prev.category) ? prev : { ...prev, category: activeNames[0] || "" }));
+      setCategories(formNames);
+      // If the currently selected category no longer exists / isn't a Form
+      // type, reset the field back to the placeholder rather than guessing.
+      setFormData(prev => (formNames.includes(prev.category) ? prev : { ...prev, category: "" }));
     } catch (err) {
       console.error("Failed to load categories:", err);
     } finally {
@@ -330,6 +331,7 @@ export default function Forms() {
   const handleSubmitForm = async () => {
     if (!uploadedFile) { alert("Please upload a file first."); return; }
     if (!formData.student_id || !formData.full_name) { alert("Please fill in all required fields."); return; }
+    if (!formData.category) { alert("Please select a Document Type."); return; }
     setSubmitting(true);
     try {
       const fd = new FormData();
@@ -344,7 +346,7 @@ export default function Forms() {
       if (res.ok) {
         setSubmitSuccess(true);
         setUploadedFile(null);
-        setFormData({ student_id: "", full_name: "", category: categories[0] || "", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
+        setFormData({ student_id: "", full_name: "", category: "", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
         fetchForms();
         setTimeout(() => setSubmitSuccess(false), 4000);
         // Socket.IO will notify the program chair automatically via the backend emit
@@ -633,13 +635,14 @@ export default function Forms() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                     <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Document Category</label>
+                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Document Type</label>
                       <select value={formData.category} onChange={e => setFormData(p => ({ ...p, category: e.target.value }))}
                         disabled={categoriesLoading || categories.length === 0}
-                        style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", background: "white" }}>
-                        {categoriesLoading && <option value="">Loading categories…</option>}
-                        {!categoriesLoading && categories.length === 0 && <option value="">No active categories found</option>}
-                        {categories.map(c => <option key={c}>{c}</option>)}
+                        style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: formData.category ? "#111" : "#9ca3af", background: "white" }}>
+                        <option value="" disabled>
+                          {categoriesLoading ? "Loading…" : categories.length === 0 ? "No form types found" : "Select Type..."}
+                        </option>
+                        {categories.map(c => <option key={c} style={{ color: "#111" }}>{c}</option>)}
                       </select>
                     </div>
                     <div>
