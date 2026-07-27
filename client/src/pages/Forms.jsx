@@ -624,7 +624,7 @@ export default function Forms() {
 
           {/* ── FACULTY: SUBMIT TAB (Submit New Form wizard) ── */}
           {activeTab === "submit" && !isProgramChair && (
-            <div style={{ maxWidth: 1040, display: "grid", gridTemplateColumns: "1fr 300px", gap: 24, alignItems: "start" }}>
+            <div style={{ width: "100%", display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 24, alignItems: "start" }}>
             <div>
               <div style={{ marginBottom: 20 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Submit New Form</h2>
