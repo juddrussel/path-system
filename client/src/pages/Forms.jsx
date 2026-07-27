@@ -421,7 +421,6 @@ export default function Forms() {
     const missingRequired = selectedFields.filter(f => f.required && !isFieldComplete(f));
     if (missingRequired.length > 0) { alert(`Please complete: ${missingRequired.map(f => f.name).join(", ")}`); return; }
     if (Object.values(wizardDocs).some(d => d.status === "uploading")) { alert("Please wait for all documents to finish uploading."); return; }
-    if (!wizardInfo.student_number || !wizardInfo.full_name) { alert("Please fill in all required fields."); return; }
 
     setWizardSubmitting(true);
     try {
@@ -448,7 +447,7 @@ export default function Forms() {
   };
 
   const handleWizardCancel = () => {
-    if (Object.keys(wizardDocs).length > 0 || wizardFormType || wizardInfo.student_number || wizardInfo.full_name) {
+    if (Object.keys(wizardDocs).length > 0 || Object.keys(wizardFieldValues).length > 0 || wizardFormType || wizardInfo.remarks) {
       if (!window.confirm("Discard this form? Your uploaded documents and entered details will be lost.")) return;
     }
     resetWizard();
@@ -512,7 +511,7 @@ export default function Forms() {
   } else if (wizardUploadingCount > 0) {
     wizardStatusLabel = "Uploading";
     wizardStatusColor = "#d97706";
-  } else if (!wizardFormType || !wizardInfo.student_number || !wizardInfo.full_name) {
+  } else if (!wizardFormType) {
     wizardStatusLabel = "Incomplete";
     wizardStatusColor = "#dc2626";
   } else {
@@ -857,45 +856,13 @@ export default function Forms() {
                   <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</div>
                   <div style={{ flex: 1 }}>
                     <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Additional Information</h3>
-                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Provide personal and academic details to process your request.</p>
+                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Provide any extra context for the program chair.</p>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Student Number</label>
-                          <input type="text" value={wizardInfo.student_number} onChange={e => setWizardInfo(p => ({ ...p, student_number: e.target.value }))}
-                            placeholder="2023-44012"
-                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
-                        </div>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Full Name</label>
-                          <input type="text" value={wizardInfo.full_name} onChange={e => setWizardInfo(p => ({ ...p, full_name: e.target.value }))}
-                            placeholder="Marcus V. Aurelius"
-                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
-                        </div>
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Semester</label>
-                          <select value={wizardInfo.semester} onChange={e => setWizardInfo(p => ({ ...p, semester: e.target.value }))}
-                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", background: "white" }}>
-                            {["1st Semester", "2nd Semester", "Summer"].map(s => <option key={s}>{s}</option>)}
-                          </select>
-                        </div>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Academic Year</label>
-                          <select value={wizardInfo.academic_year} onChange={e => setWizardInfo(p => ({ ...p, academic_year: e.target.value }))}
-                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", background: "white" }}>
-                            {ACADEMIC_YEARS.map(y => <option key={y}>{y}</option>)}
-                          </select>
-                        </div>
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Remarks / Special Notes</label>
-                        <textarea value={wizardInfo.remarks} onChange={e => setWizardInfo(p => ({ ...p, remarks: e.target.value }))} rows={3}
-                          placeholder="Enter any additional context for the program chair..."
-                          style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", resize: "vertical", fontFamily: "'DM Sans',sans-serif" }} />
-                      </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Remarks / Special Notes</label>
+                      <textarea value={wizardInfo.remarks} onChange={e => setWizardInfo(p => ({ ...p, remarks: e.target.value }))} rows={3}
+                        placeholder="Enter any additional context for the program chair..."
+                        style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", resize: "vertical", fontFamily: "'DM Sans',sans-serif" }} />
                     </div>
                   </div>
                 </div>
