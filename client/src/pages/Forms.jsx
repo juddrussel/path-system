@@ -369,6 +369,34 @@ export default function Forms() {
     setWizardDocs(prev => { const next = { ...prev }; delete next[slotId]; return next; });
   };
 
+  const buildWizardFormData = (status) => {
+    const fd = new FormData();
+    fd.append("category", wizardFormType);
+    fd.append("student_id", wizardInfo.student_number);
+    fd.append("full_name", wizardInfo.full_name);
+    fd.append("semester", wizardInfo.semester);
+    fd.append("academic_year", wizardInfo.academic_year);
+    fd.append("remarks", wizardInfo.remarks);
+    fd.append("filing_date", new Date().toISOString().split("T")[0]);
+    if (status) fd.append("status", status);
+    DOCUMENT_SLOTS.forEach(slot => {
+      const doc = wizardDocs[slot.id];
+      if (doc?.file) fd.append(slot.id, doc.file);
+    });
+    // Keep a primary "file" field for backward compatibility with the
+    // existing /api/forms/submit and /api/forms/draft endpoints, which
+    // currently expect one file.
+    const primaryDoc = wizardDocs.transcript?.file || Object.values(wizardDocs)[0]?.file;
+    if (primaryDoc) fd.append("file", primaryDoc);
+    return fd;
+  };
+
+  const resetWizard = () => {
+    setWizardFormType("");
+    setWizardDocs({});
+    setWizardInfo({ student_number: "", full_name: "", semester: "1st Semester", academic_year: ACADEMIC_YEARS[1], remarks: "" });
+  };
+
   const handleWizardSubmit = async () => {
     if (!wizardFormType) { alert("Please select a Form Type."); return; }
     const missingRequired = DOCUMENT_SLOTS.filter(s => s.required && !wizardDocs[s.id]?.file);
@@ -378,29 +406,10 @@ export default function Forms() {
 
     setWizardSubmitting(true);
     try {
-      const fd = new FormData();
-      fd.append("category", wizardFormType);
-      fd.append("student_id", wizardInfo.student_number);
-      fd.append("full_name", wizardInfo.full_name);
-      fd.append("semester", wizardInfo.semester);
-      fd.append("academic_year", wizardInfo.academic_year);
-      fd.append("remarks", wizardInfo.remarks);
-      fd.append("filing_date", new Date().toISOString().split("T")[0]);
-      DOCUMENT_SLOTS.forEach(slot => {
-        const doc = wizardDocs[slot.id];
-        if (doc?.file) fd.append(slot.id, doc.file);
-      });
-      // Keep a primary "file" field for backward compatibility with the
-      // existing /api/forms/submit endpoint, which currently expects one file.
-      const primaryDoc = wizardDocs.transcript?.file || Object.values(wizardDocs)[0]?.file;
-      if (primaryDoc) fd.append("file", primaryDoc);
-
-      const res = await fetch(`${API}/api/forms/submit`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
+      const res = await fetch(`${API}/api/forms/submit`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: buildWizardFormData() });
       if (res.ok) {
         setWizardSuccess(true);
-        setWizardFormType("");
-        setWizardDocs({});
-        setWizardInfo({ student_number: "", full_name: "", semester: "1st Semester", academic_year: ACADEMIC_YEARS[1], remarks: "" });
+        resetWizard();
         fetchForms();
         setTimeout(() => setWizardSuccess(false), 4000);
       } else {
@@ -408,6 +417,22 @@ export default function Forms() {
         alert(d.message || "Submission failed.");
       }
     } catch { alert("Server error. Please try again."); } finally { setWizardSubmitting(false); }
+  };
+
+  const handleWizardSaveDraft = async () => {
+    setWizardSubmitting(true);
+    try {
+      await fetch(`${API}/api/forms/draft`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: buildWizardFormData("Draft") });
+      addToast("Draft saved successfully.", "success");
+      fetchForms();
+    } catch { alert("Could not save draft."); } finally { setWizardSubmitting(false); }
+  };
+
+  const handleWizardCancel = () => {
+    if (Object.keys(wizardDocs).length > 0 || wizardFormType || wizardInfo.student_number || wizardInfo.full_name) {
+      if (!window.confirm("Discard this form? Your uploaded documents and entered details will be lost.")) return;
+    }
+    resetWizard();
   };
 
   const handleReview = (form) => { setSelectedForm(form); setReviewNote(""); setReviewModal(true); };
@@ -455,6 +480,26 @@ export default function Forms() {
 
   const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
   const canViewAdminNav = ["admin", "program_chair"].includes(user.role);
+
+  // ── Submission Summary (derived from wizard state) ────────────────────────
+  const wizardRequiredCount = DOCUMENT_SLOTS.filter(s => s.required).length;
+  const wizardUploadedCount = Object.values(wizardDocs).filter(d => d.status === "done").length;
+  const wizardUploadingCount = Object.values(wizardDocs).filter(d => d.status === "uploading").length;
+  const wizardMissingCount = DOCUMENT_SLOTS.filter(s => s.required && !wizardDocs[s.id]?.file).length;
+  let wizardStatusLabel, wizardStatusColor;
+  if (wizardMissingCount > 0) {
+    wizardStatusLabel = wizardUploadingCount > 0 ? "Incomplete / Uploading" : "Incomplete";
+    wizardStatusColor = "#dc2626";
+  } else if (wizardUploadingCount > 0) {
+    wizardStatusLabel = "Uploading";
+    wizardStatusColor = "#d97706";
+  } else if (!wizardFormType || !wizardInfo.student_number || !wizardInfo.full_name) {
+    wizardStatusLabel = "Incomplete";
+    wizardStatusColor = "#dc2626";
+  } else {
+    wizardStatusLabel = "Ready to Submit";
+    wizardStatusColor = "#059669";
+  }
 
   // ── RENDER ──────────────────────────────────────────────────────────────────
   return (
@@ -579,7 +624,8 @@ export default function Forms() {
 
           {/* ── FACULTY: SUBMIT TAB (Submit New Form wizard) ── */}
           {activeTab === "submit" && !isProgramChair && (
-            <div style={{ maxWidth: 760 }}>
+            <div style={{ maxWidth: 1040, display: "grid", gridTemplateColumns: "1fr 300px", gap: 24, alignItems: "start" }}>
+            <div>
               <div style={{ marginBottom: 20 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Submit New Form</h2>
                 <p style={{ fontSize: 12, color: "#888", margin: 0 }}>Select a form type and upload the required documents to begin your request.</p>
@@ -741,10 +787,63 @@ export default function Forms() {
                 </div>
               </div>
 
-              <button onClick={handleWizardSubmit} disabled={wizardSubmitting}
-                style={{ width: "100%", padding: "12px", background: wizardSubmitting ? "#a78bfa" : "#7c3aed", color: "white", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: wizardSubmitting ? "not-allowed" : "pointer" }}>
-                {wizardSubmitting ? "Submitting..." : "Submit New Form"}
-              </button>
+            </div>
+
+            {/* ── RIGHT: SUBMISSION SUMMARY ── */}
+            <div style={{ position: "sticky", top: 20 }}>
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="15" height="15"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M10 2v4h4" /></svg>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111", margin: 0 }}>Submission Summary</h3>
+                </div>
+                <p style={{ fontSize: 11, color: "#888", margin: "0 0 16px" }}>Step 3: Review details</p>
+
+                <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 12px", marginBottom: 16 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, color: "#9ca3af", textTransform: "uppercase", marginBottom: 4 }}>Form Type</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: wizardFormType ? "#7c3aed" : "#9ca3af" }}>{wizardFormType || "Not selected"}</div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                  {[
+                    ["Required Docs", wizardRequiredCount],
+                    ["Uploaded", wizardUploadedCount],
+                    ["Uploading", wizardUploadingCount],
+                    ["Missing", wizardMissingCount],
+                  ].map(([label, val]) => (
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                      <span style={{ color: "#6b7280" }}>{label}</span>
+                      <span style={{ fontWeight: 700, color: label === "Missing" && val > 0 ? "#dc2626" : "#111" }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 12, marginBottom: 16 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, color: "#9ca3af", textTransform: "uppercase", marginBottom: 4 }}>Status</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: wizardStatusColor }}>{wizardStatusLabel}</div>
+                </div>
+
+                <button onClick={handleWizardSubmit} disabled={wizardSubmitting}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px", background: wizardSubmitting ? "#a78bfa" : "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: wizardSubmitting ? "not-allowed" : "pointer", marginBottom: 8 }}>
+                  {wizardSubmitting ? "Submitting..." : "Submit Form"} {!wizardSubmitting && "→"}
+                </button>
+                <button onClick={handleWizardSaveDraft} disabled={wizardSubmitting}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "9px", background: "white", color: "#374151", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: wizardSubmitting ? "not-allowed" : "pointer", marginBottom: 8 }}>
+                  Save as Draft
+                </button>
+                <button onClick={handleWizardCancel}
+                  style={{ width: "100%", padding: "8px", background: "transparent", color: "#9ca3af", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                  Cancel
+                </button>
+              </div>
+
+              <div style={{ marginTop: 14, background: "#faf5ff", border: "1px solid #ede9fe", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
+                <Icon.Info />
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#5b21b6", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Need Help?</div>
+                  <div style={{ fontSize: 11, color: "#7c3aed", cursor: "pointer" }}>Contact Registrar Support</div>
+                </div>
+              </div>
+            </div>
             </div>
           )}
 
