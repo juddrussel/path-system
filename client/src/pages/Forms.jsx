@@ -149,13 +149,34 @@ export default function Forms() {
   const [activeTab, setActiveTab] = useState(isProgramChair ? "review" : "submit");
   const [search, setSearch] = useState("");
 
-  // Faculty submit state
-  const [dragOver, setDragOver] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [formData, setFormData] = useState({ student_id: "", full_name: "", category: "", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
-  const [submitting, setSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const fileInputRef = useRef();
+  // ── Submit New Form wizard (Step 1: type, Step 2: documents, Step 3: info) ──
+  const DOCUMENT_SLOTS = [
+    { id: "transcript", label: "Official Transcript of Records (Soft Copy)", required: true },
+    { id: "grades_sheet", label: "Certificate of Completion / Grades Sheet", required: true },
+    { id: "clearance", label: "Clearance from Treasury & Library", required: true },
+    { id: "birth_certificate", label: "Birth Certificate (PSA Copy)", required: false },
+  ];
+  const ACADEMIC_YEARS = (() => {
+    const startYear = new Date().getFullYear();
+    return [-1, 0, 1].map(offset => {
+      const y = startYear + offset;
+      return `A.Y. ${y} - ${y + 1}`;
+    });
+  })();
+
+  const [wizardFormType, setWizardFormType] = useState("");
+  const [wizardDocs, setWizardDocs] = useState({}); // { [slotId]: { file, progress, status: 'uploading'|'done'|'error' } }
+  const [wizardDragOver, setWizardDragOver] = useState(null); // slot id currently being dragged over
+  const [wizardInfo, setWizardInfo] = useState({
+    student_number: "",
+    full_name: "",
+    semester: "1st Semester",
+    academic_year: ACADEMIC_YEARS[1],
+    remarks: "",
+  });
+  const [wizardSubmitting, setWizardSubmitting] = useState(false);
+  const [wizardSuccess, setWizardSuccess] = useState(false);
+  const wizardFileRefs = useRef({});
 
   // Repository / review state
   const [forms, setForms] = useState([]);
@@ -315,60 +336,78 @@ export default function Forms() {
     if (isProgramChair && activeTab === "review") fetchAllForms();
   }, [isProgramChair, activeTab, allFormsPage, allFormsStatusFilter, search]);
 
-  const handleFile = (file) => {
+  // ── Wizard: per-slot document upload ──────────────────────────────────────
+  const simulateSlotUpload = (slotId) => {
+    let progress = 0;
+    const tick = () => {
+      progress += Math.random() * 25 + 10;
+      if (progress >= 100) {
+        setWizardDocs(prev => ({ ...prev, [slotId]: { ...prev[slotId], progress: 100, status: "done" } }));
+        return;
+      }
+      setWizardDocs(prev => ({ ...prev, [slotId]: { ...prev[slotId], progress: Math.round(progress) } }));
+      setTimeout(tick, 200 + Math.random() * 200);
+    };
+    setTimeout(tick, 150);
+  };
+
+  const handleWizardFile = (slotId, file) => {
     if (!file) return;
     const allowed = ["application/pdf", "image/jpeg", "image/png"];
     if (!allowed.includes(file.type)) { alert("Only PDF, JPG, or PNG files are allowed."); return; }
-    if (file.size > 10 * 1024 * 1024) { alert("File exceeds 10MB limit."); return; }
-    setUploadedFile(file);
+    if (file.size > 5 * 1024 * 1024) { alert("File exceeds 5MB limit."); return; }
+    setWizardDocs(prev => ({ ...prev, [slotId]: { file, progress: 0, status: "uploading" } }));
+    simulateSlotUpload(slotId);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault(); setDragOver(false);
-    handleFile(e.dataTransfer.files[0]);
+  const handleWizardDrop = (slotId, e) => {
+    e.preventDefault(); setWizardDragOver(null);
+    handleWizardFile(slotId, e.dataTransfer.files[0]);
   };
 
-  const handleSubmitForm = async () => {
-    if (!uploadedFile) { alert("Please upload a file first."); return; }
-    if (!formData.student_id || !formData.full_name) { alert("Please fill in all required fields."); return; }
-    if (!formData.category) { alert("Please select a Document Type."); return; }
-    setSubmitting(true);
+  const removeWizardDoc = (slotId) => {
+    setWizardDocs(prev => { const next = { ...prev }; delete next[slotId]; return next; });
+  };
+
+  const handleWizardSubmit = async () => {
+    if (!wizardFormType) { alert("Please select a Form Type."); return; }
+    const missingRequired = DOCUMENT_SLOTS.filter(s => s.required && !wizardDocs[s.id]?.file);
+    if (missingRequired.length > 0) { alert(`Please upload: ${missingRequired.map(s => s.label).join(", ")}`); return; }
+    if (Object.values(wizardDocs).some(d => d.status === "uploading")) { alert("Please wait for all documents to finish uploading."); return; }
+    if (!wizardInfo.student_number || !wizardInfo.full_name) { alert("Please fill in all required fields."); return; }
+
+    setWizardSubmitting(true);
     try {
       const fd = new FormData();
-      fd.append("file", uploadedFile);
-      fd.append("student_id", formData.student_id);
-      fd.append("full_name", formData.full_name);
-      fd.append("category", formData.category);
-      fd.append("filing_date", formData.filing_date);
-      fd.append("college_year", formData.college_year);
-      fd.append("section", formData.section);
+      fd.append("category", wizardFormType);
+      fd.append("student_id", wizardInfo.student_number);
+      fd.append("full_name", wizardInfo.full_name);
+      fd.append("semester", wizardInfo.semester);
+      fd.append("academic_year", wizardInfo.academic_year);
+      fd.append("remarks", wizardInfo.remarks);
+      fd.append("filing_date", new Date().toISOString().split("T")[0]);
+      DOCUMENT_SLOTS.forEach(slot => {
+        const doc = wizardDocs[slot.id];
+        if (doc?.file) fd.append(slot.id, doc.file);
+      });
+      // Keep a primary "file" field for backward compatibility with the
+      // existing /api/forms/submit endpoint, which currently expects one file.
+      const primaryDoc = wizardDocs.transcript?.file || Object.values(wizardDocs)[0]?.file;
+      if (primaryDoc) fd.append("file", primaryDoc);
+
       const res = await fetch(`${API}/api/forms/submit`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
       if (res.ok) {
-        setSubmitSuccess(true);
-        setUploadedFile(null);
-        setFormData({ student_id: "", full_name: "", category: "", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
+        setWizardSuccess(true);
+        setWizardFormType("");
+        setWizardDocs({});
+        setWizardInfo({ student_number: "", full_name: "", semester: "1st Semester", academic_year: ACADEMIC_YEARS[1], remarks: "" });
         fetchForms();
-        setTimeout(() => setSubmitSuccess(false), 4000);
-        // Socket.IO will notify the program chair automatically via the backend emit
-      } else { const d = await res.json(); alert(d.message || "Submission failed."); }
-    } catch { alert("Server error. Please try again."); } finally { setSubmitting(false); }
-  };
-
-  const handleSaveDraft = async () => {
-    try {
-      const fd = new FormData();
-      if (uploadedFile) fd.append("file", uploadedFile);
-      fd.append("student_id", formData.student_id);
-      fd.append("full_name", formData.full_name);
-      fd.append("category", formData.category);
-      fd.append("filing_date", formData.filing_date);
-      fd.append("college_year", formData.college_year);
-      fd.append("section", formData.section);
-      fd.append("status", "Draft");
-      await fetch(`${API}/api/forms/draft`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
-      alert("Draft saved successfully.");
-      fetchForms();
-    } catch { alert("Could not save draft."); }
+        setTimeout(() => setWizardSuccess(false), 4000);
+      } else {
+        const d = await res.json();
+        alert(d.message || "Submission failed.");
+      }
+    } catch { alert("Server error. Please try again."); } finally { setWizardSubmitting(false); }
   };
 
   const handleReview = (form) => { setSelectedForm(form); setReviewNote(""); setReviewModal(true); };
@@ -538,129 +577,174 @@ export default function Forms() {
               icon={<svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M5 5l6 6M11 5l-6 6" strokeLinecap="round" /></svg>} bg="#fee2e2" />
           </div>
 
-          {/* ── FACULTY: SUBMIT TAB ── */}
+          {/* ── FACULTY: SUBMIT TAB (Submit New Form wizard) ── */}
           {activeTab === "submit" && !isProgramChair && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-                  <div>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Document Upload</h3>
-                    <p style={{ fontSize: 12, color: "#888", margin: 0 }}>Upload your student forms in PDF or High-Res JPG format.</p>
-                  </div>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="18" height="18"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M10 2v4h4" /></svg>
-                </div>
+            <div style={{ maxWidth: 760 }}>
+              <div style={{ marginBottom: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Submit New Form</h2>
+                <p style={{ fontSize: 12, color: "#888", margin: 0 }}>Select a form type and upload the required documents to begin your request.</p>
+              </div>
 
-                {/* Drop zone */}
-                <div
-                  onDrop={handleDrop}
-                  onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                  onDragLeave={() => setDragOver(false)}
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{ border: `2px dashed ${dragOver ? "#7c3aed" : "#e5e7eb"}`, borderRadius: 12, padding: "36px 20px", textAlign: "center", cursor: "pointer", background: dragOver ? "#faf5ff" : "#fafafa", transition: "all 0.2s", marginTop: 16 }}>
-                  <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }} onChange={e => handleFile(e.target.files[0])} />
-                  {uploadedFile ? (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                      <Icon.File />
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "#7c3aed", margin: 0 }}>{uploadedFile.name}</p>
-                      <p style={{ fontSize: 11, color: "#888", margin: 0 }}>{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                      <button onClick={e => { e.stopPropagation(); setUploadedFile(null); }} style={{ fontSize: 11, color: "#dc2626", background: "none", border: "none", cursor: "pointer", marginTop: 4 }}>Remove file</button>
+              {wizardSuccess && (
+                <div style={{ marginBottom: 20, background: "#d1fae5", border: "1px solid #6ee7b7", borderRadius: 8, padding: "10px 14px", fontSize: 12, fontWeight: 700, color: "#065f46", display: "flex", alignItems: "center", gap: 8 }}>
+                  <Icon.Check /> Form submitted! The program chair has been notified in real time.
+                </div>
+              )}
+
+              {/* ── STEP 1: FORM TYPE SELECTION ── */}
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24, marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>1</div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Form Type Selection</h3>
+                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Choose the specific form you wish to file from the list below.</p>
+
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 6 }}>Form Type</label>
+                    <select
+                      value={wizardFormType}
+                      onChange={e => setWizardFormType(e.target.value)}
+                      disabled={categoriesLoading || categories.length === 0}
+                      style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, color: wizardFormType ? "#111" : "#9ca3af", background: "white" }}>
+                      <option value="" disabled>
+                        {categoriesLoading ? "Loading…" : categories.length === 0 ? "No form types found" : "Select a form type..."}
+                      </option>
+                      {categories.map(c => <option key={c} style={{ color: "#111" }}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── STEP 2: REQUIRED DOCUMENTS ── */}
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24, marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>2</div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Required Documents</h3>
+                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 18px" }}>Ensure all mandatory files are uploaded in the correct format.</p>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {DOCUMENT_SLOTS.map(slot => {
+                        const doc = wizardDocs[slot.id];
+                        const isDragOver = wizardDragOver === slot.id;
+                        return (
+                          <div key={slot.id} style={{ border: `1px solid ${isDragOver ? "#7c3aed" : "#e5e7eb"}`, borderRadius: 10, padding: "12px 14px", background: isDragOver ? "#faf5ff" : "#fafafa" }}
+                            onDragOver={e => { e.preventDefault(); setWizardDragOver(slot.id); }}
+                            onDragLeave={() => setWizardDragOver(null)}
+                            onDrop={e => handleWizardDrop(slot.id, e)}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+                              <div style={{ minWidth: 200 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{slot.label}</span>
+                                  <span style={{
+                                    fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20, textTransform: "uppercase",
+                                    background: slot.required ? "#ede9fe" : "#f3f4f6", color: slot.required ? "#5b21b6" : "#6b7280",
+                                  }}>{slot.required ? "Required" : "Optional"}</span>
+                                </div>
+                                <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>PDF, JPG, or PNG (Max 5MB)</div>
+                              </div>
+
+                              <input ref={el => (wizardFileRefs.current[slot.id] = el)} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }}
+                                onChange={e => handleWizardFile(slot.id, e.target.files[0])} />
+
+                              {doc ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 180, justifyContent: "flex-end" }}>
+                                  <div style={{ flex: 1, minWidth: 100 }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#888", marginBottom: 3 }}>
+                                      <span>{doc.status === "done" ? "Upload complete" : "Uploading..."}</span>
+                                      <span>{doc.progress}%</span>
+                                    </div>
+                                    <div style={{ height: 5, background: "#e5e7eb", borderRadius: 20, overflow: "hidden" }}>
+                                      <div style={{ height: "100%", width: `${doc.progress}%`, background: "#7c3aed", borderRadius: 20, transition: "width 0.2s" }} />
+                                    </div>
+                                  </div>
+                                  {doc.status === "done" && <Icon.Check />}
+                                  <button onClick={() => removeWizardDoc(slot.id)}
+                                    style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
+                                    Browse
+                                  </button>
+                                </div>
+                              ) : (
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                  <span style={{ fontSize: 11, color: "#9ca3af" }}>Click to upload or drag &amp; drop</span>
+                                  <button onClick={() => wizardFileRefs.current[slot.id]?.click()}
+                                    style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
+                                    Browse
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            {doc?.file && (
+                              <div style={{ fontSize: 10, color: "#7c3aed", marginTop: 6, fontWeight: 600 }}>{doc.file.name}</div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  ) : (
-                    <>
-                      <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
-                        <Icon.Upload />
+
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 14, background: "#faf5ff", borderRadius: 8, padding: "10px 12px" }}>
+                      <Icon.Tip />
+                      <p style={{ fontSize: 11, color: "#6b7280", margin: 0, lineHeight: 1.6 }}>
+                        Multiple files can be selected by holding <strong>Ctrl</strong> or <strong>Cmd</strong>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── STEP 3: ADDITIONAL INFORMATION ── */}
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24, marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Additional Information</h3>
+                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Provide personal and academic details to process your request.</p>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Student Number</label>
+                          <input type="text" value={wizardInfo.student_number} onChange={e => setWizardInfo(p => ({ ...p, student_number: e.target.value }))}
+                            placeholder="2023-44012"
+                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Full Name</label>
+                          <input type="text" value={wizardInfo.full_name} onChange={e => setWizardInfo(p => ({ ...p, full_name: e.target.value }))}
+                            placeholder="Marcus V. Aurelius"
+                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
+                        </div>
                       </div>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "#374151", margin: "0 0 4px" }}>Drag and drop files here</p>
-                      <p style={{ fontSize: 11, color: "#aaa", margin: "0 0 14px" }}>Max file size: 10MB. Accepted formats: .pdf, .jpg, .png</p>
-                      <button style={{ background: "#7c3aed", color: "white", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Select Files</button>
-                    </>
-                  )}
-                </div>
-
-                {/* Pro Tip */}
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 14, background: "#faf5ff", borderRadius: 8, padding: "10px 12px" }}>
-                  <Icon.Tip />
-                  <p style={{ fontSize: 11, color: "#6b7280", margin: 0, lineHeight: 1.6 }}>
-                    <strong>Pro Tip:</strong> Ensure documents are properly oriented and scanned at 300dpi for faster OCR processing and approval.
-                  </p>
-                </div>
-
-                {submitSuccess && (
-                  <div style={{ marginTop: 12, background: "#d1fae5", border: "1px solid #6ee7b7", borderRadius: 8, padding: "10px 14px", fontSize: 12, fontWeight: 700, color: "#065f46", display: "flex", alignItems: "center", gap: 8 }}>
-                    <Icon.Check /> Form submitted! The program chair has been notified in real time.
-                  </div>
-                )}
-              </div>
-
-              {/* Form Details */}
-              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24 }}>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Form Details</h3>
-                <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Complete the metadata for proper document indexing.</p>
-
-                <div style={{ background: "#ede9fe", borderRadius: 8, padding: "8px 12px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="13" height="13"><rect x="1" y="3" width="14" height="11" rx="1" /><path d="M5 3V2a1 1 0 011-1h4a1 1 0 011 1v1" /></svg>
-                  <div>
-                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, color: "#7c3aed", textTransform: "uppercase" }}>Department Context</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#5b21b6" }}>Bachelor of Science in Information Systems (BSIS)</div>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Student ID Number</label>
-                    <input type="text" value={formData.student_id} onChange={e => setFormData(p => ({ ...p, student_id: e.target.value }))}
-                      placeholder="e.g. 2021-12345"
-                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Full Legal Name</label>
-                    <input type="text" value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))}
-                      placeholder="Last Name, First Name M.I."
-                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>College Year</label>
-                      <select value={formData.college_year} onChange={e => setFormData(p => ({ ...p, college_year: e.target.value }))}
-                        style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", background: "white" }}>
-                        {["1st Year", "2nd Year", "3rd Year", "4th Year"].map(y => <option key={y}>{y}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Section</label>
-                      <input type="text" value={formData.section} onChange={e => setFormData(p => ({ ...p, section: e.target.value }))}
-                        placeholder="e.g. BSIS 3-A"
-                        style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Semester</label>
+                          <select value={wizardInfo.semester} onChange={e => setWizardInfo(p => ({ ...p, semester: e.target.value }))}
+                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", background: "white" }}>
+                            {["1st Semester", "2nd Semester", "Summer"].map(s => <option key={s}>{s}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Academic Year</label>
+                          <select value={wizardInfo.academic_year} onChange={e => setWizardInfo(p => ({ ...p, academic_year: e.target.value }))}
+                            style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", background: "white" }}>
+                            {ACADEMIC_YEARS.map(y => <option key={y}>{y}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Remarks / Special Notes</label>
+                        <textarea value={wizardInfo.remarks} onChange={e => setWizardInfo(p => ({ ...p, remarks: e.target.value }))} rows={3}
+                          placeholder="Enter any additional context for the program chair..."
+                          style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", resize: "vertical", fontFamily: "'DM Sans',sans-serif" }} />
+                      </div>
                     </div>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Document Type</label>
-                      <select value={formData.category} onChange={e => setFormData(p => ({ ...p, category: e.target.value }))}
-                        disabled={categoriesLoading || categories.length === 0}
-                        style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: formData.category ? "#111" : "#9ca3af", background: "white" }}>
-                        <option value="" disabled>
-                          {categoriesLoading ? "Loading…" : categories.length === 0 ? "No form types found" : "Select Type..."}
-                        </option>
-                        {categories.map(c => <option key={c} style={{ color: "#111" }}>{c}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Filing Date</label>
-                      <input type="date" value={formData.filing_date} onChange={e => setFormData(p => ({ ...p, filing_date: e.target.value }))}
-                        style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111" }} />
-                    </div>
-                  </div>
-                  <button onClick={handleSubmitForm} disabled={submitting}
-                    style={{ width: "100%", padding: "11px", background: submitting ? "#a78bfa" : "#7c3aed", color: "white", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: submitting ? "not-allowed" : "pointer" }}>
-                    {submitting ? "Submitting..." : "Process & Submit Form"}
-                  </button>
-                  <button onClick={handleSaveDraft}
-                    style={{ width: "100%", padding: "9px", background: "transparent", color: "#555", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                    Save as Draft
-                  </button>
                 </div>
               </div>
+
+              <button onClick={handleWizardSubmit} disabled={wizardSubmitting}
+                style={{ width: "100%", padding: "12px", background: wizardSubmitting ? "#a78bfa" : "#7c3aed", color: "white", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: wizardSubmitting ? "not-allowed" : "pointer" }}>
+                {wizardSubmitting ? "Submitting..." : "Submit New Form"}
+              </button>
             </div>
           )}
 
