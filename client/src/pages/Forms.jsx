@@ -152,7 +152,7 @@ export default function Forms() {
   // Faculty submit state
   const [dragOver, setDragOver] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [formData, setFormData] = useState({ student_id: "", full_name: "", category: "Internship", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
+  const [formData, setFormData] = useState({ student_id: "", full_name: "", category: "", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const fileInputRef = useRef();
@@ -182,6 +182,12 @@ export default function Forms() {
   // Program chair: add form template
   const [addModal, setAddModal] = useState(false);
   const [templateData, setTemplateData] = useState({ name: "", description: "", category: "", required_fields: "" });
+
+  // Document categories — pulled from the database (same /api/categories
+  // source as DocumentCategories.jsx) so the dropdown only ever lists
+  // categories that actually exist and are Active, instead of a hardcoded list.
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   // ── Real-time: pending badge count & toast queue ──────────────────────────
   const [pendingBadge, setPendingBadge] = useState(0);
@@ -250,6 +256,32 @@ export default function Forms() {
     }
   }, [activeTab, isProgramChair]);
 
+  // ── Load Document Categories from the database ───────────────────────────
+  // Same /api/categories endpoint DocumentCategories.jsx uses. Only "Active"
+  // categories are surfaced here — these are the categories that have
+  // actually been created/managed in the database, not a hardcoded list.
+  const fetchCategories = async () => {
+    setCategoriesLoading(true);
+    try {
+      const res = await fetch(`${API}/api/categories`, { headers: authHeaders });
+      if (!res.ok) return;
+      const data = await res.json();
+      const activeNames = (data.categories || [])
+        .filter(c => c.status === "Active")
+        .map(c => c.name);
+      setCategories(activeNames);
+      // Keep the submit-form category valid: default to the first active
+      // category if nothing usable is currently selected.
+      setFormData(prev => (activeNames.includes(prev.category) ? prev : { ...prev, category: activeNames[0] || "" }));
+    } catch (err) {
+      console.error("Failed to load categories:", err);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchCategories(); }, []);
+
   const fetchForms = async () => {
     setLoading(true);
     try {
@@ -312,7 +344,7 @@ export default function Forms() {
       if (res.ok) {
         setSubmitSuccess(true);
         setUploadedFile(null);
-        setFormData({ student_id: "", full_name: "", category: "Internship", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
+        setFormData({ student_id: "", full_name: "", category: categories[0] || "", filing_date: new Date().toISOString().split("T")[0], college_year: "1st Year", section: "" });
         fetchForms();
         setTimeout(() => setSubmitSuccess(false), 4000);
         // Socket.IO will notify the program chair automatically via the backend emit
@@ -382,8 +414,6 @@ export default function Forms() {
 
   const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
   const canViewAdminNav = ["admin", "program_chair"].includes(user.role);
-
-  const categories = ["Internship", "Capstone Proposal", "Medical Certificate", "Transfer Credential", "Intent to Graduate", "Clearance", "Enrollment", "Grade Appeal"];
 
   // ── RENDER ──────────────────────────────────────────────────────────────────
   return (
@@ -605,7 +635,10 @@ export default function Forms() {
                     <div>
                       <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 5 }}>Document Category</label>
                       <select value={formData.category} onChange={e => setFormData(p => ({ ...p, category: e.target.value }))}
+                        disabled={categoriesLoading || categories.length === 0}
                         style={{ width: "100%", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111", background: "white" }}>
+                        {categoriesLoading && <option value="">Loading categories…</option>}
+                        {!categoriesLoading && categories.length === 0 && <option value="">No active categories found</option>}
                         {categories.map(c => <option key={c}>{c}</option>)}
                       </select>
                     </div>
@@ -819,6 +852,13 @@ export default function Forms() {
                   <Icon.Plus /> Add Form Type
                 </button>
               </div>
+
+              {categoriesLoading && (
+                <p style={{ fontSize: 12, color: "#9ca3af" }}>Loading categories…</p>
+              )}
+              {!categoriesLoading && categories.length === 0 && (
+                <p style={{ fontSize: 12, color: "#9ca3af" }}>No active document categories found. Create one in Document Categories first.</p>
+              )}
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
                 {categories.map((cat) => (
@@ -1139,7 +1179,7 @@ export default function Forms() {
               <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6 }}>Category *</label>
               <select value={templateData.category} onChange={e => setTemplateData(p => ({ ...p, category: e.target.value }))}
                 style={{ width: "100%", padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, color: "#111", background: "white" }}>
-                <option value="">Select category...</option>
+                <option value="">{categoriesLoading ? "Loading categories..." : "Select category..."}</option>
                 {categories.map(c => <option key={c}>{c}</option>)}
                 <option value="Other">Other</option>
               </select>
