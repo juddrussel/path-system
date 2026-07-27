@@ -149,13 +149,6 @@ export default function Forms() {
   const [activeTab, setActiveTab] = useState(isProgramChair ? "review" : "submit");
   const [search, setSearch] = useState("");
 
-  // ── Submit New Form wizard (Step 1: type, Step 2: documents, Step 3: info) ──
-  const DOCUMENT_SLOTS = [
-    { id: "transcript", label: "Official Transcript of Records (Soft Copy)", required: true },
-    { id: "grades_sheet", label: "Certificate of Completion / Grades Sheet", required: true },
-    { id: "clearance", label: "Clearance from Treasury & Library", required: true },
-    { id: "birth_certificate", label: "Birth Certificate (PSA Copy)", required: false },
-  ];
   const ACADEMIC_YEARS = (() => {
     const startYear = new Date().getFullYear();
     return [-1, 0, 1].map(offset => {
@@ -165,7 +158,8 @@ export default function Forms() {
   })();
 
   const [wizardFormType, setWizardFormType] = useState("");
-  const [wizardDocs, setWizardDocs] = useState({}); // { [slotId]: { file, progress, status: 'uploading'|'done'|'error' } }
+  const [wizardDocs, setWizardDocs] = useState({}); // { [fieldId]: { file, progress, status: 'uploading'|'done'|'error' } } — for "File Upload" type fields
+  const [wizardFieldValues, setWizardFieldValues] = useState({}); // { [fieldId]: value } — for Text/Text Area/Date/Number/Dropdown/Checkbox fields
   const [wizardDragOver, setWizardDragOver] = useState(null); // slot id currently being dragged over
   const [wizardInfo, setWizardInfo] = useState({
     student_number: "",
@@ -215,6 +209,18 @@ export default function Forms() {
   const [toasts, setToasts] = useState([]);
 
   const authHeaders = { Authorization: `Bearer ${token}` };
+
+  // ── Dynamic Step 2 fields — driven by the selected form type's template ──
+  // (mirrors the "Form Fields" defined per category in Document Categories)
+  const selectedCategory = categories.find(c => c.name === wizardFormType) || null;
+  const selectedFields = selectedCategory?.formFields || [];
+  const isFileField = (f) => f.fieldType === "File Upload";
+  const isFieldComplete = (f) => {
+    if (isFileField(f)) return wizardDocs[f.id]?.status === "done";
+    const v = wizardFieldValues[f.id];
+    if (f.fieldType === "Checkbox") return v === true;
+    return v !== undefined && v !== null && String(v).trim() !== "";
+  };
 
   // ── Toast helpers ─────────────────────────────────────────────────────────
   const addToast = (message, type = "info") => {
@@ -288,13 +294,15 @@ export default function Forms() {
       const res = await fetch(`${API}/api/categories`, { headers: authHeaders });
       if (!res.ok) return;
       const data = await res.json();
-      const formNames = (data.categories || [])
-        .filter(c => c.status === "Active" && c.type === "Form")
-        .map(c => c.name);
-      setCategories(formNames);
-      // If the currently selected category no longer exists / isn't a Form
+      // Keep the full category objects (not just names) — each Form-type
+      // category carries a `formFields` array (name, fieldType, required)
+      // defined in Document Categories, which drives Step 2 of the wizard.
+      const formCategories = (data.categories || [])
+        .filter(c => c.status === "Active" && c.type === "Form");
+      setCategories(formCategories);
+      // If the currently selected form type no longer exists / isn't a Form
       // type, reset the field back to the placeholder rather than guessing.
-      setFormData(prev => (formNames.includes(prev.category) ? prev : { ...prev, category: "" }));
+      setWizardFormType(prev => (formCategories.some(c => c.name === prev) ? prev : ""));
     } catch (err) {
       console.error("Failed to load categories:", err);
     } finally {
@@ -351,22 +359,26 @@ export default function Forms() {
     setTimeout(tick, 150);
   };
 
-  const handleWizardFile = (slotId, file) => {
+  const handleWizardFile = (fieldId, file) => {
     if (!file) return;
     const allowed = ["application/pdf", "image/jpeg", "image/png"];
     if (!allowed.includes(file.type)) { alert("Only PDF, JPG, or PNG files are allowed."); return; }
     if (file.size > 5 * 1024 * 1024) { alert("File exceeds 5MB limit."); return; }
-    setWizardDocs(prev => ({ ...prev, [slotId]: { file, progress: 0, status: "uploading" } }));
-    simulateSlotUpload(slotId);
+    setWizardDocs(prev => ({ ...prev, [fieldId]: { file, progress: 0, status: "uploading" } }));
+    simulateSlotUpload(fieldId);
   };
 
-  const handleWizardDrop = (slotId, e) => {
+  const handleWizardDrop = (fieldId, e) => {
     e.preventDefault(); setWizardDragOver(null);
-    handleWizardFile(slotId, e.dataTransfer.files[0]);
+    handleWizardFile(fieldId, e.dataTransfer.files[0]);
   };
 
-  const removeWizardDoc = (slotId) => {
-    setWizardDocs(prev => { const next = { ...prev }; delete next[slotId]; return next; });
+  const removeWizardDoc = (fieldId) => {
+    setWizardDocs(prev => { const next = { ...prev }; delete next[fieldId]; return next; });
+  };
+
+  const handleWizardFieldChange = (fieldId, value) => {
+    setWizardFieldValues(prev => ({ ...prev, [fieldId]: value }));
   };
 
   const buildWizardFormData = (status) => {
@@ -379,14 +391,20 @@ export default function Forms() {
     fd.append("remarks", wizardInfo.remarks);
     fd.append("filing_date", new Date().toISOString().split("T")[0]);
     if (status) fd.append("status", status);
-    DOCUMENT_SLOTS.forEach(slot => {
-      const doc = wizardDocs[slot.id];
-      if (doc?.file) fd.append(slot.id, doc.file);
+    selectedFields.forEach(f => {
+      const key = `field_${f.id}`;
+      if (isFileField(f)) {
+        const doc = wizardDocs[f.id];
+        if (doc?.file) fd.append(key, doc.file);
+      } else {
+        const value = wizardFieldValues[f.id];
+        if (value !== undefined && value !== null && value !== "") fd.append(key, value);
+      }
     });
     // Keep a primary "file" field for backward compatibility with the
     // existing /api/forms/submit and /api/forms/draft endpoints, which
     // currently expect one file.
-    const primaryDoc = wizardDocs.transcript?.file || Object.values(wizardDocs)[0]?.file;
+    const primaryDoc = Object.values(wizardDocs)[0]?.file;
     if (primaryDoc) fd.append("file", primaryDoc);
     return fd;
   };
@@ -394,13 +412,14 @@ export default function Forms() {
   const resetWizard = () => {
     setWizardFormType("");
     setWizardDocs({});
+    setWizardFieldValues({});
     setWizardInfo({ student_number: "", full_name: "", semester: "1st Semester", academic_year: ACADEMIC_YEARS[1], remarks: "" });
   };
 
   const handleWizardSubmit = async () => {
     if (!wizardFormType) { alert("Please select a Form Type."); return; }
-    const missingRequired = DOCUMENT_SLOTS.filter(s => s.required && !wizardDocs[s.id]?.file);
-    if (missingRequired.length > 0) { alert(`Please upload: ${missingRequired.map(s => s.label).join(", ")}`); return; }
+    const missingRequired = selectedFields.filter(f => f.required && !isFieldComplete(f));
+    if (missingRequired.length > 0) { alert(`Please complete: ${missingRequired.map(f => f.name).join(", ")}`); return; }
     if (Object.values(wizardDocs).some(d => d.status === "uploading")) { alert("Please wait for all documents to finish uploading."); return; }
     if (!wizardInfo.student_number || !wizardInfo.full_name) { alert("Please fill in all required fields."); return; }
 
@@ -482,10 +501,10 @@ export default function Forms() {
   const canViewAdminNav = ["admin", "program_chair"].includes(user.role);
 
   // ── Submission Summary (derived from wizard state) ────────────────────────
-  const wizardRequiredCount = DOCUMENT_SLOTS.filter(s => s.required).length;
-  const wizardUploadedCount = Object.values(wizardDocs).filter(d => d.status === "done").length;
+  const wizardRequiredCount = selectedFields.filter(f => f.required).length;
+  const wizardUploadedCount = selectedFields.filter(f => f.required && isFieldComplete(f)).length;
   const wizardUploadingCount = Object.values(wizardDocs).filter(d => d.status === "uploading").length;
-  const wizardMissingCount = DOCUMENT_SLOTS.filter(s => s.required && !wizardDocs[s.id]?.file).length;
+  const wizardMissingCount = selectedFields.filter(f => f.required && !isFieldComplete(f)).length;
   let wizardStatusLabel, wizardStatusColor;
   if (wizardMissingCount > 0) {
     wizardStatusLabel = wizardUploadingCount > 0 ? "Incomplete / Uploading" : "Incomplete";
@@ -648,89 +667,184 @@ export default function Forms() {
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 6 }}>Form Type</label>
                     <select
                       value={wizardFormType}
-                      onChange={e => setWizardFormType(e.target.value)}
+                      onChange={e => {
+                        setWizardFormType(e.target.value);
+                        // Switching form types swaps the whole field set, so
+                        // clear out any values/files entered for the previous type.
+                        setWizardDocs({});
+                        setWizardFieldValues({});
+                      }}
                       disabled={categoriesLoading || categories.length === 0}
                       style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, color: wizardFormType ? "#111" : "#9ca3af", background: "white" }}>
                       <option value="" disabled>
                         {categoriesLoading ? "Loading…" : categories.length === 0 ? "No form types found" : "Select a form type..."}
                       </option>
-                      {categories.map(c => <option key={c} style={{ color: "#111" }}>{c}</option>)}
+                      {categories.map(c => <option key={c.id} value={c.name} style={{ color: "#111" }}>{c.name}</option>)}
                     </select>
+                    {selectedCategory?.description && (
+                      <p style={{ fontSize: 11, color: "#9ca3af", margin: "8px 0 0" }}>{selectedCategory.description}</p>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* ── STEP 2: REQUIRED DOCUMENTS ── */}
+              {/* ── STEP 2: FORM FIELDS (dynamic — driven by the selected template) ── */}
               <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24, marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                   <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>2</div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Required Documents</h3>
-                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 18px" }}>Ensure all mandatory files are uploaded in the correct format.</p>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Form Fields</h3>
+                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 18px" }}>
+                      {selectedCategory ? "Fill in the fields required for this form type." : "Select a form type in Step 1 to load its required fields."}
+                    </p>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      {DOCUMENT_SLOTS.map(slot => {
-                        const doc = wizardDocs[slot.id];
-                        const isDragOver = wizardDragOver === slot.id;
-                        return (
-                          <div key={slot.id} style={{ border: `1px solid ${isDragOver ? "#7c3aed" : "#e5e7eb"}`, borderRadius: 10, padding: "12px 14px", background: isDragOver ? "#faf5ff" : "#fafafa" }}
-                            onDragOver={e => { e.preventDefault(); setWizardDragOver(slot.id); }}
-                            onDragLeave={() => setWizardDragOver(null)}
-                            onDrop={e => handleWizardDrop(slot.id, e)}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
-                              <div style={{ minWidth: 200 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{slot.label}</span>
-                                  <span style={{
-                                    fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20, textTransform: "uppercase",
-                                    background: slot.required ? "#ede9fe" : "#f3f4f6", color: slot.required ? "#5b21b6" : "#6b7280",
-                                  }}>{slot.required ? "Required" : "Optional"}</span>
-                                </div>
-                                <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>PDF, JPG, or PNG (Max 5MB)</div>
-                              </div>
+                    {!selectedCategory && (
+                      <div style={{ padding: "24px 18px", borderRadius: 10, background: "#fafafa", border: "1px dashed #e5e7eb", textAlign: "center" }}>
+                        <p style={{ fontSize: 12.5, color: "#9ca3af" }}>No form type selected yet.</p>
+                      </div>
+                    )}
 
-                              <input ref={el => (wizardFileRefs.current[slot.id] = el)} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }}
-                                onChange={e => handleWizardFile(slot.id, e.target.files[0])} />
+                    {selectedCategory && selectedFields.length === 0 && (
+                      <div style={{ padding: "24px 18px", borderRadius: 10, background: "#fafafa", border: "1px dashed #e5e7eb", textAlign: "center" }}>
+                        <p style={{ fontSize: 12.5, color: "#9ca3af" }}>This form type has no fields defined yet. Add some in Document Categories.</p>
+                      </div>
+                    )}
 
-                              {doc ? (
-                                <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 180, justifyContent: "flex-end" }}>
-                                  <div style={{ flex: 1, minWidth: 100 }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#888", marginBottom: 3 }}>
-                                      <span>{doc.status === "done" ? "Upload complete" : "Uploading..."}</span>
-                                      <span>{doc.progress}%</span>
-                                    </div>
-                                    <div style={{ height: 5, background: "#e5e7eb", borderRadius: 20, overflow: "hidden" }}>
-                                      <div style={{ height: "100%", width: `${doc.progress}%`, background: "#7c3aed", borderRadius: 20, transition: "width 0.2s" }} />
-                                    </div>
+                    {selectedCategory && selectedFields.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {selectedFields.map((f, idx) => {
+                          const isFile = isFileField(f);
+                          const isTextArea = f.fieldType === "Text Area";
+                          const doc = isFile ? wizardDocs[f.id] : null;
+                          const isDragOver = wizardDragOver === f.id;
+                          const val = wizardFieldValues[f.id] ?? "";
+                          const controlStyle = { padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12.5, color: "#111", background: "white" };
+                          const hint = {
+                            "File Upload": "PDF, JPG, or PNG (Max 5MB)",
+                            "Text Input": "Short text answer",
+                            "Text Area": "Long-form text answer",
+                            "Date": "Select a date",
+                            "Number": "Numeric value",
+                            "Dropdown": "Choose from the options",
+                            "Checkbox": "Check to confirm",
+                          }[f.fieldType] || f.fieldType;
+
+                          return (
+                            <div key={f.id}
+                              style={{ border: `1px solid ${isDragOver ? "#7c3aed" : "#e5e7eb"}`, borderRadius: 10, padding: "12px 14px", background: isDragOver ? "#faf5ff" : "#fafafa" }}
+                              onDragOver={isFile ? (e => { e.preventDefault(); setWizardDragOver(f.id); }) : undefined}
+                              onDragLeave={isFile ? (() => setWizardDragOver(null)) : undefined}
+                              onDrop={isFile ? (e => handleWizardDrop(f.id, e)) : undefined}>
+                              <div style={{ display: "flex", flexDirection: isTextArea ? "column" : "row", justifyContent: "space-between", alignItems: isTextArea ? "stretch" : "flex-start", gap: isTextArea ? 8 : 12, flexWrap: "wrap" }}>
+                                <div style={{ minWidth: 200 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <span style={{
+                                      width: 18, height: 18, borderRadius: 5, background: "#e5e7eb", color: "#6b7280",
+                                      fontSize: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                                    }}>{idx + 1}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{f.name}</span>
+                                    <span style={{
+                                      fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20, textTransform: "uppercase",
+                                      background: f.required ? "#ede9fe" : "#f3f4f6", color: f.required ? "#5b21b6" : "#6b7280",
+                                    }}>{f.required ? "Required" : "Optional"}</span>
                                   </div>
-                                  {doc.status === "done" && <Icon.Check />}
-                                  <button onClick={() => removeWizardDoc(slot.id)}
-                                    style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
-                                    Browse
-                                  </button>
+                                  <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2, marginLeft: 26 }}>{hint}</div>
                                 </div>
-                              ) : (
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <span style={{ fontSize: 11, color: "#9ca3af" }}>Click to upload or drag &amp; drop</span>
-                                  <button onClick={() => wizardFileRefs.current[slot.id]?.click()}
-                                    style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
-                                    Browse
-                                  </button>
-                                </div>
+
+                                {/* ── File Upload ── */}
+                                {isFile && (
+                                  <>
+                                    <input ref={el => (wizardFileRefs.current[f.id] = el)} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }}
+                                      onChange={e => handleWizardFile(f.id, e.target.files[0])} />
+                                    {doc ? (
+                                      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 180, justifyContent: "flex-end" }}>
+                                        <div style={{ flex: 1, minWidth: 100 }}>
+                                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#888", marginBottom: 3 }}>
+                                            <span>{doc.status === "done" ? "Upload complete" : "Uploading..."}</span>
+                                            <span>{doc.progress}%</span>
+                                          </div>
+                                          <div style={{ height: 5, background: "#e5e7eb", borderRadius: 20, overflow: "hidden" }}>
+                                            <div style={{ height: "100%", width: `${doc.progress}%`, background: "#7c3aed", borderRadius: 20, transition: "width 0.2s" }} />
+                                          </div>
+                                        </div>
+                                        {doc.status === "done" && <Icon.Check />}
+                                        <button onClick={() => removeWizardDoc(f.id)}
+                                          style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
+                                          Browse
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                        <span style={{ fontSize: 11, color: "#9ca3af" }}>Click to upload or drag &amp; drop</span>
+                                        <button onClick={() => wizardFileRefs.current[f.id]?.click()}
+                                          style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
+                                          Browse
+                                        </button>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+
+                                {/* ── Text Input ── */}
+                                {f.fieldType === "Text Input" && (
+                                  <input type="text" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+                                    placeholder={`Enter ${f.name.toLowerCase()}`} style={{ ...controlStyle, width: 220 }} />
+                                )}
+
+                                {/* ── Number ── */}
+                                {f.fieldType === "Number" && (
+                                  <input type="number" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+                                    placeholder="0" style={{ ...controlStyle, width: 140 }} />
+                                )}
+
+                                {/* ── Date ── */}
+                                {f.fieldType === "Date" && (
+                                  <input type="date" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+                                    style={{ ...controlStyle, width: 160 }} />
+                                )}
+
+                                {/* ── Dropdown (falls back to free text if the template has no options configured) ── */}
+                                {f.fieldType === "Dropdown" && (
+                                  Array.isArray(f.options) && f.options.length > 0 ? (
+                                    <select value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)} style={{ ...controlStyle, width: 180 }}>
+                                      <option value="" disabled>Select…</option>
+                                      {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                                    </select>
+                                  ) : (
+                                    <input type="text" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+                                      placeholder="Enter value" style={{ ...controlStyle, width: 220 }} />
+                                  )
+                                )}
+
+                                {/* ── Checkbox ── */}
+                                {f.fieldType === "Checkbox" && (
+                                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
+                                    <input type="checkbox" checked={val === true} onChange={e => handleWizardFieldChange(f.id, e.target.checked)}
+                                      style={{ width: 15, height: 15, accentColor: "#7c3aed" }} />
+                                    Confirm
+                                  </label>
+                                )}
+
+                                {/* ── Text Area (full width, stacked below the label) ── */}
+                                {isTextArea && (
+                                  <textarea value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)} rows={3}
+                                    placeholder={`Enter ${f.name.toLowerCase()}`}
+                                    style={{ ...controlStyle, width: "100%", resize: "vertical", fontFamily: "'DM Sans',sans-serif" }} />
+                                )}
+                              </div>
+                              {doc?.file && (
+                                <div style={{ fontSize: 10, color: "#7c3aed", marginTop: 6, fontWeight: 600, marginLeft: 26 }}>{doc.file.name}</div>
                               )}
                             </div>
-                            {doc?.file && (
-                              <div style={{ fontSize: 10, color: "#7c3aed", marginTop: 6, fontWeight: 600 }}>{doc.file.name}</div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                          );
+                        })}
+                      </div>
+                    )}
 
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 14, background: "#faf5ff", borderRadius: 8, padding: "10px 12px" }}>
                       <Icon.Tip />
                       <p style={{ fontSize: 11, color: "#6b7280", margin: 0, lineHeight: 1.6 }}>
-                        Multiple files can be selected by holding <strong>Ctrl</strong> or <strong>Cmd</strong>.
+                        These fields are pulled from the <strong>{selectedCategory ? selectedCategory.name : "selected"}</strong> template in Document Categories — edit them there to change what's asked for here.
                       </p>
                     </div>
                   </div>
@@ -805,8 +919,8 @@ export default function Forms() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
                   {[
-                    ["Required Docs", wizardRequiredCount],
-                    ["Uploaded", wizardUploadedCount],
+                    ["Required Fields", wizardRequiredCount],
+                    ["Completed", wizardUploadedCount],
                     ["Uploading", wizardUploadingCount],
                     ["Missing", wizardMissingCount],
                   ].map(([label, val]) => (
@@ -1048,14 +1162,17 @@ export default function Forms() {
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
                 {categories.map((cat) => (
-                  <div key={cat} style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: "16px 18px", position: "relative" }}>
+                  <div key={cat.id} style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: "16px 18px", position: "relative" }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
                       <Icon.Forms />
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 4 }}>{cat}</div>
-                    <div style={{ fontSize: 11, color: "#888" }}>Standard submission form</div>
-                    <div style={{ marginTop: 12, display: "flex", gap: 6 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 4 }}>{cat.name}</div>
+                    <div style={{ fontSize: 11, color: "#888" }}>{cat.description || "Standard submission form"}</div>
+                    <div style={{ marginTop: 12, display: "flex", gap: 6, alignItems: "center" }}>
                       <span style={{ background: "#d1fae5", color: "#065f46", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>Active</span>
+                      <span style={{ background: "#f3f4f6", color: "#6b7280", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>
+                        {(cat.formFields || []).length} field{(cat.formFields || []).length === 1 ? "" : "s"}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -1366,7 +1483,7 @@ export default function Forms() {
               <select value={templateData.category} onChange={e => setTemplateData(p => ({ ...p, category: e.target.value }))}
                 style={{ width: "100%", padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, color: "#111", background: "white" }}>
                 <option value="">{categoriesLoading ? "Loading categories..." : "Select category..."}</option>
-                {categories.map(c => <option key={c}>{c}</option>)}
+                {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                 <option value="Other">Other</option>
               </select>
             </div>
