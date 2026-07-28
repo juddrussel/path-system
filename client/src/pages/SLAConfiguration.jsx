@@ -241,6 +241,9 @@ export default function SLAConfiguration() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [documentTypes, setDocumentTypes] = useState([]);
+  const [loadingDocTypes, setLoadingDocTypes] = useState(true);
+  const [docTypesError, setDocTypesError] = useState("");
 
   const set = (k, v) => setRuleForm(f => ({ ...f, [k]: v }));
   const setCreate = (k, v) => setCreateForm(f => ({ ...f, [k]: v }));
@@ -321,6 +324,29 @@ export default function SLAConfiguration() {
   }, []);
 
   useEffect(() => { loadAll(); }, [loadAll]);
+
+  // Pull the list of existing document/form categories for the "Document Type" dropdown
+  const loadDocumentTypes = useCallback(async () => {
+    setLoadingDocTypes(true);
+    setDocTypesError("");
+    try {
+      const data = await apiFetch("/categories");
+      const list = Array.isArray(data) ? data : (data?.categories || []);
+      const names = Array.from(new Set(
+        list
+          .filter(c => c.status !== "Archived")
+          .map(c => c.name)
+          .filter(Boolean)
+      )).sort((a, b) => a.localeCompare(b));
+      setDocumentTypes(names);
+    } catch (err) {
+      setDocTypesError(err.message || "Failed to load document types.");
+    } finally {
+      setLoadingDocTypes(false);
+    }
+  }, []);
+
+  useEffect(() => { loadDocumentTypes(); }, [loadDocumentTypes]);
 
   function toFormShape(r) {
     return {
@@ -776,12 +802,29 @@ export default function SLAConfiguration() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
-                <input
+                <select
                   value={createForm.docType}
                   onChange={e => setCreate("docType", e.target.value)}
-                  placeholder="e.g. Leave of Absence Request"
-                  style={inpStyle}
-                />
+                  disabled={loadingDocTypes || documentTypes.length === 0}
+                  style={{ ...selStyle, color: createForm.docType ? "#111827" : "#9ca3af" }}
+                >
+                  <option value="" disabled hidden>
+                    {loadingDocTypes ? "Loading document types…" : "Select a document type"}
+                  </option>
+                  {documentTypes.map(dt => (
+                    <option key={dt} value={dt}>{dt}</option>
+                  ))}
+                </select>
+                {docTypesError && (
+                  <p style={{ fontSize: 10.5, color: "#dc2626", marginTop: 5 }}>
+                    Couldn't load document types: {docTypesError}
+                  </p>
+                )}
+                {!loadingDocTypes && !docTypesError && documentTypes.length === 0 && (
+                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 5 }}>
+                    No active document types found. Add one in Document Categories first.
+                  </p>
+                )}
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
