@@ -197,6 +197,16 @@ function StatMini({ icon, iconBg, iconColor, label, value }) {
   );
 }
 
+function fileKind(name = "") {
+  const ext = (name.split(".").pop() || "").toLowerCase();
+  if (ext === "pdf") return { label:"PDF", bg:"#fee2e2", color:"#dc2626" };
+  if (["doc","docx"].includes(ext)) return { label:"DOC", bg:"#dbeafe", color:"#2563eb" };
+  if (["xls","xlsx","csv"].includes(ext)) return { label:"XLS", bg:"#d1fae5", color:"#059669" };
+  if (["ppt","pptx"].includes(ext)) return { label:"PPT", bg:"#ffedd5", color:"#ea580c" };
+  if (["jpg","jpeg","png","gif","webp","heic"].includes(ext)) return { label:"IMG", bg:"#fce7f3", color:"#db2777" };
+  return { label: ext ? ext.slice(0,4).toUpperCase() : "FILE", bg:"#ede9fe", color:"#7c3aed" };
+}
+
 function timeAgo(iso) {
   if (!iso) return null;
   const ts = new Date(iso).getTime();
@@ -232,6 +242,7 @@ function TaskAssignmentInner() {
   const [submitting,     setSubmitting]     = useState(false);
   const [successMsg,     setSuccessMsg]     = useState(false);
   const [attachments,    setAttachments]    = useState([]);
+  const [dragOver,       setDragOver]       = useState(false);
   const attachRef = useRef();
   const [lastTrackingId,    setLastTrackingId]    = useState("");
   const [previewTrackingId, setPreviewTrackingId] = useState("Loading…");
@@ -299,7 +310,11 @@ function TaskAssignmentInner() {
 
   const handleAttach = (files) => {
     const arr = Array.from(files).filter(f => f.size <= 10*1024*1024);
-    const entries = arr.map(file => ({ id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`, file, progress:0, status:"uploading" }));
+    const entries = arr.map(file => ({
+      id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+      file, progress:0, status:"uploading",
+      previewUrl: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+    }));
     setAttachments(prev => [...prev, ...entries]);
 
     entries.forEach(entry => {
@@ -691,55 +706,90 @@ function TaskAssignmentInner() {
                 <SectionLabel icon={<Icon.Clip />}>Attachments &amp; Reference Files</SectionLabel>
                 <div style={{ marginBottom:18 }}>
                   <div
-                    onDragOver={e=>e.preventDefault()}
-                    onDrop={e=>{ e.preventDefault(); handleAttach(e.dataTransfer.files); }}
+                    onDragOver={e=>{ e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={()=>setDragOver(false)}
+                    onDrop={e=>{ e.preventDefault(); setDragOver(false); handleAttach(e.dataTransfer.files); }}
                     onClick={()=>attachRef.current?.click()}
-                    style={{ border:"1.5px dashed #ddd8ec", borderRadius:12, padding:"22px", textAlign:"center", cursor:"pointer", background:"#fbfaff", transition:"border-color 0.2s, background 0.2s" }}
-                    onMouseEnter={e=>{ e.currentTarget.style.borderColor="#7c3aed"; e.currentTarget.style.background="#faf5ff"; }}
-                    onMouseLeave={e=>{ e.currentTarget.style.borderColor="#ddd8ec"; e.currentTarget.style.background="#fbfaff"; }}>
+                    style={{ position:"relative", overflow:"hidden", border: dragOver ? "1.5px solid #7c3aed" : "1.5px dashed #ddd0f7", borderRadius:14,
+                      padding:"26px 20px", textAlign:"center", cursor:"pointer",
+                      background: dragOver ? "linear-gradient(160deg,#f3ebff,#ede4fd)" : "linear-gradient(160deg,#faf8ff 0%,#f5f0fd 100%)",
+                      transform: dragOver ? "scale(1.01)" : "scale(1)",
+                      transition:"all 0.18s ease" }}>
+                    {/* soft decorative blobs */}
+                    <div style={{ position:"absolute", top:-30, right:-20, width:90, height:90, borderRadius:"50%", background:"radial-gradient(circle,rgba(124,58,237,0.10),transparent 70%)" }} />
+                    <div style={{ position:"absolute", bottom:-24, left:-16, width:70, height:70, borderRadius:"50%", background:"radial-gradient(circle,rgba(168,85,247,0.10),transparent 70%)" }} />
+
                     <input ref={attachRef} type="file" multiple style={{ display:"none" }} onChange={e=>handleAttach(e.target.files)} />
-                    <div style={{ width:36, height:36, borderRadius:"50%", background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
-                      <Icon.Clip />
+                    <div style={{ position:"relative", width:44, height:44, borderRadius:"50%", background:"linear-gradient(135deg,#7c3aed,#a855f7)", boxShadow:"0 6px 16px rgba(124,58,237,0.3)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px" }}>
+                      <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="white" strokeWidth="1.6"><path d="M13 7l-5.5 5.5a3.5 3.5 0 01-4.95-4.95l5.5-5.5a2 2 0 012.83 2.83L5.38 10.4a.5.5 0 01-.71-.71L10 4.5" strokeLinecap="round"/></svg>
                     </div>
-                    <p style={{ fontSize:12.5, color:"#555", margin:"0 0 2px", fontWeight:600 }}>Drag and drop files here</p>
-                    <p style={{ fontSize:10.5, color:"#aaa", margin:0 }}>or click to browse — PDF, JPG, PNG (max 10MB each)</p>
+                    <p style={{ position:"relative", fontSize:13, color:"#3f2d63", margin:"0 0 3px", fontWeight:700 }}>Drag and drop files here</p>
+                    <p style={{ position:"relative", fontSize:10.5, color:"#9a8fc2", margin:"0 0 12px" }}>or click to browse your computer</p>
+                    <div style={{ position:"relative", display:"flex", justifyContent:"center", gap:6, flexWrap:"wrap" }}>
+                      {["PDF","JPG","PNG"].map(fmt => (
+                        <span key={fmt} style={{ fontSize:9.5, fontWeight:800, color:"#7c3aed", background:"rgba(124,58,237,0.09)", border:"1px solid rgba(124,58,237,0.18)", borderRadius:20, padding:"2.5px 9px" }}>{fmt}</span>
+                      ))}
+                      <span style={{ fontSize:9.5, fontWeight:600, color:"#9a8fc2", padding:"2.5px 2px" }}>· max 10MB each</span>
+                    </div>
                   </div>
+
                   {attachments.length > 0 && (
-                    <div style={{ marginTop:10, display:"flex", flexDirection:"column", gap:6 }}>
-                      {attachments.map((a,i) => {
-                        const uploading = a.status === "uploading";
-                        const pct = Math.round(a.progress);
-                        return (
-                          <div key={a.id} style={{ display:"flex", alignItems:"center", gap:9, background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:9, padding:"7px 10px" }}>
-                            <span style={{ width:26, height:26, borderRadius:6, background: uploading ? "#ede9fe" : "#e7f9f1", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                              {uploading
-                                ? <svg viewBox="0 0 16 16" width="13" height="13" style={{ animation:"spin 0.8s linear infinite" }}>
-                                    <circle cx="8" cy="8" r="6" fill="none" stroke="#ddd6f7" strokeWidth="2.5" />
-                                    <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" />
-                                  </svg>
-                                : <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="#0a9558" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>
-                              }
-                            </span>
-                            <div style={{ flex:1, minWidth:0 }}>
-                              <div style={{ fontSize:12, fontWeight:600, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.file.name}</div>
-                              {uploading ? (
-                                <div style={{ display:"flex", alignItems:"center", gap:7, marginTop:3 }}>
-                                  <div style={{ flex:1, height:4, background:"#ece9f5", borderRadius:4, overflow:"hidden" }}>
-                                    <div style={{ height:"100%", width:`${pct}%`, background:"#7c3aed", borderRadius:4, transition:"width 0.15s linear" }} />
-                                  </div>
-                                  <span style={{ fontSize:9.5, color:"#a78bfa", fontWeight:700, flexShrink:0 }}>{pct}%</span>
-                                </div>
+                    <div style={{ marginTop:12 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8, padding:"0 2px" }}>
+                        <span style={{ fontSize:10.5, fontWeight:700, color:"#8a8a95" }}>
+                          {attachments.length} file{attachments.length>1?"s":""} attached · {(attachments.reduce((s,a)=>s+a.file.size,0)/1024/1024).toFixed(2)} MB total
+                        </span>
+                        <span onClick={()=>setAttachments([])} style={{ fontSize:10.5, fontWeight:700, color:"#dc2626", cursor:"pointer" }}>Clear all</span>
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
+                        {attachments.map((a,idx) => {
+                          const uploading = a.status === "uploading";
+                          const pct = Math.round(a.progress);
+                          const kind = fileKind(a.file.name);
+                          const isImage = kind.label === "IMG" && a.previewUrl;
+                          return (
+                            <div key={a.id} style={{ display:"flex", alignItems:"center", gap:10, background:"white", border: uploading ? "1px solid #ede4fd" : "1px solid #f0eef7", borderRadius:11, padding:"8px 10px", boxShadow:"0 1px 2px rgba(17,17,17,0.03)", animation:"fadeUp 0.25s ease", animationDelay:`${idx*0.03}s`, animationFillMode:"backwards" }}>
+
+                              {isImage ? (
+                                <img src={a.previewUrl} alt="" style={{ width:32, height:32, borderRadius:8, objectFit:"cover", flexShrink:0, border:"1px solid #f0eef7" }} />
                               ) : (
-                                <div style={{ fontSize:10, color:"#0a9558", fontWeight:600 }}>Uploaded · {(a.file.size/1024/1024).toFixed(2)} MB</div>
+                                <span style={{ width:32, height:32, borderRadius:8, background:kind.bg, color:kind.color, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:8.5, fontWeight:800, letterSpacing:0.2 }}>
+                                  {kind.label}
+                                </span>
+                              )}
+
+                              <div style={{ flex:1, minWidth:0 }}>
+                                <div style={{ fontSize:12, fontWeight:600, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.file.name}</div>
+                                {uploading ? (
+                                  <div style={{ display:"flex", alignItems:"center", gap:7, marginTop:4 }}>
+                                    <div style={{ flex:1, height:4, background:"#ece9f5", borderRadius:4, overflow:"hidden" }}>
+                                      <div style={{ height:"100%", width:`${pct}%`, background:"linear-gradient(90deg,#7c3aed,#a855f7)", borderRadius:4, transition:"width 0.15s linear" }} />
+                                    </div>
+                                    <span style={{ fontSize:9.5, color:"#a78bfa", fontWeight:700, flexShrink:0, minWidth:26, textAlign:"right" }}>{pct}%</span>
+                                  </div>
+                                ) : (
+                                  <div style={{ display:"flex", alignItems:"center", gap:4, marginTop:1 }}>
+                                    <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="#0a9558" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>
+                                    <span style={{ fontSize:10, color:"#0a9558", fontWeight:600 }}>Uploaded · {(a.file.size/1024/1024).toFixed(2)} MB</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {uploading ? (
+                                <svg viewBox="0 0 16 16" width="15" height="15" style={{ animation:"spin 0.8s linear infinite", flexShrink:0 }}>
+                                  <circle cx="8" cy="8" r="6" fill="none" stroke="#ede4fd" strokeWidth="2.5" />
+                                  <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" />
+                                </svg>
+                              ) : (
+                                <button onClick={()=>setAttachments(prev=>prev.filter(x=>x.id!==a.id))}
+                                  style={{ background:"#f6f5fa", border:"none", cursor:"pointer", color:"#9ca3af", width:22, height:22, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                                  <Icon.X />
+                                </button>
                               )}
                             </div>
-                            <button onClick={()=>setAttachments(prev=>prev.filter(x=>x.id!==a.id))}
-                              style={{ background:"none", border:"none", cursor:"pointer", color:"#9ca3af", padding:4, lineHeight:1, flexShrink:0 }}>
-                              <Icon.X />
-                            </button>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
