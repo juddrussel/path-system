@@ -74,16 +74,24 @@ async function buildStats(whereClause = "1=1", params = []) {
 // ════════════════════════════════════════════════════════════════════════════════
 
 // ─── POST /api/forms/submit — faculty submits a form ─────────────────────────
-router.post("/submit", requireAuth, upload.single("file"), async (req, res) => {
-  const { student_id, full_name, category, filing_date, college_year = "", section = "" } = req.body;
+router.post("/submit", requireAuth, upload.any(), async (req, res) => {
+  const { category, filing_date, college_year = "", section = "" } = req.body;
+  // Student Number / Full Name are no longer collected in the wizard UI —
+  // fall back to the authenticated user's profile instead of hard-requiring them.
+  const student_id = req.body.student_id || req.user.student_id || "";
+  const full_name  = req.body.full_name  || req.user.full_name  || "";
 
-  if (!student_id || !full_name || !category || !filing_date)
-    return res.status(400).json({ message: "student_id, full_name, category, and filing_date are required." });
+  if (!category || !filing_date)
+    return res.status(400).json({ message: "category and filing_date are required." });
 
   try {
     const tracking_id = await nextTrackingId();
-    const file_url    = req.file ? `/uploads/forms/${req.file.filename}` : null;
-    const file_name   = req.file ? req.file.originalname : null;
+    // req.files is an array now (upload.any()) instead of a single req.file.
+    // Prefer the field literally named "file" (the primary/back-compat copy
+    // the client always sends); otherwise fall back to the first file found.
+    const primaryFile = (req.files || []).find(f => f.fieldname === "file") || (req.files || [])[0] || null;
+    const file_url     = primaryFile ? `/uploads/forms/${primaryFile.filename}` : null;
+    const file_name    = primaryFile ? primaryFile.originalname : null;
 
     const [result] = await db.query(
       `INSERT INTO form_submissions
@@ -131,13 +139,14 @@ router.post("/submit", requireAuth, upload.single("file"), async (req, res) => {
 });
 
 // ─── POST /api/forms/draft — save as draft ───────────────────────────────────
-router.post("/draft", requireAuth, upload.single("file"), async (req, res) => {
+router.post("/draft", requireAuth, upload.any(), async (req, res) => {
   const { student_id, full_name, category, filing_date } = req.body;
 
   try {
     const tracking_id = await nextTrackingId();
-    const file_url    = req.file ? `/uploads/forms/${req.file.filename}` : null;
-    const file_name   = req.file ? req.file.originalname : null;
+    const primaryFile = (req.files || []).find(f => f.fieldname === "file") || (req.files || [])[0] || null;
+    const file_url     = primaryFile ? `/uploads/forms/${primaryFile.filename}` : null;
+    const file_name    = primaryFile ? primaryFile.originalname : null;
 
     const [result] = await db.query(
       `INSERT INTO form_submissions
@@ -507,3 +516,26 @@ router.delete("/templates/:id", requireAuth, requireReviewer, async (req, res) =
 });
 
 module.exports = router;
+
+// ─── ERROR HANDLER — must be registered after this router in app.js, e.g.:
+//     app.use("/api/forms", formRoutes, formRoutesErrorHandler);
+// Catches multer errors (unexpected field, file too large, disallowed type)
+// and any other error thrown inside a route above, and always responds with
+// JSON so the frontend never has to fall back to a generic "Server error".
+function formRoutesErrorHandler(err, _req, res, _next) {
+  if (err instanceof multer.MulterError) {
+    console.error("Multer error:", err.code, err.field);
+    const messages = {
+      LIMIT_FILE_SIZE: "File exceeds the 10MB limit.",
+      LIMIT_UNEXPECTED_FILE: "Unexpected file field received.",
+    };
+    return res.status(400).json({ message: messages[err.code] || err.message });
+  }
+  if (err) {
+    console.error("Unhandled forms route error:", err);
+    return res.status(500).json({ message: err.message || "Internal server error." });
+  }
+  _next();
+}
+
+module.exports.errorHandler = formRoutesErrorHandler;
