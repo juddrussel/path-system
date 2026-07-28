@@ -1,4 +1,14 @@
 // routes/form.routes.js
+//
+// ─── MIGRATION NEEDED ──────────────────────────────────────────────────────
+// To persist the faculty's Step 2 dynamic field answers (Last Name, Section,
+// Masterlist, etc.) so they can be shown on the review screen, add:
+//
+//   ALTER TABLE form_submissions ADD COLUMN field_values JSON NULL;
+//
+// (Use TEXT instead of JSON if your MySQL version doesn't support the JSON
+// type.) The routes below already work without this column — they'll just
+// log a warning and skip saving the field answers until it's added.
 const express  = require("express");
 const router   = express.Router();
 const jwt      = require("jsonwebtoken");
@@ -93,12 +103,37 @@ router.post("/submit", requireAuth, upload.any(), async (req, res) => {
     const file_url     = primaryFile ? `/uploads/forms/${primaryFile.filename}` : null;
     const file_name    = primaryFile ? primaryFile.originalname : null;
 
-    const [result] = await db.query(
-      `INSERT INTO form_submissions
-         (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, status, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
-      [tracking_id, req.user.id, student_id, full_name, category, filing_date, file_url, file_name, college_year, section]
-    );
+    // The wizard's Step 2 sends a JSON summary of every dynamic field the
+    // faculty member filled in (name -> displayable value), e.g.
+    // { "Last Name": "Asuncion", "Masterlist": "transaction-summary.pdf" }.
+    // Requires a `field_values` JSON/TEXT column on form_submissions — see
+    // migration note above `nextTrackingId()`. Falls back gracefully if the
+    // column hasn't been added yet, so this never blocks a submission.
+    let field_values = null;
+    try { field_values = req.body.field_values ? JSON.stringify(JSON.parse(req.body.field_values)) : null; }
+    catch { field_values = null; }
+
+    let result;
+    try {
+      [result] = await db.query(
+        `INSERT INTO form_submissions
+           (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, field_values, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
+        [tracking_id, req.user.id, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, field_values]
+      );
+    } catch (colErr) {
+      if (colErr.code === "ER_BAD_FIELD_ERROR") {
+        console.warn("[forms] `field_values` column missing on form_submissions — run the migration to persist Step 2 field answers. Submitting without them for now.");
+        [result] = await db.query(
+          `INSERT INTO form_submissions
+             (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
+          [tracking_id, req.user.id, student_id, full_name, category, filing_date, file_url, file_name, college_year, section]
+        );
+      } else {
+        throw colErr;
+      }
+    }
 
     const [rows] = await db.query(
       `SELECT fs.*, u.full_name AS submitter_name, u.email AS submitter_email
@@ -148,12 +183,31 @@ router.post("/draft", requireAuth, upload.any(), async (req, res) => {
     const file_url     = primaryFile ? `/uploads/forms/${primaryFile.filename}` : null;
     const file_name    = primaryFile ? primaryFile.originalname : null;
 
-    const [result] = await db.query(
-      `INSERT INTO form_submissions
-         (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, status, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW())`,
-      [tracking_id, req.user.id, student_id || "", full_name || "", category || "Other", filing_date || new Date().toISOString().split("T")[0], file_url, file_name]
-    );
+    let field_values = null;
+    try { field_values = req.body.field_values ? JSON.stringify(JSON.parse(req.body.field_values)) : null; }
+    catch { field_values = null; }
+
+    let result;
+    try {
+      [result] = await db.query(
+        `INSERT INTO form_submissions
+           (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, field_values, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW())`,
+        [tracking_id, req.user.id, student_id || "", full_name || "", category || "Other", filing_date || new Date().toISOString().split("T")[0], file_url, file_name, field_values]
+      );
+    } catch (colErr) {
+      if (colErr.code === "ER_BAD_FIELD_ERROR") {
+        console.warn("[forms] `field_values` column missing on form_submissions — run the migration to persist Step 2 field answers. Saving draft without them for now.");
+        [result] = await db.query(
+          `INSERT INTO form_submissions
+             (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW())`,
+          [tracking_id, req.user.id, student_id || "", full_name || "", category || "Other", filing_date || new Date().toISOString().split("T")[0], file_url, file_name]
+        );
+      } else {
+        throw colErr;
+      }
+    }
 
     const [rows] = await db.query("SELECT * FROM form_submissions WHERE id = ?", [result.insertId]);
     return res.status(201).json({ message: "Draft saved.", form: rows[0] });

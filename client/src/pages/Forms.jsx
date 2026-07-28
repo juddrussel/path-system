@@ -391,16 +391,20 @@ export default function Forms() {
     fd.append("remarks", wizardInfo.remarks);
     fd.append("filing_date", new Date().toISOString().split("T")[0]);
     if (status) fd.append("status", status);
+    const fieldSummary = {};
     selectedFields.forEach(f => {
       const key = `field_${f.id}`;
       if (isFileField(f)) {
         const doc = wizardDocs[f.id];
         if (doc?.file) fd.append(key, doc.file);
+        fieldSummary[f.name] = doc?.file?.name || null;
       } else {
         const value = wizardFieldValues[f.id];
         if (value !== undefined && value !== null && value !== "") fd.append(key, value);
+        fieldSummary[f.name] = f.fieldType === "Checkbox" ? (value === true ? "Yes" : "No") : (value ?? null);
       }
     });
+    fd.append("field_values", JSON.stringify(fieldSummary));
     // Keep a primary "file" field for backward compatibility with the
     // existing /api/forms/submit and /api/forms/draft endpoints, which
     // currently expect one file.
@@ -1341,6 +1345,31 @@ export default function Forms() {
                     </div>
                   ))}
                 </div>
+
+                {/* Dynamic fields the faculty filled in during Step 2 */}
+                {(() => {
+                  let fields = null;
+                  try {
+                    fields = typeof selectedForm.field_values === "string"
+                      ? JSON.parse(selectedForm.field_values)
+                      : selectedForm.field_values;
+                  } catch { fields = null; }
+                  const entries = fields ? Object.entries(fields) : [];
+                  if (!entries.length) return null;
+                  return (
+                    <div style={{ padding: "14px 16px", borderBottom: "1px solid #f0f0f0" }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Submitted Fields</div>
+                      {entries.map(([label, value]) => (
+                        <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid #f9f9f9" }}>
+                          <span style={{ fontSize: 11, color: "#888", fontWeight: 600, flexShrink: 0, marginRight: 8 }}>{label}</span>
+                          <span style={{ fontSize: 12, color: "#111", fontWeight: 600, textAlign: "right", wordBreak: "break-word" }}>
+                            {value === null || value === "" ? "—" : String(value)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
 
                 {/* Previous review note if any */}
                 {selectedForm.review_note && (
