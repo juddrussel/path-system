@@ -165,6 +165,52 @@ function FacultyChip({ label, onRemove }) {
   );
 }
 
+function FacultyStatusRow({ name, percent }) {
+  const busy = percent >= 75;
+  const initials = name.split(" ").map(n=>n[0]).join("").slice(0,2);
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:10, padding:"7px 0" }}>
+      <div style={{ width:30, height:30, borderRadius:"50%", background: busy ? "#fee2e2" : "#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10.5, fontWeight:800, color: busy ? "#dc2626" : "#7c3aed", flexShrink:0 }}>
+        {initials}
+      </div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontSize:12.5, fontWeight:700, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{name}</div>
+        <div style={{ fontSize:10.5, color:"#999" }}>{percent}% LOAD</div>
+      </div>
+      <span style={{ fontSize:9.5, fontWeight:800, padding:"3px 9px", borderRadius:20, flexShrink:0,
+        background: busy ? "#fff4e5" : "#e7f9f1", color: busy ? "#c2670b" : "#0a9558", letterSpacing:0.3 }}>
+        {busy ? "Busy" : "Available"}
+      </span>
+    </div>
+  );
+}
+
+function StatMini({ icon, iconBg, iconColor, label, value }) {
+  return (
+    <div style={{ background:"white", border:"1px solid #f0f0f5", borderRadius:14, padding:"13px 14px", display:"flex", alignItems:"center", gap:11, boxShadow:"0 1px 3px rgba(17,17,17,0.05)" }}>
+      <div style={{ width:32, height:32, borderRadius:9, background:iconBg, color:iconColor, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</div>
+      <div style={{ minWidth:0 }}>
+        <div style={{ fontSize:16, fontWeight:800, color:"#111", lineHeight:1.1 }}>{value}</div>
+        <div style={{ fontSize:10, color:"#888", marginTop:2, whiteSpace:"nowrap" }}>{label}</div>
+      </div>
+    </div>
+  );
+}
+
+function timeAgo(iso) {
+  if (!iso) return null;
+  const ts = new Date(iso).getTime();
+  if (isNaN(ts)) return null;
+  const diffMin = Math.max(1, Math.floor((Date.now() - ts) / 60000));
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay === 1) return "Yesterday";
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
 // ════════════════════════════════════════════════════════════════════════════════
 function TaskAssignmentInner() {
   const navigate = useNavigate();
@@ -355,7 +401,25 @@ function TaskAssignmentInner() {
   ];
   const avgLoad = Math.round(displayWorkload.reduce((s,w) => s+w.percent, 0) / displayWorkload.length);
   const capacityState = avgLoad >= 85 ? { label:"HIGH", color:"#dc2626" } : avgLoad >= 60 ? { label:"BALANCED", color:"#d97706" } : { label:"OPTIMUM", color:"#059669" };
+  const availableCount = displayWorkload.filter(w => w.percent < 75).length;
   const activeSla = SLA_CONFIG[form.priority] || SLA_CONFIG.Medium;
+
+  const hasRealAssignments = assignments.length > 0;
+  const pendingReviews = hasRealAssignments
+    ? assignments.filter(a => ["In Review","Pending","For Approval"].includes(a.status)).length
+    : 12;
+  const completionRate = hasRealAssignments
+    ? Math.round((assignments.filter(a => a.status === "Received").length / assignments.length) * 1000) / 10
+    : 94.2;
+  const recentActivity = hasRealAssignments
+    ? [...assignments].slice(-3).reverse().map(a => ({
+        tracking_id: a.tracking_id, title: a.title, faculty_name: a.faculty_name, time: timeAgo(a.created_at),
+      }))
+    : [
+        { tracking_id:"TSK-9021", title:"Q3 Research Review",   faculty_name:"Dr. Emily Watson",  time:"2h ago" },
+        { tracking_id:"TSK-8994", title:"Curriculum Update",    faculty_name:"Prof. Marcus Chen", time:"5h ago" },
+        { tracking_id:"TSK-8850", title:"Admissions Panel",     faculty_name:"Dr. Sarah Jenkins", time:"Yesterday" },
+      ];
   const resetForm = () => {
     setForm({ title:"", doc_type:"", priority:"Medium", deadline:"", notes:"" });
     setSelectedFacultyIds([]); setSelectedRole(""); setAssignMode("individual"); setAttachments([]);
@@ -681,27 +745,81 @@ function TaskAssignmentInner() {
               </div>
             </div>
 
-            {/* Right column: Workload + Faculty Attachments */}
+            {/* Right column: Insights + Stats + Activity + Attachments */}
             <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
 
-              {/* Current Workload */}
+              {/* Department Workload Insights */}
+              <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", overflow:"hidden" }}>
+
+                {/* Decorative banner */}
+                <div style={{ position:"relative", height:84, background:"linear-gradient(135deg,#5b21b6 0%,#7c3aed 55%,#c084fc 100%)", overflow:"hidden" }}>
+                  <svg viewBox="0 0 300 84" style={{ width:"100%", height:"100%", display:"block" }} preserveAspectRatio="xMidYMid slice">
+                    <line x1="40" y1="20" x2="90" y2="45" stroke="rgba(255,255,255,0.28)" strokeWidth="1"/>
+                    <line x1="90" y1="45" x2="150" y2="18" stroke="rgba(255,255,255,0.28)" strokeWidth="1"/>
+                    <line x1="150" y1="18" x2="210" y2="40" stroke="rgba(255,255,255,0.28)" strokeWidth="1"/>
+                    <line x1="90" y1="45" x2="130" y2="65" stroke="rgba(255,255,255,0.22)" strokeWidth="1"/>
+                    <line x1="210" y1="40" x2="255" y2="22" stroke="rgba(255,255,255,0.22)" strokeWidth="1"/>
+                    <line x1="130" y1="65" x2="200" y2="70" stroke="rgba(255,255,255,0.22)" strokeWidth="1"/>
+                    <circle cx="40" cy="20" r="4" fill="rgba(255,255,255,0.55)"/>
+                    <circle cx="90" cy="45" r="6" fill="rgba(255,255,255,0.85)"/>
+                    <circle cx="150" cy="18" r="3.5" fill="rgba(255,255,255,0.5)"/>
+                    <circle cx="210" cy="40" r="5" fill="rgba(255,255,255,0.7)"/>
+                    <circle cx="255" cy="22" r="3" fill="rgba(255,255,255,0.45)"/>
+                    <circle cx="130" cy="65" r="4" fill="rgba(255,255,255,0.5)"/>
+                    <circle cx="200" cy="70" r="3" fill="rgba(255,255,255,0.4)"/>
+                    <circle cx="270" cy="60" r="4.5" fill="rgba(255,255,255,0.35)"/>
+                  </svg>
+                </div>
+
+                <div style={{ padding:"14px 18px 18px" }}>
+                  <div style={{ fontSize:13.5, fontWeight:800, color:"#111", margin:"0 0 12px" }}>Department Workload Insights</div>
+
+                  <div style={{ background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:10, padding:"10px 12px", marginBottom:10 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                      <span style={{ fontSize:10.5, color:"#888", fontWeight:600 }}>Overall Capacity</span>
+                      <span style={{ fontSize:10, fontWeight:800, color:capacityState.color, letterSpacing:0.5 }}>{capacityState.label}</span>
+                    </div>
+                    <div style={{ height:5, background:"#eee", borderRadius:4, overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:`${Math.min(avgLoad,100)}%`, background:capacityState.color, borderRadius:4, transition:"width 0.5s ease" }} />
+                    </div>
+                  </div>
+                  <p style={{ fontSize:11, color:"#888", lineHeight:1.5, margin:"0 0 16px" }}>
+                    Your department is currently at {avgLoad}% utilization. {availableCount} faculty member{availableCount===1?"":"s"} available for high-priority tasks.
+                  </p>
+
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
+                    <Icon.Users />
+                    <span style={{ fontSize:11, fontWeight:800, color:"#111" }}>Faculty Status</span>
+                  </div>
+                  <div style={{ marginBottom:8 }}>
+                    {displayWorkload.map((w,i) => <FacultyStatusRow key={i} name={w.name} percent={w.percent} />)}
+                  </div>
+
+                  <div style={{ textAlign:"center", paddingTop:6, borderTop:"1px solid #f3f4f6" }}>
+                    <span style={{ fontSize:11.5, color:"#7c3aed", fontWeight:700, cursor:"pointer" }}>View All Faculty Metrics</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick stats */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                <StatMini icon={<Icon.Tracking />} iconBg="#e0edff" iconColor="#2563eb" label="Pending Reviews" value={pendingReviews} />
+                <StatMini icon={<Icon.Check />} iconBg="#ede9fe" iconColor="#7c3aed" label="Completion Rate" value={`${completionRate}%`} />
+              </div>
+
+              {/* Recent Activity */}
               <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", padding:20 }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-                  <div style={{ fontSize:13, fontWeight:800, color:"#111" }}>Department Workload</div>
-                  <span style={{ fontSize:10, color:"#7c3aed", fontWeight:700, cursor:"pointer" }}>View Live</span>
-                </div>
-
-                <div style={{ background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:10, padding:"10px 12px", marginBottom:16 }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-                    <span style={{ fontSize:10.5, color:"#888", fontWeight:600 }}>Overall Capacity</span>
-                    <span style={{ fontSize:10, fontWeight:800, color:capacityState.color, letterSpacing:0.5 }}>{capacityState.label}</span>
+                <div style={{ fontSize:13, fontWeight:800, color:"#111", marginBottom:6 }}>Recent Activity</div>
+                {recentActivity.map((a,i) => (
+                  <div key={i} style={{ padding:"10px 0", borderBottom: i < recentActivity.length-1 ? "1px solid #f5f4f9" : "none" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:8 }}>
+                      <span style={{ fontSize:11.5, fontWeight:800, color:"#7c3aed", fontFamily:"monospace" }}>{a.tracking_id || "—"}</span>
+                      {a.time && <span style={{ fontSize:10, color:"#bbb", flexShrink:0, whiteSpace:"nowrap" }}>{a.time}</span>}
+                    </div>
+                    <div style={{ fontSize:12.5, fontWeight:600, color:"#222", marginTop:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.title || "Untitled task"}</div>
+                    <div style={{ fontSize:10.5, color:"#999", marginTop:1 }}>To: {a.faculty_name || "—"}</div>
                   </div>
-                  <div style={{ height:5, background:"#eee", borderRadius:4, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:`${Math.min(avgLoad,100)}%`, background:capacityState.color, borderRadius:4, transition:"width 0.5s ease" }} />
-                  </div>
-                </div>
-
-                {displayWorkload.map((w,i) => <WorkloadBar key={i} {...w} />)}
+                ))}
               </div>
 
               {/* Faculty Attachments */}
