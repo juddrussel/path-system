@@ -238,8 +238,59 @@ export default function SLAConfiguration() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState(null);
+  const [creating, setCreating] = useState(false);
 
   const set = (k, v) => setRuleForm(f => ({ ...f, [k]: v }));
+  const setCreate = (k, v) => setCreateForm(f => ({ ...f, [k]: v }));
+
+  const emptyCreateForm = () => ({
+    docType: "",
+    priority: "Medium",
+    procTime: 5,
+    procUnit: "Days",
+    reviewerRole: "",
+    escalationHours: 24,
+    remarks: "",
+  });
+
+  function openCreateModal() {
+    setCreateForm(emptyCreateForm());
+    setShowCreateModal(true);
+  }
+
+  async function handleCreateRule() {
+    if (!createForm?.docType || !createForm?.reviewerRole) {
+      setError("Document Type and Reviewer Role are required.");
+      return;
+    }
+    setCreating(true);
+    setError("");
+    try {
+      const { id } = await apiFetch("/sla/rules", {
+        method: "POST",
+        body: JSON.stringify({
+          documentType: createForm.docType,
+          priority: createForm.priority,
+          processingTime: Number(createForm.procTime),
+          processingUnit: createForm.procUnit,
+          reviewerRole: createForm.reviewerRole,
+          escalationHours: Number(createForm.escalationHours),
+          remarks: createForm.remarks,
+        }),
+      });
+      setShowCreateModal(false);
+      setToast("SLA rule created.");
+      await loadAll();
+      setSelectedRuleId(id);
+      setTimeout(() => setToast(""), 2500);
+    } catch (err) {
+      setError(err.message || "Failed to create SLA rule.");
+    } finally {
+      setCreating(false);
+    }
+  }
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -378,14 +429,6 @@ export default function SLAConfiguration() {
     }
   }
 
-  if (loading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", color: "#6b7280" }}>
-        Loading SLA Configuration…
-      </div>
-    );
-  }
-
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
@@ -436,6 +479,11 @@ export default function SLAConfiguration() {
         {/* ── Content ── */}
         <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 18 }}>
 
+          {loading && (
+            <div style={{ padding: "10px 14px", borderRadius: 8, background: "#f5f3ff", color: "#6d28d9", fontSize: 12.5 }}>
+              Loading SLA data…
+            </div>
+          )}
           {error && (
             <div style={{ padding: "10px 14px", borderRadius: 8, background: "#fef2f2", color: "#991b1b", fontSize: 12.5 }}>
               {error}
@@ -454,6 +502,14 @@ export default function SLAConfiguration() {
               <p style={{ fontSize: 12, color: "#6b7280", marginTop: 3 }}>
                 Manage service level agreements, escalation triggers, and compliance workflows for academic and administrative documents.
               </p>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+              <button
+                onClick={openCreateModal}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 9, fontSize: 12, fontWeight: 700, border: "none", background: "#7c3aed", color: "#fff", cursor: "pointer" }}
+              >
+                <Icon.Plus color="#fff" size={13} /> Create SLA Rule
+              </button>
             </div>
           </div>
 
@@ -698,6 +754,93 @@ export default function SLAConfiguration() {
 
         </div>
       </div>
+
+      {/* ── Create SLA Rule modal ── */}
+      {showCreateModal && createForm && (
+        <div
+          onClick={() => !creating && setShowCreateModal(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 14, padding: 22, width: 420, maxWidth: "90vw", maxHeight: "85vh", overflowY: "auto" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827" }}>Create SLA Rule</p>
+              <X
+                onClick={() => !creating && setShowCreateModal(false)}
+                style={{ width: 16, height: 16, color: "#9ca3af", cursor: "pointer" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
+                <input
+                  value={createForm.docType}
+                  onChange={e => setCreate("docType", e.target.value)}
+                  placeholder="e.g. Leave of Absence Request"
+                  style={inpStyle}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
+                <select value={createForm.priority} onChange={e => setCreate("priority", e.target.value)} style={selStyle}>
+                  <option>Critical</option>
+                  <option>High</option>
+                  <option>Medium</option>
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Processing Time</label>
+                  <input type="number" value={createForm.procTime} onChange={e => setCreate("procTime", e.target.value)} style={inpStyle} />
+                </div>
+                <div style={{ width: 90 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>&nbsp;</label>
+                  <select value={createForm.procUnit} onChange={e => setCreate("procUnit", e.target.value)} style={selStyle}>
+                    <option>Days</option><option>Hours</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
+                <input
+                  value={createForm.reviewerRole}
+                  onChange={e => setCreate("reviewerRole", e.target.value)}
+                  placeholder="e.g. Program Coordinator"
+                  style={inpStyle}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
+                <input type="number" value={createForm.escalationHours} onChange={e => setCreate("escalationHours", e.target.value)} style={inpStyle} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
+                <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
+              </div>
+
+              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                <button
+                  disabled={creating}
+                  onClick={handleCreateRule}
+                  style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: creating ? "default" : "pointer", opacity: creating ? 0.7 : 1 }}
+                >
+                  {creating ? "Creating…" : "Create Rule"}
+                </button>
+                <button
+                  disabled={creating}
+                  onClick={() => setShowCreateModal(false)}
+                  style={{ flex: 1, padding: "10px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
