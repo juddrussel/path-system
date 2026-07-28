@@ -29,6 +29,7 @@ const formRoutes = require("./routes/form.routes");
 const categoryRoutes = require("./routes/category.routes");
 const workflowRoutes = require("./routes/workflow.routes");
 const facultyRoutes = require("./routes/facultyRoutes");
+const slaRoutes = require("./routes/slaRoutes");
 const startScoreCron = require("./jobs/scoreCron");
 const { recalculateAllScores } = require("./services/facultyScoreService");
 const db = require("./config/db");
@@ -123,6 +124,7 @@ app.use("/api/forms", formRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/workflows", workflowRoutes);
 app.use("/api/faculty", facultyRoutes(db));
+app.use("/api/sla", slaRoutes);
 
 // ── Catch unmatched routes ──
 app.use((req, res) => {
@@ -276,5 +278,3 @@ recalculateAllScores(db, { keepHistory: false })
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-app.use("/api/sla", require("./routes/slaRoutes"));
