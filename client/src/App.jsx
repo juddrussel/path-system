@@ -18,6 +18,7 @@ import WorkflowDesigner from "./pages/WorkflowDesigner";
 import WorkflowDashboard from "./pages/WorkflowDashboard";
 import Reports from "./pages/Reports";
 import DocumentCategories from "./pages/DocumentCategories";
+import SLAConfiguration from "./pages/SLAConfiguration";
 
 
 // Separated so useLocation works inside BrowserRouter
@@ -57,6 +58,7 @@ function AppRoutes() {
       <Route path="/workflow-dashboard" element={<WorkflowDashboard />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/document-categories" element={<DocumentCategories />} />
+      <Route path="/sla-configuration" element={<SLAConfiguration/>} />
     </Routes>
   );
 }
