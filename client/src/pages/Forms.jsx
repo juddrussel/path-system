@@ -1003,7 +1003,7 @@ export default function Forms() {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#fafafa" }}>
-                    {["Document ID", "Student Name", "Category", "Filing Date", "Status", "Actions"].map(h => (
+                    {["Document ID", "Name", "Category", "Filing Date", "Status", "Actions"].map(h => (
                       <th key={h} style={{ padding: "10px 20px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#6b7280", borderBottom: "1px solid #f3f4f6" }}>{h}</th>
                     ))}
                   </tr>
@@ -1097,7 +1097,7 @@ export default function Forms() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ background: "#fafafa" }}>
-                      {["Document ID", "Student Name", "Category", "Filing Date", "Status", "Submitted By"].map(h => (
+                      {["Document ID", "Name", "Category", "Filing Date", "Status", "Submitted By"].map(h => (
                         <th key={h} style={{ padding: "10px 20px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#6b7280", borderBottom: "1px solid #f3f4f6" }}>{h}</th>
                       ))}
                     </tr>
@@ -1359,14 +1359,22 @@ export default function Forms() {
                   return (
                     <div style={{ padding: "14px 16px", borderBottom: "1px solid #f0f0f0" }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Submitted Fields</div>
-                      {entries.map(([label, value]) => (
-                        <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid #f9f9f9" }}>
-                          <span style={{ fontSize: 11, color: "#888", fontWeight: 600, flexShrink: 0, marginRight: 8 }}>{label}</span>
-                          <span style={{ fontSize: 12, color: "#111", fontWeight: 600, textAlign: "right", wordBreak: "break-word" }}>
-                            {value === null || value === "" ? "—" : String(value)}
-                          </span>
-                        </div>
-                      ))}
+                      {entries.map(([label, value]) => {
+                        const display = value === null || value === "" ? "—" : String(value);
+                        const isLong = display.length > 18; // e.g. filenames — stack below the label instead of squeezing right-aligned
+                        return (
+                          <div key={label} style={{
+                            display: "flex", flexDirection: isLong ? "column" : "row",
+                            justifyContent: "space-between", alignItems: isLong ? "flex-start" : "flex-start",
+                            gap: isLong ? 4 : 0, paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid #f9f9f9",
+                          }}>
+                            <span style={{ fontSize: 11, color: "#888", fontWeight: 600, flexShrink: 0, marginRight: isLong ? 0 : 8 }}>{label}</span>
+                            <span style={{ fontSize: 12, color: "#111", fontWeight: 600, textAlign: isLong ? "left" : "right", wordBreak: "break-word" }}>
+                              {display}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })()}
