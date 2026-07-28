@@ -172,6 +172,7 @@ const PRIORITY_CFG = {
 };
 
 const STAGES = ["Submission", "Faculty Review", "Program Chair", "Final Approval", "Completed"];
+const REVIEWER_ROLES = ["Program Chair", "Admin", "Faculty"];
 
 // ── Small building blocks ───────────────────────────────────────────────
 function PriorityPill({ priority }) {
@@ -666,7 +667,16 @@ export default function SLAConfiguration() {
                   </div>
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
-                    <input value={ruleForm.reviewerRole} onChange={e => set("reviewerRole", e.target.value)} style={inpStyle} />
+                    <select
+                      value={ruleForm.reviewerRole}
+                      onChange={e => set("reviewerRole", e.target.value)}
+                      style={{ ...selStyle, color: ruleForm.reviewerRole ? "#111827" : "#9ca3af" }}
+                    >
+                      <option value="" disabled hidden>Select a reviewer role</option>
+                      {REVIEWER_ROLES.map(role => (
+                        <option key={role} value={role}>{role}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
@@ -848,12 +858,16 @@ export default function SLAConfiguration() {
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
-                <input
+                <select
                   value={createForm.reviewerRole}
                   onChange={e => setCreate("reviewerRole", e.target.value)}
-                  placeholder="e.g. Program Coordinator"
-                  style={inpStyle}
-                />
+                  style={{ ...selStyle, color: createForm.reviewerRole ? "#111827" : "#9ca3af" }}
+                >
+                  <option value="" disabled hidden>Select a reviewer role</option>
+                  {REVIEWER_ROLES.map(role => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
