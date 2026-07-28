@@ -93,6 +93,13 @@ const STATUS_CONFIG = {
   "Pending":     { bg:"#f3f4f6", color:"#374151" },
 };
 
+// SLA terms shown in the assignment form, keyed to the selected priority
+const SLA_CONFIG = {
+  High:   { turnaround:"24 Hours",        escalation:"After 6 Hours",  review:"Yes — Department Head" },
+  Medium: { turnaround:"72 Hours",        escalation:"After 24 Hours", review:"Optional" },
+  Low:    { turnaround:"5 Business Days", escalation:"After 48 Hours", review:"No" },
+};
+
 function PriorityBadge({ p }) {
   const c = PRIORITY_CONFIG[p] || PRIORITY_CONFIG.Medium;
   return (
@@ -125,6 +132,36 @@ function WorkloadBar({ name, role, percent, isOver }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function SectionLabel({ icon, children }) {
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:11 }}>
+      <span style={{ width:19, height:19, borderRadius:5.5, background:"#ede9fe", color:"#7c3aed", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</span>
+      <span style={{ fontSize:10.5, fontWeight:800, color:"#6b7280", textTransform:"uppercase", letterSpacing:0.8 }}>{children}</span>
+    </div>
+  );
+}
+
+function SlaStat({ label, value, accent }) {
+  return (
+    <div style={{ flex:1, minWidth:0 }}>
+      <div style={{ fontSize:9.5, fontWeight:700, color:"#a78bfa", textTransform:"uppercase", letterSpacing:0.6, marginBottom:3 }}>{label}</div>
+      <div style={{ fontSize:12.5, fontWeight:800, color: accent || "#3b0764" }}>{value}</div>
+    </div>
+  );
+}
+
+function FacultyChip({ label, onRemove }) {
+  return (
+    <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"#ede9fe", color:"#5b21b6", borderRadius:20, padding:"3px 6px 3px 10px", fontSize:11.5, fontWeight:700 }}>
+      {label}
+      <button type="button" onClick={onRemove}
+        style={{ width:14, height:14, borderRadius:"50%", border:"none", background:"rgba(124,58,237,0.15)", color:"#7c3aed", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1 }}>
+        <Icon.X />
+      </button>
+    </span>
   );
 }
 
@@ -310,6 +347,19 @@ function TaskAssignmentInner() {
     .map(([name, count]) => ({ name, percent: Math.round((count/maxLoad)*100), isOver: count > 3 }))
     .sort((a,b) => b.percent - a.percent)
     .slice(0, 4);
+  const displayWorkload = workloadList.length > 0 ? workloadList : [
+    { name:"Dr. Sarah Jenkins",   percent:80, isOver:false },
+    { name:"Prof. Michael Chen",  percent:95, isOver:true },
+    { name:"Dr. Maria Rodriguez", percent:60, isOver:false },
+    { name:"Dr. James Wilson",    percent:45, isOver:false },
+  ];
+  const avgLoad = Math.round(displayWorkload.reduce((s,w) => s+w.percent, 0) / displayWorkload.length);
+  const capacityState = avgLoad >= 85 ? { label:"HIGH", color:"#dc2626" } : avgLoad >= 60 ? { label:"BALANCED", color:"#d97706" } : { label:"OPTIMUM", color:"#059669" };
+  const activeSla = SLA_CONFIG[form.priority] || SLA_CONFIG.Medium;
+  const resetForm = () => {
+    setForm({ title:"", doc_type:"", priority:"Medium", deadline:"", notes:"" });
+    setSelectedFacultyIds([]); setSelectedRole(""); setAssignMode("individual"); setAttachments([]);
+  };
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", fontFamily:"'DM Sans', sans-serif", fontSize:13, color:"#111", background:"#f4f4f8" }}>
@@ -378,51 +428,47 @@ function TaskAssignmentInner() {
           <div style={{ display:"grid", gridTemplateColumns:"1fr 300px", gap:20, alignItems:"start" }}>
 
             {/* Assignment Configuration Card */}
-            <div style={{ background:"white", borderRadius:14, border:"1px solid #f3f4f6", padding:24, animation:"fadeUp 0.3s ease" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-                <div>
-                  <h3 style={{ fontSize:14, fontWeight:800, color:"#111", margin:"0 0 2px" }}>Assignment Configuration</h3>
-                  <p style={{ fontSize:11, color:"#888", margin:0 }}>Fill in the details to route this task to a faculty member.</p>
-                </div>
-                <span style={{ fontSize:11, color:"#7c3aed", fontWeight:700, cursor:"pointer" }}>Routing Assignment</span>
-              </div>
+            <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", overflow:"hidden", animation:"fadeUp 0.3s ease" }}>
 
-              {/* Tracking ID banner — auto-generated, read-only */}
-              <div style={{ background:"#faf5ff", border:"1px solid #ede9fe", borderRadius:9, padding:"10px 14px", marginBottom:18, display:"flex", alignItems:"center", gap:10 }}>
-                <div style={{ width:28, height:28, borderRadius:7, background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                  <Icon.Info />
-                </div>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:10, fontWeight:700, color:"#a78bfa", textTransform:"uppercase", letterSpacing:1, marginBottom:2 }}>Tracking ID (Auto-generated)</div>
-                  <div style={{ fontSize:13, fontWeight:800, color:"#7c3aed" }}>
-                    {previewTrackingId}
+              {/* Header */}
+              <div style={{ padding:"18px 24px", borderBottom:"1px solid #f3f4f6", display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:16, background:"linear-gradient(180deg,#faf8ff 0%, white 100%)" }}>
+                <div>
+                  <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:3 }}>
+                    <div style={{ width:27, height:27, borderRadius:8, background:"#7c3aed", display:"flex", alignItems:"center", justifyContent:"center", color:"white", flexShrink:0 }}>
+                      <Icon.AssignTask />
+                    </div>
+                    <h3 style={{ fontSize:14.5, fontWeight:800, color:"#111", margin:0 }}>Assignment Configuration</h3>
                   </div>
+                  <p style={{ fontSize:11.5, color:"#8a8a95", margin:0, paddingLeft:36 }}>Fill in the details to route this task to a faculty member.</p>
+                </div>
+                <div style={{ textAlign:"right", flexShrink:0, background:"#faf5ff", border:"1px solid #ede9fe", borderRadius:9, padding:"6px 12px" }}>
+                  <div style={{ fontSize:9, fontWeight:800, color:"#a78bfa", textTransform:"uppercase", letterSpacing:0.8, marginBottom:1 }}>Tracking ID</div>
+                  <div style={{ fontSize:12.5, fontWeight:800, color:"#7c3aed", fontFamily:"monospace" }}>{previewTrackingId}</div>
                 </div>
               </div>
 
-              {/* Row 1: Assign To + Tracking */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
-                <div>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
-                    Assign To <span style={{ color:"#dc2626" }}>*</span>
-                  </label>
+              <div style={{ padding:24 }}>
 
-                  {/* Mode toggle */}
-                  <div style={{ display:"flex", gap:6, marginBottom:8 }}>
+                {/* RECIPIENT */}
+                <SectionLabel icon={<Icon.Users />}>Recipient</SectionLabel>
+                <div style={{ marginBottom:22 }}>
+                  <div style={{ display:"flex", gap:4, marginBottom:10, background:"#f5f4fa", padding:4, borderRadius:10 }}>
                     <button type="button"
                       onClick={() => { setAssignMode("individual"); setSelectedRole(""); }}
-                      style={{ flex:1, padding:"6px 8px", borderRadius:7, fontSize:11, fontWeight:700, cursor:"pointer",
-                        border: assignMode==="individual" ? "1px solid #7c3aed" : "1px solid #e5e7eb",
-                        background: assignMode==="individual" ? "#faf5ff" : "white",
-                        color: assignMode==="individual" ? "#7c3aed" : "#6b7280" }}>
+                      style={{ flex:1, padding:"7px 8px", borderRadius:7, fontSize:11.5, fontWeight:700, cursor:"pointer", border:"none",
+                        background: assignMode==="individual" ? "white" : "transparent",
+                        color: assignMode==="individual" ? "#7c3aed" : "#7a7a85",
+                        boxShadow: assignMode==="individual" ? "0 1px 3px rgba(17,17,17,0.1)" : "none",
+                        transition:"all 0.15s ease" }}>
                       Specific Faculty
                     </button>
                     <button type="button"
                       onClick={() => { setAssignMode("role"); setSelectedFacultyIds([]); setFacultyDropdownOpen(false); }}
-                      style={{ flex:1, padding:"6px 8px", borderRadius:7, fontSize:11, fontWeight:700, cursor:"pointer",
-                        border: assignMode==="role" ? "1px solid #7c3aed" : "1px solid #e5e7eb",
-                        background: assignMode==="role" ? "#faf5ff" : "white",
-                        color: assignMode==="role" ? "#7c3aed" : "#6b7280" }}>
+                      style={{ flex:1, padding:"7px 8px", borderRadius:7, fontSize:11.5, fontWeight:700, cursor:"pointer", border:"none",
+                        background: assignMode==="role" ? "white" : "transparent",
+                        color: assignMode==="role" ? "#7c3aed" : "#7a7a85",
+                        boxShadow: assignMode==="role" ? "0 1px 3px rgba(17,17,17,0.1)" : "none",
+                        transition:"all 0.15s ease" }}>
                       Entire Role
                     </button>
                   </div>
@@ -430,162 +476,208 @@ function TaskAssignmentInner() {
                   {assignMode === "individual" ? (
                     <div ref={facultyDropdownRef} style={{ position:"relative" }}>
                       <div onClick={() => setFacultyDropdownOpen(o => !o)}
-                        style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13,
+                        style={{ width:"100%", padding:"10px 14px", border: facultyDropdownOpen ? "1px solid #7c3aed" : "1px solid #e5e7eb", borderRadius:10, fontSize:13,
                           color: selectedFacultyIds.length ? "#111" : "#9ca3af", background:"white", cursor:"pointer",
-                          display:"flex", alignItems:"center", justifyContent:"space-between", boxSizing:"border-box" }}>
+                          display:"flex", alignItems:"center", justifyContent:"space-between", boxSizing:"border-box", transition:"border-color 0.15s" }}>
                         <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
                           {selectedFacultyIds.length === 0
-                            ? "— Select faculty (multiple allowed) —"
-                            : selectedFacultyIds.length === 1
-                              ? (facultyList.find(f => f.id === selectedFacultyIds[0])?.full_name || "1 selected")
-                              : `${selectedFacultyIds.length} faculty selected`}
+                            ? "Select faculty (multiple allowed)"
+                            : `${selectedFacultyIds.length} faculty member${selectedFacultyIds.length>1?"s":""} selected`}
                         </span>
-                        <span style={{ fontSize:10, color:"#9ca3af", marginLeft:6 }}>▾</span>
+                        <span style={{ fontSize:10, color:"#9ca3af", marginLeft:6, transform: facultyDropdownOpen ? "rotate(180deg)" : "none", transition:"transform 0.15s" }}>▾</span>
                       </div>
 
                       {facultyDropdownOpen && (
                         <div style={{ position:"absolute", top:"calc(100% + 4px)", left:0, right:0, zIndex:20,
-                          background:"white", border:"1px solid #e5e7eb", borderRadius:8, boxShadow:"0 8px 20px rgba(0,0,0,0.1)",
-                          maxHeight:220, overflowY:"auto" }}>
-                          <label style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 12px", fontSize:12,
-                            fontWeight:700, color:"#7c3aed", cursor:"pointer", borderBottom:"1px solid #f3f4f6" }}>
+                          background:"white", border:"1px solid #e5e7eb", borderRadius:10, boxShadow:"0 10px 24px rgba(17,17,17,0.12)",
+                          maxHeight:230, overflowY:"auto" }}>
+                          <label style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 14px", fontSize:12,
+                            fontWeight:700, color:"#7c3aed", cursor:"pointer", borderBottom:"1px solid #f3f4f6", position:"sticky", top:0, background:"white" }}>
                             <input type="checkbox"
                               checked={facultyList.length > 0 && selectedFacultyIds.length === facultyList.length}
                               onChange={toggleAllFaculty} />
                             Select all
                           </label>
                           {facultyList.map(f => (
-                            <label key={f.id} style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 12px",
+                            <label key={f.id} style={{ display:"flex", alignItems:"center", gap:9, padding:"7px 14px",
                               fontSize:12.5, color:"#374151", cursor:"pointer" }}
                               onMouseEnter={e=>e.currentTarget.style.background="#faf5ff"}
                               onMouseLeave={e=>e.currentTarget.style.background="white"}>
                               <input type="checkbox"
                                 checked={selectedFacultyIds.includes(f.id)}
                                 onChange={() => toggleFacultyId(f.id)} />
+                              <span style={{ width:20, height:20, borderRadius:"50%", background:"#ede9fe", color:"#7c3aed", fontSize:9, fontWeight:800, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                                {(f.full_name||"?").split(" ").map(n=>n[0]).join("").slice(0,2)}
+                              </span>
                               {f.full_name}
                             </label>
                           ))}
                           {facultyList.length === 0 && (
-                            <div style={{ padding:"10px 12px", fontSize:12, color:"#9ca3af" }}>No faculty found.</div>
+                            <div style={{ padding:"10px 14px", fontSize:12, color:"#9ca3af" }}>No faculty found.</div>
                           )}
+                        </div>
+                      )}
+
+                      {selectedFacultyIds.length > 0 && (
+                        <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginTop:10 }}>
+                          {selectedFacultyIds.map(id => {
+                            const f = facultyList.find(x => x.id === id);
+                            return (
+                              <FacultyChip key={id} label={f?.full_name || "Faculty"} onRemove={() => toggleFacultyId(id)} />
+                            );
+                          })}
                         </div>
                       )}
                     </div>
                   ) : (
                     <select value={selectedRole} onChange={e=>setSelectedRole(e.target.value)}
-                      style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13,
+                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13,
                         color: selectedRole ? "#111" : "#9ca3af", background:"white", boxSizing:"border-box" }}>
-                      <option value="">— Select a role —</option>
+                      <option value="">Select a role</option>
                       {roleOptions.map(r => (
                         <option key={r} value={r}>{r.replace(/_/g," ").replace(/\b\w/g, c => c.toUpperCase())}</option>
                       ))}
                     </select>
                   )}
                 </div>
-                <div>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Task / Tracking #</label>
-                  <div style={{ width:"100%", padding:"8px 12px", border:"1px solid #ede9fe", borderRadius:8, fontSize:13, color:"#7c3aed", fontWeight:700, background:"#faf5ff", minHeight:37, display:"flex", alignItems:"center" }}>
-                    {previewTrackingId}
+
+                <div style={{ height:1, background:"#f3f4f6", margin:"0 0 22px" }} />
+
+                {/* TASK DETAILS */}
+                <SectionLabel icon={<Icon.Forms />}>Task Details</SectionLabel>
+                <div style={{ marginBottom:14 }}>
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
+                    Task Title / Subject <span style={{ color:"#dc2626" }}>*</span>
+                  </label>
+                  <input type="text" value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))}
+                    placeholder="e.g. Annual Research Grant Proposal Review"
+                    style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", boxSizing:"border-box" }} />
+                </div>
+
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:18 }}>
+                  <div>
+                    <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Document Type</label>
+                    <select value={form.doc_type} onChange={e=>setForm(p=>({...p,doc_type:e.target.value}))}
+                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color: form.doc_type?"#111":"#9ca3af", background:"white", boxSizing:"border-box" }}>
+                      {docTypes.map(d => <option key={d} value={d==="Select Type…"?"":d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
+                      Deadline / Due Date <span style={{ color:"#dc2626" }}>*</span>
+                    </label>
+                    <input type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))}
+                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color: form.deadline?"#111":"#9ca3af", boxSizing:"border-box" }} />
                   </div>
                 </div>
-              </div>
 
-              {/* Task Title */}
-              <div style={{ marginBottom:14 }}>
-                <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
-                  Task Title / Subject <span style={{ color:"#dc2626" }}>*</span>
-                </label>
-                <input type="text" value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))}
-                  placeholder="Write a descriptive title for this assignment..."
-                  style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13, color:"#111" }} />
-              </div>
-
-              {/* Row 2: Doc Type + Priority + Deadline */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14, marginBottom:14 }}>
-                <div>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Document Type</label>
-                  <select value={form.doc_type} onChange={e=>setForm(p=>({...p,doc_type:e.target.value}))}
-                    style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13, color: form.doc_type?"#111":"#9ca3af", background:"white" }}>
-                    {docTypes.map(d => <option key={d} value={d==="Select Type…"?"":d}>{d}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Priority</label>
-                  <select value={form.priority} onChange={e=>setForm(p=>({...p,priority:e.target.value}))}
-                    style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13, color:"#111", background:"white" }}>
-                    {["High","Medium","Low"].map(p => <option key={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
-                    Deadline / Due Date <span style={{ color:"#dc2626" }}>*</span>
-                  </label>
-                  <input type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))}
-                    style={{ width:"100%", padding:"8px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13, color: form.deadline?"#111":"#9ca3af" }} />
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div style={{ marginBottom:18 }}>
-                <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Notes / Instructions</label>
-                <textarea value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}
-                  placeholder="Detailed instructions for the faculty member..."
-                  rows={3}
-                  style={{ width:"100%", padding:"9px 12px", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13, color:"#111", resize:"vertical", fontFamily:"'DM Sans',sans-serif" }} />
-              </div>
-
-              {/* Attachments */}
-              <div style={{ marginBottom:18 }}>
-                <div
-                  onDragOver={e=>e.preventDefault()}
-                  onDrop={e=>{ e.preventDefault(); handleAttach(e.dataTransfer.files); }}
-                  onClick={()=>attachRef.current?.click()}
-                  style={{ border:"2px dashed #e5e7eb", borderRadius:10, padding:"18px", textAlign:"center", cursor:"pointer", background:"#fafafa", transition:"border-color 0.2s" }}
-                  onMouseEnter={e=>e.currentTarget.style.borderColor="#7c3aed"}
-                  onMouseLeave={e=>e.currentTarget.style.borderColor="#e5e7eb"}>
-                  <input ref={attachRef} type="file" multiple style={{ display:"none" }} onChange={e=>handleAttach(e.target.files)} />
-                  <Icon.Clip />
-                  <p style={{ fontSize:12, color:"#888", margin:"6px 0 2px" }}>Click to upload files</p>
-                  <p style={{ fontSize:10, color:"#bbb", margin:0 }}>PDF, JPG, PNG — max 10MB each</p>
-                </div>
-                {attachments.length > 0 && (
-                  <div style={{ marginTop:10, display:"flex", flexWrap:"wrap", gap:6 }}>
-                    {attachments.map((f,i) => (
-                      <div key={i} style={{ display:"flex", alignItems:"center", gap:5, background:"#ede9fe", borderRadius:6, padding:"3px 8px 3px 6px", fontSize:11, color:"#5b21b6" }}>
-                        <span>📎</span> {f.name}
-                        <button onClick={()=>setAttachments(prev=>prev.filter((_,j)=>j!==i))}
-                          style={{ background:"none", border:"none", cursor:"pointer", color:"#7c3aed", padding:0, marginLeft:2, lineHeight:1 }}>
-                          <Icon.X />
+                <div style={{ marginBottom:22 }}>
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:6 }}>Priority Level</label>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {["High","Medium","Low"].map(p => {
+                      const c = PRIORITY_CONFIG[p];
+                      const active = form.priority === p;
+                      return (
+                        <button key={p} type="button" onClick={() => setForm(prev => ({...prev, priority:p}))}
+                          style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"8px 10px",
+                            borderRadius:9, fontSize:12, fontWeight:700, cursor:"pointer",
+                            border: active ? `1px solid ${c.dot}` : "1px solid #e5e7eb",
+                            background: active ? c.bg : "white",
+                            color: active ? c.color : "#6b7280",
+                            transition:"all 0.15s ease" }}>
+                          <span style={{ width:6, height:6, borderRadius:"50%", background:c.dot, flexShrink:0 }} />
+                          {p}
                         </button>
-                      </div>
-                    ))}
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ height:1, background:"#f3f4f6", margin:"0 0 22px" }} />
+
+                {/* NOTES */}
+                <SectionLabel icon={<Icon.Info />}>Notes &amp; Instructions</SectionLabel>
+                <div style={{ marginBottom:22 }}>
+                  <textarea value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}
+                    placeholder="Provide detailed context, specific objectives, or references for the assigned faculty member…"
+                    rows={3}
+                    style={{ width:"100%", padding:"11px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", resize:"vertical", fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box" }} />
+                </div>
+
+                <div style={{ height:1, background:"#f3f4f6", margin:"0 0 22px" }} />
+
+                {/* ATTACHMENTS */}
+                <SectionLabel icon={<Icon.Clip />}>Attachments &amp; Reference Files</SectionLabel>
+                <div style={{ marginBottom:18 }}>
+                  <div
+                    onDragOver={e=>e.preventDefault()}
+                    onDrop={e=>{ e.preventDefault(); handleAttach(e.dataTransfer.files); }}
+                    onClick={()=>attachRef.current?.click()}
+                    style={{ border:"1.5px dashed #ddd8ec", borderRadius:12, padding:"22px", textAlign:"center", cursor:"pointer", background:"#fbfaff", transition:"border-color 0.2s, background 0.2s" }}
+                    onMouseEnter={e=>{ e.currentTarget.style.borderColor="#7c3aed"; e.currentTarget.style.background="#faf5ff"; }}
+                    onMouseLeave={e=>{ e.currentTarget.style.borderColor="#ddd8ec"; e.currentTarget.style.background="#fbfaff"; }}>
+                    <input ref={attachRef} type="file" multiple style={{ display:"none" }} onChange={e=>handleAttach(e.target.files)} />
+                    <div style={{ width:36, height:36, borderRadius:"50%", background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
+                      <Icon.Clip />
+                    </div>
+                    <p style={{ fontSize:12.5, color:"#555", margin:"0 0 2px", fontWeight:600 }}>Drag and drop files here</p>
+                    <p style={{ fontSize:10.5, color:"#aaa", margin:0 }}>or click to browse — PDF, JPG, PNG (max 10MB each)</p>
+                  </div>
+                  {attachments.length > 0 && (
+                    <div style={{ marginTop:10, display:"flex", flexDirection:"column", gap:6 }}>
+                      {attachments.map((f,i) => (
+                        <div key={i} style={{ display:"flex", alignItems:"center", gap:9, background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:9, padding:"7px 10px" }}>
+                          <span style={{ width:26, height:26, borderRadius:6, background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                            <Icon.Forms />
+                          </span>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ fontSize:12, fontWeight:600, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{f.name}</div>
+                            <div style={{ fontSize:10, color:"#999" }}>{(f.size/1024/1024).toFixed(2)} MB</div>
+                          </div>
+                          <button onClick={()=>setAttachments(prev=>prev.filter((_,j)=>j!==i))}
+                            style={{ background:"none", border:"none", cursor:"pointer", color:"#9ca3af", padding:4, lineHeight:1, flexShrink:0 }}>
+                            <Icon.X />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* SLA preview strip */}
+                <div style={{ marginBottom:20, background:"linear-gradient(135deg,#faf5ff,#f5f0ff)", border:"1px solid #ede9fe", borderRadius:12, padding:"14px 18px", display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginRight:6, flexShrink:0 }}>
+                    <Icon.Info />
+                    <span style={{ fontSize:10.5, fontWeight:800, color:"#7c3aed" }}>SLA Preview</span>
+                  </div>
+                  <div style={{ width:1, alignSelf:"stretch", background:"#e4d9f9" }} />
+                  <SlaStat label="Turnaround" value={activeSla.turnaround} />
+                  <SlaStat label="Escalation" value={activeSla.escalation} accent="#b45309" />
+                  <SlaStat label="Review Required" value={activeSla.review} />
+                </div>
+
+                {successMsg && (
+                  <div style={{ marginBottom:16, background:"#d1fae5", border:"1px solid #6ee7b7", borderRadius:10, padding:"11px 14px", fontSize:12, fontWeight:700, color:"#065f46", display:"flex", alignItems:"center", gap:8 }}>
+                    <Icon.Check />
+                    <span>Task assigned! Tracking ID: <span style={{ color:"#7c3aed", fontFamily:"monospace" }}>{lastTrackingId}</span></span>
                   </div>
                 )}
-              </div>
 
-              {/* SLA note */}
-              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:16, color:"#7c3aed", fontSize:11 }}>
-                <Icon.Info />
-                <span>SLA Preview: 5 Days (Calculated)</span>
-              </div>
-
-              {successMsg && (
-                <div style={{ marginBottom:12, background:"#d1fae5", border:"1px solid #6ee7b7", borderRadius:8, padding:"10px 14px", fontSize:12, fontWeight:700, color:"#065f46", display:"flex", alignItems:"center", gap:8 }}>
-                  <Icon.Check />
-                  <span>Task assigned! Tracking ID: <span style={{ color:"#7c3aed", fontFamily:"monospace" }}>{lastTrackingId}</span></span>
+                {/* Action buttons */}
+                <div style={{ display:"flex", gap:10 }}>
+                  <button onClick={resetForm}
+                    style={{ padding:"11px 16px", background:"white", color:"#888", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer" }}>
+                    Cancel
+                  </button>
+                  <button onClick={handleSaveDraft}
+                    style={{ flex:1, padding:"11px", background:"white", color:"#555", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer" }}>
+                    Save as Draft
+                  </button>
+                  <button onClick={handleSubmit} disabled={submitting}
+                    style={{ flex:1.6, padding:"11px", background: submitting?"#a78bfa":"#7c3aed", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:800, cursor: submitting?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7, boxShadow: submitting?"none":"0 4px 10px rgba(124,58,237,0.28)", transition:"box-shadow 0.15s" }}>
+                    <Icon.Assign /> {submitting ? "Assigning…" : "Assign Task"}
+                  </button>
                 </div>
-              )}
-
-              {/* Action buttons */}
-              <div style={{ display:"flex", gap:10 }}>
-                <button onClick={handleSaveDraft}
-                  style={{ flex:1, padding:"10px", background:"white", color:"#555", border:"1px solid #e5e7eb", borderRadius:8, fontSize:13, fontWeight:700, cursor:"pointer" }}>
-                  Save Draft
-                </button>
-                <button onClick={handleSubmit} disabled={submitting}
-                  style={{ flex:2, padding:"10px", background: submitting?"#a78bfa":"#7c3aed", color:"white", border:"none", borderRadius:8, fontSize:13, fontWeight:800, cursor: submitting?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7 }}>
-                  <Icon.Assign /> {submitting ? "Assigning…" : "Assign Task"}
-                </button>
               </div>
             </div>
 
@@ -593,36 +685,39 @@ function TaskAssignmentInner() {
             <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
 
               {/* Current Workload */}
-              <div style={{ background:"white", borderRadius:14, border:"1px solid #f3f4f6", padding:20 }}>
+              <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", padding:20 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-                  <div style={{ fontSize:13, fontWeight:800, color:"#111" }}>Current Workload Indicators</div>
+                  <div style={{ fontSize:13, fontWeight:800, color:"#111" }}>Department Workload</div>
                   <span style={{ fontSize:10, color:"#7c3aed", fontWeight:700, cursor:"pointer" }}>View Live</span>
                 </div>
-                {workloadList.length > 0 ? (
-                  workloadList.map((w,i) => <WorkloadBar key={i} {...w} />)
-                ) : (
-                  // Placeholder bars when no assignments yet
-                  [
-                    { name:"Dr. Sarah Jenkins", percent:80, isOver:false },
-                    { name:"Prof. Michael Chen", percent:95, isOver:true },
-                    { name:"Dr. Maria Rodriguez", percent:60, isOver:false },
-                    { name:"Dr. James Wilson", percent:45, isOver:false },
-                  ].map((w,i) => <WorkloadBar key={i} {...w} />)
-                )}
+
+                <div style={{ background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:10, padding:"10px 12px", marginBottom:16 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                    <span style={{ fontSize:10.5, color:"#888", fontWeight:600 }}>Overall Capacity</span>
+                    <span style={{ fontSize:10, fontWeight:800, color:capacityState.color, letterSpacing:0.5 }}>{capacityState.label}</span>
+                  </div>
+                  <div style={{ height:5, background:"#eee", borderRadius:4, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${Math.min(avgLoad,100)}%`, background:capacityState.color, borderRadius:4, transition:"width 0.5s ease" }} />
+                  </div>
+                </div>
+
+                {displayWorkload.map((w,i) => <WorkloadBar key={i} {...w} />)}
               </div>
 
               {/* Faculty Attachments */}
-              <div style={{ background:"white", borderRadius:14, border:"1px solid #f3f4f6", padding:20 }}>
+              <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", padding:20 }}>
                 <div style={{ fontSize:13, fontWeight:800, color:"#111", marginBottom:14 }}>Faculty Attachments</div>
                 <div
                   onDragOver={e=>e.preventDefault()}
                   onDrop={e=>{ e.preventDefault(); handleAttach(e.dataTransfer.files); }}
                   onClick={()=>attachRef.current?.click()}
-                  style={{ border:"2px dashed #e5e7eb", borderRadius:10, padding:"24px 16px", textAlign:"center", cursor:"pointer", background:"#fafafa" }}
-                  onMouseEnter={e=>e.currentTarget.style.borderColor="#7c3aed"}
-                  onMouseLeave={e=>e.currentTarget.style.borderColor="#e5e7eb"}>
-                  <Icon.Clip />
-                  <p style={{ fontSize:11, color:"#888", margin:"6px 0 1px", fontWeight:600 }}>Click to upload files</p>
+                  style={{ border:"1.5px dashed #ddd8ec", borderRadius:12, padding:"22px 16px", textAlign:"center", cursor:"pointer", background:"#fbfaff", transition:"border-color 0.2s, background 0.2s" }}
+                  onMouseEnter={e=>{ e.currentTarget.style.borderColor="#7c3aed"; e.currentTarget.style.background="#faf5ff"; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.borderColor="#ddd8ec"; e.currentTarget.style.background="#fbfaff"; }}>
+                  <div style={{ width:32, height:32, borderRadius:"50%", background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
+                    <Icon.Clip />
+                  </div>
+                  <p style={{ fontSize:11.5, color:"#666", margin:"0 0 1px", fontWeight:600 }}>Click to upload files</p>
                   <p style={{ fontSize:10, color:"#bbb", margin:0 }}>PDF, JPG, PNG — max 10MB each</p>
                 </div>
               </div>
