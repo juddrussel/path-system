@@ -1354,8 +1354,19 @@ export default function Forms() {
                       ? JSON.parse(selectedForm.field_values)
                       : selectedForm.field_values;
                   } catch { fields = null; }
-                  const entries = fields ? Object.entries(fields) : [];
+                  let entries = fields ? Object.entries(fields) : [];
                   if (!entries.length) return null;
+
+                  // Put file-upload fields (e.g. "Masterlist") after the regular
+                  // text fields, regardless of the order they were stored in —
+                  // matches the template's field types from Document Categories.
+                  const tmpl = categories.find(c => c.name === selectedForm.category);
+                  const fileFieldNames = new Set((tmpl?.formFields || []).filter(isFileField).map(f => f.name));
+                  entries = [
+                    ...entries.filter(([label]) => !fileFieldNames.has(label)),
+                    ...entries.filter(([label]) => fileFieldNames.has(label)),
+                  ];
+
                   return (
                     <div style={{ padding: "14px 16px", borderBottom: "1px solid #f0f0f0" }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Submitted Fields</div>
