@@ -431,19 +431,55 @@ export default function Forms() {
         fetchForms();
         setTimeout(() => setWizardSuccess(false), 4000);
       } else {
-        const d = await res.json();
-        alert(d.message || "Submission failed.");
+        // The server responded, but with an error — try to read its message
+        // as JSON first, then fall back to plain text so we don't hide the
+        // real cause behind a generic alert.
+        let message = `Submission failed (${res.status}).`;
+        try {
+          const d = await res.clone().json();
+          message = d.message || d.error || message;
+        } catch {
+          try {
+            const text = await res.text();
+            if (text) message = text.slice(0, 300);
+          } catch { /* ignore */ }
+        }
+        console.error("Form submit failed:", res.status, message);
+        alert(message);
       }
-    } catch { alert("Server error. Please try again."); } finally { setWizardSubmitting(false); }
+    } catch (err) {
+      // This branch only runs on genuine network/CORS failures — the request
+      // never got a response at all.
+      console.error("Form submit network error:", err);
+      alert("Could not reach the server. Please check your connection and try again.");
+    } finally { setWizardSubmitting(false); }
   };
 
   const handleWizardSaveDraft = async () => {
     setWizardSubmitting(true);
     try {
-      await fetch(`${API}/api/forms/draft`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: buildWizardFormData("Draft") });
+      const res = await fetch(`${API}/api/forms/draft`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: buildWizardFormData("Draft") });
+      if (!res.ok) {
+        let message = `Could not save draft (${res.status}).`;
+        try {
+          const d = await res.clone().json();
+          message = d.message || d.error || message;
+        } catch {
+          try {
+            const text = await res.text();
+            if (text) message = text.slice(0, 300);
+          } catch { /* ignore */ }
+        }
+        console.error("Draft save failed:", res.status, message);
+        alert(message);
+        return;
+      }
       addToast("Draft saved successfully.", "success");
       fetchForms();
-    } catch { alert("Could not save draft."); } finally { setWizardSubmitting(false); }
+    } catch (err) {
+      console.error("Draft save network error:", err);
+      alert("Could not reach the server. Please check your connection and try again.");
+    } finally { setWizardSubmitting(false); }
   };
 
   const handleWizardCancel = () => {
