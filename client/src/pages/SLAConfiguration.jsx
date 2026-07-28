@@ -166,9 +166,9 @@ function SbItem({ icon, label, active, onClick }) {
 }
 
 const PRIORITY_CFG = {
-  High:     { bg: "#ede9fe", color: "#6d28d9" },
-  Critical: { bg: "#1f2937", color: "#fff" },
-  Medium:   { bg: "#f3f4f6", color: "#4b5563" },
+  High:   { bg: "#ede9fe", color: "#6d28d9" },
+  Medium: { bg: "#f3f4f6", color: "#4b5563" },
+  Low:    { bg: "#ecfdf5", color: "#059669" },
 };
 
 const STAGES = ["Submission", "Faculty Review", "Program Chair", "Final Approval", "Completed"];
@@ -647,9 +647,9 @@ export default function SLAConfiguration() {
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
                     <select value={ruleForm.priority} onChange={e => set("priority", e.target.value)} style={selStyle}>
-                      <option>Critical</option>
                       <option>High</option>
                       <option>Medium</option>
+                      <option>Low</option>
                     </select>
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
@@ -829,9 +829,9 @@ export default function SLAConfiguration() {
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
                 <select value={createForm.priority} onChange={e => setCreate("priority", e.target.value)} style={selStyle}>
-                  <option>Critical</option>
                   <option>High</option>
                   <option>Medium</option>
+                  <option>Low</option>
                 </select>
               </div>
               <div style={{ display: "flex", gap: 10 }}>
