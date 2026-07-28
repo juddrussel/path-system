@@ -299,7 +299,23 @@ function TaskAssignmentInner() {
 
   const handleAttach = (files) => {
     const arr = Array.from(files).filter(f => f.size <= 10*1024*1024);
-    setAttachments(prev => [...prev, ...arr]);
+    const entries = arr.map(file => ({ id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`, file, progress:0, status:"uploading" }));
+    setAttachments(prev => [...prev, ...entries]);
+
+    entries.forEach(entry => {
+      const tick = () => {
+        setAttachments(prev => prev.map(a => {
+          if (a.id !== entry.id || a.status !== "uploading") return a;
+          const next = Math.min(100, a.progress + 12 + Math.random()*18);
+          return { ...a, progress: next, status: next >= 100 ? "done" : "uploading" };
+        }));
+      };
+      const interval = setInterval(() => {
+        tick();
+      }, 160);
+      // stop polling once this entry reaches 100 (checked lazily via timeout budget)
+      setTimeout(() => clearInterval(interval), 1800);
+    });
   };
 
   const handleSubmit = async () => {
@@ -318,7 +334,7 @@ function TaskAssignmentInner() {
       } else {
         fd.append("assign_role", selectedRole);
       }
-      attachments.forEach(f => fd.append("attachments", f));
+      attachments.forEach(a => fd.append("attachments", a.file));
 
       const res = await fetch(`${API}/api/tasks`, {
         method: "POST",
@@ -354,7 +370,7 @@ function TaskAssignmentInner() {
       } else {
         fd.append("assign_role", selectedRole);
       }
-      attachments.forEach(f => fd.append("attachments", f));
+      attachments.forEach(a => fd.append("attachments", a.file));
       await fetch(`${API}/api/tasks/draft`, { method:"POST", headers:{ Authorization:`Bearer ${token}` }, body: fd });
       alert("Draft saved.");
     } catch { alert("Could not save draft."); }
@@ -433,6 +449,7 @@ function TaskAssignmentInner() {
         input, select, textarea { font-family: 'DM Sans', sans-serif; }
         input:focus, select:focus, textarea:focus { border-color: #7c3aed !important; outline: none; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes spin { to { transform:rotate(360deg); } }
       `}</style>
 
       {/* ── SIDEBAR ── */}
@@ -689,21 +706,40 @@ function TaskAssignmentInner() {
                   </div>
                   {attachments.length > 0 && (
                     <div style={{ marginTop:10, display:"flex", flexDirection:"column", gap:6 }}>
-                      {attachments.map((f,i) => (
-                        <div key={i} style={{ display:"flex", alignItems:"center", gap:9, background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:9, padding:"7px 10px" }}>
-                          <span style={{ width:26, height:26, borderRadius:6, background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                            <Icon.Forms />
-                          </span>
-                          <div style={{ flex:1, minWidth:0 }}>
-                            <div style={{ fontSize:12, fontWeight:600, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{f.name}</div>
-                            <div style={{ fontSize:10, color:"#999" }}>{(f.size/1024/1024).toFixed(2)} MB</div>
+                      {attachments.map((a,i) => {
+                        const uploading = a.status === "uploading";
+                        const pct = Math.round(a.progress);
+                        return (
+                          <div key={a.id} style={{ display:"flex", alignItems:"center", gap:9, background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:9, padding:"7px 10px" }}>
+                            <span style={{ width:26, height:26, borderRadius:6, background: uploading ? "#ede9fe" : "#e7f9f1", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                              {uploading
+                                ? <svg viewBox="0 0 16 16" width="13" height="13" style={{ animation:"spin 0.8s linear infinite" }}>
+                                    <circle cx="8" cy="8" r="6" fill="none" stroke="#ddd6f7" strokeWidth="2.5" />
+                                    <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" />
+                                  </svg>
+                                : <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="#0a9558" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>
+                              }
+                            </span>
+                            <div style={{ flex:1, minWidth:0 }}>
+                              <div style={{ fontSize:12, fontWeight:600, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.file.name}</div>
+                              {uploading ? (
+                                <div style={{ display:"flex", alignItems:"center", gap:7, marginTop:3 }}>
+                                  <div style={{ flex:1, height:4, background:"#ece9f5", borderRadius:4, overflow:"hidden" }}>
+                                    <div style={{ height:"100%", width:`${pct}%`, background:"#7c3aed", borderRadius:4, transition:"width 0.15s linear" }} />
+                                  </div>
+                                  <span style={{ fontSize:9.5, color:"#a78bfa", fontWeight:700, flexShrink:0 }}>{pct}%</span>
+                                </div>
+                              ) : (
+                                <div style={{ fontSize:10, color:"#0a9558", fontWeight:600 }}>Uploaded · {(a.file.size/1024/1024).toFixed(2)} MB</div>
+                              )}
+                            </div>
+                            <button onClick={()=>setAttachments(prev=>prev.filter(x=>x.id!==a.id))}
+                              style={{ background:"none", border:"none", cursor:"pointer", color:"#9ca3af", padding:4, lineHeight:1, flexShrink:0 }}>
+                              <Icon.X />
+                            </button>
                           </div>
-                          <button onClick={()=>setAttachments(prev=>prev.filter((_,j)=>j!==i))}
-                            style={{ background:"none", border:"none", cursor:"pointer", color:"#9ca3af", padding:4, lineHeight:1, flexShrink:0 }}>
-                            <Icon.X />
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -820,24 +856,6 @@ function TaskAssignmentInner() {
                     <div style={{ fontSize:10.5, color:"#999", marginTop:1 }}>To: {a.faculty_name || "—"}</div>
                   </div>
                 ))}
-              </div>
-
-              {/* Faculty Attachments */}
-              <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", padding:20 }}>
-                <div style={{ fontSize:13, fontWeight:800, color:"#111", marginBottom:14 }}>Faculty Attachments</div>
-                <div
-                  onDragOver={e=>e.preventDefault()}
-                  onDrop={e=>{ e.preventDefault(); handleAttach(e.dataTransfer.files); }}
-                  onClick={()=>attachRef.current?.click()}
-                  style={{ border:"1.5px dashed #ddd8ec", borderRadius:12, padding:"22px 16px", textAlign:"center", cursor:"pointer", background:"#fbfaff", transition:"border-color 0.2s, background 0.2s" }}
-                  onMouseEnter={e=>{ e.currentTarget.style.borderColor="#7c3aed"; e.currentTarget.style.background="#faf5ff"; }}
-                  onMouseLeave={e=>{ e.currentTarget.style.borderColor="#ddd8ec"; e.currentTarget.style.background="#fbfaff"; }}>
-                  <div style={{ width:32, height:32, borderRadius:"50%", background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
-                    <Icon.Clip />
-                  </div>
-                  <p style={{ fontSize:11.5, color:"#666", margin:"0 0 1px", fontWeight:600 }}>Click to upload files</p>
-                  <p style={{ fontSize:10, color:"#bbb", margin:0 }}>PDF, JPG, PNG — max 10MB each</p>
-                </div>
               </div>
             </div>
           </div>
