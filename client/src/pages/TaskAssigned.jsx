@@ -168,6 +168,7 @@ export default function TaskAssigned() {
   const [actionLoading,  setActionLoading]  = useState(null); // "approve"|"return"|"reassign"
   const [editingDeadline, setEditingDeadline] = useState(false);
   const [deadlineDraft,   setDeadlineDraft]   = useState("");
+  const [deadlineTimeDraft, setDeadlineTimeDraft] = useState("17:00");
   const [savingDeadline,  setSavingDeadline]  = useState(false);
   const [returnNote,         setReturnNote]         = useState("");
   const [showReturnBox,      setShowReturnBox]      = useState(false);
@@ -389,14 +390,28 @@ export default function TaskAssigned() {
     finally   { setActionLoading(null); }
   };
 
+  // Combines the date + time inputs (entered as Philippines local time) into
+  // a "YYYY-MM-DD HH:mm:ss" string converted to UTC — same convention as
+  // TaskAssignment.jsx's create form, since deadline is stored in UTC and
+  // only converted to Manila time for display (see formatDeadlineText in
+  // slaController.js). Manila is a fixed UTC+8, no DST.
+  const combineDeadlineToUTC = (dateStr, timeStr) => {
+    if (!dateStr) return "";
+    const [h, m] = (timeStr || "00:00").split(":").map(Number);
+    const [y, mo, d] = dateStr.split("-").map(Number);
+    const utcMs = Date.UTC(y, mo - 1, d, h, m) - 8 * 60 * 60 * 1000;
+    return new Date(utcMs).toISOString().slice(0, 19).replace("T", " ");
+  };
+
   const handleUpdateDeadline = async (taskId) => {
     if (!deadlineDraft) { pushToast("Error", "Please pick a date.", "error"); return; }
     setSavingDeadline(true);
     try {
+      const deadlineUTC = combineDeadlineToUTC(deadlineDraft, deadlineTimeDraft);
       const res = await fetch(`${API}/api/tasks/${taskId}/deadline`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ deadline: deadlineDraft }),
+        body: JSON.stringify({ deadline: deadlineUTC }),
       });
       if (!res.ok) {
         let msg = `Server returned ${res.status}`;
@@ -404,8 +419,8 @@ export default function TaskAssigned() {
         throw new Error(msg);
       }
       pushToast("Deadline updated", "The faculty member has been notified of the new due date.");
-      setSelected(prev => prev ? { ...prev, deadline: deadlineDraft } : prev);
-      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, deadline: deadlineDraft } : t));
+      setSelected(prev => prev ? { ...prev, deadline: deadlineUTC } : prev);
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, deadline: deadlineUTC } : t));
       setEditingDeadline(false);
       fetchTasks();
     } catch (err) { pushToast("Error", err.message || "Could not update the deadline.", "error"); }
@@ -907,11 +922,17 @@ export default function TaskAssigned() {
                         <div>
                           <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Due Date</div>
                           {editingDeadline ? (
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                               <input
                                 type="date"
                                 value={deadlineDraft}
                                 onChange={e => setDeadlineDraft(e.target.value)}
+                                style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #ddd", borderRadius: 6, color: "#111" }}
+                              />
+                              <input
+                                type="time"
+                                value={deadlineTimeDraft}
+                                onChange={e => setDeadlineTimeDraft(e.target.value)}
                                 style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #ddd", borderRadius: 6, color: "#111" }}
                               />
                               <button
@@ -934,7 +955,17 @@ export default function TaskAssigned() {
                               <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDate(selected.deadline)}</div>
                               <button
                                 onClick={() => {
-                                  setDeadlineDraft(selected.deadline ? new Date(selected.deadline).toISOString().split("T")[0] : "");
+                                  const d = selected.deadline ? new Date(selected.deadline) : null;
+                                  // selected.deadline is UTC; seed the pickers with Manila local
+                                  // date/time so "Change" starts from what's actually displayed.
+                                  if (d) {
+                                    const manila = new Date(d.getTime() + 8 * 60 * 60 * 1000);
+                                    setDeadlineDraft(manila.toISOString().split("T")[0]);
+                                    setDeadlineTimeDraft(manila.toISOString().slice(11, 16));
+                                  } else {
+                                    setDeadlineDraft("");
+                                    setDeadlineTimeDraft("17:00");
+                                  }
                                   setEditingDeadline(true);
                                 }}
                                 style={{ fontSize: 10, fontWeight: 700, color: "#7c3aed", background: "#ede9fe", border: "none", borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}

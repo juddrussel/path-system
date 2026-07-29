@@ -257,8 +257,24 @@ function TaskAssignmentInner() {
 
   const [form, setForm] = useState({
     title: "", doc_type: "",
-    priority: "Medium", deadline: "", notes: "",
+    priority: "Medium", deadline: "", deadlineTime: "17:00", notes: "",
   });
+
+  // Combines the date + time inputs (entered in Philippines local time) into
+  // a "YYYY-MM-DD HH:mm:ss" string converted to UTC, since deadline is
+  // stored in UTC in the DB and only converted to Manila time for display
+  // (see formatDeadlineText in slaController.js). Manila is a fixed UTC+8,
+  // no DST, so this is a flat 8-hour subtraction.
+  const combineDeadlineToUTC = (dateStr, timeStr) => {
+    if (!dateStr) return "";
+    const [h, m] = (timeStr || "00:00").split(":").map(Number);
+    const [y, mo, d] = dateStr.split("-").map(Number);
+    // Construct as if it were UTC, then shift back 8 hours to undo the +8
+    // offset — net effect: treats (dateStr, timeStr) as Manila local time
+    // and produces the correct UTC instant.
+    const utcMs = Date.UTC(y, mo - 1, d, h, m) - 8 * 60 * 60 * 1000;
+    return new Date(utcMs).toISOString().slice(0, 19).replace("T", " ");
+  };
 
   useEffect(() => { if (!token) navigate("/login"); }, []);
   useEffect(() => { fetchFaculty(); fetchAssignments(); fetchNextTrackingId(); fetchRoles(); fetchDocTypes(); }, []);
@@ -343,7 +359,11 @@ function TaskAssignmentInner() {
     setSubmitting(true);
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k,v]) => fd.append(k, v));
+      const deadlineUTC = combineDeadlineToUTC(form.deadline, form.deadlineTime);
+      Object.entries(form).forEach(([k, v]) => {
+        if (k === "deadlineTime") return; // merged into `deadline` below, not sent on its own
+        fd.append(k, k === "deadline" ? deadlineUTC : v);
+      });
       if (assignMode === "individual") {
         selectedFacultyIds.forEach(id => fd.append("faculty_ids", id));
       } else {
@@ -360,7 +380,7 @@ function TaskAssignmentInner() {
         const created = await res.json();
         setLastTrackingId(created.tracking_id || "");
         setSuccessMsg(true);
-        setForm({ title:"", doc_type:"", priority:"Medium", deadline:"", notes:"" });
+        setForm({ title:"", doc_type:"", priority:"Medium", deadline:"", deadlineTime:"17:00", notes:"" });
         setSelectedFacultyIds([]);
         setSelectedRole("");
         setAssignMode("individual");
@@ -452,7 +472,7 @@ function TaskAssignmentInner() {
         { tracking_id:"TSK-8850", title:"Admissions Panel",     faculty_name:"Dr. Sarah Jenkins", time:"Yesterday" },
       ];
   const resetForm = () => {
-    setForm({ title:"", doc_type:"", priority:"Medium", deadline:"", notes:"" });
+    setForm({ title:"", doc_type:"", priority:"Medium", deadline:"", deadlineTime:"17:00", notes:"" });
     setSelectedFacultyIds([]); setSelectedRole(""); setAssignMode("individual"); setAttachments([]);
   };
 
@@ -662,8 +682,13 @@ function TaskAssignmentInner() {
                     <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
                       Deadline / Due Date <span style={{ color:"#dc2626" }}>*</span>
                     </label>
-                    <input type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))}
-                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color: form.deadline?"#111":"#9ca3af", boxSizing:"border-box" }} />
+                    <div style={{ display:"flex", gap:8 }}>
+                      <input type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))}
+                        style={{ flex:1.4, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color: form.deadline?"#111":"#9ca3af", boxSizing:"border-box" }} />
+                      <input type="time" value={form.deadlineTime} onChange={e=>setForm(p=>({...p,deadlineTime:e.target.value}))}
+                        style={{ flex:1, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", boxSizing:"border-box" }} />
+                    </div>
+                    <p style={{ fontSize:10, color:"#9ca3af", margin:"5px 0 0" }}>Time is Philippines local time (UTC+8).</p>
                   </div>
                 </div>
 
