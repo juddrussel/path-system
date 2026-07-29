@@ -247,4 +247,3 @@ async function sendSlaAlertEmail({
   return sendTransactionalEmail({ toList: recipientEmails, subject, htmlContent });
 }
 
-module.exports = { sendTransactionalEmail, sendSlaAlertEmail };
