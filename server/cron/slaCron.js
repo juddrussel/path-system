@@ -8,7 +8,7 @@
 // Idempotency: relies on the UNIQUE KEY uniq_task_alert(task_id, alert_type)
 // on sla_alerts. createAlertInternal() catches the resulting ER_DUP_ENTRY
 // and treats it as "already alerted" rather than an error, so this file
-// runs hourly forever without ever double-emailing the same task+type.
+// runs on schedule forever without ever double-emailing the same task+type.
 
 const cron = require("node-cron");
 const db = require("../config/db");
@@ -105,9 +105,11 @@ async function runBreaches() {
 }
 
 function startSlaCron() {
-  // Runs at the top of every hour. Adjust the cron expression if you want a
-  // different cadence (e.g. "*/30 * * * *" for every 30 minutes).
-  cron.schedule("0 * * * *", async () => {
+  // TESTING SCHEDULE: every 5 minutes, so you don't have to wait up to an
+  // hour to see results. Switch this back to "0 * * * *" (hourly, on the
+  // hour) before this goes to real production use — every 5 minutes is fine
+  // for a quick verification pass, but is unnecessary DB/email load long-term.
+  cron.schedule("*/5 * * * *", async () => {
     try {
       await runReminders();
       await runBreaches();
@@ -115,7 +117,7 @@ function startSlaCron() {
       console.error("[slaCron] run failed:", err);
     }
   });
-  console.log("[slaCron] scheduled: hourly reminder/breach checks");
+  console.log("[slaCron] scheduled: every 5 minutes (TESTING — switch to hourly before production)");
 }
 
 module.exports = { startSlaCron, runReminders, runBreaches, getReminderCandidates, getBreachCandidates };
