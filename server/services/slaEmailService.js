@@ -148,14 +148,17 @@ async function sendSlaAlertEmail({
     </div>
 
     <!-- CTA -->
-    <div style="text-align:center; padding: 24px 24px 8px;">
-      <a href="${taskUrl}" style="background:#7c3aed; color:#ffffff; text-decoration:none; font-size:14px; font-weight:600; padding:13px 28px; border-radius:8px; display:inline-block;">
-        Review Task in PATH &nbsp;→
-      </a>
-      <p style="font-size:11px; color:#9ca3af; margin:16px 0 4px;">Can't access the button? Copy and paste this link:</p>
-      <a href="${taskUrl}" style="font-size:11px; color:#7c3aed; word-break:break-all;">${taskUrl}</a>
-    </div>
-
+    ${
+      taskUrl
+        ? `<div style="text-align:center; padding: 24px 24px 8px;">
+            <a href="${taskUrl}" style="background:#7c3aed; color:#ffffff; text-decoration:none; font-size:14px; font-weight:600; padding:13px 28px; border-radius:8px; display:inline-block;">
+              Review Task in PATH &nbsp;→
+            </a>
+            <p style="font-size:11px; color:#9ca3af; margin:16px 0 4px;">Can't access the button? Copy and paste this link:</p>
+            <a href="${taskUrl}" style="font-size:11px; color:#7c3aed; word-break:break-all;">${taskUrl}</a>
+          </div>`
+        : ""
+    }
     ${
       allTasksUrl
         ? `<div style="text-align:center; padding: 8px 24px 24px; border-bottom:1px solid #e5e7eb;">

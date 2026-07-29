@@ -344,7 +344,18 @@ async function createAlertInternal({
       const recipientEmails = [...new Set([...globalEmails, ...extraRecipients])];
       if (recipientEmails.length) {
         const progress = computeSlaProgress(slaStartAt, deadlineAt);
-        const baseUrl = process.env.APP_BASE_URL || "";
+        let baseUrl = process.env.APP_BASE_URL;
+        if (!baseUrl) {
+          console.warn(
+            "⚠️  APP_BASE_URL is not set — SLA email links will be broken relative paths. " +
+            "Set APP_BASE_URL (e.g. https://path-system.vercel.app) in your environment."
+          );
+          baseUrl = ""; // still fall through, but the warning makes the cause obvious in logs
+        }
+        baseUrl = baseUrl.replace(/\/+$/, ""); // strip any trailing slash so we never get "//"
+
+        const resolvedTaskUrl =
+          taskUrl || (baseUrl && taskId ? `${baseUrl}/tasks/review/${taskId}` : null);
 
         await sendSlaAlertEmail({
           recipientEmails,
@@ -356,7 +367,7 @@ async function createAlertInternal({
           deadlineText: formatDeadlineText(deadlineAt),
           percentElapsed: progress?.percentElapsed,
           timeRemainingText: progress?.timeRemainingText,
-          taskUrl: taskUrl || (taskId ? `${baseUrl}/tasks/review/${taskId}` : baseUrl),
+          taskUrl: resolvedTaskUrl,
           allTasksUrl: allTasksUrl || (baseUrl ? `${baseUrl}/tasks` : undefined),
         });
         emailed = true;
