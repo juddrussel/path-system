@@ -24,7 +24,7 @@ async function sendMail({ to, subject, html }) {
       Accept: "application/json",
     },
     body: JSON.stringify({
-      sender: { name: "PATH App", email: from },
+      sender: { name: "DS Path", email: from },
       to: [{ email: to }],
       subject,
       htmlContent: html,
