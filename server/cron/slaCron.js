@@ -24,7 +24,7 @@ function tierForPriority(priority) {
 async function getReminderCandidates() {
   const placeholders = DONE_STATUSES.map(() => "?").join(",");
   const [rows] = await db.query(
-    `SELECT t.id AS task_id, t.title, t.deadline, t.doc_type,
+    `SELECT t.id AS task_id, t.title, t.deadline, t.doc_type, t.created_at,
             r.id AS rule_id, r.priority, r.reminder_lead_hours,
             u.email AS faculty_email
      FROM tasks t
@@ -45,7 +45,7 @@ async function getReminderCandidates() {
 async function getBreachCandidates() {
   const placeholders = DONE_STATUSES.map(() => "?").join(",");
   const [rows] = await db.query(
-    `SELECT t.id AS task_id, t.title, t.deadline, t.doc_type,
+    `SELECT t.id AS task_id, t.title, t.deadline, t.doc_type, t.created_at,
             r.id AS rule_id, r.priority,
             u.email AS faculty_email
      FROM tasks t
@@ -74,6 +74,10 @@ async function runReminders() {
       message: `Task "${c.title}" (${c.doc_type}) is due on ${c.deadline}. Please review before the deadline.`,
       actionLabel: "Review Task",
       extraRecipients: c.faculty_email ? [c.faculty_email] : [],
+      // Feeds the task card + progress bar in the email template.
+      documentType: c.doc_type,
+      deadlineAt: c.deadline,
+      slaStartAt: c.created_at,
     });
     if (result.created) {
       console.log(`[slaCron] reminder sent — task ${c.task_id}`);
@@ -96,6 +100,12 @@ async function runBreaches() {
       message: `Task "${c.title}" (${c.doc_type}) missed its deadline of ${c.deadline}.`,
       actionLabel: "Escalate",
       extraRecipients: c.faculty_email ? [c.faculty_email] : [],
+      // Feeds the task card + progress bar in the email template.
+      // For a breached task the bar should read as fully elapsed, which
+      // computeSlaProgress() already handles once deadlineAt is in the past.
+      documentType: c.doc_type,
+      deadlineAt: c.deadline,
+      slaStartAt: c.created_at,
     });
     if (result.created) {
       console.log(`[slaCron] breach alert sent — task ${c.task_id}`);

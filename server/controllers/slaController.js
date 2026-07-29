@@ -17,6 +17,49 @@ async function resolveRecipientEmails() {
   return rows.map((r) => r.email);
 }
 
+// Formats a Date/ISO string the way the email template expects, e.g.
+// "Wednesday, July 29, 2026 at 12:00 AM UTC". Falls back to null if
+// no deadline was given, so the template can show "—" instead.
+function formatDeadlineText(deadlineAt) {
+  if (!deadlineAt) return null;
+  const date = deadlineAt instanceof Date ? deadlineAt : new Date(deadlineAt);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const datePart = date.toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC",
+  });
+  const timePart = date.toLocaleTimeString("en-US", {
+    hour: "numeric", minute: "2-digit", timeZone: "UTC",
+  });
+  return `${datePart} at ${timePart} UTC`;
+}
+
+// Computes how far through the SLA window a task is, given when the SLA
+// clock started and when it's due. Returns null (rather than throwing)
+// when either timestamp is missing, so callers can omit them safely.
+function computeSlaProgress(slaStartAt, deadlineAt) {
+  if (!slaStartAt || !deadlineAt) return null;
+
+  const start = slaStartAt instanceof Date ? slaStartAt : new Date(slaStartAt);
+  const end = deadlineAt instanceof Date ? deadlineAt : new Date(deadlineAt);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+
+  const totalMs = end.getTime() - start.getTime();
+  if (totalMs <= 0) return { percentElapsed: 100, timeRemainingText: "Deadline passed" };
+
+  const elapsedMs = Date.now() - start.getTime();
+  const percentElapsed = Math.max(0, Math.min(100, Math.round((elapsedMs / totalMs) * 100)));
+  const remainingMs = Math.max(0, end.getTime() - Date.now());
+  const remainingDays = Math.round(remainingMs / (1000 * 60 * 60 * 24));
+
+  const timeRemainingText =
+    remainingMs <= 0
+      ? "Deadline passed"
+      : `${100 - percentElapsed}% Time Remaining (Approx. ${remainingDays} day${remainingDays === 1 ? "" : "s"})`;
+
+  return { percentElapsed, timeRemainingText };
+}
+
 // ── Stats ─────────────────────────────────────────────────────────────────
 // NOTE: "Overdue Requests" and "Avg. Processing Time" ideally come from your
 // actual document/request tracking table, which isn't part of this page's
@@ -249,10 +292,17 @@ async function listAlerts(req, res) {
  * @param {string} [params.actionLabel]
  * @param {string[]} [params.extraRecipients] - e.g. the task's assigned faculty email
  * @param {number|null} [params.userId] - for activity log attribution; null = "System"
+ * @param {string} [params.documentType] - e.g. "Masterlist of Section", shown on the email card
+ * @param {string|Date} [params.deadlineAt] - the task's actual due timestamp
+ * @param {string|Date} [params.slaStartAt] - when the SLA clock started, used to compute % elapsed
+ * @param {string} [params.taskUrl] - deep link to the task; defaults to APP_BASE_URL + /tasks/review/{taskId}
+ * @param {string} [params.allTasksUrl] - link to the recipient's assigned tasks list
  */
 async function createAlertInternal({
   ruleId, taskId, alertType, tier, title, message, actionLabel,
   extraRecipients = [], userId = null,
+  documentType = null, deadlineAt = null, slaStartAt = null,
+  taskUrl = null, allTasksUrl = null,
 }) {
   let alertId;
   let isRetry = false;
@@ -293,7 +343,22 @@ async function createAlertInternal({
       const globalEmails = await resolveRecipientEmails();
       const recipientEmails = [...new Set([...globalEmails, ...extraRecipients])];
       if (recipientEmails.length) {
-        await sendSlaAlertEmail({ recipientEmails, tier: tier || "warning", title, message });
+        const progress = computeSlaProgress(slaStartAt, deadlineAt);
+        const baseUrl = process.env.APP_BASE_URL || "";
+
+        await sendSlaAlertEmail({
+          recipientEmails,
+          tier: tier || "warning",
+          title,
+          message,
+          taskId: taskId ? `TS-${taskId}` : null,
+          documentType,
+          deadlineText: formatDeadlineText(deadlineAt),
+          percentElapsed: progress?.percentElapsed,
+          timeRemainingText: progress?.timeRemainingText,
+          taskUrl: taskUrl || (taskId ? `${baseUrl}/tasks/review/${taskId}` : baseUrl),
+          allTasksUrl: allTasksUrl || (baseUrl ? `${baseUrl}/tasks` : undefined),
+        });
         emailed = true;
         await db.query("UPDATE sla_alerts SET emailed = 1 WHERE id = ?", [alertId]);
       }
@@ -311,7 +376,10 @@ async function createAlertInternal({
 // Called by your own escalation logic (manual/admin action via HTTP).
 // For scheduled alerts, slaCron.js calls createAlertInternal directly.
 async function createAlert(req, res) {
-  const { ruleId, taskId, alertType, tier, title, message, actionLabel } = req.body;
+  const {
+    ruleId, taskId, alertType, tier, title, message, actionLabel,
+    documentType, deadlineAt, slaStartAt, taskUrl, allTasksUrl,
+  } = req.body;
   if (!title || !message) {
     return res.status(400).json({ message: "title and message are required." });
   }
@@ -319,6 +387,7 @@ async function createAlert(req, res) {
   try {
     const result = await createAlertInternal({
       ruleId, taskId, alertType, tier, title, message, actionLabel,
+      documentType, deadlineAt, slaStartAt, taskUrl, allTasksUrl,
       userId: req.user?.id,
     });
     res.status(201).json(result);
