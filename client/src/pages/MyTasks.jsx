@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import TopBar from "./TopBar";
 
@@ -137,6 +137,7 @@ function Toast({ toasts, onDismiss }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function MyTasks() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const token = localStorage.getItem("token");
   const user = (() => { try { return JSON.parse(atob(token.split(".")[1])); } catch { return {}; } })();
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
@@ -225,6 +226,20 @@ export default function MyTasks() {
       setDetailLoading(false);
     }
   }, [API, token]);
+
+  // ── Deep-link support: /tasks?taskId=35 opens that task's detail panel
+  // automatically (used by SLA email links). Runs once the page has a token,
+  // and strips the param afterward so a refresh doesn't re-trigger it.
+  useEffect(() => {
+    const linkedTaskId = searchParams.get("taskId");
+    if (!linkedTaskId || !token) return;
+
+    fetchSelectedTask(linkedTaskId);
+
+    const next = new URLSearchParams(searchParams);
+    next.delete("taskId");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, token, fetchSelectedTask, setSearchParams]);
 
   const handleApprove = async (taskId) => {
     try {

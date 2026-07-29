@@ -295,7 +295,7 @@ async function listAlerts(req, res) {
  * @param {string} [params.documentType] - e.g. "Masterlist of Section", shown on the email card
  * @param {string|Date} [params.deadlineAt] - the task's actual due timestamp
  * @param {string|Date} [params.slaStartAt] - when the SLA clock started, used to compute % elapsed
- * @param {string} [params.taskUrl] - deep link to the task; defaults to APP_BASE_URL + /tasks/review/{taskId}
+ * @param {string} [params.taskUrl] - deep link to the task; defaults to APP_BASE_URL + /tasks?taskId={taskId}
  * @param {string} [params.allTasksUrl] - link to the recipient's assigned tasks list
  */
 async function createAlertInternal({
@@ -355,7 +355,7 @@ async function createAlertInternal({
         baseUrl = baseUrl.replace(/\/+$/, ""); // strip any trailing slash so we never get "//"
 
         const resolvedTaskUrl =
-          taskUrl || (baseUrl && taskId ? `${baseUrl}/tasks/review/${taskId}` : null);
+          taskUrl || (baseUrl && taskId ? `${baseUrl}/tasks?taskId=${taskId}` : null);
 
         await sendSlaAlertEmail({
           recipientEmails,
