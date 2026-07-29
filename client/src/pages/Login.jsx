@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+
 export default function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [errors, setErrors] = useState({});
@@ -28,7 +30,7 @@ export default function Login() {
     setLoading(true);
     setAlertMsg(null);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
