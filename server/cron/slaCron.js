@@ -34,7 +34,8 @@ async function getReminderCandidates() {
        AND t.deadline >= CURDATE()
        AND DATEDIFF(t.deadline, CURDATE()) <= CEIL(r.reminder_lead_hours / 24)
        AND NOT EXISTS (
-         SELECT 1 FROM sla_alerts a WHERE a.task_id = t.id AND a.alert_type = 'reminder'
+         SELECT 1 FROM sla_alerts a
+         WHERE a.task_id = t.id AND a.alert_type = 'reminder' AND a.emailed = 1
        )`,
     DONE_STATUSES
   );
@@ -53,7 +54,8 @@ async function getBreachCandidates() {
      WHERE t.status NOT IN (${placeholders})
        AND t.deadline < CURDATE()
        AND NOT EXISTS (
-         SELECT 1 FROM sla_alerts a WHERE a.task_id = t.id AND a.alert_type = 'breach'
+         SELECT 1 FROM sla_alerts a
+         WHERE a.task_id = t.id AND a.alert_type = 'breach' AND a.emailed = 1
        )`,
     DONE_STATUSES
   );

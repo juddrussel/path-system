@@ -254,13 +254,36 @@ async function createAlertInternal({
   ruleId, taskId, alertType, tier, title, message, actionLabel,
   extraRecipients = [], userId = null,
 }) {
+  let alertId;
+  let isRetry = false;
+
   try {
     const [result] = await db.query(
       `INSERT INTO sla_alerts (rule_id, task_id, alert_type, tier, title, message, action_label)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [ruleId || null, taskId || null, alertType || "breach", tier || "warning", title, message, actionLabel || "Review Rule"]
     );
+    alertId = result.insertId;
+  } catch (err) {
+    if (err.code !== "ER_DUP_ENTRY") throw err;
 
+    // A row for this task_id + alert_type already exists. If it was never
+    // successfully emailed (e.g. a prior Brevo failure), retry sending on
+    // that same row instead of giving up — this is what makes the cron
+    // self-healing after a transient email-provider error.
+    const [[existing]] = await db.query(
+      "SELECT id, emailed FROM sla_alerts WHERE task_id = ? AND alert_type = ?",
+      [taskId, alertType]
+    );
+    if (!existing) throw err; // shouldn't happen, but don't swallow silently
+    if (existing.emailed) {
+      return { created: false, duplicate: true }; // genuinely already sent — nothing to do
+    }
+    alertId = existing.id;
+    isRetry = true;
+  }
+
+  try {
     const [[settings]] = await db.query(
       "SELECT notify_email FROM sla_escalation_settings WHERE id = 1"
     );
@@ -272,18 +295,15 @@ async function createAlertInternal({
       if (recipientEmails.length) {
         await sendSlaAlertEmail({ recipientEmails, tier: tier || "warning", title, message });
         emailed = true;
-        await db.query("UPDATE sla_alerts SET emailed = 1 WHERE id = ?", [result.insertId]);
+        await db.query("UPDATE sla_alerts SET emailed = 1 WHERE id = ?", [alertId]);
       }
     }
 
-    await logActivity(userId, "Escalated", title);
-    return { id: result.insertId, emailed, created: true };
+    if (!isRetry) await logActivity(userId, "Escalated", title);
+    return { id: alertId, emailed, created: !isRetry, retried: isRetry };
   } catch (err) {
-    if (err.code === "ER_DUP_ENTRY") {
-      // Already alerted for this task_id + alert_type — expected on a re-run,
-      // not an error. Callers (esp. the cron) should just skip silently.
-      return { created: false, duplicate: true };
-    }
+    // Email send failed again — row stays at emailed = 0, ready for another
+    // retry on the next cron tick. Not a duplicate, not a success.
     throw err;
   }
 }
