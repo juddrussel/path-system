@@ -77,7 +77,7 @@ async function getRule(req, res) {
 async function createRule(req, res) {
   const {
     documentType, priority, processingTime, processingUnit,
-    reviewerRole, escalationHours, remarks,
+    reviewerRole, escalationHours, reminderLeadHours, remarks,
   } = req.body;
 
   if (!documentType || !reviewerRole) {
@@ -87,12 +87,12 @@ async function createRule(req, res) {
   try {
     const [result] = await db.query(
       `INSERT INTO sla_rules
-        (document_type, priority, processing_time, processing_unit, reviewer_role, escalation_hours, remarks, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        (document_type, priority, processing_time, processing_unit, reviewer_role, escalation_hours, reminder_lead_hours, remarks, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         documentType, priority || "Medium", processingTime || 0,
         processingUnit || "Days", reviewerRole, escalationHours || 24,
-        remarks || null, req.user?.id ?? null,
+        reminderLeadHours || 24, remarks || null, req.user?.id ?? null,
       ]
     );
     await logActivity(req.user?.id, "Created", documentType);
@@ -107,7 +107,7 @@ async function updateRule(req, res) {
   const { id } = req.params;
   const {
     documentType, priority, processingTime, processingUnit,
-    reviewerRole, escalationHours, remarks, status,
+    reviewerRole, escalationHours, reminderLeadHours, remarks, status,
   } = req.body;
 
   try {
@@ -117,7 +117,7 @@ async function updateRule(req, res) {
     await db.query(
       `UPDATE sla_rules SET
         document_type = ?, priority = ?, processing_time = ?, processing_unit = ?,
-        reviewer_role = ?, escalation_hours = ?, remarks = ?, status = ?
+        reviewer_role = ?, escalation_hours = ?, reminder_lead_hours = ?, remarks = ?, status = ?
        WHERE id = ?`,
       [
         documentType ?? existing.document_type,
@@ -126,6 +126,7 @@ async function updateRule(req, res) {
         processingUnit ?? existing.processing_unit,
         reviewerRole ?? existing.reviewer_role,
         escalationHours ?? existing.escalation_hours,
+        reminderLeadHours ?? existing.reminder_lead_hours,
         remarks ?? existing.remarks,
         status ?? existing.status,
         id,
@@ -229,19 +230,35 @@ async function listAlerts(req, res) {
   }
 }
 
-// Called by your own escalation logic (cron job, or another service) whenever
-// an SLA breach / missing-role situation is detected.
-async function createAlert(req, res) {
-  const { ruleId, tier, title, message, actionLabel } = req.body;
-  if (!title || !message) {
-    return res.status(400).json({ message: "title and message are required." });
-  }
-
+/**
+ * Core alert-creation logic — no req/res dependency, so it can be called
+ * from an HTTP route (createAlert below) OR from slaCron.js on a schedule.
+ *
+ * Relies on the UNIQUE KEY uniq_task_alert (task_id, alert_type) on
+ * sla_alerts to make repeated calls for the same task/alert_type safe:
+ * a duplicate insert throws ER_DUP_ENTRY, which we catch and treat as
+ * "already alerted, nothing to do" rather than an error.
+ *
+ * @param {Object} params
+ * @param {number|null} params.ruleId
+ * @param {number|null} params.taskId
+ * @param {"reminder"|"breach"} params.alertType
+ * @param {"critical"|"warning"} params.tier
+ * @param {string} params.title
+ * @param {string} params.message
+ * @param {string} [params.actionLabel]
+ * @param {string[]} [params.extraRecipients] - e.g. the task's assigned faculty email
+ * @param {number|null} [params.userId] - for activity log attribution; null = "System"
+ */
+async function createAlertInternal({
+  ruleId, taskId, alertType, tier, title, message, actionLabel,
+  extraRecipients = [], userId = null,
+}) {
   try {
     const [result] = await db.query(
-      `INSERT INTO sla_alerts (rule_id, tier, title, message, action_label)
-       VALUES (?, ?, ?, ?, ?)`,
-      [ruleId || null, tier || "warning", title, message, actionLabel || "Review Rule"]
+      `INSERT INTO sla_alerts (rule_id, task_id, alert_type, tier, title, message, action_label)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [ruleId || null, taskId || null, alertType || "breach", tier || "warning", title, message, actionLabel || "Review Rule"]
     );
 
     const [[settings]] = await db.query(
@@ -250,7 +267,8 @@ async function createAlert(req, res) {
 
     let emailed = false;
     if (settings?.notify_email) {
-      const recipientEmails = await resolveRecipientEmails();
+      const globalEmails = await resolveRecipientEmails();
+      const recipientEmails = [...new Set([...globalEmails, ...extraRecipients])];
       if (recipientEmails.length) {
         await sendSlaAlertEmail({ recipientEmails, tier: tier || "warning", title, message });
         emailed = true;
@@ -258,8 +276,32 @@ async function createAlert(req, res) {
       }
     }
 
-    await logActivity(req.user?.id, "Escalated", title);
-    res.status(201).json({ id: result.insertId, emailed });
+    await logActivity(userId, "Escalated", title);
+    return { id: result.insertId, emailed, created: true };
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      // Already alerted for this task_id + alert_type — expected on a re-run,
+      // not an error. Callers (esp. the cron) should just skip silently.
+      return { created: false, duplicate: true };
+    }
+    throw err;
+  }
+}
+
+// Called by your own escalation logic (manual/admin action via HTTP).
+// For scheduled alerts, slaCron.js calls createAlertInternal directly.
+async function createAlert(req, res) {
+  const { ruleId, taskId, alertType, tier, title, message, actionLabel } = req.body;
+  if (!title || !message) {
+    return res.status(400).json({ message: "title and message are required." });
+  }
+
+  try {
+    const result = await createAlertInternal({
+      ruleId, taskId, alertType, tier, title, message, actionLabel,
+      userId: req.user?.id,
+    });
+    res.status(201).json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to create alert." });
@@ -298,6 +340,6 @@ module.exports = {
   getStats,
   listRules, getRule, createRule, updateRule, deleteRule,
   getEscalationSettings, updateEscalationSettings, addRecipient, removeRecipient,
-  listAlerts, createAlert, resolveAlert,
+  listAlerts, createAlert, createAlertInternal, resolveAlert,
   listActivity,
 };

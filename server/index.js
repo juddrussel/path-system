@@ -31,6 +31,7 @@ const workflowRoutes = require("./routes/workflow.routes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const slaRoutes = require("./routes/slaRoutes");
 const startScoreCron = require("./jobs/scoreCron");
+const { startSlaCron } = require("./cron/slaCron");
 const { recalculateAllScores } = require("./services/facultyScoreService");
 const db = require("./config/db");
 const jwt = require("jsonwebtoken");
@@ -274,6 +275,9 @@ startScoreCron(db);
 recalculateAllScores(db, { keepHistory: false })
   .then((result) => console.log("[facultyScore] Initial score seed complete:", result))
   .catch((err) => console.error("[facultyScore] Initial score seed failed:", err));
+
+// ── SLA email alerts: hourly before/after-deadline check ───────────────────────
+startSlaCron();
 
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
