@@ -9,7 +9,7 @@ import {
 // ── API base ─────────────────────────────────────────────────────────────
 // Set VITE_API_URL in client/.env to your Render backend URL, e.g.
 // VITE_API_URL=https://path-system-api.onrender.com/api
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 
 function authHeaders() {
   const token = localStorage.getItem("token");
