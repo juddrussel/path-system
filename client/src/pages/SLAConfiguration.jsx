@@ -240,6 +240,7 @@ export default function SLAConfiguration() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAlertsModal, setShowAlertsModal] = useState(false);
   const [createForm, setCreateForm] = useState(null);
   const [creating, setCreating] = useState(false);
   const [documentTypes, setDocumentTypes] = useState([]);
@@ -605,7 +606,7 @@ export default function SLAConfiguration() {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <SectionCard title="System Alerts" icon={AlertTriangle}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {alerts.map(a => {
+                  {alerts.slice(0, 3).map(a => {
                     const critical = a.tier === "critical";
                     return (
                       <div key={a.id} style={{ padding: "10px 12px", borderRadius: 10, background: critical ? "#fef2f2" : "#fffbeb", borderLeft: `3px solid ${critical ? "#fecaca" : "#fde68a"}` }}>
@@ -615,6 +616,18 @@ export default function SLAConfiguration() {
                     );
                   })}
                   {!alerts.length && <p style={{ fontSize: 11.5, color: "#9ca3af" }}>No open alerts.</p>}
+                  {alerts.length > 3 && (
+                    <button
+                      onClick={() => setShowAlertsModal(true)}
+                      style={{
+                        marginTop: 2, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb",
+                        background: "#fafafa", color: "#7c3aed", fontSize: 11.5, fontWeight: 700,
+                        cursor: "pointer", textAlign: "center",
+                      }}
+                    >
+                      View all {alerts.length} alerts
+                    </button>
+                  )}
                 </div>
               </SectionCard>
 
@@ -790,6 +803,43 @@ export default function SLAConfiguration() {
 
         </div>
       </div>
+
+      {/* ── System Alerts modal ── */}
+      {showAlertsModal && (
+        <div
+          onClick={() => setShowAlertsModal(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 14, padding: 22, width: 460, maxWidth: "90vw", maxHeight: "80vh", display: "flex", flexDirection: "column" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <AlertTriangle style={{ width: 16, height: 16, color: "#7c3aed" }} />
+                <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827" }}>System Alerts ({alerts.length})</p>
+              </div>
+              <X
+                onClick={() => setShowAlertsModal(false)}
+                style={{ width: 16, height: 16, color: "#9ca3af", cursor: "pointer" }}
+              />
+            </div>
+
+            <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
+              {alerts.map(a => {
+                const critical = a.tier === "critical";
+                return (
+                  <div key={a.id} style={{ padding: "10px 12px", borderRadius: 10, background: critical ? "#fef2f2" : "#fffbeb", borderLeft: `3px solid ${critical ? "#fecaca" : "#fde68a"}` }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: critical ? "#991b1b" : "#92400e" }}>{a.title}</p>
+                    <p style={{ fontSize: 11, color: "#6b7280", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                  </div>
+                );
+              })}
+              {!alerts.length && <p style={{ fontSize: 11.5, color: "#9ca3af" }}>No open alerts.</p>}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Create SLA Rule modal ── */}
       {showCreateModal && createForm && (
