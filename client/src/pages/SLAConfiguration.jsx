@@ -852,7 +852,7 @@ export default function SLAConfiguration() {
                   <div
                     key={a.id}
                     style={{
-                      display: "flex", alignItems: "flex-start", gap: 11, padding: "11px 8px",
+                      display: "flex", alignItems: "flex-start", gap: 11, padding: "9px 8px",
                       borderBottom: i === activity.length - 1 ? "none" : "1px solid #f5f4f8",
                     }}
                   >
@@ -864,11 +864,9 @@ export default function SLAConfiguration() {
                       {initials}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 12, color: "#374151", lineHeight: 1.45 }}>
+                      <p style={{ fontSize: 12, color: "#374151", lineHeight: 1.5, margin: 0 }}>
                         <strong style={{ color: "#111827" }}>{a.name}</strong> {a.action.toLowerCase()}{" "}
-                        <span style={{ display: "inline-block", color: "#6d28d9", fontWeight: 600, background: "#f5f3ff", padding: "1px 7px", borderRadius: 20, fontSize: 11, marginTop: 2 }}>
-                          {a.target}
-                        </span>
+                        <span style={{ color: "#6d28d9", fontWeight: 700 }}>{a.target}</span>
                       </p>
                     </div>
                     <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#9ca3af", whiteSpace: "nowrap", flexShrink: 0, marginTop: 2 }}>
