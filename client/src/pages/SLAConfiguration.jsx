@@ -241,6 +241,7 @@ export default function SLAConfiguration() {
   const [toast, setToast] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAlertsModal, setShowAlertsModal] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
   const [createForm, setCreateForm] = useState(null);
   const [creating, setCreating] = useState(false);
   const [documentTypes, setDocumentTypes] = useState([]);
@@ -633,7 +634,7 @@ export default function SLAConfiguration() {
 
               <SectionCard title="Recent Activity">
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {activity.map((a) => (
+                  {activity.slice(0, 3).map((a) => (
                     <div key={a.id} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                       <p style={{ fontSize: 12, color: "#374151" }}>
                         <strong style={{ color: "#111827" }}>{a.name}</strong> {a.action.toLowerCase()} <span style={{ color: "#7c3aed", fontWeight: 600 }}>{a.target}</span>
@@ -642,6 +643,18 @@ export default function SLAConfiguration() {
                     </div>
                   ))}
                   {!activity.length && <p style={{ fontSize: 11.5, color: "#9ca3af" }}>No recent activity.</p>}
+                  {activity.length > 3 && (
+                    <button
+                      onClick={() => setShowActivityModal(true)}
+                      style={{
+                        marginTop: 2, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb",
+                        background: "#fafafa", color: "#7c3aed", fontSize: 11.5, fontWeight: 700,
+                        cursor: "pointer", textAlign: "center",
+                      }}
+                    >
+                      View all {activity.length} activity items
+                    </button>
+                  )}
                 </div>
               </SectionCard>
             </div>
@@ -803,6 +816,39 @@ export default function SLAConfiguration() {
 
         </div>
       </div>
+
+      {/* ── Recent Activity modal ── */}
+      {showActivityModal && (
+        <div
+          onClick={() => setShowActivityModal(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 14, padding: 22, width: 460, maxWidth: "90vw", maxHeight: "80vh", display: "flex", flexDirection: "column" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexShrink: 0 }}>
+              <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827" }}>Recent Activity ({activity.length})</p>
+              <X
+                onClick={() => setShowActivityModal(false)}
+                style={{ width: 16, height: 16, color: "#9ca3af", cursor: "pointer" }}
+              />
+            </div>
+
+            <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, paddingRight: 4 }}>
+              {activity.map((a) => (
+                <div key={a.id} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                  <p style={{ fontSize: 12, color: "#374151" }}>
+                    <strong style={{ color: "#111827" }}>{a.name}</strong> {a.action.toLowerCase()} <span style={{ color: "#7c3aed", fontWeight: 600 }}>{a.target}</span>
+                  </p>
+                  <span style={{ fontSize: 10.5, color: "#9ca3af", whiteSpace: "nowrap", flexShrink: 0 }}>{timeAgo(a.created_at)}</span>
+                </div>
+              ))}
+              {!activity.length && <p style={{ fontSize: 11.5, color: "#9ca3af" }}>No recent activity.</p>}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── System Alerts modal ── */}
       {showAlertsModal && (
