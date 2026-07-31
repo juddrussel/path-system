@@ -825,26 +825,60 @@ export default function SLAConfiguration() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 14, padding: 22, width: 460, maxWidth: "90vw", maxHeight: "80vh", display: "flex", flexDirection: "column" }}
+            style={{ background: "#fff", borderRadius: 16, padding: 0, width: 480, maxWidth: "90vw", maxHeight: "82vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 50px rgba(17,24,39,0.25)" }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexShrink: 0 }}>
-              <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827" }}>Recent Activity ({activity.length})</p>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 22px", borderBottom: "1px solid #f1f0f5", flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 30, height: 30, borderRadius: 9, background: "#f5f3ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Clock style={{ width: 15, height: 15, color: "#7c3aed" }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>Recent Activity</p>
+                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>{activity.length} event{activity.length === 1 ? "" : "s"}</p>
+                </div>
+              </div>
               <X
                 onClick={() => setShowActivityModal(false)}
                 style={{ width: 16, height: 16, color: "#9ca3af", cursor: "pointer" }}
               />
             </div>
 
-            <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, paddingRight: 4 }}>
-              {activity.map((a) => (
-                <div key={a.id} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                  <p style={{ fontSize: 12, color: "#374151" }}>
-                    <strong style={{ color: "#111827" }}>{a.name}</strong> {a.action.toLowerCase()} <span style={{ color: "#7c3aed", fontWeight: 600 }}>{a.target}</span>
-                  </p>
-                  <span style={{ fontSize: 10.5, color: "#9ca3af", whiteSpace: "nowrap", flexShrink: 0 }}>{timeAgo(a.created_at)}</span>
-                </div>
-              ))}
-              {!activity.length && <p style={{ fontSize: 11.5, color: "#9ca3af" }}>No recent activity.</p>}
+            {/* List */}
+            <div style={{ overflowY: "auto", padding: "10px 14px 16px" }}>
+              {activity.map((a, i) => {
+                const initials = (a.name || "?").split(" ").filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
+                return (
+                  <div
+                    key={a.id}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 11, padding: "11px 8px",
+                      borderBottom: i === activity.length - 1 ? "none" : "1px solid #f5f4f8",
+                    }}
+                  >
+                    <div style={{
+                      width: 30, height: 30, borderRadius: "50%", background: "#ede9fe", color: "#6d28d9",
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10.5, fontWeight: 800,
+                      flexShrink: 0, marginTop: 1,
+                    }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 12, color: "#374151", lineHeight: 1.45 }}>
+                        <strong style={{ color: "#111827" }}>{a.name}</strong> {a.action.toLowerCase()}{" "}
+                        <span style={{ display: "inline-block", color: "#6d28d9", fontWeight: 600, background: "#f5f3ff", padding: "1px 7px", borderRadius: 20, fontSize: 11, marginTop: 2 }}>
+                          {a.target}
+                        </span>
+                      </p>
+                    </div>
+                    <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#9ca3af", whiteSpace: "nowrap", flexShrink: 0, marginTop: 2 }}>
+                      <Clock style={{ width: 10, height: 10 }} />
+                      {timeAgo(a.created_at)}
+                    </span>
+                  </div>
+                );
+              })}
+              {!activity.length && <p style={{ fontSize: 11.5, color: "#9ca3af", padding: "10px 8px" }}>No recent activity.</p>}
             </div>
           </div>
         </div>
