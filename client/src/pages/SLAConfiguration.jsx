@@ -890,12 +890,18 @@ export default function SLAConfiguration() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 14, padding: 22, width: 460, maxWidth: "90vw", maxHeight: "80vh", display: "flex", flexDirection: "column" }}
+            style={{ background: "#fff", borderRadius: 16, padding: 0, width: 480, maxWidth: "90vw", maxHeight: "82vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 50px rgba(17,24,39,0.25)" }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexShrink: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <AlertTriangle style={{ width: 16, height: 16, color: "#7c3aed" }} />
-                <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827" }}>System Alerts ({alerts.length})</p>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 22px", borderBottom: "1px solid #f1f0f5", flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 30, height: 30, borderRadius: 9, background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <AlertTriangle style={{ width: 15, height: 15, color: "#dc2626" }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>System Alerts</p>
+                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>{alerts.length} open alert{alerts.length === 1 ? "" : "s"}</p>
+                </div>
               </div>
               <X
                 onClick={() => setShowAlertsModal(false)}
@@ -903,17 +909,44 @@ export default function SLAConfiguration() {
               />
             </div>
 
-            <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
-              {alerts.map(a => {
+            {/* List */}
+            <div style={{ overflowY: "auto", padding: "10px 14px 16px" }}>
+              {alerts.map((a, i) => {
                 const critical = a.tier === "critical";
+                const cleanTitle = a.title.replace(/^SLA Breach:\s*/i, "");
                 return (
-                  <div key={a.id} style={{ padding: "10px 12px", borderRadius: 10, background: critical ? "#fef2f2" : "#fffbeb", borderLeft: `3px solid ${critical ? "#fecaca" : "#fde68a"}` }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: critical ? "#991b1b" : "#92400e" }}>{a.title}</p>
-                    <p style={{ fontSize: 11, color: "#6b7280", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                  <div
+                    key={a.id}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 11, padding: "10px 8px",
+                      borderBottom: i === alerts.length - 1 ? "none" : "1px solid #f5f4f8",
+                    }}
+                  >
+                    <div style={{
+                      width: 30, height: 30, borderRadius: "50%", flexShrink: 0, marginTop: 1,
+                      background: critical ? "#fef2f2" : "#fffbeb",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <AlertTriangle style={{ width: 14, height: 14, color: critical ? "#dc2626" : "#d97706" }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                        <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827", margin: 0 }}>{cleanTitle}</p>
+                        <span style={{
+                          fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.3,
+                          padding: "1.5px 6px", borderRadius: 20,
+                          color: critical ? "#991b1b" : "#92400e",
+                          background: critical ? "#fee2e2" : "#fef3c7",
+                        }}>
+                          {critical ? "Critical" : "Warning"}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 11.5, color: "#6b7280", marginTop: 4, marginBottom: 0, lineHeight: 1.5 }}>{a.message}</p>
+                    </div>
                   </div>
                 );
               })}
-              {!alerts.length && <p style={{ fontSize: 11.5, color: "#9ca3af" }}>No open alerts.</p>}
+              {!alerts.length && <p style={{ fontSize: 11.5, color: "#9ca3af", padding: "10px 8px" }}>No open alerts.</p>}
             </div>
           </div>
         </div>
