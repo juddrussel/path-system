@@ -476,21 +476,23 @@ export default function SLAConfiguration() {
         </div>
 
         <div style={{ padding: "8px 0", flex: 1 }}>
-          <SbItem icon={<Icon.Grid />} label="Dashboard" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Inbox />} label="Inbox / Received" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Plus />} label="New Document" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Tasks />} label="My Tasks" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Forms />} label="Forms" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Tracking />} label="Tracking" active={false} onClick={() => {}} />
+          <SbItem icon={<Icon.Grid />} label="Dashboard" active={false} onClick={() => navigate("/dashboard")} />
+          <SbItem icon={<Icon.Inbox />} label="Inbox / Received" active={false} onClick={() => navigate("/inbox")} />
+          <SbItem icon={<Icon.Plus />} label="New Document" active={false} onClick={() => navigate("/documents/new")} />
+          <SbItem icon={<Icon.Tasks />} label="My Tasks" active={false} onClick={() => navigate("/tasks")} />
+          <SbItem icon={<Icon.Forms />} label="Forms" active={false} onClick={() => navigate("/forms")} />
+          <SbItem icon={<Icon.Tracking />} label="Tracking" active={false} onClick={() => navigate("/tracking")} />
           <div style={{ fontSize: 10, color: "rgba(200,196,224,0.4)", letterSpacing: 1, padding: "12px 14px 4px", textTransform: "uppercase" }}>Administration</div>
 
-          <SbItem icon={<Icon.Reports />} label="Reports" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Workflow />} label="Workflow Designer" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Categories />} label="Document Categories" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Users />} label="Users & Roles" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.Shield />} label="Audit Trail" active={false} onClick={() => {}} />
-          <SbItem icon={<Icon.SLA />} label="SLA Configuration" active={true} onClick={() => {}} />
-          <SbItem icon={<Icon.Settings />} label="Settings" active={false} onClick={() => {}} />
+          {canViewAdminNav && <SbItem icon={<Icon.Reports />} label="Reports" active={false} onClick={() => navigate("/reports")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.Workflow />} label="Workflow Designer" active={false} onClick={() => navigate("/workflow-dashboard")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.Categories />} label="Document Categories" active={false} onClick={() => navigate("/document-categories")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.Users />} label="Users & Roles" active={false} onClick={() => navigate("/users")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.Shield />} label="Audit Trail" active={false} onClick={() => navigate("/audit")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Assign Task" active={false} onClick={() => navigate("/assign-task")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Tasks Assigned" active={false} onClick={() => navigate("/task-assigned")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.SLA />} label="SLA Configuration" active={true} onClick={() => navigate("/sla-configuration")} />}
+          <SbItem icon={<Icon.Settings />} label="Settings" active={false} onClick={() => { }} />
         </div>
 
         <div style={{ paddingTop: 10, borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
