@@ -358,17 +358,85 @@ const EyeIcon = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
 
 // ─── SIDEBAR ICONS ─────────────────────────────────────────────────────────────
 const Icon = {
-  Grid: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1" y="1" width="6" height="6" rx="1" /><rect x="9" y="1" width="6" height="6" rx="1" /><rect x="1" y="9" width="6" height="6" rx="1" /><rect x="9" y="9" width="6" height="6" rx="1" /></svg>,
-  Inbox: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" /></svg>,
-  Plus: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 1v14M1 8h14" /></svg>,
-  Tasks: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" /></svg>,
-  Forms: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" /></svg>,
-  Workflow: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="3" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" /></svg>,
-  Reports: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" /></svg>,
-  Users: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-5 5-5s5 2 5 5" /><path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" /></svg>,
-  Shield: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" /></svg>,
-  Settings: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="2" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" /></svg>,
-  Tracking: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" width="14" height="14"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2" fill="currentColor" stroke="none"/><path d="M8 6V4M8 10v2M6 8H4M10 8h2" strokeLinecap="round"/></svg>,
+  Grid: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <rect x="1" y="1" width="6" height="6" rx="1" />
+      <rect x="9" y="1" width="6" height="6" rx="1" />
+      <rect x="1" y="9" width="6" height="6" rx="1" />
+      <rect x="9" y="9" width="6" height="6" rx="1" />
+    </svg>
+  ),
+  Inbox: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" />
+    </svg>
+  ),
+  Plus: ({ color = "currentColor", size = 14 }) => (
+    <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" width={size} height={size}>
+      <path d="M8 1v14M1 8h14" />
+    </svg>
+  ),
+  Tasks: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" />
+    </svg>
+  ),
+  Workflow: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="8" cy="8" r="3" />
+      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  ),
+  Reports: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" />
+    </svg>
+  ),
+  Forms: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" />
+    </svg>
+  ),
+  Users: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="6" cy="5" r="3" />
+      <path d="M1 14c0-3 2-5 5-5s5 2 5 5" />
+      <path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" />
+    </svg>
+  ),
+  Shield: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" />
+    </svg>
+  ),
+  Settings: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="8" cy="8" r="2" />
+      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  ),
+  Help: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <circle cx="8" cy="8" r="7" />
+      <path d="M8 7v4M8 5v1" />
+    </svg>
+  ),
+  Logout: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
+    </svg>
+  ),
+  Search: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
+      <circle cx="6.5" cy="6.5" r="4.5" />
+      <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+    </svg>
+  ),
+  Download: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="1.5" width="12" height="12">
+      <path d="M8 1v9M4 7l4 4 4-4M2 13h12" />
+    </svg>
+  ),
   AssignTask: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
       <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
@@ -378,13 +446,23 @@ const Icon = {
       <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   ),
-  
-  Categories:() => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2"/></svg>,
-  SLA: () => 
+  Tracking: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>
+  ),
+  Categories: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" />
+      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
+      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
+      <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" />
+    </svg>
+  ),
+  SLA: () => (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
       <circle cx="8" cy="8" r="6.5" />
       <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>,
+    </svg>
+  ),
 
 };
 
