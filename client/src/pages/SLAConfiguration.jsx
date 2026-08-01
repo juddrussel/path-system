@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Bell, Search, Plus, Download, Filter, MoreHorizontal, ChevronRight,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
@@ -228,6 +229,9 @@ function timeAgo(dateStr) {
 
 // ── Main component ──────────────────────────────────────────────────────
 export default function SLAConfiguration() {
+  const navigate = useNavigate();
+  // TODO: replace with your real auth/role check (e.g. from context or a decoded JWT)
+  const canViewAdminNav = true;
   const [stats, setStats] = useState(null);
   const [rules, setRules] = useState([]);
   const [selectedRuleId, setSelectedRuleId] = useState(null);
