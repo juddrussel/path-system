@@ -417,6 +417,7 @@ export default function AuditTrail() {
           {canViewAdminNav && <SbItem icon={<Icon.Shield />} label="Audit Trail" active={true} onClick={() => navigate("/audit")} />}
           {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Assign Task" active={false} onClick={() => navigate("/assign-task")} />}
           {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Tasks Assigned" active={false} onClick={() => navigate("/task-assigned")} />}
+          {canViewAdminNav && <SbItem icon={<Icon.SLA />} label="SLA Configuration" active={false} onClick={() => navigate("/sla-configuration")} />}
           <SbItem icon={<Icon.Settings />} label="Settings" active={false} onClick={() => { }} />
         </div>
 
