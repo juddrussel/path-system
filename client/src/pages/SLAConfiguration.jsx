@@ -258,8 +258,6 @@ export default function SLAConfiguration() {
   const emptyCreateForm = () => ({
     docType: "",
     priority: "Medium",
-    procTime: 5,
-    procUnit: "Days",
     reviewerRole: "",
     escalationHours: 24,
     remarks: "",
@@ -283,8 +281,6 @@ export default function SLAConfiguration() {
         body: JSON.stringify({
           documentType: createForm.docType,
           priority: createForm.priority,
-          processingTime: Number(createForm.procTime),
-          processingUnit: createForm.procUnit,
           reviewerRole: createForm.reviewerRole,
           escalationHours: Number(createForm.escalationHours),
           remarks: createForm.remarks,
@@ -359,8 +355,6 @@ export default function SLAConfiguration() {
     return {
       docType: r.document_type,
       priority: r.priority,
-      procTime: r.processing_time,
-      procUnit: r.processing_unit,
       reviewerRole: r.reviewer_role,
       escalationHours: r.escalation_hours,
       remarks: r.remarks || "",
@@ -385,8 +379,6 @@ export default function SLAConfiguration() {
         body: JSON.stringify({
           documentType: ruleForm.docType,
           priority: ruleForm.priority,
-          processingTime: Number(ruleForm.procTime),
-          processingUnit: ruleForm.procUnit,
           reviewerRole: ruleForm.reviewerRole,
           escalationHours: Number(ruleForm.escalationHours),
           remarks: ruleForm.remarks,
@@ -482,13 +474,14 @@ export default function SLAConfiguration() {
         <div style={{ padding: "8px 0", flex: 1 }}>
           <SbItem icon={<Icon.Grid />} label="Dashboard" active={false} onClick={() => navigate("/dashboard")} />
           <SbItem icon={<Icon.Inbox />} label="Inbox / Received" active={false} onClick={() => navigate("/inbox")} />
+          <SbItem icon={<Icon.Plus />} label="New Document" active={false} onClick={() => navigate("/documents/new")} />
           <SbItem icon={<Icon.Tasks />} label="My Tasks" active={false} onClick={() => navigate("/tasks")} />
           <SbItem icon={<Icon.Forms />} label="Forms" active={false} onClick={() => navigate("/forms")} />
           <SbItem icon={<Icon.Tracking />} label="Tracking" active={false} onClick={() => navigate("/tracking")} />
           <div style={{ fontSize: 10, color: "rgba(200,196,224,0.4)", letterSpacing: 1, padding: "12px 14px 4px", textTransform: "uppercase" }}>Administration</div>
 
           {canViewAdminNav && <SbItem icon={<Icon.Reports />} label="Reports" active={false} onClick={() => navigate("/reports")} />}
-         
+          {canViewAdminNav && <SbItem icon={<Icon.Workflow />} label="Workflow Designer" active={false} onClick={() => navigate("/workflow-dashboard")} />}
           {canViewAdminNav && <SbItem icon={<Icon.Categories />} label="Document Categories" active={false} onClick={() => navigate("/document-categories")} />}
           {canViewAdminNav && <SbItem icon={<Icon.Users />} label="Users & Roles" active={false} onClick={() => navigate("/users")} />}
           {canViewAdminNav && <SbItem icon={<Icon.Shield />} label="Audit Trail" active={false} onClick={() => navigate("/audit")} />}
@@ -548,12 +541,11 @@ export default function SLAConfiguration() {
           </div>
 
           {/* Stat cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
             {stats && [
               { label: "Total SLA Rules", value: stats.totalRules, icon: Shield, color: "#7c3aed" },
               { label: "Active Policies", value: stats.activePolicies, icon: CheckCircle2, color: "#059669" },
               { label: "Open Alerts", value: stats.overdueRequests, icon: AlertTriangle, color: "#dc2626" },
-              { label: "Avg. Processing Time", value: `${stats.avgProcessingDays}d`, icon: Clock, color: "#0284c7" },
             ].map(s => (
               <div key={s.label} style={{ background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", padding: "16px 18px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
@@ -576,7 +568,7 @@ export default function SLAConfiguration() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid #f0f0f3" }}>
-                      {["Document Type", "Proc. Time", "Priority", "Escalation", "Owner Role", "Status"].map(h => (
+                      {["Document Type", "Priority", "Escalation", "Owner Role", "Status"].map(h => (
                         <th key={h} style={{ textAlign: "left", padding: "0 10px 10px 0", fontSize: 10.5, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
                       ))}
                     </tr>
@@ -593,7 +585,6 @@ export default function SLAConfiguration() {
                         }}
                       >
                         <td style={{ padding: "12px 10px 12px 0", fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{r.document_type}</td>
-                        <td style={{ padding: "12px 10px", fontSize: 12, color: "#4b5563" }}>{r.processing_time} {r.processing_unit}</td>
                         <td style={{ padding: "12px 10px" }}><PriorityPill priority={r.priority} /></td>
                         <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#9ca3af" }}>{r.escalation_hours}h Overdue</td>
                         <td style={{ padding: "12px 10px", fontSize: 12, color: "#4b5563" }}>{r.reviewer_role}</td>
@@ -683,18 +674,6 @@ export default function SLAConfiguration() {
                       <option>Medium</option>
                       <option>Low</option>
                     </select>
-                  </div>
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Processing Time</label>
-                      <input type="number" value={ruleForm.procTime} onChange={e => set("procTime", e.target.value)} style={inpStyle} />
-                    </div>
-                    <div style={{ width: 90 }}>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>&nbsp;</label>
-                      <select value={ruleForm.procUnit} onChange={e => set("procUnit", e.target.value)} style={selStyle}>
-                        <option>Days</option><option>Hours</option>
-                      </select>
-                    </div>
                   </div>
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
@@ -1009,18 +988,6 @@ export default function SLAConfiguration() {
                   <option>Medium</option>
                   <option>Low</option>
                 </select>
-              </div>
-              <div style={{ display: "flex", gap: 10 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Processing Time</label>
-                  <input type="number" value={createForm.procTime} onChange={e => setCreate("procTime", e.target.value)} style={inpStyle} />
-                </div>
-                <div style={{ width: 90 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>&nbsp;</label>
-                  <select value={createForm.procUnit} onChange={e => setCreate("procUnit", e.target.value)} style={selStyle}>
-                    <option>Days</option><option>Hours</option>
-                  </select>
-                </div>
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>

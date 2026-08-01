@@ -61,10 +61,9 @@ function computeSlaProgress(slaStartAt, deadlineAt) {
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────
-// NOTE: "Overdue Requests" and "Avg. Processing Time" ideally come from your
-// actual document/request tracking table, which isn't part of this page's
-// scope. These two are placeholders derived from sla_rules until that table
-// is wired in — swap the marked queries once you have it.
+// NOTE: "Overdue Requests" ideally comes from your actual document/request
+// tracking table, which isn't part of this page's scope. It's currently a
+// placeholder derived from unresolved sla_alerts until that table is wired in.
 async function getStats(req, res) {
   try {
     const [[{ total }]] = await db.query("SELECT COUNT(*) AS total FROM sla_rules");
@@ -74,16 +73,11 @@ async function getStats(req, res) {
     const [[{ overdueAlerts }]] = await db.query(
       "SELECT COUNT(*) AS overdueAlerts FROM sla_alerts WHERE resolved = 0"
     );
-    // TODO: replace with AVG(actual_completion_days) once request-tracking table exists
-    const [[{ avgProcessing }]] = await db.query(
-      "SELECT ROUND(AVG(processing_time), 1) AS avgProcessing FROM sla_rules WHERE processing_unit = 'Days'"
-    );
 
     res.json({
       totalRules: total,
       activePolicies: active,
       overdueRequests: overdueAlerts, // placeholder: count of unresolved alerts, not real overdue requests
-      avgProcessingDays: avgProcessing || 0,
     });
   } catch (err) {
     console.error(err);
@@ -119,7 +113,7 @@ async function getRule(req, res) {
 
 async function createRule(req, res) {
   const {
-    documentType, priority, processingTime, processingUnit,
+    documentType, priority,
     reviewerRole, escalationHours, reminderLeadHours, remarks,
   } = req.body;
 
@@ -130,11 +124,10 @@ async function createRule(req, res) {
   try {
     const [result] = await db.query(
       `INSERT INTO sla_rules
-        (document_type, priority, processing_time, processing_unit, reviewer_role, escalation_hours, reminder_lead_hours, remarks, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (document_type, priority, reviewer_role, escalation_hours, reminder_lead_hours, remarks, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        documentType, priority || "Medium", processingTime || 0,
-        processingUnit || "Days", reviewerRole, escalationHours || 24,
+        documentType, priority || "Medium", reviewerRole, escalationHours || 24,
         reminderLeadHours || 24, remarks || null, req.user?.id ?? null,
       ]
     );
@@ -149,7 +142,7 @@ async function createRule(req, res) {
 async function updateRule(req, res) {
   const { id } = req.params;
   const {
-    documentType, priority, processingTime, processingUnit,
+    documentType, priority,
     reviewerRole, escalationHours, reminderLeadHours, remarks, status,
   } = req.body;
 
@@ -159,14 +152,12 @@ async function updateRule(req, res) {
 
     await db.query(
       `UPDATE sla_rules SET
-        document_type = ?, priority = ?, processing_time = ?, processing_unit = ?,
+        document_type = ?, priority = ?,
         reviewer_role = ?, escalation_hours = ?, reminder_lead_hours = ?, remarks = ?, status = ?
        WHERE id = ?`,
       [
         documentType ?? existing.document_type,
         priority ?? existing.priority,
-        processingTime ?? existing.processing_time,
-        processingUnit ?? existing.processing_unit,
         reviewerRole ?? existing.reviewer_role,
         escalationHours ?? existing.escalation_hours,
         reminderLeadHours ?? existing.reminder_lead_hours,
