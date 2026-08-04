@@ -356,6 +356,7 @@ async function createAlertInternal({
           taskId: taskId ? `TS-${taskId}` : null,
           documentType,
           deadlineText: formatDeadlineText(deadlineAt),
+          deadlineAt,
           percentElapsed: progress?.percentElapsed,
           timeRemainingText: progress?.timeRemainingText,
           taskUrl: resolvedTaskUrl,
