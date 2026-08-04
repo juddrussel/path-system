@@ -7,6 +7,32 @@
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
+/**
+ * Formats a raw timestamp (Date, ISO string, or epoch ms) into Philippine
+ * Time (Asia/Manila, UTC+8), e.g. "Wednesday, July 29, 2026 at 5:00 PM PHT".
+ * Returns null if the input can't be parsed, so callers can fall back to
+ * whatever string they already have.
+ */
+function formatDeadlinePHT(deadlineAt) {
+  if (!deadlineAt) return null;
+  const date = deadlineAt instanceof Date ? deadlineAt : new Date(deadlineAt);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Manila",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+
+  return `${formatted} PHT`;
+}
+
+
 async function sendTransactionalEmail({ toList, subject, htmlContent }) {
   if (!process.env.BREVO_API_KEY) {
     console.warn("⚠️  BREVO_API_KEY not set — skipping email send:", subject);
@@ -61,7 +87,8 @@ async function sendTransactionalEmail({ toList, subject, htmlContent }) {
  * @param {string} params.title - task title, e.g. "Email Test"
  * @param {string} params.taskId - short ID shown top-right of the card, e.g. "TS-99341"
  * @param {string} params.documentType - e.g. "Masterlist of Section"
- * @param {string} params.deadlineText - pre-formatted deadline string, e.g. "Wednesday, July 29, 2026 at 12:00 AM UTC"
+ * @param {string} params.deadlineText - pre-formatted deadline string, used only if deadlineAt isn't provided, e.g. "Wednesday, July 29, 2026 at 12:00 AM UTC"
+ * @param {Date|string|number} [params.deadlineAt] - raw deadline timestamp (Date, ISO string, or epoch ms). When provided, this is formatted into Philippine Time and takes priority over deadlineText.
  * @param {number} params.percentElapsed - 0-100, how much of the SLA window has elapsed
  * @param {string} params.timeRemainingText - e.g. "80% Time Remaining (Approx. 4 days)"
  * @param {string} params.taskUrl - deep link to the task
@@ -74,6 +101,7 @@ async function sendSlaAlertEmail({
   taskId,
   documentType,
   deadlineText,
+  deadlineAt,
   percentElapsed,
   timeRemainingText,
   taskUrl,
@@ -87,6 +115,8 @@ async function sendSlaAlertEmail({
   const statusLabel = isCritical ? "Overdue" : "Due Soon";
   const subject = `[SLA ${badgeLabel}] ${title}`;
   const elapsed = Math.max(0, Math.min(100, percentElapsed ?? 0));
+  const resolvedDeadlineText = formatDeadlinePHT(deadlineAt) || deadlineText;
+
 
   const htmlContent = `
   <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; background:#f4f4f6;">
@@ -158,7 +188,7 @@ async function sendSlaAlertEmail({
                   </tr>
                   <tr>
                     <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#9ca3af; vertical-align:top;">DEADLINE</td>
-                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${deadlineText || "—"}</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${resolvedDeadlineText || "—"}</td>
                   </tr>
                 </table>
 
@@ -252,4 +282,4 @@ async function sendSlaAlertEmail({
   return sendTransactionalEmail({ toList: recipientEmails, subject, htmlContent });
 }
 
-module.exports = { sendTransactionalEmail, sendSlaAlertEmail };
+module.exports = { sendTransactionalEmail, sendSlaAlertEmail, formatDeadlinePHT };
