@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Bell, Search, Plus, Download, Filter, MoreHorizontal, ChevronRight,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
-  AlertTriangle, CheckCircle2, Zap, Users, UserCheck, Building2,
+  AlertTriangle, CheckCircle2, Zap, UserCheck, Building2,
   Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone,
 } from "lucide-react";
 
@@ -440,21 +440,6 @@ export default function SLAConfiguration() {
     }
   }
 
-  async function addRecipientRole() {
-    const roleName = window.prompt("Role/team name (e.g. Registrar's Office):");
-    if (!roleName) return;
-    const email = window.prompt("Notification email for this role:");
-    try {
-      await apiFetch("/sla/escalation-settings/recipients", {
-        method: "POST",
-        body: JSON.stringify({ roleName, email }),
-      });
-      await loadAll();
-    } catch (err) {
-      setError(err.message || "Failed to add recipient.");
-    }
-  }
-
   function renderRuleFormBody() {
     return ruleForm ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -531,7 +516,7 @@ export default function SLAConfiguration() {
         <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Reminder Notifications</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
           {[
-            { key: "email", label: "Email Primary Stakeholders", field: "notify_email" },
+            { key: "email", label: "Email Notifications", field: "notify_email" },
             { key: "dashboard", label: "In-App Dashboard Alerts", field: "notify_dashboard" },
             { key: "sms", label: "Mobile SMS (Urgent Only)", field: "notify_sms" },
           ].map(o => (
@@ -545,16 +530,6 @@ export default function SLAConfiguration() {
               {o.label}
             </label>
           ))}
-        </div>
-
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Default Recipients</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
-          {(escalation.recipients || []).map(r => (
-            <span key={r.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: "#f5f3ff", color: "#6d28d9" }}>
-              <Users style={{ width: 11, height: 11 }} /> {r.role_name}
-            </span>
-          ))}
-          <a href="#" onClick={(e) => { e.preventDefault(); addRecipientRole(); }} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textDecoration: "none" }}>+ Add Role</a>
         </div>
       </>
     ) : null;
