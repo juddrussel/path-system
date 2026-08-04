@@ -667,7 +667,7 @@ export default function SLAConfiguration() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
 
             {/* Active SLA Rules table */}
-            <SectionCard title="Active SLA Rules" subtitle="Definitions for document turnaround and automatic escalation. Click a row to edit below.">
+            <SectionCard title="Active SLA Rules" subtitle="Definitions for document turnaround and automatic escalation. Click Edit to modify a rule.">
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
@@ -770,20 +770,6 @@ export default function SLAConfiguration() {
                 </div>
               </SectionCard>
             </div>
-          </div>
-
-          {/* Row: Configure rule + escalation settings */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
-
-            {/* Configure SLA Rule */}
-            <SectionCard title="Configure SLA Rule" subtitle="Edit parameters for the selected document category.">
-              {renderRuleFormBody()}
-            </SectionCard>
-
-            {/* Escalation settings */}
-            <SectionCard title="Escalation Settings" subtitle="Manage automated actions for overdue requests.">
-              {renderEscalationBody()}
-            </SectionCard>
           </div>
 
         </div>
