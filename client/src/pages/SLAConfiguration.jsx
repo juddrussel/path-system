@@ -445,7 +445,13 @@ export default function SLAConfiguration() {
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div>
           <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
-          <input value={ruleForm.docType} onChange={e => set("docType", e.target.value)} style={inpStyle} />
+          <input
+            value={ruleForm.docType}
+            disabled
+            readOnly
+            title="Document Type can't be changed after the rule is created."
+            style={{ ...inpStyle, cursor: "not-allowed", color: "#9ca3af", background: "#f0f0f3" }}
+          />
         </div>
         <div>
           <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
