@@ -566,6 +566,8 @@ export default function MyTasks() {
 
   const fmtDate = d => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
   const fmtDateTime = d => d ? new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
+  // Deadlines are stored in UTC; show date + time in Manila local time (PHT) so it matches the SLA emails.
+  const fmtDeadline = d => d ? `${new Date(d).toLocaleString("en-US", { timeZone: "Asia/Manila", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} PHT` : "—";
 
   // page state for task feed pagination
   const [taskPage, setTaskPage] = useState(1);
@@ -850,7 +852,7 @@ export default function MyTasks() {
                         </div>
                         <div>
                           <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Due Date</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDate(selected.deadline)}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDeadline(selected.deadline)}</div>
                         </div>
                         <div>
                           <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Project Category</div>

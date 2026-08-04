@@ -599,6 +599,8 @@ export default function TaskAssigned() {
   const toggleCheck  = (id) => setCheckedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const fmtDate      = d => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
   const fmtDateTime  = d => d ? new Date(d).toLocaleString("en-US",  { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
+  // Deadlines are stored in UTC; show date + time in Manila local time (PHT) so it matches the SLA emails.
+  const fmtDeadline  = d => d ? `${new Date(d).toLocaleString("en-US", { timeZone: "Asia/Manila", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} PHT` : "—";
 
   const filteredTasks = tasks.filter(t => {
     const q = search.toLowerCase();
@@ -958,7 +960,7 @@ export default function TaskAssigned() {
                             </div>
                           ) : (
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDate(selected.deadline)}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDeadline(selected.deadline)}</div>
                               <button
                                 onClick={() => {
                                   const d = selected.deadline ? new Date(selected.deadline) : null;
