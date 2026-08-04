@@ -47,8 +47,13 @@ async function sendTransactionalEmail({ toList, subject, htmlContent }) {
  * Layout note: this template is built entirely with <table> elements instead
  * of flexbox/gap, and icons are plain HTML/CSS shapes instead of inline SVG.
  * Outlook desktop, and many mobile mail clients, silently drop flexbox and
- * inline SVG — that's what was causing the empty icon boxes and the
- * "DUE SOONID: TS-37" / "SLA Timeline100% Elapsed" text collisions.
+ * inline SVG, and don't reliably stretch a `width:100%` table to fill its
+ * container — that's what was causing the empty icon boxes and the
+ * "DUE SOONID: TS-37" / "SLA Timeline100% Elapsed" text collisions (the two
+ * cells in each of those rows were shrinking to content-width and sitting
+ * flush against each other). Two-column rows now use explicit width="50%"
+ * attributes on each <td>, which every mail client — including legacy
+ * Outlook — respects, so the columns stay evenly split and never collide.
  *
  * @param {Object} params
  * @param {string[]} params.recipientEmails - resolved email addresses
@@ -89,17 +94,17 @@ async function sendSlaAlertEmail({
     <!-- Header -->
     <table role="presentation" width="100%" style="background:#7c3aed;">
       <tr>
-        <td align="center" style="padding: 28px 24px;">
+        <td align="center" style="padding: 32px 24px;">
           <table role="presentation" cellpadding="0" cellspacing="0">
             <tr>
               <td width="44" height="44" align="center" valign="middle"
-                  style="background:rgba(255,255,255,0.15); border-radius:10px; font-size:20px; font-weight:700; color:#ffffff; line-height:44px;">
+                  style="background:rgba(255,255,255,0.15); border-radius:10px; font-size:20px; font-weight:700; color:#ffffff; line-height:44px; text-align:center;">
                 P
               </td>
             </tr>
           </table>
-          <p style="color:#ffffff; font-weight:700; font-size:15px; letter-spacing:1.5px; margin:12px 0 0;">DS PATH</p>
-          <p style="color:#ddd6fe; font-size:12px; margin:2px 0 0;">SLA Configuration</p>
+          <p style="color:#ffffff; font-weight:700; font-size:15px; letter-spacing:1.5px; margin:14px 0 0;">DS PATH</p>
+          <p style="color:#ddd6fe; font-size:12px; margin:4px 0 0;">SLA Configuration</p>
         </td>
       </tr>
     </table>
@@ -107,17 +112,17 @@ async function sendSlaAlertEmail({
     <!-- Intro -->
     <table role="presentation" width="100%" style="background:#f4f4f6;">
       <tr>
-        <td align="center" style="padding: 28px 24px 8px;">
+        <td align="center" style="padding: 32px 24px 8px;">
           <table role="presentation" cellpadding="0" cellspacing="0">
             <tr>
               <td width="52" height="52" align="center" valign="middle"
-                  style="background:${iconBg}; border-radius:50%; font-size:24px; font-weight:700; color:${accentColor}; line-height:52px;">
+                  style="background:${iconBg}; border-radius:50%; font-size:24px; font-weight:800; color:${accentColor}; line-height:52px; text-align:center;">
                 !
               </td>
             </tr>
           </table>
-          <h1 style="font-size:19px; color:#111827; letter-spacing:0.5px; margin: 14px 0 8px;">SLA ${badgeLabel}</h1>
-          <p style="font-size:13px; color:#6b7280; line-height:1.6; margin: 0 auto 24px; max-width:340px;">
+          <h1 style="font-size:19px; color:#111827; letter-spacing:0.5px; margin: 18px 0 8px;">SLA ${badgeLabel}</h1>
+          <p style="font-size:13px; color:#6b7280; line-height:1.6; margin: 0 auto 28px; max-width:340px;">
             A task assigned to you in the <strong style="color:#374151;">DS PATH</strong> system is approaching its Service Level Agreement (SLA) deadline.
           </p>
         </td>
@@ -130,61 +135,61 @@ async function sendSlaAlertEmail({
         <td style="padding: 0 24px;">
           <table role="presentation" width="100%" style="background:#ffffff; border-radius:10px; border-left:4px solid ${accentColorLight}; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
             <tr>
-              <td style="padding:20px 22px;">
+              <td style="padding:24px 26px;">
 
                 <!-- status row -->
-                <table role="presentation" width="100%">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
                   <tr>
-                    <td align="left" style="font-size:11px; font-weight:700; color:${accentColor}; text-transform:uppercase; letter-spacing:0.5px;">
+                    <td width="50%" align="left" valign="middle" style="font-size:11px; font-weight:700; color:${accentColor}; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap;">
                       ${statusLabel}
                     </td>
-                    <td align="right" style="font-size:11px; color:#9ca3af; white-space:nowrap;">
+                    <td width="50%" align="right" valign="middle" style="font-size:11px; color:#9ca3af; white-space:nowrap;">
                       ID: ${taskId || "—"}
                     </td>
                   </tr>
                 </table>
 
-                <p style="font-size:17px; font-weight:700; color:#111827; margin: 8px 0 16px;">${title}</p>
+                <p style="font-size:17px; font-weight:700; color:#111827; margin: 12px 0 18px; line-height:1.4;">${title}</p>
 
-                <table role="presentation" width="100%" style="border-collapse:collapse; font-size:13px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:13px;">
                   <tr>
-                    <td style="padding:8px 0; border-top:1px solid #f0f0f0; color:#9ca3af; width:130px; vertical-align:top;">DOCUMENT TYPE</td>
-                    <td style="padding:8px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${documentType || "—"}</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#9ca3af; width:130px; vertical-align:top;">DOCUMENT TYPE</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${documentType || "—"}</td>
                   </tr>
                   <tr>
-                    <td style="padding:8px 0; border-top:1px solid #f0f0f0; color:#9ca3af; vertical-align:top;">DEADLINE</td>
-                    <td style="padding:8px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${deadlineText || "—"}</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#9ca3af; vertical-align:top;">DEADLINE</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${deadlineText || "—"}</td>
                   </tr>
                 </table>
 
                 <!-- SLA timeline -->
-                <table role="presentation" width="100%" style="margin-top:14px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%; margin-top:20px;">
                   <tr>
-                    <td align="left" style="font-size:12px; color:#6b7280; padding-bottom:6px;">SLA Timeline</td>
-                    <td align="right" style="font-size:12px; color:${accentColor}; font-weight:600; padding-bottom:6px;">${elapsed}% Elapsed</td>
+                    <td width="50%" align="left" valign="middle" style="font-size:12px; font-weight:600; color:#374151; padding-bottom:8px; white-space:nowrap;">SLA Timeline</td>
+                    <td width="50%" align="right" valign="middle" style="font-size:12px; color:${accentColor}; font-weight:700; padding-bottom:8px; white-space:nowrap;">${elapsed}% Elapsed</td>
                   </tr>
                   <tr>
-                    <td colspan="2">
-                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e5e7eb; border-radius:6px; height:6px;">
+                    <td colspan="2" style="padding:2px 0;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%; background:#e5e7eb; border-radius:6px;">
                         <tr>
-                          <td style="background:#7c3aed; border-radius:6px; height:6px; width:${elapsed}%; font-size:0; line-height:0;">&nbsp;</td>
-                          <td style="font-size:0; line-height:0;">&nbsp;</td>
+                          <td style="background:#7c3aed; border-radius:6px; height:6px; width:${elapsed}%; font-size:0; line-height:6px;">&nbsp;</td>
+                          <td style="height:6px; font-size:0; line-height:6px;">&nbsp;</td>
                         </tr>
                       </table>
                     </td>
                   </tr>
                   <tr>
-                    <td colspan="2" align="center" style="font-size:12px; color:#6b7280; padding-top:10px;">
+                    <td colspan="2" align="center" style="font-size:12px; color:#6b7280; padding-top:12px;">
                       ${timeRemainingText || ""}
                     </td>
                   </tr>
                 </table>
 
                 <!-- next step callout -->
-                <table role="presentation" width="100%" style="background:#f9fafb; border-radius:8px; margin-top:16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%; background:#f9fafb; border-radius:8px; margin-top:20px;">
                   <tr>
-                    <td width="24" valign="top" style="padding:12px 0 12px 14px; color:#7c3aed; font-size:14px;">&#9432;</td>
-                    <td valign="top" style="padding:12px 14px 12px 6px; font-size:12.5px; color:#4b5563; line-height:1.5;">
+                    <td width="32" valign="top" align="center" style="padding:14px 0 14px 14px; color:#7c3aed; font-size:14px;">&#9432;</td>
+                    <td valign="top" style="padding:14px 14px 14px 8px; font-size:12.5px; color:#4b5563; line-height:1.55;">
                       <strong style="color:#374151;">Next step:</strong> Please review this task in DS PATH and update its status before the deadline passes to maintain compliance.
                     </td>
                   </tr>
@@ -202,11 +207,11 @@ async function sendSlaAlertEmail({
       taskUrl
         ? `<table role="presentation" width="100%">
             <tr>
-              <td align="center" style="padding: 24px 24px 8px;">
+              <td align="center" style="padding: 28px 24px 8px;">
                 <a href="${taskUrl}" style="background:#7c3aed; color:#ffffff; text-decoration:none; font-size:14px; font-weight:600; padding:13px 28px; border-radius:8px; display:inline-block;">
                   Review Task in DS PATH &nbsp;→
                 </a>
-                <p style="font-size:11px; color:#9ca3af; margin:16px 0 4px;">Can't access the button? Copy and paste this link:</p>
+                <p style="font-size:11px; color:#9ca3af; margin:18px 0 4px;">Can't access the button? Copy and paste this link:</p>
                 <a href="${taskUrl}" style="font-size:11px; color:#7c3aed; word-break:break-all;">${taskUrl}</a>
               </td>
             </tr>
@@ -217,7 +222,7 @@ async function sendSlaAlertEmail({
       allTasksUrl
         ? `<table role="presentation" width="100%" style="border-bottom:1px solid #e5e7eb;">
             <tr>
-              <td align="center" style="padding: 8px 24px 24px;">
+              <td align="center" style="padding: 12px 24px 28px;">
                 <a href="${allTasksUrl}" style="font-size:12px; color:#6b7280; text-decoration:none;">&#8599; View All Assigned Tasks</a>
               </td>
             </tr>
@@ -228,15 +233,15 @@ async function sendSlaAlertEmail({
     <!-- Footer -->
     <table role="presentation" width="100%">
       <tr>
-        <td align="center" style="padding: 24px;">
-          <p style="font-size:11px; color:#9ca3af; margin:0 0 4px; line-height:1.6;">
+        <td align="center" style="padding: 28px 24px;">
+          <p style="font-size:11px; color:#9ca3af; margin:0 0 10px; line-height:1.6; max-width:360px;">
             This is an automated message sent by the <strong>DS PATH</strong> application. Please do not reply directly to this email.
           </p>
-          <p style="font-size:11px; color:#c1c5cc; margin:8px 0;">© ${new Date().getFullYear()} DS PATH App. All rights reserved.</p>
-          <p style="font-size:11px; margin:8px 0 0;">
-            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 6px;">Privacy Policy</a>
-            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 6px;">Terms of Service</a>
-            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 6px;">Unsubscribe</a>
+          <p style="font-size:11px; color:#c1c5cc; margin:0 0 10px;">© ${new Date().getFullYear()} DS PATH App. All rights reserved.</p>
+          <p style="font-size:11px; margin:0;">
+            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 8px;">Privacy Policy</a>
+            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 8px;">Terms of Service</a>
+            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 8px;">Unsubscribe</a>
           </p>
         </td>
       </tr>
