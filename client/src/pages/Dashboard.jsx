@@ -160,40 +160,11 @@ function SbItem({ icon, label, active, onClick }) {
 // it fetches real tasks, forms, and documents from the API (see fetchTrackedItems
 // below). The arrays below still power the charts and the Task Overview widget.
 
-const MONTHLY_SUBMISSIONS = [
-  { month: "Jan", submitted: 22, approved: 18, rejected: 2 },
-  { month: "Feb", submitted: 28, approved: 23, rejected: 3 },
-  { month: "Mar", submitted: 31, approved: 26, rejected: 4 },
-  { month: "Apr", submitted: 25, approved: 21, rejected: 2 },
-  { month: "May", submitted: 38, approved: 32, rejected: 4 },
-  { month: "Jun", submitted: 41, approved: 31, rejected: 5 },
-];
-
-
-const TASK_TREND = [
-  { week: "W1", assigned: 8, completed: 6 },
-  { week: "W2", assigned: 11, completed: 9 },
-  { week: "W3", assigned: 7, completed: 10 },
-  { week: "W4", assigned: 13, completed: 8 },
-  { week: "W5", assigned: 9, completed: 12 },
-  { week: "W6", assigned: 15, completed: 11 },
-];
-
-const PROCESSING_TREND = [
-  { month: "Jan", days: 5.8 },
-  { month: "Feb", days: 5.2 },
-  { month: "Mar", days: 4.9 },
-  { month: "Apr", days: 6.1 },
-  { month: "May", days: 4.5 },
-  { month: "Jun", days: 4.2 },
-];
-
-const APPROVAL_PIE = [
-  { name: "Approved",   value: 31, color: "#059669" },
-  { name: "Rejected",   value: 5,  color: "#dc2626" },
-  { name: "Returned",   value: 4,  color: "#d97706" },
-  { name: "Pending",    value: 6,  color: "#7c3aed" },
-];
+// Note: monthly submissions, processing time, approval-rate, task-completion,
+// and recent-activity chart data are no longer hardcoded here — they're
+// derived live from trackedItems/facultyPerformance inside the component
+// (see the "Charts, activity feed, workflow snapshot & department overview"
+// block below the KPI strip).
 
 // Maps raw backend status values to the display labels used by StatusBadge
 const REAL_STATUS_DISPLAY = {
@@ -216,17 +187,6 @@ const NOTIFICATIONS = [
   { id: 4,  type: "announcement", text: "System Announcement",                       sub: "PATH Maintenance scheduled Jun 15, 10 PM",time: "2h ago",  read: true  },
   { id: 5,  type: "submission",   text: "New form submitted by Prof. Mendoza",       sub: "Overload Request — FRM-2026-037",         time: "3h ago",  read: true  },
   { id: 6,  type: "completed",    text: "Approval completed",                        sub: "FRM-2026-029 approved by Dean's Office",  time: "4h ago",  read: true  },
-];
-
-const ACTIVITY_FEED = [
-  { id: 1,  time: "9:48 AM",  actor: "You",                   action: "Approved",               target: "FRM-2026-029",                   type: "approved"   },
-  { id: 2,  time: "9:31 AM",  actor: "Juan Miguel Reyes",     action: "Submitted form",          target: "Thesis Defense Schedule",         type: "submitted"  },
-  { id: 3,  time: "9:15 AM",  actor: "Dr. Luisa Fernandez",   action: "Completed task",          target: "Finalize Elective Subjects List", type: "completed"  },
-  { id: 4,  time: "8:52 AM",  actor: "You",                   action: "Assigned task",           target: "TSK-006 → Self",                  type: "assigned"   },
-  { id: 5,  time: "8:40 AM",  actor: "Records Office",        action: "Returned for revision",   target: "FRM-2026-028",                    type: "revision"   },
-  { id: 6,  time: "8:22 AM",  actor: "Prof. Ana Reyes",       action: "Submitted form",          target: "Leave of Absence",                type: "submitted"  },
-  { id: 7,  time: "Yesterday", actor: "You",                  action: "Created workflow",        target: "Q3 Thesis Defense Flow",          type: "workflow"   },
-  { id: 8,  time: "Yesterday", actor: "Ms. Grace Villanueva", action: "Overdue — no update",   target: "TSK-004",                         type: "overdue"    },
 ];
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -1081,6 +1041,124 @@ export default function Dashboard() {
 
   const kpisLoading = itemsLoading || facultyLoading;
 
+  /* ════════════════════════════════════════════════════════════════════
+     Charts, activity feed, workflow snapshot & department overview —
+     all derived live from trackedItems / facultyPerformance / delayedDocs
+     (the same fetched state powering the rest of the dashboard) instead
+     of hardcoded sample data. Two notes on the data we don't have yet:
+       • There's no completion/approval timestamp in the API responses,
+         only a submission date — so "processing time" and "this month's
+         completions" are approximated from the submission month + the
+         item's current age. Add an `updated_at`/`resolved_at` column to
+         documents/forms/tasks (and return it from /api/tracking,
+         /api/tasks, /api/forms/all) to make these exact.
+       • Recent Activity is reconstructed from the tracking/task/form
+         rows themselves (most-recently-dated items), not a true audit
+         log — so it shows the latest submissions/approvals/overdue
+         items, but can't distinguish e.g. "assigned" from "created" the
+         way a dedicated activity_log table + /api/activity endpoint
+         could. ══════════════════════════════════════════════════════ */
+  const DONE_ITEM_STATUSES = ["Approved", "Completed", "Archived"];
+  const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const last6Months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    last6Months.push({ label: MONTH_ABBR[d.getMonth()], year: d.getFullYear(), month: d.getMonth() });
+  }
+
+  // Monthly Form Submissions chart — submitted / approved / rejected, bucketed by month
+  const monthlySubmissionsData = last6Months.map(({ label, year, month }) => {
+    const inMonth = trackedItems.filter(t => t.dateObj && t.dateObj.getFullYear() === year && t.dateObj.getMonth() === month);
+    return {
+      month: label,
+      submitted: inMonth.length,
+      approved: inMonth.filter(t => t.status === "Approved" || t.status === "Completed").length,
+      rejected: inMonth.filter(t => t.status === "Rejected").length,
+    };
+  });
+
+  // Processing Time Trend — avg age (in days) of resolved items submitted that month
+  const processingTrendData = last6Months.map(({ label, year, month }) => {
+    const resolved = trackedItems.filter(t =>
+      DONE_ITEM_STATUSES.includes(t.status) && t.dateObj && t.dateObj.getFullYear() === year && t.dateObj.getMonth() === month
+    );
+    const avgDays = resolved.length ? resolved.reduce((sum, t) => sum + t.days, 0) / resolved.length : 0;
+    return { month: label, days: Math.round(avgDays * 10) / 10 };
+  });
+
+  // Approval Rate donut — status breakdown for items submitted this month
+  const monthStartForCharts = new Date(now.getFullYear(), now.getMonth(), 1);
+  const itemsThisMonth = trackedItems.filter(t => t.dateObj && t.dateObj >= monthStartForCharts);
+  const approvalRateData = [
+    { name: "Approved", value: itemsThisMonth.filter(t => t.status === "Approved" || t.status === "Completed").length, color: "#059669" },
+    { name: "Rejected", value: itemsThisMonth.filter(t => t.status === "Rejected").length, color: "#dc2626" },
+    { name: "Returned", value: itemsThisMonth.filter(t => t.status === "Returned").length, color: "#d97706" },
+    { name: "Pending",  value: itemsThisMonth.filter(t => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected" && t.status !== "Returned").length, color: "#7c3aed" },
+  ];
+
+  // Task Completion — assigned vs completed tasks, last 6 calendar weeks
+  const last6Weeks = [];
+  for (let i = 5; i >= 0; i--) {
+    const start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+    start.setDate(now.getDate() - now.getDay() - i * 7);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    last6Weeks.push({ label: `W${6 - i}`, start, end });
+  }
+  const allTaskItems = trackedItems.filter(t => t.sourceType === "task");
+  const taskCompletionData = last6Weeks.map(({ label, start, end }) => {
+    const inWeek = allTaskItems.filter(t => t.dateObj && t.dateObj >= start && t.dateObj < end);
+    return {
+      week: label,
+      assigned: inWeek.length,
+      completed: inWeek.filter(t => DONE_ITEM_STATUSES.includes(t.status)).length,
+    };
+  });
+
+  // Recent Activity — most recently dated documents/forms/tasks, newest first
+  const ACTIVITY_PRESET_BY_STATUS = {
+    "Approved":  { action: "Approved",              type: "approved"  },
+    "Completed": { action: "Completed task",         type: "completed" },
+    "Rejected":  { action: "Rejected",               type: "revision"  },
+    "Returned":  { action: "Returned for revision",  type: "revision"  },
+    "Overdue":   { action: "Overdue — no update",    type: "overdue"   },
+  };
+  const recentActivityData = [...trackedItems]
+    .filter(t => t.dateObj)
+    .sort((a, b) => b.dateObj - a.dateObj)
+    .slice(0, 8)
+    .map(t => {
+      const preset = ACTIVITY_PRESET_BY_STATUS[t.status];
+      const action = preset ? preset.action : t.sourceType === "task" ? "Assigned task" : "Submitted form";
+      const type = preset ? preset.type : t.sourceType === "task" ? "assigned" : "submitted";
+      return {
+        id: `${t.sourceType}-${t.id}`,
+        time: t.dateObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+        actor: t.person || "—",
+        action,
+        target: t.title ? `${t.title}${t.id ? ` — ${t.id}` : ""}` : t.id,
+        type,
+      };
+    });
+
+  // Workflow Monitoring Snapshot — live counts across all tracked items
+  const activeWorkflowItems = trackedItems.filter(t => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected");
+  const awaitingApprovalCount = trackedItems.filter(t => t.status === "For Approval").length;
+  const resolvedItems = trackedItems.filter(t => DONE_ITEM_STATUSES.includes(t.status));
+  const avgProcessingDays = resolvedItems.length ? resolvedItems.reduce((sum, t) => sum + t.days, 0) / resolvedItems.length : 0;
+
+  // Department Overview — live faculty/workflow/form/task counts
+  const formsSubmittedThisMonth = itemsThisMonth.filter(t => t.sourceType === "form").length;
+  const tasksCompletedThisMonth = trackedItems.filter(t =>
+    t.sourceType === "task" && DONE_ITEM_STATUSES.includes(t.status) && t.dateObj && t.dateObj >= monthStartForCharts
+  ).length;
+  const approvedItemsOnly = trackedItems.filter(t => t.status === "Approved");
+  const avgApprovalDays = approvedItemsOnly.length ? approvedItemsOnly.reduce((sum, t) => sum + t.days, 0) / approvedItemsOnly.length : 0;
+
+  const monthlyChartSubtitle = `${MONTH_ABBR[now.getMonth()]} ${now.getFullYear()} — Submitted vs Approved`;
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
@@ -1592,25 +1670,31 @@ export default function Dashboard() {
                 action={<span style={{ width: 8, height: 8, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 0 3px #a7f3d050", display: "inline-block" }} />}
               >
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {ACTIVITY_FEED.map((a, idx) => {
-                    const cfg = ACTIVITY_CFG[a.type];
-                    const AIcon = cfg.icon;
-                    return (
-                      <div key={a.id} style={{ display: "flex", gap: 9, padding: "8px 0", borderBottom: idx < ACTIVITY_FEED.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                        <div style={{ width: 26, height: 26, borderRadius: 6, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <AIcon style={{ width: 12, height: 12, color: cfg.color }} />
+                  {itemsLoading ? (
+                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading recent activity…</p>
+                  ) : recentActivityData.length === 0 ? (
+                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No recent activity yet.</p>
+                  ) : (
+                    recentActivityData.map((a, idx) => {
+                      const cfg = ACTIVITY_CFG[a.type] ?? ACTIVITY_CFG.submitted;
+                      const AIcon = cfg.icon;
+                      return (
+                        <div key={a.id} style={{ display: "flex", gap: 9, padding: "8px 0", borderBottom: idx < recentActivityData.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                          <div style={{ width: 26, height: 26, borderRadius: 6, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <AIcon style={{ width: 12, height: 12, color: cfg.color }} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: 11, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
+                              <span style={{ color: a.actor === "You" ? "#7c3aed" : "#111827" }}>{a.actor}</span>
+                              {" "}<span style={{ fontWeight: 400, color: "#374151" }}>{a.action}</span>
+                            </p>
+                            <p style={{ fontSize: 10, color: "#6b7280", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.target}</p>
+                          </div>
+                          <span style={{ fontSize: 10, color: "#9ca3af", whiteSpace: "nowrap", marginTop: 1 }}>{a.time}</span>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 11, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
-                            <span style={{ color: a.actor === "You" ? "#7c3aed" : "#111827" }}>{a.actor}</span>
-                            {" "}<span style={{ fontWeight: 400, color: "#374151" }}>{a.action}</span>
-                          </p>
-                          <p style={{ fontSize: 10, color: "#6b7280", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.target}</p>
-                        </div>
-                        <span style={{ fontSize: 10, color: "#9ca3af", whiteSpace: "nowrap", marginTop: 1 }}>{a.time}</span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </SectionCard>
             </div>
@@ -1671,9 +1755,9 @@ export default function Dashboard() {
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
                 {/* Monthly submissions area */}
-                <SectionCard title="Monthly Form Submissions" subtitle="Jun 2026 — Submitted vs Approved" icon={BarChart3}>
+                <SectionCard title="Monthly Form Submissions" subtitle={monthlyChartSubtitle} icon={BarChart3}>
                   <ResponsiveContainer width="100%" height={130}>
-                    <AreaChart data={MONTHLY_SUBMISSIONS} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
+                    <AreaChart data={monthlySubmissionsData} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
                       <defs>
                         <linearGradient id="gSub" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.15} />
@@ -1700,13 +1784,13 @@ export default function Dashboard() {
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <ResponsiveContainer width={90} height={90}>
                         <RPie>
-                          <Pie data={APPROVAL_PIE} cx="50%" cy="50%" innerRadius={26} outerRadius={42} paddingAngle={2} dataKey="value">
-                            {APPROVAL_PIE.map((e, i) => <Cell key={i} fill={e.color} />)}
+                          <Pie data={approvalRateData} cx="50%" cy="50%" innerRadius={26} outerRadius={42} paddingAngle={2} dataKey="value">
+                            {approvalRateData.map((e, i) => <Cell key={i} fill={e.color} />)}
                           </Pie>
                         </RPie>
                       </ResponsiveContainer>
                       <div style={{ flex: 1 }}>
-                        {APPROVAL_PIE.map(d => (
+                        {approvalRateData.map(d => (
                           <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
                             <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
                             <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>{d.name}</span>
@@ -1719,7 +1803,7 @@ export default function Dashboard() {
 
                   <SectionCard title="Task Completion" icon={TrendingUp} subtitle="6-week trend">
                     <ResponsiveContainer width="100%" height={90}>
-                      <LineChart data={TASK_TREND} margin={{ top: 4, right: 8, left: -28, bottom: 0 }}>
+                      <LineChart data={taskCompletionData} margin={{ top: 4, right: 8, left: -28, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
                         <XAxis dataKey="week" tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
@@ -1740,10 +1824,10 @@ export default function Dashboard() {
               <SectionCard title="Workflow Monitoring Snapshot" subtitle="Live status of all documents currently in workflow" icon={Gauge}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
                   {[
-                    { label: "In Workflow",     value: 34, icon: Layers,        color: "#7c3aed" },
-                    { label: "Awaiting Approval",value: 12, icon: Clock,        color: "#d97706" },
-                    { label: "Delayed",          value: 7,  icon: AlertCircle,  color: "#dc2626" },
-                    { label: "Avg. Proc. Time",  value: "4.8d", icon: Timer,    color: "#059669" },
+                    { label: "In Workflow",      value: activeWorkflowItems.length,        icon: Layers,       color: "#7c3aed" },
+                    { label: "Awaiting Approval", value: awaitingApprovalCount,             icon: Clock,        color: "#d97706" },
+                    { label: "Delayed",           value: delayedDocs.length,                icon: AlertCircle,  color: "#dc2626" },
+                    { label: "Avg. Proc. Time",   value: `${avgProcessingDays.toFixed(1)}d`, icon: Timer,       color: "#059669" },
                   ].map(s => (
                     <div key={s.label} style={{ padding: "12px", borderRadius: 9, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
                       <div style={{ width: 28, height: 28, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
@@ -1755,7 +1839,7 @@ export default function Dashboard() {
                   ))}
                 </div>
                 <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={MONTHLY_SUBMISSIONS} margin={{ top: 0, right: 8, left: -22, bottom: 0 }}>
+                  <BarChart data={monthlySubmissionsData} margin={{ top: 0, right: 8, left: -22, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
                     <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
@@ -1771,11 +1855,11 @@ export default function Dashboard() {
               <SectionCard title="Department Overview" subtitle="College of Information Technology" icon={Building2}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {[
-                    { label: "Total Faculty Members",     value: "6",    icon: Users,        color: "#5b21b6" },
-                    { label: "Active Workflows",          value: "11",   icon: Layers,       color: "#7c3aed" },
-                    { label: "Forms Submitted This Month",value: "41",   icon: FileText,     color: "#0284c7" },
-                    { label: "Tasks Completed This Month",value: "27",   icon: CheckCircle2, color: "#059669" },
-                    { label: "Average Approval Time",     value: "4.2d", icon: Timer,        color: "#d97706" },
+                    { label: "Total Faculty Members",      value: facultyPerformance.length,               icon: Users,        color: "#5b21b6" },
+                    { label: "Active Workflows",           value: activeWorkflowItems.length,               icon: Layers,       color: "#7c3aed" },
+                    { label: "Forms Submitted This Month", value: formsSubmittedThisMonth,                  icon: FileText,     color: "#0284c7" },
+                    { label: "Tasks Completed This Month", value: tasksCompletedThisMonth,                  icon: CheckCircle2, color: "#059669" },
+                    { label: "Average Approval Time",      value: `${avgApprovalDays.toFixed(1)}d`,         icon: Timer,        color: "#d97706" },
                   ].map(s => (
                     <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 8, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
                       <div style={{ width: 32, height: 32, borderRadius: 8, background: `${s.color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -1792,7 +1876,7 @@ export default function Dashboard() {
                   <div style={{ marginTop: 4 }}>
                     <p style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", marginBottom: 6 }}>Processing Time Trend</p>
                     <ResponsiveContainer width="100%" height={60}>
-                      <LineChart data={PROCESSING_TREND} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
+                      <LineChart data={processingTrendData} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
                         <Line type="monotone" dataKey="days" stroke="#7c3aed" strokeWidth={2} dot={{ fill: "#7c3aed", r: 3 }} name="Avg Days" />
                         <Tooltip content={<CustomTip />} />
                       </LineChart>
