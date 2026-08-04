@@ -4,7 +4,7 @@ import {
   Bell, Search, Plus, Download, Filter, MoreHorizontal, ChevronRight,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
   AlertTriangle, CheckCircle2, Zap, Users, UserCheck, Building2,
-  Layers, Gauge, X, Info, Mail, Smartphone, MonitorSmartphone,
+  Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone,
 } from "lucide-react";
 
 // ── API base ─────────────────────────────────────────────────────────────
@@ -172,7 +172,6 @@ const PRIORITY_CFG = {
   Low:    { bg: "#ecfdf5", color: "#059669" },
 };
 
-const STAGES = ["Submission", "Faculty Review", "Program Chair", "Final Approval", "Completed"];
 const REVIEWER_ROLES = ["Program Chair", "Admin", "Faculty"];
 
 // ── Small building blocks ───────────────────────────────────────────────
@@ -246,6 +245,7 @@ export default function SLAConfiguration() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAlertsModal, setShowAlertsModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [createForm, setCreateForm] = useState(null);
   const [creating, setCreating] = useState(false);
   const [documentTypes, setDocumentTypes] = useState([]);
@@ -385,6 +385,7 @@ export default function SLAConfiguration() {
         }),
       });
       setToast("Rule updated.");
+      setShowEditModal(false);
       await loadAll();
     } catch (err) {
       setError(err.message || "Failed to update rule.");
@@ -452,6 +453,111 @@ export default function SLAConfiguration() {
     } catch (err) {
       setError(err.message || "Failed to add recipient.");
     }
+  }
+
+  function renderRuleFormBody() {
+    return ruleForm ? (
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
+          <input value={ruleForm.docType} onChange={e => set("docType", e.target.value)} style={inpStyle} />
+        </div>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
+          <select value={ruleForm.priority} onChange={e => set("priority", e.target.value)} style={selStyle}>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
+          <select
+            value={ruleForm.reviewerRole}
+            onChange={e => set("reviewerRole", e.target.value)}
+            style={{ ...selStyle, color: ruleForm.reviewerRole ? "#111827" : "#9ca3af" }}
+          >
+            <option value="" disabled hidden>Select a reviewer role</option>
+            {REVIEWER_ROLES.map(role => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
+          <input type="number" value={ruleForm.escalationHours} onChange={e => set("escalationHours", e.target.value)} style={inpStyle} />
+        </div>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
+          <textarea value={ruleForm.remarks} onChange={e => set("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+          <button
+            disabled={saving}
+            onClick={handleUpdateRule}
+            style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
+          >
+            {saving ? "Saving…" : "Update Rule"}
+          </button>
+          <button
+            onClick={discardChanges}
+            style={{ flex: 1, padding: "10px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+          >
+            Discard Changes
+          </button>
+        </div>
+      </div>
+    ) : (
+      <p style={{ fontSize: 12, color: "#9ca3af" }}>Select a rule from the table above to edit it.</p>
+    );
+  }
+
+  function renderEscalationBody() {
+    return escalation ? (
+      <>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #f5f5f8", marginBottom: 12 }}>
+          <div style={{ paddingRight: 10 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>Auto-Escalation</p>
+            <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>Automatically reassign to senior management if SLA fails.</p>
+          </div>
+          <div
+            onClick={toggleAutoEscalation}
+            style={{ width: 38, height: 21, borderRadius: 20, background: escalation.auto_escalation ? "#7c3aed" : "#e5e7eb", position: "relative", cursor: "pointer", flexShrink: 0, transition: "background 0.15s" }}
+          >
+            <div style={{ width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 2.5, left: escalation.auto_escalation ? 19 : 3, transition: "left 0.15s" }} />
+          </div>
+        </div>
+
+        <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Reminder Notifications</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+          {[
+            { key: "email", label: "Email Primary Stakeholders", field: "notify_email" },
+            { key: "dashboard", label: "In-App Dashboard Alerts", field: "notify_dashboard" },
+            { key: "sms", label: "Mobile SMS (Urgent Only)", field: "notify_sms" },
+          ].map(o => (
+            <label key={o.key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11.5, color: "#374151", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={!!escalation[o.field]}
+                onChange={() => toggleReminder(o.key)}
+                style={{ width: 14, height: 14, accentColor: "#7c3aed" }}
+              />
+              {o.label}
+            </label>
+          ))}
+        </div>
+
+        <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Default Recipients</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+          {(escalation.recipients || []).map(r => (
+            <span key={r.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: "#f5f3ff", color: "#6d28d9" }}>
+              <Users style={{ width: 11, height: 11 }} /> {r.role_name}
+            </span>
+          ))}
+          <a href="#" onClick={(e) => { e.preventDefault(); addRecipientRole(); }} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textDecoration: "none" }}>+ Add Role</a>
+        </div>
+      </>
+    ) : null;
   }
 
   return (
@@ -566,7 +672,7 @@ export default function SLAConfiguration() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid #f0f0f3" }}>
-                      {["Document Type", "Priority", "Escalation", "Owner Role", "Status"].map(h => (
+                      {["Document Type", "Priority", "Escalation", "Owner Role", "Status", "Actions"].map(h => (
                         <th key={h} style={{ textAlign: "left", padding: "0 10px 10px 0", fontSize: 10.5, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
                       ))}
                     </tr>
@@ -587,6 +693,18 @@ export default function SLAConfiguration() {
                         <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#9ca3af" }}>{r.escalation_hours}h Overdue</td>
                         <td style={{ padding: "12px 10px", fontSize: 12, color: "#4b5563" }}>{r.reviewer_role}</td>
                         <td style={{ padding: "12px 10px" }}><StatusDot status={r.status} /></td>
+                        <td style={{ padding: "12px 10px" }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); selectRule(r.id); setShowEditModal(true); }}
+                            style={{
+                              display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 12px",
+                              borderRadius: 7, border: "1px solid #e5e7eb", background: "#fff",
+                              color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                            }}
+                          >
+                            Edit
+                          </button>
+                        </td>
                       </tr>
                     ))}
                     {!rules.length && (
@@ -654,145 +772,17 @@ export default function SLAConfiguration() {
             </div>
           </div>
 
-          {/* Row: Configure rule + workflow visualizer + escalation settings */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 300px", gap: 16 }}>
+          {/* Row: Configure rule + escalation settings */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
 
             {/* Configure SLA Rule */}
             <SectionCard title="Configure SLA Rule" subtitle="Edit parameters for the selected document category.">
-              {ruleForm ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
-                    <input value={ruleForm.docType} onChange={e => set("docType", e.target.value)} style={inpStyle} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
-                    <select value={ruleForm.priority} onChange={e => set("priority", e.target.value)} style={selStyle}>
-                      <option>High</option>
-                      <option>Medium</option>
-                      <option>Low</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
-                    <select
-                      value={ruleForm.reviewerRole}
-                      onChange={e => set("reviewerRole", e.target.value)}
-                      style={{ ...selStyle, color: ruleForm.reviewerRole ? "#111827" : "#9ca3af" }}
-                    >
-                      <option value="" disabled hidden>Select a reviewer role</option>
-                      {REVIEWER_ROLES.map(role => (
-                        <option key={role} value={role}>{role}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
-                    <input type="number" value={ruleForm.escalationHours} onChange={e => set("escalationHours", e.target.value)} style={inpStyle} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
-                    <textarea value={ruleForm.remarks} onChange={e => set("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
-                  </div>
-                  <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                    <button
-                      disabled={saving}
-                      onClick={handleUpdateRule}
-                      style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
-                    >
-                      {saving ? "Saving…" : "Update Rule"}
-                    </button>
-                    <button
-                      onClick={discardChanges}
-                      style={{ flex: 1, padding: "10px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                    >
-                      Discard Changes
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p style={{ fontSize: 12, color: "#9ca3af" }}>Select a rule from the table above to edit it.</p>
-              )}
-            </SectionCard>
-
-            {/* Workflow visualizer */}
-            <SectionCard title="Workflow Visualizer" subtitle="Current stage progression for this rule type." icon={Info}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 4px 8px" }}>
-                {STAGES.map((s, i) => {
-                  const state = i < 2 ? "done" : i === 2 ? "current" : "todo";
-                  return (
-                    <div key={s} style={{ display: "flex", alignItems: "center", flex: i < STAGES.length - 1 ? 1 : "none" }}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                        <div style={{
-                          width: 26, height: 26, borderRadius: "50%",
-                          background: state === "todo" ? "#f3f4f6" : "#7c3aed",
-                          border: state === "current" ? "3px solid #ddd6fe" : "none",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
-                          {state === "done" && <CheckCircle2 style={{ width: 13, height: 13, color: "#fff" }} />}
-                          {state === "current" && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#fff" }} />}
-                        </div>
-                        <span style={{ fontSize: 10, fontWeight: 600, color: state === "todo" ? "#9ca3af" : "#374151", whiteSpace: "nowrap" }}>{s}</span>
-                      </div>
-                      {i < STAGES.length - 1 && (
-                        <div style={{ flex: 1, height: 2, background: i < 2 ? "#7c3aed" : "#f3f4f6", margin: "0 4px 20px" }} />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <p style={{ fontSize: 10.5, color: "#9ca3af" }}>
-                Note: stage progress here is illustrative until this rule is linked to your actual workflow engine.
-              </p>
+              {renderRuleFormBody()}
             </SectionCard>
 
             {/* Escalation settings */}
             <SectionCard title="Escalation Settings" subtitle="Manage automated actions for overdue requests.">
-              {escalation && (
-                <>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #f5f5f8", marginBottom: 12 }}>
-                    <div style={{ paddingRight: 10 }}>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>Auto-Escalation</p>
-                      <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>Automatically reassign to senior management if SLA fails.</p>
-                    </div>
-                    <div
-                      onClick={toggleAutoEscalation}
-                      style={{ width: 38, height: 21, borderRadius: 20, background: escalation.auto_escalation ? "#7c3aed" : "#e5e7eb", position: "relative", cursor: "pointer", flexShrink: 0, transition: "background 0.15s" }}
-                    >
-                      <div style={{ width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 2.5, left: escalation.auto_escalation ? 19 : 3, transition: "left 0.15s" }} />
-                    </div>
-                  </div>
-
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Reminder Notifications</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-                    {[
-                      { key: "email", label: "Email Primary Stakeholders", field: "notify_email" },
-                      { key: "dashboard", label: "In-App Dashboard Alerts", field: "notify_dashboard" },
-                      { key: "sms", label: "Mobile SMS (Urgent Only)", field: "notify_sms" },
-                    ].map(o => (
-                      <label key={o.key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11.5, color: "#374151", cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={!!escalation[o.field]}
-                          onChange={() => toggleReminder(o.key)}
-                          style={{ width: 14, height: 14, accentColor: "#7c3aed" }}
-                        />
-                        {o.label}
-                      </label>
-                    ))}
-                  </div>
-
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Default Recipients</p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
-                    {(escalation.recipients || []).map(r => (
-                      <span key={r.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: "#f5f3ff", color: "#6d28d9" }}>
-                        <Users style={{ width: 11, height: 11 }} /> {r.role_name}
-                      </span>
-                    ))}
-                    <a href="#" onClick={(e) => { e.preventDefault(); addRecipientRole(); }} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textDecoration: "none" }}>+ Add Role</a>
-                  </div>
-                </>
-              )}
+              {renderEscalationBody()}
             </SectionCard>
           </div>
 
@@ -929,6 +919,43 @@ export default function SLAConfiguration() {
                 );
               })}
               {!alerts.length && <p style={{ fontSize: 11.5, color: "#9ca3af", padding: "10px 8px" }}>No open alerts.</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit SLA Rule modal ── */}
+      {showEditModal && (
+        <div
+          onClick={() => setShowEditModal(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 20 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#f5f4fb", borderRadius: 16, padding: 0, width: 760, maxWidth: "95vw", maxHeight: "88vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 50px rgba(17,24,39,0.25)" }}
+          >
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 22px", borderBottom: "1px solid #f1f0f5", flexShrink: 0, background: "#fff" }}>
+              <div>
+                <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>Edit SLA Rule</p>
+                <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>
+                  {ruleForm?.docType || "Select a rule"}
+                </p>
+              </div>
+              <X
+                onClick={() => setShowEditModal(false)}
+                style={{ width: 16, height: 16, color: "#9ca3af", cursor: "pointer" }}
+              />
+            </div>
+
+            {/* Body */}
+            <div style={{ overflowY: "auto", padding: 18, display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
+              <SectionCard title="Configure SLA Rule" subtitle="Edit parameters for the selected document category.">
+                {renderRuleFormBody()}
+              </SectionCard>
+              <SectionCard title="Escalation Settings" subtitle="Manage automated actions for overdue requests.">
+                {renderEscalationBody()}
+              </SectionCard>
             </div>
           </div>
         </div>
