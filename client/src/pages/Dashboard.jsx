@@ -1350,18 +1350,28 @@ export default function Dashboard() {
           {/* ── Main grid ── */}
           <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* Quick Actions */}
+            {/* Quick Actions — admin/program_chair see the full ops toolbar;
+                faculty see a simplified set scoped to their own workflow */}
             <div style={{ display: "flex", gap: 8 }}>
-              {[
-                { label: "Create Task",          icon: Plus,        color: "#7c3aed", bg: "#f5f3ff" },
-                { label: "Assign Task",           icon: UserCheck,   color: "#0284c7", bg: "#e0f2fe" },
-                { label: "View Pending",          icon: ClipboardList,color: "#d97706",bg: "#fffbeb" },
-                { label: "Workflow Monitor",      icon: Gauge,       color: "#059669", bg: "#ecfdf5" },
-                { label: "Generate Report",       icon: BarChart3,   color: "#5b21b6", bg: "#ede9fe" },
-                { label: "Send Announcement",     icon: Megaphone,   color: "#0369a1", bg: "#e0f2fe" },
-              ].map(a => (
+              {(canViewAdminNav
+                ? [
+                    { label: "Create Task",       icon: Plus,          color: "#7c3aed", bg: "#f5f3ff" },
+                    { label: "Assign Task",       icon: UserCheck,     color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/assign-task") },
+                    { label: "View Pending",      icon: ClipboardList, color: "#d97706", bg: "#fffbeb" },
+                    { label: "Workflow Monitor",  icon: Gauge,         color: "#059669", bg: "#ecfdf5" },
+                    { label: "Generate Report",   icon: BarChart3,     color: "#5b21b6", bg: "#ede9fe", onClick: () => navigate("/reports") },
+                    { label: "Send Announcement", icon: Megaphone,     color: "#0369a1", bg: "#e0f2fe" },
+                  ]
+                : [
+                    { label: "My Tasks",     icon: ListTodo,      color: "#7c3aed", bg: "#f5f3ff", onClick: () => navigate("/tasks") },
+                    { label: "Submit Forms", icon: FileText,      color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/forms") },
+                    { label: "Tracking",     icon: Activity,      color: "#059669", bg: "#ecfdf5", onClick: () => navigate("/tracking") },
+                    { label: "Messages",     icon: MessageSquare, color: "#5b21b6", bg: "#ede9fe", onClick: () => navigate("/inbox") },
+                  ]
+              ).map(a => (
                 <button
                   key={a.label}
+                  onClick={a.onClick}
                   style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: "12px 8px", borderRadius: 10, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", cursor: "pointer", transition: "all 0.15s", boxShadow: "0 1px 3px rgba(91,33,182,0.04)" }}
                   onMouseEnter={e => { e.currentTarget.style.background = a.bg; e.currentTarget.style.borderColor = `${a.color}30`; }}
                   onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
