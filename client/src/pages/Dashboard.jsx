@@ -689,6 +689,10 @@ export default function Dashboard() {
       const now = new Date();
 
       // Resolve user ids -> display names (same approach as Tracking.jsx)
+      // IDs are normalized to strings on both write and read, since the
+      // /api/users list and the faculty_id/user_id fields on tasks/forms
+      // don't always agree on number vs. string, which was causing every
+      // lookup to miss and fall back to "User #<id>".
       const userMap = {};
       try {
         const res = await fetch(`${API}/api/users`, { headers: authH });
@@ -696,11 +700,14 @@ export default function Dashboard() {
           const data = await res.json();
           const users = data.users ?? data ?? [];
           (Array.isArray(users) ? users : []).forEach(u => {
-            userMap[u.id] = u.full_name || u.name || u.username || `User #${u.id}`;
+            const name = u.full_name || u.name || u.username || u.email;
+            if (u.id != null && name) userMap[String(u.id)] = name;
           });
+        } else {
+          console.error("Users fetch failed:", res.status, await res.text().catch(() => ""));
         }
       } catch (err) { console.error("Users fetch error:", err); }
-      const nameOf = (id) => userMap[id] || (id ? `User #${id}` : "—");
+      const nameOf = (id) => (id != null && userMap[String(id)]) || (id ? `User #${id}` : "—");
 
       const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
       const daysSince = (d) => d ? Math.max(0, Math.floor((now - new Date(d)) / 86400000)) : 0;
