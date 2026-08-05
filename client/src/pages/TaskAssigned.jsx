@@ -1555,7 +1555,12 @@ export default function TaskAssigned() {
                           // Revision posts are shown in the Activity feed above — skip in Discussion
                           if (isRevision) return null;
                           let attachMeta  = null;
-                          if (isAttachment) { try { attachMeta  = JSON.parse(c.content.replace("__attachment__", "")); } catch {} }
+                          if (isAttachment) {
+                            try { attachMeta = JSON.parse(c.content.replace("__attachment__", "")); } catch {}
+                            // Recompute isImg from the filename rather than trusting the stored flag —
+                            // older/backend-echoed comments may omit or lose this field.
+                            if (attachMeta) attachMeta.isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(attachMeta.name || "");
+                          }
 
                           const isSubmission = c.content?.startsWith("📤 Task submitted:");
 
