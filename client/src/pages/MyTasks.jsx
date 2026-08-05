@@ -148,6 +148,10 @@ export default function MyTasks() {
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
   const API = import.meta.env.VITE_API_URL;
+  // R2 attachment URLs are already full https:// URLs — only prepend API
+  // for legacy relative paths (e.g. "/uploads/..."). Without this, every
+  // R2 file URL gets mangled into "${API}https://..." and fails to load.
+  const resolveFileUrl = (u) => (!u ? "" : /^https?:\/\//i.test(u) ? u : `${API}${u}`);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -931,7 +935,7 @@ export default function MyTasks() {
                               {/* File chips */}
                               <div style={{ padding: "12px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
                                 {selected.attachments.map((a, i) => {
-                                  const url = `${API}${a.file_url || a.url || ""}`;
+                                  const url = resolveFileUrl(a.file_url || a.url);
                                   const name = a.file_name || a.name || "file";
                                   const ext = name.split(".").pop().toLowerCase();
                                   const isPdf = ext === "pdf";
@@ -1091,7 +1095,7 @@ export default function MyTasks() {
                                       <div style={{ padding: "8px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
                                         <div style={{ width: "100%", fontSize: 11, fontWeight: 700, color: "#dc2626", letterSpacing: 0.5, marginBottom: 4 }}>REFERENCE FILES</div>
                                         {revisionMeta.files.map((f, fi) => {
-                                          const url = `${API}${f.url}`;
+                                          const url = resolveFileUrl(f.url);
                                           const ext = f.name?.split(".").pop().toLowerCase();
                                           const isPdf = ext === "pdf";
                                           const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
@@ -1193,7 +1197,7 @@ export default function MyTasks() {
                                   {!isNoteOnly && (
                                     <div style={{ padding: "12px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
                                       {files.map((a, i) => {
-                                        const url = a._pending ? null : `${API}${a.file_url || a.url || ""}`;
+                                        const url = a._pending ? null : resolveFileUrl(a.file_url || a.url);
                                         const name = a.file_name || a.name || "file";
                                         const ext = name.split(".").pop().toLowerCase();
                                         const isPdf = ext === "pdf";
@@ -1372,7 +1376,12 @@ export default function MyTasks() {
                             // Revision posts are shown in the Activity feed above — skip in Discussion
                             if (isRevision) return null;
                             let attachMeta = null;
-                            if (isAttachment) { try { attachMeta = JSON.parse(c.content.replace("__attachment__", "")); } catch { } }
+                            if (isAttachment) {
+                              try { attachMeta = JSON.parse(c.content.replace("__attachment__", "")); } catch { }
+                              // Recompute isImg from the filename rather than trusting the stored flag —
+                              // older/backend-echoed comments may omit or lose this field.
+                              if (attachMeta) attachMeta.isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(attachMeta.name || "");
+                            }
 
                             const isSubmission = c.content?.startsWith("📤 Task submitted:");
 
@@ -1399,14 +1408,14 @@ export default function MyTasks() {
                                   {isAttachment && attachMeta ? (
                                     attachMeta.isImg ? (
                                       <img
-                                        src={`${API}${attachMeta.url}`}
+                                        src={resolveFileUrl(attachMeta.url)}
                                         alt={attachMeta.name}
                                         style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, border: "1px solid #e5e7eb", display: "block", cursor: "pointer" }}
-                                        onClick={() => setFileViewer({ url: `${API}${attachMeta.url}`, name: attachMeta.name, isPdf: false, isImg: true })}
+                                        onClick={() => setFileViewer({ url: resolveFileUrl(attachMeta.url), name: attachMeta.name, isPdf: false, isImg: true })}
                                       />
                                     ) : (
                                       <div
-                                        onClick={() => setFileViewer({ url: `${API}${attachMeta.url}`, name: attachMeta.name, isPdf: attachMeta.name?.toLowerCase().endsWith(".pdf"), isImg: false })}
+                                        onClick={() => setFileViewer({ url: resolveFileUrl(attachMeta.url), name: attachMeta.name, isPdf: attachMeta.name?.toLowerCase().endsWith(".pdf"), isImg: false })}
                                         style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f5f3ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "8px 12px", cursor: "pointer", maxWidth: 280 }}
                                       >
                                         <div style={{ width: 30, height: 30, background: "#ede9fe", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
