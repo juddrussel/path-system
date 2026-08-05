@@ -641,6 +641,41 @@ export default function Dashboard() {
   const [delayedDocs, setDelayedDocs] = useState([]);
   const [delayedLoading, setDelayedLoading] = useState(true);
 
+  // ── Live data for the "My Forms" widget ──────────────────────────────────
+  // Uses /api/forms/my (the same server-filtered endpoint Forms.jsx calls
+  // for non-program-chair users) instead of trying to match forms out of
+  // /api/forms/all by submitter name — that name isn't reliably present on
+  // every form record, so the match can silently come up empty.
+  const [myFormsData, setMyFormsData] = useState([]);
+  const [myFormsDataLoading, setMyFormsDataLoading] = useState(true);
+
+  const fetchMyForms = useCallback(async () => {
+    setMyFormsDataLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API}/api/forms/my`, { headers: authH });
+      if (res.ok) {
+        const data = await res.json();
+        const forms = data.forms ?? data ?? [];
+        const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+        setMyFormsData(
+          (Array.isArray(forms) ? forms : []).map(f => ({
+            id: f.tracking_id || `FRM-${f.id}`,
+            title: f.category ? `${f.category} Form` : "Form Submission",
+            date: fmtDate(f.filing_date || f.created_at),
+            status: REAL_STATUS_DISPLAY[f.status?.toLowerCase()] || f.status || "Pending",
+          }))
+        );
+      } else {
+        console.error("My forms fetch failed:", res.status, await res.text().catch(() => ""));
+      }
+    } catch (err) {
+      console.error("My forms fetch error:", err);
+    } finally {
+      setMyFormsDataLoading(false);
+    }
+  }, [token]);
+
   const fetchDelayedDocuments = useCallback(async () => {
     setDelayedLoading(true);
     try {
@@ -823,7 +858,8 @@ export default function Dashboard() {
     fetchTrackedItems();
     fetchFacultyPerformance();
     fetchDelayedDocuments();
-  }, [token, fetchTrackedItems, fetchFacultyPerformance, fetchDelayedDocuments]);
+    fetchMyForms();
+  }, [token, fetchTrackedItems, fetchFacultyPerformance, fetchDelayedDocuments, fetchMyForms]);
 
   // Reset to page 1 whenever the tracked list is refreshed/changes size
   useEffect(() => {
@@ -2074,11 +2110,11 @@ export default function Dashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {itemsLoading ? (
+                        {myFormsDataLoading ? (
                           <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
-                        ) : myFormsFaculty.length === 0 ? (
+                        ) : myFormsData.length === 0 ? (
                           <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>You haven't submitted any forms yet.</td></tr>
-                        ) : myFormsFaculty.slice(0, 6).map(f => {
+                        ) : myFormsData.slice(0, 6).map(f => {
                           const sCfg = STATUS_CFG[f.status?.toLowerCase()] || STATUS_CFG["pending"];
                           return (
                             <tr key={f.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
