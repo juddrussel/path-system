@@ -1943,6 +1943,58 @@ export default function Dashboard() {
 
             </>
             ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                {/* Upcoming Deadlines — full width, sits above My Tasks */}
+                <SectionCard
+                  title="Upcoming Deadlines"
+                  subtitle="Stay ahead of your closest due dates"
+                  icon={Calendar}
+                  noPad
+                  action={
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px" }}>
+                      {upcomingDeadlines.length} Upcoming
+                    </span>
+                  }
+                >
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                        {["Task Title", "Due Date", "Status", "Action"].map(col => (
+                          <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {upcomingDeadlines.length === 0 ? (
+                        <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No upcoming deadlines.</td></tr>
+                      ) : upcomingDeadlines.map(t => {
+                        const overdue = t.daysLeft < 0;
+                        const dueSoon = !overdue && t.daysLeft <= 3;
+                        const pillColor = overdue ? "#991b1b" : dueSoon ? "#92400e" : "#0369a1";
+                        const pillBg    = overdue ? "#fef2f2" : dueSoon ? "#fef3c7" : "#f0f9ff";
+                        const pillDot   = overdue ? "#ef4444" : dueSoon ? "#f59e0b" : "#38bdf8";
+                        const label = overdue ? "Overdue" : `${t.daysLeft} Day${t.daysLeft === 1 ? "" : "s"} Left`;
+                        return (
+                          <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                            <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
+                            <td style={{ padding: "10px 14px", color: overdue ? "#dc2626" : "#6b7280", fontWeight: overdue ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
+                            <td style={{ padding: "10px 14px" }}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: pillBg, color: pillColor }}>
+                                <span style={{ width: 5, height: 5, borderRadius: "50%", background: pillDot }} />
+                                {label}
+                              </span>
+                            </td>
+                            <td style={{ padding: "10px 14px" }}>
+                              <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </SectionCard>
+
               <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
 
                 {/* Left column: My Tasks + My Forms */}
@@ -2096,22 +2148,8 @@ export default function Dashboard() {
                     </div>
                   </SectionCard>
 
-                  <SectionCard title="Upcoming Deadlines" icon={Calendar} noPad>
-                    {upcomingDeadlines.length === 0 ? (
-                      <p style={{ padding: "16px", fontSize: 12, color: "#9ca3af", textAlign: "center" }}>No upcoming deadlines.</p>
-                    ) : upcomingDeadlines.map(t => (
-                      <div key={t.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                        <div style={{ minWidth: 0 }}>
-                          <p style={{ fontSize: 12, fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.title}</p>
-                          <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 1 }}>{t.date}</p>
-                        </div>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: t.daysLeft < 0 ? "#dc2626" : t.daysLeft <= 3 ? "#d97706" : "#6b7280", whiteSpace: "nowrap", flexShrink: 0 }}>
-                          {t.daysLeft < 0 ? "OVERDUE" : `${t.daysLeft}D LEFT`}
-                        </span>
-                      </div>
-                    ))}
-                  </SectionCard>
                 </div>
+              </div>
               </div>
             )}
 
