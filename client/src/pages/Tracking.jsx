@@ -716,20 +716,27 @@ export default function Tracking() {
       const merged = [];
 
       // ── User id -> name lookup ───────────────────────────────────────────
+      // Uses /api/users/names (any authenticated user), not /api/users
+      // (admin/program_chair only), and normalizes ids to strings on both
+      // sides since number/string id mismatches were causing every lookup
+      // to miss and fall back to "User #<id>".
       const userMap = {};
       try {
-        const res = await fetch(`${API}/api/users`, { headers: authH });
+        const res = await fetch(`${API}/api/users/names`, { headers: authH });
         if (res.ok) {
           const data = await res.json();
           const users = data.users ?? data ?? [];
           (Array.isArray(users) ? users : []).forEach(u => {
-            userMap[u.id] = u.full_name || u.name || u.username || `User #${u.id}`;
+            const name = u.full_name || u.name || u.username || u.email;
+            if (u.id != null && name) userMap[String(u.id)] = name;
           });
+        } else {
+          console.error("Users fetch failed:", res.status, await res.text().catch(() => ""));
         }
       } catch (err) {
         console.error("Users fetch error:", err);
       }
-      const nameOf = (id) => userMap[id] || (id ? `User #${id}` : "—");
+      const nameOf = (id) => (id != null && userMap[String(id)]) || (id ? `User #${id}` : "—");
 
       // ── Base tracking documents ─────────────────────────────────────────
       try {
