@@ -778,12 +778,18 @@ export default function Dashboard() {
             const rawDate = f.filing_date || f.created_at;
             const status = displayStatus(f.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
+            // NOTE: f.full_name is the student the form is filed for (paired
+            // with f.student_id), not who submitted it — so it must be the
+            // last fallback, not the first, or every form on this dashboard
+            // gets attributed to the student instead of the faculty member
+            // who actually filed it.
             const facultySubmitter =
-              f.full_name || f.submitter_name || f.submitted_by || f.faculty_name ||
-              f.user_name || f.username ||
+              f.submitter_name || f.submitted_by_name ||
+              (f.submitted_by ? nameOf(f.submitted_by) : null) ||
+              f.faculty_name || f.user_name || f.username ||
               (f.user_id    ? nameOf(f.user_id)    : null) ||
               (f.faculty_id ? nameOf(f.faculty_id) : null) ||
-              "—";
+              f.full_name || "—";
             merged.push({
               id: f.tracking_id || `FRM-${f.id}`,
               sourceType: "form",
