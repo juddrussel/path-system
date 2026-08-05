@@ -33,6 +33,18 @@
 // The actual INSERT is also wrapped in a small retry loop that regenerates
 // the id and tries again if it ever collides (e.g. two requests landing at
 // the same instant), so this is safe under concurrency too.
+//
+// ─── FIX (this version): POST /api/tasks/draft was silently dropping
+// attachments ────────────────────────────────────────────────────────────────
+// The frontend uploads files to R2 as soon as they're selected and, on both
+// "Assign Task" and "Save Draft", sends references to those already-uploaded
+// files as a JSON string in the `attachments` form field — not raw file
+// blobs. POST /api/tasks already handled this correctly, but POST
+// /api/tasks/draft only ever looked at req.files (raw multipart uploads),
+// which is always empty in the normal flow. The JSON reference was silently
+// ignored, so drafts saved with attachments lost them with no error.
+// /draft now parses req.body.attachments the same way /api/tasks does,
+// with req.files kept as a fallback for genuine multipart uploads.
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -568,6 +580,17 @@ router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachment
     const assignmentGroupId = facultyIds.length > 1 ? `grp_${Date.now()}` : null;
     const createdDrafts = [];
 
+    // FIX: the frontend's "Save Draft" sends already-uploaded R2 file
+    // references as a JSON string in `attachments` — the exact same shape
+    // POST /api/tasks reads. This route previously only checked req.files
+    // (raw multipart uploads), which is always empty in that flow, so the
+    // JSON reference was silently dropped and drafts lost their attachments.
+    let preUploaded = [];
+    try {
+      preUploaded = JSON.parse(req.body.attachments || "[]");
+    } catch { preUploaded = []; }
+    preUploaded = Array.isArray(preUploaded) ? preUploaded.filter(a => a?.url) : [];
+
     for (const facultyId of facultyIds) {
       const { tracking_id, result } = await insertTaskWithUniqueTrackingId((tid) =>
         db.query(
@@ -577,11 +600,19 @@ router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachment
         ).then(([r]) => r)
       );
       const taskId = result.insertId;
+
+      const attachRows = [];
+      if (preUploaded.length > 0) {
+        preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file"]));
+      }
       if (req.files?.length > 0) {
         const uploaded = await uploadFilesToR2(req.files);
-        const attachRows = uploaded.map(f => [taskId, f.url, f.originalname]);
+        uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname]));
+      }
+      if (attachRows.length > 0) {
         await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
       }
+
       createdDrafts.push({ id: taskId, tracking_id });
     }
 
