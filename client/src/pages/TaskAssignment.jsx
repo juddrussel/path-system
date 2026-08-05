@@ -330,29 +330,81 @@ function TaskAssignmentInner() {
     } catch { setAssignments([]); }
   };
 
+  // Uploads one file straight to R2 via /api/upload and reports real progress
+  // through xhr.upload.onprogress (fetch can't do upload-progress, hence XHR).
+  const uploadFileToR2 = (entryId, file) => {
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${API}/api/upload`);
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+
+      xhr.upload.onprogress = (e) => {
+        if (!e.lengthComputable) return;
+        const pct = Math.round((e.loaded / e.total) * 100);
+        setAttachments(prev => prev.map(a =>
+          a.id === entryId ? { ...a, progress: pct } : a
+        ));
+      };
+
+      xhr.onload = () => {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (xhr.status >= 200 && xhr.status < 300 && data.success) {
+            setAttachments(prev => prev.map(a =>
+              a.id === entryId ? { ...a, progress:100, status:"done", key:data.key, url:data.url } : a
+            ));
+          } else {
+            setAttachments(prev => prev.map(a =>
+              a.id === entryId ? { ...a, status:"error" } : a
+            ));
+          }
+        } catch {
+          setAttachments(prev => prev.map(a =>
+            a.id === entryId ? { ...a, status:"error" } : a
+          ));
+        }
+        resolve();
+      };
+
+      xhr.onerror = () => {
+        setAttachments(prev => prev.map(a =>
+          a.id === entryId ? { ...a, status:"error" } : a
+        ));
+        resolve();
+      };
+
+      const fd = new FormData();
+      fd.append("file", file);
+      xhr.send(fd);
+    });
+  };
+
   const handleAttach = (files) => {
     const arr = Array.from(files).filter(f => f.size <= 10*1024*1024);
     const entries = arr.map(file => ({
       id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
-      file, progress:0, status:"uploading",
+      file, progress:0, status:"uploading", key:null, url:null,
       previewUrl: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
     }));
     setAttachments(prev => [...prev, ...entries]);
+    entries.forEach(entry => uploadFileToR2(entry.id, entry.file));
+  };
 
-    entries.forEach(entry => {
-      const tick = () => {
-        setAttachments(prev => prev.map(a => {
-          if (a.id !== entry.id || a.status !== "uploading") return a;
-          const next = Math.min(100, a.progress + 12 + Math.random()*18);
-          return { ...a, progress: next, status: next >= 100 ? "done" : "uploading" };
-        }));
-      };
-      const interval = setInterval(() => {
-        tick();
-      }, 160);
-      // stop polling once this entry reaches 100 (checked lazily via timeout budget)
-      setTimeout(() => clearInterval(interval), 1800);
-    });
+  // Removing an attachment also deletes the R2 object if it finished uploading,
+  // so we don't leave orphaned files in the bucket.
+  const removeAttachment = async (id) => {
+    const target = attachments.find(a => a.id === id);
+    setAttachments(prev => prev.filter(a => a.id !== id));
+    if (target?.key) {
+      try {
+        await fetch(`${API}/api/upload/${encodeURIComponent(target.key)}`, {
+          method: "DELETE",
+          headers: authH,
+        });
+      } catch {
+        // non-fatal — a stray object in R2 isn't worth blocking the UI over
+      }
+    }
   };
 
   const handleSubmit = async () => {
@@ -362,6 +414,10 @@ function TaskAssignmentInner() {
       return alert("Please select a role to assign this task to.");
     if (!form.title || !form.deadline)
       return alert("Please fill in Task Title and Deadline.");
+    if (attachments.some(a => a.status === "uploading"))
+      return alert("Please wait for attachments to finish uploading.");
+    if (attachments.some(a => a.status === "error"))
+      return alert("Remove or retry the failed attachment before submitting.");
     setSubmitting(true);
     try {
       const fd = new FormData();
@@ -375,7 +431,10 @@ function TaskAssignmentInner() {
       } else {
         fd.append("assign_role", selectedRole);
       }
-      attachments.forEach(a => fd.append("attachments", a.file));
+      // Files already live in R2 (uploaded on selection) — send references, not blobs.
+      fd.append("attachments", JSON.stringify(
+        attachments.map(a => ({ key: a.key, url: a.url, name: a.file.name, size: a.file.size }))
+      ));
 
       const res = await fetch(`${API}/api/tasks`, {
         method: "POST",
@@ -411,7 +470,9 @@ function TaskAssignmentInner() {
       } else {
         fd.append("assign_role", selectedRole);
       }
-      attachments.forEach(a => fd.append("attachments", a.file));
+      fd.append("attachments", JSON.stringify(
+        attachments.filter(a => a.status === "done").map(a => ({ key: a.key, url: a.url, name: a.file.name, size: a.file.size }))
+      ));
       await fetch(`${API}/api/tasks/draft`, { method:"POST", headers:{ Authorization:`Bearer ${token}` }, body: fd });
       alert("Draft saved.");
     } catch { alert("Could not save draft."); }
@@ -770,16 +831,17 @@ function TaskAssignmentInner() {
                         <span style={{ fontSize:10.5, fontWeight:700, color:"#8a8a95" }}>
                           {attachments.length} file{attachments.length>1?"s":""} attached · {(attachments.reduce((s,a)=>s+a.file.size,0)/1024/1024).toFixed(2)} MB total
                         </span>
-                        <span onClick={()=>setAttachments([])} style={{ fontSize:10.5, fontWeight:700, color:"#dc2626", cursor:"pointer" }}>Clear all</span>
+                        <span onClick={()=>attachments.forEach(a=>removeAttachment(a.id))} style={{ fontSize:10.5, fontWeight:700, color:"#dc2626", cursor:"pointer" }}>Clear all</span>
                       </div>
                       <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
                         {attachments.map((a,idx) => {
                           const uploading = a.status === "uploading";
+                          const errored = a.status === "error";
                           const pct = Math.round(a.progress);
                           const kind = fileKind(a.file.name);
                           const isImage = kind.label === "IMG" && a.previewUrl;
                           return (
-                            <div key={a.id} style={{ display:"flex", alignItems:"center", gap:10, background:"white", border: uploading ? "1px solid #ede4fd" : "1px solid #f0eef7", borderRadius:11, padding:"8px 10px", boxShadow:"0 1px 2px rgba(17,17,17,0.03)", animation:"fadeUp 0.25s ease", animationDelay:`${idx*0.03}s`, animationFillMode:"backwards" }}>
+                            <div key={a.id} style={{ display:"flex", alignItems:"center", gap:10, background:"white", border: errored ? "1px solid #fecaca" : uploading ? "1px solid #ede4fd" : "1px solid #f0eef7", borderRadius:11, padding:"8px 10px", boxShadow:"0 1px 2px rgba(17,17,17,0.03)", animation:"fadeUp 0.25s ease", animationDelay:`${idx*0.03}s`, animationFillMode:"backwards" }}>
 
                               {isImage ? (
                                 <img src={a.previewUrl} alt="" style={{ width:32, height:32, borderRadius:8, objectFit:"cover", flexShrink:0, border:"1px solid #f0eef7" }} />
@@ -798,6 +860,10 @@ function TaskAssignmentInner() {
                                     </div>
                                     <span style={{ fontSize:9.5, color:"#a78bfa", fontWeight:700, flexShrink:0, minWidth:26, textAlign:"right" }}>{pct}%</span>
                                   </div>
+                                ) : errored ? (
+                                  <div style={{ display:"flex", alignItems:"center", gap:4, marginTop:1 }}>
+                                    <span style={{ fontSize:10, color:"#dc2626", fontWeight:600 }}>Upload failed — remove and try again</span>
+                                  </div>
                                 ) : (
                                   <div style={{ display:"flex", alignItems:"center", gap:4, marginTop:1 }}>
                                     <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="#0a9558" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>
@@ -812,7 +878,7 @@ function TaskAssignmentInner() {
                                   <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" />
                                 </svg>
                               ) : (
-                                <button onClick={()=>setAttachments(prev=>prev.filter(x=>x.id!==a.id))}
+                                <button onClick={()=>removeAttachment(a.id)}
                                   style={{ background:"#f6f5fa", border:"none", cursor:"pointer", color:"#9ca3af", width:22, height:22, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                                   <Icon.X />
                                 </button>
@@ -854,9 +920,9 @@ function TaskAssignmentInner() {
                     style={{ flex:1, padding:"11px", background:"white", color:"#555", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer" }}>
                     Save as Draft
                   </button>
-                  <button onClick={handleSubmit} disabled={submitting}
-                    style={{ flex:1.6, padding:"11px", background: submitting?"#a78bfa":"#7c3aed", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:800, cursor: submitting?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7, boxShadow: submitting?"none":"0 4px 10px rgba(124,58,237,0.28)", transition:"box-shadow 0.15s" }}>
-                    <Icon.Assign /> {submitting ? "Assigning…" : "Assign Task"}
+                  <button onClick={handleSubmit} disabled={submitting || attachments.some(a=>a.status==="uploading")}
+                    style={{ flex:1.6, padding:"11px", background: (submitting||attachments.some(a=>a.status==="uploading"))?"#a78bfa":"#7c3aed", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:800, cursor: (submitting||attachments.some(a=>a.status==="uploading"))?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7, boxShadow: submitting?"none":"0 4px 10px rgba(124,58,237,0.28)", transition:"box-shadow 0.15s" }}>
+                    <Icon.Assign /> {submitting ? "Assigning…" : attachments.some(a=>a.status==="uploading") ? "Uploading files…" : "Assign Task"}
                   </button>
                 </div>
               </div>

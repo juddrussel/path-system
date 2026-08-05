@@ -127,6 +127,10 @@ app.use("/api/workflows", workflowRoutes);
 app.use("/api/faculty", facultyRoutes(db));
 app.use("/api/sla", slaRoutes);
 
+// ── R2 file upload ──
+const uploadRoute = require("./routes/upload");
+app.use("/api", uploadRoute);
+
 // ── Catch unmatched routes ──
 app.use((req, res) => {
   res.status(404).json({ message: `Route not found: ${req.method} ${req.path}` });
@@ -282,7 +286,3 @@ startSlaCron();
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-//upload r2
-const uploadRoute = require("./routes/upload");
-app.use("/api", uploadRoute);
