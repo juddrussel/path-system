@@ -1037,16 +1037,52 @@ export default function Dashboard() {
 
   const activeFacultyCount = facultyPerformance.length;
 
+  const assignedTasksCount = trackedItems.filter(t => t.sourceType === "task").length;
+  const submittedFormsCount = trackedItems.filter(t => t.sourceType === "form").length;
+  const returnedRevisionsCount = trackedItems.filter(t => t.status === "Returned").length;
+
   const kpis = [
-    { label: "Pending Approvals",      value: String(pendingApprovalsCount),      color: "#7c3aed", icon: ClipboardList },
-    { label: "Active Tasks",           value: String(activeTasksCount),           color: "#d97706", icon: ListTodo      },
-    { label: "Documents Under Review", value: String(documentsUnderReviewCount),  color: "#0284c7", icon: Eye           },
-    { label: "Overdue Items",          value: String(overdueItemsCount),          color: "#dc2626", icon: AlertTriangle },
-    { label: "Approved This Month",    value: String(approvedThisMonthCount),     color: "#059669", icon: CheckCircle2  },
-    { label: "Active Faculty Members", value: String(activeFacultyCount),         color: "#5b21b6", icon: Users         },
+    { label: "Pending Approvals",   value: String(pendingApprovalsCount),   color: "#7c3aed", tint: "#c4b5fd", icon: ClipboardList },
+    { label: "Active Tasks",        value: String(activeTasksCount),        color: "#d97706", tint: "#fde68a", icon: ListTodo      },
+    { label: "Assigned Tasks",      value: String(assignedTasksCount),      color: "#0284c7", tint: "#7dd3fc", icon: Eye           },
+    { label: "Overdue Items",       value: String(overdueItemsCount),       color: "#dc2626", tint: "#fca5a5", icon: AlertTriangle },
+    { label: "Approved This Month", value: String(approvedThisMonthCount),  color: "#059669", tint: "#6ee7b7", icon: CheckCircle2  },
+    { label: "Submitted Forms",     value: String(submittedFormsCount),     color: "#5b21b6", tint: "#c4b5fd", icon: FileText      },
+    { label: "Returned/Revisions",  value: String(returnedRevisionsCount),  color: "#ea580c", tint: "#fdba74", icon: RotateCcw     },
   ];
 
   const kpisLoading = itemsLoading || facultyLoading;
+
+  /* ── Faculty-side dashboard data ──────────────────────────────────────
+     Everything below is scoped to the logged-in faculty member (matched
+     by display name against trackedItems' `person` field, same approach
+     FacultyDetailPanel uses) and only rendered when !canViewAdminNav. */
+  const myItems = trackedItems.filter(t => t.person === displayName);
+  const myTasksFaculty = myItems.filter(t => t.sourceType === "task");
+  const myFormsFaculty = myItems.filter(t => t.sourceType === "form");
+
+  const trackingBucketOf = (status) => {
+    if (["Approved", "Completed", "Archived", "Received"].includes(status)) return "Approved";
+    if (status === "Rejected") return "Rejected";
+    if (status === "Returned") return "Returned";
+    return "Pending";
+  };
+  const trackingBuckets = { Approved: 0, Pending: 0, Returned: 0, Rejected: 0 };
+  myItems.forEach(t => { trackingBuckets[trackingBucketOf(t.status)]++; });
+  const trackingOverviewData = [
+    { name: "Approved", value: trackingBuckets.Approved, color: "#22c55e" },
+    { name: "Pending",  value: trackingBuckets.Pending,  color: "#7c3aed" },
+    { name: "Returned", value: trackingBuckets.Returned, color: "#f59e0b" },
+    { name: "Rejected", value: trackingBuckets.Rejected, color: "#ef4444" },
+  ];
+  const trackingOverviewTotal = trackingOverviewData.reduce((s, d) => s + d.value, 0);
+
+  const DONE_FOR_DEADLINES = ["Approved", "Completed", "Archived", "Rejected"];
+  const upcomingDeadlines = myItems
+    .filter(t => !DONE_FOR_DEADLINES.includes(t.status) && t.dateObj)
+    .map(t => ({ ...t, daysLeft: Math.ceil((t.dateObj - now) / 86400000) }))
+    .sort((a, b) => a.daysLeft - b.daysLeft)
+    .slice(0, 5);
 
   /* ════════════════════════════════════════════════════════════════════
      Charts, activity feed, workflow snapshot & department overview —
@@ -1297,12 +1333,12 @@ export default function Dashboard() {
             </div>
 
             {/* KPI strip */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10, marginTop: 20, position: "relative", zIndex: 1 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10, marginTop: 20, position: "relative", zIndex: 1 }}>
               {kpis.map(k => (
                 <div key={k.label} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "12px 14px", backdropFilter: "blur(4px)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div style={{ width: 28, height: 28, borderRadius: 7, background: `${k.color}25`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <k.icon style={{ width: 13, height: 13, color: k.color === "#7c3aed" || k.color === "#5b21b6" ? "#c4b5fd" : k.color === "#059669" ? "#6ee7b7" : k.color === "#0284c7" ? "#7dd3fc" : k.color === "#d97706" ? "#fde68a" : "#fca5a5" }} />
+                      <k.icon style={{ width: 13, height: 13, color: k.tint }} />
                     </div>
                   </div>
                   <p style={{ fontSize: 24, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{kpisLoading ? "—" : k.value}</p>
@@ -1384,6 +1420,8 @@ export default function Dashboard() {
               ))}
             </div>
 
+            {canViewAdminNav ? (
+            <>
             {/* Row 1: Approval Queue + Alerts */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
 
@@ -1902,6 +1940,180 @@ export default function Dashboard() {
                 </div>
               </SectionCard>
             </div>
+
+            </>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
+
+                {/* Left column: My Tasks + My Forms */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                  <SectionCard
+                    title="My Tasks"
+                    subtitle="Review and manage your current administrative assignments"
+                    icon={ListTodo}
+                    noPad
+                    action={
+                      <button onClick={() => navigate("/tasks")} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px", cursor: "pointer" }}>
+                        View All Tasks <ChevronRight style={{ width: 12, height: 12 }} />
+                      </button>
+                    }
+                  >
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                      <thead>
+                        <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                          {["Task Title", "Priority", "Due Date", "Status", "Action"].map(col => (
+                            <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {itemsLoading ? (
+                          <tr><td colSpan={5} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
+                        ) : myTasksFaculty.length === 0 ? (
+                          <tr><td colSpan={5} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No tasks assigned to you yet.</td></tr>
+                        ) : myTasksFaculty.slice(0, 6).map(t => {
+                          const pCfg = PRIORITY_CFG[t.priority] || PRIORITY_CFG.Normal;
+                          const sCfg = STATUS_CFG[t.status?.toLowerCase()] || STATUS_CFG["pending"];
+                          return (
+                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                              <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
+                              <td style={{ padding: "10px 14px" }}>
+                                <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: pCfg.bg, color: pCfg.color }}>{t.priority}</span>
+                              </td>
+                              <td style={{ padding: "10px 14px", color: t.status === "Overdue" ? "#dc2626" : "#6b7280", fontWeight: t.status === "Overdue" ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
+                              <td style={{ padding: "10px 14px" }}>
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: sCfg.bg, color: sCfg.color }}>
+                                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: sCfg.dot }} />
+                                  {t.status}
+                                </span>
+                              </td>
+                              <td style={{ padding: "10px 14px" }}>
+                                <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </SectionCard>
+
+                  <SectionCard
+                    title="My Forms"
+                    subtitle="Tracking your recently submitted document requests"
+                    icon={FileText}
+                    noPad
+                    action={
+                      <button onClick={() => navigate("/forms")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}>Manage All Forms</button>
+                    }
+                  >
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                      <thead>
+                        <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                          {["Form Name", "Submission Date", "Current Status", "Action"].map(col => (
+                            <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {itemsLoading ? (
+                          <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
+                        ) : myFormsFaculty.length === 0 ? (
+                          <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>You haven't submitted any forms yet.</td></tr>
+                        ) : myFormsFaculty.slice(0, 6).map(f => {
+                          const sCfg = STATUS_CFG[f.status?.toLowerCase()] || STATUS_CFG["pending"];
+                          return (
+                            <tr key={f.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                              <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{f.title}</td>
+                              <td style={{ padding: "10px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{f.date}</td>
+                              <td style={{ padding: "10px 14px" }}>
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: sCfg.bg, color: sCfg.color }}>
+                                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: sCfg.dot }} />
+                                  {f.status}
+                                </span>
+                              </td>
+                              <td style={{ padding: "10px 14px" }}>
+                                <button onClick={() => navigate("/tracking")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "3px 10px", cursor: "pointer" }}>Track</button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </SectionCard>
+                </div>
+
+                {/* Right column: Tracking Overview donut + Notifications + Upcoming Deadlines */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                  <SectionCard title="Tracking Overview" subtitle="Status distribution of all your documents" icon={PieChart}>
+                    {trackingOverviewTotal === 0 ? (
+                      <p style={{ padding: "30px 0", fontSize: 12, color: "#9ca3af", textAlign: "center" }}>No tracked items yet.</p>
+                    ) : (
+                      <>
+                        <ResponsiveContainer width="100%" height={180}>
+                          <RPie>
+                            <Pie data={trackingOverviewData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={75} paddingAngle={3}>
+                              {trackingOverviewData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                            </Pie>
+                            <Tooltip content={<CustomTip />} />
+                          </RPie>
+                        </ResponsiveContainer>
+                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 14px", marginTop: 4 }}>
+                          {trackingOverviewData.map(d => (
+                            <span key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#6b7280" }}>
+                              <span style={{ width: 8, height: 8, borderRadius: "50%", background: d.color }} /> {d.name}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </SectionCard>
+
+                  <SectionCard
+                    title="Notifications"
+                    icon={Bell}
+                    noPad
+                    action={unread > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: "#7c3aed", color: "#fff", padding: "2px 8px", borderRadius: 20 }}>{unread} New</span>}
+                  >
+                    {NOTIFICATIONS.slice(0, 4).map(n => {
+                      const cfg = NOTIF_CFG[n.type];
+                      const NIcon = cfg.icon;
+                      return (
+                        <div key={n.id} style={{ display: "flex", gap: 10, padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)", background: n.read ? "#fff" : "#faf5ff" }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 8, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <NIcon style={{ width: 12, height: 12, color: cfg.color }} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: 11.5, fontWeight: n.read ? 400 : 600, color: "#111827" }}>{n.text}</p>
+                            <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>{n.time}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div style={{ padding: "9px 16px", textAlign: "center" }}>
+                      <button style={{ fontSize: 11, color: "#7c3aed", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>Mark all as read</button>
+                    </div>
+                  </SectionCard>
+
+                  <SectionCard title="Upcoming Deadlines" icon={Calendar} noPad>
+                    {upcomingDeadlines.length === 0 ? (
+                      <p style={{ padding: "16px", fontSize: 12, color: "#9ca3af", textAlign: "center" }}>No upcoming deadlines.</p>
+                    ) : upcomingDeadlines.map(t => (
+                      <div key={t.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontSize: 12, fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.title}</p>
+                          <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 1 }}>{t.date}</p>
+                        </div>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: t.daysLeft < 0 ? "#dc2626" : t.daysLeft <= 3 ? "#d97706" : "#6b7280", whiteSpace: "nowrap", flexShrink: 0 }}>
+                          {t.daysLeft < 0 ? "OVERDUE" : `${t.daysLeft}D LEFT`}
+                        </span>
+                      </div>
+                    ))}
+                  </SectionCard>
+                </div>
+              </div>
+            )}
 
           </div>
 
