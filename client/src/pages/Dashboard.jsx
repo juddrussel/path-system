@@ -593,9 +593,9 @@ function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs, onSelect
   );
 }
 
-function SectionCard({ title, subtitle, icon: Icon, children, action, noPad, accentColor, titleColor, footer }) {
+function SectionCard({ id, title, subtitle, icon: Icon, children, action, noPad, accentColor, titleColor, footer }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
+    <div id={id} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <div style={{ width: 29, height: 29, borderRadius: 7, background: accentColor ? `${accentColor}18` : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -1355,12 +1355,12 @@ export default function Dashboard() {
             <div style={{ display: "flex", gap: 8 }}>
               {(canViewAdminNav
                 ? [
-                    { label: "Create Task",       icon: Plus,          color: "#7c3aed", bg: "#f5f3ff" },
                     { label: "Assign Task",       icon: UserCheck,     color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/assign-task") },
-                    { label: "View Pending",      icon: ClipboardList, color: "#d97706", bg: "#fffbeb" },
-                    { label: "Workflow Monitor",  icon: Gauge,         color: "#059669", bg: "#ecfdf5" },
+                    { label: "View Pending",      icon: ClipboardList, color: "#d97706", bg: "#fffbeb", onClick: () => document.getElementById("pending-tasks-overview")?.scrollIntoView({ behavior: "smooth", block: "start" }) },
+                    { label: "Tasks",             icon: ListTodo,      color: "#7c3aed", bg: "#f5f3ff", onClick: () => navigate("/task-assigned") },
+                    { label: "Tracking",          icon: Activity,      color: "#0369a1", bg: "#e0f2fe", onClick: () => navigate("/tracking") },
                     { label: "Generate Report",   icon: BarChart3,     color: "#5b21b6", bg: "#ede9fe", onClick: () => navigate("/reports") },
-                    { label: "Send Announcement", icon: Megaphone,     color: "#0369a1", bg: "#e0f2fe" },
+                    { label: "SLA Configuration", icon: Timer,         color: "#059669", bg: "#ecfdf5", onClick: () => navigate("/sla-configuration") },
                   ]
                 : [
                     { label: "My Tasks",     icon: ListTodo,      color: "#7c3aed", bg: "#f5f3ff", onClick: () => navigate("/tasks") },
@@ -1576,7 +1576,7 @@ export default function Dashboard() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
 
               {/* Task Overview */}
-              <SectionCard title="Pending Tasks Overview" subtitle="Tasks assigned to you and your faculty" icon={ListTodo}
+              <SectionCard id="pending-tasks-overview" title="Pending Tasks Overview" subtitle="Tasks assigned to you and your faculty" icon={ListTodo}
                 action={
                   <div style={{ display: "flex", gap: 4 }}>
                     {["All", "In Progress", "Not Started", "Overdue"].map(f => (
