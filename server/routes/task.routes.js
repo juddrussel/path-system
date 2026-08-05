@@ -483,9 +483,27 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
       );
       const taskId = result.insertId;
 
+      // The frontend uploads files to R2 as soon as they're selected (for
+      // progress bars) and, on submit, sends references to those already-
+      // uploaded files as a JSON string in `attachments` — not raw file
+      // blobs. So req.files will normally be empty here; read the JSON
+      // references instead. Still honor req.files as a fallback in case a
+      // caller does send real multipart files under this field.
+      let preUploaded = [];
+      try {
+        preUploaded = JSON.parse(req.body.attachments || "[]");
+      } catch { preUploaded = []; }
+      preUploaded = Array.isArray(preUploaded) ? preUploaded.filter(a => a?.url) : [];
+
+      const attachRows = [];
+      if (preUploaded.length > 0) {
+        preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file"]));
+      }
       if (req.files?.length > 0) {
         const uploaded = await uploadFilesToR2(req.files);
-        const attachRows = uploaded.map(f => [taskId, f.url, f.originalname]);
+        uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname]));
+      }
+      if (attachRows.length > 0) {
         await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
       }
 

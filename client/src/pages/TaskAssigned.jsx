@@ -998,7 +998,7 @@ export default function TaskAssigned() {
                       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Activity</div>
 
                       {/* POST 1 — Initial task brief (posted by the assigning officer) */}
-                      {selected.attachments?.length > 0 && (() => {
+                      {(selected.attachments?.length > 0 || selected.notes || selected.doc_type) && (() => {
                         const assignerName    = selected.assigned_by_name || user.full_name || user.username || "You";
                         const assignerInitial = (assignerName[0] || "?").toUpperCase();
                         const assignedAt      = selected.created_at;
@@ -1062,6 +1062,7 @@ export default function TaskAssigned() {
                             )}
 
                             {/* File chips */}
+                            {selected.attachments?.length > 0 && (
                             <div style={{ padding: "12px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
                               {selected.attachments.map((a, i) => {
                                 const url  = resolveFileUrl(a.file_url || a.url);
@@ -1091,6 +1092,7 @@ export default function TaskAssigned() {
                                 );
                               })}
                             </div>
+                            )}
                           </div>
                         );
                       })()}
