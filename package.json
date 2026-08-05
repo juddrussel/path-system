@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "multer": "^2.2.0",
     "mysql2": "^3.23.1",
-    "node-cron": "^4.6.0"
+    "node-cron": "^4.6.0",
+    "uuid": "^14.0.1"
   }
 }

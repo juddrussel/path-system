@@ -282,3 +282,7 @@ startSlaCron();
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+//upload r2
+const uploadRoute = require("./routes/upload");
+app.use("/api", uploadRoute);
