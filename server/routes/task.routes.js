@@ -38,27 +38,36 @@ const express  = require("express");
 const router   = express.Router();
 const jwt      = require("jsonwebtoken");
 const multer   = require("multer");
-const path     = require("path");
-const fs       = require("fs");
 const db       = require("../config/db");
 const { writeLog } = require("./audit.routes");
+const { uploadToR2, deleteFromR2 } = require("../utils/uploadToR2");
 
 // ─── UPLOAD CONFIG ────────────────────────────────────────────────────────────
-fs.mkdirSync("./uploads/tasks", { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: "./uploads/tasks/",
-  filename: (req, file, cb) => {
-    const ext  = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext).replace(/\s+/g, "_");
-    cb(null, `${base}_${Date.now()}${ext}`);
-  },
-});
+// Files land in memory (not disk) so they can be streamed straight to R2.
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => cb(null, true),
 });
+
+// Uploads every file in req.files to R2 in parallel and returns
+// [{ key, url, originalname, size }] — key is what deleteFromR2 needs later.
+async function uploadFilesToR2(files) {
+  return Promise.all(
+    (files || []).map(async (f) => {
+      const { key, url } = await uploadToR2(f);
+      return { key, url, originalname: f.originalname, size: f.size };
+    })
+  );
+}
+
+// task_attachments/task_submissions only store file_url, not the R2 key,
+// so on delete we recover the key by stripping the public URL prefix back off.
+function r2KeyFromUrl(url) {
+  if (!url || !process.env.R2_PUBLIC_URL) return null;
+  const prefix = `${process.env.R2_PUBLIC_URL}/`;
+  return url.startsWith(prefix) ? url.slice(prefix.length) : null;
+}
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
@@ -475,7 +484,8 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
       const taskId = result.insertId;
 
       if (req.files?.length > 0) {
-        const attachRows = req.files.map(f => [taskId, `/uploads/tasks/${f.filename}`, f.originalname]);
+        const uploaded = await uploadFilesToR2(req.files);
+        const attachRows = uploaded.map(f => [taskId, f.url, f.originalname]);
         await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
       }
 
@@ -550,7 +560,8 @@ router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachment
       );
       const taskId = result.insertId;
       if (req.files?.length > 0) {
-        const attachRows = req.files.map(f => [taskId, `/uploads/tasks/${f.filename}`, f.originalname]);
+        const uploaded = await uploadFilesToR2(req.files);
+        const attachRows = uploaded.map(f => [taskId, f.url, f.originalname]);
         await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
       }
       createdDrafts.push({ id: taskId, tracking_id });
@@ -784,10 +795,12 @@ router.post("/:id/comment-upload", requireAuth, upload.array("files"), async (re
     if (!canAccess) return res.status(403).json({ message: "Access denied." });
     if (!req.files?.length) return res.status(400).json({ message: "No files uploaded." });
 
-    const files = req.files.map(f => ({
-      url: `/uploads/tasks/${f.filename}`,
+    const uploaded = await uploadFilesToR2(req.files);
+    const files = uploaded.map(f => ({
+      url: f.url,
       originalname: f.originalname,
-      name: f.filename,
+      name: f.originalname,
+      key: f.key,
     }));
     return res.status(201).json({ message: "Files uploaded.", files });
   } catch (err) {
@@ -806,13 +819,14 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
 
     if (!req.files?.length) return res.status(400).json({ message: "No files uploaded." });
 
-    const attachRows = req.files.map(f => [req.params.id, `/uploads/tasks/${f.filename}`, f.originalname]);
+    const uploaded = await uploadFilesToR2(req.files);
+    const attachRows = uploaded.map(f => [req.params.id, f.url, f.originalname]);
     await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
 
     const io = req.app.get("io");
     if (io) {
       const notifyId = req.user.id === rows[0].faculty_id ? rows[0].assigned_by : rows[0].faculty_id;
-      req.files.forEach(f => {
+      uploaded.forEach(f => {
         io.to(`user_${notifyId}`).emit("task:attachment_added", {
           taskId: parseInt(req.params.id),
           fileName: f.originalname,
@@ -821,13 +835,14 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
     }
 
     // Return the saved file info so the frontend can build correct URLs
-    const files = req.files.map(f => ({
-      url: `/uploads/tasks/${f.filename}`,
+    const files = uploaded.map(f => ({
+      url: f.url,
       originalname: f.originalname,
-      name: f.filename,
+      name: f.originalname,
+      key: f.key,
     }));
 
-    return res.status(201).json({ message: "Attachments uploaded.", count: req.files.length, files });
+    return res.status(201).json({ message: "Attachments uploaded.", count: files.length, files });
   } catch (err) {
     console.error("POST /api/tasks/:id/attachments error:", err);
     return res.status(500).json({ message: "Internal server error." });
@@ -841,9 +856,9 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
 // Wrapped in a transaction so the status update and the file/note inserts
 // either all land or none do — e.g. if a file insert fails partway through,
 // the task never gets stuck at "For Approval" with only some files recorded.
-// Re-uses the existing `upload` middleware (writes to ./uploads/tasks/, same
-// as every other upload route in this file) and req.app.get("io") for the
-// socket instance, consistent with the rest of the router.
+// Re-uses the existing `upload` middleware (buffers in memory, uploaded to
+// R2 same as every other upload route in this file) and req.app.get("io")
+// for the socket instance, consistent with the rest of the router.
 router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) => {
   const taskId            = parseInt(req.params.id);
   const note              = req.body.note              || null;
@@ -860,6 +875,11 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
       return res.status(403).json({ message: "Only the assigned faculty can submit this task." });
     }
 
+    // Upload to R2 before opening the transaction — network calls have no
+    // business sitting inside a DB transaction (holds the connection/locks
+    // open for however long R2 takes to respond).
+    const uploaded = await uploadFilesToR2(req.files);
+
     await conn.beginTransaction();
 
     // 1. Update task status → For Approval
@@ -870,20 +890,19 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
 
     // 2. Save each uploaded file to task_submissions
     const savedFiles = [];
-    for (const file of req.files || []) {
-      const fileUrl = `/uploads/tasks/${file.filename}`;
+    for (const file of uploaded) {
       const [result] = await conn.query(
         `INSERT INTO task_submissions
            (task_id, faculty_id, file_name, file_url, size, note, submission_group_id, submitted_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [taskId, req.user.id, file.originalname, fileUrl, file.size, note, submissionGroupId, submittedAt]
+        [taskId, req.user.id, file.originalname, file.url, file.size, note, submissionGroupId, submittedAt]
       );
       savedFiles.push({
         id:                  result.insertId,
         originalname:        file.originalname,
         file_name:           file.originalname,
-        url:                 fileUrl,
-        file_url:            fileUrl,
+        url:                 file.url,
+        file_url:            file.url,
         size:                file.size,
         note,
         submission_group_id: submissionGroupId,
@@ -892,7 +911,7 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
     }
 
     // 3. If no files but there's a note, still record the submission event
-    if (!req.files?.length) {
+    if (!uploaded.length) {
       const [result] = await conn.query(
         `INSERT INTO task_submissions
            (task_id, faculty_id, file_name, file_url, size, note, submission_group_id, submitted_at)
@@ -952,10 +971,18 @@ router.delete("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
 
     const [attachments] = await db.query("SELECT * FROM task_attachments WHERE task_id = ?", [req.params.id]);
-    attachments.forEach(a => {
-      const filePath = `.${a.file_url}`;
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    });
+    await Promise.all(
+      attachments.map(async (a) => {
+        const key = r2KeyFromUrl(a.file_url);
+        if (!key) return;
+        try {
+          await deleteFromR2(key);
+        } catch (err) {
+          // Don't let a missing/already-deleted R2 object block the task delete
+          console.error(`Failed to delete R2 object ${key}:`, err.message);
+        }
+      })
+    );
 
     await db.query("DELETE FROM tasks WHERE id = ?", [req.params.id]);
     await writeLog({ userId: req.user.id, action: "TASK_DELETE", detail: `Deleted task "${rows[0].title}" (${rows[0].tracking_id})`, ipAddress: req.ip });
