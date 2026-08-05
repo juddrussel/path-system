@@ -695,7 +695,7 @@ export default function Dashboard() {
       // lookup to miss and fall back to "User #<id>".
       const userMap = {};
       try {
-        const res = await fetch(`${API}/api/users`, { headers: authH });
+        const res = await fetch(`${API}/api/users/names`, { headers: authH });
         if (res.ok) {
           const data = await res.json();
           const users = data.users ?? data ?? [];

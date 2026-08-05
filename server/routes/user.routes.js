@@ -168,6 +168,22 @@ router.get("/resolved", requireAuth, requireAdminOrChair, async (req, res) => {
   }
 });
 
+// ─── GET /api/users/names — minimal id→name list, any authenticated user ──────
+// Used by dashboards/tables (e.g. "Submitted By / Assigned To" columns) to
+// resolve ids to display names without exposing email/phone/role/status,
+// which is why this doesn't require requireAdminOrChair like GET / does.
+router.get("/names", requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT id, full_name FROM users WHERE status = 'approved'`
+    );
+    return res.json(rows);
+  } catch (err) {
+    console.error("GET /users/names error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // ─── PATCH /api/users/:id/approve ────────────────────────────────────────────
 router.patch("/:id/approve", requireAuth, requireAdminOrChair, async (req, res) => {
   const { id } = req.params;
