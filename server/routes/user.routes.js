@@ -269,40 +269,54 @@ router.patch("/:id", requireAuth, async (req, res) => {
   }
 
   const { first_name, last_name, email, phone, department, avatar_url, role, is_active } = req.body;
-  const full_name = `${first_name || ""} ${last_name || ""}`.trim();
 
   try {
-    // admin and program_chair can change role and is_active, but only when
-    // those fields are actually sent in the body. The generic profile-edit
-    // modal never sends role/is_active, so falling back to `|| null` here
-    // was nulling out both columns whenever an admin/program_chair edited
-    // their own basic details — and role/is_active are NOT NULL columns,
-    // so the UPDATE threw and surfaced as a 500 "Internal server error".
+    // Any field not actually present in the request body must fall back to
+    // its current DB value, not null/empty — PATCH is a partial update.
+    // (An avatar-only PATCH like { avatar_url, avatar_key } previously had
+    // email/phone/department/full_name silently nulled/blanked out via
+    // `|| null` and the always-recomputed `full_name`, which threw on the
+    // NOT NULL `email` column and surfaced as a 500 "Internal server error".)
+    const [existingRows] = await db.query(
+      "SELECT full_name, email, phone, department, avatar_url, role, is_active FROM users WHERE id = ?",
+      [id]
+    );
+    if (existingRows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    const existing = existingRows[0];
+
+    const nameProvided = first_name !== undefined || last_name !== undefined;
+    const nextFullName = nameProvided
+      ? `${first_name || ""} ${last_name || ""}`.trim()
+      : existing.full_name;
+
+    const nextEmail      = email       !== undefined ? (email || null)      : existing.email;
+    const nextPhone      = phone       !== undefined ? (phone || null)      : existing.phone;
+    const nextDepartment = department  !== undefined ? (department || null) : existing.department;
+    const nextAvatarUrl  = avatar_url  !== undefined ? (avatar_url || null) : existing.avatar_url;
+
+    // admin and program_chair can additionally change role and is_active,
+    // but only when those fields are actually sent in the body.
     if (isAdmin || isProgramChair) {
-      const [existingRows] = await db.query(
-        "SELECT role, is_active FROM users WHERE id = ?", [id]
-      );
-      if (existingRows.length === 0) {
-        return res.status(404).json({ message: "User not found." });
-      }
-      const nextRole = role !== undefined ? role : existingRows[0].role;
-      const nextIsActive = is_active !== undefined ? (is_active ? 1 : 0) : existingRows[0].is_active;
+      const nextRole = role !== undefined ? role : existing.role;
+      const nextIsActive = is_active !== undefined ? (is_active ? 1 : 0) : existing.is_active;
 
       await db.query(
         `UPDATE users 
          SET full_name = ?, email = ?, phone = ?, department = ?, avatar_url = ?,
              role = ?, is_active = ?, updated_at = NOW()
          WHERE id = ?`,
-        [full_name, email || null, phone || null, department || null, avatar_url || null,
+        [nextFullName, nextEmail, nextPhone, nextDepartment, nextAvatarUrl,
           nextRole, nextIsActive, id]
       );
     } else {
-      // self — name/email/phone/department only
+      // self — name/email/phone/department/avatar only
       await db.query(
         `UPDATE users 
          SET full_name = ?, email = ?, phone = ?, department = ?, avatar_url = ?, updated_at = NOW()
          WHERE id = ?`,
-        [full_name, email || null, phone || null, department || null, avatar_url || null, id]
+        [nextFullName, nextEmail, nextPhone, nextDepartment, nextAvatarUrl, id]
       );
     }
 
