@@ -107,7 +107,8 @@ function ProfileModal({ profile, onClose, onSaved }) {
     department: profile?.department || "",
   });
 
-  const [currentAvatar, setCurrentAvatar]   = useState(profile?.avatar_url || null);
+  const [currentAvatar, setCurrentAvatar]     = useState(profile?.avatar_url || null);
+  const [currentAvatarKey, setCurrentAvatarKey] = useState(profile?.avatar_key || null);
   const [pendingPreview, setPendingPreview] = useState(null);
   const [pendingFile, setPendingFile]       = useState(null);
   const fileInputRef = useRef();
@@ -130,6 +131,8 @@ function ProfileModal({ profile, onClose, onSaved }) {
   };
 
   // ── Upload photo ───────────────────────────────────────────────────────────
+  // Uploads straight to R2 through the same /api/upload endpoint TaskAssignment
+  // uses for attachments, then saves the returned url/key onto the user record.
   const handleUploadPhoto = async () => {
     if (!pendingFile) return;
     setUploadingPhoto(true);
@@ -137,29 +140,53 @@ function ProfileModal({ profile, onClose, onSaved }) {
     try {
       const token  = localStorage.getItem("token");
       const userId = profile?.id;
-      const fd = new FormData();
-      fd.append("avatar", pendingFile);
 
-      const uploadRes = await fetch(`${API_BASE}/users/${userId}/avatar`, {
+      // 1. Upload the image to R2
+      const fd = new FormData();
+      fd.append("file", pendingFile);
+
+      const uploadRes  = await fetch(`${API_BASE}/upload`, {
         method:  "POST",
         headers: { Authorization: `Bearer ${token}` },
         body:    fd,
       });
-
-      let avatar_url = pendingPreview;
-      if (uploadRes.ok) {
-        const data = await uploadRes.json();
-        avatar_url = fullAvatarUrl(data.avatar_url) || pendingPreview;
+      const uploadData = await uploadRes.json().catch(() => null);
+      if (!uploadRes.ok || !uploadData?.success) {
+        throw new Error(uploadData?.message || "Upload failed.");
       }
 
-      setCurrentAvatar(avatar_url);
+      // 2. Persist the new avatar url/key on the user record
+      const patchRes = await fetch(`${API_BASE}/users/${userId}`, {
+        method:  "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:  `Bearer ${token}`,
+        },
+        body: JSON.stringify({ avatar_url: uploadData.url, avatar_key: uploadData.key }),
+      });
+      if (!patchRes.ok) {
+        const err = await patchRes.json().catch(() => ({}));
+        throw new Error(err.message || "Could not save your new photo.");
+      }
+
+      // 3. Clean up the old R2 object so we don't leave orphaned files behind
+      const staleKey = currentAvatarKey;
+      if (staleKey) {
+        fetch(`${API_BASE}/upload/${encodeURIComponent(staleKey)}`, {
+          method:  "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }).catch(() => {}); // non-fatal — a stray object in R2 isn't worth blocking the UI over
+      }
+
+      setCurrentAvatar(uploadData.url);
+      setCurrentAvatarKey(uploadData.key);
       setPendingPreview(null);
       setPendingFile(null);
       setPhotoSuccess(true);
-      onSaved({ ...profile, avatar_url: fullAvatarUrl(avatar_url) });
+      onSaved({ ...profile, avatar_url: fullAvatarUrl(uploadData.url), avatar_key: uploadData.key });
       setTimeout(() => setPhotoSuccess(false), 3000);
-    } catch {
-      setPhotoError("Upload failed. Please try again.");
+    } catch (err) {
+      setPhotoError(err.message || "Upload failed. Please try again.");
     } finally {
       setUploadingPhoto(false);
     }
@@ -185,7 +212,7 @@ function ProfileModal({ profile, onClose, onSaved }) {
           "Content-Type": "application/json",
           Authorization:  `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...form, avatar_url: currentAvatar }),
+        body: JSON.stringify({ ...form, avatar_url: currentAvatar, avatar_key: currentAvatarKey }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: "Update failed" }));
