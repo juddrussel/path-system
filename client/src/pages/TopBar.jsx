@@ -84,6 +84,40 @@ const Spinner = () => (
   </svg>
 );
 
+// ─── TOAST (success/error popup) ──────────────────────────────────────────────
+function Toast({ message, type = "success", onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 2800);
+    return () => clearTimeout(t);
+  }, [onClose]);
+
+  const isSuccess = type === "success";
+
+  return (
+    <div className="fixed top-5 right-5 z-[400]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div
+        className="flex items-center gap-2.5 pl-3 pr-4 py-3 rounded-xl shadow-2xl border bg-white animate-[toast-in_0.25s_ease-out]"
+        style={{ borderColor: isSuccess ? "#a7f3d0" : "#fecaca", minWidth: 260 }}
+      >
+        <span
+          className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: isSuccess ? "#d1fae5" : "#fee2e2", color: isSuccess ? "#059669" : "#dc2626" }}
+        >
+          {isSuccess ? <CheckIcon2 /> : <XIcon />}
+        </span>
+        <span className="text-xs font-bold text-gray-800 flex-1">{message}</span>
+        <button onClick={onClose} className="text-gray-300 hover:text-gray-500 text-sm leading-none shrink-0">✕</button>
+      </div>
+      <style>{`
+        @keyframes toast-in {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 const ROLE_LABELS = {
   admin:         "Admin",
   program_chair: "Program Chair",
@@ -284,6 +318,7 @@ function ProfileModal({ profile, onClose, onSaved }) {
   const [photoSuccess, setPhotoSuccess]     = useState(false);
   const [error, setError]                   = useState("");
   const [photoError, setPhotoError]         = useState("");
+  const [toast, setToast]                   = useState(null); // { message, type }
 
   const [form, setForm] = useState({
     first_name: profile?.first_name || "",
@@ -393,8 +428,11 @@ function ProfileModal({ profile, onClose, onSaved }) {
       setPhotoSuccess(true);
       onSaved({ ...profile, avatar_url: fullAvatarUrl(uploadData.url), avatar_key: uploadData.key });
       setTimeout(() => setPhotoSuccess(false), 3000);
+      setToast({ message: "Photo updated successfully!", type: "success" });
     } catch (err) {
-      setPhotoError(err.message || "Upload failed. Please try again.");
+      const msg = err.message || "Upload failed. Please try again.";
+      setPhotoError(msg);
+      setToast({ message: msg, type: "error" });
     } finally {
       setUploadingPhoto(false);
     }
@@ -430,8 +468,11 @@ function ProfileModal({ profile, onClose, onSaved }) {
       const updated = await res.json();
       onSaved({ ...updated, avatar_url: currentAvatar });
       setEditing(false);
+      setToast({ message: "Profile changes saved successfully!", type: "success" });
     } catch (err) {
-      setError(err.message || "Failed to save changes.");
+      const msg = err.message || "Failed to save changes.";
+      setError(msg);
+      setToast({ message: msg, type: "error" });
     } finally {
       setSaving(false);
     }
@@ -616,6 +657,14 @@ function ProfileModal({ profile, onClose, onSaved }) {
           src={cropSrc}
           onCancel={handleCropCancel}
           onConfirm={handleCropConfirm}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
