@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 const API_BASE  = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 const SERVER_URL = import.meta.env.VITE_API_URL  || "http://localhost:5000";
@@ -63,6 +63,20 @@ const XIcon = () => (
   </svg>
 );
 
+const ZoomOutIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" width="14" height="14">
+    <circle cx="7" cy="7" r="5" />
+    <path d="M14 14l-3.2-3.2M5 7h4" strokeLinecap="round" />
+  </svg>
+);
+
+const ZoomInIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" width="14" height="14">
+    <circle cx="7" cy="7" r="5" />
+    <path d="M14 14l-3.2-3.2M7 5v4M5 7h4" strokeLinecap="round" />
+  </svg>
+);
+
 const Spinner = () => (
   <svg className="animate-spin" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
     <circle cx="8" cy="8" r="6" strokeOpacity=".25" />
@@ -90,6 +104,176 @@ function initials(first = "", last = "") {
   return `${first[0] || ""}${last[0] || ""}`.toUpperCase() || "?";
 }
 
+// ─── IMAGE CROP MODAL ─────────────────────────────────────────────────────────
+// Lets the user pan/zoom the image they just selected inside a circular frame,
+// then bakes the visible region out to a square PNG blob for upload.
+const CROP_SIZE = 260;       // px size of the visible circular crop viewport
+const OUTPUT_SIZE = 480;     // px size of the exported square image
+const MAX_ZOOM = 4;
+
+function ImageCropModal({ src, onCancel, onConfirm }) {
+  const [naturalSize, setNaturalSize] = useState(null); // { w, h }
+  const [baseScale, setBaseScale]     = useState(1);     // scale that makes image just cover the viewport
+  const [zoom, setZoom]               = useState(1);     // multiplier on top of baseScale, 1..MAX_ZOOM
+  const [offset, setOffset]           = useState({ x: 0, y: 0 }); // pan, in viewport px
+  const [exporting, setExporting]     = useState(false);
+
+  const imgRef       = useRef(null);
+  const draggingRef   = useRef(false);
+  const lastPointRef  = useRef({ x: 0, y: 0 });
+
+  // ── Once the image loads, figure out the scale that lets it fully cover the circle ──
+  const handleImgLoad = () => {
+    const img = imgRef.current;
+    if (!img) return;
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const cover = Math.max(CROP_SIZE / w, CROP_SIZE / h);
+    setNaturalSize({ w, h });
+    setBaseScale(cover);
+    setZoom(1);
+    setOffset({ x: 0, y: 0 });
+  };
+
+  const scale = baseScale * zoom;
+  const dispW = naturalSize ? naturalSize.w * scale : 0;
+  const dispH = naturalSize ? naturalSize.h * scale : 0;
+
+  // ── Keep the image covering the viewport no matter how the user drags/zooms ──
+  const clampOffset = useCallback((o, w = dispW, h = dispH) => {
+    const maxX = Math.max(0, (w - CROP_SIZE) / 2);
+    const maxY = Math.max(0, (h - CROP_SIZE) / 2);
+    return {
+      x: Math.min(maxX, Math.max(-maxX, o.x)),
+      y: Math.min(maxY, Math.max(-maxY, o.y)),
+    };
+  }, [dispW, dispH]);
+
+  // Re-clamp whenever zoom changes (the safe pan range shrinks/grows with it)
+  useEffect(() => {
+    setOffset(o => clampOffset(o));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoom, naturalSize]);
+
+  // ── Dragging to reposition ──
+  const handlePointerDown = (e) => {
+    draggingRef.current = true;
+    lastPointRef.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+  const handlePointerMove = (e) => {
+    if (!draggingRef.current) return;
+    const dx = e.clientX - lastPointRef.current.x;
+    const dy = e.clientY - lastPointRef.current.y;
+    lastPointRef.current = { x: e.clientX, y: e.clientY };
+    setOffset(o => clampOffset({ x: o.x + dx, y: o.y + dy }));
+  };
+  const handlePointerUp = () => { draggingRef.current = false; };
+
+  // Let the scroll wheel zoom too, since people expect that
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    setZoom(z => Math.min(MAX_ZOOM, Math.max(1, +(z + delta).toFixed(2))));
+  };
+
+  // ── Bake the current pan/zoom into a square output image ──
+  const handleConfirm = () => {
+    const img = imgRef.current;
+    if (!img || !naturalSize) return;
+    setExporting(true);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = OUTPUT_SIZE;
+    canvas.height = OUTPUT_SIZE;
+    const ctx = canvas.getContext("2d");
+
+    // Map the visible CROP_SIZE x CROP_SIZE viewport back to source-image pixels
+    const sWidth  = CROP_SIZE / scale;
+    const sHeight = CROP_SIZE / scale;
+    const sx = (dispW / 2 - CROP_SIZE / 2 - offset.x) / scale;
+    const sy = (dispH / 2 - CROP_SIZE / 2 - offset.y) / scale;
+
+    ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+
+    canvas.toBlob((blob) => {
+      setExporting(false);
+      if (blob) onConfirm(blob);
+    }, "image/jpeg", 0.92);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="w-[360px] bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div className="px-5 pt-4 pb-1">
+          <h3 className="text-sm font-bold text-gray-900">Adjust your photo</h3>
+          <p className="text-[11px] text-gray-400 mt-0.5">Drag to move, use the slider (or scroll) to zoom</p>
+        </div>
+
+        {/* ── Crop viewport ── */}
+        <div className="flex items-center justify-center py-5">
+          <div
+            className="relative overflow-hidden rounded-full border-2 border-violet-200 shadow-inner bg-gray-100 select-none"
+            style={{ width: CROP_SIZE, height: CROP_SIZE, cursor: draggingRef.current ? "grabbing" : "grab", touchAction: "none" }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            onWheel={handleWheel}
+          >
+            <img
+              ref={imgRef}
+              src={src}
+              alt="Crop preview"
+              onLoad={handleImgLoad}
+              draggable={false}
+              className="absolute top-1/2 left-1/2 pointer-events-none"
+              style={{
+                width: naturalSize ? naturalSize.w * scale : "auto",
+                height: naturalSize ? naturalSize.h * scale : "auto",
+                transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px))`,
+              }}
+            />
+            {/* subtle ring to reinforce the circular crop edge */}
+            <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/10 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* ── Zoom slider ── */}
+        <div className="px-6 pb-1 flex items-center gap-2.5">
+          <span className="text-gray-400"><ZoomOutIcon /></span>
+          <input
+            type="range"
+            min={1}
+            max={MAX_ZOOM}
+            step={0.01}
+            value={zoom}
+            onChange={e => setZoom(parseFloat(e.target.value))}
+            className="flex-1 accent-violet-600"
+          />
+          <span className="text-gray-400"><ZoomInIcon /></span>
+        </div>
+
+        {/* ── Footer ── */}
+        <div className="px-6 py-4 flex gap-2">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={!naturalSize || exporting}
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
+          >
+            {exporting ? <><Spinner /> Applying…</> : <><CheckIcon2 /> Use Photo</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── PROFILE MODAL ───────────────────────────────────────────────────────────
 function ProfileModal({ profile, onClose, onSaved }) {
   const [editing, setEditing]               = useState(false);
@@ -109,13 +293,22 @@ function ProfileModal({ profile, onClose, onSaved }) {
 
   const [currentAvatar, setCurrentAvatar]     = useState(profile?.avatar_url || null);
   const [currentAvatarKey, setCurrentAvatarKey] = useState(profile?.avatar_key || null);
-  const [pendingPreview, setPendingPreview] = useState(null);
-  const [pendingFile, setPendingFile]       = useState(null);
+  const [pendingPreview, setPendingPreview] = useState(null); // object URL of the cropped result, ready to upload
+  const [pendingFile, setPendingFile]       = useState(null); // cropped Blob/File, ready to upload
+  const [cropSrc, setCropSrc]               = useState(null); // object URL of the raw selected file, shown in the cropper
   const fileInputRef = useRef();
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // ── Photo selection ────────────────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      if (cropSrc) URL.revokeObjectURL(cropSrc);
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Photo selection: open the cropper instead of previewing immediately ────
   const handlePhotoSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -123,11 +316,23 @@ function ProfileModal({ profile, onClose, onSaved }) {
     if (file.size > 5 * 1024 * 1024)    { setPhotoError("Image must be under 5 MB."); return; }
     setPhotoError("");
     setPhotoSuccess(false);
-    setPendingFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setPendingPreview(ev.target.result);
-    reader.readAsDataURL(file);
+    setCropSrc(URL.createObjectURL(file));
     e.target.value = "";
+  };
+
+  // ── Cropper confirmed: bake the crop into the pending file/preview ─────────
+  const handleCropConfirm = (blob) => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+    const croppedFile = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+    setPendingFile(croppedFile);
+    setPendingPreview(URL.createObjectURL(blob));
+  };
+
+  const handleCropCancel = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
   };
 
   // ── Upload photo ───────────────────────────────────────────────────────────
@@ -180,6 +385,7 @@ function ProfileModal({ profile, onClose, onSaved }) {
 
       setCurrentAvatar(uploadData.url);
       setCurrentAvatarKey(uploadData.key);
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
       setPendingPreview(null);
       setPendingFile(null);
       setPhotoSuccess(true);
@@ -193,6 +399,7 @@ function ProfileModal({ profile, onClose, onSaved }) {
   };
 
   const handleCancelPhoto = () => {
+    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
     setPendingPreview(null);
     setPendingFile(null);
     setPhotoError("");
@@ -229,7 +436,8 @@ function ProfileModal({ profile, onClose, onSaved }) {
   };
 
   const [bg, fg] = avatarBg(`${profile?.first_name || ""}${profile?.last_name || ""}`);
-  const displayAvatar = pendingPreview || currentAvatar;
+  // pendingPreview is a local blob: URL (already absolute) — only currentAvatar (a server path) needs fullAvatarUrl
+  const displayAvatar = pendingPreview || fullAvatarUrl(currentAvatar);
 
   return (
     <div
@@ -253,7 +461,7 @@ function ProfileModal({ profile, onClose, onSaved }) {
           <div className="relative mb-3 group">
             {displayAvatar ? (
               <img
-                src={fullAvatarUrl(displayAvatar)}
+                src={displayAvatar}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover shadow-lg border-[3px] border-white"
                 style={{ outline: pendingPreview ? "3px solid #7c3aed" : "none", outlineOffset: 2 }}
@@ -400,6 +608,14 @@ function ProfileModal({ profile, onClose, onSaved }) {
         </div>
 
       </div>
+
+      {cropSrc && (
+        <ImageCropModal
+          src={cropSrc}
+          onCancel={handleCropCancel}
+          onConfirm={handleCropConfirm}
+        />
+      )}
     </div>
   );
 }
