@@ -311,14 +311,13 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
 }
 
 // ─── PROFILE MODAL ───────────────────────────────────────────────────────────
-function ProfileModal({ profile, onClose, onSaved }) {
+function ProfileModal({ profile, onClose, onSaved, onToast }) {
   const [editing, setEditing]               = useState(false);
   const [saving, setSaving]                 = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoSuccess, setPhotoSuccess]     = useState(false);
   const [error, setError]                   = useState("");
   const [photoError, setPhotoError]         = useState("");
-  const [toast, setToast]                   = useState(null); // { message, type }
 
   const [form, setForm] = useState({
     first_name: profile?.first_name || "",
@@ -428,11 +427,11 @@ function ProfileModal({ profile, onClose, onSaved }) {
       setPhotoSuccess(true);
       onSaved({ ...profile, avatar_url: fullAvatarUrl(uploadData.url), avatar_key: uploadData.key });
       setTimeout(() => setPhotoSuccess(false), 3000);
-      setToast({ message: "Photo updated successfully!", type: "success" });
+      onToast?.("Photo updated successfully!", "success");
     } catch (err) {
       const msg = err.message || "Upload failed. Please try again.";
       setPhotoError(msg);
-      setToast({ message: msg, type: "error" });
+      onToast?.(msg, "error");
     } finally {
       setUploadingPhoto(false);
     }
@@ -468,11 +467,11 @@ function ProfileModal({ profile, onClose, onSaved }) {
       const updated = await res.json();
       onSaved({ ...updated, avatar_url: currentAvatar });
       setEditing(false);
-      setToast({ message: "Profile changes saved successfully!", type: "success" });
+      onToast?.("Profile changes saved successfully!", "success");
     } catch (err) {
       const msg = err.message || "Failed to save changes.";
       setError(msg);
-      setToast({ message: msg, type: "error" });
+      onToast?.(msg, "error");
     } finally {
       setSaving(false);
     }
@@ -659,14 +658,6 @@ function ProfileModal({ profile, onClose, onSaved }) {
           onConfirm={handleCropConfirm}
         />
       )}
-
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   );
 }
@@ -771,6 +762,7 @@ export default function TopBar({ children, onLogout }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showProfile,  setShowProfile]  = useState(false);
   const [profile,      setProfile]      = useState(null);
+  const [toast,        setToast]        = useState(null); // { message, type }
 
   const notifRef = useRef();
   const dropRef  = useRef();
@@ -874,8 +866,19 @@ export default function TopBar({ children, onLogout }) {
           onClose={() => setShowProfile(false)}
           onSaved={(updated) => {
             setProfile(updated);
-            setShowProfile(false);
+            // Keep the modal open on save so the user sees the toast confirmation;
+            // they close it manually via the X button.
           }}
+          onToast={(message, type) => setToast({ message, type, id: Date.now() })}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </>
