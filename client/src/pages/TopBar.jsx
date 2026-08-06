@@ -230,6 +230,8 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
               style={{
                 width: naturalSize ? naturalSize.w * scale : "auto",
                 height: naturalSize ? naturalSize.h * scale : "auto",
+                maxWidth: "none",
+                maxHeight: "none",
                 transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px))`,
               }}
             />
