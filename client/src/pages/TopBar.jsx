@@ -85,33 +85,76 @@ const Spinner = () => (
 );
 
 // ─── TOAST (success/error popup) ──────────────────────────────────────────────
+const TOAST_DURATION = 2800;
+
 function Toast({ message, type = "success", onClose }) {
   useEffect(() => {
-    const t = setTimeout(onClose, 2800);
+    const t = setTimeout(onClose, TOAST_DURATION);
     return () => clearTimeout(t);
   }, [onClose]);
 
   const isSuccess = type === "success";
+  const accent = isSuccess ? "#059669" : "#dc2626";
+  const soft   = isSuccess ? "#d1fae5" : "#fee2e2";
 
   return (
-    <div className="fixed top-5 right-5 z-[400]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div
+      className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
+      {/* dim backdrop — brief, and doesn't block clicks to what's underneath */}
+      <div className="absolute inset-0 bg-black/10 animate-[toast-fade_0.25s_ease-out]" />
+
       <div
-        className="flex items-center gap-2.5 pl-3 pr-4 py-3 rounded-xl shadow-2xl border bg-white animate-[toast-in_0.25s_ease-out]"
-        style={{ borderColor: isSuccess ? "#a7f3d0" : "#fecaca", minWidth: 260 }}
+        className="relative pointer-events-auto flex flex-col items-center text-center bg-white rounded-2xl shadow-2xl px-8 pt-7 pb-5 overflow-hidden animate-[toast-pop_0.32s_cubic-bezier(0.34,1.56,0.64,1)]"
+        style={{ width: 300 }}
       >
-        <span
-          className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: isSuccess ? "#d1fae5" : "#fee2e2", color: isSuccess ? "#059669" : "#dc2626" }}
+        <button
+          onClick={onClose}
+          className="absolute top-2.5 right-2.5 w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-500 hover:bg-gray-50 transition-colors"
         >
-          {isSuccess ? <CheckIcon2 /> : <XIcon />}
+          <XIcon />
+        </button>
+
+        <span
+          className="w-14 h-14 rounded-full flex items-center justify-center mb-3 animate-[toast-icon_0.4s_ease-out_0.05s_both]"
+          style={{ background: soft, color: accent }}
+        >
+          <span className="scale-[1.8]">
+            {isSuccess ? <CheckIcon2 /> : <XIcon />}
+          </span>
         </span>
-        <span className="text-xs font-bold text-gray-800 flex-1">{message}</span>
-        <button onClick={onClose} className="text-gray-300 hover:text-gray-500 text-sm leading-none shrink-0">✕</button>
+
+        <p className="text-sm font-bold text-gray-900 leading-snug px-2">{message}</p>
+
+        {/* auto-dismiss progress bar */}
+        <div className="w-full h-1 bg-gray-100 rounded-full mt-5 overflow-hidden">
+          <div
+            className="h-full rounded-full"
+            style={{
+              background: accent,
+              animation: `toast-progress ${TOAST_DURATION}ms linear forwards`,
+            }}
+          />
+        </div>
       </div>
+
       <style>{`
-        @keyframes toast-in {
-          from { opacity: 0; transform: translateY(-8px); }
-          to   { opacity: 1; transform: translateY(0); }
+        @keyframes toast-fade {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes toast-pop {
+          from { opacity: 0; transform: scale(0.85) translateY(6px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes toast-icon {
+          from { transform: scale(0); }
+          to   { transform: scale(1); }
+        }
+        @keyframes toast-progress {
+          from { width: 100%; }
+          to   { width: 0%; }
         }
       `}</style>
     </div>
