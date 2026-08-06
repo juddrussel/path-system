@@ -882,7 +882,9 @@ export default function TopBar({ children, onLogout }) {
               )}
               <div className="hidden sm:block text-left">
                 <p className="text-xs font-bold text-gray-800 leading-tight">
-                  {profile?.first_name ? `${profile.first_name}!` : (profile?.username || "User")}
+                  {profile?.first_name
+                    ? `${profile.first_name}${profile?.last_name ? ` ${profile.last_name}` : ""}`
+                    : (profile?.username || "User")}
                 </p>
                 <p className="text-[10px] text-gray-400 leading-tight">{formatRole(profile?.role)}</p>
               </div>
