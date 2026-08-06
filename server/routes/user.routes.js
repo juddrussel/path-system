@@ -272,15 +272,29 @@ router.patch("/:id", requireAuth, async (req, res) => {
   const full_name = `${first_name || ""} ${last_name || ""}`.trim();
 
   try {
-    // admin and program_chair can change role and is_active
+    // admin and program_chair can change role and is_active, but only when
+    // those fields are actually sent in the body. The generic profile-edit
+    // modal never sends role/is_active, so falling back to `|| null` here
+    // was nulling out both columns whenever an admin/program_chair edited
+    // their own basic details — and role/is_active are NOT NULL columns,
+    // so the UPDATE threw and surfaced as a 500 "Internal server error".
     if (isAdmin || isProgramChair) {
+      const [existingRows] = await db.query(
+        "SELECT role, is_active FROM users WHERE id = ?", [id]
+      );
+      if (existingRows.length === 0) {
+        return res.status(404).json({ message: "User not found." });
+      }
+      const nextRole = role !== undefined ? role : existingRows[0].role;
+      const nextIsActive = is_active !== undefined ? (is_active ? 1 : 0) : existingRows[0].is_active;
+
       await db.query(
         `UPDATE users 
          SET full_name = ?, email = ?, phone = ?, department = ?, avatar_url = ?,
              role = ?, is_active = ?, updated_at = NOW()
          WHERE id = ?`,
         [full_name, email || null, phone || null, department || null, avatar_url || null,
-          role || null, is_active !== undefined ? (is_active ? 1 : 0) : null, id]
+          nextRole, nextIsActive, id]
       );
     } else {
       // self — name/email/phone/department only
