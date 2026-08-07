@@ -927,6 +927,19 @@ export default function DocumentCategories() {
     }
   }, [location.state]);
 
+  // Auto-open "Edit Category" for a specific template when navigated here from
+  // Forms → "Edit" on a form template card. Waits until categories have loaded
+  // so the target record can actually be found.
+  useEffect(() => {
+    if (location.state?.editCategoryId != null && categories.length > 0) {
+      const target = categories.find(
+        c => c.id === location.state.editCategoryId || c.name === location.state.editCategoryName
+      );
+      if (target) setEditingCategory(target);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, categories]);
+
   const loadCategories = async () => {
     setLoading(true);
     setLoadError(null);

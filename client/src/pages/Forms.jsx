@@ -41,6 +41,7 @@ const Icon = {
   Check: () => <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="2" width="14" height="14"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>,
   X: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" /></svg>,
   Eye: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" /><circle cx="8" cy="8" r="2" /></svg>,
+  Pencil: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M11 2l3 3-8 8-3.5.5.5-3.5 8-8z" strokeLinecap="round" strokeLinejoin="round" /></svg>,
   File: () => <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="28" height="28"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M10 2v4h4" /></svg>,
   ExportCSV: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M9 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6L9 2z" /><path d="M9 2v4h4" /><path d="M5 9h6M5 11.5h4" /></svg>,
   Filter: () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z" /></svg>,
@@ -1174,10 +1175,17 @@ export default function Forms() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
                 {categories.map((cat) => (
                   <div key={cat.id} style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: "16px 18px", position: "relative" }}>
+                    <button
+                      onClick={() => navigate("/document-categories", { state: { editCategoryId: cat.id, editCategoryName: cat.name } })}
+                      title="Edit this form template"
+                      style={{ position: "absolute", top: 12, right: 12, display: "flex", alignItems: "center", gap: 5, padding: "4px 9px", background: "white", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer" }}
+                    >
+                      <Icon.Pencil /> Edit
+                    </button>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
                       <Icon.Forms />
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 4 }}>{cat.name}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 4, paddingRight: 60 }}>{cat.name}</div>
                     <div style={{ fontSize: 11, color: "#888" }}>{cat.description || "Standard submission form"}</div>
                     <div style={{ marginTop: 12, display: "flex", gap: 6, alignItems: "center" }}>
                       <span style={{ background: "#d1fae5", color: "#065f46", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>Active</span>
