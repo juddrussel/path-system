@@ -46,6 +46,18 @@ async function generateUniqueCode(name) {
   }
 }
 
+// ─── HELPER: turn a field's raw `choices` column (JSON text or NULL) into
+//     the array shape the frontend's DropdownOptionsEditor expects ──────────
+function parseChoices(raw) {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 // ─── HELPER: attach formFields[] to a list of category rows ─────────────────
 async function attachFields(categories) {
   if (!categories.length) return categories;
@@ -61,6 +73,7 @@ async function attachFields(categories) {
       name: f.name,
       fieldType: f.field_type,
       required: !!f.required,
+      options: parseChoices(f.choices),
     });
   }
   return categories.map(c => ({
@@ -111,9 +124,20 @@ function validatePayload(body) {
     for (const f of formFields) {
       if (!f.name || !f.name.trim()) return "Every form field needs a name.";
       if (f.fieldType && !FIELD_TYPES.includes(f.fieldType)) return `Invalid field type: ${f.fieldType}`;
+      if (f.fieldType === "Dropdown" && f.options && !Array.isArray(f.options)) {
+        return "Dropdown options must be an array.";
+      }
     }
   }
   return null;
+}
+
+// ─── HELPER: how a field's choices get written to the DB. Only Dropdown
+//     fields keep their options; everything else is stored as NULL ─────────
+function serializeChoices(f) {
+  if (f.fieldType !== "Dropdown") return null;
+  const opts = Array.isArray(f.options) ? f.options.filter(o => String(o).trim()) : [];
+  return opts.length ? JSON.stringify(opts) : null;
 }
 
 // ─── GET /api/categories — list (with optional ?status=&q=&type=) ───────────
@@ -185,9 +209,9 @@ router.post("/", requireAuth, requireReviewer, async (req, res) => {
     for (let i = 0; i < formFields.length; i++) {
       const f = formFields[i];
       await conn.query(
-        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order)
-         VALUES (?, ?, ?, ?, ?)`,
-        [categoryId, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i]
+        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order, choices)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [categoryId, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i, serializeChoices(f)]
       );
     }
 
@@ -236,9 +260,9 @@ router.put("/:id", requireAuth, requireReviewer, async (req, res) => {
     for (let i = 0; i < formFields.length; i++) {
       const f = formFields[i];
       await conn.query(
-        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order)
-         VALUES (?, ?, ?, ?, ?)`,
-        [req.params.id, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i]
+        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order, choices)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [req.params.id, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i, serializeChoices(f)]
       );
     }
 
