@@ -268,6 +268,92 @@ function SegButton({ label, active, onClick }) {
   );
 }
 
+// ── Dropdown Choices Editor (lets faculty define the options for a Dropdown field) ──
+function DropdownOptionsEditor({ options = [], onChange }) {
+  const [draft, setDraft] = useState("");
+
+  const addOption = () => {
+    const val = draft.trim();
+    if (!val) return;
+    if (options.some(o => o.toLowerCase() === val.toLowerCase())) { setDraft(""); return; }
+    onChange([...options, val]);
+    setDraft("");
+  };
+
+  const updateOption = (idx, val) => onChange(options.map((o, i) => (i === idx ? val : o)));
+  const removeOption = (idx) => onChange(options.filter((_, i) => i !== idx));
+
+  return (
+    <div style={{
+      marginLeft: 30, padding: "12px 14px", borderRadius: 9,
+      background: "#f5f3ff", border: "1px solid #ddd6fe",
+    }}>
+      <p style={{ fontSize: 10.5, fontWeight: 700, color: "#7c3aed", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 8 }}>
+        Dropdown Choices
+      </p>
+
+      {options.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
+          {options.map((opt, idx) => (
+            <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 14, fontSize: 10.5, color: "#a78bfa", flexShrink: 0 }}>{idx + 1}.</span>
+              <input
+                value={opt}
+                onChange={e => updateOption(idx, e.target.value)}
+                style={{
+                  flex: 1, minWidth: 0, padding: "6px 9px", borderRadius: 7,
+                  border: "1px solid #e5e7eb", fontSize: 12, color: "#111827",
+                  outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => removeOption(idx)}
+                style={{ background: "transparent", border: "none", color: "#c4b5fd", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
+                onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
+                onMouseLeave={e => e.currentTarget.style.color = "#c4b5fd"}
+              >
+                <X style={{ width: 12, height: 12 }} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {options.length === 0 && (
+        <p style={{ fontSize: 11.5, color: "#a78bfa", fontStyle: "italic", marginBottom: 8 }}>
+          No choices yet — add the options faculty will pick from below.
+        </p>
+      )}
+
+      <div style={{ display: "flex", gap: 6 }}>
+        <input
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addOption(); } }}
+          placeholder="e.g. Undergraduate"
+          style={{
+            flex: 1, minWidth: 0, padding: "6px 9px", borderRadius: 7,
+            border: "1px solid #e5e7eb", fontSize: 12, color: "#111827",
+            outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif",
+          }}
+        />
+        <button
+          type="button"
+          onClick={addOption}
+          style={{
+            display: "flex", alignItems: "center", gap: 4, padding: "6px 11px",
+            borderRadius: 7, border: "1px solid #7c3aed", background: "#7c3aed",
+            color: "white", fontSize: 11.5, fontWeight: 700, cursor: "pointer", flexShrink: 0,
+          }}
+        >
+          <Plus style={{ width: 11, height: 11 }} /> Add Choice
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Edit Category Modal ──────────────────────────────────────────────────────
 function EditCategoryModal({ category, onClose, onSave, error }) {
   const [name, setName] = useState(category.name);
@@ -414,42 +500,53 @@ function EditCategoryModal({ category, onClose, onSave, error }) {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {fields.map((f, idx) => (
-                  <div key={f.id} style={{
-                    display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                    border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
-                  }}>
-                    <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
-                    <span style={{
-                      width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
-                      fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                  <div key={f.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{
+                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                      border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
                     }}>
-                      {idx + 1}
-                    </span>
-                    <input
-                      value={f.name}
-                      onChange={e => updateField(f.id, { name: e.target.value })}
-                      placeholder="Field label"
-                      style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
-                    />
-                    <select
-                      value={f.fieldType}
-                      onChange={e => updateField(f.id, { fieldType: e.target.value })}
-                      style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
-                    >
-                      {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
-                    </select>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                      <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
-                      <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
+                      <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
+                      <span style={{
+                        width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
+                        fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                      }}>
+                        {idx + 1}
+                      </span>
+                      <input
+                        value={f.name}
+                        onChange={e => updateField(f.id, { name: e.target.value })}
+                        placeholder="Field label"
+                        style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
+                      />
+                      <select
+                        value={f.fieldType}
+                        onChange={e => updateField(f.id, {
+                          fieldType: e.target.value,
+                          ...(e.target.value === "Dropdown" && !f.options ? { options: [] } : {}),
+                        })}
+                        style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
+                      >
+                        {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
+                      </select>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                        <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
+                        <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
+                      </div>
+                      <button
+                        onClick={() => removeField(f.id)}
+                        style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
+                        onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
+                        onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
+                      >
+                        <X style={{ width: 14, height: 14 }} />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => removeField(f.id)}
-                      style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
-                      onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
-                      onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
-                    >
-                      <X style={{ width: 14, height: 14 }} />
-                    </button>
+                    {f.fieldType === "Dropdown" && (
+                      <DropdownOptionsEditor
+                        options={f.options || []}
+                        onChange={(opts) => updateField(f.id, { options: opts })}
+                      />
+                    )}
                   </div>
                 ))}
                 {fields.length === 0 && (
@@ -669,42 +766,53 @@ function AddCategoryModal({ onClose, onCreate, existingCodes = [], error }) {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {fields.map((f, idx) => (
-                    <div key={f.id} style={{
-                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                      border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
-                    }}>
-                      <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
-                      <span style={{
-                        width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
-                        fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    <div key={f.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                        border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
                       }}>
-                        {idx + 1}
-                      </span>
-                      <input
-                        value={f.name}
-                        onChange={e => updateField(f.id, { name: e.target.value })}
-                        placeholder="Field label"
-                        style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
-                      />
-                      <select
-                        value={f.fieldType}
-                        onChange={e => updateField(f.id, { fieldType: e.target.value })}
-                        style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
-                      >
-                        {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
-                      </select>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                        <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
-                        <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
+                        <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
+                        <span style={{
+                          width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
+                          fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                        }}>
+                          {idx + 1}
+                        </span>
+                        <input
+                          value={f.name}
+                          onChange={e => updateField(f.id, { name: e.target.value })}
+                          placeholder="Field label"
+                          style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
+                        />
+                        <select
+                          value={f.fieldType}
+                          onChange={e => updateField(f.id, {
+                            fieldType: e.target.value,
+                            ...(e.target.value === "Dropdown" && !f.options ? { options: [] } : {}),
+                          })}
+                          style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
+                        >
+                          {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
+                        </select>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                          <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
+                          <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
+                        </div>
+                        <button
+                          onClick={() => removeField(f.id)}
+                          style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
+                          onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
+                          onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
+                        >
+                          <X style={{ width: 14, height: 14 }} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => removeField(f.id)}
-                        style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
-                        onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
-                        onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
-                      >
-                        <X style={{ width: 14, height: 14 }} />
-                      </button>
+                      {f.fieldType === "Dropdown" && (
+                        <DropdownOptionsEditor
+                          options={f.options || []}
+                          onChange={(opts) => updateField(f.id, { options: opts })}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -860,32 +968,50 @@ function ViewCategoryModal({ category, onClose, onEdit }) {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {category.formFields.map((f, idx) => (
-                    <div key={f.id} style={{
-                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                      border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
-                    }}>
-                      <span style={{
-                        width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
-                        fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    <div key={f.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                        border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
                       }}>
-                        {idx + 1}
-                      </span>
-                      <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: "#111827", fontWeight: 600 }}>
-                        {f.name || "Untitled field"}
-                      </span>
-                      <span style={{
-                        fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6,
-                        background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", flexShrink: 0,
-                      }}>
-                        {f.fieldType}
-                      </span>
-                      <span style={{
-                        fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6, flexShrink: 0,
-                        background: f.required ? "#fef2f2" : "#f3f4f6",
-                        color: f.required ? "#dc2626" : "#9ca3af",
-                      }}>
-                        {f.required ? "Required" : "Optional"}
-                      </span>
+                        <span style={{
+                          width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
+                          fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                        }}>
+                          {idx + 1}
+                        </span>
+                        <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: "#111827", fontWeight: 600 }}>
+                          {f.name || "Untitled field"}
+                        </span>
+                        <span style={{
+                          fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6,
+                          background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", flexShrink: 0,
+                        }}>
+                          {f.fieldType}
+                        </span>
+                        <span style={{
+                          fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6, flexShrink: 0,
+                          background: f.required ? "#fef2f2" : "#f3f4f6",
+                          color: f.required ? "#dc2626" : "#9ca3af",
+                        }}>
+                          {f.required ? "Required" : "Optional"}
+                        </span>
+                      </div>
+                      {f.fieldType === "Dropdown" && (
+                        <div style={{ marginLeft: 30, display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {(f.options && f.options.length > 0) ? (
+                            f.options.map((opt, oi) => (
+                              <span key={oi} style={{
+                                fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20,
+                                background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe",
+                              }}>
+                                {opt}
+                              </span>
+                            ))
+                          ) : (
+                            <span style={{ fontSize: 11.5, color: "#c4c4c4", fontStyle: "italic" }}>No choices defined yet</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
