@@ -172,6 +172,7 @@ const REAL_STATUS_DISPLAY = {
   "in review":      "Under Review",
   "for approval":   "For Approval",
   "returned":       "Returned",
+  "revision":       "Returned",
   "received":       "Approved",
   "approved":       "Approved",
   "rejected":       "Rejected",
