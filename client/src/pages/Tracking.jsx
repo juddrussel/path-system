@@ -779,8 +779,13 @@ export default function Tracking() {
       }
 
       // ── Forms submitted by faculty ───────────────────────────────────────
+      // /api/forms/all is reviewer-only (admin / program_chair) on the
+      // backend and returns 403 for everyone else, so faculty accounts must
+      // use /api/forms/my (their own submissions) instead — otherwise this
+      // whole block silently no-ops and forms never show up in the table.
       try {
-        const res = await fetch(`${API}/api/forms/all`, { headers: authH });
+        const formsEndpoint = canViewAdminNav ? "/api/forms/all" : "/api/forms/my";
+        const res = await fetch(`${API}${formsEndpoint}`, { headers: authH });
         if (res.ok) {
           const data = await res.json();
           const forms = data.forms ?? data ?? [];
@@ -815,6 +820,8 @@ export default function Tracking() {
               attachments: f.file_name ? [{ file_name: f.file_name, file_url: f.file_url }] : [],
             });
           });
+        } else {
+          console.error("Forms fetch failed:", res.status, await res.text().catch(() => ""));
         }
       } catch (err) {
         console.error("Forms fetch error:", err);
