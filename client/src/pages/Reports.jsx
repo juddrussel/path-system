@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import {
-  FileText, Download, Calendar, Users, ClipboardList, CheckCircle2,
+  FileText, Calendar, Users, ClipboardList, CheckCircle2,
   Clock, AlertTriangle, XCircle, TrendingUp, TrendingDown, BarChart3,
-  PieChart as PieIcon, FileSpreadsheet, Eye, RotateCcw, Layers, Shield,
-  Activity, Gauge, ListTodo, ChevronRight, Printer, AlertCircle,
+  PieChart as PieIcon, Eye, RotateCcw, Layers, Shield,
+  Activity, Gauge, ListTodo, ChevronRight, AlertCircle,
   X, Percent, Paperclip, History, MessageSquare, Search,
 } from "lucide-react";
 import {
@@ -294,22 +294,45 @@ function KpiCard({ label, value, icon: IconCmp, color, delta, up }) {
   );
 }
 
+function PdfFileIcon({ size = 14 }) {
+  return (
+    <svg viewBox="0 0 25 33" width={size} height={size} style={{ flexShrink: 0 }}>
+      <path d="M3 0 H17 L25 8 V30 A3 3 0 0 1 22 33 H3 A3 3 0 0 1 0 30 V3 A3 3 0 0 1 3 0 Z" fill="#ffffff" />
+      <path d="M17 0 L25 8 H19 A2 2 0 0 1 17 6 Z" fill="#d8c9f5" />
+      <rect x="1" y="16" width="22" height="11" rx="2" fill="#E5342A" />
+      <text x="12" y="24.5" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="bold" fill="#ffffff" textAnchor="middle">PDF</text>
+    </svg>
+  );
+}
+
+function ExcelFileIcon({ size = 14 }) {
+  return (
+    <svg viewBox="0 0 25 33" width={size} height={size} style={{ flexShrink: 0 }}>
+      <path d="M3 0 H17 L25 8 V30 A3 3 0 0 1 22 33 H3 A3 3 0 0 1 0 30 V3 A3 3 0 0 1 3 0 Z" fill="#f3f3f3" stroke="#c9c9c9" strokeWidth="0.5" />
+      <path d="M17 0 L25 8 H19 A2 2 0 0 1 17 6 Z" fill="#dedede" />
+      <rect x="1" y="16" width="22" height="11" rx="2" fill="#1D6F42" />
+      <text x="12" y="24.5" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="bold" fill="#ffffff" textAnchor="middle">X</text>
+    </svg>
+  );
+}
+
 function ExportButtons({ onExport, size = "normal" }) {
   const pad = size === "small" ? "5px 10px" : "8px 14px";
   const fs = size === "small" ? 10 : 11;
+  const iconSize = size === "small" ? 13 : 15;
   return (
     <div style={{ display: "flex", gap: 6 }}>
       <button
         onClick={() => onExport("PDF")}
-        style={{ display: "flex", alignItems: "center", gap: 5, padding: pad, borderRadius: 8, background: "#7c3aed", color: "#fff", border: "none", fontSize: fs, fontWeight: 700, cursor: "pointer" }}
+        style={{ display: "flex", alignItems: "center", gap: 6, padding: pad, borderRadius: 8, background: "#7c3aed", color: "#fff", border: "none", fontSize: fs, fontWeight: 700, cursor: "pointer" }}
       >
-        <Download style={{ width: 12, height: 12 }} /> Export PDF
+        <PdfFileIcon size={iconSize} /> Export PDF
       </button>
       <button
         onClick={() => onExport("Excel")}
-        style={{ display: "flex", alignItems: "center", gap: 5, padding: pad, borderRadius: 8, background: "#fff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: fs, fontWeight: 700, cursor: "pointer" }}
+        style={{ display: "flex", alignItems: "center", gap: 6, padding: pad, borderRadius: 8, background: "#fff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: fs, fontWeight: 700, cursor: "pointer" }}
       >
-        <FileSpreadsheet style={{ width: 12, height: 12 }} /> Export Excel
+        <ExcelFileIcon size={iconSize} /> Export Excel
       </button>
     </div>
   );
@@ -2118,13 +2141,13 @@ export default function Reports() {
                           onClick={() => handleExport(r.title, "PDF")}
                           style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
                         >
-                          <Printer style={{ width: 10, height: 10 }} /> PDF
+                          <PdfFileIcon size={12} /> PDF
                         </button>
                         <button
                           onClick={() => handleExport(r.title, "Excel")}
                           style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
                         >
-                          <FileSpreadsheet style={{ width: 10, height: 10 }} /> Excel
+                          <ExcelFileIcon size={12} /> Excel
                         </button>
                       </div>
                     </div>
