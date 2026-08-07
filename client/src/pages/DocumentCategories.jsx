@@ -269,9 +269,9 @@ function SegButton({ label, active, onClick }) {
 }
 
 // ── Edit Category Modal ──────────────────────────────────────────────────────
-function EditCategoryModal({ category, onClose, onSave }) {
+function EditCategoryModal({ category, onClose, onSave, error }) {
   const [name, setName] = useState(category.name);
-  const [code, setCode] = useState(category.code);
+  const code = category.code;
   const [description, setDescription] = useState(category.description);
   const [type, setType] = useState(category.type);
   const [status, setStatus] = useState(category.status === "Archived" ? "Active" : category.status);
@@ -342,9 +342,14 @@ function EditCategoryModal({ category, onClose, onSave }) {
               </label>
               <input
                 value={code}
-                onChange={e => setCode(e.target.value)}
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+                readOnly
+                style={{
+                  width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb",
+                  fontSize: 13, color: "#6b7280", outline: "none", background: "#f3f4f6",
+                  fontFamily: "'DM Sans', sans-serif", cursor: "not-allowed",
+                }}
               />
+              <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 5 }}>Can't be changed after creation</p>
             </div>
           </div>
 
@@ -455,6 +460,17 @@ function EditCategoryModal({ category, onClose, onSave }) {
           )}
         </div>
 
+        {error && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
+            borderRadius: 9, padding: "10px 14px", fontSize: 12.5,
+            margin: "0 24px 14px",
+          }}>
+            {error}
+          </div>
+        )}
+
         {/* Footer */}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
           <button
@@ -476,9 +492,8 @@ function EditCategoryModal({ category, onClose, onSave }) {
     </div>
   );
 }
-
 // ── Add Category Modal ───────────────────────────────────────────────────────
-function AddCategoryModal({ onClose, onCreate, existingCodes = [] }) {
+function AddCategoryModal({ onClose, onCreate, existingCodes = [], error }) {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
@@ -697,6 +712,17 @@ function AddCategoryModal({ onClose, onCreate, existingCodes = [] }) {
             </>
           )}
         </div>
+
+        {error && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
+            borderRadius: 9, padding: "10px 14px", fontSize: 12.5,
+            margin: "0 24px 14px",
+          }}>
+            {error}
+          </div>
+        )}
 
         {/* Footer */}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
@@ -1198,7 +1224,7 @@ export default function DocumentCategories() {
             </div>
           </div>
 
-          {actionError && (
+          {actionError && !editingCategory && !showAddModal && (
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
@@ -1347,16 +1373,18 @@ export default function DocumentCategories() {
       {editingCategory && (
         <EditCategoryModal
           category={editingCategory}
-          onClose={() => setEditingCategory(null)}
+          onClose={() => { setEditingCategory(null); setActionError(null); }}
           onSave={handleSaveCategory}
+          error={actionError}
         />
       )}
 
       {showAddModal && (
         <AddCategoryModal
-          onClose={() => setShowAddModal(false)}
+          onClose={() => { setShowAddModal(false); setActionError(null); }}
           onCreate={handleCreateCategory}
           existingCodes={categories.map(c => c.code)}
+          error={actionError}
         />
       )}
     </div>
