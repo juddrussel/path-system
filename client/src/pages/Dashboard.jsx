@@ -804,8 +804,14 @@ export default function Dashboard() {
       } catch (err) { console.error("Tasks fetch error:", err); }
 
       // ── Forms submitted by faculty ───────────────────────────────────────
+      // /api/forms/all is reviewer-only (admin / program_chair) on the
+      // backend and 403s for everyone else, so faculty accounts must use
+      // /api/forms/my instead — otherwise this block silently no-ops and
+      // every stat card derived from form data (Submitted Forms, Pending
+      // Approvals, Approved This Month, Returned/Revisions) reads 0.
       try {
-        const res = await fetch(`${API}/api/forms/all`, { headers: authH });
+        const formsEndpoint = ADMIN_NAV_ROLES.includes(user.role) ? "/api/forms/all" : "/api/forms/my";
+        const res = await fetch(`${API}${formsEndpoint}`, { headers: authH });
         if (res.ok) {
           const data = await res.json();
           const forms = data.forms ?? data ?? [];
@@ -837,6 +843,8 @@ export default function Dashboard() {
               priority: priorityFor(daysSince(rawDate), done),
             });
           });
+        } else {
+          console.error("Forms fetch failed:", res.status, await res.text().catch(() => ""));
         }
       } catch (err) { console.error("Forms fetch error:", err); }
 
