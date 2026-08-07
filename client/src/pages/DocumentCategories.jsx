@@ -268,8 +268,47 @@ function SegButton({ label, active, onClick }) {
   );
 }
 
-// ── Dropdown Choices Editor (lets faculty define the options for a Dropdown field) ──
-function DropdownOptionsEditor({ options = [], onChange }) {
+// ── Multi-select / Single-select segmented toggle (Checkbox fields only) ────
+// Lets the program chair / admin decide whether respondents can tick more
+// than one choice (classic checkbox group) or only one at a time (radio-style).
+function MultiSelectToggle({ value, onChange }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+      <span style={{ fontSize: 10.5, fontWeight: 700, color: "#7c3aed", letterSpacing: 0.4, textTransform: "uppercase", flexShrink: 0 }}>
+        Selection Mode
+      </span>
+      <div style={{ display: "flex", gap: 4, background: "white", border: "1px solid #ddd6fe", borderRadius: 7, padding: 2 }}>
+        {[
+          { key: true, label: "Multiple" },
+          { key: false, label: "Single" },
+        ].map(opt => (
+          <button
+            key={String(opt.key)}
+            type="button"
+            onClick={() => onChange(opt.key)}
+            style={{
+              padding: "4px 10px", borderRadius: 5, border: "none", cursor: "pointer",
+              fontSize: 11, fontWeight: 700,
+              background: value === opt.key ? "#7c3aed" : "transparent",
+              color: value === opt.key ? "white" : "#7c3aed",
+              transition: "background 0.15s",
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      <span style={{ fontSize: 10.5, color: "#a78bfa" }}>
+        {value ? "Respondents can check more than one" : "Respondents can check only one"}
+      </span>
+    </div>
+  );
+}
+
+// ── Choices Editor (lets faculty define the options for a Dropdown or
+//    Checkbox field). `children`, if provided, renders above the choice
+//    list — used by Checkbox fields to show the Multi/Single select toggle. ──
+function ChoicesEditor({ options = [], onChange, title = "Choices", children }) {
   const [draft, setDraft] = useState("");
 
   const addOption = () => {
@@ -289,8 +328,10 @@ function DropdownOptionsEditor({ options = [], onChange }) {
       background: "#f5f3ff", border: "1px solid #ddd6fe",
     }}>
       <p style={{ fontSize: 10.5, fontWeight: 700, color: "#7c3aed", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 8 }}>
-        Dropdown Choices
+        {title}
       </p>
+
+      {children}
 
       {options.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
@@ -331,7 +372,7 @@ function DropdownOptionsEditor({ options = [], onChange }) {
           value={draft}
           onChange={e => setDraft(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addOption(); } }}
-          placeholder="e.g. Undergraduate"
+          placeholder="Add a choice…"
           style={{
             flex: 1, minWidth: 0, padding: "6px 9px", borderRadius: 7,
             border: "1px solid #e5e7eb", fontSize: 12, color: "#111827",
@@ -523,6 +564,7 @@ function EditCategoryModal({ category, onClose, onSave, error }) {
                         onChange={e => updateField(f.id, {
                           fieldType: e.target.value,
                           ...(e.target.value === "Dropdown" && !f.options ? { options: [] } : {}),
+                          ...(e.target.value === "Checkbox" && !f.options ? { options: [], multiSelect: true } : {}),
                         })}
                         style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
                       >
@@ -541,11 +583,19 @@ function EditCategoryModal({ category, onClose, onSave, error }) {
                         <X style={{ width: 14, height: 14 }} />
                       </button>
                     </div>
-                    {f.fieldType === "Dropdown" && (
-                      <DropdownOptionsEditor
+                    {(f.fieldType === "Dropdown" || f.fieldType === "Checkbox") && (
+                      <ChoicesEditor
+                        title={f.fieldType === "Dropdown" ? "Dropdown Choices" : "Checkbox Choices"}
                         options={f.options || []}
                         onChange={(opts) => updateField(f.id, { options: opts })}
-                      />
+                      >
+                        {f.fieldType === "Checkbox" && (
+                          <MultiSelectToggle
+                            value={f.multiSelect !== false}
+                            onChange={(val) => updateField(f.id, { multiSelect: val })}
+                          />
+                        )}
+                      </ChoicesEditor>
                     )}
                   </div>
                 ))}
@@ -789,6 +839,7 @@ function AddCategoryModal({ onClose, onCreate, existingCodes = [], error }) {
                           onChange={e => updateField(f.id, {
                             fieldType: e.target.value,
                             ...(e.target.value === "Dropdown" && !f.options ? { options: [] } : {}),
+                            ...(e.target.value === "Checkbox" && !f.options ? { options: [], multiSelect: true } : {}),
                           })}
                           style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
                         >
@@ -807,11 +858,19 @@ function AddCategoryModal({ onClose, onCreate, existingCodes = [], error }) {
                           <X style={{ width: 14, height: 14 }} />
                         </button>
                       </div>
-                      {f.fieldType === "Dropdown" && (
-                        <DropdownOptionsEditor
+                      {(f.fieldType === "Dropdown" || f.fieldType === "Checkbox") && (
+                        <ChoicesEditor
+                          title={f.fieldType === "Dropdown" ? "Dropdown Choices" : "Checkbox Choices"}
                           options={f.options || []}
                           onChange={(opts) => updateField(f.id, { options: opts })}
-                        />
+                        >
+                          {f.fieldType === "Checkbox" && (
+                            <MultiSelectToggle
+                              value={f.multiSelect !== false}
+                              onChange={(val) => updateField(f.id, { multiSelect: val })}
+                            />
+                          )}
+                        </ChoicesEditor>
                       )}
                     </div>
                   ))}
@@ -996,20 +1055,30 @@ function ViewCategoryModal({ category, onClose, onEdit }) {
                           {f.required ? "Required" : "Optional"}
                         </span>
                       </div>
-                      {f.fieldType === "Dropdown" && (
-                        <div style={{ marginLeft: 30, display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {(f.options && f.options.length > 0) ? (
-                            f.options.map((opt, oi) => (
-                              <span key={oi} style={{
-                                fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20,
-                                background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe",
-                              }}>
-                                {opt}
-                              </span>
-                            ))
-                          ) : (
-                            <span style={{ fontSize: 11.5, color: "#c4c4c4", fontStyle: "italic" }}>No choices defined yet</span>
+                      {(f.fieldType === "Dropdown" || f.fieldType === "Checkbox") && (
+                        <div style={{ marginLeft: 30, display: "flex", flexDirection: "column", gap: 6 }}>
+                          {f.fieldType === "Checkbox" && (
+                            <span style={{
+                              alignSelf: "flex-start", fontSize: 10.5, fontWeight: 700, padding: "3px 9px",
+                              borderRadius: 20, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe",
+                            }}>
+                              {f.multiSelect !== false ? "Multiple selection" : "Single selection"}
+                            </span>
                           )}
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                            {(f.options && f.options.length > 0) ? (
+                              f.options.map((opt, oi) => (
+                                <span key={oi} style={{
+                                  fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20,
+                                  background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe",
+                                }}>
+                                  {opt}
+                                </span>
+                              ))
+                            ) : (
+                              <span style={{ fontSize: 11.5, color: "#c4c4c4", fontStyle: "italic" }}>No choices defined yet</span>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

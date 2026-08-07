@@ -26,6 +26,8 @@ function requireReviewer(req, res, next) {
 const FIELD_TYPES = ["Text Input", "Text Area", "Date", "Dropdown", "Number", "Checkbox", "File Upload"];
 const VALID_TYPES   = ["Document", "Form"];
 const VALID_STATUSES = ["Active", "Inactive", "Archived"];
+// Field types that support a faculty-defined list of choices (choices column).
+const CHOICE_FIELD_TYPES = ["Dropdown", "Checkbox"];
 
 // ─── CODE GENERATOR (mirrors the old frontend generateCategoryCode, but
 //     checks the DB for uniqueness instead of an in-memory array) ────────────
@@ -47,7 +49,8 @@ async function generateUniqueCode(name) {
 }
 
 // ─── HELPER: turn a field's raw `choices` column (JSON text or NULL) into
-//     the array shape the frontend's DropdownOptionsEditor expects ──────────
+//     the array shape the frontend's DropdownOptionsEditor / ChoicesEditor
+//     expects ────────────────────────────────────────────────────────────
 function parseChoices(raw) {
   if (!raw) return [];
   try {
@@ -74,6 +77,10 @@ async function attachFields(categories) {
       fieldType: f.field_type,
       required: !!f.required,
       options: parseChoices(f.choices),
+      // Only meaningful for Checkbox fields; defaults to true (multi-select)
+      // so older rows created before this column existed still behave like
+      // a normal checkbox group instead of silently becoming radio buttons.
+      multiSelect: f.multi_select === null || f.multi_select === undefined ? true : !!f.multi_select,
     });
   }
   return categories.map(c => ({
@@ -124,20 +131,31 @@ function validatePayload(body) {
     for (const f of formFields) {
       if (!f.name || !f.name.trim()) return "Every form field needs a name.";
       if (f.fieldType && !FIELD_TYPES.includes(f.fieldType)) return `Invalid field type: ${f.fieldType}`;
-      if (f.fieldType === "Dropdown" && f.options && !Array.isArray(f.options)) {
-        return "Dropdown options must be an array.";
+      if (CHOICE_FIELD_TYPES.includes(f.fieldType) && f.options && !Array.isArray(f.options)) {
+        return `${f.fieldType} options must be an array.`;
+      }
+      if (f.fieldType === "Checkbox" && f.multiSelect !== undefined && typeof f.multiSelect !== "boolean") {
+        return "multiSelect must be true or false.";
       }
     }
   }
   return null;
 }
 
-// ─── HELPER: how a field's choices get written to the DB. Only Dropdown
-//     fields keep their options; everything else is stored as NULL ─────────
+// ─── HELPER: how a field's choices get written to the DB. Dropdown and
+//     Checkbox fields keep their options; everything else is stored as NULL ─
 function serializeChoices(f) {
-  if (f.fieldType !== "Dropdown") return null;
+  if (!CHOICE_FIELD_TYPES.includes(f.fieldType)) return null;
   const opts = Array.isArray(f.options) ? f.options.filter(o => String(o).trim()) : [];
   return opts.length ? JSON.stringify(opts) : null;
+}
+
+// ─── HELPER: whether a Checkbox field allows multiple selections. Defaults
+//     to true (a normal checkbox group) unless the reviewer explicitly set
+//     it to single-select (radio-style). Irrelevant field types get NULL. ──
+function serializeMultiSelect(f) {
+  if (f.fieldType !== "Checkbox") return null;
+  return f.multiSelect === false ? 0 : 1;
 }
 
 // ─── GET /api/categories — list (with optional ?status=&q=&type=) ───────────
@@ -209,9 +227,9 @@ router.post("/", requireAuth, requireReviewer, async (req, res) => {
     for (let i = 0; i < formFields.length; i++) {
       const f = formFields[i];
       await conn.query(
-        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order, choices)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [categoryId, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i, serializeChoices(f)]
+        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order, choices, multi_select)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [categoryId, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i, serializeChoices(f), serializeMultiSelect(f)]
       );
     }
 
@@ -260,9 +278,9 @@ router.put("/:id", requireAuth, requireReviewer, async (req, res) => {
     for (let i = 0; i < formFields.length; i++) {
       const f = formFields[i];
       await conn.query(
-        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order, choices)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [req.params.id, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i, serializeChoices(f)]
+        `INSERT INTO category_fields (category_id, name, field_type, required, sort_order, choices, multi_select)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [req.params.id, f.name.trim(), f.fieldType || "Text Input", f.required ? 1 : 0, i, serializeChoices(f), serializeMultiSelect(f)]
       );
     }
 
