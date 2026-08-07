@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from "./TopBar";
 import {
   Plus, Eye, Pencil, Archive, Trash2, Search, ChevronDown,
@@ -905,6 +905,7 @@ function StatCard({ label, value, valueColor, sub }) {
 
 export default function DocumentCategories() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState("Date Created");
@@ -916,6 +917,15 @@ export default function DocumentCategories() {
   const [viewingCategory, setViewingCategory] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [actionError, setActionError] = useState(null);
+
+  // Auto-open "Add New Category" when navigated here from Forms → "Add Form Type"
+  useEffect(() => {
+    if (location.state?.openAddModal) {
+      setShowAddModal(true);
+      // Clear the nav state so refreshing or navigating back doesn't reopen it
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state]);
 
   const loadCategories = async () => {
     setLoading(true);

@@ -1159,7 +1159,7 @@ export default function Forms() {
                   <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 3px" }}>Form Templates</h3>
                   <p style={{ fontSize: 12, color: "#888", margin: 0 }}>Define which form types students and faculty can submit.</p>
                 </div>
-                <button onClick={() => setAddModal(true)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                <button onClick={() => navigate("/document-categories", { state: { openAddModal: true } })} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                   <Icon.Plus /> Add Form Type
                 </button>
               </div>
