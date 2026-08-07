@@ -60,12 +60,20 @@ const upload = multer({
 });
 
 // ─── TRACKING ID GENERATOR ────────────────────────────────────────────────────
+// FIX: This used to be based on COUNT(*) of rows created this year, which
+// produces duplicate IDs whenever a row for the current year has been
+// deleted (count drops, so count+1 collides with an ID already in use).
+// Instead, derive the next sequence number from the highest sequence number
+// actually in use for this year — deletions can no longer cause a collision.
 async function nextTrackingId() {
   const year = new Date().getFullYear();
-  const [[{ count }]] = await db.query(
-    "SELECT COUNT(*) AS count FROM form_submissions WHERE YEAR(created_at) = ?", [year]
+  const [[{ maxSeq }]] = await db.query(
+    `SELECT COALESCE(MAX(CAST(SUBSTRING(tracking_id, 11) AS UNSIGNED)), 0) AS maxSeq
+     FROM form_submissions
+     WHERE tracking_id LIKE ?`,
+    [`FORM-${year}-%`]
   );
-  const seq = String(count + 1).padStart(5, "0");
+  const seq = String(maxSeq + 1).padStart(5, "0");
   return `FORM-${year}-${seq}`;
 }
 
@@ -95,7 +103,6 @@ router.post("/submit", requireAuth, upload.any(), async (req, res) => {
     return res.status(400).json({ message: "category and filing_date are required." });
 
   try {
-    const tracking_id = await nextTrackingId();
     // req.files is an array now (upload.any()) instead of a single req.file.
     // Prefer the field literally named "file" (the primary/back-compat copy
     // the client always sends); otherwise fall back to the first file found.
@@ -113,25 +120,47 @@ router.post("/submit", requireAuth, upload.any(), async (req, res) => {
     try { field_values = req.body.field_values ? JSON.stringify(JSON.parse(req.body.field_values)) : null; }
     catch { field_values = null; }
 
-    let result;
-    try {
-      [result] = await db.query(
-        `INSERT INTO form_submissions
-           (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, field_values, status, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
-        [tracking_id, req.user.id, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, field_values]
-      );
-    } catch (colErr) {
-      if (colErr.code === "ER_BAD_FIELD_ERROR") {
-        console.warn("[forms] `field_values` column missing on form_submissions — run the migration to persist Step 2 field answers. Submitting without them for now.");
+    // FIX: nextTrackingId() + INSERT is not atomic, so under concurrent
+    // submissions (or a retried request) two requests can still compute the
+    // same tracking_id and race each other to the unique constraint. Retry
+    // a few times on ER_DUP_ENTRY, regenerating the tracking_id each time,
+    // instead of surfacing a generic 500 to the user.
+    const MAX_ATTEMPTS = 5;
+    let result, tracking_id;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      tracking_id = await nextTrackingId();
+      try {
         [result] = await db.query(
           `INSERT INTO form_submissions
-             (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, status, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
-          [tracking_id, req.user.id, student_id, full_name, category, filing_date, file_url, file_name, college_year, section]
+             (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, field_values, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
+          [tracking_id, req.user.id, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, field_values]
         );
-      } else {
-        throw colErr;
+        break; // success
+      } catch (insertErr) {
+        if (insertErr.code === "ER_BAD_FIELD_ERROR") {
+          console.warn("[forms] `field_values` column missing on form_submissions — run the migration to persist Step 2 field answers. Submitting without them for now.");
+          try {
+            [result] = await db.query(
+              `INSERT INTO form_submissions
+                 (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, college_year, section, status, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
+              [tracking_id, req.user.id, student_id, full_name, category, filing_date, file_url, file_name, college_year, section]
+            );
+            break; // success
+          } catch (fallbackErr) {
+            if (fallbackErr.code === "ER_DUP_ENTRY" && attempt < MAX_ATTEMPTS) {
+              console.warn(`[forms] tracking_id collision on '${tracking_id}' (fallback insert), retrying (attempt ${attempt})...`);
+              continue;
+            }
+            throw fallbackErr;
+          }
+        }
+        if (insertErr.code === "ER_DUP_ENTRY" && attempt < MAX_ATTEMPTS) {
+          console.warn(`[forms] tracking_id collision on '${tracking_id}', retrying (attempt ${attempt})...`);
+          continue;
+        }
+        throw insertErr;
       }
     }
 
@@ -178,7 +207,10 @@ router.post("/draft", requireAuth, upload.any(), async (req, res) => {
   const { student_id, full_name, category, filing_date } = req.body;
 
   try {
-    const tracking_id = await nextTrackingId();
+    // See the /submit route above for why this retries on ER_DUP_ENTRY.
+    const MAX_ATTEMPTS = 5;
+    let result, tracking_id;
+
     const primaryFile = (req.files || []).find(f => f.fieldname === "file") || (req.files || [])[0] || null;
     const file_url     = primaryFile ? `/uploads/forms/${primaryFile.filename}` : null;
     const file_name    = primaryFile ? primaryFile.originalname : null;
@@ -187,24 +219,39 @@ router.post("/draft", requireAuth, upload.any(), async (req, res) => {
     try { field_values = req.body.field_values ? JSON.stringify(JSON.parse(req.body.field_values)) : null; }
     catch { field_values = null; }
 
-    let result;
-    try {
-      [result] = await db.query(
-        `INSERT INTO form_submissions
-           (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, field_values, status, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW())`,
-        [tracking_id, req.user.id, student_id || "", full_name || "", category || "Other", filing_date || new Date().toISOString().split("T")[0], file_url, file_name, field_values]
-      );
-    } catch (colErr) {
-      if (colErr.code === "ER_BAD_FIELD_ERROR") {
-        console.warn("[forms] `field_values` column missing on form_submissions — run the migration to persist Step 2 field answers. Saving draft without them for now.");
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      tracking_id = await nextTrackingId();
+      try {
         [result] = await db.query(
           `INSERT INTO form_submissions
-             (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, status, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW())`,
-          [tracking_id, req.user.id, student_id || "", full_name || "", category || "Other", filing_date || new Date().toISOString().split("T")[0], file_url, file_name]
+             (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, field_values, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW())`,
+          [tracking_id, req.user.id, student_id || "", full_name || "", category || "Other", filing_date || new Date().toISOString().split("T")[0], file_url, file_name, field_values]
         );
-      } else {
+        break;
+      } catch (colErr) {
+        if (colErr.code === "ER_BAD_FIELD_ERROR") {
+          console.warn("[forms] `field_values` column missing on form_submissions — run the migration to persist Step 2 field answers. Saving draft without them for now.");
+          try {
+            [result] = await db.query(
+              `INSERT INTO form_submissions
+                 (tracking_id, submitted_by, student_id, full_name, category, filing_date, file_url, file_name, status, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Draft', NOW())`,
+              [tracking_id, req.user.id, student_id || "", full_name || "", category || "Other", filing_date || new Date().toISOString().split("T")[0], file_url, file_name]
+            );
+            break;
+          } catch (fallbackErr) {
+            if (fallbackErr.code === "ER_DUP_ENTRY" && attempt < MAX_ATTEMPTS) {
+              console.warn(`[forms] tracking_id collision on '${tracking_id}' (fallback insert), retrying (attempt ${attempt})...`);
+              continue;
+            }
+            throw fallbackErr;
+          }
+        }
+        if (colErr.code === "ER_DUP_ENTRY" && attempt < MAX_ATTEMPTS) {
+          console.warn(`[forms] tracking_id collision on '${tracking_id}', retrying (attempt ${attempt})...`);
+          continue;
+        }
         throw colErr;
       }
     }
