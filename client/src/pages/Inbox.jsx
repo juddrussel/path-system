@@ -399,22 +399,6 @@ function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, 
             />
           </DrawerAccordion>
 
-          <DrawerAccordion title="Customize chat">
-            <div style={{ padding: "4px 6px 8px", display: "flex", flexDirection: "column", gap: 12 }}>
-              <SelectRow
-                label="Chat theme" value={prefs.theme}
-                options={[["lavender", "Lavender (default)"], ["ocean", "Ocean"], ["sunset", "Sunset"], ["mono", "Monochrome"]]}
-                onChange={v => onPrefsChange({ theme: v })}
-              />
-              <ToggleRow label="Notifications" checked={prefs.notifications} onChange={v => onPrefsChange({ notifications: v })} />
-              <SelectRow
-                label="Mute duration" value={prefs.muteDuration} disabled={!prefs.muted}
-                options={[["off", "Not muted"], ["1h", "1 hour"], ["8h", "8 hours"], ["24h", "24 hours"], ["forever", "Until turned on"]]}
-                onChange={v => onPrefsChange({ muteDuration: v, muted: v !== "off" })}
-              />
-            </div>
-          </DrawerAccordion>
-
           <DrawerAccordion title="Media & files" defaultOpen>
             <DrawerListItem icon={<Icon.Media />} label="Media" sublabel={`${mediaCount} item${mediaCount === 1 ? "" : "s"}`} />
             <DrawerListItem icon={<Icon.FileDoc />} label="Files" sublabel={`${fileCount} item${fileCount === 1 ? "" : "s"}`} />

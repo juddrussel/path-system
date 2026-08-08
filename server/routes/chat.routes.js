@@ -4,8 +4,8 @@ const router = express.Router();
 const db = require("../config/db");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const crypto = require("crypto");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
 function authMiddleware(req, res, next) {
@@ -19,15 +19,47 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// ── File upload setup ─────────────────────────────────────────────────────────
-const uploadDir = path.join(__dirname, "../uploads/chat");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, uploadDir),
-  filename: (_, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+// ── Cloudflare R2 setup ────────────────────────────────────────────────────────
+// R2 speaks the S3 API, so the regular AWS SDK v3 S3 client works against it —
+// just point `endpoint` at the account-scoped R2 endpoint instead of AWS.
+// Required env vars:
+//   R2_ACCOUNT_ID        Cloudflare account ID
+//   R2_ACCESS_KEY_ID     R2 API token access key
+//   R2_SECRET_ACCESS_KEY R2 API token secret key
+//   R2_BUCKET_NAME       target bucket name
+//   R2_PUBLIC_URL        public base URL for the bucket (r2.dev subdomain or
+//                        a custom domain you've mapped to the bucket) — no
+//                        trailing slash, e.g. https://pub-xxxx.r2.dev
+const r2 = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
 });
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB
+
+// multer keeps the file in memory (as a Buffer) instead of writing to local
+// disk — we stream that buffer straight up to R2 below.
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB
+
+// Uploads a multer file buffer to R2 under chat/, returns its public URL (or
+// null if there was no file). Original filename is preserved separately in
+// the DB (file_name), so the storage key just needs to be unique.
+async function uploadToR2(file) {
+  if (!file) return null;
+  const ext = file.originalname.includes(".") ? file.originalname.split(".").pop() : "";
+  const key = `chat/${Date.now()}-${crypto.randomBytes(6).toString("hex")}${ext ? `.${ext}` : ""}`;
+
+  await r2.send(new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME,
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  }));
+
+  return `${process.env.R2_PUBLIC_URL}/${key}`;
+}
 
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -120,15 +152,16 @@ router.get("/messages/:userId", authMiddleware, async (req, res) => {
 router.post("/messages/:userId", authMiddleware, upload.single("file"), async (req, res) => {
   const receiverId = parseInt(req.params.userId);
   const { content, is_system } = req.body;
-  const fileUrl = req.file ? `/uploads/chat/${req.file.filename}` : null;
-  const fileName = req.file ? req.file.originalname : null;
   const systemFlag = is_system === "1" || is_system === true ? 1 : 0;
 
-  if (!content && !fileUrl) {
+  if (!content && !req.file) {
     return res.status(400).json({ message: "Message or file required." });
   }
 
   try {
+    const fileUrl = await uploadToR2(req.file);
+    const fileName = req.file ? req.file.originalname : null;
+
     const [result] = await db.query(
       "INSERT INTO messages (sender_id, receiver_id, content, file_url, file_name, is_system) VALUES (?, ?, ?, ?, ?, ?)",
       [req.user.id, receiverId, content || null, fileUrl, fileName, systemFlag]
@@ -183,14 +216,15 @@ router.get("/document/:docId/comments", authMiddleware, async (req, res) => {
 // POST add a comment to a document
 router.post("/document/:docId/comments", authMiddleware, upload.single("file"), async (req, res) => {
   const { content } = req.body;
-  const fileUrl = req.file ? `/uploads/chat/${req.file.filename}` : null;
-  const fileName = req.file ? req.file.originalname : null;
 
-  if (!content && !fileUrl) {
+  if (!content && !req.file) {
     return res.status(400).json({ message: "Comment or file required." });
   }
 
   try {
+    const fileUrl = await uploadToR2(req.file);
+    const fileName = req.file ? req.file.originalname : null;
+
     const [result] = await db.query(
       "INSERT INTO document_comments (document_id, sender_id, content, file_url, file_name) VALUES (?, ?, ?, ?, ?)",
       [req.params.docId, req.user.id, content || null, fileUrl, fileName]
