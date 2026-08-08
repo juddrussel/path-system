@@ -1033,7 +1033,7 @@ export default function Reports() {
     return [
       { label: "Total Transactions",   value: items.length,                                          icon: Layers,        color: "#7c3aed" },
       { label: "Pending",              value: count(i => i.status === "Pending"),                     icon: Clock,         color: "#d97706" },
-      { label: "Completed",            value: count(i => i.status === "Completed"),                   icon: CheckCircle2,  color: "#059669" },
+      { label: "Approved",             value: count(i => i.status === "Approved" || i.status === "Completed"), icon: CheckCircle2, color: "#059669" },
       { label: "Rejected / Returned",  value: count(i => i.status === "Rejected") + count(i => i.status === "Returned"), icon: XCircle, color: "#dc2626" },
       { label: "Delayed",              value: count(i => i.status === "Delayed"),                     icon: AlertTriangle, color: "#f97316" },
       { label: "Avg. Processing Time", value: `${avgProcessing.toFixed(1)}d`,                         icon: Gauge,         color: "#0284c7" },
