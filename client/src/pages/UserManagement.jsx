@@ -569,9 +569,9 @@ function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
         </div>
         {/* Avatar hero */}
         <div className="flex flex-col items-center px-5 py-7 shrink-0" style={{ background: `linear-gradient(160deg, ${bg}88 0%, #fff 65%)` }}>
-          {user.profile_picture ? (
+          {user.avatar_url ? (
             <img
-              src={user.profile_picture}
+              src={user.avatar_url}
               alt={`${user.first_name} ${user.last_name}`}
               className="w-16 h-16 rounded-full object-cover"
               onError={(e) => { e.currentTarget.style.display = "none"; }}
@@ -966,7 +966,7 @@ export default function UserManagement() {
                           <tr key={u.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
                             <td className="px-4 py-2.5">
                               <div className="flex items-center">
-                                <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.profile_picture} />
+                                <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.avatar_url} />
                                 <span className="text-gray-800 font-medium">{u.first_name} {u.last_name}</span>
                               </div>
                             </td>
@@ -1076,7 +1076,7 @@ export default function UserManagement() {
                           <tr key={u.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
                             <td className="px-4 py-2.5">
                               <div className="flex items-center">
-                                <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.profile_picture} />
+                                <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.avatar_url} />
                                 <span className="text-gray-800 font-medium">{u.first_name} {u.last_name}</span>
                               </div>
                             </td>
@@ -1137,7 +1137,7 @@ export default function UserManagement() {
                           <tr key={i} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
                             <td className="px-4 py-2.5">
                               <div className="flex items-center">
-                                <Avatar firstName={r.first_name} lastName={r.last_name} pictureUrl={r.profile_picture} />
+                                <Avatar firstName={r.first_name} lastName={r.last_name} pictureUrl={r.avatar_url} />
                                 <span className="text-gray-800 font-medium">{r.first_name} {r.last_name}</span>
                               </div>
                             </td>
