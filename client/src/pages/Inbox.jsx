@@ -144,6 +144,98 @@ SLA: () => (
       <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
+  // ── Chat settings menu icons ──
+  Dots: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+      <circle cx="8" cy="3" r="1.5" />
+      <circle cx="8" cy="8" r="1.5" />
+      <circle cx="8" cy="13" r="1.5" />
+    </svg>
+  ),
+  Profile: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <circle cx="8" cy="5.2" r="3" />
+      <path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" strokeLinecap="round" />
+    </svg>
+  ),
+  Info: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="M8 7.2v4M8 5v.1" strokeLinecap="round" />
+    </svg>
+  ),
+  Building: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <rect x="3" y="2" width="10" height="12" rx="1" />
+      <path d="M6 5h1M9 5h1M6 8h1M9 8h1M6 11h1M9 11h1" strokeLinecap="round" />
+    </svg>
+  ),
+  Pin: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M9.5 2l4.5 4.5-2 2-.7-.2-2.6 2.6.3 2.6-1 1-3-3-3 3-.2-.2 3-3-3-3 1-1 2.6.3 2.6-2.6-.2-.7 2-2z" strokeLinejoin="round" />
+    </svg>
+  ),
+  BellOff: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M4 6.5a4 4 0 018 0v3l1.3 2H2.7L4 9.5v-3z" strokeLinejoin="round" />
+      <path d="M6.3 13.5a1.8 1.8 0 003.4 0" strokeLinecap="round" />
+      <line x1="2" y1="2" x2="14" y2="14" strokeLinecap="round" />
+    </svg>
+  ),
+  MarkUnread: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <rect x="2" y="3.5" width="12" height="9" rx="1.2" />
+      <path d="M2.5 4.5L8 8.5l5.5-4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12.5" cy="3.5" r="2.5" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  Trash: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M3 4.5h10M6.5 4.5V3a1 1 0 011-1h1a1 1 0 011 1v1.5M6.5 7.5v4M9.5 7.5v4" strokeLinecap="round" />
+      <path d="M4 4.5l.6 8.5a1 1 0 001 .9h4.8a1 1 0 001-.9l.6-8.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Block: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <circle cx="8" cy="8" r="6.5" />
+      <line x1="3.7" y1="3.7" x2="12.3" y2="12.3" />
+    </svg>
+  ),
+  Flag: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M4 2v12" strokeLinecap="round" />
+      <path d="M4 2.8h7.5l-2 2.7 2 2.7H4z" strokeLinejoin="round" />
+    </svg>
+  ),
+  Activity: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Lock: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <rect x="3.5" y="7" width="9" height="6.5" rx="1.2" />
+      <path d="M5.2 7V5a2.8 2.8 0 015.6 0v2" />
+    </svg>
+  ),
+  Archive: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <rect x="2" y="2.5" width="12" height="3" rx="0.8" />
+      <path d="M3 5.5v7a1 1 0 001 1h8a1 1 0 001-1v-7" />
+      <path d="M6.5 8.5h3" strokeLinecap="round" />
+    </svg>
+  ),
+  Check: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+      <path d="M3 8.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Close: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
+    </svg>
+  ),
 };
 
 // ── Sidebar Item (from Dashboard) ─────────────────────────────────────────────
@@ -193,6 +285,218 @@ function Avatar({ name, size = 36, online, photoUrl }) {
       {online !== undefined && (
         <div style={{ position: "absolute", bottom: 1, right: 1, width: 9, height: 9, borderRadius: "50%", background: online ? "#22c55e" : "#d1d5db", border: "2px solid white" }} />
       )}
+    </div>
+  );
+}
+
+// ── Chat Settings Menu (⋮ dropdown) ───────────────────────────────────────────
+// @typedef {"view_profile"|"view_faculty_info"|"view_department"|"search_messages"
+//   |"pin"|"mute"|"mark_unread"|"clear_chat"|"block"|"report"
+//   |"activity_log"|"disable_chat"|"archive"} ChatMenuActionId
+// onAction: (action: ChatMenuActionId) => void
+function ChatSettingsMenu({ isAdmin, pinned, muted, onAction, menuRef }) {
+  return (
+    <div
+      ref={menuRef}
+      role="menu"
+      aria-label="Conversation settings"
+      style={{
+        position: "absolute", top: "calc(100% + 8px)", right: 0, width: 250,
+        background: "white", borderRadius: 12, border: "1px solid #ece9f7",
+        boxShadow: "0 14px 36px rgba(76,29,149,0.2)", padding: "6px 0",
+        zIndex: 60, animation: "menuFadeSlide 0.16s ease-out", transformOrigin: "top right",
+        maxHeight: "min(520px, 80vh)", overflowY: "auto",
+      }}
+    >
+      <MenuSection>
+        <MenuItem icon={<Icon.Profile />} label="View Profile" onClick={() => onAction("view_profile")} />
+        <MenuItem icon={<Icon.Info />} label="View Faculty Information" onClick={() => onAction("view_faculty_info")} />
+        <MenuItem icon={<Icon.Building />} label="View Department Details" onClick={() => onAction("view_department")} />
+      </MenuSection>
+
+      <MenuSeparator />
+
+      <MenuSection>
+        <MenuItem icon={<Icon.Search />} label="Search Messages" onClick={() => onAction("search_messages")} />
+        <MenuItem icon={<Icon.Pin />} label={pinned ? "Unpin Conversation" : "Pin Conversation"} active={pinned} onClick={() => onAction("pin")} />
+        <MenuItem icon={<Icon.BellOff />} label={muted ? "Unmute Notifications" : "Mute Notifications"} active={muted} onClick={() => onAction("mute")} />
+        <MenuItem icon={<Icon.MarkUnread />} label="Mark as Unread" onClick={() => onAction("mark_unread")} />
+        <MenuItem icon={<Icon.Trash />} label="Clear Chat History" danger onClick={() => onAction("clear_chat")} />
+      </MenuSection>
+
+      <MenuSeparator />
+
+      <MenuSection>
+        <MenuItem icon={<Icon.Block />} label="Block User" danger onClick={() => onAction("block")} />
+        <MenuItem icon={<Icon.Flag />} label="Report User" danger onClick={() => onAction("report")} />
+      </MenuSection>
+
+      {isAdmin && (
+        <>
+          <MenuSeparator />
+          <div style={{ padding: "6px 16px 4px", fontSize: 10, fontWeight: "bold", color: "#a78bfa", textTransform: "uppercase", letterSpacing: 0.5 }}>
+            Administrative
+          </div>
+          <MenuSection>
+            <MenuItem icon={<Icon.Activity />} label="View Activity Log" onClick={() => onAction("activity_log")} />
+            <MenuItem icon={<Icon.Lock />} label="Disable Chat Access" danger onClick={() => onAction("disable_chat")} />
+            <MenuItem icon={<Icon.Archive />} label="Archive Conversation" onClick={() => onAction("archive")} />
+          </MenuSection>
+        </>
+      )}
+    </div>
+  );
+}
+
+function MenuSection({ children }) {
+  return <div style={{ padding: "3px 6px" }}>{children}</div>;
+}
+function MenuSeparator() {
+  return <div style={{ height: 1, background: "#f1eefa", margin: "4px 0" }} />;
+}
+function MenuItem({ icon, label, onClick, danger, active }) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      style={{
+        width: "100%", display: "flex", alignItems: "center", gap: 10,
+        padding: "8px 10px", background: active ? "#f5f3ff" : "transparent",
+        border: "none", borderRadius: 8, cursor: "pointer", textAlign: "left",
+        fontSize: 12.5, color: danger ? "#dc2626" : "#27223f", transition: "background 0.12s",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = danger ? "#fef2f2" : "#f5f3ff"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = active ? "#f5f3ff" : "transparent"; }}
+      onFocus={e => { e.currentTarget.style.background = danger ? "#fef2f2" : "#f5f3ff"; e.currentTarget.style.outline = "none"; }}
+      onBlur={e => { e.currentTarget.style.background = active ? "#f5f3ff" : "transparent"; }}
+    >
+      <span style={{ color: danger ? "#dc2626" : "#7c3aed", display: "flex", flexShrink: 0 }}>{icon}</span>
+      <span style={{ flex: 1 }}>{label}</span>
+      {active && <span style={{ color: "#7c3aed", display: "flex", flexShrink: 0 }}><Icon.Check /></span>}
+    </button>
+  );
+}
+
+// ── Profile & Settings Drawer ─────────────────────────────────────────────────
+function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange }) {
+  return (
+    <>
+      <div
+        onClick={onClose}
+        aria-hidden={!open}
+        style={{
+          position: "fixed", inset: 0, background: "rgba(15,13,26,0.35)", zIndex: 900,
+          opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none", transition: "opacity 0.2s ease-out",
+        }}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Profile and chat settings"
+        style={{
+          position: "fixed", top: 0, right: 0, height: "100vh", width: "min(380px, 100vw)",
+          background: "white", zIndex: 901, boxShadow: "-10px 0 36px rgba(76,29,149,0.2)",
+          transform: open ? "translateX(0)" : "translateX(100%)", transition: "transform 0.26s ease-out",
+          display: "flex", flexDirection: "column", overflow: "hidden",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px", borderBottom: "1px solid #f1eefa", flexShrink: 0 }}>
+          <div style={{ fontWeight: "bold", fontSize: 15, color: "#27223f" }}>Profile & Settings</div>
+          <button
+            type="button"
+            aria-label="Close profile drawer"
+            onClick={onClose}
+            style={{ width: 30, height: 30, borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+            onMouseLeave={e => e.currentTarget.style.background = "white"}
+          >
+            <Icon.Close />
+          </button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: "auto", padding: 18 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 22 }}>
+            <Avatar name={faculty.full_name} size={72} online={faculty.online} photoUrl={faculty.photoUrl} />
+            <div style={{ fontWeight: "bold", fontSize: 16, color: "#27223f", textAlign: "center" }}>{faculty.full_name}</div>
+            <div style={{ fontSize: 12, color: "#7c3aed" }}>{faculty.position || "Faculty"}</div>
+          </div>
+
+          <DrawerSection title="Faculty Information">
+            <InfoRow label="Full Name" value={faculty.full_name} />
+            <InfoRow label="Employee ID" value={faculty.employee_id || "—"} />
+            <InfoRow label="Department" value={faculty.department || "—"} />
+            <InfoRow label="Position" value={faculty.position || "—"} />
+            <InfoRow label="Email Address" value={faculty.email || "—"} />
+            <InfoRow label="Contact Number" value={faculty.contact_number || "—"} />
+          </DrawerSection>
+
+          <DrawerSection title="Chat Preferences">
+            <ToggleRow label="Notifications" checked={prefs.notifications} onChange={v => onPrefsChange({ notifications: v })} />
+            <SelectRow
+              label="Mute Duration" value={prefs.muteDuration} disabled={!prefs.muted}
+              options={[["off", "Not muted"], ["1h", "1 hour"], ["8h", "8 hours"], ["24h", "24 hours"], ["forever", "Until turned on"]]}
+              onChange={v => onPrefsChange({ muteDuration: v, muted: v !== "off" })}
+            />
+            <SelectRow
+              label="Chat Theme" value={prefs.theme}
+              options={[["lavender", "Lavender (default)"], ["ocean", "Ocean"], ["sunset", "Sunset"], ["mono", "Monochrome"]]}
+              onChange={v => onPrefsChange({ theme: v })}
+            />
+          </DrawerSection>
+
+          <DrawerSection title="Activity">
+            <InfoRow label="Last Seen" value={faculty.online ? "Active now" : (faculty.lastSeen || "—")} />
+            <InfoRow label="Online Status" value={faculty.online ? "Online" : "Offline"} valueColor={faculty.online ? "#22c55e" : "#888"} />
+            <InfoRow label="Total Documents Processed" value={faculty.docsProcessed ?? "—"} />
+            <InfoRow label="Total Messages Sent" value={faculty.messagesSent ?? "—"} />
+          </DrawerSection>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function DrawerSection({ title, children }) {
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ fontSize: 11, fontWeight: "bold", color: "#a78bfa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>{title}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{children}</div>
+    </div>
+  );
+}
+function InfoRow({ label, value, valueColor }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5 }}>
+      <span style={{ color: "#888", flexShrink: 0 }}>{label}</span>
+      <span style={{ color: valueColor || "#27223f", fontWeight: 500, textAlign: "right", wordBreak: "break-word" }}>{value}</span>
+    </div>
+  );
+}
+function ToggleRow({ label, checked, onChange }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12.5 }}>
+      <span style={{ color: "#27223f" }}>{label}</span>
+      <button
+        type="button" role="switch" aria-checked={checked} aria-label={label}
+        onClick={() => onChange(!checked)}
+        style={{ width: 38, height: 22, borderRadius: 11, border: "none", cursor: "pointer", background: checked ? "#7c3aed" : "#e5e7eb", position: "relative", transition: "background 0.15s", flexShrink: 0 }}
+      >
+        <span style={{ position: "absolute", top: 2, left: checked ? 18 : 2, width: 18, height: 18, borderRadius: "50%", background: "white", transition: "left 0.15s", boxShadow: "0 1px 3px rgba(0,0,0,0.25)" }} />
+      </button>
+    </div>
+  );
+}
+function SelectRow({ label, value, options, onChange, disabled }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12.5, opacity: disabled ? 0.5 : 1 }}>
+      <span style={{ color: "#27223f" }}>{label}</span>
+      <select
+        disabled={disabled} value={value} onChange={e => onChange(e.target.value)} aria-label={label}
+        style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid #e5e7eb", background: "white", color: "#27223f", cursor: disabled ? "not-allowed" : "pointer" }}
+      >
+        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
     </div>
   );
 }
@@ -256,6 +560,15 @@ export default function Inbox() {
   const [callMuted, setCallMuted] = useState(false);
   const [callCamOff, setCallCamOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+
+  // ── Chat settings menu / profile drawer ──
+  const [showChatMenu, setShowChatMenu] = useState(false);
+  const [showProfileDrawer, setShowProfileDrawer] = useState(false);
+  const [messageSearchOpen, setMessageSearchOpen] = useState(false);
+  const [messageSearchQuery, setMessageSearchQuery] = useState("");
+  const [convPrefs, setConvPrefs] = useState({}); // { [userId]: { pinned, muted, notifications, muteDuration, theme } }
+  const chatMenuRef = useRef(null);
+  const chatMenuBtnRef = useRef(null);
   const callTimerRef = useRef(null);
   const callStartTimeRef = useRef(null);
 
@@ -396,6 +709,112 @@ export default function Inbox() {
 
   const authHeaders = { Authorization: `Bearer ${token}` };
 
+  // ── Chat settings menu: close on outside click / Escape ──
+  useEffect(() => {
+    function handleClick(e) {
+      if (
+        showChatMenu &&
+        chatMenuRef.current && !chatMenuRef.current.contains(e.target) &&
+        chatMenuBtnRef.current && !chatMenuBtnRef.current.contains(e.target)
+      ) {
+        setShowChatMenu(false);
+      }
+    }
+    function handleKey(e) {
+      if (e.key === "Escape") {
+        setShowChatMenu(false);
+        setShowProfileDrawer(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [showChatMenu]);
+
+  const DEFAULT_CONV_PREFS = { pinned: false, muted: false, notifications: true, muteDuration: "off", theme: "lavender" };
+  const currentPrefs = (activeConv && convPrefs[activeConv.id]) || DEFAULT_CONV_PREFS;
+  const updateConvPrefs = (patch) => {
+    if (!activeConv) return;
+    setConvPrefs(prev => ({ ...prev, [activeConv.id]: { ...(prev[activeConv.id] || DEFAULT_CONV_PREFS), ...patch } }));
+  };
+
+  // ── Chat settings menu action handler ──
+  const handleChatMenuAction = async (actionId) => {
+    setShowChatMenu(false);
+    if (!activeConv) return;
+    switch (actionId) {
+      case "view_profile":
+      case "view_faculty_info":
+      case "view_department":
+        setShowProfileDrawer(true);
+        break;
+      case "search_messages":
+        setMessageSearchOpen(true);
+        break;
+      case "pin":
+        updateConvPrefs({ pinned: !currentPrefs.pinned });
+        break;
+      case "mute":
+        updateConvPrefs({ muted: !currentPrefs.muted, muteDuration: !currentPrefs.muted ? "forever" : "off" });
+        break;
+      case "mark_unread":
+        // TODO: wire to a backend "mark unread" endpoint once available
+        setConversations(prev => prev.map(c => (c.id === activeConv.id ? { ...c, unread_count: Math.max(1, c.unread_count || 0) } : c)));
+        break;
+      case "clear_chat":
+        if (window.confirm(`Clear chat history with ${activeConv.full_name}? This cannot be undone.`)) {
+          try {
+            await fetch(`${API}/api/chat/messages/${activeConv.id}/clear`, { method: "DELETE", headers: authHeaders });
+          } catch (e) { console.error("clear_chat:", e); }
+          setMessages([]);
+        }
+        break;
+      case "block":
+        if (window.confirm(`Block ${activeConv.full_name}? You will no longer receive messages from them.`)) {
+          try {
+            await fetch(`${API}/api/chat/block/${activeConv.id}`, { method: "POST", headers: authHeaders });
+          } catch (e) { console.error("block:", e); }
+        }
+        break;
+      case "report": {
+        const reason = window.prompt(`Report ${activeConv.full_name} — briefly describe the issue:`);
+        if (reason) {
+          try {
+            await fetch(`${API}/api/chat/report`, {
+              method: "POST",
+              headers: { ...authHeaders, "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: activeConv.id, reason }),
+            });
+          } catch (e) { console.error("report:", e); }
+        }
+        break;
+      }
+      case "activity_log":
+        // TODO: point this at the real admin activity-log route
+        navigate(`/admin/activity-log/${activeConv.id}`);
+        break;
+      case "disable_chat":
+        if (window.confirm(`Disable chat access for ${activeConv.full_name}?`)) {
+          try {
+            await fetch(`${API}/api/chat/disable-access/${activeConv.id}`, { method: "POST", headers: authHeaders });
+          } catch (e) { console.error("disable_chat:", e); }
+        }
+        break;
+      case "archive":
+        try {
+          await fetch(`${API}/api/chat/conversations/${activeConv.id}/archive`, { method: "POST", headers: authHeaders });
+        } catch (e) { console.error("archive:", e); }
+        setConversations(prev => prev.filter(c => c.id !== activeConv.id));
+        setActiveConv(null);
+        break;
+      default:
+        break;
+    }
+  };
+
   const fetchConversations = async () => {
     const res = await fetch(`${API}/api/chat/conversations`, { headers: authHeaders });
     if (res.ok) setConversations(await res.json());
@@ -418,6 +837,9 @@ export default function Inbox() {
 
   const openConversation = async (user) => {
     setActiveConv(user);
+    setShowChatMenu(false);
+    setMessageSearchOpen(false);
+    setMessageSearchQuery("");
     setShowNewChat(false);
     setOtherTyping(false);
     const res = await fetch(`${API}/api/chat/messages/${user.id}`, { headers: authHeaders });
@@ -949,13 +1371,65 @@ export default function Inbox() {
                       <path d="M10 6.5l4-2v7l-4-2" />
                     </svg>
                   </button>
+
+                  {/* Chat settings (⋮) button + dropdown */}
+                  <div style={{ position: "relative" }}>
+                    <style>{`
+                      @keyframes menuFadeSlide { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+                    `}</style>
+                    <button
+                      ref={chatMenuBtnRef}
+                      onClick={() => setShowChatMenu(s => !s)}
+                      title="Conversation settings"
+                      aria-label="Conversation settings"
+                      aria-haspopup="menu"
+                      aria-expanded={showChatMenu}
+                      style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: showChatMenu ? "#faf5ff" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#faf5ff"}
+                      onMouseLeave={e => e.currentTarget.style.background = showChatMenu ? "#faf5ff" : "white"}
+                    >
+                      <Icon.Dots />
+                    </button>
+                    {showChatMenu && (
+                      <ChatSettingsMenu
+                        menuRef={chatMenuRef}
+                        isAdmin={canViewAdminNav}
+                        pinned={currentPrefs.pinned}
+                        muted={currentPrefs.muted}
+                        onAction={handleChatMenuAction}
+                      />
+                    )}
+                  </div>
                 </div>
+
+                {/* Inline message search bar */}
+                {messageSearchOpen && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 18px", borderBottom: "0.5px solid #e5e7eb", background: "#faf5ff" }}>
+                    <span style={{ color: "#7c3aed", display: "flex" }}><Icon.Search /></span>
+                    <input
+                      autoFocus
+                      value={messageSearchQuery}
+                      onChange={e => setMessageSearchQuery(e.target.value)}
+                      placeholder={`Search messages with ${activeConv.full_name}…`}
+                      aria-label="Search messages"
+                      style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 12.5, color: "#27223f" }}
+                    />
+                    <button
+                      onClick={() => { setMessageSearchOpen(false); setMessageSearchQuery(""); }}
+                      aria-label="Close search"
+                      style={{ width: 24, height: 24, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#7c3aed" }}
+                    >
+                      <Icon.Close />
+                    </button>
+                  </div>
+                )}
 
                 {/* Messages */}
                 <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 4, background: "#fafafa" }}>
                   {messages.map((msg, i) => {
                     const isMine = String(msg.sender_id) === String(currentUser.id);
                     const isFirstInGroup = i === 0 || messages[i - 1]?.sender_id !== msg.sender_id;
+                    const isSearchMatch = !messageSearchOpen || !messageSearchQuery || (msg.content || "").toLowerCase().includes(messageSearchQuery.toLowerCase());
                     const isLastInGroup = i === messages.length - 1 || messages[i + 1]?.sender_id !== msg.sender_id;
 
                     // ── System / call event message ──────────────────────────
@@ -971,7 +1445,7 @@ export default function Inbox() {
                     }
 
                     return (
-                      <div key={msg.id} style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "flex-start", gap: 8, marginTop: isFirstInGroup ? 10 : 2 }}>
+                      <div key={msg.id} style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "flex-start", gap: 8, marginTop: isFirstInGroup ? 10 : 2, opacity: isSearchMatch ? 1 : 0.32, transition: "opacity 0.15s" }}>
 
                         {/* Avatar — only for received messages, aligned to top of bubble */}
                         {!isMine && (
@@ -1264,7 +1738,30 @@ export default function Inbox() {
           </div>
         </div>
       )}
-      
+
+      {/* ── Profile & Chat Settings Drawer ── */}
+      {activeConv && (
+        <ProfileDrawer
+          open={showProfileDrawer}
+          onClose={() => setShowProfileDrawer(false)}
+          faculty={{
+            full_name: activeConv.full_name,
+            employee_id: activeConv.employee_id,
+            department: activeConv.department,
+            position: activeConv.position || activeConv.role_label,
+            email: activeConv.email,
+            contact_number: activeConv.contact_number || activeConv.phone,
+            photoUrl: activeConv.photo ? resolveUrl(activeConv.photo) : null,
+            online: onlineUserIds.includes(String(activeConv.id)),
+            lastSeen: activeConv.last_seen ? formatTime(activeConv.last_seen) : null,
+            docsProcessed: activeConv.docs_processed,
+            messagesSent: activeConv.messages_sent,
+          }}
+          prefs={currentPrefs}
+          onPrefsChange={updateConvPrefs}
+        />
+      )}
+
     </div>
     
   );
