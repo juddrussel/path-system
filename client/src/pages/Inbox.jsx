@@ -379,7 +379,7 @@ function Avatar({ name, size = 36, online, photoUrl }) {
 }
 
 // ── Profile & Settings Drawer ─────────────────────────────────────────────────
-function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, mediaCount, fileCount, onAction }) {
+function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, mediaCount, fileCount, pinnedCount = 0, onAction }) {
   const PANEL_WIDTH = 300;
   return (
     // Outer flex item — width animates 0 → PANEL_WIDTH so it pushes the layout
@@ -454,6 +454,12 @@ function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, 
               icon={<Icon.Search />}
               label="Search messages"
               onClick={() => onAction("search_messages")}
+            />
+            <DrawerListItem
+              icon={<Icon.PinSmall />}
+              label="Pinned messages"
+              sublabel={`${pinnedCount} message${pinnedCount === 1 ? "" : "s"}`}
+              onClick={() => onAction("pinned_messages")}
             />
           </DrawerAccordion>
 
@@ -602,6 +608,82 @@ function FileAttachment({ url, name }) {
   );
 }
 
+// ── Pinned Messages Modal ──────────────────────────────────────────────────────
+// Themed to match the app's light chat surface + violet accent, rather than the
+// generic light-grey template it was cloned from.
+function PinnedMessagesModal({ onClose, pinnedMessages, currentUser, onUnpin, convName }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(15,13,26,0.55)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: "white", borderRadius: 16, width: 380, maxHeight: "75vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.35)", overflow: "hidden" }}
+      >
+        {/* Header — dark, matches sidebar/drawer chrome */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", background: "#1e1b2e", flexShrink: 0 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: "bold", fontSize: 14, color: "white" }}>
+            <span style={{ color: "#a78bfa", display: "flex" }}><Icon.PinSmall /></span>
+            Pinned messages
+          </span>
+          <button
+            onClick={onClose}
+            aria-label="Close pinned messages"
+            style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#e5e2f0" }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.18)"}
+            onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+          >
+            <Icon.Close />
+          </button>
+        </div>
+
+        {/* List */}
+        <div style={{ flex: 1, overflowY: "auto", background: "#fafafa" }}>
+          {pinnedMessages.length === 0 ? (
+            <div style={{ padding: "40px 24px", textAlign: "center", color: "#aaa", fontSize: 12.5, lineHeight: 1.6 }}>
+              <div style={{ color: "#c4b5fd", marginBottom: 8, display: "flex", justifyContent: "center" }}>
+                <span style={{ transform: "scale(1.8)" }}><Icon.Pin /></span>
+              </div>
+              No pinned messages yet.<br />
+              Hover a message and pin it to keep it here.
+            </div>
+          ) : pinnedMessages.map(msg => {
+            const isMine = String(msg.sender_id) === String(currentUser.id);
+            const { text } = parseReplyContent(msg.content);
+            return (
+              <div
+                key={msg.id}
+                style={{ padding: "12px 18px", borderBottom: "0.5px solid #ececf1", display: "flex", gap: 10, background: "white" }}
+              >
+                <Avatar name={isMine ? (currentUser.full_name || currentUser.username) : (msg.sender_name || convName)} size={30} photoUrl={msg.sender_photo ? resolveUrl(msg.sender_photo) : null} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                    <span style={{ fontSize: 12, fontWeight: "bold", color: "#111" }}>{isMine ? "You" : (msg.sender_name || convName)}</span>
+                    <span style={{ fontSize: 10, color: "#aaa", flexShrink: 0 }}>{formatTime(msg.created_at)}</span>
+                  </div>
+                  {text && (
+                    <div style={{ fontSize: 12.5, color: "#333", marginTop: 3, whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.45 }}>
+                      {text}
+                    </div>
+                  )}
+                  {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
+                  <button
+                    onClick={() => onUnpin(msg)}
+                    style={{ marginTop: 6, fontSize: 10.5, fontWeight: 600, background: "none", border: "none", color: "#7c3aed", cursor: "pointer", padding: 0, display: "inline-flex", alignItems: "center", gap: 4 }}
+                    onMouseEnter={e => e.currentTarget.style.color = "#5b21b6"}
+                    onMouseLeave={e => e.currentTarget.style.color = "#7c3aed"}
+                  >
+                    <span style={{ transform: "scale(0.85)", display: "flex" }}><Icon.PinSmall /></span>
+                    Unpin
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // MAIN INBOX
 // ════════════════════════════════════════════════════════════════════════════
@@ -634,6 +716,7 @@ export default function Inbox() {
   const [openMsgMenuId, setOpenMsgMenuId] = useState(null);
   const [replyingTo, setReplyingTo] = useState(null); // { id, sender_name, content, file_name }
   const [pinnedMsgIds, setPinnedMsgIds] = useState(() => new Set());
+  const [showPinnedMessages, setShowPinnedMessages] = useState(false);
   const [forwardingMsg, setForwardingMsg] = useState(null); // message being forwarded
   const [editingMsgId, setEditingMsgId] = useState(null); // id of message currently being edited
   const [editInput, setEditInput] = useState("");
@@ -961,6 +1044,10 @@ export default function Inbox() {
         break;
       case "search_messages":
         setMessageSearchOpen(true);
+        break;
+      case "pinned_messages":
+        setShowPinnedMessages(true);
+        setShowProfileDrawer(false);
         break;
       case "pin":
         updateConvPrefs({ pinned: !currentPrefs.pinned });
@@ -2022,6 +2109,7 @@ export default function Inbox() {
               isAdmin={canViewAdminNav}
               mediaCount={messages.filter(m => m.file_url && ["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
               fileCount={messages.filter(m => m.file_url && !["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
+              pinnedCount={messages.filter(m => pinnedMsgIds.has(m.id)).length}
               onAction={handleChatMenuAction}
             />
           )}
@@ -2030,6 +2118,19 @@ export default function Inbox() {
 
       {/* ── Always-mounted remote audio element — must exist before ontrack fires ── */}
       <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: "none" }} />
+
+      {/* ── Pinned Messages Modal ── */}
+      {showPinnedMessages && activeConv && (
+        <PinnedMessagesModal
+          onClose={() => setShowPinnedMessages(false)}
+          pinnedMessages={[...messages]
+            .filter(m => pinnedMsgIds.has(m.id))
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))}
+          currentUser={currentUser}
+          convName={activeConv.full_name}
+          onUnpin={togglePinMessage}
+        />
+      )}
 
       {/* ── Forward Message Modal ── */}
       {forwardingMsg && (
