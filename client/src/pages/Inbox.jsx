@@ -1603,8 +1603,33 @@ export default function Inbox() {
                           </div>
                         )}
 
+                        <div style={{ maxWidth: "60%" }}>
+                          {isFirstInGroup && !isMine && (
+                            <div style={{ fontSize: 10, color: "#888", marginBottom: 3, marginLeft: 2 }}>{msg.sender_name}</div>
+                          )}
+                          <div style={{ position: "relative" }}>
+                            {isPinned && (
+                              <span style={{ position: "absolute", top: -8, [isMine ? "left" : "right"]: -6, color: "#7c3aed", background: "white", borderRadius: "50%", width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>
+                                <Icon.PinSmall />
+                              </span>
+                            )}
+                            <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
+                              {msg.content && <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>}
+                              {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 10, color: "#bbb", marginTop: 2, textAlign: isMine ? "right" : "left", display: "flex", alignItems: "center", justifyContent: isMine ? "flex-end" : "flex-start", gap: 4 }}>
+                            {formatTime(msg.created_at)}
+                            {isMine && (
+                              <span style={{ color: msg.is_read ? "#7c3aed" : "#ccc" }}>
+                                {msg.is_read ? "✓✓" : "✓"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
                         {/* Hover action toolbar — reply + 3-dot menu (no reactions) */}
-                        <div style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "center", gap: 2, paddingTop: 6, position: "relative", opacity: showActions ? 1 : 0, pointerEvents: showActions ? "auto" : "none", transition: "opacity 0.12s" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 2, paddingTop: 6, position: "relative", opacity: showActions ? 1 : 0, pointerEvents: showActions ? "auto" : "none", transition: "opacity 0.12s" }}>
                           <button
                             onClick={() => startReplyToMessage(msg)}
                             title="Reply"
@@ -1634,7 +1659,7 @@ export default function Inbox() {
                               ref={msgMenuRef}
                               role="menu"
                               style={{
-                                position: "absolute", top: 30, [isMine ? "right" : "left"]: 0,
+                                position: "absolute", top: 30, [isMine ? "left" : "right"]: 0,
                                 background: "#1e293b", borderRadius: 10, padding: "6px 0", minWidth: 130,
                                 boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 30,
                               }}
@@ -1668,31 +1693,6 @@ export default function Inbox() {
                               </button>
                             </div>
                           )}
-                        </div>
-
-                        <div style={{ maxWidth: "60%" }}>
-                          {isFirstInGroup && !isMine && (
-                            <div style={{ fontSize: 10, color: "#888", marginBottom: 3, marginLeft: 2 }}>{msg.sender_name}</div>
-                          )}
-                          <div style={{ position: "relative" }}>
-                            {isPinned && (
-                              <span style={{ position: "absolute", top: -8, [isMine ? "left" : "right"]: -6, color: "#7c3aed", background: "white", borderRadius: "50%", width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>
-                                <Icon.PinSmall />
-                              </span>
-                            )}
-                            <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
-                              {msg.content && <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>}
-                              {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
-                            </div>
-                          </div>
-                          <div style={{ fontSize: 10, color: "#bbb", marginTop: 2, textAlign: isMine ? "right" : "left", display: "flex", alignItems: "center", justifyContent: isMine ? "flex-end" : "flex-start", gap: 4 }}>
-                            {formatTime(msg.created_at)}
-                            {isMine && (
-                              <span style={{ color: msg.is_read ? "#7c3aed" : "#ccc" }}>
-                                {msg.is_read ? "✓✓" : "✓"}
-                              </span>
-                            )}
-                          </div>
                         </div>
                       </div>
                     );
