@@ -170,6 +170,16 @@ io.on("connection", (socket) => {
     socket.emit("receive_message", data.message);
   });
 
+  // ── Edit message ─────────────────────────────────────────────────────────
+  // The REST PATCH call already persisted + authorized the edit; this just
+  // relays the new content to the other participant in real time.
+  socket.on("edit_message", (data) => {
+    const receiverSocketId = onlineUsers.get(String(data.receiverId));
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("message_edited", { messageId: data.messageId, content: data.content });
+    }
+  });
+
   // ── Document comment ────────────────────────────────────────────────────
   socket.on("send_document_comment", (data) => {
     io.to(`doc_${data.docId}`).emit("receive_document_comment", data.comment);
