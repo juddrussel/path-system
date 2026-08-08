@@ -38,7 +38,7 @@ const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 1
 router.get("/users", authMiddleware, async (req, res) => {
   try {
     const [users] = await db.query(
-      "SELECT id, full_name, username, department FROM users WHERE id != ? AND role != 'pending' ORDER BY full_name",
+      "SELECT id, full_name, username, department, profile_picture AS photo FROM users WHERE id != ? AND role != 'pending' ORDER BY full_name",
       [req.user.id]
     );
     res.json(users);
@@ -53,7 +53,7 @@ router.get("/conversations", authMiddleware, async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT
-        u.id, u.full_name, u.username, u.department,
+        u.id, u.full_name, u.username, u.department, u.profile_picture AS photo,
         m.content AS last_message,
         m.created_at AS last_time,
         m.sender_id AS last_sender_id,
@@ -89,7 +89,7 @@ router.get("/messages/:userId", authMiddleware, async (req, res) => {
   const otherId = parseInt(req.params.userId);
   try {
     const [messages] = await db.query(`
-      SELECT m.*, u.full_name AS sender_name
+      SELECT m.*, u.full_name AS sender_name, u.profile_picture AS sender_photo
       FROM messages m
       JOIN users u ON u.id = m.sender_id
       WHERE (m.sender_id = ? AND m.receiver_id = ?)
@@ -128,7 +128,7 @@ router.post("/messages/:userId", authMiddleware, upload.single("file"), async (r
       [req.user.id, receiverId, content || null, fileUrl, fileName, systemFlag]
     );
     const [rows] = await db.query(
-      "SELECT m.*, u.full_name AS sender_name FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.id = ?",
+      "SELECT m.*, u.full_name AS sender_name, u.profile_picture AS sender_photo FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.id = ?",
       [result.insertId]
     );
     res.status(201).json(rows[0]);
@@ -161,7 +161,7 @@ router.get("/unread-count", authMiddleware, async (req, res) => {
 router.get("/document/:docId/comments", authMiddleware, async (req, res) => {
   try {
     const [comments] = await db.query(`
-      SELECT dc.*, u.full_name AS sender_name, u.department AS sender_dept
+      SELECT dc.*, u.full_name AS sender_name, u.department AS sender_dept, u.profile_picture AS sender_photo
       FROM document_comments dc
       JOIN users u ON u.id = dc.sender_id
       WHERE dc.document_id = ?
@@ -190,7 +190,7 @@ router.post("/document/:docId/comments", authMiddleware, upload.single("file"), 
       [req.params.docId, req.user.id, content || null, fileUrl, fileName]
     );
     const [rows] = await db.query(`
-      SELECT dc.*, u.full_name AS sender_name, u.department AS sender_dept
+      SELECT dc.*, u.full_name AS sender_name, u.department AS sender_dept, u.profile_picture AS sender_photo
       FROM document_comments dc
       JOIN users u ON u.id = dc.sender_id
       WHERE dc.id = ?
