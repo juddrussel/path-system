@@ -381,7 +381,6 @@ function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, 
           <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "6px 14px", marginBottom: 8 }}>
             <UserInfoRow icon={<Icon.Building />} label="Department" value={faculty.department} />
             <UserInfoRow icon={<Icon.Info />} label="Position" value={faculty.position} />
-            <UserInfoRow icon={<Icon.Profile />} label="Employee ID" value={faculty.employee_id} />
             <UserInfoRow icon={<Icon.Mail />} label="Email" value={faculty.email} />
             <UserInfoRow icon={<Icon.Phone />} label="Contact" value={faculty.contact_number} last />
           </div>
@@ -860,7 +859,14 @@ export default function Inbox() {
   };
 
   const openConversation = async (user) => {
-    setActiveConv(user);
+    // Conversation-list items are a lightweight preview (id, name, photo, last message, etc.)
+    // and may be missing full profile fields like position/email/contact. Merge in the
+    // complete record from allUsers (when we have it) so the settings panel always reflects
+    // this user's real info instead of falling back to "—".
+    const fullProfile = allUsers.find(u => String(u.id) === String(user.id));
+    const merged = fullProfile ? { ...fullProfile, ...user } : user;
+
+    setActiveConv(merged);
     setShowProfileDrawer(false);
     setMessageSearchOpen(false);
     setMessageSearchQuery("");
@@ -873,7 +879,7 @@ export default function Inbox() {
       socket?.emit("messages_read", { readerId: currentUser.id, senderId: user.id });
       setConversations(prev => prev.map(c => c.id === user.id ? { ...c, unread_count: 0 } : c));
       fetchUnreadCount();
-      setConversations(prev => prev.find(c => c.id === user.id) ? prev : [{ ...user, unread_count: 0, last_message: "", last_time: null }, ...prev]);
+      setConversations(prev => prev.find(c => c.id === user.id) ? prev : [{ ...merged, unread_count: 0, last_message: "", last_time: null }, ...prev]);
     }
   };
 
@@ -1637,7 +1643,6 @@ export default function Inbox() {
               onClose={() => setShowProfileDrawer(false)}
               faculty={{
                 full_name: activeConv.full_name,
-                employee_id: activeConv.employee_id,
                 department: activeConv.department,
                 position: activeConv.position || activeConv.role_label,
                 email: activeConv.email,
