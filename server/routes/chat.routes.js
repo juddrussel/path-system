@@ -227,6 +227,43 @@ router.patch("/messages/:messageId", authMiddleware, async (req, res) => {
   }
 });
 
+// PATCH mark a conversation unread — flips the latest message *received*
+// from this user back to unread, so it reappears as unread in the sidebar
+// until the conversation is opened again (which marks it read as normal).
+router.patch("/messages/:userId/mark-unread", authMiddleware, async (req, res) => {
+  const otherId = parseInt(req.params.userId);
+  try {
+    const [rows] = await db.query(
+      "SELECT id FROM messages WHERE sender_id = ? AND receiver_id = ? ORDER BY created_at DESC LIMIT 1",
+      [otherId, req.user.id]
+    );
+    if (!rows[0]) {
+      // No message from them to mark unread (e.g. you started the thread).
+      return res.json({ marked: false });
+    }
+    await db.query("UPDATE messages SET is_read = 0 WHERE id = ?", [rows[0].id]);
+    res.json({ marked: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE all messages between me and another user (clear chat history)
+router.delete("/messages/:userId/clear", authMiddleware, async (req, res) => {
+  const otherId = parseInt(req.params.userId);
+  try {
+    await db.query(
+      "DELETE FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)",
+      [req.user.id, otherId, otherId, req.user.id]
+    );
+    res.json({ cleared: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // GET total unread count (for notification badge)
 router.get("/unread-count", authMiddleware, async (req, res) => {
   try {

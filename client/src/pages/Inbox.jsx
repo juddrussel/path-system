@@ -471,8 +471,6 @@ function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, 
             />
             <DrawerListItem icon={<Icon.MarkUnread />} label="Mark as unread" onClick={() => onAction("mark_unread")} />
             <DrawerListItem icon={<Icon.Trash />} label="Clear chat history" danger onClick={() => onAction("clear_chat")} />
-            <DrawerListItem icon={<Icon.Block />} label="Block user" danger onClick={() => onAction("block")} />
-            <DrawerListItem icon={<Icon.Flag />} label="Report user" danger onClick={() => onAction("report")} />
           </DrawerAccordion>
 
           {isAdmin && (
@@ -971,37 +969,29 @@ export default function Inbox() {
         updateConvPrefs({ muted: !currentPrefs.muted, muteDuration: !currentPrefs.muted ? "forever" : "off" });
         break;
       case "mark_unread":
-        // TODO: wire to a backend "mark unread" endpoint once available
-        setConversations(prev => prev.map(c => (c.id === activeConv.id ? { ...c, unread_count: Math.max(1, c.unread_count || 0) } : c)));
+        try {
+          const res = await fetch(`${API}/api/chat/messages/${activeConv.id}/mark-unread`, { method: "PATCH", headers: authHeaders });
+          if (res.ok) {
+            const { marked } = await res.json();
+            setConversations(prev => prev.map(c => (c.id === activeConv.id ? { ...c, unread_count: marked ? 1 : (c.unread_count || 1) } : c)));
+          }
+        } catch (e) { console.error("mark_unread:", e); }
+        // Mirrors how opening a conversation clears unread state — leaving it
+        // marks the conversation unread again in the sidebar until reopened.
+        setActiveConv(null);
+        setShowProfileDrawer(false);
         break;
       case "clear_chat":
         if (window.confirm(`Clear chat history with ${activeConv.full_name}? This cannot be undone.`)) {
           try {
-            await fetch(`${API}/api/chat/messages/${activeConv.id}/clear`, { method: "DELETE", headers: authHeaders });
+            const res = await fetch(`${API}/api/chat/messages/${activeConv.id}/clear`, { method: "DELETE", headers: authHeaders });
+            if (res.ok) {
+              setMessages([]);
+              setConversations(prev => prev.map(c => (c.id === activeConv.id ? { ...c, last_message: "", last_time: null, unread_count: 0 } : c)));
+            }
           } catch (e) { console.error("clear_chat:", e); }
-          setMessages([]);
         }
         break;
-      case "block":
-        if (window.confirm(`Block ${activeConv.full_name}? You will no longer receive messages from them.`)) {
-          try {
-            await fetch(`${API}/api/chat/block/${activeConv.id}`, { method: "POST", headers: authHeaders });
-          } catch (e) { console.error("block:", e); }
-        }
-        break;
-      case "report": {
-        const reason = window.prompt(`Report ${activeConv.full_name} — briefly describe the issue:`);
-        if (reason) {
-          try {
-            await fetch(`${API}/api/chat/report`, {
-              method: "POST",
-              headers: { ...authHeaders, "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: activeConv.id, reason }),
-            });
-          } catch (e) { console.error("report:", e); }
-        }
-        break;
-      }
       case "activity_log":
         // TODO: point this at the real admin activity-log route
         navigate(`/admin/activity-log/${activeConv.id}`);
