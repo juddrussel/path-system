@@ -221,10 +221,21 @@ export default function Forms() {
   const selectedCategory = categories.find(c => c.name === wizardFormType) || null;
   const selectedFields = selectedCategory?.formFields || [];
   const isFileField = (f) => f.fieldType === "File Upload";
+  // A Checkbox field only becomes a choice group (checkboxes or radios) once
+  // the reviewer has defined choices for it in Document Categories; otherwise
+  // it stays the legacy single "Confirm" toggle.
+  const hasCheckboxChoices = (f) => f.fieldType === "Checkbox" && Array.isArray(f.options) && f.options.length > 0;
   const isFieldComplete = (f) => {
     if (isFileField(f)) return wizardDocs[f.id]?.status === "done";
     const v = wizardFieldValues[f.id];
-    if (f.fieldType === "Checkbox") return v === true;
+    if (f.fieldType === "Checkbox") {
+      if (hasCheckboxChoices(f)) {
+        return f.multiSelect === false
+          ? (v !== undefined && v !== null && v !== "")
+          : (Array.isArray(v) && v.length > 0);
+      }
+      return v === true;
+    }
     return v !== undefined && v !== null && String(v).trim() !== "";
   };
 
@@ -406,8 +417,19 @@ export default function Forms() {
         fieldSummary[f.name] = doc?.file?.name || null;
       } else {
         const value = wizardFieldValues[f.id];
-        if (value !== undefined && value !== null && value !== "") fd.append(key, value);
-        fieldSummary[f.name] = f.fieldType === "Checkbox" ? (value === true ? "Yes" : "No") : (value ?? null);
+        if (hasCheckboxChoices(f) && f.multiSelect !== false) {
+          // Multi-select checkbox group — value is an array of chosen options
+          const arr = Array.isArray(value) ? value : [];
+          if (arr.length) fd.append(key, JSON.stringify(arr));
+          fieldSummary[f.name] = arr.length ? arr.join(", ") : null;
+        } else if (hasCheckboxChoices(f)) {
+          // Single-select checkbox group (radio-style) — value is one option string
+          if (value !== undefined && value !== null && value !== "") fd.append(key, value);
+          fieldSummary[f.name] = value || null;
+        } else {
+          if (value !== undefined && value !== null && value !== "") fd.append(key, value);
+          fieldSummary[f.name] = f.fieldType === "Checkbox" ? (value === true ? "Yes" : "No") : (value ?? null);
+        }
       }
     });
     fd.append("field_values", JSON.stringify(fieldSummary));
@@ -759,19 +781,24 @@ export default function Forms() {
                         {selectedFields.map((f, idx) => {
                           const isFile = isFileField(f);
                           const isTextArea = f.fieldType === "Text Area";
+                          const isChoiceCheckbox = hasCheckboxChoices(f);
+                          const isMultiCheckbox = isChoiceCheckbox && f.multiSelect !== false;
+                          const stacked = isTextArea || isChoiceCheckbox;
                           const doc = isFile ? wizardDocs[f.id] : null;
                           const isDragOver = wizardDragOver === f.id;
-                          const val = wizardFieldValues[f.id] ?? "";
+                          const val = wizardFieldValues[f.id] ?? (isMultiCheckbox ? [] : "");
                           const controlStyle = { padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12.5, color: "#111", background: "white" };
-                          const hint = {
-                            "File Upload": "PDF, JPG, or PNG (Max 5MB)",
-                            "Text Input": "Short text answer",
-                            "Text Area": "Long-form text answer",
-                            "Date": "Select a date",
-                            "Number": "Numeric value",
-                            "Dropdown": "Choose from the options",
-                            "Checkbox": "Check to confirm",
-                          }[f.fieldType] || f.fieldType;
+                          const hint = isChoiceCheckbox
+                            ? (isMultiCheckbox ? "Select all that apply" : "Select one option")
+                            : ({
+                                "File Upload": "PDF, JPG, or PNG (Max 5MB)",
+                                "Text Input": "Short text answer",
+                                "Text Area": "Long-form text answer",
+                                "Date": "Select a date",
+                                "Number": "Numeric value",
+                                "Dropdown": "Choose from the options",
+                                "Checkbox": "Check to confirm",
+                              }[f.fieldType] || f.fieldType);
 
                           return (
                             <div key={f.id}
@@ -779,7 +806,7 @@ export default function Forms() {
                               onDragOver={isFile ? (e => { e.preventDefault(); setWizardDragOver(f.id); }) : undefined}
                               onDragLeave={isFile ? (() => setWizardDragOver(null)) : undefined}
                               onDrop={isFile ? (e => handleWizardDrop(f.id, e)) : undefined}>
-                              <div style={{ display: "flex", flexDirection: isTextArea ? "column" : "row", justifyContent: "space-between", alignItems: isTextArea ? "stretch" : "flex-start", gap: isTextArea ? 8 : 12, flexWrap: "wrap" }}>
+                              <div style={{ display: "flex", flexDirection: stacked ? "column" : "row", justifyContent: "space-between", alignItems: stacked ? "stretch" : "flex-start", gap: stacked ? 8 : 12, flexWrap: "wrap" }}>
                                 <div style={{ minWidth: 200 }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                     <span style={{
@@ -862,11 +889,54 @@ export default function Forms() {
 
                                 {/* ── Checkbox ── */}
                                 {f.fieldType === "Checkbox" && (
-                                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
-                                    <input type="checkbox" checked={val === true} onChange={e => handleWizardFieldChange(f.id, e.target.checked)}
-                                      style={{ width: 15, height: 15, accentColor: "#7c3aed" }} />
-                                    Confirm
-                                  </label>
+                                  isChoiceCheckbox ? (
+                                    isMultiCheckbox ? (
+                                      // Multiple selection — checkbox group, value is an array of chosen options
+                                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                        {f.options.map(opt => {
+                                          const arr = Array.isArray(val) ? val : [];
+                                          const checked = arr.includes(opt);
+                                          return (
+                                            <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
+                                              <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={e => {
+                                                  const next = e.target.checked ? [...arr, opt] : arr.filter(o => o !== opt);
+                                                  handleWizardFieldChange(f.id, next);
+                                                }}
+                                                style={{ width: 15, height: 15, accentColor: "#7c3aed" }}
+                                              />
+                                              {opt}
+                                            </label>
+                                          );
+                                        })}
+                                      </div>
+                                    ) : (
+                                      // Single selection — radio group, value is one option string
+                                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                        {f.options.map(opt => (
+                                          <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
+                                            <input
+                                              type="radio"
+                                              name={`field-${f.id}`}
+                                              checked={val === opt}
+                                              onChange={() => handleWizardFieldChange(f.id, opt)}
+                                              style={{ width: 15, height: 15, accentColor: "#7c3aed" }}
+                                            />
+                                            {opt}
+                                          </label>
+                                        ))}
+                                      </div>
+                                    )
+                                  ) : (
+                                    // Legacy Checkbox field with no choices configured — plain confirm toggle
+                                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
+                                      <input type="checkbox" checked={val === true} onChange={e => handleWizardFieldChange(f.id, e.target.checked)}
+                                        style={{ width: 15, height: 15, accentColor: "#7c3aed" }} />
+                                      Confirm
+                                    </label>
+                                  )
                                 )}
 
                                 {/* ── Text Area (full width, stacked below the label) ── */}
