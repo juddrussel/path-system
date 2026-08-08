@@ -38,7 +38,12 @@ const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 1
 router.get("/users", authMiddleware, async (req, res) => {
   try {
     const [users] = await db.query(
-      "SELECT id, full_name, username, department, avatar_url AS photo FROM users WHERE id != ? AND role != 'pending' ORDER BY full_name",
+      `SELECT
+        id, full_name, username, department, avatar_url AS photo,
+        position, email, contact_number, employee_id
+       FROM users
+       WHERE id != ? AND role != 'pending'
+       ORDER BY full_name`,
       [req.user.id]
     );
     res.json(users);
@@ -54,6 +59,7 @@ router.get("/conversations", authMiddleware, async (req, res) => {
     const [rows] = await db.query(`
       SELECT
         u.id, u.full_name, u.username, u.department, u.avatar_url AS photo,
+        u.position, u.email, u.contact_number, u.employee_id,
         m.content AS last_message,
         m.created_at AS last_time,
         m.sender_id AS last_sender_id,
