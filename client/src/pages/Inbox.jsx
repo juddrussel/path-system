@@ -923,12 +923,29 @@ export default function Inbox() {
   };
 
   const togglePinMessage = (msg) => {
+    const wasPinned = pinnedMsgIds.has(msg.id);
     setPinnedMsgIds(prev => {
       const next = new Set(prev);
       if (next.has(msg.id)) next.delete(msg.id); else next.add(msg.id);
       return next;
     });
     setOpenMsgMenuId(null);
+
+    // Drop an inline system-style notice into the thread so the other person
+    // sees that a message was pinned/unpinned — mirrors the call-event
+    // messages below. This is a local, client-side notice (pin state itself
+    // isn't persisted to the backend yet).
+    const actorName = currentUser.full_name || currentUser.username || "Someone";
+    const label = wasPinned ? "unpinned a message" : "pinned a message";
+    const notice = {
+      id: `pin-${msg.id}-${Date.now()}`,
+      is_system: true,
+      is_pin_event: true,
+      content: `📌 ${actorName} ${label}`,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, notice]);
+    socket?.emit("send_message", { senderId: currentUser.id, receiverId: activeConv?.id, message: notice });
   };
 
   const startReplyToMessage = (msg) => {
@@ -1755,11 +1772,21 @@ export default function Inbox() {
 
                     // ── System / call event message ──────────────────────────
                     if (msg.is_system) {
+                      const isPinEvent = !!msg.is_pin_event;
                       return (
                         <div key={msg.id} style={{ display: "flex", justifyContent: "center", marginTop: 10, marginBottom: 6 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#f0f0f5", borderRadius: 20, padding: "4px 14px", fontSize: 11, color: "#888", fontStyle: "italic", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+                          <div style={{
+                            display: "flex", alignItems: "center", gap: 6,
+                            background: isPinEvent ? "rgba(124,58,237,0.1)" : "#f0f0f5",
+                            border: isPinEvent ? "1px solid rgba(124,58,237,0.18)" : "none",
+                            borderRadius: 20, padding: "4px 14px", fontSize: 11,
+                            color: isPinEvent ? "#7c3aed" : "#888",
+                            fontStyle: isPinEvent ? "normal" : "italic",
+                            fontWeight: isPinEvent ? 600 : 400,
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                          }}>
                             <span>{msg.content}</span>
-                            <span style={{ fontSize: 9, color: "#bbb", flexShrink: 0 }}>{formatTime(msg.created_at)}</span>
+                            <span style={{ fontSize: 9, color: isPinEvent ? "#a78bfa" : "#bbb", flexShrink: 0 }}>{formatTime(msg.created_at)}</span>
                           </div>
                         </div>
                       );
