@@ -54,8 +54,20 @@ function initials(firstName = "", lastName = "") {
 }
 
 // ─── SMALL COMPONENTS ─────────────────────────────────────────────────────────
-function Avatar({ firstName, lastName }) {
+function Avatar({ firstName, lastName, pictureUrl }) {
   const [bg, text] = avatarColor(`${firstName}${lastName}`);
+  const [imgFailed, setImgFailed] = useState(false);
+
+  if (pictureUrl && !imgFailed) {
+    return (
+      <img
+        src={pictureUrl}
+        alt={`${firstName} ${lastName}`}
+        className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0 mr-2 object-cover"
+        onError={() => setImgFailed(true)}
+      />
+    );
+  }
   return (
     <span
       className="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0 mr-2"
@@ -557,9 +569,18 @@ function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
         </div>
         {/* Avatar hero */}
         <div className="flex flex-col items-center px-5 py-7 shrink-0" style={{ background: `linear-gradient(160deg, ${bg}88 0%, #fff 65%)` }}>
-          <span className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold" style={{ background: bg, color: fg }}>
-            {initials(user.first_name, user.last_name)}
-          </span>
+          {user.profile_picture ? (
+            <img
+              src={user.profile_picture}
+              alt={`${user.first_name} ${user.last_name}`}
+              className="w-16 h-16 rounded-full object-cover"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+          ) : (
+            <span className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold" style={{ background: bg, color: fg }}>
+              {initials(user.first_name, user.last_name)}
+            </span>
+          )}
           <h2 className="mt-3 text-base font-bold text-gray-900">{user.first_name} {user.last_name}</h2>
           <p className="text-xs text-gray-400 mt-0.5">@{user.username}</p>
           <div className="flex gap-2 mt-3">
@@ -945,7 +966,7 @@ export default function UserManagement() {
                           <tr key={u.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
                             <td className="px-4 py-2.5">
                               <div className="flex items-center">
-                                <Avatar firstName={u.first_name} lastName={u.last_name} />
+                                <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.profile_picture} />
                                 <span className="text-gray-800 font-medium">{u.first_name} {u.last_name}</span>
                               </div>
                             </td>
@@ -1055,7 +1076,7 @@ export default function UserManagement() {
                           <tr key={u.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
                             <td className="px-4 py-2.5">
                               <div className="flex items-center">
-                                <Avatar firstName={u.first_name} lastName={u.last_name} />
+                                <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.profile_picture} />
                                 <span className="text-gray-800 font-medium">{u.first_name} {u.last_name}</span>
                               </div>
                             </td>
@@ -1116,7 +1137,7 @@ export default function UserManagement() {
                           <tr key={i} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
                             <td className="px-4 py-2.5">
                               <div className="flex items-center">
-                                <Avatar firstName={r.first_name} lastName={r.last_name} />
+                                <Avatar firstName={r.first_name} lastName={r.last_name} pictureUrl={r.profile_picture} />
                                 <span className="text-gray-800 font-medium">{r.first_name} {r.last_name}</span>
                               </div>
                             </td>
