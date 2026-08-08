@@ -46,6 +46,25 @@ function resolveUrl(pathOrUrl) {
   return `${API}${pathOrUrl}`;
 }
 
+// Reply metadata is embedded into the plain-text `content` field (the backend
+// has no dedicated reply column) using an invisible marker so we can render a
+// quoted "replied to" block above the real message text. Messages without the
+// marker pass through untouched.
+const REPLY_MARKER_RE = /^\[\[REPLY\]\](.*?)\[\[\/REPLY\]\]\n?([\s\S]*)$/;
+function buildReplyContent(meta, text) {
+  return `[[REPLY]]${JSON.stringify(meta)}[[/REPLY]]\n${text}`;
+}
+function parseReplyContent(content) {
+  if (!content) return { replyMeta: null, text: content };
+  const m = content.match(REPLY_MARKER_RE);
+  if (!m) return { replyMeta: null, text: content };
+  try {
+    return { replyMeta: JSON.parse(m[1]), text: m[2] };
+  } catch {
+    return { replyMeta: null, text: content };
+  }
+}
+
 // ── SVG Icons (from Dashboard) ────────────────────────────────────────────────
 const Icon = {
   Grid: () => (
@@ -822,7 +841,8 @@ export default function Inbox() {
   const sendForward = async (toUser) => {
     if (!forwardingMsg || !toUser) return;
     const fd = new FormData();
-    if (forwardingMsg.content) fd.append("content", forwardingMsg.content);
+    const { text: forwardText } = parseReplyContent(forwardingMsg.content);
+    if (forwardText) fd.append("content", forwardText);
     if (forwardingMsg.file_url) {
       // Re-attach the original file by fetching it, then forwarding as a new upload
       try {
@@ -974,9 +994,10 @@ export default function Inbox() {
     const fd = new FormData();
     let content = dmInput.trim();
     if (replyingTo) {
-      const quotedSnippet = (replyingTo.content || (replyingTo.file_name ? `📎 ${replyingTo.file_name}` : "")).slice(0, 80);
+      const { text: originalText } = parseReplyContent(replyingTo.content);
+      const quotedSnippet = (originalText || (replyingTo.file_name ? `📎 ${replyingTo.file_name}` : "")).slice(0, 140);
       const quotedName = String(replyingTo.sender_id) === String(currentUser.id) ? "yourself" : (replyingTo.sender_name || activeConv.full_name);
-      content = `↩️ Replying to ${quotedName}: "${quotedSnippet}"\n${content}`;
+      content = buildReplyContent({ name: quotedName, snippet: quotedSnippet }, content);
     }
     if (content) fd.append("content", content);
     if (dmFile) fd.append("file", dmFile);
@@ -1443,7 +1464,7 @@ export default function Inbox() {
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span style={{ fontSize: 11, color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>
-                          {conv.last_sender_id === currentUser.id ? "You: " : ""}{conv.last_message || "📎 File"}
+                          {conv.last_sender_id === currentUser.id ? "You: " : ""}{parseReplyContent(conv.last_message).text || "📎 File"}
                         </span>
                         {conv.unread_count > 0 && (
                           <span style={{ background: "#7c3aed", color: "white", borderRadius: "50%", width: 18, height: 18, fontSize: 9, fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -1568,7 +1589,7 @@ export default function Inbox() {
                   {messages.map((msg, i) => {
                     const isMine = String(msg.sender_id) === String(currentUser.id);
                     const isFirstInGroup = i === 0 || messages[i - 1]?.sender_id !== msg.sender_id;
-                    const isSearchMatch = !messageSearchOpen || !messageSearchQuery || (msg.content || "").toLowerCase().includes(messageSearchQuery.toLowerCase());
+                    const isSearchMatch = !messageSearchOpen || !messageSearchQuery || (parseReplyContent(msg.content).text || "").toLowerCase().includes(messageSearchQuery.toLowerCase());
                     const isLastInGroup = i === messages.length - 1 || messages[i + 1]?.sender_id !== msg.sender_id;
 
                     // ── System / call event message ──────────────────────────
@@ -1584,6 +1605,7 @@ export default function Inbox() {
                     }
 
                     const isPinned = pinnedMsgIds.has(msg.id);
+                    const { replyMeta, text: msgText } = parseReplyContent(msg.content);
                     const showActions = hoveredMsgId === msg.id || openMsgMenuId === msg.id;
 
                     return (
@@ -1614,7 +1636,24 @@ export default function Inbox() {
                               </span>
                             )}
                             <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
-                              {msg.content && <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>}
+                              {replyMeta && (
+                                <div style={{ marginBottom: 6 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: "bold", color: isMine ? "rgba(255,255,255,0.85)" : "#7c3aed", marginBottom: 3 }}>
+                                    <span style={{ display: "flex", transform: "scale(0.75)", transformOrigin: "center" }}><Icon.ReplyArrow /></span>
+                                    {isMine ? "You" : msg.sender_name} replied to {replyMeta.name}
+                                  </div>
+                                  <div style={{
+                                    background: isMine ? "rgba(255,255,255,0.16)" : "rgba(124,58,237,0.08)",
+                                    borderLeft: `3px solid ${isMine ? "rgba(255,255,255,0.55)" : "#7c3aed"}`,
+                                    borderRadius: 6, padding: "5px 8px", fontSize: 12,
+                                    color: isMine ? "rgba(255,255,255,0.85)" : "#555",
+                                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                                  }}>
+                                    {replyMeta.snippet}
+                                  </div>
+                                </div>
+                              )}
+                              {msgText && <div style={{ whiteSpace: "pre-wrap" }}>{msgText}</div>}
                               {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
                             </div>
                           </div>
@@ -1717,7 +1756,7 @@ export default function Inbox() {
                         Replying to {String(replyingTo.sender_id) === String(currentUser.id) ? "yourself" : (replyingTo.sender_name || activeConv.full_name)}
                       </div>
                       <div style={{ fontSize: 11.5, color: "#666", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {replyingTo.content || (replyingTo.file_name ? `📎 ${replyingTo.file_name}` : "")}
+                        {parseReplyContent(replyingTo.content).text || (replyingTo.file_name ? `📎 ${replyingTo.file_name}` : "")}
                       </div>
                     </div>
                     <button onClick={() => setReplyingTo(null)} aria-label="Cancel reply" style={{ background: "none", border: "none", color: "#999", cursor: "pointer", fontSize: 16, flexShrink: 0 }}>×</button>
@@ -1867,7 +1906,7 @@ export default function Inbox() {
               <button onClick={() => setForwardingMsg(null)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: "#999", fontSize: 16 }}>×</button>
             </div>
             <div style={{ padding: "10px 16px", fontSize: 11.5, color: "#666", background: "#faf5ff", borderBottom: "0.5px solid #e5e7eb", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {forwardingMsg.content || (forwardingMsg.file_name ? `📎 ${forwardingMsg.file_name}` : "")}
+              {parseReplyContent(forwardingMsg.content).text || (forwardingMsg.file_name ? `📎 ${forwardingMsg.file_name}` : "")}
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: "6px 8px" }}>
               {allUsers.filter(u => String(u.id) !== String(currentUser.id)).map(u => (
