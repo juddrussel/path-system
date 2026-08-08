@@ -1644,7 +1644,7 @@ export default function Inbox() {
               faculty={{
                 full_name: activeConv.full_name,
                 department: activeConv.department,
-                position: activeConv.position || activeConv.role_label,
+                position: activeConv.role || activeConv.position || activeConv.role_label,
                 email: activeConv.email,
                 contact_number: activeConv.contact_number || activeConv.phone,
                 photoUrl: activeConv.photo ? resolveUrl(activeConv.photo) : null,
