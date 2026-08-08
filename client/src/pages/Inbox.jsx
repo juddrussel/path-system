@@ -320,95 +320,6 @@ function Avatar({ name, size = 36, online, photoUrl }) {
   );
 }
 
-// ── Chat Settings Menu (⋮ dropdown) ───────────────────────────────────────────
-// @typedef {"view_profile"|"view_faculty_info"|"view_department"|"search_messages"
-//   |"pin"|"mute"|"mark_unread"|"clear_chat"|"block"|"report"
-//   |"activity_log"|"disable_chat"|"archive"} ChatMenuActionId
-// onAction: (action: ChatMenuActionId) => void
-function ChatSettingsMenu({ isAdmin, pinned, muted, onAction, menuRef }) {
-  return (
-    <div
-      ref={menuRef}
-      role="menu"
-      aria-label="Conversation settings"
-      style={{
-        position: "absolute", top: "calc(100% + 8px)", right: 0, width: 250,
-        background: "white", borderRadius: 12, border: "1px solid #ece9f7",
-        boxShadow: "0 14px 36px rgba(76,29,149,0.2)", padding: "6px 0",
-        zIndex: 60, animation: "menuFadeSlide 0.16s ease-out", transformOrigin: "top right",
-        maxHeight: "min(520px, 80vh)", overflowY: "auto",
-      }}
-    >
-      <MenuSection>
-        <MenuItem icon={<Icon.Profile />} label="View Profile" onClick={() => onAction("view_profile")} />
-        <MenuItem icon={<Icon.Info />} label="View Faculty Information" onClick={() => onAction("view_faculty_info")} />
-        <MenuItem icon={<Icon.Building />} label="View Department Details" onClick={() => onAction("view_department")} />
-      </MenuSection>
-
-      <MenuSeparator />
-
-      <MenuSection>
-        <MenuItem icon={<Icon.Search />} label="Search Messages" onClick={() => onAction("search_messages")} />
-        <MenuItem icon={<Icon.Pin />} label={pinned ? "Unpin Conversation" : "Pin Conversation"} active={pinned} onClick={() => onAction("pin")} />
-        <MenuItem icon={<Icon.BellOff />} label={muted ? "Unmute Notifications" : "Mute Notifications"} active={muted} onClick={() => onAction("mute")} />
-        <MenuItem icon={<Icon.MarkUnread />} label="Mark as Unread" onClick={() => onAction("mark_unread")} />
-        <MenuItem icon={<Icon.Trash />} label="Clear Chat History" danger onClick={() => onAction("clear_chat")} />
-      </MenuSection>
-
-      <MenuSeparator />
-
-      <MenuSection>
-        <MenuItem icon={<Icon.Block />} label="Block User" danger onClick={() => onAction("block")} />
-        <MenuItem icon={<Icon.Flag />} label="Report User" danger onClick={() => onAction("report")} />
-      </MenuSection>
-
-      {isAdmin && (
-        <>
-          <MenuSeparator />
-          <div style={{ padding: "6px 16px 4px", fontSize: 10, fontWeight: "bold", color: "#a78bfa", textTransform: "uppercase", letterSpacing: 0.5 }}>
-            Administrative
-          </div>
-          <MenuSection>
-            <MenuItem icon={<Icon.Activity />} label="View Activity Log" onClick={() => onAction("activity_log")} />
-            <MenuItem icon={<Icon.Lock />} label="Disable Chat Access" danger onClick={() => onAction("disable_chat")} />
-            <MenuItem icon={<Icon.Archive />} label="Archive Conversation" onClick={() => onAction("archive")} />
-          </MenuSection>
-        </>
-      )}
-    </div>
-  );
-}
-
-function MenuSection({ children }) {
-  return <div style={{ padding: "3px 6px" }}>{children}</div>;
-}
-function MenuSeparator() {
-  return <div style={{ height: 1, background: "#f1eefa", margin: "4px 0" }} />;
-}
-function MenuItem({ icon, label, onClick, danger, active }) {
-  return (
-    <button
-      type="button"
-      role="menuitem"
-      onClick={onClick}
-      style={{
-        width: "100%", display: "flex", alignItems: "center", gap: 10,
-        padding: "8px 10px", background: active ? "#f5f3ff" : "transparent",
-        border: "none", borderRadius: 8, cursor: "pointer", textAlign: "left",
-        fontSize: 12.5, color: danger ? "#dc2626" : "#27223f", transition: "background 0.12s",
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = danger ? "#fef2f2" : "#f5f3ff"; }}
-      onMouseLeave={e => { e.currentTarget.style.background = active ? "#f5f3ff" : "transparent"; }}
-      onFocus={e => { e.currentTarget.style.background = danger ? "#fef2f2" : "#f5f3ff"; e.currentTarget.style.outline = "none"; }}
-      onBlur={e => { e.currentTarget.style.background = active ? "#f5f3ff" : "transparent"; }}
-    >
-      <span style={{ color: danger ? "#dc2626" : "#7c3aed", display: "flex", flexShrink: 0 }}>{icon}</span>
-      <span style={{ flex: 1 }}>{label}</span>
-      {active && <span style={{ color: "#7c3aed", display: "flex", flexShrink: 0 }}><Icon.Check /></span>}
-    </button>
-  );
-}
-
 // ── Profile & Settings Drawer ─────────────────────────────────────────────────
 function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, mediaCount, fileCount, onAction }) {
   return (
@@ -688,13 +599,11 @@ export default function Inbox() {
   const [callCamOff, setCallCamOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
 
-  // ── Chat settings menu / profile drawer ──
-  const [showChatMenu, setShowChatMenu] = useState(false);
+  // ── Chat settings / profile drawer ──
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [messageSearchOpen, setMessageSearchOpen] = useState(false);
   const [messageSearchQuery, setMessageSearchQuery] = useState("");
   const [convPrefs, setConvPrefs] = useState({}); // { [userId]: { pinned, muted, notifications, muteDuration, theme } }
-  const chatMenuRef = useRef(null);
   const chatMenuBtnRef = useRef(null);
   const callTimerRef = useRef(null);
   const callStartTimeRef = useRef(null);
@@ -836,30 +745,14 @@ export default function Inbox() {
 
   const authHeaders = { Authorization: `Bearer ${token}` };
 
-  // ── Chat settings menu: close on outside click / Escape ──
+  // ── Close the profile/settings drawer on Escape ──
   useEffect(() => {
-    function handleClick(e) {
-      if (
-        showChatMenu &&
-        chatMenuRef.current && !chatMenuRef.current.contains(e.target) &&
-        chatMenuBtnRef.current && !chatMenuBtnRef.current.contains(e.target)
-      ) {
-        setShowChatMenu(false);
-      }
-    }
     function handleKey(e) {
-      if (e.key === "Escape") {
-        setShowChatMenu(false);
-        setShowProfileDrawer(false);
-      }
+      if (e.key === "Escape") setShowProfileDrawer(false);
     }
-    document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [showChatMenu]);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, []);
 
   const DEFAULT_CONV_PREFS = { pinned: false, muted: false, notifications: true, muteDuration: "off", theme: "lavender" };
   const currentPrefs = (activeConv && convPrefs[activeConv.id]) || DEFAULT_CONV_PREFS;
@@ -868,9 +761,8 @@ export default function Inbox() {
     setConvPrefs(prev => ({ ...prev, [activeConv.id]: { ...(prev[activeConv.id] || DEFAULT_CONV_PREFS), ...patch } }));
   };
 
-  // ── Chat settings menu action handler ──
+  // ── Chat settings action handler (used by the profile/settings drawer) ──
   const handleChatMenuAction = async (actionId) => {
-    setShowChatMenu(false);
     if (!activeConv) return;
     switch (actionId) {
       case "view_profile":
@@ -964,7 +856,7 @@ export default function Inbox() {
 
   const openConversation = async (user) => {
     setActiveConv(user);
-    setShowChatMenu(false);
+    setShowProfileDrawer(false);
     setMessageSearchOpen(false);
     setMessageSearchQuery("");
     setShowNewChat(false);
@@ -1499,33 +1391,21 @@ export default function Inbox() {
                     </svg>
                   </button>
 
-                  {/* Chat settings (⋮) button + dropdown */}
+                  {/* Chat settings (⋮) button — opens the profile/settings drawer directly */}
                   <div style={{ position: "relative" }}>
-                    <style>{`
-                      @keyframes menuFadeSlide { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-                    `}</style>
                     <button
                       ref={chatMenuBtnRef}
-                      onClick={() => setShowChatMenu(s => !s)}
+                      onClick={() => setShowProfileDrawer(true)}
                       title="Conversation settings"
                       aria-label="Conversation settings"
-                      aria-haspopup="menu"
-                      aria-expanded={showChatMenu}
-                      style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: showChatMenu ? "#faf5ff" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}
+                      aria-haspopup="dialog"
+                      aria-expanded={showProfileDrawer}
+                      style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: showProfileDrawer ? "#faf5ff" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}
                       onMouseEnter={e => e.currentTarget.style.background = "#faf5ff"}
-                      onMouseLeave={e => e.currentTarget.style.background = showChatMenu ? "#faf5ff" : "white"}
+                      onMouseLeave={e => e.currentTarget.style.background = showProfileDrawer ? "#faf5ff" : "white"}
                     >
                       <Icon.Dots />
                     </button>
-                    {showChatMenu && (
-                      <ChatSettingsMenu
-                        menuRef={chatMenuRef}
-                        isAdmin={canViewAdminNav}
-                        pinned={currentPrefs.pinned}
-                        muted={currentPrefs.muted}
-                        onAction={handleChatMenuAction}
-                      />
-                    )}
                   </div>
                 </div>
 
