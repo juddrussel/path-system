@@ -1641,8 +1641,11 @@ export default function Inbox() {
                             <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
                               {replyMeta && (() => {
                                 const repliedToSelf = String(replyMeta.senderId) === String(msg.sender_id);
+                                const repliedToViewer = !repliedToSelf && String(replyMeta.senderId) === String(currentUser.id);
                                 const whoText = isMine ? "You" : msg.sender_name;
-                                const targetText = repliedToSelf ? (isMine ? "yourself" : "themself") : replyMeta.name;
+                                const targetText = repliedToSelf
+                                  ? (isMine ? "yourself" : "themself")
+                                  : (repliedToViewer ? "you" : replyMeta.name);
                                 return (
                                   <div style={{ marginBottom: 4 }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10.5, fontWeight: "bold", color: isMine ? "rgba(255,255,255,0.85)" : "#7c3aed", marginBottom: 2, lineHeight: 1.2 }}>
