@@ -267,6 +267,37 @@ SLA: () => (
       <path d="M5 8.5h6M5 11h4" strokeLinecap="round" />
     </svg>
   ),
+  // ── Per-message hover action icons ──
+  DotsHorizontal: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="3" cy="8" r="1.5" />
+      <circle cx="8" cy="8" r="1.5" />
+      <circle cx="13" cy="8" r="1.5" />
+    </svg>
+  ),
+  ReplyArrow: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M6.5 3.5L2 8l4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 8h7a4.5 4.5 0 014.5 4.5V13" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  ForwardArrow: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M9.5 3.5L14 8l-4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 8H7A4.5 4.5 0 002.5 12.5V13" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  PinSmall: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+      <path d="M9.5 1.5l5 5-1.7 1.7-.9-.3-2.7 2.7.3 2.7-1 1-3-3-3.2 3.2-.3-.3 3.2-3.2-3-3 1-1 2.7.3 2.7-2.7-.3-.9 2 2z" />
+    </svg>
+  ),
+  Remove: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M3 4.5h10M6.5 4.5V3a1 1 0 011-1h1a1 1 0 011 1v1.5M6.5 7.5v4M9.5 7.5v4" strokeLinecap="round" />
+      <path d="M4 4.5l.6 8.5a1 1 0 001 .9h4.8a1 1 0 001-.9l.6-8.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
 };
 
 // ── Sidebar Item (from Dashboard) ─────────────────────────────────────────────
@@ -573,6 +604,14 @@ export default function Inbox() {
   const [showNewChat, setShowNewChat] = useState(false);
   const [userSearch, setUserSearch] = useState("");
 
+  // ── Per-message actions (reply / menu / pin / remove / forward) ──
+  const [hoveredMsgId, setHoveredMsgId] = useState(null);
+  const [openMsgMenuId, setOpenMsgMenuId] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null); // { id, sender_name, content, file_name }
+  const [pinnedMsgIds, setPinnedMsgIds] = useState(() => new Set());
+  const [forwardingMsg, setForwardingMsg] = useState(null); // message being forwarded
+  const msgMenuRef = useRef(null);
+
   // Document chat state
   const [documents, setDocuments] = useState([]);
   const [activeDoc, setActiveDoc] = useState(null);
@@ -742,6 +781,69 @@ export default function Inbox() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
+  // ── Close the per-message action menu when clicking outside it ──
+  useEffect(() => {
+    if (!openMsgMenuId) return;
+    function handleClickOutside(e) {
+      if (msgMenuRef.current && !msgMenuRef.current.contains(e.target)) {
+        setOpenMsgMenuId(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMsgMenuId]);
+
+  // ── Per-message action handlers ──
+  const handleRemoveMessage = (msg) => {
+    if (!window.confirm("Remove this message?")) return;
+    setMessages(prev => prev.filter(m => m.id !== msg.id));
+    setOpenMsgMenuId(null);
+  };
+
+  const togglePinMessage = (msg) => {
+    setPinnedMsgIds(prev => {
+      const next = new Set(prev);
+      if (next.has(msg.id)) next.delete(msg.id); else next.add(msg.id);
+      return next;
+    });
+    setOpenMsgMenuId(null);
+  };
+
+  const startReplyToMessage = (msg) => {
+    setReplyingTo(msg);
+    setOpenMsgMenuId(null);
+  };
+
+  const startForwardMessage = (msg) => {
+    setForwardingMsg(msg);
+    setOpenMsgMenuId(null);
+  };
+
+  const sendForward = async (toUser) => {
+    if (!forwardingMsg || !toUser) return;
+    const fd = new FormData();
+    if (forwardingMsg.content) fd.append("content", forwardingMsg.content);
+    if (forwardingMsg.file_url) {
+      // Re-attach the original file by fetching it, then forwarding as a new upload
+      try {
+        const fileRes = await fetch(resolveUrl(forwardingMsg.file_url));
+        const blob = await fileRes.blob();
+        fd.append("file", blob, forwardingMsg.file_name || "file");
+      } catch (e) { console.error("sendForward file fetch:", e); }
+    }
+    const res = await fetch(`${API}/api/chat/messages/${toUser.id}`, {
+      method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd,
+    });
+    if (res.ok) {
+      const msg = await res.json();
+      socket?.emit("send_message", { senderId: currentUser.id, receiverId: toUser.id, message: msg });
+      if (activeConv && String(activeConv.id) === String(toUser.id)) {
+        setMessages(prev => prev.find(m => m.id === msg.id) ? prev : [...prev, msg]);
+      }
+    }
+    setForwardingMsg(null);
+  };
+
   const DEFAULT_CONV_PREFS = { pinned: false, muted: false, notifications: true, muteDuration: "off", theme: "lavender" };
   const currentPrefs = (activeConv && convPrefs[activeConv.id]) || DEFAULT_CONV_PREFS;
   const updateConvPrefs = (patch) => {
@@ -870,7 +972,13 @@ export default function Inbox() {
   const sendDm = async () => {
     if (!activeConv || (!dmInput.trim() && !dmFile)) return;
     const fd = new FormData();
-    if (dmInput.trim()) fd.append("content", dmInput.trim());
+    let content = dmInput.trim();
+    if (replyingTo) {
+      const quotedSnippet = (replyingTo.content || (replyingTo.file_name ? `📎 ${replyingTo.file_name}` : "")).slice(0, 80);
+      const quotedName = String(replyingTo.sender_id) === String(currentUser.id) ? "yourself" : (replyingTo.sender_name || activeConv.full_name);
+      content = `↩️ Replying to ${quotedName}: "${quotedSnippet}"\n${content}`;
+    }
+    if (content) fd.append("content", content);
     if (dmFile) fd.append("file", dmFile);
     const res = await fetch(`${API}/api/chat/messages/${activeConv.id}`, {
       method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd,
@@ -879,6 +987,7 @@ export default function Inbox() {
       const msg = await res.json();
       socket?.emit("send_message", { senderId: currentUser.id, receiverId: activeConv.id, message: msg });
       setDmInput(""); setDmFile(null);
+      setReplyingTo(null);
       if (dmFileRef.current) dmFileRef.current.value = "";
       socket?.emit("stop_typing", { senderId: currentUser.id, receiverId: activeConv.id });
     }
@@ -1474,8 +1583,16 @@ export default function Inbox() {
                       );
                     }
 
+                    const isPinned = pinnedMsgIds.has(msg.id);
+                    const showActions = hoveredMsgId === msg.id || openMsgMenuId === msg.id;
+
                     return (
-                      <div key={msg.id} style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "flex-start", gap: 8, marginTop: isFirstInGroup ? 10 : 2, opacity: isSearchMatch ? 1 : 0.32, transition: "opacity 0.15s" }}>
+                      <div
+                        key={msg.id}
+                        onMouseEnter={() => setHoveredMsgId(msg.id)}
+                        onMouseLeave={() => setHoveredMsgId(prev => (openMsgMenuId === msg.id ? prev : (prev === msg.id ? null : prev)))}
+                        style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "flex-start", gap: 8, marginTop: isFirstInGroup ? 10 : 2, opacity: isSearchMatch ? 1 : 0.32, transition: "opacity 0.15s" }}
+                      >
 
                         {/* Avatar — only for received messages, aligned to top of bubble */}
                         {!isMine && (
@@ -1486,13 +1603,87 @@ export default function Inbox() {
                           </div>
                         )}
 
+                        {/* Hover action toolbar — reply + 3-dot menu (no reactions) */}
+                        <div style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "center", gap: 2, paddingTop: 6, position: "relative", opacity: showActions ? 1 : 0, pointerEvents: showActions ? "auto" : "none", transition: "opacity 0.12s" }}>
+                          <button
+                            onClick={() => startReplyToMessage(msg)}
+                            title="Reply"
+                            aria-label="Reply to message"
+                            style={{ width: 26, height: 26, borderRadius: "50%", border: "1px solid #e5e7eb", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "#f5f5f8"}
+                            onMouseLeave={e => e.currentTarget.style.background = "white"}
+                          >
+                            <Icon.ReplyArrow />
+                          </button>
+                          <button
+                            onClick={() => setOpenMsgMenuId(prev => (prev === msg.id ? null : msg.id))}
+                            title="More options"
+                            aria-label="More message options"
+                            aria-haspopup="menu"
+                            aria-expanded={openMsgMenuId === msg.id}
+                            style={{ width: 26, height: 26, borderRadius: "50%", border: "1px solid #e5e7eb", background: openMsgMenuId === msg.id ? "#f0f0f5" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "#f5f5f8"}
+                            onMouseLeave={e => e.currentTarget.style.background = openMsgMenuId === msg.id ? "#f0f0f5" : "white"}
+                          >
+                            <Icon.DotsHorizontal />
+                          </button>
+
+                          {/* Dropdown: Remove / Forward / Pin (no Report) */}
+                          {openMsgMenuId === msg.id && (
+                            <div
+                              ref={msgMenuRef}
+                              role="menu"
+                              style={{
+                                position: "absolute", top: 30, [isMine ? "right" : "left"]: 0,
+                                background: "#1e293b", borderRadius: 10, padding: "6px 0", minWidth: 130,
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 30,
+                              }}
+                            >
+                              <button
+                                role="menuitem"
+                                onClick={() => handleRemoveMessage(msg)}
+                                style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "transparent", border: "none", cursor: "pointer", color: "#f1f5f9", fontSize: 12.5, fontWeight: 600, textAlign: "left" }}
+                                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+                                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                              >
+                                <Icon.Remove /> Remove
+                              </button>
+                              <button
+                                role="menuitem"
+                                onClick={() => startForwardMessage(msg)}
+                                style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "transparent", border: "none", cursor: "pointer", color: "#f1f5f9", fontSize: 12.5, fontWeight: 600, textAlign: "left" }}
+                                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+                                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                              >
+                                <Icon.ForwardArrow /> Forward
+                              </button>
+                              <button
+                                role="menuitem"
+                                onClick={() => togglePinMessage(msg)}
+                                style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "transparent", border: "none", cursor: "pointer", color: "#f1f5f9", fontSize: 12.5, fontWeight: 600, textAlign: "left" }}
+                                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+                                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                              >
+                                <Icon.PinSmall /> {isPinned ? "Unpin" : "Pin"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
                         <div style={{ maxWidth: "60%" }}>
                           {isFirstInGroup && !isMine && (
                             <div style={{ fontSize: 10, color: "#888", marginBottom: 3, marginLeft: 2 }}>{msg.sender_name}</div>
                           )}
-                          <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
-                            {msg.content && <div>{msg.content}</div>}
-                            {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
+                          <div style={{ position: "relative" }}>
+                            {isPinned && (
+                              <span style={{ position: "absolute", top: -8, [isMine ? "left" : "right"]: -6, color: "#7c3aed", background: "white", borderRadius: "50%", width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>
+                                <Icon.PinSmall />
+                              </span>
+                            )}
+                            <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
+                              {msg.content && <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>}
+                              {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
+                            </div>
                           </div>
                           <div style={{ fontSize: 10, color: "#bbb", marginTop: 2, textAlign: isMine ? "right" : "left", display: "flex", alignItems: "center", justifyContent: isMine ? "flex-end" : "flex-start", gap: 4 }}>
                             {formatTime(msg.created_at)}
@@ -1516,6 +1707,22 @@ export default function Inbox() {
                   )}
                   <div ref={messagesEndRef} />
                 </div>
+
+                {/* Reply preview bar */}
+                {replyingTo && (
+                  <div style={{ padding: "8px 18px", background: "#faf5ff", borderTop: "0.5px solid #e5e7eb", display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ color: "#7c3aed", display: "flex", flexShrink: 0 }}><Icon.ReplyArrow /></span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: "bold", color: "#7c3aed" }}>
+                        Replying to {String(replyingTo.sender_id) === String(currentUser.id) ? "yourself" : (replyingTo.sender_name || activeConv.full_name)}
+                      </div>
+                      <div style={{ fontSize: 11.5, color: "#666", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {replyingTo.content || (replyingTo.file_name ? `📎 ${replyingTo.file_name}` : "")}
+                      </div>
+                    </div>
+                    <button onClick={() => setReplyingTo(null)} aria-label="Cancel reply" style={{ background: "none", border: "none", color: "#999", cursor: "pointer", fontSize: 16, flexShrink: 0 }}>×</button>
+                  </div>
+                )}
 
                 {/* File preview */}
                 {dmFile && (
@@ -1650,6 +1857,38 @@ export default function Inbox() {
 
       {/* ── Always-mounted remote audio element — must exist before ontrack fires ── */}
       <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: "none" }} />
+
+      {/* ── Forward Message Modal ── */}
+      {forwardingMsg && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setForwardingMsg(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "white", borderRadius: 16, width: 320, maxHeight: "70vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderBottom: "0.5px solid #e5e7eb" }}>
+              <span style={{ fontWeight: "bold", fontSize: 14, color: "#111" }}>Forward message</span>
+              <button onClick={() => setForwardingMsg(null)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: "#999", fontSize: 16 }}>×</button>
+            </div>
+            <div style={{ padding: "10px 16px", fontSize: 11.5, color: "#666", background: "#faf5ff", borderBottom: "0.5px solid #e5e7eb", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {forwardingMsg.content || (forwardingMsg.file_name ? `📎 ${forwardingMsg.file_name}` : "")}
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "6px 8px" }}>
+              {allUsers.filter(u => String(u.id) !== String(currentUser.id)).map(u => (
+                <div
+                  key={u.id}
+                  onClick={() => sendForward(u)}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 8px", cursor: "pointer", borderRadius: 8 }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#ede9fe"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                >
+                  <Avatar name={u.full_name} size={30} online={onlineUserIds.includes(String(u.id))} photoUrl={u.photo ? resolveUrl(u.photo) : null} />
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: "bold", color: "#111" }}>{u.full_name}</div>
+                    <div style={{ fontSize: 10, color: "#888" }}>{u.department}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Incoming Call Modal ── */}
       {callState?.type === "incoming" && (
