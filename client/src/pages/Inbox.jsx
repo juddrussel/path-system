@@ -1789,7 +1789,7 @@ export default function Inbox() {
                           </div>
                           <div style={{ fontSize: 10, color: "#bbb", marginTop: 2, textAlign: isMine ? "right" : "left", display: "flex", alignItems: "center", justifyContent: isMine ? "flex-end" : "flex-start", gap: 4 }}>
                             {formatTime(msg.created_at)}
-                            {msg.is_edited && <span style={{ fontStyle: "italic" }}>· edited</span>}
+                            {!!msg.is_edited && <span style={{ fontStyle: "italic" }}>· edited</span>}
                             {isMine && (
                               <span style={{ color: msg.is_read ? "#7c3aed" : "#ccc" }}>
                                 {msg.is_read ? "✓✓" : "✓"}
