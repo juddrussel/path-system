@@ -781,6 +781,14 @@ export default function Inbox() {
         if (prev.find(m => m.id === msg.id)) return prev;
         return [...prev, msg];
       });
+      // Pin/unpin notices piggyback their pin-state change on this same,
+      // already-reliable channel (rather than a bespoke socket event the
+      // server may not relay) so the other participant's pin indicator and
+      // "Pinned messages" count update instantly, not just on next refetch.
+      if (msg.pin_sync) {
+        const { messageId, is_pinned, pinned_by, pinned_by_name } = msg.pin_sync;
+        setMessages(prev => prev.map(m => m.id === messageId ? { ...m, is_pinned, pinned_by, pinned_by_name } : m));
+      }
       setConversations(prev => prev.map(c =>
         c.id === msg.sender_id || c.id === msg.receiver_id
           ? { ...c, last_message: msg.content || "📎 File", last_time: msg.created_at }
@@ -791,13 +799,6 @@ export default function Inbox() {
 
     s.on("message_edited", ({ messageId, content }) => {
       setMessages(prev => prev.map(m => m.id === messageId ? { ...m, content, is_edited: true, edited_at: new Date().toISOString() } : m));
-    });
-
-    // Keeps the other participant's pin/unpin in sync without a refetch —
-    // the source of truth is still the DB (is_pinned/pinned_by columns),
-    // this just pushes the change over the wire in real time.
-    s.on("message_pinned", ({ messageId, is_pinned, pinned_by, pinned_by_name }) => {
-      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, is_pinned, pinned_by, pinned_by_name } : m));
     });
 
     s.on("receive_document_comment", (comment) => {
@@ -955,20 +956,22 @@ export default function Inbox() {
 
       // Reconcile with the server's copy (it's the source of truth).
       setMessages(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated } : m));
-      socket?.emit("message_pinned", {
-        messageId: updated.id,
-        receiverId: activeConv?.id,
-        is_pinned: updated.is_pinned,
-        pinned_by: updated.pinned_by,
-        pinned_by_name: updated.pinned_by_name,
-      });
 
       // Inline system notice, persisted like the call-event messages so it
-      // survives a refresh and shows up for both participants.
+      // survives a refresh — and carries the pin-state change itself
+      // (pin_sync) so the other participant's indicator/count update the
+      // instant this arrives, over the same channel normal messages use.
       if (activeConv) {
         const actorName = currentUser.full_name || currentUser.username || "Someone";
         const label = updated.is_pinned ? "pinned a message" : "unpinned a message";
-        sendSystemMessage(activeConv.id, `📌 ${actorName} ${label}`);
+        sendSystemMessage(activeConv.id, `📌 ${actorName} ${label}`, {
+          pin_sync: {
+            messageId: updated.id,
+            is_pinned: updated.is_pinned,
+            pinned_by: updated.pinned_by,
+            pinned_by_name: updated.pinned_by_name,
+          },
+        });
       }
     } catch (e) {
       console.error("togglePinMessage:", e);
@@ -1299,7 +1302,10 @@ export default function Inbox() {
   };
 
   // ── Send a system/call event message into the chat ───────────────────────
-  const sendSystemMessage = async (receiverId, content) => {
+  // `extra` is merged onto the message object emitted over the socket only
+  // (never persisted) — used e.g. by pin/unpin notices to piggyback the
+  // pin-state change onto this already-reliable channel.
+  const sendSystemMessage = async (receiverId, content, extra = {}) => {
     try {
       const fd = new FormData();
       fd.append("content", content);
@@ -1312,7 +1318,7 @@ export default function Inbox() {
       if (res.ok) {
         const msg = await res.json();
         setMessages(prev => prev.find(m => m.id === msg.id) ? prev : [...prev, msg]);
-        socket?.emit("send_message", { senderId: currentUser.id, receiverId, message: msg });
+        socket?.emit("send_message", { senderId: currentUser.id, receiverId, message: { ...msg, ...extra } });
       }
     } catch (e) { console.error("sendSystemMessage:", e); }
   };
