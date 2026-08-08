@@ -100,13 +100,13 @@ router.get("/conversations", authMiddleware, async (req, res) => {
         m.content AS last_message,
         m.created_at AS last_time,
         m.sender_id AS last_sender_id,
-        COUNT(CASE WHEN m2.is_read = 0 AND m2.receiver_id = ? THEN 1 END) AS unread_count
+        COUNT(CASE WHEN m2.is_read = 0 AND m2.receiver_id = ? AND m2.deleted_for_receiver = 0 THEN 1 END) AS unread_count
       FROM users u
       JOIN messages m ON (
-        (m.sender_id = u.id AND m.receiver_id = ?)
-        OR (m.sender_id = ? AND m.receiver_id = u.id)
+        (m.sender_id = u.id AND m.receiver_id = ? AND m.deleted_for_receiver = 0)
+        OR (m.sender_id = ? AND m.receiver_id = u.id AND m.deleted_for_sender = 0)
       )
-      LEFT JOIN messages m2 ON (m2.sender_id = u.id AND m2.receiver_id = ? AND m2.is_read = 0)
+      LEFT JOIN messages m2 ON (m2.sender_id = u.id AND m2.receiver_id = ? AND m2.is_read = 0 AND m2.deleted_for_receiver = 0)
       WHERE u.id != ?
       GROUP BY u.id, m.id
       ORDER BY m.created_at DESC
@@ -135,8 +135,8 @@ router.get("/messages/:userId", authMiddleware, async (req, res) => {
       SELECT m.*, u.full_name AS sender_name, u.avatar_url AS sender_photo
       FROM messages m
       JOIN users u ON u.id = m.sender_id
-      WHERE (m.sender_id = ? AND m.receiver_id = ?)
-         OR (m.sender_id = ? AND m.receiver_id = ?)
+      WHERE (m.sender_id = ? AND m.receiver_id = ? AND m.deleted_for_sender = 0)
+         OR (m.sender_id = ? AND m.receiver_id = ? AND m.deleted_for_receiver = 0)
       ORDER BY m.created_at ASC
     `, [req.user.id, otherId, otherId, req.user.id]);
 
@@ -234,7 +234,7 @@ router.patch("/messages/:userId/mark-unread", authMiddleware, async (req, res) =
   const otherId = parseInt(req.params.userId);
   try {
     const [rows] = await db.query(
-      "SELECT id FROM messages WHERE sender_id = ? AND receiver_id = ? ORDER BY created_at DESC LIMIT 1",
+      "SELECT id FROM messages WHERE sender_id = ? AND receiver_id = ? AND deleted_for_receiver = 0 ORDER BY created_at DESC LIMIT 1",
       [otherId, req.user.id]
     );
     if (!rows[0]) {
@@ -249,13 +249,24 @@ router.patch("/messages/:userId/mark-unread", authMiddleware, async (req, res) =
   }
 });
 
-// DELETE all messages between me and another user (clear chat history)
+// DELETE (soft) chat history — hides the thread only for the requesting
+// user. Messages aren't actually removed from the DB: we flag them as
+// deleted "for sender" or "for receiver" depending on which side of each
+// message the current user was on, and every read query filters those out
+// for that user specifically. The other participant's copy is untouched —
+// if they haven't also cleared the thread, they still see everything.
 router.delete("/messages/:userId/clear", authMiddleware, async (req, res) => {
   const otherId = parseInt(req.params.userId);
   try {
+    // Messages I sent to them → hide on my (sender) side.
     await db.query(
-      "DELETE FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)",
-      [req.user.id, otherId, otherId, req.user.id]
+      "UPDATE messages SET deleted_for_sender = 1 WHERE sender_id = ? AND receiver_id = ?",
+      [req.user.id, otherId]
+    );
+    // Messages they sent to me → hide on my (receiver) side.
+    await db.query(
+      "UPDATE messages SET deleted_for_receiver = 1 WHERE sender_id = ? AND receiver_id = ?",
+      [otherId, req.user.id]
     );
     res.json({ cleared: true });
   } catch (err) {
