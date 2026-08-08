@@ -236,6 +236,37 @@ SLA: () => (
       <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
     </svg>
   ),
+  Mail: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <rect x="2" y="3.5" width="12" height="9" rx="1.2" />
+      <path d="M2.5 4.5L8 8.5l5.5-4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Phone: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M3 2.5c0-.3.2-.5.5-.5h2l1 2.5-1.5 1a7 7 0 003.5 3.5l1-1.5L12 8.5v2c0 .3-.2.5-.5.5A9.5 9.5 0 012.5 2.5z" />
+    </svg>
+  ),
+  ChevronUp: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
+      <path d="M3.5 10L8 5.5 12.5 10" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Media: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <rect x="2" y="2.5" width="12" height="9" rx="1.2" />
+      <circle cx="5.2" cy="5.7" r="1.1" fill="currentColor" stroke="none" />
+      <path d="M2.5 10.5l3.3-3.3a1 1 0 011.4 0l1.3 1.3 2-2a1 1 0 011.4 0l1.6 1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 14h8" strokeLinecap="round" />
+    </svg>
+  ),
+  FileDoc: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M4 1.5h5l3 3v9.5a1 1 0 01-1 1H4a1 1 0 01-1-1v-11.5a1 1 0 011-1z" strokeLinejoin="round" />
+      <path d="M9 1.5v3h3" strokeLinejoin="round" />
+      <path d="M5 8.5h6M5 11h4" strokeLinecap="round" />
+    </svg>
+  ),
 };
 
 // ── Sidebar Item (from Dashboard) ─────────────────────────────────────────────
@@ -379,14 +410,14 @@ function MenuItem({ icon, label, onClick, danger, active }) {
 }
 
 // ── Profile & Settings Drawer ─────────────────────────────────────────────────
-function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange }) {
+function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, mediaCount, fileCount, onAction }) {
   return (
     <>
       <div
         onClick={onClose}
         aria-hidden={!open}
         style={{
-          position: "fixed", inset: 0, background: "rgba(15,13,26,0.35)", zIndex: 900,
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 900,
           opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none", transition: "opacity 0.2s ease-out",
         }}
       />
@@ -395,94 +426,190 @@ function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange }) {
         aria-modal="true"
         aria-label="Profile and chat settings"
         style={{
-          position: "fixed", top: 0, right: 0, height: "100vh", width: "min(380px, 100vw)",
-          background: "white", zIndex: 901, boxShadow: "-10px 0 36px rgba(76,29,149,0.2)",
+          position: "fixed", top: 0, right: 0, height: "100vh", width: "min(340px, 100vw)",
+          background: "#1e1b2e", zIndex: 901, boxShadow: "-10px 0 36px rgba(0,0,0,0.4)",
           transform: open ? "translateX(0)" : "translateX(100%)", transition: "transform 0.26s ease-out",
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px", borderBottom: "1px solid #f1eefa", flexShrink: 0 }}>
-          <div style={{ fontWeight: "bold", fontSize: 15, color: "#27223f" }}>Profile & Settings</div>
+        {/* Close button */}
+        <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 12px 0", flexShrink: 0 }}>
           <button
             type="button"
             aria-label="Close profile drawer"
             onClick={onClose}
-            style={{ width: 30, height: 30, borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}
-            onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
-            onMouseLeave={e => e.currentTarget.style.background = "white"}
+            style={{ width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#cbd5e1" }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
           >
             <Icon.Close />
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: 18 }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 22 }}>
-            <Avatar name={faculty.full_name} size={72} online={faculty.online} photoUrl={faculty.photoUrl} />
-            <div style={{ fontWeight: "bold", fontSize: 16, color: "#27223f", textAlign: "center" }}>{faculty.full_name}</div>
-            <div style={{ fontSize: 12, color: "#7c3aed" }}>{faculty.position || "Faculty"}</div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "4px 18px 24px" }}>
+
+          {/* Avatar / name / status */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <Avatar name={faculty.full_name} size={92} online={faculty.online} photoUrl={faculty.photoUrl} />
+            <div style={{ fontWeight: "bold", fontSize: 17, color: "white", textAlign: "center" }}>{faculty.full_name}</div>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 999,
+              background: "rgba(255,255,255,0.08)", fontSize: 11.5, color: "#d1d5db",
+            }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: faculty.online ? "#22c55e" : "#6b7280", flexShrink: 0 }} />
+              {faculty.online ? "Online" : (faculty.lastSeen ? `Last seen ${faculty.lastSeen}` : "Offline")}
+            </div>
           </div>
 
-          <DrawerSection title="Faculty Information">
-            <InfoRow label="Full Name" value={faculty.full_name} />
-            <InfoRow label="Employee ID" value={faculty.employee_id || "—"} />
-            <InfoRow label="Department" value={faculty.department || "—"} />
-            <InfoRow label="Position" value={faculty.position || "—"} />
-            <InfoRow label="Email Address" value={faculty.email || "—"} />
-            <InfoRow label="Contact Number" value={faculty.contact_number || "—"} />
-          </DrawerSection>
+          {/* Info card — replaces the profile/mute/search shortcut row */}
+          <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "6px 14px", marginBottom: 8 }}>
+            <UserInfoRow icon={<Icon.Building />} label="Department" value={faculty.department} />
+            <UserInfoRow icon={<Icon.Info />} label="Position" value={faculty.position} />
+            <UserInfoRow icon={<Icon.Profile />} label="Employee ID" value={faculty.employee_id} />
+            <UserInfoRow icon={<Icon.Mail />} label="Email" value={faculty.email} />
+            <UserInfoRow icon={<Icon.Phone />} label="Contact" value={faculty.contact_number} last />
+          </div>
 
-          <DrawerSection title="Chat Preferences">
-            <ToggleRow label="Notifications" checked={prefs.notifications} onChange={v => onPrefsChange({ notifications: v })} />
-            <SelectRow
-              label="Mute Duration" value={prefs.muteDuration} disabled={!prefs.muted}
-              options={[["off", "Not muted"], ["1h", "1 hour"], ["8h", "8 hours"], ["24h", "24 hours"], ["forever", "Until turned on"]]}
-              onChange={v => onPrefsChange({ muteDuration: v, muted: v !== "off" })}
+          <DrawerAccordion title="Chat info" defaultOpen>
+            <DrawerListItem
+              icon={<Icon.Pin />}
+              label="Pin conversation"
+              active={prefs.pinned}
+              onClick={() => onAction("pin")}
             />
-            <SelectRow
-              label="Chat Theme" value={prefs.theme}
-              options={[["lavender", "Lavender (default)"], ["ocean", "Ocean"], ["sunset", "Sunset"], ["mono", "Monochrome"]]}
-              onChange={v => onPrefsChange({ theme: v })}
+            <DrawerListItem
+              icon={<Icon.Search />}
+              label="Search messages"
+              onClick={() => onAction("search_messages")}
             />
-          </DrawerSection>
+          </DrawerAccordion>
 
-          <DrawerSection title="Activity">
-            <InfoRow label="Last Seen" value={faculty.online ? "Active now" : (faculty.lastSeen || "—")} />
-            <InfoRow label="Online Status" value={faculty.online ? "Online" : "Offline"} valueColor={faculty.online ? "#22c55e" : "#888"} />
-            <InfoRow label="Total Documents Processed" value={faculty.docsProcessed ?? "—"} />
-            <InfoRow label="Total Messages Sent" value={faculty.messagesSent ?? "—"} />
-          </DrawerSection>
+          <DrawerAccordion title="Customize chat">
+            <div style={{ padding: "4px 6px 8px", display: "flex", flexDirection: "column", gap: 12 }}>
+              <SelectRow
+                label="Chat theme" value={prefs.theme}
+                options={[["lavender", "Lavender (default)"], ["ocean", "Ocean"], ["sunset", "Sunset"], ["mono", "Monochrome"]]}
+                onChange={v => onPrefsChange({ theme: v })}
+              />
+              <ToggleRow label="Notifications" checked={prefs.notifications} onChange={v => onPrefsChange({ notifications: v })} />
+              <SelectRow
+                label="Mute duration" value={prefs.muteDuration} disabled={!prefs.muted}
+                options={[["off", "Not muted"], ["1h", "1 hour"], ["8h", "8 hours"], ["24h", "24 hours"], ["forever", "Until turned on"]]}
+                onChange={v => onPrefsChange({ muteDuration: v, muted: v !== "off" })}
+              />
+            </div>
+          </DrawerAccordion>
+
+          <DrawerAccordion title="Media & files" defaultOpen>
+            <DrawerListItem icon={<Icon.Media />} label="Media" sublabel={`${mediaCount} item${mediaCount === 1 ? "" : "s"}`} />
+            <DrawerListItem icon={<Icon.FileDoc />} label="Files" sublabel={`${fileCount} item${fileCount === 1 ? "" : "s"}`} />
+          </DrawerAccordion>
+
+          <DrawerAccordion title="Privacy & support" defaultOpen>
+            <DrawerListItem
+              icon={<Icon.BellOff />}
+              label="Mute notifications"
+              active={prefs.muted}
+              onClick={() => onAction("mute")}
+            />
+            <DrawerListItem icon={<Icon.MarkUnread />} label="Mark as unread" onClick={() => onAction("mark_unread")} />
+            <DrawerListItem icon={<Icon.Trash />} label="Clear chat history" danger onClick={() => onAction("clear_chat")} />
+            <DrawerListItem icon={<Icon.Block />} label="Block user" danger onClick={() => onAction("block")} />
+            <DrawerListItem icon={<Icon.Flag />} label="Report user" danger onClick={() => onAction("report")} />
+          </DrawerAccordion>
+
+          {isAdmin && (
+            <DrawerAccordion title="Administrative" defaultOpen>
+              <DrawerListItem icon={<Icon.Activity />} label="View activity log" onClick={() => onAction("activity_log")} />
+              <DrawerListItem icon={<Icon.Lock />} label="Disable chat access" danger onClick={() => onAction("disable_chat")} />
+              <DrawerListItem icon={<Icon.Archive />} label="Archive conversation" onClick={() => onAction("archive")} />
+            </DrawerAccordion>
+          )}
         </div>
       </div>
     </>
   );
 }
 
-function DrawerSection({ title, children }) {
+// Compact contact-card row used in place of the profile/mute/search shortcuts
+function UserInfoRow({ icon, label, value, last }) {
   return (
-    <div style={{ marginBottom: 22 }}>
-      <div style={{ fontSize: 11, fontWeight: "bold", color: "#a78bfa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>{title}</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{children}</div>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: last ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
+      <span style={{ color: "#a78bfa", flexShrink: 0, display: "flex" }}>{icon}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 10.5, color: "#8b87a3", textTransform: "uppercase", letterSpacing: 0.4 }}>{label}</div>
+        <div style={{ fontSize: 12.5, color: "white", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value || "—"}</div>
+      </div>
     </div>
   );
 }
-function InfoRow({ label, value, valueColor }) {
+
+// Collapsible section, chevron-toggled, dark theme (mirrors the reference layout)
+function DrawerAccordion({ title, defaultOpen = false, children }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5 }}>
-      <span style={{ color: "#888", flexShrink: 0 }}>{label}</span>
-      <span style={{ color: valueColor || "#27223f", fontWeight: 500, textAlign: "right", wordBreak: "break-word" }}>{value}</span>
+    <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "2px 0" }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: "transparent", border: "none", cursor: "pointer", padding: "13px 4px",
+          color: "white", fontSize: 13.5, fontWeight: 600,
+        }}
+      >
+        {title}
+        <span style={{ color: "#8b87a3", display: "flex", transform: open ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 0.18s" }}>
+          <Icon.ChevronUp />
+        </span>
+      </button>
+      {open && <div style={{ paddingBottom: 8, display: "flex", flexDirection: "column", gap: 1 }}>{children}</div>}
     </div>
   );
 }
+
+// Dark-themed row for accordion items — icon + label (+ optional sublabel / active check)
+function DrawerListItem({ icon, label, sublabel, onClick, danger, active }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      style={{
+        display: "flex", alignItems: "center", gap: 12, width: "100%",
+        background: "transparent", border: "none", borderRadius: 8, padding: "8px 6px",
+        cursor: onClick ? "pointer" : "default", textAlign: "left",
+      }}
+      onMouseEnter={e => { if (onClick) e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+    >
+      <span style={{
+        width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.08)",
+        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        color: danger ? "#f87171" : "#e5e2f0",
+      }}>
+        {icon}
+      </span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, color: danger ? "#f87171" : "white" }}>{label}</div>
+        {sublabel && <div style={{ fontSize: 11, color: "#8b87a3", marginTop: 1 }}>{sublabel}</div>}
+      </span>
+      {active && <span style={{ color: "#a78bfa", display: "flex", flexShrink: 0 }}><Icon.Check /></span>}
+    </button>
+  );
+}
+
 function ToggleRow({ label, checked, onChange }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12.5 }}>
-      <span style={{ color: "#27223f" }}>{label}</span>
+      <span style={{ color: "white" }}>{label}</span>
       <button
         type="button" role="switch" aria-checked={checked} aria-label={label}
         onClick={() => onChange(!checked)}
-        style={{ width: 38, height: 22, borderRadius: 11, border: "none", cursor: "pointer", background: checked ? "#7c3aed" : "#e5e7eb", position: "relative", transition: "background 0.15s", flexShrink: 0 }}
+        style={{ width: 38, height: 22, borderRadius: 11, border: "none", cursor: "pointer", background: checked ? "#7c3aed" : "rgba(255,255,255,0.15)", position: "relative", transition: "background 0.15s", flexShrink: 0 }}
       >
-        <span style={{ position: "absolute", top: 2, left: checked ? 18 : 2, width: 18, height: 18, borderRadius: "50%", background: "white", transition: "left 0.15s", boxShadow: "0 1px 3px rgba(0,0,0,0.25)" }} />
+        <span style={{ position: "absolute", top: 2, left: checked ? 18 : 2, width: 18, height: 18, borderRadius: "50%", background: "white", transition: "left 0.15s", boxShadow: "0 1px 3px rgba(0,0,0,0.35)" }} />
       </button>
     </div>
   );
@@ -490,10 +617,10 @@ function ToggleRow({ label, checked, onChange }) {
 function SelectRow({ label, value, options, onChange, disabled }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12.5, opacity: disabled ? 0.5 : 1 }}>
-      <span style={{ color: "#27223f" }}>{label}</span>
+      <span style={{ color: "white" }}>{label}</span>
       <select
         disabled={disabled} value={value} onChange={e => onChange(e.target.value)} aria-label={label}
-        style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid #e5e7eb", background: "white", color: "#27223f", cursor: disabled ? "not-allowed" : "pointer" }}
+        style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.15)", background: "#2a2740", color: "white", cursor: disabled ? "not-allowed" : "pointer" }}
       >
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
@@ -1759,6 +1886,10 @@ export default function Inbox() {
           }}
           prefs={currentPrefs}
           onPrefsChange={updateConvPrefs}
+          isAdmin={canViewAdminNav}
+          mediaCount={messages.filter(m => m.file_url && ["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
+          fileCount={messages.filter(m => m.file_url && !["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
+          onAction={handleChatMenuAction}
         />
       )}
 
