@@ -828,7 +828,7 @@ export default function Inbox() {
                       onMouseEnter={e => e.currentTarget.style.background = "#ede9fe"}
                       onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                     >
-                      <Avatar name={u.full_name} size={30} online={onlineUserIds.includes(String(u.id))} />
+                      <Avatar name={u.full_name} size={30} online={onlineUserIds.includes(String(u.id))} photoUrl={u.photo ? `${API}${u.photo}` : null} />
                       <div>
                         <div style={{ fontSize: 12, fontWeight: "bold", color: "#111" }}>{u.full_name}</div>
                         <div style={{ fontSize: 10, color: "#888" }}>{u.department}</div>
@@ -853,7 +853,7 @@ export default function Inbox() {
                     onMouseEnter={e => { if (activeConv?.id !== conv.id) e.currentTarget.style.background = "#fafafa"; }}
                     onMouseLeave={e => { if (activeConv?.id !== conv.id) e.currentTarget.style.background = "white"; }}
                   >
-                    <Avatar name={conv.full_name} size={36} online={onlineUserIds.includes(String(conv.id))} />
+                    <Avatar name={conv.full_name} size={36} online={onlineUserIds.includes(String(conv.id))} photoUrl={conv.photo ? `${API}${conv.photo}` : null} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span style={{ fontWeight: "bold", fontSize: 12, color: "#111" }}>{conv.full_name}</span>
@@ -995,7 +995,7 @@ export default function Inbox() {
                   })}
                   {otherTyping && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-                      <Avatar name={activeConv.full_name} size={28} />
+                      <Avatar name={activeConv.full_name} size={28} photoUrl={activeConv.photo ? `${API}${activeConv.photo}` : null} />
                       <div style={{ background: "white", borderRadius: 14, padding: "8px 14px", boxShadow: "0 1px 3px rgba(0,0,0,0.07)" }}>
                         <span style={{ fontSize: 18, letterSpacing: 2 }}>···</span>
                       </div>
@@ -1061,7 +1061,7 @@ export default function Inbox() {
                     const isMine = String(c.sender_id) === String(currentUser.id);
                     return (
                       <div key={c.id} style={{ display: "flex", gap: 10, flexDirection: isMine ? "row-reverse" : "row", alignItems: "flex-start" }}>
-                        <Avatar name={c.sender_name} size={32} />
+                        <Avatar name={c.sender_name} size={32} photoUrl={c.sender_photo ? `${API}${c.sender_photo}` : null} />
                         <div style={{ maxWidth: "65%" }}>
                           <div style={{ fontSize: 10, color: "#888", marginBottom: 3, textAlign: isMine ? "right" : "left" }}>
                             {isMine ? "You" : c.sender_name} · {c.sender_dept} · {formatTime(c.created_at)}
