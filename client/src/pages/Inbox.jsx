@@ -1162,8 +1162,36 @@ export default function Inbox() {
   // RENDER
   // ════════════════════════════════════════════════════════════════════════════
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
+    <div className="path-inbox-app" style={{ display: "flex", height: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+        /* ── Themed scrollbars ── */
+        .path-inbox-app * {
+          scrollbar-width: thin;                              /* Firefox */
+          scrollbar-color: rgba(124,58,237,0.35) transparent; /* Firefox: thumb track */
+        }
+        .path-inbox-app *::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        .path-inbox-app *::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .path-inbox-app *::-webkit-scrollbar-thumb {
+          background-color: rgba(124,58,237,0.35);
+          border-radius: 8px;
+          border: 2px solid transparent;
+          background-clip: padding-box;
+        }
+        .path-inbox-app *::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(124,58,237,0.6);
+          background-clip: padding-box;
+        }
+        .path-inbox-app *::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+      `}</style>
 
       {/* ── Dashboard Sidebar ── */}
       <div style={{
