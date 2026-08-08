@@ -322,24 +322,29 @@ function Avatar({ name, size = 36, online, photoUrl }) {
 
 // ── Profile & Settings Drawer ─────────────────────────────────────────────────
 function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, mediaCount, fileCount, onAction }) {
+  const PANEL_WIDTH = 300;
   return (
-    <>
+    // Outer flex item — width animates 0 → PANEL_WIDTH so it pushes the layout
+    // instead of covering it. `overflow: hidden` clips the fixed-width inner
+    // panel while it's collapsed/collapsing.
+    <div
+      aria-hidden={!open}
+      style={{
+        width: open ? PANEL_WIDTH : 0,
+        flexShrink: 0,
+        height: "100%",
+        overflow: "hidden",
+        background: "#1e1b2e",
+        borderLeft: open ? "0.5px solid rgba(255,255,255,0.08)" : "none",
+        transition: "width 0.22s ease-out",
+      }}
+    >
+      {/* Fixed-width inner panel — keeps content from reflowing/squishing while the outer width animates */}
       <div
-        onClick={onClose}
-        aria-hidden={!open}
-        style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 900,
-          opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none", transition: "opacity 0.2s ease-out",
-        }}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
+        role="region"
         aria-label="Profile and chat settings"
         style={{
-          position: "fixed", top: 0, right: 0, height: "100vh", width: "min(340px, 100vw)",
-          background: "#1e1b2e", zIndex: 901, boxShadow: "-10px 0 36px rgba(0,0,0,0.4)",
-          transform: open ? "translateX(0)" : "translateX(100%)", transition: "transform 0.26s ease-out",
+          width: PANEL_WIDTH, height: "100%",
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}
       >
@@ -438,7 +443,7 @@ function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, 
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -1596,6 +1601,33 @@ export default function Inbox() {
               </>
             )}
           </div>
+
+          {/* ── Profile & Chat Settings panel — flex sibling, pushes layout instead of overlaying it ── */}
+          {activeConv && (
+            <ProfileDrawer
+              open={showProfileDrawer}
+              onClose={() => setShowProfileDrawer(false)}
+              faculty={{
+                full_name: activeConv.full_name,
+                employee_id: activeConv.employee_id,
+                department: activeConv.department,
+                position: activeConv.position || activeConv.role_label,
+                email: activeConv.email,
+                contact_number: activeConv.contact_number || activeConv.phone,
+                photoUrl: activeConv.photo ? resolveUrl(activeConv.photo) : null,
+                online: onlineUserIds.includes(String(activeConv.id)),
+                lastSeen: activeConv.last_seen ? formatTime(activeConv.last_seen) : null,
+                docsProcessed: activeConv.docs_processed,
+                messagesSent: activeConv.messages_sent,
+              }}
+              prefs={currentPrefs}
+              onPrefsChange={updateConvPrefs}
+              isAdmin={canViewAdminNav}
+              mediaCount={messages.filter(m => m.file_url && ["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
+              fileCount={messages.filter(m => m.file_url && !["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
+              onAction={handleChatMenuAction}
+            />
+          )}
         </div>
       </div>
 
@@ -1744,33 +1776,6 @@ export default function Inbox() {
 
           </div>
         </div>
-      )}
-
-      {/* ── Profile & Chat Settings Drawer ── */}
-      {activeConv && (
-        <ProfileDrawer
-          open={showProfileDrawer}
-          onClose={() => setShowProfileDrawer(false)}
-          faculty={{
-            full_name: activeConv.full_name,
-            employee_id: activeConv.employee_id,
-            department: activeConv.department,
-            position: activeConv.position || activeConv.role_label,
-            email: activeConv.email,
-            contact_number: activeConv.contact_number || activeConv.phone,
-            photoUrl: activeConv.photo ? resolveUrl(activeConv.photo) : null,
-            online: onlineUserIds.includes(String(activeConv.id)),
-            lastSeen: activeConv.last_seen ? formatTime(activeConv.last_seen) : null,
-            docsProcessed: activeConv.docs_processed,
-            messagesSent: activeConv.messages_sent,
-          }}
-          prefs={currentPrefs}
-          onPrefsChange={updateConvPrefs}
-          isAdmin={canViewAdminNav}
-          mediaCount={messages.filter(m => m.file_url && ["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
-          fileCount={messages.filter(m => m.file_url && !["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
-          onAction={handleChatMenuAction}
-        />
       )}
 
     </div>
