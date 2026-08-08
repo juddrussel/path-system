@@ -665,15 +665,22 @@ function PinnedMessagesModal({ onClose, pinnedMessages, currentUser, onUnpin, co
                     </div>
                   )}
                   {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
-                  <button
-                    onClick={() => onUnpin(msg)}
-                    style={{ marginTop: 6, fontSize: 10.5, fontWeight: 600, background: "none", border: "none", color: "#7c3aed", cursor: "pointer", padding: 0, display: "inline-flex", alignItems: "center", gap: 4 }}
-                    onMouseEnter={e => e.currentTarget.style.color = "#5b21b6"}
-                    onMouseLeave={e => e.currentTarget.style.color = "#7c3aed"}
-                  >
-                    <span style={{ transform: "scale(0.85)", display: "flex" }}><Icon.PinSmall /></span>
-                    Unpin
-                  </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+                    <button
+                      onClick={() => onUnpin(msg)}
+                      style={{ fontSize: 10.5, fontWeight: 600, background: "none", border: "none", color: "#7c3aed", cursor: "pointer", padding: 0, display: "inline-flex", alignItems: "center", gap: 4 }}
+                      onMouseEnter={e => e.currentTarget.style.color = "#5b21b6"}
+                      onMouseLeave={e => e.currentTarget.style.color = "#7c3aed"}
+                    >
+                      <span style={{ transform: "scale(0.85)", display: "flex" }}><Icon.PinSmall /></span>
+                      Unpin
+                    </button>
+                    {msg.pinned_by_name && (
+                      <span style={{ fontSize: 10, color: "#aaa" }}>
+                        Pinned by {String(msg.pinned_by) === String(currentUser.id) ? "you" : msg.pinned_by_name}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -715,7 +722,6 @@ export default function Inbox() {
   const [hoveredMsgId, setHoveredMsgId] = useState(null);
   const [openMsgMenuId, setOpenMsgMenuId] = useState(null);
   const [replyingTo, setReplyingTo] = useState(null); // { id, sender_name, content, file_name }
-  const [pinnedMsgIds, setPinnedMsgIds] = useState(() => new Set());
   const [showPinnedMessages, setShowPinnedMessages] = useState(false);
   const [forwardingMsg, setForwardingMsg] = useState(null); // message being forwarded
   const [editingMsgId, setEditingMsgId] = useState(null); // id of message currently being edited
@@ -785,6 +791,13 @@ export default function Inbox() {
 
     s.on("message_edited", ({ messageId, content }) => {
       setMessages(prev => prev.map(m => m.id === messageId ? { ...m, content, is_edited: true, edited_at: new Date().toISOString() } : m));
+    });
+
+    // Keeps the other participant's pin/unpin in sync without a refetch —
+    // the source of truth is still the DB (is_pinned/pinned_by columns),
+    // this just pushes the change over the wire in real time.
+    s.on("message_pinned", ({ messageId, is_pinned, pinned_by, pinned_by_name }) => {
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, is_pinned, pinned_by, pinned_by_name } : m));
     });
 
     s.on("receive_document_comment", (comment) => {
@@ -922,30 +935,49 @@ export default function Inbox() {
     setOpenMsgMenuId(null);
   };
 
-  const togglePinMessage = (msg) => {
-    const wasPinned = pinnedMsgIds.has(msg.id);
-    setPinnedMsgIds(prev => {
-      const next = new Set(prev);
-      if (next.has(msg.id)) next.delete(msg.id); else next.add(msg.id);
-      return next;
-    });
+  const togglePinMessage = async (msg) => {
+    const wasPinned = !!msg.is_pinned;
     setOpenMsgMenuId(null);
 
-    // Drop an inline system-style notice into the thread so the other person
-    // sees that a message was pinned/unpinned — mirrors the call-event
-    // messages below. This is a local, client-side notice (pin state itself
-    // isn't persisted to the backend yet).
-    const actorName = currentUser.full_name || currentUser.username || "Someone";
-    const label = wasPinned ? "unpinned a message" : "pinned a message";
-    const notice = {
-      id: `pin-${msg.id}-${Date.now()}`,
-      is_system: true,
-      is_pin_event: true,
-      content: `📌 ${actorName} ${label}`,
-      created_at: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, notice]);
-    socket?.emit("send_message", { senderId: currentUser.id, receiverId: activeConv?.id, message: notice });
+    // Optimistic update — flips immediately, corrected/rolled back below.
+    setMessages(prev => prev.map(m => m.id === msg.id
+      ? { ...m, is_pinned: wasPinned ? 0 : 1, pinned_by: wasPinned ? null : currentUser.id, pinned_by_name: wasPinned ? null : (currentUser.full_name || currentUser.username) }
+      : m
+    ));
+
+    try {
+      const res = await fetch(`${API}/api/chat/messages/${msg.id}/pin`, {
+        method: "PATCH",
+        headers: authHeaders,
+      });
+      if (!res.ok) throw new Error("pin request failed");
+      const updated = await res.json();
+
+      // Reconcile with the server's copy (it's the source of truth).
+      setMessages(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated } : m));
+      socket?.emit("message_pinned", {
+        messageId: updated.id,
+        receiverId: activeConv?.id,
+        is_pinned: updated.is_pinned,
+        pinned_by: updated.pinned_by,
+        pinned_by_name: updated.pinned_by_name,
+      });
+
+      // Inline system notice, persisted like the call-event messages so it
+      // survives a refresh and shows up for both participants.
+      if (activeConv) {
+        const actorName = currentUser.full_name || currentUser.username || "Someone";
+        const label = updated.is_pinned ? "pinned a message" : "unpinned a message";
+        sendSystemMessage(activeConv.id, `📌 ${actorName} ${label}`);
+      }
+    } catch (e) {
+      console.error("togglePinMessage:", e);
+      // Roll back the optimistic flip.
+      setMessages(prev => prev.map(m => m.id === msg.id
+        ? { ...m, is_pinned: wasPinned ? 1 : 0, pinned_by: wasPinned ? msg.pinned_by : null, pinned_by_name: wasPinned ? msg.pinned_by_name : null }
+        : m
+      ));
+    }
   };
 
   const startReplyToMessage = (msg) => {
@@ -1772,7 +1804,7 @@ export default function Inbox() {
 
                     // ── System / call event message ──────────────────────────
                     if (msg.is_system) {
-                      const isPinEvent = !!msg.is_pin_event;
+                      const isPinEvent = msg.is_system && typeof msg.content === "string" && msg.content.startsWith("📌");
                       return (
                         <div key={msg.id} style={{ display: "flex", justifyContent: "center", marginTop: 10, marginBottom: 6 }}>
                           <div style={{
@@ -1792,7 +1824,7 @@ export default function Inbox() {
                       );
                     }
 
-                    const isPinned = pinnedMsgIds.has(msg.id);
+                    const isPinned = !!msg.is_pinned;
                     const { replyMeta, text: msgText } = parseReplyContent(msg.content);
                     const showActions = hoveredMsgId === msg.id || openMsgMenuId === msg.id;
 
@@ -2136,7 +2168,7 @@ export default function Inbox() {
               isAdmin={canViewAdminNav}
               mediaCount={messages.filter(m => m.file_url && ["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
               fileCount={messages.filter(m => m.file_url && !["jpg", "jpeg", "png", "gif", "webp"].includes((m.file_name || "").split(".").pop()?.toLowerCase())).length}
-              pinnedCount={messages.filter(m => pinnedMsgIds.has(m.id)).length}
+              pinnedCount={messages.filter(m => m.is_pinned).length}
               onAction={handleChatMenuAction}
             />
           )}
@@ -2151,8 +2183,8 @@ export default function Inbox() {
         <PinnedMessagesModal
           onClose={() => setShowPinnedMessages(false)}
           pinnedMessages={[...messages]
-            .filter(m => pinnedMsgIds.has(m.id))
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))}
+            .filter(m => m.is_pinned)
+            .sort((a, b) => new Date(b.pinned_at || b.created_at) - new Date(a.pinned_at || a.created_at))}
           currentUser={currentUser}
           convName={activeConv.full_name}
           onUnpin={togglePinMessage}

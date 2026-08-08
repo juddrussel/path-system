@@ -66,6 +66,17 @@ async function uploadToR2(file) {
   return `${process.env.R2_PUBLIC_URL}/${key}`;
 }
 
+// Shared SELECT fragment for a message row + its sender's display info and,
+// when the message is pinned, who pinned it. Used by every route that
+// returns one or more message rows so the shape is always consistent.
+const MESSAGE_SELECT = `
+  SELECT m.*, u.full_name AS sender_name, u.avatar_url AS sender_photo,
+         pu.full_name AS pinned_by_name
+  FROM messages m
+  JOIN users u ON u.id = m.sender_id
+  LEFT JOIN users pu ON pu.id = m.pinned_by
+`;
+
 
 // ════════════════════════════════════════════════════════════════════════════
 // DIRECT MESSAGES
@@ -132,9 +143,7 @@ router.get("/messages/:userId", authMiddleware, async (req, res) => {
   const otherId = parseInt(req.params.userId);
   try {
     const [messages] = await db.query(`
-      SELECT m.*, u.full_name AS sender_name, u.avatar_url AS sender_photo
-      FROM messages m
-      JOIN users u ON u.id = m.sender_id
+      ${MESSAGE_SELECT}
       WHERE (m.sender_id = ? AND m.receiver_id = ? AND m.deleted_for_sender = 0)
          OR (m.sender_id = ? AND m.receiver_id = ? AND m.deleted_for_receiver = 0)
       ORDER BY m.created_at ASC
@@ -171,10 +180,7 @@ router.post("/messages/:userId", authMiddleware, upload.single("file"), async (r
       "INSERT INTO messages (sender_id, receiver_id, content, file_url, file_name, is_system) VALUES (?, ?, ?, ?, ?, ?)",
       [req.user.id, receiverId, content || null, fileUrl, fileName, systemFlag]
     );
-    const [rows] = await db.query(
-      "SELECT m.*, u.full_name AS sender_name, u.avatar_url AS sender_photo FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.id = ?",
-      [result.insertId]
-    );
+    const [rows] = await db.query(`${MESSAGE_SELECT} WHERE m.id = ?`, [result.insertId]);
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -216,11 +222,62 @@ router.patch("/messages/:messageId", authMiddleware, async (req, res) => {
       [content.trim(), messageId]
     );
 
-    const [updatedRows] = await db.query(
-      "SELECT m.*, u.full_name AS sender_name, u.avatar_url AS sender_photo FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.id = ?",
-      [messageId]
-    );
+    const [updatedRows] = await db.query(`${MESSAGE_SELECT} WHERE m.id = ?`, [messageId]);
     res.json(updatedRows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// PATCH toggle pin status on a direct message
+// Pin state is shared between both participants (either side can pin/unpin,
+// and both see the result) — same as most chat apps' "pin for everyone"
+// behaviour, matching the client, which broadcasts a pin/unpin notice to
+// both sides over the socket.
+router.patch("/messages/:messageId/pin", authMiddleware, async (req, res) => {
+  const messageId = parseInt(req.params.messageId);
+  try {
+    const [rows] = await db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
+    const message = rows[0];
+    if (!message) return res.status(404).json({ message: "Message not found." });
+
+    // Only the two participants in this conversation may pin/unpin.
+    if (message.sender_id !== req.user.id && message.receiver_id !== req.user.id) {
+      return res.status(403).json({ message: "You don't have access to this conversation." });
+    }
+
+    const nextPinned = message.is_pinned ? 0 : 1;
+    await db.query(
+      "UPDATE messages SET is_pinned = ?, pinned_by = ?, pinned_at = ? WHERE id = ?",
+      [nextPinned, nextPinned ? req.user.id : null, nextPinned ? new Date() : null, messageId]
+    );
+
+    const [updatedRows] = await db.query(`${MESSAGE_SELECT} WHERE m.id = ?`, [messageId]);
+    res.json(updatedRows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET all pinned messages in a conversation with another user
+// (Not strictly required since /messages/:userId already returns is_pinned
+// on every row, but handy for a lighter-weight fetch if the pinned-messages
+// panel is ever opened before the full thread has loaded.)
+router.get("/messages/:userId/pinned", authMiddleware, async (req, res) => {
+  const otherId = parseInt(req.params.userId);
+  try {
+    const [rows] = await db.query(`
+      ${MESSAGE_SELECT}
+      WHERE m.is_pinned = 1
+        AND (
+          (m.sender_id = ? AND m.receiver_id = ? AND m.deleted_for_sender = 0)
+          OR (m.sender_id = ? AND m.receiver_id = ? AND m.deleted_for_receiver = 0)
+        )
+      ORDER BY m.pinned_at DESC
+    `, [req.user.id, otherId, otherId, req.user.id]);
+    res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
