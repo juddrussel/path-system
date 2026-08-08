@@ -65,6 +65,9 @@ function parseReplyContent(content) {
   }
 }
 
+// Messages can only be edited within this window after they were sent.
+const EDIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+
 // ── SVG Icons (from Dashboard) ────────────────────────────────────────────────
 const Icon = {
   Grid: () => (
@@ -315,6 +318,11 @@ SLA: () => (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
       <path d="M3 4.5h10M6.5 4.5V3a1 1 0 011-1h1a1 1 0 011 1v1.5M6.5 7.5v4M9.5 7.5v4" strokeLinecap="round" />
       <path d="M4 4.5l.6 8.5a1 1 0 001 .9h4.8a1 1 0 001-.9l.6-8.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Edit: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+      <path d="M10.5 2.5l3 3-8 8-3.6.6.6-3.6 8-8z" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 };
@@ -629,7 +637,11 @@ export default function Inbox() {
   const [replyingTo, setReplyingTo] = useState(null); // { id, sender_name, content, file_name }
   const [pinnedMsgIds, setPinnedMsgIds] = useState(() => new Set());
   const [forwardingMsg, setForwardingMsg] = useState(null); // message being forwarded
+  const [editingMsgId, setEditingMsgId] = useState(null); // id of message currently being edited
+  const [editInput, setEditInput] = useState("");
+  const [now, setNow] = useState(() => Date.now()); // ticks so the edit window expires live in the UI
   const msgMenuRef = useRef(null);
+  const editInputRef = useRef(null);
 
   // Document chat state
   const [documents, setDocuments] = useState([]);
@@ -688,6 +700,10 @@ export default function Inbox() {
           : c
       ));
       fetchUnreadCount();
+    });
+
+    s.on("message_edited", ({ messageId, content }) => {
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, content, is_edited: true, edited_at: new Date().toISOString() } : m));
     });
 
     s.on("receive_document_comment", (comment) => {
@@ -800,6 +816,12 @@ export default function Inbox() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
+  // ── Tick every 15s so "can this message still be edited?" stays accurate ──
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 15000);
+    return () => clearInterval(id);
+  }, []);
+
   // ── Close the per-message action menu when clicking outside it ──
   useEffect(() => {
     if (!openMsgMenuId) return;
@@ -831,6 +853,65 @@ export default function Inbox() {
   const startReplyToMessage = (msg) => {
     setReplyingTo(msg);
     setOpenMsgMenuId(null);
+  };
+
+  // Only the sender can edit, and only within EDIT_WINDOW_MS of sending.
+  const canEditMessage = (msg) => {
+    if (!msg || msg.is_system || msg.file_url) return false;
+    if (String(msg.sender_id) !== String(currentUser.id)) return false;
+    const sentAt = new Date(msg.created_at).getTime();
+    if (Number.isNaN(sentAt)) return false;
+    return now - sentAt < EDIT_WINDOW_MS;
+  };
+
+  const startEditMessage = (msg) => {
+    if (!canEditMessage(msg)) return;
+    const { text } = parseReplyContent(msg.content);
+    setEditingMsgId(msg.id);
+    setEditInput(text || "");
+    setOpenMsgMenuId(null);
+    // Focus the edit field once it mounts
+    setTimeout(() => editInputRef.current?.focus(), 0);
+  };
+
+  const cancelEditMessage = () => {
+    setEditingMsgId(null);
+    setEditInput("");
+  };
+
+  const saveEditMessage = async (msg) => {
+    const trimmed = editInput.trim();
+    if (!trimmed) { cancelEditMessage(); return; }
+    if (!canEditMessage(msg)) {
+      // Window expired while the user was typing — silently discard.
+      cancelEditMessage();
+      return;
+    }
+    // Preserve any reply-quote metadata embedded in the original content.
+    const { replyMeta } = parseReplyContent(msg.content);
+    const newContent = replyMeta ? buildReplyContent(replyMeta, trimmed) : trimmed;
+
+    // Optimistic local update
+    setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: newContent, is_edited: true, edited_at: new Date().toISOString() } : m));
+    cancelEditMessage();
+
+    try {
+      const res = await fetch(`${API}/api/chat/messages/${msg.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ content: newContent }),
+      });
+      if (res.ok) {
+        socket?.emit("edit_message", {
+          messageId: msg.id,
+          senderId: currentUser.id,
+          receiverId: activeConv?.id,
+          content: newContent,
+        });
+      }
+    } catch (e) {
+      console.error("saveEditMessage:", e);
+    }
   };
 
   const startForwardMessage = (msg) => {
@@ -1664,12 +1745,51 @@ export default function Inbox() {
                                   </div>
                                 );
                               })()}
-                              {msgText && <div style={{ whiteSpace: "pre-wrap" }}>{msgText}</div>}
-                              {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
+                              {editingMsgId === msg.id ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 180 }}>
+                                  <textarea
+                                    ref={editInputRef}
+                                    value={editInput}
+                                    onChange={e => setEditInput(e.target.value)}
+                                    onKeyDown={e => {
+                                      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEditMessage(msg); }
+                                      if (e.key === "Escape") { e.preventDefault(); cancelEditMessage(); }
+                                    }}
+                                    rows={Math.min(6, Math.max(1, editInput.split("\n").length))}
+                                    style={{
+                                      resize: "none", border: "1px solid rgba(0,0,0,0.15)", borderRadius: 8,
+                                      padding: "6px 8px", fontSize: 13, fontFamily: "inherit",
+                                      background: isMine ? "rgba(255,255,255,0.95)" : "#fff",
+                                      color: "#111", outline: "none",
+                                    }}
+                                  />
+                                  <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                                    <button
+                                      onClick={cancelEditMessage}
+                                      style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer", background: "rgba(0,0,0,0.08)", color: isMine ? "#3a2e6e" : "#555" }}
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={() => saveEditMessage(msg)}
+                                      disabled={!editInput.trim()}
+                                      style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer", background: "#7c3aed", color: "white", opacity: editInput.trim() ? 1 : 0.5 }}
+                                    >
+                                      Save
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  {msgText && <div style={{ whiteSpace: "pre-wrap" }}>{msgText}</div>}
+                                  {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
+                                </>
+                              )}
                             </div>
                           </div>
                           <div style={{ fontSize: 10, color: "#bbb", marginTop: 2, textAlign: isMine ? "right" : "left", display: "flex", alignItems: "center", justifyContent: isMine ? "flex-end" : "flex-start", gap: 4 }}>
                             {formatTime(msg.created_at)}
+                            {msg.is_edited && <span style={{ fontStyle: "italic" }}>· edited</span>}
                             {isMine && (
                               <span style={{ color: msg.is_read ? "#7c3aed" : "#ccc" }}>
                                 {msg.is_read ? "✓✓" : "✓"}
@@ -1679,6 +1799,7 @@ export default function Inbox() {
                         </div>
 
                         {/* Hover action toolbar — reply + 3-dot menu (no reactions) */}
+                        {editingMsgId !== msg.id && (
                         <div style={{ display: "flex", alignItems: "center", gap: 2, paddingTop: 6, position: "relative", opacity: showActions ? 1 : 0, pointerEvents: showActions ? "auto" : "none", transition: "opacity 0.12s" }}>
                           <button
                             onClick={() => startReplyToMessage(msg)}
@@ -1714,6 +1835,17 @@ export default function Inbox() {
                                 boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 30,
                               }}
                             >
+                              {canEditMessage(msg) && (
+                                <button
+                                  role="menuitem"
+                                  onClick={() => startEditMessage(msg)}
+                                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "transparent", border: "none", cursor: "pointer", color: "#f1f5f9", fontSize: 12.5, fontWeight: 600, textAlign: "left" }}
+                                  onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+                                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                                >
+                                  <Icon.Edit /> Edit
+                                </button>
+                              )}
                               <button
                                 role="menuitem"
                                 onClick={() => handleRemoveMessage(msg)}
@@ -1744,6 +1876,7 @@ export default function Inbox() {
                             </div>
                           )}
                         </div>
+                        )}
                       </div>
                     );
                   })}

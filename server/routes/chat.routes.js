@@ -19,6 +19,11 @@ function authMiddleware(req, res, next) {
   }
 }
 
+// Messages can only be edited within this window after they were sent.
+// Kept in sync with the frontend's EDIT_WINDOW_MS — but enforced here too,
+// since the client-side check can be bypassed.
+const EDIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+
 // ── Cloudflare R2 setup ────────────────────────────────────────────────────────
 // R2 speaks the S3 API, so the regular AWS SDK v3 S3 client works against it —
 // just point `endpoint` at the account-scoped R2 endpoint instead of AWS.
@@ -171,6 +176,51 @@ router.post("/messages/:userId", authMiddleware, upload.single("file"), async (r
       [result.insertId]
     );
     res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// PATCH edit a direct message's text content
+// Only the original sender may edit, only within EDIT_WINDOW_MS of sending,
+// and only messages that aren't system messages or file-only attachments
+// (file messages carry no editable text — re-send instead).
+router.patch("/messages/:messageId", authMiddleware, async (req, res) => {
+  const messageId = parseInt(req.params.messageId);
+  const { content } = req.body;
+
+  if (!content || !content.trim()) {
+    return res.status(400).json({ message: "Content is required." });
+  }
+
+  try {
+    const [rows] = await db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
+    const message = rows[0];
+    if (!message) return res.status(404).json({ message: "Message not found." });
+
+    if (message.sender_id !== req.user.id) {
+      return res.status(403).json({ message: "You can only edit your own messages." });
+    }
+    if (message.is_system) {
+      return res.status(400).json({ message: "System messages can't be edited." });
+    }
+
+    const sentAt = new Date(message.created_at).getTime();
+    if (Date.now() - sentAt > EDIT_WINDOW_MS) {
+      return res.status(403).json({ message: "The edit window for this message has expired." });
+    }
+
+    await db.query(
+      "UPDATE messages SET content = ?, is_edited = 1, edited_at = NOW() WHERE id = ?",
+      [content.trim(), messageId]
+    );
+
+    const [updatedRows] = await db.query(
+      "SELECT m.*, u.full_name AS sender_name, u.avatar_url AS sender_photo FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.id = ?",
+      [messageId]
+    );
+    res.json(updatedRows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
