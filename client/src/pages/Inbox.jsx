@@ -996,8 +996,11 @@ export default function Inbox() {
     if (replyingTo) {
       const { text: originalText } = parseReplyContent(replyingTo.content);
       const quotedSnippet = (originalText || (replyingTo.file_name ? `📎 ${replyingTo.file_name}` : "")).slice(0, 140);
-      const quotedName = String(replyingTo.sender_id) === String(currentUser.id) ? "yourself" : (replyingTo.sender_name || activeConv.full_name);
-      content = buildReplyContent({ name: quotedName, snippet: quotedSnippet }, content);
+      const quotedSenderId = replyingTo.sender_id;
+      const quotedName = String(quotedSenderId) === String(currentUser.id)
+        ? (currentUser.full_name || currentUser.username || "You")
+        : (replyingTo.sender_name || activeConv.full_name);
+      content = buildReplyContent({ name: quotedName, senderId: quotedSenderId, snippet: quotedSnippet }, content);
     }
     if (content) fd.append("content", content);
     if (dmFile) fd.append("file", dmFile);
@@ -1636,23 +1639,28 @@ export default function Inbox() {
                               </span>
                             )}
                             <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
-                              {replyMeta && (
-                                <div style={{ marginBottom: 6 }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: "bold", color: isMine ? "rgba(255,255,255,0.85)" : "#7c3aed", marginBottom: 3 }}>
-                                    <span style={{ display: "flex", transform: "scale(0.75)", transformOrigin: "center" }}><Icon.ReplyArrow /></span>
-                                    {isMine ? "You" : msg.sender_name} replied to {replyMeta.name}
+                              {replyMeta && (() => {
+                                const repliedToSelf = String(replyMeta.senderId) === String(msg.sender_id);
+                                const whoText = isMine ? "You" : msg.sender_name;
+                                const targetText = repliedToSelf ? (isMine ? "yourself" : "themself") : replyMeta.name;
+                                return (
+                                  <div style={{ marginBottom: 4 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10.5, fontWeight: "bold", color: isMine ? "rgba(255,255,255,0.85)" : "#7c3aed", marginBottom: 2, lineHeight: 1.2 }}>
+                                      <span style={{ display: "flex", transform: "scale(0.7)", transformOrigin: "center" }}><Icon.ReplyArrow /></span>
+                                      {whoText} replied to {targetText}
+                                    </div>
+                                    <div style={{
+                                      background: isMine ? "rgba(255,255,255,0.16)" : "rgba(124,58,237,0.08)",
+                                      borderLeft: `3px solid ${isMine ? "rgba(255,255,255,0.55)" : "#7c3aed"}`,
+                                      borderRadius: 5, padding: "3px 7px", fontSize: 12, lineHeight: 1.35,
+                                      color: isMine ? "rgba(255,255,255,0.85)" : "#555",
+                                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                                    }}>
+                                      {replyMeta.snippet}
+                                    </div>
                                   </div>
-                                  <div style={{
-                                    background: isMine ? "rgba(255,255,255,0.16)" : "rgba(124,58,237,0.08)",
-                                    borderLeft: `3px solid ${isMine ? "rgba(255,255,255,0.55)" : "#7c3aed"}`,
-                                    borderRadius: 6, padding: "5px 8px", fontSize: 12,
-                                    color: isMine ? "rgba(255,255,255,0.85)" : "#555",
-                                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                                  }}>
-                                    {replyMeta.snippet}
-                                  </div>
-                                </div>
-                              )}
+                                );
+                              })()}
                               {msgText && <div style={{ whiteSpace: "pre-wrap" }}>{msgText}</div>}
                               {msg.file_url && <FileAttachment url={msg.file_url} name={msg.file_name} />}
                             </div>
