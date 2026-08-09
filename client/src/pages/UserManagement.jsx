@@ -4,6 +4,13 @@ import TopBar from "./TopBar";
 
 // ─── API CONFIG ────────────────────────────────────────────────────────────────
 const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+function fullAvatarUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${SERVER_URL}${url}`;
+}
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
@@ -57,11 +64,12 @@ function initials(firstName = "", lastName = "") {
 function Avatar({ firstName, lastName, pictureUrl }) {
   const [bg, text] = avatarColor(`${firstName}${lastName}`);
   const [imgFailed, setImgFailed] = useState(false);
+  const src = fullAvatarUrl(pictureUrl);
 
-  if (pictureUrl && !imgFailed) {
+  if (src && !imgFailed) {
     return (
       <img
-        src={pictureUrl}
+        src={src}
         alt={`${firstName} ${lastName}`}
         className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0 mr-2 object-cover"
         onError={() => setImgFailed(true)}
@@ -569,9 +577,9 @@ function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
         </div>
         {/* Avatar hero */}
         <div className="flex flex-col items-center px-5 py-7 shrink-0" style={{ background: `linear-gradient(160deg, ${bg}88 0%, #fff 65%)` }}>
-          {user.avatar_url ? (
+          {fullAvatarUrl(user.avatar_url) ? (
             <img
-              src={user.avatar_url}
+              src={fullAvatarUrl(user.avatar_url)}
               alt={`${user.first_name} ${user.last_name}`}
               className="w-16 h-16 rounded-full object-cover"
               onError={(e) => { e.currentTarget.style.display = "none"; }}
