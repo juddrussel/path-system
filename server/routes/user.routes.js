@@ -47,7 +47,7 @@ router.get("/", requireAuth, requireAdminOrChair, async (req, res) => {
   try {
     const [rows] = await db.query(
       `SELECT id, full_name, email, phone, department, username, role, status,
-              is_active, created_at, updated_at
+              is_active, avatar_url, created_at, updated_at
        FROM users
        WHERE status = 'approved'
        ORDER BY created_at DESC`
@@ -130,7 +130,7 @@ router.get("/stats", requireAuth, requireAdminOrChair, async (req, res) => {
 router.get("/pending", requireAuth, requireAdminOrChair, async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT id, full_name, email, phone, department, username, role, status, created_at
+      `SELECT id, full_name, email, phone, department, username, role, status, avatar_url, created_at
        FROM users
        WHERE status = 'pending'
        ORDER BY created_at DESC`
@@ -147,7 +147,7 @@ router.get("/resolved", requireAuth, requireAdminOrChair, async (req, res) => {
   try {
     const [rows] = await db.query(
       `SELECT id, full_name, email, phone, department, username, role, status,
-              is_active, updated_at AS resolved_on
+              is_active, avatar_url, updated_at AS resolved_on
        FROM users
        WHERE status IN ('approved', 'rejected')
          AND updated_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
