@@ -1,4 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+
+// Replace with your own site key (get one at https://www.google.com/recaptcha/admin).
+// The key below is Google's shared TEST key — it always passes and works on any domain,
+// but should NEVER be used in production.
+const RECAPTCHA_SITE_KEY =
+  import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -16,6 +22,45 @@ export default function Register() {
   const [alertMsg, setAlertMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const captchaRef = useRef(null);
+  const widgetIdRef = useRef(null);
+
+  // Load the Google reCAPTCHA script once, then render the real widget into captchaRef.
+  useEffect(() => {
+    const renderWidget = () => {
+      if (!window.grecaptcha || !window.grecaptcha.render) return;
+      if (widgetIdRef.current !== null) return; // already rendered
+      widgetIdRef.current = window.grecaptcha.render(captchaRef.current, {
+        sitekey: RECAPTCHA_SITE_KEY,
+        callback: (token) => {
+          setCaptchaToken(token);
+          setErrors((p) => ({ ...p, captcha: "" }));
+        },
+        "expired-callback": () => setCaptchaToken(null),
+        "error-callback": () => setCaptchaToken(null),
+      });
+    };
+
+    if (window.grecaptcha && window.grecaptcha.render) {
+      renderWidget();
+      return;
+    }
+
+    const existingScript = document.getElementById("recaptcha-script");
+    if (existingScript) {
+      existingScript.addEventListener("load", renderWidget);
+      return () => existingScript.removeEventListener("load", renderWidget);
+    }
+
+    const script = document.createElement("script");
+    script.id = "recaptcha-script";
+    script.src = "https://www.google.com/recaptcha/api.js";
+    script.async = true;
+    script.defer = true;
+    script.onload = renderWidget;
+    document.body.appendChild(script);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -54,6 +99,7 @@ export default function Register() {
     if (!formData.confirm_password) e.confirm_password = "Please confirm.";
     else if (formData.password !== formData.confirm_password) e.confirm_password = "Passwords do not match.";
     if (!formData.agree) e.agree = "You must agree to continue.";
+    if (!captchaToken) e.captcha = "Please verify that you're not a robot.";
     return e;
   };
 
@@ -67,7 +113,7 @@ export default function Register() {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, captchaToken }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -75,9 +121,18 @@ export default function Register() {
         setTimeout(() => (window.location.href = "/login"), 2000);
       } else {
         setAlertMsg({ type: "error", text: data.message || "Registration failed." });
+        // Captcha tokens are single-use — reset the widget so the user can re-verify.
+        if (window.grecaptcha && widgetIdRef.current !== null) {
+          window.grecaptcha.reset(widgetIdRef.current);
+        }
+        setCaptchaToken(null);
       }
     } catch {
       setAlertMsg({ type: "error", text: "Server error. Please try again." });
+      if (window.grecaptcha && widgetIdRef.current !== null) {
+        window.grecaptcha.reset(widgetIdRef.current);
+      }
+      setCaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -312,16 +367,10 @@ export default function Register() {
               />
             </div>
 
-            {/* ── reCAPTCHA placeholder ── */}
-            <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, background: "#fafafa" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontSize: 13, color: "#374151", fontWeight: 500 }}>
-                <div style={{ width: 20, height: 20, border: "2px solid #d1d5db", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }} />
-                I'm not a robot
-              </label>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 18, marginBottom: 2 }}>🔲</div>
-                <div style={{ fontSize: 9, color: "#9ca3af", fontWeight: 700, letterSpacing: 0.5 }}>RECAPTCHA</div>
-              </div>
+            {/* ── reCAPTCHA ── */}
+            <div style={{ marginBottom: 16 }}>
+              <div ref={captchaRef} />
+              {errors.captcha && <p style={{ color: "#ef4444", fontSize: 11, margin: "6px 0 0" }}>{errors.captcha}</p>}
             </div>
 
             {/* ── Important Note ── */}
