@@ -681,9 +681,6 @@ export default function MyTasks() {
                 <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "1px solid #7c3aed", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#7c3aed" }}>
                   <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="12" height="12"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M10 2v4h4" /></svg> Export PDF
                 </button>
-                <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 8, border: "none", background: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "white" }}>
-                  <Icon.Plus color="white" size={12} /> Create Task
-                </button>
               </div>
             </div>
 
