@@ -136,6 +136,13 @@ export default function Login() {
           >
             Sign up here
           </a>
+
+          <a
+            href="/forgot-password"
+            className="block text-center mt-4 text-[#7c3aed] font-bold text-sm underline"
+          >
+            Forgot your password?
+          </a>
         </div>
       </div>
 
