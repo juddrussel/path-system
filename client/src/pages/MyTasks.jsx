@@ -266,10 +266,22 @@ export default function MyTasks() {
     } catch { }
   };
 
+  // Tasks in these statuses are still "in progress" and can legitimately
+  // move to For Approval. Anything else (already Received/approved,
+  // Archived, etc.) must never be touched by bulk "Mark Done" — otherwise
+  // "Select All" (which selects every task in the list regardless of
+  // status) followed by "Mark Done" silently resets already-approved
+  // tasks back to "For Approval".
+  const DONE_ELIGIBLE_STATUSES = ["Pending", "In Review", "Returned"];
+  const isDoneEligible = (task) => DONE_ELIGIBLE_STATUSES.includes(task?.status);
+
   const handleMarkDone = async () => {
-    if (checkedIds.length === 0) return;
+    const eligibleIds = tasks
+      .filter(t => checkedIds.includes(t.id) && isDoneEligible(t))
+      .map(t => t.id);
+    if (eligibleIds.length === 0) { setCheckedIds([]); setSelectAll(false); return; }
     try {
-      await Promise.all(checkedIds.map(id => fetch(`${API}/api/tasks/${id}/done`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } })));
+      await Promise.all(eligibleIds.map(id => fetch(`${API}/api/tasks/${id}/done`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } })));
       setCheckedIds([]);
       setSelectAll(false);
       fetchTasks();

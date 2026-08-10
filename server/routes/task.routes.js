@@ -703,11 +703,36 @@ router.patch("/:id/return", requireAuth, async (req, res) => {
 });
 
 // ─── PATCH /api/tasks/:id/done ────────────────────────────────────────────────
+// FIX: this used to blindly set status = 'For Approval' on any task id it
+// was given, with no check on the task's current status. That meant a bulk
+// "Mark Done" click after "Select All" — which selects every task in the
+// feed regardless of status — would silently reset tasks that were already
+// approved (status = 'Received') or archived back to "For Approval".
+//
+// Only tasks that are actually still in progress should ever move to
+// "For Approval" here. Anything else is a no-op (reported back as
+// skipped: true) instead of an error, so bulk actions can safely include a
+// mix of statuses without corrupting already-approved tasks.
+const DONE_ELIGIBLE_STATUSES = ["Pending", "In Review", "Returned"];
+
 router.patch("/:id/done", requireAuth, async (req, res) => {
   try {
+    const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
+    const task = rows[0];
+
+    if (!DONE_ELIGIBLE_STATUSES.includes(task.status)) {
+      return res.json({
+        message: "Skipped — task is not in a state that can be marked done.",
+        status: task.status,
+        skipped: true,
+      });
+    }
+
     await db.query("UPDATE tasks SET status = 'For Approval', updated_at = NOW() WHERE id = ?", [req.params.id]);
     return res.json({ message: "Marked as done." });
   } catch (err) {
+    console.error("PATCH /api/tasks/:id/done error:", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
