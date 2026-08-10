@@ -51,8 +51,10 @@ function SbItem({ icon, label, active, onClick }) {
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 const STATUS_STYLES = {
-  "in progress":    { bg: "#dbeafe", color: "#1e40af", dot: "#3b82f6" },
-  "pending review": { bg: "#ede9fe", color: "#5b21b6", dot: "#7c3aed" },
+  "pending":        { bg: "#fef3c7", color: "#92400e", dot: "#f59e0b" }, // In Progress group
+  "in review":      { bg: "#dbeafe", color: "#1e40af", dot: "#3b82f6" }, // In Progress group
+  "for approval":   { bg: "#ede9fe", color: "#5b21b6", dot: "#7c3aed" }, // Pending Review
+  "returned":       { bg: "#ffedd5", color: "#9a3412", dot: "#f97316" },
   "received":       { bg: "#d1fae5", color: "#065f46", dot: "#10b981" },
   "approved":       { bg: "#d1fae5", color: "#065f46", dot: "#10b981" },
   "rejected":       { bg: "#fee2e2", color: "#991b1b", dot: "#ef4444" },
@@ -69,6 +71,17 @@ function StatusBadge({ status }) {
     </span>
   );
 }
+
+// ── Status filter groups ──────────────────────────────────────────────────────
+// "In Progress" and "Pending Review" aren't literal status values from the API —
+// they're groupings over the real raw statuses ("Pending", "In Review", "For
+// Approval", ...). This is the single source of truth for that grouping, used by
+// the filter pills, the doc-list filtering, and the stat cards, so they can't
+// drift out of sync with each other.
+const STATUS_FILTER_MATCH = {
+  "In Progress":    ["pending", "in review"],  // assigned, not yet submitted / faculty still working
+  "Pending Review": ["for approval"],           // submitted, awaiting program chair approval
+};
 
 // ── Stage progress bar ────────────────────────────────────────────────────────
 const STAGES = ["Task Assigned", "Submitted", "Under Review", "For Approval", "Approved"];
@@ -850,7 +863,11 @@ export default function Tracking() {
       || d.title?.toLowerCase().includes(q)
       || d.submitted_by?.toLowerCase().includes(q)
       || d.department?.toLowerCase().includes(q);
-    const matchStatus = statusFilter === "All" || d.status?.toLowerCase() === statusFilter.toLowerCase();
+    const filterDef  = STATUS_FILTER_MATCH[statusFilter];
+    const matchStatus = statusFilter === "All"
+      || (filterDef
+        ? filterDef.includes(d.status?.toLowerCase())
+        : d.status?.toLowerCase() === statusFilter.toLowerCase());
     return matchSearch && matchStatus;
   });
 
@@ -860,8 +877,8 @@ export default function Tracking() {
   // ── Stat counts ────────────────────────────────────────────────────────────
   const stats = {
     total:         docs.length,
-    inProgress:    docs.filter(d => d.status?.toLowerCase() === "in progress").length,
-    pendingReview: docs.filter(d => d.status?.toLowerCase() === "pending review").length,
+    inProgress:    docs.filter(d => STATUS_FILTER_MATCH["In Progress"].includes(d.status?.toLowerCase())).length,
+    pendingReview: docs.filter(d => STATUS_FILTER_MATCH["Pending Review"].includes(d.status?.toLowerCase())).length,
     completed:     docs.filter(d => d.status?.toLowerCase() === "approved").length,
   };
 
@@ -981,7 +998,10 @@ export default function Tracking() {
                 <FilterPill
                   key={f.value}
                   label={f.value === "All" ? `All (${docs.length})` : f.label}
-                  count={f.value !== "All" ? docs.filter(d => d.status?.toLowerCase() === f.value.toLowerCase()).length : undefined}
+                  count={f.value !== "All" ? docs.filter(d => {
+                    const group = STATUS_FILTER_MATCH[f.value];
+                    return group ? group.includes(d.status?.toLowerCase()) : d.status?.toLowerCase() === f.value.toLowerCase();
+                  }).length : undefined}
                   active={statusFilter === f.value}
                   onClick={() => { setStatusFilter(f.value); setPage(1); }}
                 />
