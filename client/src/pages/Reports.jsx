@@ -1961,7 +1961,7 @@ export default function Reports() {
                   <thead>
                     <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                       {["Transaction ID", "Document Type", "Submitted By", "Assigned Faculty", "Date Submitted", "Date Returned/Rejected", "Status", "Reason", "Workflow Stage", "Actions"].map(h => (
-                        <th key={h} style={TH_STYLE}>{h}</th>
+                        <th key={h} style={{ ...TH_STYLE, textAlign: "left" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -2094,7 +2094,7 @@ export default function Reports() {
                 <thead>
                   <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
                     {["Date & Time", "User", "Action", "Transaction", "Remarks"].map(h => (
-                      <th key={h} style={TH_STYLE}>{h}</th>
+                      <th key={h} style={{ ...TH_STYLE, textAlign: "left" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
