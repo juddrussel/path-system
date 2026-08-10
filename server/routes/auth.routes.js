@@ -39,9 +39,29 @@ async function sendMail({ to, subject, html }) {
   return response.json();
 }
 
+// Verifies a reCAPTCHA v2 token with Google's siteverify endpoint.
+// Requires RECAPTCHA_SECRET_KEY in env vars (the secret key, never the site key).
+async function verifyCaptcha(token, remoteip) {
+  if (!token) return { success: false, "error-codes": ["missing-input-response"] };
+
+  const params = new URLSearchParams({
+    secret: process.env.RECAPTCHA_SECRET_KEY,
+    response: token,
+  });
+  if (remoteip) params.append("remoteip", remoteip);
+
+  const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params.toString(),
+  });
+
+  return response.json(); // { success, challenge_ts, hostname, "error-codes"?: [...] }
+}
+
 // ─── REGISTER ────────────────────────────────────────────────────────────────
 router.post("/register", async (req, res) => {
-  const { full_name, email, phone, department, username, password, confirm_password } = req.body;
+  const { full_name, email, phone, department, username, password, confirm_password, captchaToken } = req.body;
 
   if (!full_name || !email || !department || !username || !password || !confirm_password) {
     return res.status(400).json({ message: "All required fields must be filled." });
@@ -52,8 +72,17 @@ router.post("/register", async (req, res) => {
   if (password.length < 8) {
     return res.status(400).json({ message: "Password must be at least 8 characters." });
   }
+  if (!captchaToken) {
+    return res.status(400).json({ message: "Please complete the reCAPTCHA verification." });
+  }
 
   try {
+    const captchaResult = await verifyCaptcha(captchaToken, req.ip);
+    if (!captchaResult.success) {
+      console.warn("reCAPTCHA verification failed:", captchaResult["error-codes"]);
+      return res.status(400).json({ message: "reCAPTCHA verification failed. Please try again." });
+    }
+
     const [existing] = await db.query(
       "SELECT id FROM users WHERE username = ? OR email = ?",
       [username, email]
