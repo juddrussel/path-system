@@ -591,25 +591,6 @@ export default function TaskAssigned() {
     typingTimeoutRef.current = setTimeout(() => emitTyping(false), 2500);
   };
 
-  // Tasks in these statuses are "in progress" and can legitimately move to
-  // For Approval. Anything else (already Received/Approved, Archived, etc.)
-  // must never be touched by bulk "Mark Done" — otherwise selecting
-  // everything in the feed and clicking Mark Done silently resets
-  // already-approved tasks back to "For Approval".
-  const DONE_ELIGIBLE_STATUSES = ["Pending", "In Review", "Returned"];
-  const isDoneEligible = (task) => DONE_ELIGIBLE_STATUSES.includes(task?.status);
-
-  const handleMarkDone = async () => {
-    const eligibleIds = tasks
-      .filter(t => checkedIds.includes(t.id) && isDoneEligible(t))
-      .map(t => t.id);
-    if (!eligibleIds.length) { setCheckedIds([]); setSelectAll(false); return; }
-    await Promise.all(eligibleIds.map(id =>
-      fetch(`${API}/api/tasks/${id}/done`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } })
-    ));
-    setCheckedIds([]); setSelectAll(false); fetchTasks();
-  };
-
   const handleArchive = async () => {
     if (!checkedIds.length) return;
     await Promise.all(checkedIds.map(id =>
@@ -796,8 +777,6 @@ export default function TaskAssigned() {
                   style={{ accentColor: "#7c3aed" }} />
                 <span style={{ fontSize: 11, fontWeight: 700, color: "#888", letterSpacing: 0.5 }}>SELECT ALL</span>
                 <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-                  <button onClick={handleMarkDone} disabled={!checkedIds.length}
-                    style={{ fontSize: 11, fontWeight: 700, color: checkedIds.length ? "#059669" : "#bbb", background: "none", border: "none", cursor: checkedIds.length ? "pointer" : "default" }}>Mark Done</button>
                   <button onClick={handleArchive} disabled={!checkedIds.length}
                     style={{ fontSize: 11, fontWeight: 700, color: checkedIds.length ? "#374151" : "#bbb", background: "none", border: "none", cursor: checkedIds.length ? "pointer" : "default" }}>Archive</button>
                 </div>
