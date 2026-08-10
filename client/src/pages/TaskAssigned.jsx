@@ -60,13 +60,20 @@ const BADGE = {
   "high":             { bg: "#fee2e2", color: "#991b1b" },
   "medium":           { bg: "#fef3c7", color: "#92400e" },
   "low":              { bg: "#d1fae5", color: "#065f46" },
+  "received":         { bg: "#d1fae5", color: "#065f46" },
 };
 
+// Statuses that mean the task is complete/approved — shown in green with
+// an "Approved" label regardless of the raw status string ("Received").
+const APPROVED_STATUSES = ["received", "approved"];
+
 function Badge({ label }) {
-  const s = BADGE[label?.toLowerCase()] || { bg: "#f3f4f6", color: "#374151" };
+  const key = label?.toLowerCase();
+  const isApproved = APPROVED_STATUSES.includes(key);
+  const s = isApproved ? BADGE["received"] : (BADGE[key] || { bg: "#f3f4f6", color: "#374151" });
   return (
     <span style={{ ...s, display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: "bold", textTransform: "capitalize" }}>
-      {label}
+      {isApproved ? "Approved" : label}
     </span>
   );
 }
@@ -1749,7 +1756,7 @@ export default function TaskAssigned() {
                       {selected.submitted_at && <TimelineItem label="Submitted by Faculty" value={selected.assigned_to_name || "—"} sub={fmtDateTime(selected.submitted_at)} dot="#059669" />}
                       {selected.approved_at  && <TimelineItem label="Approved"   value={`by ${selected.approved_by_name || "You"}`} sub={fmtDateTime(selected.approved_at)} dot="#059669" />}
                       {selected.returned_at  && <TimelineItem label="Returned"   value={`by ${selected.returned_by_name || "You"}`} sub={fmtDateTime(selected.returned_at)} dot="#dc2626" />}
-                      <TimelineItem label="Current Status" value={selected.status || "—"} dot={selected.status?.toLowerCase() === "approved" || selected.status?.toLowerCase() === "received" ? "#059669" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#dc2626" : "#d1d5db"} isLast />
+                      <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "#059669" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#dc2626" : "#d1d5db"} isLast />
 
                       {/* Faculty info card */}
                       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty Member</div>
