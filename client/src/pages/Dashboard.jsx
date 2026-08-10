@@ -1077,8 +1077,12 @@ export default function Dashboard() {
   // data used elsewhere on the dashboard, instead of hardcoded sample numbers.
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
+  // "Pending Approvals" should catch an approval both before it's submitted
+  // (status "Pending", i.e. assigned/drafted but not yet sent in) and while
+  // it's actively awaiting a decision after submission ("Under Review" /
+  // "For Approval") — not just the pre-submission state.
   const pendingApprovalsCount = trackedItems.filter(
-    t => t.status === "Pending"
+    t => ["Pending", "Under Review", "For Approval"].includes(t.status)
   ).length;
 
   const activeTasksCount = trackedItems.filter(
