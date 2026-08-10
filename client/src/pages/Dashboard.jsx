@@ -1048,9 +1048,18 @@ export default function Dashboard() {
       };
     });
 
+  // "In Progress" is a bucket, not a single literal status — it covers tasks
+  // that are actively moving: waiting for approval, sent back for revisions,
+  // or still being worked on by faculty. "Not Started" stays narrow and only
+  // matches tasks that haven't been touched yet.
+  const IN_PROGRESS_STATUSES = ["In Progress", "Pending", "Under Review", "For Approval", "Returned"];
+  const isInProgress = t => !t.overdue && IN_PROGRESS_STATUSES.includes(t.status);
+
   const filteredTasks = taskItems.filter(t =>
     taskFilter === "All" ? true :
     taskFilter === "Overdue" ? t.overdue :
+    taskFilter === "In Progress" ? isInProgress(t) :
+    taskFilter === "Not Started" ? (!t.overdue && t.status === "Not Started") :
     t.status === taskFilter
   );
 
@@ -1678,7 +1687,7 @@ export default function Dashboard() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
                   {[
                     { label: "Assigned",    value: taskItems.length,                                          color: "#7c3aed" },
-                    { label: "In Progress", value: taskItems.filter(t => t.status === "In Progress").length,  color: "#0284c7" },
+                    { label: "In Progress", value: taskItems.filter(isInProgress).length,  color: "#0284c7" },
                     { label: "Completed",   value: taskItems.filter(t => t.status === "Completed" || t.status === "Approved").length, color: "#059669" },
                     { label: "Overdue",     value: taskItems.filter(t => t.overdue).length,                    color: "#dc2626" },
                   ].map(s => (
