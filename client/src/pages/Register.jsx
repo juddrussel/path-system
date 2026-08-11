@@ -400,6 +400,27 @@ export default function Register() {
                 <div style={{ height: 3, background: "#f3f4f6", borderRadius: 2 }}>
                   <div style={{ height: "100%", width: strengthWidth, background: strengthColor, borderRadius: 2, transition: "width 0.3s, background 0.3s" }} />
                 </div>
+
+                {/* Live requirements checklist */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px", marginTop: 10 }}>
+                  {[
+                    { label: "At least 8 characters", met: formData.password.length >= 8 },
+                    { label: "One uppercase letter", met: /[A-Z]/.test(formData.password) },
+                    { label: "One number", met: /[0-9]/.test(formData.password) },
+                    { label: "One special character", met: /[^A-Za-z0-9]/.test(formData.password) },
+                  ].map((req) => (
+                    <div key={req.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: req.met ? "#22c55e" : "#9ca3af", transition: "color 0.2s" }}>
+                      <span style={{ display: "inline-flex", width: 14, height: 14, borderRadius: "50%", border: `1.5px solid ${req.met ? "#22c55e" : "#d1d5db"}`, alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        {req.met && (
+                          <svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M2 6l2.5 2.5L10 3" />
+                          </svg>
+                        )}
+                      </span>
+                      {req.label}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
