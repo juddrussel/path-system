@@ -63,7 +63,7 @@ async function verifyCaptcha(token, remoteip) {
 router.post("/register", async (req, res) => {
   const { full_name, email, phone, department, username, password, confirm_password, captchaToken } = req.body;
 
-  if (!full_name || !email || !department || !username || !password || !confirm_password) {
+  if (!full_name || !email || !phone || !department || !username || !password || !confirm_password) {
     return res.status(400).json({ message: "All required fields must be filled." });
   }
   if (password !== confirm_password) {

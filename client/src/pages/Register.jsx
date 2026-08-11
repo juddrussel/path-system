@@ -19,7 +19,6 @@ export default function Register() {
     username: "",
     password: "",
     confirm_password: "",
-    reason: "",
     agree: false,
   });
   const [errors, setErrors] = useState({});
@@ -140,6 +139,7 @@ export default function Register() {
     else if (!/^[a-z0-9_]+$/.test(formData.username)) e.username = "Lowercase letters, numbers, and underscores only.";
     if (!formData.email.trim()) e.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email = "Enter a valid email.";
+    if (!formData.phone.trim()) e.phone = "Phone number is required.";
     if (!formData.department) e.department = "Department is required.";
     if (!formData.password) e.password = "Password is required.";
     else if (formData.password.length < 8) e.password = "Min. 8 characters.";
@@ -304,7 +304,7 @@ export default function Register() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
               {/* Phone */}
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6 }}>Phone (Optional)</label>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6 }}>Phone *</label>
                 <div style={{ position: "relative" }}>
                   <svg style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M3 2h3l1.5 3.5-1.5 1.5c.9 1.8 2 3 4 4l1.5-1.5L15 11v3a1 1 0 01-1 1C5 14.5 1.5 11 1 4a1 1 0 011-1z"/></svg>
                   <input
@@ -313,6 +313,7 @@ export default function Register() {
                     style={{ width: "100%", paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111827" }}
                   />
                 </div>
+                {errors.phone && <p style={{ color: "#ef4444", fontSize: 11, margin: "4px 0 0" }}>{errors.phone}</p>}
               </div>
 
               {/* Department — locked */}
@@ -401,18 +402,6 @@ export default function Register() {
                 </div>
               </div>
             )}
-
-            {/* ── Reason for Access ── */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6 }}>
-                Reason for Access Request *
-              </label>
-              <textarea
-                name="reason" value={formData.reason} onChange={handleChange} rows={3}
-                placeholder="Briefly describe your responsibilities and why access is required for your role..."
-                style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 13, color: "#111827", resize: "vertical", fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6 }}
-              />
-            </div>
 
             {/* ── reCAPTCHA ── */}
             <div style={{ marginBottom: 16 }}>
