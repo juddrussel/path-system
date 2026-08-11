@@ -5,9 +5,10 @@ import { useState, useEffect, useRef } from "react";
 // but should NEVER be used in production.
 const RECAPTCHA_SITE_KEY =
   import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
-const RECAPTCHA_THEME = "dark"; // "light" | "dark"
+const RECAPTCHA_THEME = "light"; // "light" | "dark"
 const RECAPTCHA_BASE_WIDTH = 304; // Google's fixed widget width at size="normal"
 const RECAPTCHA_BASE_HEIGHT = 78; // Google's fixed widget height at size="normal"
+const RECAPTCHA_MAX_SCALE = 0.85; // caps how large the widget can scale up
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -98,7 +99,7 @@ export default function Register() {
     const updateScale = () => {
       const wrapperWidth = el.offsetWidth;
       if (!wrapperWidth) return;
-      const nextScale = Math.min(wrapperWidth / RECAPTCHA_BASE_WIDTH, 1.4);
+      const nextScale = Math.min(wrapperWidth / RECAPTCHA_BASE_WIDTH, RECAPTCHA_MAX_SCALE);
       setCaptchaScale(nextScale);
     };
 
@@ -419,17 +420,20 @@ export default function Register() {
                 ref={captchaWrapperRef}
                 style={{
                   width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
                   borderRadius: 8,
                   overflow: "hidden",
-                  background: RECAPTCHA_THEME === "dark" ? "#222" : "#fafafa",
+                  background: "#ffffff",
                   border: "1px solid #e5e7eb",
-                  height: RECAPTCHA_BASE_HEIGHT * captchaScale,
+                  padding: "8px 0",
+                  height: RECAPTCHA_BASE_HEIGHT * captchaScale + 16,
                 }}
               >
                 <div
                   style={{
                     transform: `scale(${captchaScale})`,
-                    transformOrigin: "top left",
+                    transformOrigin: "top center",
                     width: RECAPTCHA_BASE_WIDTH,
                   }}
                 >
