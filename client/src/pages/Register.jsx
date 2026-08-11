@@ -5,6 +5,9 @@ import { useState, useEffect, useRef } from "react";
 // but should NEVER be used in production.
 const RECAPTCHA_SITE_KEY =
   import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
+const RECAPTCHA_THEME = "dark"; // "light" | "dark"
+const RECAPTCHA_BASE_WIDTH = 304; // Google's fixed widget width at size="normal"
+const RECAPTCHA_BASE_HEIGHT = 78; // Google's fixed widget height at size="normal"
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -23,6 +26,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [captchaToken, setCaptchaToken] = useState(null);
+  const [captchaScale, setCaptchaScale] = useState(1);
+  const captchaWrapperRef = useRef(null);
   const captchaRef = useRef(null);
   const widgetIdRef = useRef(null);
 
@@ -43,6 +48,7 @@ export default function Register() {
         if (cancelled || widgetIdRef.current !== null || !captchaRef.current) return;
         widgetIdRef.current = window.grecaptcha.render(captchaRef.current, {
           sitekey: RECAPTCHA_SITE_KEY,
+          theme: RECAPTCHA_THEME,
           callback: (token) => {
             setCaptchaToken(token);
             setErrors((p) => ({ ...p, captcha: "" }));
@@ -79,6 +85,27 @@ export default function Register() {
       cancelled = true;
       clearTimeout(retryTimer);
     };
+  }, []);
+
+  // reCAPTCHA's iframe has a fixed pixel width (304px at size="normal") and can't
+  // be restyled directly since it's Google's cross-origin content. To make it
+  // "fill" the form the way the other inputs do, we scale the whole widget with
+  // a CSS transform based on the wrapper's actual rendered width.
+  useEffect(() => {
+    const el = captchaWrapperRef.current;
+    if (!el) return;
+
+    const updateScale = () => {
+      const wrapperWidth = el.offsetWidth;
+      if (!wrapperWidth) return;
+      const nextScale = Math.min(wrapperWidth / RECAPTCHA_BASE_WIDTH, 1.4);
+      setCaptchaScale(nextScale);
+    };
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const handleChange = (e) => {
@@ -388,7 +415,27 @@ export default function Register() {
 
             {/* ── reCAPTCHA ── */}
             <div style={{ marginBottom: 16 }}>
-              <div ref={captchaRef} />
+              <div
+                ref={captchaWrapperRef}
+                style={{
+                  width: "100%",
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  background: RECAPTCHA_THEME === "dark" ? "#222" : "#fafafa",
+                  border: "1px solid #e5e7eb",
+                  height: RECAPTCHA_BASE_HEIGHT * captchaScale,
+                }}
+              >
+                <div
+                  style={{
+                    transform: `scale(${captchaScale})`,
+                    transformOrigin: "top left",
+                    width: RECAPTCHA_BASE_WIDTH,
+                  }}
+                >
+                  <div ref={captchaRef} />
+                </div>
+              </div>
               {errors.captcha && <p style={{ color: "#ef4444", fontSize: 11, margin: "6px 0 0" }}>{errors.captcha}</p>}
             </div>
 
