@@ -28,38 +28,57 @@ export default function Register() {
 
   // Load the Google reCAPTCHA script once, then render the real widget into captchaRef.
   useEffect(() => {
+    let cancelled = false;
+
+    // grecaptcha.render() can exist on window.grecaptcha before the library has
+    // actually finished initializing — calling it too early sometimes fails
+    // silently (no error, no widget). grecaptcha.ready() is Google's documented
+    // way to guarantee the library is truly ready before you render into a node.
     const renderWidget = () => {
-      if (!window.grecaptcha || !window.grecaptcha.render) return;
+      if (cancelled) return;
+      if (!captchaRef.current) return; // node not mounted yet — retry shortly
       if (widgetIdRef.current !== null) return; // already rendered
-      widgetIdRef.current = window.grecaptcha.render(captchaRef.current, {
-        sitekey: RECAPTCHA_SITE_KEY,
-        callback: (token) => {
-          setCaptchaToken(token);
-          setErrors((p) => ({ ...p, captcha: "" }));
-        },
-        "expired-callback": () => setCaptchaToken(null),
-        "error-callback": () => setCaptchaToken(null),
+
+      window.grecaptcha.ready(() => {
+        if (cancelled || widgetIdRef.current !== null || !captchaRef.current) return;
+        widgetIdRef.current = window.grecaptcha.render(captchaRef.current, {
+          sitekey: RECAPTCHA_SITE_KEY,
+          callback: (token) => {
+            setCaptchaToken(token);
+            setErrors((p) => ({ ...p, captcha: "" }));
+          },
+          "expired-callback": () => setCaptchaToken(null),
+          "error-callback": () => setCaptchaToken(null),
+        });
       });
     };
 
     if (window.grecaptcha && window.grecaptcha.render) {
       renderWidget();
-      return;
+    } else {
+      const existingScript = document.getElementById("recaptcha-script");
+      if (existingScript) {
+        existingScript.addEventListener("load", renderWidget);
+      } else {
+        const script = document.createElement("script");
+        script.id = "recaptcha-script";
+        script.src = "https://www.google.com/recaptcha/api.js";
+        script.async = true;
+        script.defer = true;
+        script.onload = renderWidget;
+        document.body.appendChild(script);
+      }
     }
 
-    const existingScript = document.getElementById("recaptcha-script");
-    if (existingScript) {
-      existingScript.addEventListener("load", renderWidget);
-      return () => existingScript.removeEventListener("load", renderWidget);
-    }
+    // Safety net: if for any reason the widget still hasn't rendered after a
+    // beat (e.g. StrictMode's double-invoke swallowed the first onload), try
+    // once more. This is a no-op once widgetIdRef.current is set.
+    const retryTimer = setTimeout(renderWidget, 800);
 
-    const script = document.createElement("script");
-    script.id = "recaptcha-script";
-    script.src = "https://www.google.com/recaptcha/api.js";
-    script.async = true;
-    script.defer = true;
-    script.onload = renderWidget;
-    document.body.appendChild(script);
+    return () => {
+      cancelled = true;
+      clearTimeout(retryTimer);
+    };
   }, []);
 
   const handleChange = (e) => {
