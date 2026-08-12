@@ -4,6 +4,10 @@ import { io as socketIO } from "socket.io-client";
 import TopBar from "./TopBar";
 
 const API = import.meta.env.VITE_API_URL;
+// Attachments/submissions now store full R2 URLs (https://...). Older rows
+// created before the R2 migration may still have local paths like
+// "/uploads/forms/xyz.pdf" — those still need the API host prepended.
+const resolveFileUrl = (u) => (!u ? "" : /^https?:\/\//i.test(u) ? u : `${API || "http://localhost:5000"}${u}`);
 
 function getUser() {
   try {
@@ -1333,7 +1337,7 @@ export default function Forms() {
                         📎 {selectedForm.file_name || "attachment"}
                       </span>
                       <a
-                        href={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}${selectedForm.file_url}`}
+                        href={resolveFileUrl(selectedForm.file_url)}
                         download={selectedForm.file_name}
                         target="_blank"
                         rel="noreferrer"
@@ -1342,7 +1346,7 @@ export default function Forms() {
                         ↓ Download
                       </a>
                       <a
-                        href={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}${selectedForm.file_url}`}
+                        href={resolveFileUrl(selectedForm.file_url)}
                         target="_blank"
                         rel="noreferrer"
                         style={{ fontSize: 11, fontWeight: 700, color: "#a78bfa", textDecoration: "none", padding: "4px 12px", borderRadius: 6, border: "1px solid #4c3d7a", whiteSpace: "nowrap" }}
@@ -1356,7 +1360,7 @@ export default function Forms() {
                 {/* File content */}
                 <div style={{ flex: 1, overflow: "hidden", display: "flex", alignItems: "stretch", justifyContent: "center" }}>
                   {selectedForm.file_url ? (() => {
-                    const url = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}${selectedForm.file_url}`;
+                    const url = resolveFileUrl(selectedForm.file_url);
                     const ext = (selectedForm.file_name || selectedForm.file_url || "").split(".").pop().toLowerCase();
                     const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
                     const isPdf = ext === "pdf";
