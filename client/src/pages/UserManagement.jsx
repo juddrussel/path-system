@@ -134,7 +134,7 @@ function Toast({ msg, type, onClose }) {
 
 // ─── ADD USER MODAL ────────────────────────────────────────────────────────────
 function AddUserModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({ full_name: "", username: "", email: "", role: "", password: "", is_active: "1" });
+  const [form, setForm] = useState({ full_name: "", username: "", email: "", phone: "", role: "", password: "", is_active: "1" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -185,6 +185,7 @@ function AddUserModal({ onClose, onCreated }) {
           <Field label="Full Name *" className="mb-3"><input required value={form.full_name} onChange={e => set("full_name", e.target.value)} placeholder="e.g. Maria Garcia" /></Field>
           <Field label="Username *" className="mb-3"><input required value={form.username} onChange={e => set("username", e.target.value)} placeholder="e.g. mgarcia" /></Field>
           <Field label="Work Email" className="mb-3"><input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="user@company.com" /></Field>
+          <Field label="Contact Number *" className="mb-3"><input required type="tel" value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="+63 9XX XXX XXXX" /></Field>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <Field label="Role *">
               <select required value={form.role} onChange={e => set("role", e.target.value)}>
