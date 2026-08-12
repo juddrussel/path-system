@@ -561,7 +561,16 @@ export default function Reports() {
             const rawDate = t.created_at || t.deadline;
             const status = displayStatus(t.status);
             const done = DONE.includes(status);
-            const overdue = t.deadline && new Date(t.deadline) < now && !done;
+            // A task can only be "Delayed" while it's still awaiting the
+            // faculty's own submission. Once it's been submitted — i.e. it's
+            // sitting in "For Approval" (or "Under Review") — the deadline
+            // it was working against no longer applies; overdue must not
+            // override that. Without this, any submitted task whose
+            // original deadline had already passed got silently relabeled
+            // "Delayed" here, hiding it from "For Approval" counts even
+            // though the faculty had already turned it in.
+            const alreadySubmitted = ["For Approval", "Under Review"].includes(status);
+            const overdue = t.deadline && new Date(t.deadline) < now && !done && !alreadySubmitted;
             const reasonRaw = t.rejection_reason || t.return_reason || t.reason || t.remarks || null;
             const actionDateRaw = t.reviewed_at || t.updated_at || rawDate;
             merged.push({
