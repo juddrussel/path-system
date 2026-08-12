@@ -134,7 +134,7 @@ function Toast({ msg, type, onClose }) {
 
 // ─── ADD USER MODAL ────────────────────────────────────────────────────────────
 function AddUserModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({ first_name: "", last_name: "", username: "", email: "", role: "", password: "", is_active: "1" });
+  const [form, setForm] = useState({ full_name: "", username: "", email: "", role: "", password: "", is_active: "1" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -145,9 +145,14 @@ function AddUserModal({ onClose, onCreated }) {
     setLoading(true);
     setError("");
     try {
+      const { full_name, ...rest } = form;
+      const trimmed = full_name.trim();
+      const spaceIdx = trimmed.indexOf(" ");
+      const first_name = spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx);
+      const last_name = spaceIdx === -1 ? "" : trimmed.slice(spaceIdx + 1);
       const user = await apiFetch("/users", {
         method: "POST",
-        body: JSON.stringify({ ...form, is_active: form.is_active === "1" }),
+        body: JSON.stringify({ ...rest, first_name, last_name, is_active: form.is_active === "1" }),
       });
       onCreated(user);
       onClose();
@@ -177,10 +182,7 @@ function AddUserModal({ onClose, onCreated }) {
         {error && <div className="bg-red-50 text-red-700 text-xs px-3 py-2 rounded-lg mb-4 border border-red-100">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <Field label="First Name *"><input required value={form.first_name} onChange={e => set("first_name", e.target.value)} placeholder="e.g. Maria" /></Field>
-            <Field label="Last Name"><input value={form.last_name} onChange={e => set("last_name", e.target.value)} placeholder="e.g. Garcia" /></Field>
-          </div>
+          <Field label="Full Name *" className="mb-3"><input required value={form.full_name} onChange={e => set("full_name", e.target.value)} placeholder="e.g. Maria Garcia" /></Field>
           <Field label="Username *" className="mb-3"><input required value={form.username} onChange={e => set("username", e.target.value)} placeholder="e.g. mgarcia" /></Field>
           <Field label="Work Email" className="mb-3"><input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="user@company.com" /></Field>
           <div className="grid grid-cols-2 gap-3 mb-3">
