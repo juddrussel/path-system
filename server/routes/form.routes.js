@@ -9,14 +9,24 @@
 // (Use TEXT instead of JSON if your MySQL version doesn't support the JSON
 // type.) The routes below already work without this column — they'll just
 // log a warning and skip saving the field answers until it's added.
+//
+// ─── FIX (this version): attachments now go to R2, not local disk ─────────
+// This router previously used multer.diskStorage() to write uploaded form
+// files straight onto the server's local filesystem (uploads/forms/...) and
+// stored that relative path in file_url. On Render (and most hosts) that
+// filesystem is ephemeral, so files could vanish on redeploy/restart, and it
+// was inconsistent with task.routes.js, which already uploads every file to
+// R2 and stores a full https:// URL. All three upload sites below (/submit,
+// /draft, /:id/resubmit) now upload to R2 via the same ../utils/uploadToR2
+// helper task.routes.js uses, so file_url is always a full R2 URL and the
+// frontend's resolveFileUrl() helper renders it correctly everywhere.
 const express  = require("express");
 const router   = express.Router();
 const jwt      = require("jsonwebtoken");
 const multer   = require("multer");
-const path     = require("path");
-const fs       = require("fs");
 const db       = require("../config/db");
 const workflowExecution = require("../services/workflowExecution.service");
+const { uploadToR2 } = require("../utils/uploadToR2");
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
@@ -38,26 +48,27 @@ function requireReviewer(req, res, next) {
 }
 
 // ─── FILE UPLOAD (multer) ─────────────────────────────────────────────────────
-const UPLOAD_DIR = path.join(__dirname, "../uploads/forms");
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-  filename:    (_req, file, cb) => {
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    cb(null, `${unique}${path.extname(file.originalname)}`);
-  },
-});
+// Files land in memory (not disk) so they can be streamed straight to R2 —
+// same approach as task.routes.js.
+const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png"];
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },           // 10 MB
   fileFilter: (_req, file, cb) => {
-    const allowed = [".pdf", ".jpg", ".jpeg", ".png"];
-    if (allowed.includes(path.extname(file.originalname).toLowerCase())) cb(null, true);
+    const ext = `.${(file.originalname.split(".").pop() || "").toLowerCase()}`;
+    if (ALLOWED_EXTENSIONS.includes(ext)) cb(null, true);
     else cb(new Error("Only PDF, JPG, and PNG files are allowed."));
   },
 });
+
+// Uploads a single buffered file to R2 and returns its public URL + name.
+// Mirrors uploadFilesToR2() in task.routes.js, single-file form.
+async function uploadOneToR2(file) {
+  if (!file) return null;
+  const { url } = await uploadToR2(file);
+  return { url, originalname: file.originalname, size: file.size };
+}
 
 // ─── TRACKING ID GENERATOR ────────────────────────────────────────────────────
 // FIX: This used to be based on COUNT(*) of rows created this year, which
@@ -107,8 +118,9 @@ router.post("/submit", requireAuth, upload.any(), async (req, res) => {
     // Prefer the field literally named "file" (the primary/back-compat copy
     // the client always sends); otherwise fall back to the first file found.
     const primaryFile = (req.files || []).find(f => f.fieldname === "file") || (req.files || [])[0] || null;
-    const file_url     = primaryFile ? `/uploads/forms/${primaryFile.filename}` : null;
-    const file_name    = primaryFile ? primaryFile.originalname : null;
+    const uploaded  = await uploadOneToR2(primaryFile);
+    const file_url  = uploaded ? uploaded.url : null;
+    const file_name = uploaded ? uploaded.originalname : null;
 
     // The wizard's Step 2 sends a JSON summary of every dynamic field the
     // faculty member filled in (name -> displayable value), e.g.
@@ -212,8 +224,9 @@ router.post("/draft", requireAuth, upload.any(), async (req, res) => {
     let result, tracking_id;
 
     const primaryFile = (req.files || []).find(f => f.fieldname === "file") || (req.files || [])[0] || null;
-    const file_url     = primaryFile ? `/uploads/forms/${primaryFile.filename}` : null;
-    const file_name    = primaryFile ? primaryFile.originalname : null;
+    const uploaded  = await uploadOneToR2(primaryFile);
+    const file_url  = uploaded ? uploaded.url : null;
+    const file_name = uploaded ? uploaded.originalname : null;
 
     let field_values = null;
     try { field_values = req.body.field_values ? JSON.stringify(JSON.parse(req.body.field_values)) : null; }
@@ -538,8 +551,9 @@ router.post("/:id/resubmit", requireAuth, upload.single("file"), async (req, res
     if (form.status !== "Revision")
       return res.status(400).json({ message: "Only forms marked for revision can be resubmitted." });
 
-    const file_url  = req.file ? `/uploads/forms/${req.file.filename}` : form.file_url;
-    const file_name = req.file ? req.file.originalname : form.file_name;
+    const uploaded   = await uploadOneToR2(req.file);
+    const file_url   = uploaded ? uploaded.url : form.file_url;
+    const file_name  = uploaded ? uploaded.originalname : form.file_name;
     const { college_year, section } = req.body;
 
     await db.query(
