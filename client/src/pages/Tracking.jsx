@@ -715,6 +715,7 @@ export default function Tracking() {
   const [docs,        setDocs]        = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [search,      setSearch]      = useState("");
+  const [searchBy,    setSearchBy]    = useState("all");
   const [statusFilter,setStatusFilter]= useState("All");
   const [selected,    setSelected]    = useState(null);
   const [page,        setPage]        = useState(1);
@@ -856,13 +857,19 @@ export default function Tracking() {
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
 
   // ── Filter + search ────────────────────────────────────────────────────────
+  const SEARCH_BY_FIELDS = {
+    all:          ["document_id", "title", "submitted_by", "current_handler", "department"],
+    document_id:  ["document_id"],
+    title:        ["title"],
+    submitted_by: ["submitted_by"],
+    current_handler: ["current_handler"],
+    department:   ["department"],
+  };
+
   const filtered = docs.filter(d => {
     const q = search.toLowerCase();
-    const matchSearch = !q
-      || d.document_id?.toLowerCase().includes(q)
-      || d.title?.toLowerCase().includes(q)
-      || d.submitted_by?.toLowerCase().includes(q)
-      || d.department?.toLowerCase().includes(q);
+    const fields = SEARCH_BY_FIELDS[searchBy] || SEARCH_BY_FIELDS.all;
+    const matchSearch = !q || fields.some(field => d[field]?.toLowerCase().includes(q));
     const filterDef  = STATUS_FILTER_MATCH[statusFilter];
     const matchStatus = statusFilter === "All"
       || (filterDef
@@ -982,6 +989,30 @@ export default function Tracking() {
 
             {/* Filter bar */}
             <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", color: "#9ca3af" }}>
+                  <Icon.Search />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={e => { setSearch(e.target.value); setPage(1); }}
+                    placeholder="Search..."
+                    style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: 160 }}
+                  />
+                </div>
+                <select
+                  value={searchBy}
+                  onChange={e => { setSearchBy(e.target.value); setPage(1); }}
+                  style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", fontSize: 12, color: "#374151", background: "white", cursor: "pointer" }}
+                >
+                  <option value="all">Search by: All Fields</option>
+                  <option value="document_id">Document ID</option>
+                  <option value="title">Title</option>
+                  <option value="submitted_by">Submitted By</option>
+                  <option value="current_handler">Current Handler</option>
+                  <option value="department">Department</option>
+                </select>
+              </div>
               <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
                 <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12" style={{ color: "#9ca3af", marginRight: 4 }}><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z"/></svg>
                 <span style={{ fontSize: 11, color: "#9ca3af", marginRight: 6 }}>FILTER:</span>
@@ -997,16 +1028,6 @@ export default function Tracking() {
                     onClick={() => { setStatusFilter(f.value); setPage(1); }}
                   />
                 ))}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 12px", color: "#9ca3af", width: 300, flexShrink: 0 }}>
-                <Icon.Search />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={e => { setSearch(e.target.value); setPage(1); }}
-                  placeholder="Search by Document ID, title, or name"
-                  style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%" }}
-                />
               </div>
             </div>
 
