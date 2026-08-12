@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const db = require("../config/db");
 const { writeLog } = require("./audit.routes");
 
+// ─── DEFAULTS ──────────────────────────────────────────────────────────────────
+const DEFAULT_DEPARTMENT = "Information Systems";
+
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
   const auth = req.headers.authorization;
@@ -80,12 +83,15 @@ router.post("/", requireAuth, requireAdminOrChair, async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const active = is_active === undefined ? 1 : (is_active ? 1 : 0);
+    // department is NOT NULL in the DB and the Add User form doesn't collect
+    // it, so fall back to the org-wide default instead of null.
+    const dept = department || DEFAULT_DEPARTMENT;
 
     // Admin-created users are automatically approved
     const [result] = await db.query(
       `INSERT INTO users (full_name, email, phone, department, username, password, role, status, is_active, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'approved', ?, NOW())`,
-      [full_name, email || null, phone, department || null, username, hashed, role, active]
+      [full_name, email || null, phone, dept, username, hashed, role, active]
     );
 
     const [newUser] = await db.query("SELECT * FROM users WHERE id = ?", [result.insertId]);
@@ -293,7 +299,9 @@ router.patch("/:id", requireAuth, async (req, res) => {
 
     const nextEmail      = email       !== undefined ? (email || null)      : existing.email;
     const nextPhone      = phone       !== undefined ? (phone || null)      : existing.phone;
-    const nextDepartment = department  !== undefined ? (department || null) : existing.department;
+    // department is NOT NULL in the DB — never null it out. If it's being
+    // provided but blank, fall back to the org-wide default instead of null.
+    const nextDepartment = department  !== undefined ? (department || DEFAULT_DEPARTMENT) : existing.department;
     const nextAvatarUrl  = avatar_url  !== undefined ? (avatar_url || null) : existing.avatar_url;
 
     // admin and program_chair can additionally change role and is_active,
