@@ -62,10 +62,10 @@ router.get("/", requireAuth, requireAdminOrChair, async (req, res) => {
 
 // ─── POST /api/users — admin creates a user directly (auto-approved) ──────────
 router.post("/", requireAuth, requireAdminOrChair, async (req, res) => {
-  const { first_name, last_name, username, email, role, password, is_active, department } = req.body;
+  const { first_name, last_name, username, email, phone, role, password, is_active, department } = req.body;
 
-  if (!first_name || !username || !password || !role) {
-    return res.status(400).json({ message: "first_name, username, password, and role are required." });
+  if (!first_name || !username || !phone || !password || !role) {
+    return res.status(400).json({ message: "first_name, username, phone, password, and role are required." });
   }
 
   try {
@@ -85,7 +85,7 @@ router.post("/", requireAuth, requireAdminOrChair, async (req, res) => {
     const [result] = await db.query(
       `INSERT INTO users (full_name, email, phone, department, username, password, role, status, is_active, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'approved', ?, NOW())`,
-      [full_name, email || null, null, department || null, username, hashed, role, active]
+      [full_name, email || null, phone, department || null, username, hashed, role, active]
     );
 
     const [newUser] = await db.query("SELECT * FROM users WHERE id = ?", [result.insertId]);
