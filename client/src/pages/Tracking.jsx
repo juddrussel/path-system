@@ -943,17 +943,7 @@ export default function Tracking() {
 
         {/* Topbar */}
         <TopBar onLogout={handleLogout}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 12px", color: "#9ca3af", maxWidth: 440 }}>
-              <Icon.Search />
-              <input
-                type="text"
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPage(1); }}
-                placeholder="Enter Document ID or Reference Number (e.g. DOC-2026-001)"
-                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%" }}
-              />
-            </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, width: "100%" }}>
             <button onClick={fetchDocs} style={{ background: "none", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: "#6b7280", display: "flex", alignItems: "center" }}>
               <Icon.Refresh />
             </button>
@@ -991,21 +981,33 @@ export default function Tracking() {
           <div style={{ background: "white", borderRadius: 14, border: "1px solid #f0f0f0", overflow: "hidden" }}>
 
             {/* Filter bar */}
-            <div style={{ padding: "12px 16px 0", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-              <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12" style={{ color: "#9ca3af", marginRight: 4 }}><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z"/></svg>
-              <span style={{ fontSize: 11, color: "#9ca3af", marginRight: 6 }}>FILTER:</span>
-              {STATUS_FILTERS.map(f => (
-                <FilterPill
-                  key={f.value}
-                  label={f.value === "All" ? `All (${docs.length})` : f.label}
-                  count={f.value !== "All" ? docs.filter(d => {
-                    const group = STATUS_FILTER_MATCH[f.value];
-                    return group ? group.includes(d.status?.toLowerCase()) : d.status?.toLowerCase() === f.value.toLowerCase();
-                  }).length : undefined}
-                  active={statusFilter === f.value}
-                  onClick={() => { setStatusFilter(f.value); setPage(1); }}
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+                <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12" style={{ color: "#9ca3af", marginRight: 4 }}><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z"/></svg>
+                <span style={{ fontSize: 11, color: "#9ca3af", marginRight: 6 }}>FILTER:</span>
+                {STATUS_FILTERS.map(f => (
+                  <FilterPill
+                    key={f.value}
+                    label={f.value === "All" ? `All (${docs.length})` : f.label}
+                    count={f.value !== "All" ? docs.filter(d => {
+                      const group = STATUS_FILTER_MATCH[f.value];
+                      return group ? group.includes(d.status?.toLowerCase()) : d.status?.toLowerCase() === f.value.toLowerCase();
+                    }).length : undefined}
+                    active={statusFilter === f.value}
+                    onClick={() => { setStatusFilter(f.value); setPage(1); }}
+                  />
+                ))}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 12px", color: "#9ca3af", width: 300, flexShrink: 0 }}>
+                <Icon.Search />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => { setSearch(e.target.value); setPage(1); }}
+                  placeholder="Search by Document ID, title, or name"
+                  style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%" }}
                 />
-              ))}
+              </div>
             </div>
 
             {/* Table */}
