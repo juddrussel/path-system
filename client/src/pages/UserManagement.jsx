@@ -867,9 +867,6 @@ export default function UserManagement() {
                 className="bg-transparent outline-none text-xs text-gray-700 w-full placeholder:text-gray-400"
               />
             </div>
-            <button onClick={() => setShowModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 whitespace-nowrap">
-              <UserPlusIcon /> New User
-            </button>
           </div>
         </TopBar>
 
@@ -911,12 +908,6 @@ export default function UserManagement() {
                     <div>
                       <h1 className="text-xl font-bold text-gray-900">User &amp; Role Management</h1>
                       <p className="text-xs text-gray-400 mt-0.5">Manage system accounts, assign roles, and control access levels.</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => setShowModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="11" height="11"><path d="M8 1v14M1 8h14" /></svg>
-                        Add User
-                      </button>
                     </div>
                   </div>
 
