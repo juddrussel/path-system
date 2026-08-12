@@ -750,13 +750,24 @@ export default function Reports() {
       const name = f.full_name || f.name || "—";
       const delayedFromEndpoint = delayedDocs.filter(d => d.faculty_name === name).length;
       const delayedFromItems = rawItems.filter(i => i.person === name && i.status === "Delayed").length;
+      const assigned = active + pending + completed;
       return {
         name,
-        assigned: active + pending + completed,
+        assigned,
         pending,
         completed,
-        delayed: delayedFromEndpoint || delayedFromItems,
-        rate: Math.round(f.performance_score ?? (active + pending + completed > 0 ? (completed / (active + pending + completed)) * 100 : 0)),
+        // Only fall back to the merged-items count when the delayed-documents
+        // endpoint returned nothing at all — a genuine "0" from that endpoint
+        // must NOT be overridden (0 is falsy, so `||` was wrongly treating a
+        // real zero the same as "no data").
+        delayed: delayedDocs.length > 0 ? delayedFromEndpoint : delayedFromItems,
+        // Completion rate is always derived from the same completed/assigned
+        // counts shown in this row, so the percentage never contradicts the
+        // numbers next to it. (Previously this preferred a raw
+        // `performance_score` from the API when present, which could be an
+        // unrelated/stale metric and made the bar disagree with the table —
+        // e.g. 0 completed showing 98%.)
+        rate: Math.round(assigned > 0 ? (completed / assigned) * 100 : 0),
       };
     });
   }, [facultyPerformance, delayedDocs, rawItems]);
