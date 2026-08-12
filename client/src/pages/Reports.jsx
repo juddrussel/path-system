@@ -637,11 +637,25 @@ export default function Reports() {
   }, [token, fetchTrackedItems, fetchFacultyPerformance, fetchDelayedDocuments, fetchAuditTrail]);
 
   // ── Apply the filter bar to the merged item list ──
+  //
+  // NOTE on the date range vs. "open" statuses: the date range is meant to
+  // answer "what happened in this window" (things that were resolved —
+  // approved/rejected/completed — in the last N days). It is NOT meant to
+  // hide items that are still sitting in the queue right now just because
+  // they were *created* outside that window. A task assigned 45 days ago
+  // that got submitted for approval yesterday is very much a *current*
+  // "For Approval" item, even under a "Last 30 Days" filter — its `days`
+  // reflects created_at, not when it entered its current status. So
+  // still-open statuses (Pending / For Approval / Under Review / Delayed /
+  // Returned) always pass the date filter; only closed/resolved statuses
+  // (Approved / Completed / Rejected) get gated by it.
   const RANGE_DAYS = { "Last 7 Days": 7, "Last 30 Days": 30, "This Semester": 120, "This Year": 365 };
+  const OPEN_STATUSES = ["Pending", "For Approval", "Under Review", "Delayed", "Returned"];
   const items = useMemo(() => {
     const cutoffDays = RANGE_DAYS[dateRange];
     return rawItems.filter(it => {
-      if (cutoffDays && it.days > cutoffDays) return false;
+      const isOpen = OPEN_STATUSES.includes(it.status);
+      if (cutoffDays && !isOpen && it.days > cutoffDays) return false;
       if (statusFilter !== "All Statuses" && it.status !== statusFilter) return false;
       if (docTypeFilter !== "All Document Types" && it.docType !== docTypeFilter) return false;
       if (facultyFilter !== "All Faculty" && it.person !== facultyFilter) return false;
