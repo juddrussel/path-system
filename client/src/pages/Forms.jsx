@@ -651,14 +651,6 @@ export default function Forms() {
               <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search document ID, student name, category..."
                 style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%", fontFamily: "'DM Sans', sans-serif" }} />
             </div>
-            {isProgramChair && (
-              <button onClick={() => setAddModal(true)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#374151", whiteSpace: "nowrap" }}>
-                <Icon.Plus /> Add Form Template
-              </button>
-            )}
-            <button onClick={() => navigate("/documents/new")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", background: "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-              <Icon.Download /> Intake Document
-            </button>
           </div>
         </TopBar>
 
