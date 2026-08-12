@@ -220,8 +220,7 @@ function AddUserModal({ onClose, onCreated }) {
 // ─── EDIT USER MODAL ───────────────────────────────────────────────────────────
 function EditUserModal({ user, onClose, onUpdated, currentUserRole }) {
   const [form, setForm] = useState({
-    first_name: user.first_name || "",
-    last_name:  user.last_name  || "",
+    full_name:  `${user.first_name || ""} ${user.last_name || ""}`.trim(),
     email:      user.email      || "",
     phone:      user.phone      || "",
     department: "Information Systems",
@@ -242,9 +241,13 @@ function EditUserModal({ user, onClose, onUpdated, currentUserRole }) {
     setLoading(true);
     setError("");
     try {
+      const trimmed = form.full_name.trim();
+      const spaceIdx = trimmed.indexOf(" ");
+      const first_name = spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx);
+      const last_name = spaceIdx === -1 ? "" : trimmed.slice(spaceIdx + 1);
       const payload = {
-        first_name:  form.first_name,
-        last_name:   form.last_name,
+        first_name,
+        last_name,
         email:       form.email,
         phone:       form.phone,
         department:  form.department,
@@ -291,15 +294,10 @@ function EditUserModal({ user, onClose, onUpdated, currentUserRole }) {
 
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
 
-          {/* Name row */}
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="First Name *">
-              <input required value={form.first_name} onChange={e => set("first_name", e.target.value)} placeholder="First name" />
-            </Field>
-            <Field label="Last Name">
-              <input value={form.last_name} onChange={e => set("last_name", e.target.value)} placeholder="Last name" />
-            </Field>
-          </div>
+          {/* Name */}
+          <Field label="Full Name *">
+            <input required value={form.full_name} onChange={e => set("full_name", e.target.value)} placeholder="Full name" />
+          </Field>
 
           {/* Email */}
           <Field label="Email">
