@@ -416,8 +416,8 @@ export default function Notifications() {
                         display: "flex", gap: 12, padding: "14px 16px",
                         background: n.highlight ? "#faf8ff" : "#fff",
                         border: "1px solid #ececf5",
-                        borderLeft: n.highlight ? "3px solid #7c3aed" : "3px solid transparent",
-                        borderRadius: 12,
+                        borderLeft: n.highlight ? "4px solid #7c3aed" : "1px solid #ececf5",
+                        borderRadius: n.highlight ? "0 12px 12px 0" : 12,
                       }}
                     >
                       <div style={{
