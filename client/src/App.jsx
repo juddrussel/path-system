@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { refreshToken } from "./utils/refreshToken";
+import { connectSocket, disconnectSocket } from "./pages/socket";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -37,6 +38,21 @@ function AppRoutes() {
     refreshToken();
     const interval = setInterval(refreshToken, 13 * 60 * 1000);
     return () => clearInterval(interval);
+  }, [location.pathname]);
+
+  // Keep the shared socket connection in sync with auth state. connectSocket()
+  // is a no-op if there's no token or the socket is already connected, so this
+  // is cheap to re-run on every route change (covers login redirecting into a
+  // protected route, and picks the connection back up after a token refresh).
+  // On logout (token cleared, user routed to a public page) we tear it down
+  // so the client doesn't sit in its old `user_${id}` room.
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      connectSocket();
+    } else {
+      disconnectSocket();
+    }
   }, [location.pathname]);
 
   return (

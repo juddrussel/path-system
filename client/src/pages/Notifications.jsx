@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
+import { socket, connectSocket } from "./socket";
 import {
   CheckCheck, Trash2, Search, Clock, ChevronRight,
-  ClipboardList, FileText, RefreshCw, MessageSquare, AlertTriangle,
-  AlertCircle, Inbox, Bell, Lightbulb,
+  ClipboardList, AlertCircle, Inbox, Bell, Lightbulb,
 } from "lucide-react";
 
 // ── Role-based nav visibility (mirrors Dashboard.jsx) ──────────────────────
@@ -146,63 +146,26 @@ const TABS = [
   { key: "announcements", label: "Announcements" },
 ];
 
-const NOTIFICATIONS = [
-  {
-    id: 1,
-    category: "tasks",
-    icon: ClipboardList,
-    title: "New Workflow Assignment",
-    time: "10 minutes ago",
-    body: 'You have been assigned as the lead orchestrator for "Q3 Infrastructure Audit". Please review the project scope and initial tasks.',
-    tags: [{ label: "ORCHESTRATION", tone: "purple" }, { label: "HIGH PRIORITY", tone: "red" }],
-    unread: true,
-    highlight: true,
-  },
-  {
-    id: 2,
-    category: "forms",
-    icon: FileText,
-    title: "Compliance Form Pending",
-    time: "1 hour ago",
-    body: 'The "Safety Protocol V4" form requires your digital signature before the end of the business day to maintain site certification.',
-    tags: [{ label: "COMPLIANCE", tone: "blue" }],
-    unread: true,
-    highlight: true,
-  },
-  {
-    id: 3,
-    category: "announcements",
-    icon: RefreshCw,
-    title: "System Maintenance Scheduled",
-    time: "3 hours ago",
-    body: "PATH System will undergo scheduled maintenance this Sunday from 02:00 to 04:00 UTC. Some modules may be temporarily unavailable.",
-    tags: [{ label: "SYSTEM", tone: "gray" }],
-    unread: false,
-    highlight: false,
-  },
-  {
-    id: 4,
-    category: "messages",
-    icon: MessageSquare,
-    title: "Message from Sarah Jenkins",
-    time: "5 hours ago",
-    body: "Hey Alex, I uploaded the revised process diagrams for the automation flow. Let me know if you need any adjustments.",
-    tags: [{ label: "COLLABORATION", tone: "gray" }],
-    unread: false,
-    highlight: false,
-  },
-  {
-    id: 5,
-    category: "tasks",
-    icon: AlertTriangle,
-    title: "Task Overdue: Server Log Review",
-    time: "Yesterday at 5:30 PM",
-    body: 'The daily server log review task for "Cluster-B" is now 2 hours overdue. Please complete this as soon as possible.',
-    tags: [{ label: "MONITORING", tone: "gray" }, { label: "HIGH PRIORITY", tone: "red" }],
-    unread: true,
-    highlight: true,
-  },
-];
+// Real notifications now come in live over the socket (see the
+// "task_assigned" listener in the Notifications component below) — there's
+// no backend list/history endpoint yet, so this page only shows events
+// received during the current session and starts empty on every load.
+const NOTIFICATIONS = [];
+
+// Formats a JS Date as a short relative string ("Just now", "5 minutes ago",
+// "2 hours ago", falling back to a locale date/time once it's over a day old).
+function timeAgo(date) {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 10) return "Just now";
+  if (seconds < 60) return `${seconds} seconds ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  return date.toLocaleDateString();
+}
 
 const TAG_CFG = {
   purple: { bg: "#ede9fe", color: "#6d28d9" },
@@ -250,6 +213,7 @@ export default function Notifications() {
   const [query, setQuery] = useState("");
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [settings, setSettings] = useState({ push: true, email: false, alerts: true });
+  const [, forceTick] = useState(0); // re-render periodically so "x minutes ago" labels stay fresh
 
   let role = "";
   try { role = JSON.parse(localStorage.getItem("user") || "{}")?.role || ""; } catch { /* noop */ }
@@ -259,6 +223,51 @@ export default function Notifications() {
     localStorage.removeItem("token");
     navigate("/login");
   };
+
+  // ── Real-time: listen for tasks assigned to this user ────────────────────
+  // The backend (POST /api/tasks in task.routes.js) emits "task_assigned" to
+  // `user_${facultyId}` the moment a task is created for that faculty member.
+  // We turn each of those into a notification here, live, no polling needed.
+  useEffect(() => {
+    connectSocket();
+
+    const onTaskAssigned = ({ message, tracking_id, taskId }) => {
+      const receivedAt = new Date();
+      setNotifications(ns => [
+        {
+          id: `task_assigned-${taskId}-${receivedAt.getTime()}`,
+          category: "tasks",
+          icon: ClipboardList,
+          title: "New Task Assigned",
+          receivedAt,
+          time: timeAgo(receivedAt),
+          body: message || "You have been assigned a new task.",
+          tags: [
+            { label: tracking_id, tone: "purple" },
+            { label: "NEW", tone: "red" },
+          ],
+          unread: true,
+          highlight: true,
+          taskId,
+          tracking_id,
+        },
+        ...ns,
+      ]);
+    };
+
+    socket.on("task_assigned", onTaskAssigned);
+    return () => socket.off("task_assigned", onTaskAssigned);
+  }, []);
+
+  // Refresh the relative "x minutes ago" labels every 30s without needing
+  // new data to arrive.
+  useEffect(() => {
+    const id = setInterval(() => {
+      forceTick(t => t + 1);
+      setNotifications(ns => ns.map(n => (n.receivedAt ? { ...n, time: timeAgo(n.receivedAt) } : n)));
+    }, 30000);
+    return () => clearInterval(id);
+  }, []);
 
   const filtered = useMemo(() => {
     return notifications.filter(n => {
@@ -444,7 +453,10 @@ export default function Notifications() {
                             {n.tags.map(tag => <Tag key={tag.label} {...tag} />)}
                           </div>
                           <button
-                            onClick={() => navigate("/tracking")}
+                            onClick={() => navigate(
+                              n.tracking_id ? `/tracking?tracking_id=${encodeURIComponent(n.tracking_id)}` : "/tracking",
+                              { state: n.taskId ? { taskId: n.taskId, tracking_id: n.tracking_id } : undefined }
+                            )}
                             style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}
                           >
                             View Details <ChevronRight style={{ width: 12, height: 12 }} />
