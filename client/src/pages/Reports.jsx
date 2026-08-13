@@ -119,6 +119,26 @@ function StatusBadge({ s }) {
   );
 }
 
+// ── Type badge (Task / Form / Document) — mirrors Tracking.jsx's TypeBadge ──
+const TYPE_BADGE_CFG = {
+  task:     { label: "Task",     bg: "#ede9fe", color: "#6d28d9" },
+  form:     { label: "Form",     bg: "#dbeafe", color: "#1e40af" },
+  document: { label: "Document", bg: "#dcfce7", color: "#15803d" },
+};
+function TypeBadge({ type }) {
+  const cfg = TYPE_BADGE_CFG[type?.toLowerCase()] ?? TYPE_BADGE_CFG.document;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 3,
+      fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
+      background: cfg.bg, color: cfg.color,
+      textTransform: "uppercase", letterSpacing: 0.4, flexShrink: 0,
+    }}>
+      {cfg.label}
+    </span>
+  );
+}
+
 const SEVERITY_CFG = {
   Low:      { color: "#0284c7", bg: "#e0f2fe" },
   Medium:   { color: "#d97706", bg: "#fffbeb" },
@@ -733,6 +753,11 @@ export default function Reports() {
       return {
         id: d.tracking_id || d.document_id || d.id,
         docType: d.document_type || d.title || "Document",
+        title: d.title || d.document_type || "Document",
+        // The delayed-documents endpoint doesn't always label its source —
+        // try the common field names first, fall back to "document".
+        sourceType: (d.source_type || d.sourceType || d.type || "document").toLowerCase(),
+        department: d.department || d.dept || d.category || "—",
         faculty: d.faculty_name || "—",
         status: d.status || "Delayed",
         stage: d.stage || d.current_stage || "—",
@@ -746,7 +771,9 @@ export default function Reports() {
     const fromItems = items
       .filter(i => i.overdue && !seenIds.has(String(i.id)))
       .map(i => ({
-        id: i.id, docType: i.docType, faculty: i.person, status: i.status,
+        id: i.id, docType: i.docType, title: i.title || i.docType,
+        sourceType: i.sourceType, department: i.department || "—",
+        faculty: i.person, status: i.status,
         stage: i.stage, days: i.days, overdue: i.days >= 7,
       }));
 
@@ -1727,7 +1754,7 @@ export default function Reports() {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-                    {["Transaction ID", "Document Type", "Assigned Faculty", "Status", "Current Stage", "Days Waiting"].map(h => (
+                    {["Transaction ID", "Title / Department", "Assigned Faculty", "Status", "Current Stage", "Days Waiting"].map(h => (
                       <th key={h} style={{ ...TH_STYLE, textAlign: h === "Days Waiting" ? "center" : "left" }}>{h}</th>
                     ))}
                   </tr>
@@ -1736,7 +1763,16 @@ export default function Reports() {
                   {DELAYED_TRANSACTIONS.map((d, i) => (
                     <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
                       <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{formatTxnId(d.id)}</td>
-                      <td style={{ ...TD_STYLE, color: "#374151" }}>{d.docType}</td>
+                      <td style={{ ...TD_STYLE, maxWidth: 260 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                          <span style={{ fontWeight: 600, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title || d.docType}</span>
+                          {d.sourceType && <TypeBadge type={d.sourceType} />}
+                        </div>
+                        <div style={{ color: "#9ca3af", fontSize: 10.5, display: "flex", alignItems: "center", gap: 4 }}>
+                          <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M2 14V6l6-4 6 4v8H10V9H6v5H2z" /></svg>
+                          {d.department}
+                        </div>
+                      </td>
                       <td style={TD_STYLE}><NameCell name={d.faculty} /></td>
                       <td style={TD_STYLE}><StatusBadge s={d.status} /></td>
                       <td style={{ ...TD_STYLE, color: "#6b7280" }}>{d.stage}</td>
