@@ -683,7 +683,7 @@ export default function Reports() {
       { label: "Completed",          value: count(i => i.status === "Completed"),        icon: TrendingUp,    color: "#059669" },
       { label: "Rejected",           value: count(i => i.status === "Rejected"),         icon: XCircle,       color: "#dc2626" },
       { label: "Delayed",            value: count(i => i.status === "Delayed"),          icon: AlertTriangle, color: "#f97316" },
-      { label: "Overdue",            value: count(i => i.status === "Delayed" && i.days >= 7), icon: AlertCircle, color: "#dc2626" },
+      { label: "Overdue",            value: count(i => i.overdue),                       icon: AlertCircle, color: "#dc2626" },
     ];
   }, [items]);
 
@@ -1073,7 +1073,7 @@ export default function Reports() {
       { label: "Approved",             value: count(i => i.status === "Approved" || i.status === "Completed"), icon: CheckCircle2, color: "#059669" },
       { label: "Rejected / Returned",  value: count(i => i.status === "Rejected") + count(i => i.status === "Returned"), icon: XCircle, color: "#dc2626" },
       { label: "Delayed",              value: count(i => i.status === "Delayed"),                     icon: AlertTriangle, color: "#f97316" },
-      { label: "Overdue",              value: count(i => i.status === "Delayed" && i.days >= 7),      icon: AlertCircle,   color: "#dc2626" },
+      { label: "Overdue",              value: count(i => i.overdue),                                  icon: AlertCircle,   color: "#dc2626" },
       { label: "Avg. Processing Time", value: `${avgProcessing.toFixed(1)}d`,                         icon: Gauge,         color: "#0284c7" },
     ];
   }, [items, PROCESSING_TIME_DATA]);
