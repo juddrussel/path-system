@@ -597,7 +597,7 @@ export default function Reports() {
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
               sourceType: "task",
-              docType: t.category || "Task",
+              docType: t.category || t.title || "Task",
               title: t.title,
               person: nameOf(t.faculty_id),
               department: t.department || "—",
@@ -719,10 +719,10 @@ export default function Reports() {
     return cfg.map(c => ({ ...c, value: items.filter(i => i.status === c.name).length }));
   }, [items]);
 
-  // ── By document type bar (documents/forms only — tasks aren't a document type) ──
+  // ── By document type bar ──
   const DOC_TYPE_BAR = useMemo(() => {
     const counts = {};
-    items.filter(i => i.sourceType !== "task").forEach(i => { counts[i.docType] = (counts[i.docType] || 0) + 1; });
+    items.forEach(i => { counts[i.docType] = (counts[i.docType] || 0) + 1; });
     return Object.entries(counts)
       .map(([type, count]) => ({ type, count }))
       .sort((a, b) => b.count - a.count);
