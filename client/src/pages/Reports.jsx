@@ -678,10 +678,12 @@ export default function Reports() {
     return [
       { label: "Total Transactions", value: items.length, icon: Layers,        color: "#7c3aed" },
       { label: "Pending",            value: count(i => i.status === "Pending"),          icon: Clock,         color: "#d97706" },
+      { label: "For Approval",       value: count(i => i.status === "For Approval"),     icon: ClipboardList, color: "#0891b2" },
       { label: "Approved",           value: count(i => i.status === "Approved"),         icon: CheckCircle2,  color: "#0284c7" },
       { label: "Completed",          value: count(i => i.status === "Completed"),        icon: TrendingUp,    color: "#059669" },
       { label: "Rejected",           value: count(i => i.status === "Rejected"),         icon: XCircle,       color: "#dc2626" },
       { label: "Delayed",            value: count(i => i.status === "Delayed"),          icon: AlertTriangle, color: "#f97316" },
+      { label: "Overdue / Delay",    value: count(i => i.status === "Delayed" && i.days >= 7), icon: AlertCircle, color: "#dc2626" },
     ];
   }, [items]);
 
@@ -1647,7 +1649,7 @@ export default function Reports() {
             {activeTab === "Transactions" && (
               <>
             {/* ── KPI Cards ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
               {KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
             </div>
 
