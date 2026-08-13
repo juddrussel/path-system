@@ -57,6 +57,33 @@ const CheckIcon2 = () => (
   </svg>
 );
 
+const CheckCircleIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+    <circle cx="10" cy="10" r="7.25" />
+    <path d="M6.7 10.2l2.1 2.1 4.3-4.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const DocumentIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+    <path d="M6 2.5h5.5L15 6v11a.75.75 0 01-.75.75H6a.75.75 0 01-.75-.75V3.25A.75.75 0 016 2.5z" strokeLinejoin="round" />
+    <path d="M11 2.5V6h4" strokeLinejoin="round" />
+  </svg>
+);
+
+const ClockIconSm = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+    <circle cx="10" cy="10" r="7.25" />
+    <path d="M10 6v4.3l2.8 1.7" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" width="10" height="10">
+    <path d="M4 2.5l4 3.5-4 3.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 const XIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
     <path d="M12 4L4 12M4 4l8 8" strokeLinecap="round" />
@@ -723,37 +750,123 @@ function PField({ label, children }) {
 }
 
 // ─── NOTIFICATION PANEL ───────────────────────────────────────────────────────
+const NOTIF_FILTERS = [
+  { key: "all",    label: "All" },
+  { key: "unread", label: "Unread" },
+  { key: "tasks",  label: "Tasks" },
+  { key: "forms",  label: "Forms" },
+];
+
+// type -> { icon, bg, fg } used for the round icon chip on the left of each row
+const NOTIF_TYPE_STYLE = {
+  approval: { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
+  document: { Icon: DocumentIcon,    bg: "#dbeafe", fg: "#2563eb" }, // blue
+  system:   { Icon: ClockIconSm,     bg: "#f3f4f6", fg: "#6b7280" }, // gray
+  task:     { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
+};
+
 function NotificationPanel({ onClose }) {
-  const notifications = [
-    { id: 1, type: "approval", text: "New account request from Maria Santos", time: "2m ago", unread: true },
-    { id: 2, type: "document", text: "Document TRACK-0042 has been registered", time: "15m ago", unread: true },
-    { id: 3, type: "alert",    text: "Login failure detected for user jdoe",   time: "1h ago",  unread: false },
-    { id: 4, type: "document", text: "Document TRACK-0039 was updated",         time: "3h ago",  unread: false },
-  ];
-  const typeColor = { approval: "#7c3aed", document: "#059669", alert: "#dc2626" };
+  const [filter, setFilter] = useState("all");
+  const [notifications, setNotifications] = useState([
+    { id: 1, type: "approval", category: "tasks", title: "Workflow Approval Required", text: "Process #8829 needs your attention", time: "2m ago", unread: true },
+    { id: 2, type: "document", category: "forms", title: "Form Submission Received",   text: "New entry for Q3 Budget Request",   time: "1h ago", unread: true },
+    { id: 3, type: "system",   category: "all",   title: "System Maintenance",          text: "Scheduled update at 02:00 UTC",     time: "3h ago", unread: false },
+    { id: 4, type: "task",     category: "tasks", title: "Task Assigned",               text: "You have been added to Project Alpha", time: "5h ago", unread: false },
+  ]);
+
+  const unreadCount = notifications.filter(n => n.unread).length;
+
+  const visible = notifications.filter(n => {
+    if (filter === "all") return true;
+    if (filter === "unread") return n.unread;
+    return n.category === filter;
+  });
+
+  const markAllRead = () => setNotifications(ns => ns.map(n => ({ ...n, unread: false })));
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-100 rounded-xl shadow-2xl z-[150] overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <span className="text-xs font-bold text-gray-900">Notifications</span>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-sm leading-none">✕</button>
+    <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[150] overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-3.5 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[15px] font-extrabold text-gray-900">Notifications</span>
+          {unreadCount > 0 && (
+            <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
+              {unreadCount} Unread
+            </span>
+          )}
+        </div>
+        <button
+          onClick={markAllRead}
+          className="text-[11px] font-semibold text-gray-400 hover:text-violet-600 transition-colors"
+        >
+          Mark all as read
+        </button>
       </div>
-      <div className="max-h-72 overflow-y-auto">
-        {notifications.map(n => (
-          <div
-            key={n.id}
-            className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-violet-50/40" : ""}`}
-          >
-            <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: n.unread ? typeColor[n.type] || "#7c3aed" : "#d1d5db" }} />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-800 font-medium leading-snug">{n.text}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">{n.time}</p>
+
+      {/* Filter pills */}
+      <div className="flex items-center gap-1.5 px-4 pb-3">
+        {NOTIF_FILTERS.map(f => {
+          const active = filter === f.key;
+          return (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
+                active ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              }`}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* List */}
+      <div className="max-h-80 overflow-y-auto">
+        {visible.length === 0 && (
+          <div className="px-4 py-8 text-center text-xs text-gray-400">No notifications</div>
+        )}
+        {visible.map(n => {
+          const style = NOTIF_TYPE_STYLE[n.type] || NOTIF_TYPE_STYLE.system;
+          const { Icon } = style;
+          return (
+            <div
+              key={n.id}
+              className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-violet-50/30" : ""}`}
+            >
+              <span
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: style.bg, color: style.fg }}
+              >
+                <Icon />
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <p className={`text-xs leading-snug ${n.unread ? "font-bold text-violet-700" : "font-bold text-gray-800"}`}>
+                    {n.title}
+                  </p>
+                  <span className="flex items-center gap-0.5 text-[10px] text-gray-400 shrink-0 mt-0.5">
+                    <span className="scale-[0.65] origin-right"><ClockIconSm /></span>
+                    {n.time}
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">{n.text}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <div className="px-4 py-2.5 border-t border-gray-100 text-center">
-        <span className="text-xs text-violet-600 font-bold cursor-pointer hover:text-violet-700">View all notifications</span>
+
+      {/* Footer */}
+      <div className="px-4 py-3 border-t border-gray-100 text-center">
+        <button
+          onClick={onClose}
+          className="inline-flex items-center gap-1 text-xs text-violet-600 font-bold hover:text-violet-700 transition-colors"
+        >
+          View All Notifications
+          <ChevronRightIcon />
+        </button>
       </div>
     </div>
   );
