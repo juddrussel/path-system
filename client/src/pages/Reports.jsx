@@ -561,16 +561,17 @@ export default function Reports() {
             const rawDate = t.created_at || t.deadline;
             const status = displayStatus(t.status);
             const done = DONE.includes(status);
-            // A task can only be "Delayed" while it's still awaiting the
-            // faculty's own submission. Once it's been submitted — i.e. it's
-            // sitting in "For Approval" (or "Under Review") — the deadline
-            // it was working against no longer applies; overdue must not
-            // override that. Without this, any submitted task whose
-            // original deadline had already passed got silently relabeled
-            // "Delayed" here, hiding it from "For Approval" counts even
-            // though the faculty had already turned it in.
+            // A task's status only gets relabeled "Delayed" while it's still
+            // awaiting the faculty's own submission — once it's sitting in
+            // "For Approval" or "Under Review" it stays in that bucket so it
+            // doesn't disappear from those counts. But the `overdue` flag
+            // itself is independent of that: a task whose deadline has
+            // passed is overdue regardless of what stage it's now in, so
+            // "For Approval"/"Under Review" items past their deadline still
+            // count toward Overdue KPIs and tables.
             const alreadySubmitted = ["For Approval", "Under Review"].includes(status);
-            const overdue = t.deadline && new Date(t.deadline) < now && !done && !alreadySubmitted;
+            const overdue = t.deadline && new Date(t.deadline) < now && !done;
+            const relabelDelayed = overdue && !alreadySubmitted;
             const reasonRaw = t.rejection_reason || t.return_reason || t.reason || t.remarks || null;
             const actionDateRaw = t.reviewed_at || t.updated_at || rawDate;
             merged.push({
@@ -581,9 +582,9 @@ export default function Reports() {
               person: nameOf(t.faculty_id),
               department: t.department || "—",
               rawDate, date: fmtDate(t.deadline || rawDate), month: monthOf(rawDate),
-              status: overdue ? "Delayed" : status, done,
+              status: relabelDelayed ? "Delayed" : status, done,
               days: daysSince(rawDate),
-              stage: overdue ? "Delayed" : status,
+              stage: relabelDelayed ? "Delayed" : status,
               overdue,
               reasonRaw, reasonCategory: classifyReason(reasonRaw),
               actionDate: fmtDate(actionDateRaw),
