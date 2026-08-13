@@ -597,7 +597,7 @@ export default function Reports() {
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
               sourceType: "task",
-              docType: t.category || t.title || "Task",
+              docType: t.doc_type || t.category || "Task",
               title: t.title,
               person: nameOf(t.faculty_id),
               department: t.department || "—",
