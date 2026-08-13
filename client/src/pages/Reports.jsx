@@ -719,10 +719,10 @@ export default function Reports() {
     return cfg.map(c => ({ ...c, value: items.filter(i => i.status === c.name).length }));
   }, [items]);
 
-  // ── By document type bar ──
+  // ── By document type bar (documents/forms only — tasks aren't a document type) ──
   const DOC_TYPE_BAR = useMemo(() => {
     const counts = {};
-    items.forEach(i => { counts[i.docType] = (counts[i.docType] || 0) + 1; });
+    items.filter(i => i.sourceType !== "task").forEach(i => { counts[i.docType] = (counts[i.docType] || 0) + 1; });
     return Object.entries(counts)
       .map(([type, count]) => ({ type, count }))
       .sort((a, b) => b.count - a.count);
@@ -1764,14 +1764,14 @@ export default function Reports() {
                     <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
                       <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{formatTxnId(d.id)}</td>
                       <td style={{ ...TD_STYLE, maxWidth: 260 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                        <div style={{ marginBottom: 3 }}>
                           <span style={{ fontWeight: 600, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title || d.docType}</span>
-                          {d.sourceType && <TypeBadge type={d.sourceType} />}
                         </div>
-                        <div style={{ color: "#9ca3af", fontSize: 10.5, display: "flex", alignItems: "center", gap: 4 }}>
-                          <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M2 14V6l6-4 6 4v8H10V9H6v5H2z" /></svg>
-                          {d.department}
-                        </div>
+                        {d.sourceType && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <TypeBadge type={d.sourceType} />
+                          </div>
+                        )}
                       </td>
                       <td style={TD_STYLE}><NameCell name={d.faculty} /></td>
                       <td style={TD_STYLE}><StatusBadge s={d.status} /></td>
