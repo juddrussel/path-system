@@ -270,7 +270,7 @@ export default function Notifications() {
   }, [notifications, activeTab, query]);
 
   const unreadCount = notifications.filter(n => n.unread).length;
-  const readPct = notifications.length ? Math.round(((notifications.length - unreadCount) / notifications.length) * 100) : 0;
+  const readPct = notifications.length ? Math.round((unreadCount / notifications.length) * 100) : 0;
   const urgentCount = notifications.filter(n => n.tags.some(t => t.label === "HIGH PRIORITY")).length;
   const pendingTaskCount = notifications.filter(n => n.category === "tasks").length;
 
