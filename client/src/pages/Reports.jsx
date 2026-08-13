@@ -753,6 +753,17 @@ export default function Reports() {
     return [...fromEndpoint, ...fromItems];
   }, [delayedDocs, items]);
 
+  // Purely cosmetic: some tracking_id values come back from the backend as
+  // plain numbers (e.g. from /api/faculty/delayed-documents) while others
+  // are already formatted like "TASK-2026-0039" (e.g. from /api/tasks).
+  // Since DELAYED_TRANSACTIONS merges both sources, format the plain-numeric
+  // ones so every row reads consistently — this only affects what's
+  // rendered, not the underlying id used for keys/matching.
+  const formatTxnId = (id) => {
+    const s = String(id ?? "");
+    return /^\d+$/.test(s) ? `DOC-${s.padStart(4, "0")}` : s;
+  };
+
   // ── Processing time per document type ──
   // Approximated from elapsed days (submission → now) for items already
   // marked done, since the API doesn't expose an explicit completion
@@ -1184,7 +1195,7 @@ export default function Reports() {
           tables: [{
             title: "Delayed Transactions",
             columns: ["Transaction ID", "Document Type", "Faculty", "Status", "Stage", "Days Delayed", "Overdue"],
-            rows: DELAYED_TRANSACTIONS.map(d => [d.id, d.docType, d.faculty, d.status, d.stage, d.days, d.overdue ? "Yes" : "No"]),
+            rows: DELAYED_TRANSACTIONS.map(d => [formatTxnId(d.id), d.docType, d.faculty, d.status, d.stage, d.days, d.overdue ? "Yes" : "No"]),
           }],
         };
 
@@ -1724,7 +1735,7 @@ export default function Reports() {
                 <tbody>
                   {DELAYED_TRANSACTIONS.map((d, i) => (
                     <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{d.id}</td>
+                      <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{formatTxnId(d.id)}</td>
                       <td style={{ ...TD_STYLE, color: "#374151" }}>{d.docType}</td>
                       <td style={TD_STYLE}><NameCell name={d.faculty} /></td>
                       <td style={TD_STYLE}><StatusBadge s={d.status} /></td>
