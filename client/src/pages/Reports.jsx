@@ -681,7 +681,6 @@ export default function Reports() {
       { label: "Pending",            value: count(i => i.status === "Pending"),          icon: Clock,         color: "#d97706" },
       { label: "For Approval",       value: count(i => i.status === "For Approval"),     icon: ClipboardList, color: "#0891b2" },
       { label: "Approved",           value: count(i => i.status === "Approved"),         icon: CheckCircle2,  color: "#0284c7" },
-      { label: "Completed",          value: count(i => i.status === "Completed"),        icon: TrendingUp,    color: "#059669" },
       { label: "Rejected",           value: count(i => i.status === "Rejected"),         icon: XCircle,       color: "#dc2626" },
       { label: "Delayed",            value: count(i => i.status === "Delayed"),          icon: AlertTriangle, color: "#f97316" },
       { label: "Overdue",            value: count(i => i.overdue),                       icon: AlertCircle, color: "#dc2626" },
@@ -722,29 +721,36 @@ export default function Reports() {
     return Object.values(byMonth).sort((a, b) => a.order - b.order).slice(-7);
   }, [rawItems]);
 
-  // ── Delayed transactions table (from the dedicated delayed-documents endpoint) ──
+  // ── Delayed transactions table (dedicated delayed-documents endpoint,
+  //    merged with overdue TASK items so the table always reflects every
+  //    overdue transaction — the same set the "Overdue" KPI card counts —
+  //    not just the document-scoped subset that endpoint returns) ──
   const DELAYED_TRANSACTIONS = useMemo(() => {
     const now = new Date();
-    if (delayedDocs.length > 0) {
-      return delayedDocs.map(d => {
-        const rawDate = d.deadline || d.due_date || d.submitted_at;
-        const days = rawDate ? Math.max(0, Math.floor((now - new Date(rawDate)) / 86400000)) : 0;
-        return {
-          id: d.tracking_id || d.document_id || d.id,
-          docType: d.document_type || d.title || "Document",
-          faculty: d.faculty_name || "—",
-          status: d.status || "Delayed",
-          stage: d.stage || d.current_stage || "—",
-          days,
-          overdue: days >= 7,
-        };
-      });
-    }
-    // Fallback: derive from the merged item list when the endpoint has nothing
-    return items.filter(i => i.status === "Delayed").map(i => ({
-      id: i.id, docType: i.docType, faculty: i.person, status: i.status,
-      stage: i.stage, days: i.days, overdue: i.days >= 7,
-    }));
+    const fromEndpoint = delayedDocs.map(d => {
+      const rawDate = d.deadline || d.due_date || d.submitted_at;
+      const days = rawDate ? Math.max(0, Math.floor((now - new Date(rawDate)) / 86400000)) : 0;
+      return {
+        id: d.tracking_id || d.document_id || d.id,
+        docType: d.document_type || d.title || "Document",
+        faculty: d.faculty_name || "—",
+        status: d.status || "Delayed",
+        stage: d.stage || d.current_stage || "—",
+        days,
+        overdue: days >= 7,
+      };
+    });
+
+    // Merge in any overdue task items not already covered by the endpoint above.
+    const seenIds = new Set(fromEndpoint.map(r => String(r.id)));
+    const fromItems = items
+      .filter(i => i.overdue && !seenIds.has(String(i.id)))
+      .map(i => ({
+        id: i.id, docType: i.docType, faculty: i.person, status: i.status,
+        stage: i.stage, days: i.days, overdue: i.days >= 7,
+      }));
+
+    return [...fromEndpoint, ...fromItems];
   }, [delayedDocs, items]);
 
   // ── Processing time per document type ──
