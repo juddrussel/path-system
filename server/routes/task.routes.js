@@ -151,6 +151,23 @@ const DEADLINE_REMINDER_EXCLUDED_STATUSES = ["Draft", "Received", "Archived"];
 // can tune it without a redeploy of the check logic itself.
 const DEADLINE_REMINDER_HOURS = parseInt(process.env.DEADLINE_REMINDER_HOURS || "24", 10);
 
+// Timezone used for anything date/time-related shown to users — deadline
+// reminder messages, "due today" / "overdue" comparisons, etc. Without this,
+// JS date formatting/comparison falls back to the server process's own
+// timezone (usually UTC on a cloud host), which silently produces the wrong
+// clock time or the wrong day for users in any other timezone — e.g. a
+// 5:00 PM Manila deadline (stored as 9:00 AM UTC) would show up as "9:00 AM",
+// and a task due at 3:00 AM Manila time could get miscounted as "not due
+// today" or "overdue a day early" when compared using UTC dates.
+const APP_TIMEZONE = process.env.APP_TIMEZONE || "Asia/Manila";
+
+// Returns a date as "YYYY-MM-DD" IN APP_TIMEZONE (not the server's local/UTC
+// day), so day-based comparisons (dueToday, overdue, etc.) line up with what
+// the user actually sees on their clock, not the server's.
+function phtDateKey(date) {
+  return new Date(date).toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE });
+}
+
 // Finds tasks whose deadline is coming up and notifies the assigned faculty
 // member, once per task. Only ever sends ONE task_deadline_near notification
 // per task — it checks the notifications table for an existing one before
@@ -182,6 +199,7 @@ async function checkDeadlineReminders(io) {
 
       const deadlineStr = new Date(task.deadline).toLocaleString("en-US", {
         month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+        timeZone: APP_TIMEZONE,
       });
 
       if (io) {
@@ -212,7 +230,7 @@ async function checkDeadlineReminders(io) {
 // is created, e.g.:
 //   const { router, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
 //   startDeadlineReminderJob(io);
-function startDeadlineReminderJob(io, intervalMs = 5 * 60 * 1000) {
+function startDeadlineReminderJob(io, intervalMs = 15 * 60 * 1000) {
   checkDeadlineReminders(io);
   const handle = setInterval(() => checkDeadlineReminders(io), intervalMs);
   return handle; // returned in case you ever want to clearInterval() in tests
@@ -486,10 +504,10 @@ router.get("/my", requireAuth, async (req, res) => {
     const tasks = await enrichTasks(rows);
 
     const now      = new Date();
-    const today    = now.toISOString().slice(0, 10);
+    const today    = phtDateKey(now);
     const total    = tasks.length;
-    const dueToday = tasks.filter(t => t.deadline && new Date(t.deadline).toISOString().slice(0, 10) === today).length;
-    const overdue  = tasks.filter(t => t.deadline && new Date(t.deadline).toISOString().slice(0, 10) < today && t.status !== "Received").length;
+    const dueToday = tasks.filter(t => t.deadline && phtDateKey(t.deadline) === today).length;
+    const overdue  = tasks.filter(t => t.deadline && phtDateKey(t.deadline) < today && t.status !== "Received").length;
     const pendingApproval = tasks.filter(t => t.status === "For Approval").length;
 
     return res.json({ tasks, stats: { total, dueToday, overdue, pendingApproval } });
