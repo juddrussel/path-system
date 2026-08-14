@@ -32,6 +32,13 @@
 // it, so submissions show up in the Notifications page/bell on load via
 // GET /api/notifications, not just as a toast you had to be online to see.
 // Fires on both the initial /submit and on /:id/resubmit.
+//
+// ─── FIX (this version): tracking ID sequence used string concatenation ───
+// nextTrackingId() computed the next sequence number as `maxSeq + 1`, but
+// mysql2 returns aggregate CAST(...AS UNSIGNED)/MAX() results as a STRING
+// (to avoid precision loss on large BIGINTs), not a JS number. That meant
+// `+` triggered string concatenation instead of arithmetic: "18" + 1 gave
+// "181" instead of 19. Wrapped maxSeq in Number(...) so it adds correctly.
 const express  = require("express");
 const router   = express.Router();
 const jwt      = require("jsonwebtoken");
@@ -156,7 +163,10 @@ async function nextTrackingId() {
      WHERE tracking_id LIKE ?`,
     [`FORM-${year}-%`]
   );
-  const seq = String(maxSeq + 1).padStart(5, "0");
+  // maxSeq comes back from mysql2 as a STRING for CAST(...AS UNSIGNED)/MAX()
+  // results (it avoids precision loss on large BIGINTs). Without Number(),
+  // `maxSeq + 1` concatenates instead of adding: "18" + 1 -> "181", not 19.
+  const seq = String(Number(maxSeq) + 1).padStart(5, "0");
   return `FORM-${year}-${seq}`;
 }
 

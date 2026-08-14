@@ -1,3 +1,4 @@
+require('dotenv').config();
 // config/db.js — mysql2 pool setup
 const mysql = require("mysql2/promise");
 const fs = require("fs");
