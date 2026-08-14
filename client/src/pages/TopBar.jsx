@@ -26,6 +26,16 @@ const BellIcon = () => (
   </svg>
 );
 
+// Solid/filled variant with a notification dot — used on the incoming
+// notification toast, matching the "New Task Assigned" popup style.
+const BellFilledIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+    <path d="M12 2.2a1 1 0 011 1v.7c3.1.55 5.4 3.3 5.4 6.5v3.4l1.6 2.5a1 1 0 01-.85 1.5H5.85a1 1 0 01-.85-1.5l1.6-2.5V10.4c0-3.2 2.3-5.95 5.4-6.5v-.7a1 1 0 011-1z" />
+    <path d="M9.3 19.2a2.7 2.7 0 005.4 0z" />
+    <circle cx="17.6" cy="5.6" r="2.1" />
+  </svg>
+);
+
 const CameraIcon = () => (
   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="16" height="16">
     <rect x="2" y="5" width="16" height="12" rx="2" />
@@ -770,6 +780,71 @@ function PField({ label, children }) {
   );
 }
 
+// ─── INCOMING NOTIFICATION TOAST ──────────────────────────────────────────────
+// Pops up top-right the instant a live "notification" socket event arrives
+// (see the useEffect in TopBar below). Separate from the persistent bell
+// panel — this is just the transient "heads up, something happened" popup.
+const TOAST_AUTO_DISMISS_MS = 7000;
+
+function NotificationToast({ n, onDismiss, onClick }) {
+  useEffect(() => {
+    const t = setTimeout(onDismiss, TOAST_AUTO_DISMISS_MS);
+    return () => clearTimeout(t);
+  }, [onDismiss]);
+
+  const style = NOTIF_TYPE_STYLE[n.type] || NOTIF_TYPE_STYLE.task_assigned;
+
+  return (
+    <div
+      onClick={onClick}
+      className="group pointer-events-auto relative w-[380px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl shadow-2xl border border-gray-100 px-4 py-4 flex items-start gap-3.5 cursor-pointer animate-[notif-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
+      <span
+        className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: style.bg, color: style.fg }}
+      >
+        <BellFilledIcon />
+      </span>
+      <div className="flex-1 min-w-0 pr-4">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[15px] font-extrabold text-gray-900 leading-snug">{n.title}</p>
+          <span className="text-[11px] text-gray-400 shrink-0 mt-0.5">now</span>
+        </div>
+        <p className="text-[13px] text-gray-500 mt-1 leading-snug">{n.text}</p>
+      </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); onDismiss(); }}
+        className="absolute top-2.5 right-2.5 w-5 h-5 rounded-md flex items-center justify-center text-gray-300 opacity-0 group-hover:opacity-100 hover:text-gray-500 hover:bg-gray-50 transition-all"
+      >
+        <XIcon />
+      </button>
+      <style>{`
+        @keyframes notif-toast-in {
+          from { opacity: 0; transform: translateX(28px) scale(0.96); }
+          to   { opacity: 1; transform: translateX(0) scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function NotificationToastStack({ toasts, onDismiss, onSelect }) {
+  if (toasts.length === 0) return null;
+  return (
+    <div className="fixed top-5 right-5 z-[300] flex flex-col gap-3 pointer-events-none">
+      {toasts.map(n => (
+        <NotificationToast
+          key={n.id}
+          n={n}
+          onDismiss={() => onDismiss(n.id)}
+          onClick={() => { onSelect(n); onDismiss(n.id); }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // ─── NOTIFICATION PANEL ───────────────────────────────────────────────────────
 const NOTIF_FILTERS = [
   { key: "all",    label: "All" },
@@ -985,6 +1060,7 @@ export default function TopBar({ children, onLogout }) {
 
   const [notifications,   setNotifications]   = useState([]);
   const [notifLoading,    setNotifLoading]    = useState(true);
+  const [toastQueue,      setToastQueue]      = useState([]);
 
   const notifRef = useRef();
   const dropRef  = useRef();
@@ -1033,13 +1109,19 @@ export default function TopBar({ children, onLogout }) {
   useEffect(() => {
     connectSocket();
     const onNotification = (row) => {
+      const converted = rowToPanelNotification(row);
       setNotifications(ns => {
         if (ns.some(n => n.id === row.id)) return ns;
-        return [rowToPanelNotification(row), ...ns];
+        return [converted, ...ns];
       });
+      setToastQueue(q => [...q, converted]);
     };
     socket.on("notification", onNotification);
     return () => socket.off("notification", onNotification);
+  }, []);
+
+  const dismissToast = useCallback((id) => {
+    setToastQueue(q => q.filter(t => t.id !== id));
   }, []);
 
   const markAllRead = useCallback(() => {
@@ -1175,6 +1257,12 @@ export default function TopBar({ children, onLogout }) {
           onClose={() => setToast(null)}
         />
       )}
+
+      <NotificationToastStack
+        toasts={toastQueue}
+        onDismiss={dismissToast}
+        onSelect={handleSelectNotification}
+      />
     </>
   );
 }
