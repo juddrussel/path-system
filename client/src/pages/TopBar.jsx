@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { socket, connectSocket } from "./socket";
 
 const API_BASE  = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 const SERVER_URL = import.meta.env.VITE_API_URL  || "http://localhost:5000";
@@ -81,6 +83,25 @@ const ClockIconSm = () => (
 const ChevronRightIcon = () => (
   <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" width="10" height="10">
     <path d="M4 2.5l4 3.5-4 3.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const MessageIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+    <path d="M3 4.5h14a1 1 0 011 1v8a1 1 0 01-1 1H8l-4 3v-3H3a1 1 0 01-1-1v-8a1 1 0 011-1z" strokeLinejoin="round" />
+  </svg>
+);
+
+const PaperclipIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+    <path d="M13.5 6.5l-6 6a2.5 2.5 0 003.5 3.5l6-6a4.5 4.5 0 00-6.5-6.5l-6 6a6.5 6.5 0 009 9" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const CalendarIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+    <rect x="3" y="4.5" width="14" height="12" rx="1.5" />
+    <path d="M3 8h14M7 2.5v3M13 2.5v3" strokeLinecap="round" />
   </svg>
 );
 
@@ -757,22 +778,59 @@ const NOTIF_FILTERS = [
   { key: "forms",  label: "Forms" },
 ];
 
-// type -> { icon, bg, fg } used for the round icon chip on the left of each row
+// type -> { icon, bg, fg } used for the round icon chip on the left of each row.
+// Keys match the `type` column notify() writes in task.routes.js.
 const NOTIF_TYPE_STYLE = {
-  approval: { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
-  document: { Icon: DocumentIcon,    bg: "#dbeafe", fg: "#2563eb" }, // blue
-  system:   { Icon: ClockIconSm,     bg: "#f3f4f6", fg: "#6b7280" }, // gray
-  task:     { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
+  task_assigned:         { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
+  task_status_changed:   { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
+  task_submitted:        { Icon: CheckCircleIcon, bg: "#d1fae5", fg: "#065f46" }, // green
+  task_comment_added:    { Icon: MessageIcon,     bg: "#dbeafe", fg: "#2563eb" }, // blue
+  task_attachment_added: { Icon: DocumentIcon,    bg: "#dbeafe", fg: "#2563eb" }, // blue
+  task_deadline_changed: { Icon: CalendarIcon,    bg: "#fef3c7", fg: "#92400e" }, // amber
 };
 
-function NotificationPanel({ onClose }) {
+// Every current notification type is task-related; "forms" stays as a filter
+// pill for when form-triggered notifications get added backend-side, it'll
+// just show empty until then.
+function categoryForType(type) {
+  return "tasks";
+}
+
+// Compact relative-time label ("2m ago", "3h ago", falls back to a date).
+function timeAgo(date) {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 10) return "Just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString();
+}
+
+// Converts a `notifications` DB row (from GET /api/notifications, or from a
+// live "notification" socket event — notify() in task.routes.js builds both
+// to the same shape) into what this panel renders.
+function rowToPanelNotification(row) {
+  const createdAt = new Date(row.created_at);
+  return {
+    id: row.id,
+    type: row.type,
+    category: categoryForType(row.type),
+    title: row.title,
+    text: row.message,
+    time: timeAgo(createdAt),
+    createdAt,
+    unread: !row.is_read,
+    taskId: row.task_id,
+    tracking_id: row.tracking_id,
+  };
+}
+
+function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, onViewAll, onClose }) {
   const [filter, setFilter] = useState("all");
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "approval", category: "tasks", title: "Workflow Approval Required", text: "Process #8829 needs your attention", time: "2m ago", unread: true },
-    { id: 2, type: "document", category: "forms", title: "Form Submission Received",   text: "New entry for Q3 Budget Request",   time: "1h ago", unread: true },
-    { id: 3, type: "system",   category: "all",   title: "System Maintenance",          text: "Scheduled update at 02:00 UTC",     time: "3h ago", unread: false },
-    { id: 4, type: "task",     category: "tasks", title: "Task Assigned",               text: "You have been added to Project Alpha", time: "5h ago", unread: false },
-  ]);
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -781,8 +839,6 @@ function NotificationPanel({ onClose }) {
     if (filter === "unread") return n.unread;
     return n.category === filter;
   });
-
-  const markAllRead = () => setNotifications(ns => ns.map(n => ({ ...n, unread: false })));
 
   return (
     <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[150] overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -797,7 +853,7 @@ function NotificationPanel({ onClose }) {
           )}
         </div>
         <button
-          onClick={markAllRead}
+          onClick={onMarkAllRead}
           className="text-[11px] font-semibold text-gray-400 hover:text-violet-600 transition-colors"
         >
           Mark all as read
@@ -824,15 +880,21 @@ function NotificationPanel({ onClose }) {
 
       {/* List */}
       <div className="max-h-80 overflow-y-auto">
-        {visible.length === 0 && (
+        {loading && (
+          <div className="px-4 py-8 flex items-center justify-center text-gray-400">
+            <Spinner />
+          </div>
+        )}
+        {!loading && visible.length === 0 && (
           <div className="px-4 py-8 text-center text-xs text-gray-400">No notifications</div>
         )}
-        {visible.map(n => {
-          const style = NOTIF_TYPE_STYLE[n.type] || NOTIF_TYPE_STYLE.system;
+        {!loading && visible.map(n => {
+          const style = NOTIF_TYPE_STYLE[n.type] || NOTIF_TYPE_STYLE.task_assigned;
           const { Icon } = style;
           return (
             <div
               key={n.id}
+              onClick={() => onSelect(n)}
               className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-violet-50/30" : ""}`}
             >
               <span
@@ -861,7 +923,7 @@ function NotificationPanel({ onClose }) {
       {/* Footer */}
       <div className="px-4 py-3 border-t border-gray-100 text-center">
         <button
-          onClick={onClose}
+          onClick={onViewAll}
           className="inline-flex items-center gap-1 text-xs text-violet-600 font-bold hover:text-violet-700 transition-colors"
         >
           View All Notifications
@@ -914,11 +976,15 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
 
 // ─── MAIN TOPBAR ─────────────────────────────────────────────────────────────
 export default function TopBar({ children, onLogout }) {
+  const navigate = useNavigate();
   const [showNotif,    setShowNotif]    = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showProfile,  setShowProfile]  = useState(false);
   const [profile,      setProfile]      = useState(null);
   const [toast,        setToast]        = useState(null); // { message, type }
+
+  const [notifications,   setNotifications]   = useState([]);
+  const [notifLoading,    setNotifLoading]    = useState(true);
 
   const notifRef = useRef();
   const dropRef  = useRef();
@@ -941,6 +1007,67 @@ export default function TopBar({ children, onLogout }) {
     }
   }, []);
 
+  // ── Notifications: load history, then stay live over the socket ──────────
+  // TopBar mounts on every page, so the bell badge/panel stay accurate
+  // wherever the user is, not just on the dedicated Notifications page.
+  // History comes from GET /api/notifications (see notification.routes.js);
+  // new ones arrive via the same generic "notification" socket event that
+  // notify() in task.routes.js emits for every notification-worthy action.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/notifications`, { headers: authHeaders() });
+        if (!res.ok) throw new Error(`GET /notifications failed: ${res.status}`);
+        const data = await res.json();
+        if (!cancelled) setNotifications((data.notifications || []).map(rowToPanelNotification));
+      } catch (err) {
+        console.error("Failed to load notifications:", err);
+      } finally {
+        if (!cancelled) setNotifLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    connectSocket();
+    const onNotification = (row) => {
+      setNotifications(ns => {
+        if (ns.some(n => n.id === row.id)) return ns;
+        return [rowToPanelNotification(row), ...ns];
+      });
+    };
+    socket.on("notification", onNotification);
+    return () => socket.off("notification", onNotification);
+  }, []);
+
+  const markAllRead = useCallback(() => {
+    setNotifications(ns => ns.map(n => ({ ...n, unread: false })));
+    fetch(`${API_BASE}/notifications/read-all`, { method: "PATCH", headers: authHeaders() })
+      .catch(err => console.error("Failed to mark all notifications as read:", err));
+  }, []);
+
+  const markRead = useCallback((id) => {
+    setNotifications(ns => ns.map(n => (n.id === id ? { ...n, unread: false } : n)));
+    fetch(`${API_BASE}/notifications/${id}/read`, { method: "PATCH", headers: authHeaders() })
+      .catch(err => console.error("Failed to mark notification as read:", err));
+  }, []);
+
+  const handleSelectNotification = useCallback((n) => {
+    if (n.unread) markRead(n.id);
+    setShowNotif(false);
+    navigate(
+      n.tracking_id ? `/tracking?tracking_id=${encodeURIComponent(n.tracking_id)}` : "/tracking",
+      { state: n.taskId ? { taskId: n.taskId, tracking_id: n.tracking_id } : undefined }
+    );
+  }, [markRead, navigate]);
+
+  const handleViewAll = useCallback(() => {
+    setShowNotif(false);
+    navigate("/notifications");
+  }, [navigate]);
+
   // ── Close dropdowns on outside click ─────────────────────────────────────
   useEffect(() => {
     const handler = (e) => {
@@ -951,7 +1078,7 @@ export default function TopBar({ children, onLogout }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const unreadCount = 2;
+  const unreadCount = notifications.filter(n => n.unread).length;
   const [bg, fg] = avatarBg(`${profile?.first_name || ""}${profile?.last_name || ""}`);
 
   return (
@@ -977,7 +1104,16 @@ export default function TopBar({ children, onLogout }) {
                 </span>
               )}
             </button>
-            {showNotif && <NotificationPanel onClose={() => setShowNotif(false)} />}
+            {showNotif && (
+              <NotificationPanel
+                notifications={notifications}
+                loading={notifLoading}
+                onMarkAllRead={markAllRead}
+                onSelect={handleSelectNotification}
+                onViewAll={handleViewAll}
+                onClose={() => setShowNotif(false)}
+              />
+            )}
           </div>
 
           {/* Profile Avatar Button */}
