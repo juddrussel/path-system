@@ -20,6 +20,11 @@
 // (Lets the frontend/backend group multiple task rows created from a single
 //  "assign to several faculty" or "assign to a whole role" submission.)
 //
+// ─── REQUIRED: run sql/003_notifications.sql once ─────────────────────────────
+// Adds the `notifications` table that notify() below writes to. Without it,
+// every notify() call below will throw and get swallowed (logged, not
+// fatal) — notifications will just silently stop persisting again.
+//
 // ─── NOTE: tracking_id generation fix (no new table required) ────────────────
 // The old generator derived the next sequence number from COUNT(*) of tasks
 // created this year. That breaks the moment a row is deleted (COUNT drops but
@@ -45,6 +50,21 @@
 // ignored, so drafts saved with attachments lost them with no error.
 // /draft now parses req.body.attachments the same way /api/tasks does,
 // with req.files kept as a fallback for genuine multipart uploads.
+//
+// ─── FIX (this version): notifications were fire-and-forget over the socket
+// only ──────────────────────────────────────────────────────────────────────
+// Every io.to(`user_${id}`).emit(...) call below only reached a client that
+// happened to be connected and registered into that room at the literal
+// instant of the emit. If they weren't (page not open yet, tab in the
+// background reconnecting, server had just restarted, etc.) the event was
+// gone forever — nothing recorded it. notify() now writes a row to the new
+// `notifications` table right alongside each of those emits, and also emits
+// a generic "notification" event carrying that saved row (with its real DB
+// id) so the frontend can both catch up via GET /api/notifications on load
+// and receive new ones live without needing a bespoke listener per event
+// type. The original specific-event emits (task_assigned, task:status_changed,
+// etc.) are left in place untouched, in case anything else in the app still
+// listens for them directly for live UI updates.
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -79,6 +99,38 @@ function r2KeyFromUrl(url) {
   if (!url || !process.env.R2_PUBLIC_URL) return null;
   const prefix = `${process.env.R2_PUBLIC_URL}/`;
   return url.startsWith(prefix) ? url.slice(prefix.length) : null;
+}
+
+// ─── HELPER: persist + push a notification ────────────────────────────────────
+// Writes to the `notifications` table and, if a socket instance was passed,
+// emits a generic "notification" event to that user's room with the saved
+// row (real DB id + created_at included). Never throws — a notification
+// failing to save should never take down the request that triggered it.
+async function notify(io, { userId, type, title, message, taskId = null, trackingId = null }) {
+  if (userId == null) return null;
+  try {
+    const [result] = await db.query(
+      `INSERT INTO notifications (user_id, type, title, message, task_id, tracking_id, is_read, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, 0, NOW())`,
+      [userId, type, title, message, taskId, trackingId]
+    );
+    const payload = {
+      id: result.insertId,
+      user_id: userId,
+      type,
+      title,
+      message,
+      task_id: taskId,
+      tracking_id: trackingId,
+      is_read: 0,
+      created_at: new Date().toISOString(),
+    };
+    if (io) io.to(`user_${userId}`).emit("notification", payload);
+    return payload;
+  } catch (err) {
+    console.error("notify() failed to persist notification:", err);
+    return null;
+  }
 }
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
@@ -519,13 +571,23 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
         await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
       }
 
+      const assignMessage = `You have been assigned a new task: ${title}`;
+
       if (io) {
         io.to(`user_${facultyId}`).emit("task_assigned", {
-          message: `You have been assigned a new task: ${title}`,
+          message: assignMessage,
           tracking_id,
           taskId,
         });
       }
+      await notify(io, {
+        userId: facultyId,
+        type: "task_assigned",
+        title: "New Task Assigned",
+        message: assignMessage,
+        taskId,
+        trackingId: tracking_id,
+      });
 
       createdTasks.push({ taskId, tracking_id, facultyId });
     }
@@ -647,10 +709,23 @@ router.patch("/:id/status", requireAuth, async (req, res) => {
     await writeLog({ userId: req.user.id, action: "TASK_STATUS_UPDATE", detail: `Updated task ${task.tracking_id} status to "${status}"`, ipAddress: req.ip });
 
     const io = req.app.get("io");
+    const actorName = req.user.full_name || req.user.username;
     if (io) {
-      const payload = { taskId: parseInt(req.params.id), newStatus: status, updatedBy: req.user.full_name || req.user.username };
+      const payload = { taskId: parseInt(req.params.id), newStatus: status, updatedBy: actorName };
       io.to(`user_${task.faculty_id}`).emit("task:status_changed", payload);
       io.to(`user_${task.assigned_by}`).emit("task:status_changed", payload);
+    }
+    // Notify whichever party didn't make the change themselves.
+    for (const uid of new Set([task.faculty_id, task.assigned_by])) {
+      if (!uid || uid === req.user.id) continue;
+      await notify(io, {
+        userId: uid,
+        type: "task_status_changed",
+        title: "Task Status Updated",
+        message: `${actorName} changed task ${task.tracking_id} status to "${status}"`,
+        taskId: task.id,
+        trackingId: task.tracking_id,
+      });
     }
 
     return res.json({ message: "Status updated.", status });
@@ -669,10 +744,22 @@ router.patch("/:id/approve", requireAuth, async (req, res) => {
     await writeLog({ userId: req.user.id, action: "TASK_APPROVE", detail: `Approved task ${rows[0].tracking_id}`, ipAddress: req.ip });
 
     const io = req.app.get("io");
+    const actorName = req.user.full_name || req.user.username;
     if (io) {
-      const payload = { taskId: parseInt(req.params.id), newStatus: "Received", updatedBy: req.user.full_name || req.user.username };
+      const payload = { taskId: parseInt(req.params.id), newStatus: "Received", updatedBy: actorName };
       io.to(`user_${rows[0].faculty_id}`).emit("task:status_changed", payload);
       io.to(`user_${rows[0].assigned_by}`).emit("task:status_changed", payload);
+    }
+    for (const uid of new Set([rows[0].faculty_id, rows[0].assigned_by])) {
+      if (!uid || uid === req.user.id) continue;
+      await notify(io, {
+        userId: uid,
+        type: "task_status_changed",
+        title: "Task Approved",
+        message: `${actorName} approved task ${rows[0].tracking_id}`,
+        taskId: rows[0].id,
+        trackingId: rows[0].tracking_id,
+      });
     }
 
     return res.json({ message: "Task approved." });
@@ -690,10 +777,22 @@ router.patch("/:id/return", requireAuth, async (req, res) => {
     await writeLog({ userId: req.user.id, action: "TASK_RETURN", detail: `Returned task ${rows[0].tracking_id}`, ipAddress: req.ip });
 
     const io = req.app.get("io");
+    const actorName = req.user.full_name || req.user.username;
     if (io) {
-      const payload = { taskId: parseInt(req.params.id), newStatus: "Returned", updatedBy: req.user.full_name || req.user.username };
+      const payload = { taskId: parseInt(req.params.id), newStatus: "Returned", updatedBy: actorName };
       io.to(`user_${rows[0].faculty_id}`).emit("task:status_changed", payload);
       io.to(`user_${rows[0].assigned_by}`).emit("task:status_changed", payload);
+    }
+    for (const uid of new Set([rows[0].faculty_id, rows[0].assigned_by])) {
+      if (!uid || uid === req.user.id) continue;
+      await notify(io, {
+        userId: uid,
+        type: "task_status_changed",
+        title: "Task Returned",
+        message: `${actorName} returned task ${rows[0].tracking_id}`,
+        taskId: rows[0].id,
+        trackingId: rows[0].tracking_id,
+      });
     }
 
     return res.json({ message: "Task returned." });
@@ -772,10 +871,22 @@ router.patch("/:id/deadline", requireAuth, requireChairOrAdmin, async (req, res)
     });
 
     const io = req.app.get("io");
+    const actorName = req.user.full_name || req.user.username;
     if (io) {
-      const payload = { taskId: parseInt(req.params.id), deadline, updatedBy: req.user.full_name || req.user.username };
+      const payload = { taskId: parseInt(req.params.id), deadline, updatedBy: actorName };
       io.to(`user_${task.faculty_id}`).emit("task:deadline_changed", payload);
       io.to(`user_${task.assigned_by}`).emit("task:deadline_changed", payload);
+    }
+    for (const uid of new Set([task.faculty_id, task.assigned_by])) {
+      if (!uid || uid === req.user.id) continue;
+      await notify(io, {
+        userId: uid,
+        type: "task_deadline_changed",
+        title: "Deadline Changed",
+        message: `${actorName} changed the deadline for task ${task.tracking_id} to ${deadline}`,
+        taskId: task.id,
+        trackingId: task.tracking_id,
+      });
     }
 
     return res.json({ message: "Deadline updated.", deadline });
@@ -849,6 +960,15 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
         taskId,
         userId: req.user.id,
       });
+
+      await notify(io, {
+        userId: otherId,
+        type: "task_comment_added",
+        title: "New Comment",
+        message: `${req.user.full_name || req.user.username} commented on task ${rows[0].tracking_id}`,
+        taskId,
+        trackingId: rows[0].tracking_id,
+      });
     }
 
     return res.status(201).json({ message: "Comment posted.", comment: savedComment });
@@ -906,6 +1026,18 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
           fileName: f.originalname,
         });
       });
+
+      if (notifyId && notifyId !== req.user.id) {
+        const fileWord = uploaded.length === 1 ? "attachment" : "attachments";
+        await notify(io, {
+          userId: notifyId,
+          type: "task_attachment_added",
+          title: "New Attachment",
+          message: `${req.user.full_name || req.user.username} added ${uploaded.length} ${fileWord} to task ${rows[0].tracking_id}`,
+          taskId: parseInt(req.params.id),
+          trackingId: rows[0].tracking_id,
+        });
+      }
     }
 
     // Return the saved file info so the frontend can build correct URLs
@@ -1025,6 +1157,14 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
         attachmentCount:     savedFiles.filter(f => f.url).length,
         files:               savedFiles,
         submission_group_id: submissionGroupId,
+      });
+      await notify(io, {
+        userId: task.assigned_by,
+        type: "task_submitted",
+        title: "Task Submitted",
+        message: `${req.user.full_name || req.user.username} submitted task ${task.tracking_id}`,
+        taskId,
+        trackingId: task.tracking_id,
       });
     }
 

@@ -25,6 +25,7 @@ const chatRoutes = require("./routes/chat.routes");
 
 const { router: auditRoutes } = require("./routes/audit.routes");
 const { router: taskRoutes, setupTypingEvents } = require("./routes/task.routes");
+const { router: notificationRoutes } = require("./routes/notification.routes");
 const formRoutes = require("./routes/form.routes");
 const categoryRoutes = require("./routes/category.routes");
 const workflowRoutes = require("./routes/workflow.routes");
@@ -120,6 +121,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/forms", formRoutes);
 app.use("/api/categories", categoryRoutes);

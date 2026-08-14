@@ -5,7 +5,15 @@ import { socket, connectSocket } from "./socket";
 import {
   CheckCheck, Trash2, Search, Clock, ChevronRight,
   ClipboardList, AlertCircle, Inbox, Bell, Lightbulb,
+  MessageSquare, Paperclip, CalendarClock, CheckCircle2,
 } from "lucide-react";
+
+const API = import.meta.env.VITE_API_URL || "";
+
+function authHeaders() {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 // ── Role-based nav visibility (mirrors Dashboard.jsx) ──────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
@@ -146,11 +154,49 @@ const TABS = [
   { key: "announcements", label: "Announcements" },
 ];
 
-// Real notifications now come in live over the socket (see the
-// "task_assigned" listener in the Notifications component below) — there's
-// no backend list/history endpoint yet, so this page only shows events
-// received during the current session and starts empty on every load.
+// Notifications are persisted server-side (see notify() in task.routes.js /
+// the `notifications` table) and fetched via GET /api/notifications on
+// mount, then kept live via the generic "notification" socket event —
+// see the effects in the Notifications component below.
 const NOTIFICATIONS = [];
+
+// type (from the DB row) → { icon, category }. Falls back to a generic
+// bell + "tasks" category for any type this page doesn't know about yet,
+// so a new notify() call on the backend never renders as broken.
+const TYPE_CFG = {
+  task_assigned:          { icon: ClipboardList, category: "tasks" },
+  task_status_changed:    { icon: CheckCircle2,  category: "tasks" },
+  task_comment_added:     { icon: MessageSquare, category: "messages" },
+  task_attachment_added:  { icon: Paperclip,     category: "tasks" },
+  task_deadline_changed:  { icon: CalendarClock, category: "tasks" },
+  task_submitted:         { icon: ClipboardList, category: "tasks" },
+};
+
+// Converts a notification row — whether it came from GET /api/notifications
+// (snake_case DB columns) or a live "notification" socket event (same shape,
+// notify() builds it to match) — into the shape this page renders.
+function rowToNotification(row) {
+  const cfg = TYPE_CFG[row.type] || { icon: Bell, category: "tasks" };
+  const receivedAt = new Date(row.created_at);
+  const unread = !row.is_read;
+  return {
+    id: row.id,
+    category: cfg.category,
+    icon: cfg.icon,
+    title: row.title,
+    receivedAt,
+    time: timeAgo(receivedAt),
+    body: row.message,
+    tags: [
+      ...(row.tracking_id ? [{ label: row.tracking_id, tone: "purple" }] : []),
+      ...(unread ? [{ label: "NEW", tone: "red" }] : []),
+    ],
+    unread,
+    highlight: unread,
+    taskId: row.task_id,
+    tracking_id: row.tracking_id,
+  };
+}
 
 // Formats a JS Date as a short relative string ("Just now", "5 minutes ago",
 // "2 hours ago", falling back to a locale date/time once it's over a day old).
@@ -224,39 +270,48 @@ export default function Notifications() {
     navigate("/login");
   };
 
-  // ── Real-time: listen for tasks assigned to this user ────────────────────
-  // The backend (POST /api/tasks in task.routes.js) emits "task_assigned" to
-  // `user_${facultyId}` the moment a task is created for that faculty member.
-  // We turn each of those into a notification here, live, no polling needed.
+  const [loading, setLoading] = useState(true);
+
+  // ── Load history ───────────────────────────────────────────────────────
+  // Notifications now persist server-side, so the page no longer starts
+  // empty every time — this catches up on anything missed while the user
+  // wasn't connected (closed tab, server restart, etc.), which is what was
+  // silently dropping assignment notifications before.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API}/api/notifications`, { headers: authHeaders() });
+        if (!res.ok) throw new Error(`GET /api/notifications failed: ${res.status}`);
+        const data = await res.json();
+        if (!cancelled) setNotifications((data.notifications || []).map(rowToNotification));
+      } catch (err) {
+        console.error("Failed to load notification history:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // ── Real-time: receive new notifications live while connected ────────────
+  // notify() in task.routes.js persists every notification-worthy event
+  // (task assigned, status changed, comment added, attachment added,
+  // deadline changed, submitted) and emits it here as a generic
+  // "notification" event with the saved row (real DB id included), so this
+  // one listener covers every type without a bespoke handler per event.
   useEffect(() => {
     connectSocket();
 
-    const onTaskAssigned = ({ message, tracking_id, taskId }) => {
-      const receivedAt = new Date();
-      setNotifications(ns => [
-        {
-          id: `task_assigned-${taskId}-${receivedAt.getTime()}`,
-          category: "tasks",
-          icon: ClipboardList,
-          title: "New Task Assigned",
-          receivedAt,
-          time: timeAgo(receivedAt),
-          body: message || "You have been assigned a new task.",
-          tags: [
-            { label: tracking_id, tone: "purple" },
-            { label: "NEW", tone: "red" },
-          ],
-          unread: true,
-          highlight: true,
-          taskId,
-          tracking_id,
-        },
-        ...ns,
-      ]);
+    const onNotification = (row) => {
+      setNotifications(ns => {
+        if (ns.some(n => n.id === row.id)) return ns; // already have it (e.g. from history fetch)
+        return [rowToNotification(row), ...ns];
+      });
     };
 
-    socket.on("task_assigned", onTaskAssigned);
-    return () => socket.off("task_assigned", onTaskAssigned);
+    socket.on("notification", onNotification);
+    return () => socket.off("notification", onNotification);
   }, []);
 
   // Refresh the relative "x minutes ago" labels every 30s without needing
@@ -283,8 +338,23 @@ export default function Notifications() {
   const urgentCount = notifications.filter(n => n.tags.some(t => t.label === "HIGH PRIORITY")).length;
   const pendingTaskCount = notifications.filter(n => n.category === "tasks").length;
 
-  const markAllRead = () => setNotifications(ns => ns.map(n => ({ ...n, unread: false, highlight: false })));
-  const clearAll = () => setNotifications([]);
+  const markAllRead = () => {
+    setNotifications(ns => ns.map(n => ({ ...n, unread: false, highlight: false })));
+    fetch(`${API}/api/notifications/read-all`, { method: "PATCH", headers: authHeaders() })
+      .catch(err => console.error("Failed to mark all notifications as read:", err));
+  };
+
+  const clearAll = () => {
+    setNotifications([]);
+    fetch(`${API}/api/notifications`, { method: "DELETE", headers: authHeaders() })
+      .catch(err => console.error("Failed to clear notifications:", err));
+  };
+
+  const markRead = (id) => {
+    setNotifications(ns => ns.map(n => (n.id === id ? { ...n, unread: false, highlight: false } : n)));
+    fetch(`${API}/api/notifications/${id}/read`, { method: "PATCH", headers: authHeaders() })
+      .catch(err => console.error("Failed to mark notification as read:", err));
+  };
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
@@ -453,10 +523,13 @@ export default function Notifications() {
                             {n.tags.map(tag => <Tag key={tag.label} {...tag} />)}
                           </div>
                           <button
-                            onClick={() => navigate(
-                              n.tracking_id ? `/tracking?tracking_id=${encodeURIComponent(n.tracking_id)}` : "/tracking",
-                              { state: n.taskId ? { taskId: n.taskId, tracking_id: n.tracking_id } : undefined }
-                            )}
+                            onClick={() => {
+                              if (n.unread) markRead(n.id);
+                              navigate(
+                                n.tracking_id ? `/tracking?tracking_id=${encodeURIComponent(n.tracking_id)}` : "/tracking",
+                                { state: n.taskId ? { taskId: n.taskId, tracking_id: n.tracking_id } : undefined }
+                              );
+                            }}
                             style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}
                           >
                             View Details <ChevronRight style={{ width: 12, height: 12 }} />
