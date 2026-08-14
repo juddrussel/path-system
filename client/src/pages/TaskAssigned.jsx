@@ -120,31 +120,47 @@ function LiveDot({ connected }) {
 }
 
 // ── Realtime Toast ────────────────────────────────────────────────────────────
+// Icon-badge style (matches the one now used on the Notifications page)
+// instead of a plain emoji glyph — a colored square icon, bold title, gray
+// subtitle, and an X to dismiss.
 function Toast({ toasts, onDismiss }) {
+  const TOAST_ICON = {
+    info: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5v.01" strokeLinecap="round"/></svg>,
+    error: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v4M8 11v.01" strokeLinecap="round"/></svg>,
+    submission: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  };
   return (
     <div style={{ position: "fixed", top: 16, right: 16, zIndex: 200, display: "flex", flexDirection: "column", gap: 8 }}>
-      {toasts.map(t => (
-        <div key={t.id} style={{
-          background: t.type === "submission" ? "#1e1b2e" : t.type === "error" ? "#fef2f2" : "white",
-          color: t.type === "submission" ? "white" : t.type === "error" ? "#dc2626" : "#111",
-          border: `1px solid ${t.type === "submission" ? "#7c3aed" : t.type === "error" ? "#fecaca" : "#e5e7eb"}`,
-          borderRadius: 10, padding: "10px 14px", fontSize: 12, fontWeight: 600,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.12)", minWidth: 260, maxWidth: 340,
-          display: "flex", alignItems: "flex-start", gap: 10,
-          animation: "slideIn 0.2s ease",
-        }}>
-          <span style={{ fontSize: 16, flexShrink: 0 }}>
-            {t.type === "submission" ? "📥" : t.type === "error" ? "⚠️" : "ℹ️"}
-          </span>
-          <div style={{ flex: 1 }}>
-            <div style={{ marginBottom: 1 }}>{t.title}</div>
-            {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400 }}>{t.body}</div>}
+      {toasts.map(t => {
+        const isError = t.type === "error";
+        const ToastIcon = TOAST_ICON[t.type] || TOAST_ICON.info;
+        return (
+          <div key={t.id} style={{
+            background: "white",
+            border: `1px solid ${isError ? "#fecaca" : "#e5e7eb"}`,
+            borderRadius: 10, padding: "10px 14px", fontSize: 12, fontWeight: 600,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.12)", minWidth: 260, maxWidth: 340,
+            display: "flex", alignItems: "flex-start", gap: 10,
+            animation: "slideIn 0.2s ease",
+          }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: 7, flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: isError ? "#fee2e2" : "#ede9fe",
+              color: isError ? "#dc2626" : "#7c3aed",
+            }}>
+              <ToastIcon />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ marginBottom: 1, color: "#111" }}>{t.title}</div>
+              {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400, color: "#374151" }}>{t.body}</div>}
+            </div>
+            <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit" }}>
+              <Icon.Close />
+            </button>
           </div>
-          <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit" }}>
-            <Icon.Close />
-          </button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -321,9 +337,11 @@ export default function TaskAssigned() {
       fetchTasks();
     });
 
-    // Task status changed
-    socket.on("task:status_changed", ({ taskId, newStatus, updatedBy }) => {
-      pushToast(`Status updated`, `Task moved to "${newStatus}" by ${updatedBy}`);
+    // Task status changed — no local toast here anymore; this is now
+    // surfaced through the Notifications page's generic "notification"
+    // feed (task_status_changed in Notifications.jsx's TYPE_CFG) instead
+    // of duplicating it as a page-local toast.
+    socket.on("task:status_changed", () => {
       fetchTasks();
     });
 
@@ -493,7 +511,9 @@ export default function TaskAssigned() {
       setReturnNote(""); setShowReturnBox(false);
       returnFilePreviews.forEach(u => URL.revokeObjectURL(u));
       setReturnFiles([]); setReturnFilePreviews([]);
-      pushToast("Task returned", "Faculty has been notified to revise.");
+      // No local toast here anymore — the return is a status change, so
+      // it now surfaces through the Notifications page's generic feed
+      // instead of stacking a duplicate toast on top of "Status updated".
       fetchTasks();
     } catch { pushToast("Error", "Could not return task.", "error"); }
     finally   { setActionLoading(null); }
