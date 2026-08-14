@@ -494,6 +494,18 @@ router.post("/:id/approve", requireAuth, requireReviewer, async (req, res) => {
       });
     }
 
+    // Persisted counterpart of the emit above — shows up in the submitter's
+    // Notifications page/bell even if they weren't connected at the moment
+    // this fired (page closed, reconnecting, etc.), same pattern as
+    // notifyReviewersOfFormSubmission() for the reviewer side.
+    await notify(io, {
+      userId: rows[0].submitted_by,
+      type: "form_approved",
+      title: "Form Approved",
+      message: `Your form ${rows[0].tracking_id} has been approved${note ? `: "${note}"` : ""}.`,
+      trackingId: rows[0].tracking_id,
+    });
+
     // Workflow integration — no-op if this form isn't attached to an active
     // instance. Runs AFTER the approve logic above, never instead of it, so
     // forms not attached to any workflow behave exactly as before.
@@ -544,6 +556,14 @@ router.post("/:id/reject", requireAuth, requireReviewer, async (req, res) => {
       });
     }
 
+    await notify(io, {
+      userId: rows[0].submitted_by,
+      type: "form_rejected",
+      title: "Form Rejected",
+      message: `Your form ${rows[0].tracking_id} was rejected: "${note}".`,
+      trackingId: rows[0].tracking_id,
+    });
+
     try {
       await workflowExecution.advanceWorkflow({
         subjectType: "form_submission",
@@ -593,6 +613,14 @@ router.post("/:id/revise", requireAuth, requireReviewer, async (req, res) => {
     } else {
       console.log("[REVISE] io not found on app!");
     }
+
+    await notify(io, {
+      userId: rows[0].submitted_by,
+      type: "form_revision",
+      title: "Revision Requested",
+      message: `Your form ${rows[0].tracking_id} needs revision: "${note}".`,
+      trackingId: rows[0].tracking_id,
+    });
 
     try {
       await workflowExecution.advanceWorkflow({

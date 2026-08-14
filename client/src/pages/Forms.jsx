@@ -266,31 +266,27 @@ export default function Forms() {
     });
 
     if (isProgramChair) {
-      // Program chair: listen for new submissions from faculty
-      socket.on("new_form_submission", (newForm) => {
+      // Program chair: a new submission came in from faculty. This is now
+      // just a Forms-page state refresh (queue + sidebar badge) — the
+      // actual "New Form Submitted" notification/toast lives in
+      // Notifications.jsx, which listens for the persisted "notification"
+      // event (see notifyReviewersOfFormSubmission() in form.routes.js) so
+      // it shows up consistently everywhere, not just while this page is open.
+      socket.on("new_form_submission", () => {
         // Refresh the review queue
         fetchForms();
         // Increment the sidebar badge
         setPendingBadge(prev => prev + 1);
-        // Show a toast notification
-        addToast(
-          `New form submitted by ${newForm.submitter_name || newForm.full_name} — ${newForm.category}`,
-          "info"
-        );
       });
     } else {
-      // Faculty: listen for their own form status updates from the program chair
-      socket.on("form_status_update", (update) => {
+      // Faculty: their form's status changed. Just refresh the list here —
+      // the "Your form has been approved/rejected/needs revision" toast now
+      // lives in Notifications.jsx, driven by the persisted form_approved /
+      // form_rejected / form_revision notifications (see notify() calls in
+      // form.routes.js), so it's shown consistently regardless of which
+      // page is open, not just while Forms.jsx happens to be mounted.
+      socket.on("form_status_update", () => {
         fetchForms();
-        if (update.status === "Revision") {
-          addToast(`Form ${update.tracking_id} needs revision: "${update.review_note}"`, "info");
-        } else {
-          const isApproved = update.status === "Approved";
-          addToast(
-            `Your form ${update.tracking_id} has been ${update.status.toLowerCase()}${update.review_note ? `: "${update.review_note}"` : ""}`,
-            isApproved ? "success" : "error"
-          );
-        }
       });
     }
 
@@ -533,7 +529,6 @@ export default function Forms() {
     setReviewModal(false);
     fetchForms();
     fetchAllForms();
-    addToast(`Form ${selectedForm.tracking_id || selectedForm.id} approved successfully.`, "success");
   };
 
   const handleReject = async () => {
@@ -543,7 +538,6 @@ export default function Forms() {
     setReviewModal(false);
     fetchForms();
     fetchAllForms();
-    addToast(`Form ${selectedForm.tracking_id || selectedForm.id} rejected.`, "error");
   };
 
   const handleRevise = async () => {
@@ -557,7 +551,6 @@ export default function Forms() {
     setReviewModal(false);
     fetchForms();
     fetchAllForms();
-    addToast(`Revision requested for form ${selectedForm.tracking_id || selectedForm.id}.`, "info");
   };
 
   const handleAddTemplate = async () => {

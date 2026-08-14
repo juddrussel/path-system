@@ -214,6 +214,11 @@ const TYPE_CFG = {
   // notifyReviewersOfFormSubmission() in form.routes.js. Filed under
   // "forms" so it shows up in the Forms tab, not mixed in with Tasks.
   form_submitted:         { icon: ClipboardList, category: "forms" },
+  // Reviewer's decision on a submitted form — see the notify() calls added
+  // to /:id/approve, /:id/reject, and /:id/revise in form.routes.js.
+  form_approved:          { icon: CheckCircle2,  category: "forms" },
+  form_rejected:          { icon: AlertCircle,   category: "forms", highPriority: true },
+  form_revision:          { icon: AlertCircle,   category: "forms", highPriority: true },
   // Deadline-reminder schedule, emitted by the backend's periodic sweep
   // (see checkDeadlineReminders() in task.routes.js) as a deadline
   // approaches, arrives, and passes. Each stage after "7 days out" is
