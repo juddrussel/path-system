@@ -24,7 +24,7 @@ const userRoutes = require("./routes/user.routes");
 const chatRoutes = require("./routes/chat.routes");
 
 const { router: auditRoutes } = require("./routes/audit.routes");
-const { router: taskRoutes, setupTypingEvents } = require("./routes/task.routes");
+const { router: taskRoutes, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
 const { router: notificationRoutes } = require("./routes/notification.routes");
 const formRoutes = require("./routes/form.routes");
 const categoryRoutes = require("./routes/category.routes");
@@ -285,6 +285,9 @@ io.on("connection", (socket) => {
 
 // ── Typing indicators for task discussions ────────────────────────────────────
 setupTypingEvents(io);
+
+// ── Deadline reminders: periodic sweep for tasks with an approaching deadline ──
+startDeadlineReminderJob(io);
 
 // ── Faculty performance scoring: seed once at boot, then nightly via cron ──────
 startScoreCron(db);
