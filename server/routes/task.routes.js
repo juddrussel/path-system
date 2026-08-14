@@ -360,7 +360,7 @@ async function sendOverdueReminder(io, task, deadlineStr, daysOverdue) {
 // is created, e.g.:
 //   const { router, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
 //   startDeadlineReminderJob(io);
-function startDeadlineReminderJob(io, intervalMs = 15 * 60 * 1000) {
+function startDeadlineReminderJob(io, intervalMs = 5 * 60 * 1000) {
   checkDeadlineReminders(io);
   const handle = setInterval(() => checkDeadlineReminders(io), intervalMs);
   return handle; // returned in case you ever want to clearInterval() in tests
