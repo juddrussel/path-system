@@ -196,6 +196,20 @@ function phtDateKey(date) {
   return new Date(date).toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE });
 }
 
+// Formats a date/time (deadline, etc.) for display in user-facing messages,
+// always rendered in APP_TIMEZONE regardless of how the value was stored or
+// what shape it arrived in (Date object, MySQL DATETIME string, ISO string).
+// Used anywhere a deadline gets embedded into a notification's message text,
+// e.g. "changed the deadline for task X to <this>" — without this, that text
+// showed the raw/UTC value instead of the user's local (PHT) time.
+function formatDeadlineDisplay(date) {
+  return new Date(date).toLocaleString("en-US", {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "numeric", minute: "2-digit",
+    timeZone: APP_TIMEZONE,
+  });
+}
+
 // Walks every active task with a deadline and fires whichever reminder (if
 // any) applies to it right now: the 7/3/1-day-before and due-today stages
 // each fire once per task; once the deadline has passed, an overdue
@@ -1125,7 +1139,7 @@ router.patch("/:id/deadline", requireAuth, requireChairOrAdmin, async (req, res)
         userId: uid,
         type: "task_deadline_changed",
         title: "Deadline Changed",
-        message: `${actorName} changed the deadline for task ${task.tracking_id} to ${deadline}`,
+        message: `${actorName} changed the deadline for task ${task.tracking_id} to ${formatDeadlineDisplay(deadline)}`,
         taskId: task.id,
         trackingId: task.tracking_id,
       });
