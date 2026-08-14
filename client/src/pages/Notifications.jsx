@@ -170,6 +170,10 @@ const TYPE_CFG = {
   task_attachment_added:  { icon: Paperclip,     category: "tasks" },
   task_deadline_changed:  { icon: CalendarClock, category: "tasks" },
   task_submitted:         { icon: ClipboardList, category: "tasks" },
+  // Emitted by a backend job (e.g. a cron sweep) when a task's deadline is
+  // within the configured warning window. Flagged high-priority so it shows
+  // up in the "Urgent Alerts" count on the right-hand summary panel.
+  task_deadline_near:     { icon: AlertCircle,   category: "tasks", highPriority: true },
 };
 
 // Converts a notification row — whether it came from GET /api/notifications
@@ -189,6 +193,7 @@ function rowToNotification(row) {
     body: row.message,
     tags: [
       ...(row.tracking_id ? [{ label: row.tracking_id, tone: "purple" }] : []),
+      ...(cfg.highPriority ? [{ label: "HIGH PRIORITY", tone: "red" }] : []),
       ...(unread ? [{ label: "NEW", tone: "red" }] : []),
     ],
     unread,

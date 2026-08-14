@@ -65,6 +65,15 @@
 // type. The original specific-event emits (task_assigned, task:status_changed,
 // etc.) are left in place untouched, in case anything else in the app still
 // listens for them directly for live UI updates.
+//
+// ─── NEW (this version): deadline-approaching reminders ──────────────────────
+// Adds checkDeadlineReminders() / startDeadlineReminderJob() — a periodic
+// sweep that finds tasks whose deadline is coming up and notifies the
+// assigned faculty member via the same notify() helper everything else in
+// this file already uses (type: "task_deadline_near"). No schema changes;
+// it reuses the `notifications` table. Call startDeadlineReminderJob(io)
+// once from your server entry point after `io` is created — see the bottom
+// of this file for where it's exported.
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -131,6 +140,82 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
     console.error("notify() failed to persist notification:", err);
     return null;
   }
+}
+
+// ─── DEADLINE REMINDERS: notify faculty when a task's deadline is near ───────
+// Tasks in these statuses have nothing left to warn about — not started
+// (Draft), already done (Received), or no longer active (Archived).
+const DEADLINE_REMINDER_EXCLUDED_STATUSES = ["Draft", "Received", "Archived"];
+
+// How far ahead of a deadline to start warning. Configurable via env so you
+// can tune it without a redeploy of the check logic itself.
+const DEADLINE_REMINDER_HOURS = parseInt(process.env.DEADLINE_REMINDER_HOURS || "24", 10);
+
+// Finds tasks whose deadline is coming up and notifies the assigned faculty
+// member, once per task. Only ever sends ONE task_deadline_near notification
+// per task — it checks the notifications table for an existing one before
+// inserting another, so repeated runs of this job don't spam the same
+// reminder every interval.
+async function checkDeadlineReminders(io) {
+  try {
+    const placeholders = DEADLINE_REMINDER_EXCLUDED_STATUSES.map(() => "?").join(", ");
+
+    const [tasks] = await db.query(
+      `SELECT t.*, u.full_name AS faculty_name
+       FROM tasks t
+       LEFT JOIN users u ON u.id = t.faculty_id
+       WHERE t.deadline IS NOT NULL
+         AND t.faculty_id IS NOT NULL
+         AND t.status NOT IN (${placeholders})
+         AND t.deadline BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL ? HOUR)`,
+      [...DEADLINE_REMINDER_EXCLUDED_STATUSES, DEADLINE_REMINDER_HOURS]
+    );
+
+    for (const task of tasks) {
+      const [[existing]] = await db.query(
+        `SELECT id FROM notifications
+         WHERE task_id = ? AND user_id = ? AND type = 'task_deadline_near'
+         LIMIT 1`,
+        [task.id, task.faculty_id]
+      );
+      if (existing) continue; // already reminded for this task's current deadline
+
+      const deadlineStr = new Date(task.deadline).toLocaleString("en-US", {
+        month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+      });
+
+      if (io) {
+        io.to(`user_${task.faculty_id}`).emit("task:deadline_near", {
+          taskId: task.id,
+          deadline: task.deadline,
+        });
+      }
+
+      await notify(io, {
+        userId: task.faculty_id,
+        type: "task_deadline_near",
+        title: "Deadline Approaching",
+        message: `Task ${task.tracking_id} ("${task.title}") is due ${deadlineStr}.`,
+        taskId: task.id,
+        trackingId: task.tracking_id,
+      });
+    }
+  } catch (err) {
+    // Never let a failed sweep crash the interval — log and try again next tick.
+    console.error("checkDeadlineReminders() failed:", err);
+  }
+}
+
+// Kicks off the periodic sweep: runs once immediately (so a server restart
+// doesn't wait a full interval before catching up), then on a fixed
+// interval after that. Call once from your server entry point after `io`
+// is created, e.g.:
+//   const { router, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
+//   startDeadlineReminderJob(io);
+function startDeadlineReminderJob(io, intervalMs = 15 * 60 * 1000) {
+  checkDeadlineReminders(io);
+  const handle = setInterval(() => checkDeadlineReminders(io), intervalMs);
+  return handle; // returned in case you ever want to clearInterval() in tests
 }
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
@@ -870,6 +955,15 @@ router.patch("/:id/deadline", requireAuth, requireChairOrAdmin, async (req, res)
       ipAddress: req.ip,
     });
 
+    // The deadline changed, so any earlier "deadline approaching" reminder
+    // no longer reflects reality — clear it so checkDeadlineReminders() is
+    // free to send a fresh one if/when the new deadline comes into the
+    // warning window.
+    await db.query(
+      "DELETE FROM notifications WHERE task_id = ? AND type = 'task_deadline_near'",
+      [req.params.id]
+    );
+
     const io = req.app.get("io");
     const actorName = req.user.full_name || req.user.username;
     if (io) {
@@ -916,6 +1010,17 @@ router.patch("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
       [title, doc_type, priority, deadline, notes, faculty_id, req.params.id]
     );
     await writeLog({ userId: req.user.id, action: "TASK_EDIT", detail: `Edited task ${rows[0].tracking_id}`, ipAddress: req.ip });
+
+    // If the deadline moved via this general edit endpoint too, clear any
+    // stale reminder so it can re-fire for the new date — same as the
+    // dedicated /:id/deadline route above.
+    if (deadline) {
+      await db.query(
+        "DELETE FROM notifications WHERE task_id = ? AND type = 'task_deadline_near'",
+        [req.params.id]
+      );
+    }
+
     return res.json({ message: "Task updated." });
   } catch (err) {
     console.error("PATCH /api/tasks/:id error:", err);
@@ -1207,4 +1312,4 @@ router.delete("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
   }
 });
 
-module.exports = { router, setupTypingEvents };
+module.exports = { router, setupTypingEvents, startDeadlineReminderJob };
