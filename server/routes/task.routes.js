@@ -1400,25 +1400,41 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
       ipAddress: req.ip,
     });
 
-    // Notify the assigning officer in real-time
+    // Notify every program chair / admin — not just whoever originally
+    // assigned this task — so a submission is always seen by the people who
+    // need to review/approve it, even if the assigner has since left that
+    // role, gone inactive, or the task was reassigned.
     const io = req.app.get("io");
     if (io) {
-      io.to(`user_${task.assigned_by}`).emit("task:submitted", {
+      const [chairsAndAdmins] = await db.query(
+        "SELECT id FROM users WHERE role IN ('admin', 'program_chair') AND is_active = 1"
+      );
+      // Always include the original assigner too, in case they're not
+      // flagged admin/program_chair in the users table for some reason.
+      const recipientIds = new Set(chairsAndAdmins.map(u => u.id));
+      if (task.assigned_by) recipientIds.add(task.assigned_by);
+
+      const submitPayload = {
         taskId,
         taskTitle:           task.title,
         facultyName:         req.user.full_name || req.user.username,
         attachmentCount:     savedFiles.filter(f => f.url).length,
         files:               savedFiles,
         submission_group_id: submissionGroupId,
-      });
-      await notify(io, {
-        userId: task.assigned_by,
-        type: "task_submitted",
-        title: "Task Submitted",
-        message: `${req.user.full_name || req.user.username} submitted task ${task.tracking_id}`,
-        taskId,
-        trackingId: task.tracking_id,
-      });
+      };
+      const submitMessage = `${req.user.full_name || req.user.username} submitted task ${task.tracking_id}`;
+
+      for (const recipientId of recipientIds) {
+        io.to(`user_${recipientId}`).emit("task:submitted", submitPayload);
+        await notify(io, {
+          userId: recipientId,
+          type: "task_submitted",
+          title: "Task Submitted",
+          message: submitMessage,
+          taskId,
+          trackingId: task.tracking_id,
+        });
+      }
     }
 
     return res.status(201).json({ success: true, files: savedFiles });
