@@ -1,9 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import { socket, connectSocket } from "./socket";
 import {
-  CheckCheck, Trash2, Search, Clock, ChevronRight,
+  CheckCheck, Trash2, Search, Clock, ChevronRight, X,
   ClipboardList, AlertCircle, Inbox, Bell, Lightbulb,
   MessageSquare, Paperclip, CalendarClock, CheckCircle2,
 } from "lucide-react";
@@ -117,6 +117,46 @@ const Icon = {
     </svg>
   ),
 };
+
+// ── Realtime Toast (mirrors TaskAssigned.jsx's Toast) ───────────────────────
+// Reuses each notification's own TYPE_CFG icon instead of a fixed emoji, so
+// a toast for "Task Submitted" shows the same ClipboardList icon it'll have
+// once it lands in the list below, a deadline warning shows AlertCircle, etc.
+function Toast({ toasts, onDismiss }) {
+  return (
+    <div style={{ position: "fixed", top: 16, right: 16, zIndex: 200, display: "flex", flexDirection: "column", gap: 8 }}>
+      {toasts.map(t => {
+        const TIcon = t.icon || Bell;
+        return (
+          <div key={t.id} style={{
+            background: t.highPriority ? "#fef2f2" : "white",
+            border: `1px solid ${t.highPriority ? "#fecaca" : "#e5e7eb"}`,
+            borderRadius: 10, padding: "10px 14px", fontSize: 12, fontWeight: 600,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.12)", minWidth: 260, maxWidth: 340,
+            display: "flex", alignItems: "flex-start", gap: 10,
+            animation: "slideIn 0.2s ease",
+          }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: 7, flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: t.highPriority ? "#fee2e2" : "#ede9fe",
+              color: t.highPriority ? "#dc2626" : "#7c3aed",
+            }}>
+              <TIcon style={{ width: 14, height: 14 }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ marginBottom: 1, color: "#111" }}>{t.title}</div>
+              {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400, color: "#374151" }}>{t.body}</div>}
+            </div>
+            <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit" }}>
+              <X style={{ width: 12, height: 12 }} />
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ── Sidebar Item (mirrors Dashboard.jsx) ────────────────────────────────────
 function SbItem({ icon, label, active, onClick }) {
@@ -277,6 +317,7 @@ export default function Notifications() {
   const [activeTab, setActiveTab] = useState("all");
   const [query, setQuery] = useState("");
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [toasts, setToasts] = useState([]);
   const [settings, setSettings] = useState({ push: true, email: false, alerts: true });
   const [, forceTick] = useState(0); // re-render periodically so "x minutes ago" labels stay fresh
 
@@ -290,6 +331,14 @@ export default function Notifications() {
   };
 
   const [loading, setLoading] = useState(true);
+
+  // ── Toast helpers (mirrors TaskAssigned.jsx's pushToast/dismissToast) ────
+  const pushToast = useCallback((toast) => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev.slice(-4), { id, ...toast }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000);
+  }, []);
+  const dismissToast = useCallback(id => setToasts(prev => prev.filter(t => t.id !== id)), []);
 
   // ── Load history ───────────────────────────────────────────────────────
   // Notifications now persist server-side, so the page no longer starts
@@ -323,10 +372,20 @@ export default function Notifications() {
     connectSocket();
 
     const onNotification = (row) => {
+      let isNew = true;
       setNotifications(ns => {
-        if (ns.some(n => n.id === row.id)) return ns; // already have it (e.g. from history fetch)
+        if (ns.some(n => n.id === row.id)) { isNew = false; return ns; } // already have it (e.g. from history fetch)
         return [rowToNotification(row), ...ns];
       });
+      if (isNew) {
+        const cfg = TYPE_CFG[row.type] || { icon: Bell };
+        pushToast({
+          icon: cfg.icon,
+          highPriority: !!cfg.highPriority,
+          title: row.title,
+          body: row.message,
+        });
+      }
     };
 
     socket.on("notification", onNotification);
@@ -377,7 +436,13 @@ export default function Notifications() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+        @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+      `}</style>
+
+      {/* Toast stack — pops for every new notification received live over the socket */}
+      <Toast toasts={toasts} onDismiss={dismissToast} />
 
       {/* ── Sidebar ── */}
       <div style={{
