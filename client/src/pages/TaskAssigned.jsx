@@ -418,7 +418,8 @@ export default function TaskAssigned() {
     setActionLoading("approve");
     try {
       await fetch(`${API}/api/tasks/${taskId}/approve`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } });
-      pushToast("Task approved", "Faculty has been notified.");
+      // No local toast here anymore — approval is a status change, so it
+      // now surfaces through the Notifications page's generic feed instead.
       setNewSubmissions(prev => { const n = { ...prev }; delete n[taskId]; return n; });
       fetchTasks();
     } catch { pushToast("Error", "Could not approve task.", "error"); }
@@ -453,7 +454,9 @@ export default function TaskAssigned() {
         try { const body = await res.json(); if (body?.error) msg = body.error; } catch {}
         throw new Error(msg);
       }
-      pushToast("Deadline updated", "The faculty member has been notified of the new due date.");
+      // No local toast here anymore — the deadline change now surfaces
+      // through the Notifications page's generic feed instead
+      // (task_deadline_changed in Notifications.jsx's TYPE_CFG).
       setSelected(prev => prev ? { ...prev, deadline: deadlineUTC } : prev);
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, deadline: deadlineUTC } : t));
       setEditingDeadline(false);
