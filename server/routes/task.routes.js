@@ -75,9 +75,12 @@
 //   3 days before   → task_deadline_3d   "Deadline in 3 Days"   (most important)
 //   1 day before    → task_deadline_1d   "Deadline Tomorrow"
 //   on deadline day → task_due_today     "Due Today"
+//   at the exact deadline timestamp
+//                    → task_deadline_now "Deadline Reached" (first sweep at
+//                      or after the deadline's actual time, not just its day)
 //   after deadline  → task_overdue       repeats every
 //                      OVERDUE_REMINDER_INTERVAL_DAYS days (default: daily)
-// Each of the four "before" stages fires exactly once per task (checked
+// Every stage except the overdue one fires exactly once per task (checked
 // against the notifications table); the overdue stage instead re-fires on
 // an interval so it keeps nagging until the task moves out of an active
 // status. No schema changes; it reuses the `notifications` table. Call
@@ -170,7 +173,7 @@ const DEADLINE_REMINDER_STAGES = [
 // Every notification type this job can emit for a given deadline — used
 // when a deadline changes/moves, to know which stale rows to clear so the
 // schedule can re-fire correctly against the new date.
-const DEADLINE_REMINDER_TYPES = [...DEADLINE_REMINDER_STAGES.map(s => s.type), "task_overdue"];
+const DEADLINE_REMINDER_TYPES = [...DEADLINE_REMINDER_STAGES.map(s => s.type), "task_deadline_now", "task_overdue"];
 
 // Once a task is overdue, how many days to wait before nagging again.
 // Default is daily; set to 2 (or more) via env for a lighter touch.
@@ -230,6 +233,17 @@ async function checkDeadlineReminders(io) {
         timeZone: APP_TIMEZONE,
       });
 
+      // Exact-time "deadline reached" ping — separate from the day-based
+      // stages below. Fires once, the first sweep where the clock has
+      // actually passed the deadline's timestamp (not just its calendar
+      // day), so a 5:00 PM deadline notifies close to 5:00 PM rather than
+      // whenever "due today" happened to fire earlier that day. Runs
+      // regardless of daysUntil, since it can be true on the due date
+      // itself or any day after.
+      if (Date.now() >= new Date(task.deadline).getTime()) {
+        await sendDeadlineReachedReminder(io, task, deadlineStr);
+      }
+
       if (daysUntil < 0) {
         await sendOverdueReminder(io, task, deadlineStr, -daysUntil);
         continue;
@@ -269,6 +283,39 @@ async function checkDeadlineReminders(io) {
     // Never let a failed sweep crash the interval — log and try again next tick.
     console.error("checkDeadlineReminders() failed:", err);
   }
+}
+
+// Sends the one-time "the deadline moment has actually arrived" ping for a
+// task. Distinct from task_due_today (which fires once for the calendar
+// day, whenever the sweep first runs that day) — this one fires on the
+// first sweep at or after the deadline's exact timestamp, so it lands
+// close to the real due time instead of just "sometime that day". Only
+// ever sent once per deadline; checked the same way as the day-based
+// stages above.
+async function sendDeadlineReachedReminder(io, task, deadlineStr) {
+  const [[existing]] = await db.query(
+    `SELECT id FROM notifications
+     WHERE task_id = ? AND user_id = ? AND type = 'task_deadline_now'
+     LIMIT 1`,
+    [task.id, task.faculty_id]
+  );
+  if (existing) return; // already sent for this deadline
+
+  if (io) {
+    io.to(`user_${task.faculty_id}`).emit("task:deadline_now", {
+      taskId: task.id,
+      deadline: task.deadline,
+    });
+  }
+
+  await notify(io, {
+    userId: task.faculty_id,
+    type: "task_deadline_now",
+    title: "Deadline Reached",
+    message: `Task ${task.tracking_id} ("${task.title}") is due right now (${deadlineStr}).`,
+    taskId: task.id,
+    trackingId: task.tracking_id,
+  });
 }
 
 // Sends (or re-sends) the overdue notification for one task. Looks at the

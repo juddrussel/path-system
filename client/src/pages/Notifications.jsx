@@ -180,6 +180,9 @@ const TYPE_CFG = {
   task_deadline_3d:       { icon: AlertCircle,   category: "tasks", highPriority: true },
   task_deadline_1d:       { icon: AlertCircle,   category: "tasks", highPriority: true },
   task_due_today:         { icon: Clock,         category: "tasks", highPriority: true },
+  // Fires once, right when the clock hits the deadline's exact timestamp
+  // (not just its calendar day) — see task_deadline_now in task.routes.js.
+  task_deadline_now:      { icon: AlertCircle,   category: "tasks", highPriority: true },
   task_overdue:           { icon: AlertCircle,   category: "tasks", highPriority: true },
   // Legacy type from before the staged schedule existed — kept mapped so
   // any old rows still in the `notifications` table render correctly
