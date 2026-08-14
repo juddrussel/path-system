@@ -66,14 +66,23 @@
 // etc.) are left in place untouched, in case anything else in the app still
 // listens for them directly for live UI updates.
 //
-// ─── NEW (this version): deadline-approaching reminders ──────────────────────
+// ─── NEW (this version): full deadline-reminder schedule ─────────────────────
 // Adds checkDeadlineReminders() / startDeadlineReminderJob() — a periodic
-// sweep that finds tasks whose deadline is coming up and notifies the
-// assigned faculty member via the same notify() helper everything else in
-// this file already uses (type: "task_deadline_near"). No schema changes;
-// it reuses the `notifications` table. Call startDeadlineReminderJob(io)
-// once from your server entry point after `io` is created — see the bottom
-// of this file for where it's exported.
+// sweep that walks every active task's deadline and notifies the assigned
+// faculty member at each configured milestone via the same notify() helper
+// everything else in this file already uses:
+//   7 days before   → task_deadline_7d   "Upcoming Deadline"
+//   3 days before   → task_deadline_3d   "Deadline in 3 Days"   (most important)
+//   1 day before    → task_deadline_1d   "Deadline Tomorrow"
+//   on deadline day → task_due_today     "Due Today"
+//   after deadline  → task_overdue       repeats every
+//                      OVERDUE_REMINDER_INTERVAL_DAYS days (default: daily)
+// Each of the four "before" stages fires exactly once per task (checked
+// against the notifications table); the overdue stage instead re-fires on
+// an interval so it keeps nagging until the task moves out of an active
+// status. No schema changes; it reuses the `notifications` table. Call
+// startDeadlineReminderJob(io) once from your server entry point after `io`
+// is created — see the bottom of this file for where it's exported.
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -147,9 +156,25 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
 // (Draft), already done (Received), or no longer active (Archived).
 const DEADLINE_REMINDER_EXCLUDED_STATUSES = ["Draft", "Received", "Archived"];
 
-// How far ahead of a deadline to start warning. Configurable via env so you
-// can tune it without a redeploy of the check logic itself.
-const DEADLINE_REMINDER_HOURS = parseInt(process.env.DEADLINE_REMINDER_HOURS || "24", 10);
+// The one-time "deadline approaching" milestones, checked in whole days
+// (in APP_TIMEZONE) between today and the deadline. `daysBefore: 0` is
+// "due today". Order doesn't matter — checkDeadlineReminders() matches by
+// daysBefore, not array position.
+const DEADLINE_REMINDER_STAGES = [
+  { type: "task_deadline_7d", daysBefore: 7, title: "Upcoming Deadline" },
+  { type: "task_deadline_3d", daysBefore: 3, title: "Deadline in 3 Days" },
+  { type: "task_deadline_1d", daysBefore: 1, title: "Deadline Tomorrow" },
+  { type: "task_due_today",   daysBefore: 0, title: "Due Today" },
+];
+
+// Every notification type this job can emit for a given deadline — used
+// when a deadline changes/moves, to know which stale rows to clear so the
+// schedule can re-fire correctly against the new date.
+const DEADLINE_REMINDER_TYPES = [...DEADLINE_REMINDER_STAGES.map(s => s.type), "task_overdue"];
+
+// Once a task is overdue, how many days to wait before nagging again.
+// Default is daily; set to 2 (or more) via env for a lighter touch.
+const OVERDUE_REMINDER_INTERVAL_DAYS = parseInt(process.env.OVERDUE_REMINDER_INTERVAL_DAYS || "1", 10);
 
 // Timezone used for anything date/time-related shown to users — deadline
 // reminder messages, "due today" / "overdue" comparisons, etc. Without this,
@@ -168,11 +193,13 @@ function phtDateKey(date) {
   return new Date(date).toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE });
 }
 
-// Finds tasks whose deadline is coming up and notifies the assigned faculty
-// member, once per task. Only ever sends ONE task_deadline_near notification
-// per task — it checks the notifications table for an existing one before
-// inserting another, so repeated runs of this job don't spam the same
-// reminder every interval.
+// Walks every active task with a deadline and fires whichever reminder (if
+// any) applies to it right now: the 7/3/1-day-before and due-today stages
+// each fire once per task; once the deadline has passed, an overdue
+// notification repeats every OVERDUE_REMINDER_INTERVAL_DAYS days. Unlike
+// the old version this has to look at BOTH upcoming and already-passed
+// deadlines, so there's no longer a narrow time-window filter in the SQL —
+// the day-based math below decides what (if anything) to send.
 async function checkDeadlineReminders(io) {
   try {
     const placeholders = DEADLINE_REMINDER_EXCLUDED_STATUSES.map(() => "?").join(", ");
@@ -183,37 +210,57 @@ async function checkDeadlineReminders(io) {
        LEFT JOIN users u ON u.id = t.faculty_id
        WHERE t.deadline IS NOT NULL
          AND t.faculty_id IS NOT NULL
-         AND t.status NOT IN (${placeholders})
-         AND t.deadline BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL ? HOUR)`,
-      [...DEADLINE_REMINDER_EXCLUDED_STATUSES, DEADLINE_REMINDER_HOURS]
+         AND t.status NOT IN (${placeholders})`,
+      DEADLINE_REMINDER_EXCLUDED_STATUSES
     );
 
+    const todayKey = phtDateKey(new Date());
+
     for (const task of tasks) {
-      const [[existing]] = await db.query(
-        `SELECT id FROM notifications
-         WHERE task_id = ? AND user_id = ? AND type = 'task_deadline_near'
-         LIMIT 1`,
-        [task.id, task.faculty_id]
+      // Whole calendar-day difference, both sides computed in APP_TIMEZONE,
+      // so "1 day left" here matches what the user sees on their own clock
+      // regardless of the exact time-of-day the deadline falls on.
+      const deadlineKey = phtDateKey(task.deadline);
+      const daysUntil = Math.round(
+        (new Date(`${deadlineKey}T00:00:00Z`) - new Date(`${todayKey}T00:00:00Z`)) / 86400000
       );
-      if (existing) continue; // already reminded for this task's current deadline
 
       const deadlineStr = new Date(task.deadline).toLocaleString("en-US", {
         month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
         timeZone: APP_TIMEZONE,
       });
 
+      if (daysUntil < 0) {
+        await sendOverdueReminder(io, task, deadlineStr, -daysUntil);
+        continue;
+      }
+
+      const stage = DEADLINE_REMINDER_STAGES.find(s => s.daysBefore === daysUntil);
+      if (!stage) continue; // more than 7 days out — nothing to send yet
+
+      const [[existing]] = await db.query(
+        `SELECT id FROM notifications
+         WHERE task_id = ? AND user_id = ? AND type = ?
+         LIMIT 1`,
+        [task.id, task.faculty_id, stage.type]
+      );
+      if (existing) continue; // already sent this milestone for the current deadline
+
       if (io) {
         io.to(`user_${task.faculty_id}`).emit("task:deadline_near", {
           taskId: task.id,
           deadline: task.deadline,
+          stage: stage.type,
         });
       }
 
       await notify(io, {
         userId: task.faculty_id,
-        type: "task_deadline_near",
-        title: "Deadline Approaching",
-        message: `Task ${task.tracking_id} ("${task.title}") is due ${deadlineStr}.`,
+        type: stage.type,
+        title: stage.title,
+        message: stage.daysBefore === 0
+          ? `Task ${task.tracking_id} ("${task.title}") is due today (${deadlineStr}).`
+          : `Task ${task.tracking_id} ("${task.title}") is due in ${stage.daysBefore} day${stage.daysBefore === 1 ? "" : "s"} (${deadlineStr}).`,
         taskId: task.id,
         trackingId: task.tracking_id,
       });
@@ -222,6 +269,42 @@ async function checkDeadlineReminders(io) {
     // Never let a failed sweep crash the interval — log and try again next tick.
     console.error("checkDeadlineReminders() failed:", err);
   }
+}
+
+// Sends (or re-sends) the overdue notification for one task. Looks at the
+// most recent task_overdue row for this task/user and only sends a new one
+// once OVERDUE_REMINDER_INTERVAL_DAYS have passed since it, so faculty get
+// a standing nag at a controlled cadence instead of either silence or a
+// fresh notification every 15-minute sweep.
+async function sendOverdueReminder(io, task, deadlineStr, daysOverdue) {
+  const [[lastOverdue]] = await db.query(
+    `SELECT created_at FROM notifications
+     WHERE task_id = ? AND user_id = ? AND type = 'task_overdue'
+     ORDER BY created_at DESC LIMIT 1`,
+    [task.id, task.faculty_id]
+  );
+
+  if (lastOverdue) {
+    const daysSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceLast < OVERDUE_REMINDER_INTERVAL_DAYS) return; // not due for another nag yet
+  }
+
+  if (io) {
+    io.to(`user_${task.faculty_id}`).emit("task:overdue", {
+      taskId: task.id,
+      deadline: task.deadline,
+      daysOverdue,
+    });
+  }
+
+  await notify(io, {
+    userId: task.faculty_id,
+    type: "task_overdue",
+    title: "Task Overdue",
+    message: `Task ${task.tracking_id} ("${task.title}") was due ${deadlineStr} and is now ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue.`,
+    taskId: task.id,
+    trackingId: task.tracking_id,
+  });
 }
 
 // Kicks off the periodic sweep: runs once immediately (so a server restart
@@ -973,13 +1056,13 @@ router.patch("/:id/deadline", requireAuth, requireChairOrAdmin, async (req, res)
       ipAddress: req.ip,
     });
 
-    // The deadline changed, so any earlier "deadline approaching" reminder
-    // no longer reflects reality — clear it so checkDeadlineReminders() is
-    // free to send a fresh one if/when the new deadline comes into the
-    // warning window.
+    // The deadline changed, so any earlier reminders (any of the 7d/3d/1d/
+    // due-today/overdue stages) no longer reflect reality — clear them all
+    // so checkDeadlineReminders() is free to send fresh ones against the
+    // new date on its next sweep.
     await db.query(
-      "DELETE FROM notifications WHERE task_id = ? AND type = 'task_deadline_near'",
-      [req.params.id]
+      `DELETE FROM notifications WHERE task_id = ? AND type IN (${DEADLINE_REMINDER_TYPES.map(() => "?").join(", ")})`,
+      [req.params.id, ...DEADLINE_REMINDER_TYPES]
     );
 
     const io = req.app.get("io");
@@ -1030,12 +1113,12 @@ router.patch("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
     await writeLog({ userId: req.user.id, action: "TASK_EDIT", detail: `Edited task ${rows[0].tracking_id}`, ipAddress: req.ip });
 
     // If the deadline moved via this general edit endpoint too, clear any
-    // stale reminder so it can re-fire for the new date — same as the
+    // stale reminders so they can re-fire for the new date — same as the
     // dedicated /:id/deadline route above.
     if (deadline) {
       await db.query(
-        "DELETE FROM notifications WHERE task_id = ? AND type = 'task_deadline_near'",
-        [req.params.id]
+        `DELETE FROM notifications WHERE task_id = ? AND type IN (${DEADLINE_REMINDER_TYPES.map(() => "?").join(", ")})`,
+        [req.params.id, ...DEADLINE_REMINDER_TYPES]
       );
     }
 

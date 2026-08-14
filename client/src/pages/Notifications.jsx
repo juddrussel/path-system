@@ -170,9 +170,20 @@ const TYPE_CFG = {
   task_attachment_added:  { icon: Paperclip,     category: "tasks" },
   task_deadline_changed:  { icon: CalendarClock, category: "tasks" },
   task_submitted:         { icon: ClipboardList, category: "tasks" },
-  // Emitted by a backend job (e.g. a cron sweep) when a task's deadline is
-  // within the configured warning window. Flagged high-priority so it shows
-  // up in the "Urgent Alerts" count on the right-hand summary panel.
+  // Deadline-reminder schedule, emitted by the backend's periodic sweep
+  // (see checkDeadlineReminders() in task.routes.js) as a deadline
+  // approaches, arrives, and passes. Each stage after "7 days out" is
+  // flagged high-priority so it counts toward the "Urgent Alerts" tile on
+  // the right-hand summary panel — 3-days-out on is meant to actually grab
+  // attention, not just log it.
+  task_deadline_7d:       { icon: CalendarClock, category: "tasks" },
+  task_deadline_3d:       { icon: AlertCircle,   category: "tasks", highPriority: true },
+  task_deadline_1d:       { icon: AlertCircle,   category: "tasks", highPriority: true },
+  task_due_today:         { icon: Clock,         category: "tasks", highPriority: true },
+  task_overdue:           { icon: AlertCircle,   category: "tasks", highPriority: true },
+  // Legacy type from before the staged schedule existed — kept mapped so
+  // any old rows still in the `notifications` table render correctly
+  // instead of falling through to the generic Bell icon.
   task_deadline_near:     { icon: AlertCircle,   category: "tasks", highPriority: true },
 };
 
