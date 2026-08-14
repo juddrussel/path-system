@@ -210,6 +210,10 @@ const TYPE_CFG = {
   task_attachment_added:  { icon: Paperclip,     category: "tasks" },
   task_deadline_changed:  { icon: CalendarClock, category: "tasks" },
   task_submitted:         { icon: ClipboardList, category: "tasks" },
+  // A faculty member submitted (or resubmitted) a form for review — see
+  // notifyReviewersOfFormSubmission() in form.routes.js. Filed under
+  // "forms" so it shows up in the Forms tab, not mixed in with Tasks.
+  form_submitted:         { icon: ClipboardList, category: "forms" },
   // Deadline-reminder schedule, emitted by the backend's periodic sweep
   // (see checkDeadlineReminders() in task.routes.js) as a deadline
   // approaches, arrives, and passes. Each stage after "7 days out" is

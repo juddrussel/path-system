@@ -20,6 +20,18 @@
 // /draft, /:id/resubmit) now upload to R2 via the same ../utils/uploadToR2
 // helper task.routes.js uses, so file_url is always a full R2 URL and the
 // frontend's resolveFileUrl() helper renders it correctly everywhere.
+//
+// ─── NEW (this version): persistent "form submitted" notification ─────────
+// Previously the only signal a program chair/admin got that a form had come
+// in was the "new_form_submission" socket emit to the "program_chairs"
+// room — live-only, so it was gone forever for anyone not connected at that
+// exact instant (page not open, reconnecting, server just restarted). This
+// adds a notify() helper (same shape/behavior as the one in task.routes.js)
+// that writes a row to the shared `notifications` table for every active
+// admin/program_chair and emits the generic "notification" event alongside
+// it, so submissions show up in the Notifications page/bell on load via
+// GET /api/notifications, not just as a toast you had to be online to see.
+// Fires on both the initial /submit and on /:id/resubmit.
 const express  = require("express");
 const router   = express.Router();
 const jwt      = require("jsonwebtoken");
@@ -45,6 +57,66 @@ function requireReviewer(req, res, next) {
   if (!["admin", "program_chair"].includes(req.user?.role))
     return res.status(403).json({ message: "Reviewer access required." });
   next();
+}
+
+// ─── HELPER: persist + push a notification ────────────────────────────────────
+// Mirrors notify() in task.routes.js exactly (same `notifications` table,
+// same payload shape) so anything already listening for the generic
+// "notification" socket event (see Notifications.jsx) picks this up too,
+// with no changes needed on the frontend. Never throws — a notification
+// failing to save should never take down the request that triggered it.
+async function notify(io, { userId, type, title, message, taskId = null, trackingId = null }) {
+  if (userId == null) return null;
+  try {
+    const [result] = await db.query(
+      `INSERT INTO notifications (user_id, type, title, message, task_id, tracking_id, is_read, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, 0, NOW())`,
+      [userId, type, title, message, taskId, trackingId]
+    );
+    const payload = {
+      id: result.insertId,
+      user_id: userId,
+      type,
+      title,
+      message,
+      task_id: taskId,
+      tracking_id: trackingId,
+      is_read: 0,
+      created_at: new Date().toISOString(),
+    };
+    if (io) io.to(`user_${userId}`).emit("notification", payload);
+    return payload;
+  } catch (err) {
+    console.error("notify() failed to persist notification:", err);
+    return null;
+  }
+}
+
+// Notifies every active admin/program_chair that a form was (re)submitted —
+// both a persisted row (via notify() above, so it survives a refresh/
+// reconnect) and the existing live "new_form_submission" room-wide emit
+// (kept as-is, in case anything still listens for it directly).
+async function notifyReviewersOfFormSubmission(io, form) {
+  try {
+    const [reviewers] = await db.query(
+      "SELECT id FROM users WHERE role IN ('admin', 'program_chair') AND is_active = 1"
+    );
+    const submitterName = form.submitter_name || form.full_name || "A faculty member";
+    const message = `${submitterName} submitted a form (${form.category}) — ${form.tracking_id}`;
+
+    for (const reviewer of reviewers) {
+      await notify(io, {
+        userId: reviewer.id,
+        type: "form_submitted",
+        title: "Form Submitted",
+        message,
+        trackingId: form.tracking_id,
+      });
+    }
+  } catch (err) {
+    // Never let a notification failure block/roll back the submission itself.
+    console.error("notifyReviewersOfFormSubmission() failed:", err);
+  }
 }
 
 // ─── FILE UPLOAD (multer) ─────────────────────────────────────────────────────
@@ -187,6 +259,11 @@ router.post("/submit", requireAuth, upload.any(), async (req, res) => {
     // Notify all connected program chairs in real time
     const io = req.app.get("io");
     if (io) io.to("program_chairs").emit("new_form_submission", rows[0]);
+
+    // Persist a notification for every admin/program_chair (see helper
+    // above) so the submission shows up in the Notifications page even for
+    // reviewers who weren't connected at the moment it came in.
+    await notifyReviewersOfFormSubmission(io, rows[0]);
 
     // Auto-start a workflow — no-op if no Published workflow has
     // auto_trigger_category matching this form's category. Runs AFTER the
@@ -574,6 +651,11 @@ router.post("/:id/resubmit", requireAuth, upload.single("file"), async (req, res
 
     const io = req.app.get("io");
     if (io) io.to("program_chairs").emit("new_form_submission", updated[0]);
+
+    // Same persisted notification as the initial /submit — a resubmission
+    // is effectively a new thing for reviewers to look at, so it should
+    // land in their Notifications page too, not just the live room emit.
+    await notifyReviewersOfFormSubmission(io, updated[0]);
 
     return res.status(200).json({ message: "Form resubmitted successfully.", form: updated[0] });
   } catch (err) {
