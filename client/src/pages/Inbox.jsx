@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { io } from "socket.io-client";
+import { socket, connectSocket } from "./socket";
 import TopBar from "./TopBar";
 
 const API = import.meta.env.VITE_API_URL;
@@ -703,7 +703,6 @@ export default function Inbox() {
 
   const [activeNav, setActiveNav] = useState("inbox");
   const [tab, setTab] = useState("dm"); // "dm" | "documents"
-  const [socket, setSocket] = useState(null);
   const [onlineUserIds, setOnlineUserIds] = useState([]);
 
   // DM state
@@ -768,16 +767,27 @@ export default function Inbox() {
   const docFileRef = useRef(null);
 
   // ── Socket setup ─────────────────────────────────────────────────────────────
+  // Uses the single shared socket (./socket) that TopBar and the rest of the
+  // app also use — NOT a separate io() connection. A second, independent
+  // connection here used to fight the shared one for the server's "which
+  // socket does this user's messages go to" mapping, so events like
+  // receive_message would land on whichever connection registered last —
+  // sometimes this page, sometimes not — which is why live messages could
+  // silently stop appearing here. Sharing one connection fixes that.
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
 
-    const s = io(API, { auth: { token } });
-    setSocket(s);
+    connectSocket();
 
-    s.on("connect", () => { s.emit("register", currentUser.id); });
-    s.on("online_users", (ids) => setOnlineUserIds(ids.map(String)));
+    const onConnect = () => { socket.emit("register", currentUser.id); };
+    socket.on("connect", onConnect);
+    // The shared socket may already be connected (e.g. TopBar connected it
+    // first) — in that case "connect" won't fire again, so register now too.
+    if (socket.connected) onConnect();
 
-    s.on("receive_message", (msg) => {
+    socket.on("online_users", (ids) => setOnlineUserIds(ids.map(String)));
+
+    const onReceiveMessage = (msg) => {
       setMessages(prev => {
         if (prev.find(m => m.id === msg.id)) return prev;
         return [...prev, msg];
@@ -796,37 +806,45 @@ export default function Inbox() {
           : c
       ));
       fetchUnreadCount();
-    });
+    };
+    socket.on("receive_message", onReceiveMessage);
 
-    s.on("message_edited", ({ messageId, content }) => {
+    const onMessageEdited = ({ messageId, content }) => {
       setMessages(prev => prev.map(m => m.id === messageId ? { ...m, content, is_edited: true, edited_at: new Date().toISOString() } : m));
-    });
+    };
+    socket.on("message_edited", onMessageEdited);
 
-    s.on("receive_document_comment", (comment) => {
+    const onReceiveDocComment = (comment) => {
       setDocComments(prev => {
         if (prev.find(c => c.id === comment.id)) return prev;
         return [...prev, comment];
       });
-    });
+    };
+    socket.on("receive_document_comment", onReceiveDocComment);
 
-    s.on("user_typing", ({ senderId }) => {
+    const onUserTyping = ({ senderId }) => {
       if (String(senderId) === String(activeConv?.id)) setOtherTyping(true);
-    });
-    s.on("user_stop_typing", ({ senderId }) => {
+    };
+    const onUserStopTyping = ({ senderId }) => {
       if (String(senderId) === String(activeConv?.id)) setOtherTyping(false);
-    });
-    s.on("messages_seen", () => {
+    };
+    socket.on("user_typing", onUserTyping);
+    socket.on("user_stop_typing", onUserStopTyping);
+
+    const onMessagesSeen = () => {
       setMessages(prev => prev.map(m => ({ ...m, is_read: 1 })));
-    });
+    };
+    socket.on("messages_seen", onMessagesSeen);
 
     // ── WebRTC Signaling ─────────────────────────────────────────────────────
     // Callee receives offer → show incoming UI, store offer for later
-    s.on("call_offer", ({ from, callType, sdp }) => {
+    const onCallOffer = ({ from, callType, sdp }) => {
       setCallState({ type: "incoming", callType, with: from, remoteSdp: sdp });
-    });
+    };
+    socket.on("call_offer", onCallOffer);
 
     // Caller receives answer → set remote description, go active
-    s.on("call_answer", async ({ sdp }) => {
+    const onCallAnswer = async ({ sdp }) => {
       if (!pcRef.current) return;
       try {
         await pcRef.current.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp }));
@@ -838,19 +856,21 @@ export default function Inbox() {
         setCallState(prev => prev ? { ...prev, type: "active" } : prev);
         callStartTimeRef.current = Date.now(); // ← track when call became active
       } catch (e) { console.error("set remote answer:", e); }
-    });
+    };
+    socket.on("call_answer", onCallAnswer);
 
     // Both sides receive ICE candidates from the other peer
-    s.on("ice_candidate", async ({ candidate }) => {
+    const onIceCandidate = async ({ candidate }) => {
       if (!candidate) return;
       if (pcRef.current?.remoteDescription) {
         await pcRef.current.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => { });
       } else {
         pendingCandidatesRef.current.push(candidate);
       }
-    });
+    };
+    socket.on("ice_candidate", onIceCandidate);
 
-    s.on("call_rejected", () => {
+    const onCallRejected = () => {
       // The person we called rejected — show missed call message
       setCallState(prev => {
         if (prev?.with?.id) {
@@ -860,9 +880,10 @@ export default function Inbox() {
         return prev;
       });
       endCallCleanup();
-    });
+    };
+    socket.on("call_rejected", onCallRejected);
 
-    s.on("call_ended", () => {
+    const onCallEnded = () => {
       // Other side ended — show duration if call was active
       setCallState(prev => {
         if (prev?.with?.id) {
@@ -878,9 +899,26 @@ export default function Inbox() {
         return prev;
       });
       endCallCleanup();
-    });
+    };
+    socket.on("call_ended", onCallEnded);
 
-    return () => s.disconnect();
+    // Only remove the listeners this effect added — never disconnect the
+    // shared socket, since TopBar and other pages still depend on it.
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("online_users");
+      socket.off("receive_message", onReceiveMessage);
+      socket.off("message_edited", onMessageEdited);
+      socket.off("receive_document_comment", onReceiveDocComment);
+      socket.off("user_typing", onUserTyping);
+      socket.off("user_stop_typing", onUserStopTyping);
+      socket.off("messages_seen", onMessagesSeen);
+      socket.off("call_offer", onCallOffer);
+      socket.off("call_answer", onCallAnswer);
+      socket.off("ice_candidate", onIceCandidate);
+      socket.off("call_rejected", onCallRejected);
+      socket.off("call_ended", onCallEnded);
+    };
   }, []);
 
   useEffect(() => {
