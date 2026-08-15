@@ -378,6 +378,44 @@ function Avatar({ name, size = 36, online, photoUrl }) {
   );
 }
 
+// ── Incoming-message popup (bottom-right) ─────────────────────────────────────
+// Separate from the top-right notification toast on the Notifications page —
+// this one is scoped to Inbox and only fires for new chat messages.
+function MessageToast({ toasts, onDismiss, onOpen }) {
+  return (
+    <div style={{ position: "fixed", bottom: 16, right: 16, zIndex: 1100, display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
+      {toasts.map(t => (
+        <div
+          key={t.id}
+          onClick={() => onOpen(t)}
+          style={{
+            background: "white", border: "1px solid #e5e7eb", borderRadius: 10,
+            padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+            minWidth: 260, maxWidth: 340, display: "flex", alignItems: "flex-start",
+            gap: 10, cursor: "pointer", animation: "slideUp 0.2s ease",
+          }}
+        >
+          <Avatar name={t.name} size={30} photoUrl={t.photoUrl} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{t.name}</div>
+            <div style={{
+              fontSize: 11.5, color: "#6b7280", marginTop: 2,
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>{t.preview}</div>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDismiss(t.id); }}
+            style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit", flexShrink: 0, marginTop: 2 }}
+          >
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" /></svg>
+          </button>
+        </div>
+      ))}
+      <style>{`@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+    </div>
+  );
+}
+
 // ── Profile & Settings Drawer ─────────────────────────────────────────────────
 function ProfileDrawer({ open, onClose, faculty, prefs, onPrefsChange, isAdmin, mediaCount, fileCount, pinnedCount = 0, onAction }) {
   const PANEL_WIDTH = 300;
@@ -709,7 +747,18 @@ export default function Inbox() {
   const [conversations, setConversations] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [activeConv, setActiveConv] = useState(null);
+  const activeConvRef = useRef(null);
+  useEffect(() => { activeConvRef.current = activeConv; }, [activeConv]);
   const [messages, setMessages] = useState([]);
+
+  // ── Bottom-right "new message" popup state ───────────────────────────────
+  const [msgToasts, setMsgToasts] = useState([]);
+  const pushMsgToast = useCallback((toast) => {
+    const id = Date.now() + Math.random();
+    setMsgToasts(prev => [...prev.slice(-3), { id, ...toast }]);
+    setTimeout(() => setMsgToasts(prev => prev.filter(t => t.id !== id)), 6000);
+  }, []);
+  const dismissMsgToast = useCallback(id => setMsgToasts(prev => prev.filter(t => t.id !== id)), []);
   const [dmInput, setDmInput] = useState("");
   const [dmFile, setDmFile] = useState(null);
   const [typing, setTyping] = useState(false);
@@ -795,6 +844,22 @@ export default function Inbox() {
           : c
       ));
       fetchUnreadCount();
+
+      // ── Pop up a bottom-right notification for the new message ──────────
+      // Skip messages you sent yourself, and skip when you're already
+      // looking at that conversation (no need to interrupt with a popup
+      // for something already on screen).
+      const isOwnMessage = String(msg.sender_id) === String(currentUser.id);
+      const isOpenConversation = String(activeConvRef.current?.id) === String(msg.sender_id);
+      if (!isOwnMessage && !isOpenConversation && !msg.pin_sync && !msg.is_system) {
+        const preview = parseReplyContent(msg.content).text || (msg.file_url ? "📎 File" : "New message");
+        pushMsgToast({
+          senderId: msg.sender_id,
+          name: msg.sender_name || "New message",
+          photoUrl: msg.sender_photo ? resolveUrl(msg.sender_photo) : null,
+          preview,
+        });
+      }
     });
 
     s.on("message_edited", ({ messageId, content }) => {
@@ -1528,6 +1593,12 @@ export default function Inbox() {
           background: transparent;
         }
       `}</style>
+
+      <MessageToast
+        toasts={msgToasts}
+        onDismiss={dismissMsgToast}
+        onOpen={(t) => { dismissMsgToast(t.id); openConversation({ id: t.senderId, full_name: t.name }); }}
+      />
 
       {/* ── Dashboard Sidebar ── */}
       <div style={{
