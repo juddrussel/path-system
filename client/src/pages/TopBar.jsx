@@ -886,8 +886,8 @@ function MessageToast({ m, onDismiss, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group pointer-events-auto relative w-[340px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl shadow-2xl border border-gray-100 px-4 py-3.5 flex items-start gap-3 cursor-pointer animate-[msg-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
+      className="group pointer-events-auto relative w-[340px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl border border-violet-100 px-4 py-3.5 flex items-start gap-3 cursor-pointer animate-[msg-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
+      style={{ fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 20px -4px rgba(124,58,237,0.12), 0 2px 6px -2px rgba(0,0,0,0.06)" }}
     >
       {m.photoUrl ? (
         <img src={m.photoUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
