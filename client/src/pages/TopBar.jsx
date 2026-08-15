@@ -1,6 +1,30 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
+
+// Decodes the current user's id straight from the JWT — used to filter out
+// a user's own messages from the incoming-message popup (send_message is
+// echoed back to the sender too, see server.js's socket.emit to the sender).
+function getCurrentUserId() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload?.id ?? payload?.userId ?? payload?.user_id ?? payload?.sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// Strips the invisible [[REPLY]]...[[/REPLY]] marker Inbox.jsx embeds in
+// reply messages (see buildReplyContent/parseReplyContent there), so the
+// popup preview shows the actual message text, not the raw marker.
+const REPLY_MARKER_RE = /^\[\[REPLY\]\].*?\[\[\/REPLY\]\]\n?([\s\S]*)$/;
+function previewText(content) {
+  if (!content) return "";
+  const m = content.match(REPLY_MARKER_RE);
+  return m ? m[1] : content;
+}
 
 const API_BASE  = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 const SERVER_URL = import.meta.env.VITE_API_URL  || "http://localhost:5000";
@@ -845,6 +869,69 @@ function NotificationToastStack({ toasts, onDismiss, onSelect }) {
   );
 }
 
+// ─── INCOMING MESSAGE POPUP (bottom-right) ────────────────────────────────────
+// Pops up whenever a "receive_message" socket event arrives for a chat
+// message that isn't yours — separate from the notification toast above,
+// which stays top-right and covers tasks/forms/etc. This one is scoped to
+// Inbox chat messages and shows on every page (TopBar mounts everywhere),
+// not just while the Inbox page happens to be open.
+const MSG_TOAST_AUTO_DISMISS_MS = 7000;
+
+function MessageToast({ m, onDismiss, onClick }) {
+  useEffect(() => {
+    const t = setTimeout(onDismiss, MSG_TOAST_AUTO_DISMISS_MS);
+    return () => clearTimeout(t);
+  }, [onDismiss]);
+
+  return (
+    <div
+      onClick={onClick}
+      className="group pointer-events-auto relative w-[340px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl shadow-2xl border border-gray-100 px-4 py-3.5 flex items-start gap-3 cursor-pointer animate-[msg-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
+      {m.photoUrl ? (
+        <img src={m.photoUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+      ) : (
+        <span className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-violet-100 text-violet-700">
+          {initials(...String(m.name || "").split(" "))}
+        </span>
+      )}
+      <div className="flex-1 min-w-0 pr-4">
+        <p className="text-[13px] font-extrabold text-gray-900 leading-snug truncate">{m.name}</p>
+        <p className="text-[12.5px] text-gray-500 mt-0.5 leading-snug truncate">{m.preview}</p>
+      </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); onDismiss(); }}
+        className="absolute top-2 right-2 w-5 h-5 rounded-md flex items-center justify-center text-gray-300 opacity-0 group-hover:opacity-100 hover:text-gray-500 hover:bg-gray-50 transition-all"
+      >
+        <XIcon />
+      </button>
+      <style>{`
+        @keyframes msg-toast-in {
+          from { opacity: 0; transform: translateY(16px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function MessageToastStack({ toasts, onDismiss, onSelect }) {
+  if (toasts.length === 0) return null;
+  return (
+    <div className="fixed bottom-5 right-5 z-[300] flex flex-col-reverse gap-3 pointer-events-none">
+      {toasts.map(m => (
+        <MessageToast
+          key={m.id}
+          m={m}
+          onDismiss={() => onDismiss(m.id)}
+          onClick={() => { onSelect(m); onDismiss(m.id); }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // ─── NOTIFICATION PANEL ───────────────────────────────────────────────────────
 const NOTIF_FILTERS = [
   { key: "all",    label: "All" },
@@ -1052,6 +1139,7 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
 // ─── MAIN TOPBAR ─────────────────────────────────────────────────────────────
 export default function TopBar({ children, onLogout }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showNotif,    setShowNotif]    = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showProfile,  setShowProfile]  = useState(false);
@@ -1061,9 +1149,15 @@ export default function TopBar({ children, onLogout }) {
   const [notifications,   setNotifications]   = useState([]);
   const [notifLoading,    setNotifLoading]    = useState(true);
   const [toastQueue,      setToastQueue]      = useState([]);
+  const [msgToastQueue,   setMsgToastQueue]   = useState([]);
 
   const notifRef = useRef();
   const dropRef  = useRef();
+
+  // Kept fresh via effect below so the socket listener (registered once)
+  // always knows the current route without needing to re-subscribe.
+  const pathRef = useRef(location.pathname);
+  useEffect(() => { pathRef.current = location.pathname; }, [location.pathname]);
 
   // ── Fetch full profile from API using JWT id ──────────────────────────────
   useEffect(() => {
@@ -1119,6 +1213,42 @@ export default function TopBar({ children, onLogout }) {
     socket.on("notification", onNotification);
     return () => socket.off("notification", onNotification);
   }, []);
+
+  // ── Inbox messages: bottom-right popup, live everywhere ──────────────────
+  // TopBar is mounted on every page, so this listener (and the popup it
+  // triggers) works regardless of whether Inbox.jsx is currently mounted —
+  // unlike a listener living inside Inbox.jsx, which only exists while
+  // you're on that page.
+  useEffect(() => {
+    connectSocket();
+    const currentUserId = getCurrentUserId();
+
+    const onReceiveMessage = (msg) => {
+      if (!msg || msg.pin_sync || msg.is_system) return;
+      if (String(msg.sender_id) === String(currentUserId)) return; // your own message, echoed back
+      if (pathRef.current?.startsWith("/inbox")) return; // already visible there in real time
+
+      const preview = previewText(msg.content) || (msg.file_url ? "📎 File" : "New message");
+      setMsgToastQueue(q => [...q.slice(-3), {
+        id: Date.now() + Math.random(),
+        senderId: msg.sender_id,
+        name: msg.sender_name || "New message",
+        photoUrl: msg.sender_photo ? fullAvatarUrl(msg.sender_photo) : null,
+        preview,
+      }]);
+    };
+
+    socket.on("receive_message", onReceiveMessage);
+    return () => socket.off("receive_message", onReceiveMessage);
+  }, []);
+
+  const dismissMsgToast = useCallback((id) => {
+    setMsgToastQueue(q => q.filter(t => t.id !== id));
+  }, []);
+
+  const handleSelectMessage = useCallback((m) => {
+    navigate("/inbox", { state: { openConversationId: m.senderId } });
+  }, [navigate]);
 
   const dismissToast = useCallback((id) => {
     setToastQueue(q => q.filter(t => t.id !== id));
@@ -1262,6 +1392,12 @@ export default function TopBar({ children, onLogout }) {
         toasts={toastQueue}
         onDismiss={dismissToast}
         onSelect={handleSelectNotification}
+      />
+
+      <MessageToastStack
+        toasts={msgToastQueue}
+        onDismiss={dismissMsgToast}
+        onSelect={handleSelectMessage}
       />
     </>
   );
