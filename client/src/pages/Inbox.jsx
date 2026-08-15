@@ -766,6 +766,12 @@ export default function Inbox() {
   const dmFileRef = useRef(null);
   const docFileRef = useRef(null);
 
+  // The receive_message socket handler below is set up once on mount, so it
+  // can't read activeConv directly (it would only ever see the value from
+  // that first render). Keep it in a ref that's always current instead.
+  const activeConvRef = useRef(null);
+  useEffect(() => { activeConvRef.current = activeConv; }, [activeConv]);
+
   // ── Socket setup ─────────────────────────────────────────────────────────────
   // Uses the single shared socket (./socket) that TopBar and the rest of the
   // app also use — NOT a separate io() connection. A second, independent
@@ -788,10 +794,20 @@ export default function Inbox() {
     socket.on("online_users", (ids) => setOnlineUserIds(ids.map(String)));
 
     const onReceiveMessage = (msg) => {
-      setMessages(prev => {
-        if (prev.find(m => m.id === msg.id)) return prev;
-        return [...prev, msg];
-      });
+      // Only render this message into the open thread if it actually
+      // belongs to that conversation — otherwise a message from someone
+      // else leaks into whatever chat you currently have open.
+      const conv = activeConvRef.current;
+      const belongsToActiveConv = conv && (
+        String(msg.sender_id) === String(conv.id) ||
+        String(msg.receiver_id) === String(conv.id)
+      );
+      if (belongsToActiveConv) {
+        setMessages(prev => {
+          if (prev.find(m => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+      }
       // Pin/unpin notices piggyback their pin-state change on this same,
       // already-reliable channel (rather than a bespoke socket event the
       // server may not relay) so the other participant's pin indicator and
