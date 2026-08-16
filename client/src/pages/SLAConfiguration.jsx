@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "./Sidebar";
 import {
   Bell, Search, Plus, Download, Filter, MoreHorizontal, ChevronRight,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
@@ -140,40 +141,6 @@ const Icon = {
     </svg>
   ),
 };
-
-// ── Sidebar Item ─────────────────────────────────────────────────────────
-function SbItem({ icon, label, active, onClick, badge }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "8px 14px",
-        color: active ? "white" : "#c8c4e0",
-        fontSize: 12,
-        cursor: "pointer",
-        borderLeft: active ? "2px solid #7c3aed" : "2px solid transparent",
-        background: active ? "rgba(124,58,237,0.18)" : "transparent",
-      }}
-      onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-      onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
-    >
-      <span style={{ opacity: active ? 1 : 0.7 }}>{icon}</span>
-      <span style={{ flex: 1 }}>{label}</span>
-      {badge > 0 && (
-        <span style={{
-          minWidth: 16, height: 16, padding: "0 4px", borderRadius: 8,
-          background: "#dc2626", color: "white", fontSize: 10, fontWeight: "bold",
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        }}>
-          {badge > 99 ? "99+" : badge}
-        </span>
-      )}
-    </div>
-  );
-}
 
 const PRIORITY_CFG = {
   High:   { bg: "#ede9fe", color: "#6d28d9" },
@@ -554,42 +521,7 @@ export default function SLAConfiguration() {
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
 
-      {/* ── Sidebar ── */}
-      <div style={{
-        width: 200, background: "#1e1b2e", color: "#c8c4e0",
-        display: "flex", flexDirection: "column", flexShrink: 0,
-        minHeight: "100vh", position: "sticky", top: 0, height: "100vh", overflowY: "auto",
-      }}>
-        <div style={{ padding: 16, display: "flex", alignItems: "center", gap: 10, borderBottom: "0.5px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ width: 28, height: 28, background: "#7c3aed", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-            <Icon.Shield />
-          </div>
-          <span style={{ fontSize: 15, fontWeight: "bold", color: "white", letterSpacing: 2 }}>PATH</span>
-        </div>
-
-        <div style={{ padding: "8px 0", flex: 1 }}>
-          <SbItem icon={<Icon.Grid />} label="Dashboard" active={false} onClick={() => navigate("/dashboard")} />
-          <SbItem icon={<Icon.Inbox />} label="Inbox / Received" active={false} onClick={() => navigate("/inbox")} />
-          <SbItem icon={<Icon.Tasks />} label="My Tasks" active={false} onClick={() => navigate("/tasks")} />
-          <SbItem icon={<Icon.Forms />} label="Forms" active={false} onClick={() => navigate("/forms")} />
-          <SbItem icon={<Icon.Tracking />} label="Tracking" active={false} onClick={() => navigate("/tracking")} />
-          <div style={{ fontSize: 10, color: "rgba(200,196,224,0.4)", letterSpacing: 1, padding: "12px 14px 4px", textTransform: "uppercase" }}>Administration</div>
-
-          {canViewAdminNav && <SbItem icon={<Icon.Reports />} label="Reports" active={false} onClick={() => navigate("/reports")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.Categories />} label="Document Categories" active={false} onClick={() => navigate("/document-categories")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.Users />} label="Users & Roles" active={false} onClick={() => navigate("/users")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.Shield />} label="Audit Trail" active={false} onClick={() => navigate("/audit")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Assign Task" active={false} onClick={() => navigate("/assign-task")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Tasks Assigned" active={false} onClick={() => navigate("/task-assigned")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.SLA />} label="SLA Configuration" active={true} onClick={() => navigate("/sla-configuration")} />}
-          <SbItem icon={<Icon.Settings />} label="Settings" active={false} onClick={() => { }} />
-        </div>
-
-        <div style={{ paddingTop: 10, borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
-          <SbItem icon={<Icon.Help />} label="Help & Support" onClick={() => {}} />
-          <SbItem icon={<Icon.Logout />} label="Logout" onClick={() => {}} />
-        </div>
-      </div>
+      <Sidebar activePage="sla-configuration" />
 
       {/* ── Main ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
