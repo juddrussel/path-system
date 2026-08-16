@@ -137,27 +137,33 @@ const Icon = {
 
 // ── Sidebar Item ──────────────────────────────────────────────────────────────
 function SbItem({ icon, label, active, onClick, badge }) {
+  const [hover, setHover] = useState(false);
+  const highlighted = active || hover;
+
   return (
     <div
       onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       style={{
         display: "flex",
         alignItems: "center",
         gap: 10,
         margin: "2px 12px",
-        padding: "9px 12px",
+        padding: "8px 11px",
         borderRadius: 10,
-        color: active ? COLORS.textActive : COLORS.textMuted,
+        color: highlighted ? COLORS.textActive : COLORS.textMuted,
         fontSize: 13,
-        fontWeight: active ? 600 : 500,
+        fontWeight: highlighted ? 600 : 500,
         cursor: "pointer",
-        background: active ? COLORS.activePill : "transparent",
-        transition: "background 0.15s ease",
+        background: active
+          ? "linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05))"
+          : hover ? "rgba(124,58,237,0.06)" : "transparent",
+        border: "1px solid transparent",
+        transition: "background 0.15s ease, border-color 0.15s ease, color 0.15s ease",
       }}
-      onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(124,58,237,0.06)"; }}
-      onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
     >
-      <span style={{ display: "flex", opacity: active ? 1 : 0.85, flexShrink: 0 }}>{icon}</span>
+      <span style={{ display: "flex", opacity: highlighted ? 1 : 0.85, flexShrink: 0 }}>{icon}</span>
       <span style={{ flex: 1 }}>{label}</span>
       {badge > 0 && (
         <span style={{
