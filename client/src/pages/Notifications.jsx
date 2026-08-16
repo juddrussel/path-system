@@ -237,6 +237,16 @@ const TYPE_CFG = {
   // any old rows still in the `notifications` table render correctly
   // instead of falling through to the generic Bell icon.
   task_deadline_near:     { icon: AlertCircle,   category: "tasks", highPriority: true },
+  // Admin/program_chair side of the deadline sweep: fires on the same
+  // 7d/3d/1d/due-today schedule as task_deadline_* above, but only for
+  // tasks that are still awaiting approval (not yet "Approved"/"Received"/
+  // "Done") when the sweep runs — nudges the approver, not the faculty
+  // member. Sent only to admin/program_chair users (see notify() call
+  // added to checkDeadlineReminders() in task.routes.js).
+  task_approval_due_7d:   { icon: CalendarClock, category: "tasks" },
+  task_approval_due_3d:   { icon: AlertCircle,   category: "tasks", highPriority: true },
+  task_approval_due_1d:   { icon: AlertCircle,   category: "tasks", highPriority: true },
+  task_approval_due_today:{ icon: Clock,         category: "tasks", highPriority: true },
   // A new account registered and is awaiting approval — see
   // notifyAdminsOfPendingRegistration() called from the register route.
   // Sent only to admin/program_chair users, so it shows up here for them

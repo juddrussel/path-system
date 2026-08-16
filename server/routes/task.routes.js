@@ -170,10 +170,29 @@ const DEADLINE_REMINDER_STAGES = [
   { type: "task_due_today",   daysBefore: 0, title: "Due Today" },
 ];
 
+// Admin/program_chair side of the same schedule: every task that reaches
+// checkDeadlineReminders()'s loop is, by construction, not yet approved
+// (DEADLINE_REMINDER_EXCLUDED_STATUSES already excludes "Received"), so no
+// extra status filter is needed here — this just mirrors the stages above
+// with their own notification type/title so they render distinctly (and
+// are matched separately in the `notifications` dedup check) from the
+// faculty-facing ones.
+const APPROVAL_REMINDER_STAGES = [
+  { type: "task_approval_due_7d",    daysBefore: 7, title: "Upcoming Deadline — Awaiting Your Approval" },
+  { type: "task_approval_due_3d",    daysBefore: 3, title: "Deadline in 3 Days — Awaiting Your Approval" },
+  { type: "task_approval_due_1d",    daysBefore: 1, title: "Deadline Tomorrow — Awaiting Your Approval" },
+  { type: "task_approval_due_today", daysBefore: 0, title: "Due Today — Awaiting Your Approval" },
+];
+
 // Every notification type this job can emit for a given deadline — used
 // when a deadline changes/moves, to know which stale rows to clear so the
 // schedule can re-fire correctly against the new date.
-const DEADLINE_REMINDER_TYPES = [...DEADLINE_REMINDER_STAGES.map(s => s.type), "task_deadline_now", "task_overdue"];
+const DEADLINE_REMINDER_TYPES = [
+  ...DEADLINE_REMINDER_STAGES.map(s => s.type),
+  ...APPROVAL_REMINDER_STAGES.map(s => s.type),
+  "task_deadline_now",
+  "task_overdue",
+];
 
 // Once a task is overdue, how many days to wait before nagging again.
 // Default is daily; set to 2 (or more) via env for a lighter touch.
@@ -221,6 +240,14 @@ async function checkDeadlineReminders(io) {
   try {
     const placeholders = DEADLINE_REMINDER_EXCLUDED_STATUSES.map(() => "?").join(", ");
 
+    // Fetched once per sweep (not per task) — every unapproved task shares
+    // the same admin/program_chair audience, same recipient-lookup pattern
+    // used in POST /:id/submit above, so a chair who's since gone inactive
+    // or lost the role stops getting paged without a code change.
+    const [chairsAndAdmins] = await db.query(
+      "SELECT id FROM users WHERE role IN ('admin', 'program_chair') AND is_active = 1"
+    );
+
     const [tasks] = await db.query(
       `SELECT t.*, u.full_name AS faculty_name
        FROM tasks t
@@ -265,6 +292,15 @@ async function checkDeadlineReminders(io) {
 
       const stage = DEADLINE_REMINDER_STAGES.find(s => s.daysBefore === daysUntil);
       if (!stage) continue; // more than 7 days out — nothing to send yet
+
+      // Admin/program_chair track runs independently of the faculty one
+      // below — it has its own notification type and its own per-recipient
+      // dedup check, so it can't be skipped by the faculty "already sent"
+      // guard (or vice versa) even though they fire on the same tick.
+      const approvalStage = APPROVAL_REMINDER_STAGES.find(s => s.daysBefore === daysUntil);
+      if (approvalStage) {
+        await sendApprovalStageReminder(io, task, approvalStage, deadlineStr, chairsAndAdmins);
+      }
 
       const [[existing]] = await db.query(
         `SELECT id FROM notifications
@@ -330,6 +366,51 @@ async function sendDeadlineReachedReminder(io, task, deadlineStr) {
     taskId: task.id,
     trackingId: task.tracking_id,
   });
+}
+
+// Notifies every admin/program_chair (plus the original assigner, same
+// belt-and-suspenders reasoning as POST /:id/submit above) that an
+// unapproved task is approaching its deadline. Every task passed in here
+// is already unapproved by construction — checkDeadlineReminders() only
+// queries tasks outside DEADLINE_REMINDER_EXCLUDED_STATUSES, which
+// includes "Received" — so there's no additional status check to make.
+// Fires once per recipient per stage per deadline, same guard pattern as
+// the faculty-facing reminder, just checked per-user since each admin's
+// "already sent" state is independent.
+async function sendApprovalStageReminder(io, task, stage, deadlineStr, chairsAndAdmins) {
+  const recipientIds = new Set(chairsAndAdmins.map(u => u.id));
+  if (task.assigned_by) recipientIds.add(task.assigned_by);
+
+  const message = stage.daysBefore === 0
+    ? `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) is due today (${deadlineStr}) and still awaiting your approval.`
+    : `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) is due in ${stage.daysBefore} day${stage.daysBefore === 1 ? "" : "s"} (${deadlineStr}) and still awaiting your approval.`;
+
+  for (const recipientId of recipientIds) {
+    const [[existing]] = await db.query(
+      `SELECT id FROM notifications
+       WHERE task_id = ? AND user_id = ? AND type = ?
+       LIMIT 1`,
+      [task.id, recipientId, stage.type]
+    );
+    if (existing) continue; // already sent this milestone to this recipient for the current deadline
+
+    if (io) {
+      io.to(`user_${recipientId}`).emit("task:approval_due_near", {
+        taskId: task.id,
+        deadline: task.deadline,
+        stage: stage.type,
+      });
+    }
+
+    await notify(io, {
+      userId: recipientId,
+      type: stage.type,
+      title: stage.title,
+      message,
+      taskId: task.id,
+      trackingId: task.tracking_id,
+    });
+  }
 }
 
 // Sends (or re-sends) the overdue notification for one task. Looks at the
