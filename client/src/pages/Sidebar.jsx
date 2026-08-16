@@ -234,16 +234,6 @@ export default function Sidebar({ activePage }) {
 
   const badgeFor = key => (key === "inbox" ? unreadTotal : undefined);
 
-  const displayName = user.name || "John Doe";
-  const displayRole = user.roleLabel || (user.role ? user.role.replace(/_/g, " ") : "Admin, University");
-  const initials = displayName
-    .split(" ")
-    .map(p => p[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
   return (
     <div style={{
       width: 220, background: COLORS.bg, color: COLORS.textMuted,
@@ -309,36 +299,9 @@ export default function Sidebar({ activePage }) {
 
       {/* Bottom */}
       <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: "12px 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: "50%", background: COLORS.activePill,
-            color: COLORS.accent, fontSize: 12, fontWeight: 700,
-            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-          }}>
-            {initials || "JD"}
-          </div>
-          <div style={{ flex: 1, lineHeight: 1.3, overflow: "hidden" }}>
-            <div style={{
-              fontSize: 13, fontWeight: 700, color: COLORS.heading,
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>
-              {displayName}
-            </div>
-            <div style={{
-              fontSize: 11.5, color: "#9ca3af", textTransform: "capitalize",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>
-              {displayRole}
-            </div>
-          </div>
-          <span style={{ color: "#9ca3af", flexShrink: 0, display: "flex" }}>
-            <Icon.Chevron />
-          </span>
-        </div>
-
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          marginTop: 12, fontSize: 11, color: "#9ca3af",
+          fontSize: 11, color: "#9ca3af",
         }}>
           <span>v1.0.0</span>
           <span onClick={handleLogout} style={{ cursor: "pointer", display: "flex", color: "#9ca3af" }}>
