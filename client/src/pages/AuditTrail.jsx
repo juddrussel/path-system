@@ -252,24 +252,35 @@ const Icon = {
 };
 
 // ─── SIDEBAR ITEM ─────────────────────────────────────────────────────────────
-function SbItem({ icon, label, active, onClick }) {
+function SbItem({ icon, label, active, onClick, badge }) {
   return (
     <div
       onClick={onClick}
       style={{
-        display: "flex", alignItems: "center", gap: 8,
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
         padding: "8px 14px",
         color: active ? "white" : "#c8c4e0",
-        fontSize: 12, cursor: "pointer",
+        fontSize: 12,
+        cursor: "pointer",
         borderLeft: active ? "2px solid #7c3aed" : "2px solid transparent",
         background: active ? "rgba(124,58,237,0.18)" : "transparent",
-        fontWeight: active ? "500" : "normal",
       }}
       onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
       onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
     >
       <span style={{ opacity: active ? 1 : 0.7 }}>{icon}</span>
-      {label}
+      <span style={{ flex: 1 }}>{label}</span>
+      {badge > 0 && (
+        <span style={{
+          minWidth: 16, height: 16, padding: "0 4px", borderRadius: 8,
+          background: "#dc2626", color: "white", fontSize: 10, fontWeight: "bold",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
     </div>
   );
 }

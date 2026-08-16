@@ -826,7 +826,7 @@ export default function UserManagement() {
     navigate("/login");
   };
 
-  const SbItem = ({ icon, label, active, onClick }) => (
+  const SbItem = ({ icon, label, active, onClick, badge }) => (
     <div
       onClick={onClick}
       style={{
@@ -842,7 +842,16 @@ export default function UserManagement() {
       onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
     >
       <span style={{ opacity: active ? 1 : 0.7 }}>{icon}</span>
-      {label}
+      <span style={{ flex: 1 }}>{label}</span>
+      {badge > 0 && (
+        <span style={{
+          minWidth: 16, height: 16, padding: "0 4px", borderRadius: 8,
+          background: "#dc2626", color: "white", fontSize: 10, fontWeight: "bold",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
     </div>
   );
 
