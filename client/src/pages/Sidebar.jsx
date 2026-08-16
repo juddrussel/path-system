@@ -243,7 +243,7 @@ export default function Sidebar({ activePage }) {
       width: 220, background: COLORS.bg, color: COLORS.textMuted,
       display: "flex", flexDirection: "column", flexShrink: 0,
       minHeight: "100vh", position: "sticky", top: 0, height: "100vh", overflowY: "auto",
-      fontFamily: "inherit",
+      fontFamily: "inherit", borderRight: `1px solid ${COLORS.border}`,
     }}>
       {/* Logo */}
       <div style={{
