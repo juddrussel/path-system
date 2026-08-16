@@ -60,6 +60,17 @@ function computeSlaProgress(slaStartAt, deadlineAt) {
   return { percentElapsed, timeRemainingText };
 }
 
+// Given when a task started and the rule's turnaround_hours, returns the
+// actual due Date. This is what feeds deadlineAt in createAlertInternal
+// and slaCron.js — the missing link between "turnaround" (this) and
+// "escalation" (escalation_hours, counted from this deadline).
+function computeDeadline(slaStartAt, turnaroundHours) {
+  if (!slaStartAt || !turnaroundHours) return null;
+  const start = slaStartAt instanceof Date ? slaStartAt : new Date(slaStartAt);
+  if (Number.isNaN(start.getTime())) return null;
+  return new Date(start.getTime() + Number(turnaroundHours) * 60 * 60 * 1000);
+}
+
 // ── Stats ─────────────────────────────────────────────────────────────────
 // NOTE: "Overdue Requests" ideally comes from your actual document/request
 // tracking table, which isn't part of this page's scope. It's currently a
@@ -114,7 +125,7 @@ async function getRule(req, res) {
 async function createRule(req, res) {
   const {
     documentType, priority,
-    reviewerRole, escalationHours, reminderLeadHours, remarks,
+    reviewerRole, turnaroundHours, escalationHours, reminderLeadHours, remarks,
   } = req.body;
 
   if (!documentType || !reviewerRole) {
@@ -124,11 +135,11 @@ async function createRule(req, res) {
   try {
     const [result] = await db.query(
       `INSERT INTO sla_rules
-        (document_type, priority, reviewer_role, escalation_hours, reminder_lead_hours, remarks, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        (document_type, priority, reviewer_role, turnaround_hours, escalation_hours, reminder_lead_hours, remarks, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        documentType, priority || "Medium", reviewerRole, escalationHours || 24,
-        reminderLeadHours || 24, remarks || null, req.user?.id ?? null,
+        documentType, priority || "Medium", reviewerRole, turnaroundHours || 48,
+        escalationHours || 24, reminderLeadHours || 24, remarks || null, req.user?.id ?? null,
       ]
     );
     await logActivity(req.user?.id, "Created", documentType);
@@ -143,7 +154,7 @@ async function updateRule(req, res) {
   const { id } = req.params;
   const {
     documentType, priority,
-    reviewerRole, escalationHours, reminderLeadHours, remarks, status,
+    reviewerRole, turnaroundHours, escalationHours, reminderLeadHours, remarks, status,
   } = req.body;
 
   try {
@@ -153,12 +164,13 @@ async function updateRule(req, res) {
     await db.query(
       `UPDATE sla_rules SET
         document_type = ?, priority = ?,
-        reviewer_role = ?, escalation_hours = ?, reminder_lead_hours = ?, remarks = ?, status = ?
+        reviewer_role = ?, turnaround_hours = ?, escalation_hours = ?, reminder_lead_hours = ?, remarks = ?, status = ?
        WHERE id = ?`,
       [
         documentType ?? existing.document_type,
         priority ?? existing.priority,
         reviewerRole ?? existing.reviewer_role,
+        turnaroundHours ?? existing.turnaround_hours,
         escalationHours ?? existing.escalation_hours,
         reminderLeadHours ?? existing.reminder_lead_hours,
         remarks ?? existing.remarks,
@@ -434,4 +446,5 @@ module.exports = {
   getEscalationSettings, updateEscalationSettings, addRecipient, removeRecipient,
   listAlerts, createAlert, createAlertInternal, resolveAlert,
   listActivity,
+  computeDeadline,
 };

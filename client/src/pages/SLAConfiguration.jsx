@@ -235,6 +235,7 @@ export default function SLAConfiguration() {
     docType: "",
     priority: "Medium",
     reviewerRole: "",
+    turnaroundHours: 48,
     escalationHours: 24,
     remarks: "",
   });
@@ -258,6 +259,7 @@ export default function SLAConfiguration() {
           documentType: createForm.docType,
           priority: createForm.priority,
           reviewerRole: createForm.reviewerRole,
+          turnaroundHours: Number(createForm.turnaroundHours),
           escalationHours: Number(createForm.escalationHours),
           remarks: createForm.remarks,
         }),
@@ -332,6 +334,7 @@ export default function SLAConfiguration() {
       docType: r.document_type,
       priority: r.priority,
       reviewerRole: r.reviewer_role,
+      turnaroundHours: r.turnaround_hours,
       escalationHours: r.escalation_hours,
       remarks: r.remarks || "",
       status: r.status,
@@ -356,6 +359,7 @@ export default function SLAConfiguration() {
           documentType: ruleForm.docType,
           priority: ruleForm.priority,
           reviewerRole: ruleForm.reviewerRole,
+          turnaroundHours: Number(ruleForm.turnaroundHours),
           escalationHours: Number(ruleForm.escalationHours),
           remarks: ruleForm.remarks,
         }),
@@ -449,6 +453,10 @@ export default function SLAConfiguration() {
               <option key={role} value={role}>{role}</option>
             ))}
           </select>
+        </div>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Turnaround Time (Hours)</label>
+          <input type="number" value={ruleForm.turnaroundHours} onChange={e => set("turnaroundHours", e.target.value)} style={inpStyle} />
         </div>
         <div>
           <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
@@ -594,7 +602,7 @@ export default function SLAConfiguration() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid #f0f0f3" }}>
-                      {["Document Type", "Priority", "Escalation", "Owner Role", "Status", "Actions"].map(h => (
+                      {["Document Type", "Priority", "Turnaround", "Escalation", "Owner Role", "Status", "Actions"].map(h => (
                         <th key={h} style={{ textAlign: "left", padding: "0 10px 10px 0", fontSize: 10.5, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
                       ))}
                     </tr>
@@ -612,6 +620,7 @@ export default function SLAConfiguration() {
                       >
                         <td style={{ padding: "12px 10px 12px 0", fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{r.document_type}</td>
                         <td style={{ padding: "12px 10px" }}><PriorityPill priority={r.priority} /></td>
+                        <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#4b5563" }}>{r.turnaround_hours}h</td>
                         <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#9ca3af" }}>{r.escalation_hours}h Overdue</td>
                         <td style={{ padding: "12px 10px", fontSize: 12, color: "#4b5563" }}>{r.reviewer_role}</td>
                         <td style={{ padding: "12px 10px" }}><StatusDot status={r.status} /></td>
@@ -934,6 +943,10 @@ export default function SLAConfiguration() {
                     <option key={role} value={role}>{role}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Turnaround Time (Hours)</label>
+                <input type="number" value={createForm.turnaroundHours} onChange={e => setCreate("turnaroundHours", e.target.value)} style={inpStyle} />
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
