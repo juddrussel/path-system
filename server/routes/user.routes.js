@@ -274,7 +274,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
     return res.status(403).json({ message: "Forbidden." });
   }
 
-  const { first_name, last_name, email, phone, department, avatar_url, role, is_active } = req.body;
+  const { full_name, first_name, last_name, email, phone, department, avatar_url, role, is_active } = req.body;
 
   try {
     // Any field not actually present in the request body must fall back to
@@ -292,10 +292,16 @@ router.patch("/:id", requireAuth, async (req, res) => {
     }
     const existing = existingRows[0];
 
-    const nameProvided = first_name !== undefined || last_name !== undefined;
-    const nextFullName = nameProvided
-      ? `${first_name || ""} ${last_name || ""}`.trim()
-      : existing.full_name;
+    // full_name is the source of truth (matches the `users.full_name`
+    // column). first_name/last_name are accepted too for backwards
+    // compatibility with older callers and get combined if full_name
+    // itself isn't sent.
+    let nextFullName = existing.full_name;
+    if (full_name !== undefined) {
+      nextFullName = (full_name || "").trim();
+    } else if (first_name !== undefined || last_name !== undefined) {
+      nextFullName = `${first_name || ""} ${last_name || ""}`.trim();
+    }
 
     const nextEmail      = email       !== undefined ? (email || null)      : existing.email;
     const nextPhone      = phone       !== undefined ? (phone || null)      : existing.phone;
