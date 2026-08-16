@@ -1628,14 +1628,6 @@ export default function Inbox() {
                 </button>
               </div>
 
-              {/* Tabs */}
-              <div style={{ display: "flex", gap: 4 }}>
-                {[["dm", "💬 Messages"], ["documents", "📄 Documents"]].map(([key, label]) => (
-                  <button key={key} onClick={() => setTab(key)} style={{ flex: 1, padding: "6px 0", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: "bold", background: tab === key ? "#ede9fe" : "transparent", color: tab === key ? "#7c3aed" : "#888" }}>
-                    {label}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* New Chat User Picker */}
