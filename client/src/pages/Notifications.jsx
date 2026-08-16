@@ -247,6 +247,11 @@ const TYPE_CFG = {
   task_approval_due_3d:   { icon: AlertCircle,   category: "tasks", highPriority: true },
   task_approval_due_1d:   { icon: AlertCircle,   category: "tasks", highPriority: true },
   task_approval_due_today:{ icon: Clock,         category: "tasks", highPriority: true },
+  // Repeating nag once an unapproved task's deadline has passed — same
+  // per-recipient cadence as task_overdue (OVERDUE_REMINDER_INTERVAL_DAYS),
+  // just aimed at admin/program_chair instead of faculty. See
+  // sendApprovalOverdueReminder() in task.routes.js.
+  task_approval_overdue:  { icon: AlertCircle,   category: "tasks", highPriority: true },
   // A new account registered and is awaiting approval — see
   // notifyAdminsOfPendingRegistration() called from the register route.
   // Sent only to admin/program_chair users, so it shows up here for them

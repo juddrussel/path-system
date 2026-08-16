@@ -192,6 +192,7 @@ const DEADLINE_REMINDER_TYPES = [
   ...APPROVAL_REMINDER_STAGES.map(s => s.type),
   "task_deadline_now",
   "task_overdue",
+  "task_approval_overdue",
 ];
 
 // Once a task is overdue, how many days to wait before nagging again.
@@ -287,6 +288,7 @@ async function checkDeadlineReminders(io) {
 
       if (daysUntil < 0) {
         await sendOverdueReminder(io, task, deadlineStr, -daysUntil);
+        await sendApprovalOverdueReminder(io, task, deadlineStr, -daysUntil, chairsAndAdmins);
         continue;
       }
 
@@ -447,6 +449,50 @@ async function sendOverdueReminder(io, task, deadlineStr, daysOverdue) {
     taskId: task.id,
     trackingId: task.tracking_id,
   });
+}
+
+// Admin/program_chair equivalent of sendOverdueReminder() above — same
+// per-recipient cadence gate (OVERDUE_REMINDER_INTERVAL_DAYS since THAT
+// recipient's last task_approval_overdue row, not the faculty one), sent
+// to admins/program_chairs plus the original assigner. Independent of
+// sendOverdueReminder(): a chair's nag cadence isn't tied to whenever the
+// faculty member's own overdue reminder last fired.
+async function sendApprovalOverdueReminder(io, task, deadlineStr, daysOverdue, chairsAndAdmins) {
+  const recipientIds = new Set(chairsAndAdmins.map(u => u.id));
+  if (task.assigned_by) recipientIds.add(task.assigned_by);
+
+  const message = `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) was due ${deadlineStr} and is now ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue, still awaiting your approval.`;
+
+  for (const recipientId of recipientIds) {
+    const [[lastOverdue]] = await db.query(
+      `SELECT created_at FROM notifications
+       WHERE task_id = ? AND user_id = ? AND type = 'task_approval_overdue'
+       ORDER BY created_at DESC LIMIT 1`,
+      [task.id, recipientId]
+    );
+
+    if (lastOverdue) {
+      const daysSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceLast < OVERDUE_REMINDER_INTERVAL_DAYS) continue; // not due for another nag yet
+    }
+
+    if (io) {
+      io.to(`user_${recipientId}`).emit("task:approval_overdue", {
+        taskId: task.id,
+        deadline: task.deadline,
+        daysOverdue,
+      });
+    }
+
+    await notify(io, {
+      userId: recipientId,
+      type: "task_approval_overdue",
+      title: "Task Overdue — Awaiting Your Approval",
+      message,
+      taskId: task.id,
+      trackingId: task.tracking_id,
+    });
+  }
 }
 
 // Kicks off the periodic sweep: runs once immediately (so a server restart
