@@ -146,7 +146,7 @@ const Icon = {
 };
 
 // ── Sidebar Item (identical to Dashboard.jsx) ───────────────────────────────
-<Sidebar activePage="documentcategories" />
+<Sidebar activePage="document-categories" />
 
 // ── Sample category data (mirrors the reference screenshot) ────────────────
 const FIELD_TYPES = ["Text Input", "Text Area", "Date", "Dropdown", "Number", "Checkbox", "File Upload"];
