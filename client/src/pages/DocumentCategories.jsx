@@ -145,9 +145,6 @@ const Icon = {
   ),
 };
 
-// ── Sidebar Item (identical to Dashboard.jsx) ───────────────────────────────
-<Sidebar activePage="document-categories"/>
-
 // ── Sample category data (mirrors the reference screenshot) ────────────────
 const FIELD_TYPES = ["Text Input", "Text Area", "Date", "Dropdown", "Number", "Checkbox", "File Upload"];
 
@@ -1259,45 +1256,7 @@ export default function DocumentCategories() {
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
 
-      {/* ── Sidebar ── */}
-      <div style={{
-        width: 200, background: "#1e1b2e", color: "#c8c4e0",
-        display: "flex", flexDirection: "column", flexShrink: 0,
-        minHeight: "100vh", position: "sticky", top: 0, height: "100vh", overflowY: "auto",
-      }}>
-        {/* Logo */}
-        <div style={{ padding: 16, display: "flex", alignItems: "center", gap: 10, borderBottom: "0.5px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ width: 28, height: 28, background: "#7c3aed", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-            <img src="/images/path.png" alt="PATH" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-          </div>
-          <span style={{ fontSize: 15, fontWeight: "bold", color: "white", letterSpacing: 2 }}>PATH</span>
-        </div>
-
-        {/* Nav */}
-        <div style={{ padding: "8px 0", flex: 1 }}>
-          <SbItem icon={<Icon.Grid />} label="Dashboard" active={false} onClick={() => navigate("/dashboard")} />
-          <SbItem icon={<Icon.Inbox />} label="Inbox / Received" active={false} onClick={() => navigate("/inbox")} />
-          <SbItem icon={<Icon.Tasks />} label="My Tasks" active={false} onClick={() => navigate("/tasks")} />
-          <SbItem icon={<Icon.Forms />} label="Forms" active={false} onClick={() => navigate("/forms")} />
-          <SbItem icon={<Icon.Tracking />} label="Tracking" active={false} onClick={() => navigate("/tracking")} />
-          <div style={{ fontSize: 10, color: "rgba(200,196,224,0.4)", letterSpacing: 1, padding: "12px 14px 4px", textTransform: "uppercase" }}>Administration</div>
-
-          {canViewAdminNav && <SbItem icon={<Icon.Reports />} label="Reports" active={false} onClick={() => navigate("/reports")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.Categories />} label="Document Categories" active={true} onClick={() => navigate("/document-categories")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.Users />} label="Users & Roles" active={false} onClick={() => navigate("/users")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.Shield />} label="Audit Trail" active={false} onClick={() => navigate("/audit")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Assign Task" active={false} onClick={() => navigate("/assign-task")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.AssignTask />} label="Tasks Assigned" active={false} onClick={() => navigate("/task-assigned")} />}
-          {canViewAdminNav && <SbItem icon={<Icon.SLA />} label="SLA Configuration" active={false} onClick={() => navigate("/sla-configuration")} />}
-          <SbItem icon={<Icon.Settings />} label="Settings" active={false} onClick={() => { }} />
-        </div>
-
-        {/* Bottom */}
-        <div style={{ paddingTop: 10, borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
-          <SbItem icon={<Icon.Help />} label="Help & Support" onClick={() => { }} />
-          <SbItem icon={<Icon.Logout />} label="Logout" onClick={handleLogout} />
-        </div>
-      </div>
+      <Sidebar activePage="document-categories" />
 
       {/* ── Main ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "white", minWidth: 0 }}>
