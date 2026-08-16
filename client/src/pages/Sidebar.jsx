@@ -11,95 +11,126 @@ function getUser() {
   } catch { return {}; }
 }
 
+// ── Palette ───────────────────────────────────────────────────────────────
+const COLORS = {
+  bg: "#f8f7fc",
+  border: "rgba(15,10,40,0.08)",
+  textMuted: "#6b7280",
+  textActive: "#7c3aed",
+  activePill: "#ece7fb",
+  accent: "#7c3aed",
+  heading: "#111827",
+};
+
 // ── Sidebar SVG Icons ────────────────────────────────────────────────────────
 const Icon = {
   Grid: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <rect x="1" y="1" width="6" height="6" rx="1" />
-      <rect x="9" y="1" width="6" height="6" rx="1" />
-      <rect x="1" y="9" width="6" height="6" rx="1" />
-      <rect x="9" y="9" width="6" height="6" rx="1" />
+    <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15">
+      <rect x="1" y="1" width="6" height="6" rx="1.3" />
+      <rect x="9" y="1" width="6" height="6" rx="1.3" />
+      <rect x="1" y="9" width="6" height="6" rx="1.3" />
+      <rect x="9" y="9" width="6" height="6" rx="1.3" />
     </svg>
   ),
   Inbox: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M2 3.5h12v9a1 1 0 01-1 1H3a1 1 0 01-1-1v-9z" strokeLinejoin="round" />
+      <path d="M2 3.5l6 5 6-5" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   ),
   Tasks: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <rect x="2" y="2" width="12" height="12" rx="2" />
+      <path d="M5 8.3l2 2 4-4.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Forms: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M4 1.5h6l3 3V13a1 1 0 01-1 1H4a1 1 0 01-1-1V2.5a1 1 0 011-1z" strokeLinejoin="round" />
+      <path d="M5.5 7.5h5M5.5 10h5M5.5 5h2.5" strokeLinecap="round" />
     </svg>
   ),
   Tracking: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M8 1.5c1 0 1.5.6 1.5 1.3S9 4 8 4 6.5 3.4 6.5 2.8 7 1.5 8 1.5z" />
+      <path d="M8 4v3.2M3.5 14.5c0-2.8 2-4.3 4.5-4.3s4.5 1.5 4.5 4.3" strokeLinecap="round" />
+      <circle cx="8" cy="9.3" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
   ),
   Bell: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M8 1.5a1 1 0 011 1v.6c2 .4 3.5 2.2 3.5 4.4v2.4l1.2 1.9c.2.3 0 .8-.4.8H2.7c-.4 0-.6-.5-.4-.8L3.5 10V7.5c0-2.2 1.5-4 3.5-4.4v-.6a1 1 0 011-1z" />
-      <path d="M6.2 13.5a1.8 1.8 0 003.6 0z" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M8 1.8a1 1 0 011 1v.5c2 .4 3.4 2.1 3.4 4.2v2.3l1.1 1.8c.2.3 0 .8-.4.8H2.9c-.4 0-.6-.5-.4-.8L3.6 9.8V7.5c0-2.1 1.4-3.8 3.4-4.2v-.5a1 1 0 011-1z" strokeLinejoin="round" />
+      <path d="M6.3 13.4a1.7 1.7 0 003.4 0" strokeLinecap="round" />
     </svg>
   ),
   Reports: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M2.5 13.5h11" strokeLinecap="round" />
+      <rect x="3" y="9" width="2.2" height="4.5" />
+      <rect x="6.9" y="6" width="2.2" height="7.5" />
+      <rect x="10.8" y="3" width="2.2" height="10.5" />
     </svg>
   ),
   Categories: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" />
-      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M8 1.8l6 3-6 3-6-3 6-3z" strokeLinejoin="round" />
+      <path d="M2 8l6 3 6-3M2 11l6 3 6-3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Users: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <circle cx="6" cy="5" r="3" />
-      <path d="M1 14c0-3 2-5 5-5s5 2 5 5" />
-      <path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <circle cx="6" cy="5" r="2.6" />
+      <path d="M1.2 14c0-2.8 2-4.6 4.8-4.6s4.8 1.8 4.8 4.6" strokeLinecap="round" />
+      <path d="M10.8 3c1.5.2 2.6 1.4 2.6 2.9 0 1.4-1 2.6-2.4 2.9M12.5 10.2c1.5.5 2.5 1.8 2.5 3.8" strokeLinecap="round" />
     </svg>
   ),
   Shield: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M8 1.5l5.2 1.9v3.8c0 3.4-2.2 6-5.2 7-3-.9-5.2-3.6-5.2-7V3.4L8 1.5z" strokeLinejoin="round" />
+      <path d="M5.7 8l1.6 1.6 3-3.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   AssignTask: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
-      <path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" />
-      <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <circle cx="5.5" cy="4.5" r="2.2" />
+      <path d="M1.3 13.5c0-2.5 1.8-4 4.2-4 .8 0 1.5.15 2.1.45" strokeLinecap="round" />
+      <path d="M11.5 4v5.5M8.9 6.75h5.2" strokeLinecap="round" />
+    </svg>
+  ),
+  TaskAssigned: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <rect x="3" y="2.5" width="10" height="11.5" rx="1.3" />
+      <path d="M6 2v1.6h4V2" strokeLinecap="round" />
+      <path d="M5.5 8h5M5.5 10.5h3.2" strokeLinecap="round" />
     </svg>
   ),
   SLA: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <circle cx="8" cy="8" r="6.3" />
+      <path d="M8 4.6v3.6l2.5 1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Settings: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
       <circle cx="8" cy="8" r="2" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M8 1.6v1.5M8 12.9v1.5M2.9 4.4l1.1 1.1M12 10.5l1.1 1.1M1.6 8h1.5M12.9 8h1.5M2.9 11.6l1.1-1.1M12 5.5l1.1-1.1" strokeLinecap="round" />
     </svg>
   ),
-  Help: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="7" />
-      <path d="M8 7v4M8 5v1" />
+  Collapse: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+      <path d="M5.7 2.5v11" />
+    </svg>
+  ),
+  Chevron: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" width="12" height="12">
+      <path d="M4.5 6.5L8 10l3.5-3.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Logout: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+      <path d="M6 2H3.2a1 1 0 00-1 1v10a1 1 0 001 1H6" strokeLinecap="round" />
+      <path d="M10 11l3.5-3-3.5-3M13.3 8H6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 };
@@ -112,18 +143,21 @@ function SbItem({ icon, label, active, onClick, badge }) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 8,
-        padding: "8px 14px",
-        color: active ? "white" : "#c8c4e0",
-        fontSize: 12,
+        gap: 10,
+        margin: "2px 12px",
+        padding: "9px 12px",
+        borderRadius: 10,
+        color: active ? COLORS.textActive : COLORS.textMuted,
+        fontSize: 13,
+        fontWeight: active ? 600 : 500,
         cursor: "pointer",
-        borderLeft: active ? "2px solid #7c3aed" : "2px solid transparent",
-        background: active ? "rgba(124,58,237,0.18)" : "transparent",
+        background: active ? COLORS.activePill : "transparent",
+        transition: "background 0.15s ease",
       }}
-      onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+      onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(124,58,237,0.06)"; }}
       onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
     >
-      <span style={{ opacity: active ? 1 : 0.7 }}>{icon}</span>
+      <span style={{ display: "flex", opacity: active ? 1 : 0.85, flexShrink: 0 }}>{icon}</span>
       <span style={{ flex: 1 }}>{label}</span>
       {badge > 0 && (
         <span style={{
@@ -141,7 +175,7 @@ function SbItem({ icon, label, active, onClick, badge }) {
 // Maps a URL path to the nav key it should highlight as active.
 const NAV_ITEMS = [
   { key: "dashboard", icon: Icon.Grid, label: "Dashboard", path: "/dashboard" },
-  { key: "inbox", icon: Icon.Inbox, label: "Inbox / Received", path: "/inbox" },
+  { key: "inbox", icon: Icon.Inbox, label: "Inbox", path: "/inbox" },
   { key: "tasks", icon: Icon.Tasks, label: "My Tasks", path: "/tasks" },
   { key: "forms", icon: Icon.Forms, label: "Forms", path: "/forms" },
   { key: "tracking", icon: Icon.Tracking, label: "Tracking", path: "/tracking" },
@@ -150,12 +184,12 @@ const NAV_ITEMS = [
 
 const ADMIN_NAV_ITEMS = [
   { key: "reports", icon: Icon.Reports, label: "Reports", path: "/reports" },
-  { key: "document-categories", icon: Icon.Categories, label: "Document Categories", path: "/document-categories" },
-  { key: "users", icon: Icon.Users, label: "Users & Roles", path: "/users" },
+  { key: "document-categories", icon: Icon.Categories, label: "Categories", path: "/document-categories" },
+  { key: "users", icon: Icon.Users, label: "Users", path: "/users" },
   { key: "audit", icon: Icon.Shield, label: "Audit Trail", path: "/audit" },
   { key: "assign-task", icon: Icon.AssignTask, label: "Assign Task", path: "/assign-task" },
-  { key: "task-assigned", icon: Icon.AssignTask, label: "Tasks Assigned", path: "/task-assigned" },
-  { key: "sla-configuration", icon: Icon.SLA, label: "SLA Configuration", path: "/sla-configuration" },
+  { key: "task-assigned", icon: Icon.TaskAssigned, label: "Tasks Assigned", path: "/task-assigned" },
+  { key: "sla-configuration", icon: Icon.SLA, label: "SLA Config", path: "/sla-configuration" },
 ];
 
 /**
@@ -194,18 +228,43 @@ export default function Sidebar({ activePage }) {
 
   const badgeFor = key => (key === "inbox" ? unreadTotal : undefined);
 
+  const displayName = user.name || "John Doe";
+  const displayRole = user.roleLabel || (user.role ? user.role.replace(/_/g, " ") : "Admin, University");
+  const initials = displayName
+    .split(" ")
+    .map(p => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   return (
     <div style={{
-      width: 200, background: "#1e1b2e", color: "#c8c4e0",
+      width: 220, background: COLORS.bg, color: COLORS.textMuted,
       display: "flex", flexDirection: "column", flexShrink: 0,
       minHeight: "100vh", position: "sticky", top: 0, height: "100vh", overflowY: "auto",
+      fontFamily: "inherit",
     }}>
       {/* Logo */}
-      <div style={{ padding: 16, display: "flex", alignItems: "center", gap: 10, borderBottom: "0.5px solid rgba(255,255,255,0.08)" }}>
-        <div style={{ width: 28, height: 28, background: "#7c3aed", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-          <img src="/images/path.png" alt="PATH" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+      <div style={{
+        padding: "16px 16px", display: "flex", alignItems: "center",
+        justifyContent: "space-between", gap: 10,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 30, height: 30, background: COLORS.accent, borderRadius: 8,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "white", fontSize: 12, fontWeight: 700, letterSpacing: 0.5,
+          }}>
+            DS
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 700, color: COLORS.heading, letterSpacing: 1.5 }}>
+            DS PATH
+          </span>
         </div>
-        <span style={{ fontSize: 15, fontWeight: "bold", color: "white", letterSpacing: 2 }}>PATH</span>
+        <span style={{ color: "#9ca3af", cursor: "pointer", display: "flex" }}>
+          <Icon.Collapse />
+        </span>
       </div>
 
       {/* Nav */}
@@ -222,7 +281,10 @@ export default function Sidebar({ activePage }) {
         ))}
 
         {canViewAdminNav && (
-          <div style={{ fontSize: 10, color: "rgba(200,196,224,0.4)", letterSpacing: 1, padding: "12px 14px 4px", textTransform: "uppercase" }}>
+          <div style={{
+            fontSize: 10.5, fontWeight: 700, color: "#9ca3af", letterSpacing: 1,
+            padding: "16px 22px 6px", textTransform: "uppercase",
+          }}>
             Administration
           </div>
         )}
@@ -240,9 +302,43 @@ export default function Sidebar({ activePage }) {
       </div>
 
       {/* Bottom */}
-      <div style={{ paddingTop: 10, borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
-        <SbItem icon={<Icon.Help />} label="Help & Support" onClick={() => { }} />
-        <SbItem icon={<Icon.Logout />} label="Logout" onClick={handleLogout} />
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: "12px 16px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: "50%", background: COLORS.activePill,
+            color: COLORS.accent, fontSize: 12, fontWeight: 700,
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            {initials || "JD"}
+          </div>
+          <div style={{ flex: 1, lineHeight: 1.3, overflow: "hidden" }}>
+            <div style={{
+              fontSize: 13, fontWeight: 700, color: COLORS.heading,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>
+              {displayName}
+            </div>
+            <div style={{
+              fontSize: 11.5, color: "#9ca3af", textTransform: "capitalize",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>
+              {displayRole}
+            </div>
+          </div>
+          <span style={{ color: "#9ca3af", flexShrink: 0, display: "flex" }}>
+            <Icon.Chevron />
+          </span>
+        </div>
+
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          marginTop: 12, fontSize: 11, color: "#9ca3af",
+        }}>
+          <span>v1.0.0</span>
+          <span onClick={handleLogout} style={{ cursor: "pointer", display: "flex", color: "#9ca3af" }}>
+            <Icon.Logout />
+          </span>
+        </div>
       </div>
     </div>
   );
