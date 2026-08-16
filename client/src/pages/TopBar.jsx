@@ -259,8 +259,11 @@ const AVATAR_COLORS = [
 function avatarBg(name = "") {
   return AVATAR_COLORS[(name.charCodeAt(0) || 0) % AVATAR_COLORS.length];
 }
-function initials(first = "", last = "") {
-  return `${first[0] || ""}${last[0] || ""}`.toUpperCase() || "?";
+function initials(fullName = "") {
+  const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
 // ─── IMAGE CROP MODAL ─────────────────────────────────────────────────────────
@@ -445,8 +448,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
   const [photoError, setPhotoError]         = useState("");
 
   const [form, setForm] = useState({
-    first_name: profile?.first_name || "",
-    last_name:  profile?.last_name  || "",
+    full_name:  profile?.full_name  || "",
     email:      profile?.email      || "",
     phone:      profile?.phone      || "",
     department: profile?.department || "",
@@ -602,7 +604,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
     }
   };
 
-  const [bg, fg] = avatarBg(`${profile?.first_name || ""}${profile?.last_name || ""}`);
+  const [bg, fg] = avatarBg(profile?.full_name || "");
   // pendingPreview is a local blob: URL (already absolute) — only currentAvatar (a server path) needs fullAvatarUrl
   const displayAvatar = pendingPreview || fullAvatarUrl(currentAvatar);
 
@@ -638,7 +640,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
                 className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg border-[3px] border-white"
                 style={{ background: bg, color: fg }}
               >
-                {initials(profile?.first_name, profile?.last_name)}
+                {initials(profile?.full_name)}
               </span>
             )}
 
@@ -668,7 +670,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
           </div>
 
           <h2 className="text-base font-bold text-gray-900">
-            {profile?.first_name} {profile?.last_name}
+            {profile?.full_name}
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">@{profile?.username}</p>
           <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700 capitalize">
@@ -710,14 +712,9 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
 
           {editing ? (
             <div className="flex flex-col gap-3">
-              <div className="grid grid-cols-2 gap-3">
-                <PField label="First Name">
-                  <input value={form.first_name} onChange={e => set("first_name", e.target.value)} placeholder="First name" />
-                </PField>
-                <PField label="Last Name">
-                  <input value={form.last_name} onChange={e => set("last_name", e.target.value)} placeholder="Last name" />
-                </PField>
-              </div>
+              <PField label="Full Name">
+                <input value={form.full_name} onChange={e => set("full_name", e.target.value)} placeholder="Full name" />
+              </PField>
               <PField label="Email">
                 <input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="email@company.com" />
               </PField>
@@ -893,7 +890,7 @@ function MessageToast({ m, onDismiss, onClick }) {
         <img src={m.photoUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
       ) : (
         <span className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-violet-100 text-violet-700">
-          {initials(...String(m.name || "").split(" "))}
+          {initials(m.name)}
         </span>
       )}
       <div className="flex-1 min-w-0 pr-4">
@@ -1098,7 +1095,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
 
 // ─── PROFILE DROPDOWN ────────────────────────────────────────────────────────
 function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
-  const [bg, fg] = avatarBg(`${profile?.first_name || ""}${profile?.last_name || ""}`);
+  const [bg, fg] = avatarBg(profile?.full_name || "");
 
   return (
     <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl z-[150] overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -1108,11 +1105,11 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
             <img src={fullAvatarUrl(profile.avatar_url)} alt="" className="w-9 h-9 rounded-full object-cover border border-white shadow-sm" />
           ) : (
             <span className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border border-white shadow-sm" style={{ background: bg, color: fg }}>
-              {initials(profile?.first_name, profile?.last_name)}
+              {initials(profile?.full_name)}
             </span>
           )}
           <div className="min-w-0">
-            <p className="text-xs font-bold text-gray-900 truncate">{profile?.first_name} {profile?.last_name}</p>
+            <p className="text-xs font-bold text-gray-900 truncate">{profile?.full_name}</p>
             <p className="text-[10px] text-gray-400 truncate">@{profile?.username}</p>
           </div>
         </div>
@@ -1291,7 +1288,7 @@ export default function TopBar({ children, onLogout }) {
   }, []);
 
   const unreadCount = notifications.filter(n => n.unread).length;
-  const [bg, fg] = avatarBg(`${profile?.first_name || ""}${profile?.last_name || ""}`);
+  const [bg, fg] = avatarBg(profile?.full_name || "");
 
   return (
     <>
@@ -1338,14 +1335,12 @@ export default function TopBar({ children, onLogout }) {
                 <img src={fullAvatarUrl(profile.avatar_url)} alt="" className="w-7 h-7 rounded-full object-cover border border-gray-200" />
               ) : (
                 <span className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border border-gray-200" style={{ background: bg, color: fg }}>
-                  {initials(profile?.first_name, profile?.last_name)}
+                  {initials(profile?.full_name)}
                 </span>
               )}
               <div className="hidden sm:block text-left">
                 <p className="text-xs font-bold text-gray-800 leading-tight">
-                  {profile?.first_name
-                    ? `${profile.first_name}${profile?.last_name ? ` ${profile.last_name}` : ""}`
-                    : (profile?.username || "User")}
+                  {profile?.full_name || profile?.username || "User"}
                 </p>
                 <p className="text-[10px] text-gray-400 leading-tight">{formatRole(profile?.role)}</p>
               </div>
