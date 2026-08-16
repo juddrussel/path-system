@@ -59,6 +59,65 @@ async function verifyCaptcha(token, remoteip) {
   return response.json(); // { success, challenge_ts, hostname, "error-codes"?: [...] }
 }
 
+// ─── HELPER: persist + push a notification ────────────────────────────────────
+// Mirrors notify() in task.routes.js (not exported from there, so this is a
+// small local copy rather than a cross-router import). Writes to the
+// `notifications` table and, if a socket instance was passed, emits a
+// generic "notification" event to that user's room with the saved row —
+// same shape the Notifications page already knows how to render. Never
+// throws — a notification failing to save should never fail registration.
+async function notify(io, { userId, type, title, message }) {
+  if (userId == null) return null;
+  try {
+    const [result] = await db.query(
+      `INSERT INTO notifications (user_id, type, title, message, task_id, tracking_id, is_read, created_at)
+       VALUES (?, ?, ?, ?, NULL, NULL, 0, NOW())`,
+      [userId, type, title, message]
+    );
+    const payload = {
+      id: result.insertId,
+      user_id: userId,
+      type,
+      title,
+      message,
+      task_id: null,
+      tracking_id: null,
+      is_read: 0,
+      created_at: new Date().toISOString(),
+    };
+    if (io) io.to(`user_${userId}`).emit("notification", payload);
+    return payload;
+  } catch (err) {
+    console.error("notify() failed to persist notification:", err);
+    return null;
+  }
+}
+
+// Notifies every admin / program_chair that a new account is pending
+// approval. Called right after the register route inserts the pending
+// user. Looks up recipients fresh on each call (rather than caching) so a
+// role change takes effect immediately, same as the admin lookup in
+// task.routes.js's /:id/submit handler.
+async function notifyAdminsOfPendingRegistration(io, { full_name, username, department }) {
+  try {
+    const [admins] = await db.query(
+      "SELECT id FROM users WHERE role IN ('admin', 'program_chair') AND is_active = 1"
+    );
+    const message = `${full_name} (@${username}, ${department}) registered and is awaiting approval.`;
+    for (const admin of admins) {
+      await notify(io, {
+        userId: admin.id,
+        type: "user_registered",
+        title: "New Account Pending Approval",
+        message,
+      });
+    }
+  } catch (err) {
+    // A failed admin lookup/notify should never fail the registration itself.
+    console.error("notifyAdminsOfPendingRegistration() failed:", err);
+  }
+}
+
 // ─── REGISTER ────────────────────────────────────────────────────────────────
 router.post("/register", async (req, res) => {
   const { full_name, email, phone, department, username, password, confirm_password, captchaToken } = req.body;
@@ -105,6 +164,13 @@ router.post("/register", async (req, res) => {
       detail:    `New account registered: ${username} (${department}) — awaiting approval`,
       ipAddress: req.ip,
     });
+
+    // Alert every admin/program_chair so the pending request shows up in
+    // their notification bell + as a live toast on the User Management
+    // page. Awaited for consistency with writeLog() above; internally it
+    // never throws, so a notify failure can't fail the registration.
+    const io = req.app.get("io");
+    await notifyAdminsOfPendingRegistration(io, { full_name, username, department });
 
     return res.status(201).json({ message: "Account created successfully. Awaiting admin approval." });
   } catch (err) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
+import { socket, connectSocket } from "./socket";
 
 // ─── API CONFIG ────────────────────────────────────────────────────────────────
 const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
@@ -695,6 +696,8 @@ export default function UserManagement() {
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   // ── Poll every 30 seconds for new pending registrations ──────────────────────
+  // Kept as a fallback in case the socket connection drops, so a missed
+  // real-time event still surfaces within 30s.
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
@@ -709,6 +712,34 @@ export default function UserManagement() {
     }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // ── Real-time: new account registration ───────────────────────────────────
+  // The register route emits a "user_registered" notification (see
+  // notifyAdminsOfPendingRegistration() on the backend) to every admin /
+  // program_chair the moment someone signs up. Catching it here refreshes
+  // the pending list immediately and pops a toast, instead of waiting on
+  // the 30s poll above.
+  useEffect(() => {
+    if (!canViewAdminNav) return;
+    connectSocket();
+
+    const onNotification = async (row) => {
+      if (row.type !== "user_registered") return;
+      try {
+        const [pendingData, statsData] = await Promise.all([
+          apiFetch("/users/pending"),
+          apiFetch("/users/stats"),
+        ]);
+        setPending(pendingData);
+        setStats(s => ({ ...s, ...statsData }));
+        setTab("permissions");
+        notify(row.message || "A new account is awaiting approval.");
+      } catch { /* next poll will catch it */ }
+    };
+
+    socket.on("notification", onNotification);
+    return () => socket.off("notification", onNotification);
+  }, [canViewAdminNav]);
 
   // ── User actions ────────────────────────────────────────────────────────────
   // Called from DeleteUserModal after the user picks a mode and confirms.

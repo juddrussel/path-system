@@ -5,7 +5,7 @@ import { socket, connectSocket } from "./socket";
 import {
   CheckCheck, Trash2, Search, Clock, ChevronRight, X,
   ClipboardList, AlertCircle, Inbox, Bell, Lightbulb,
-  MessageSquare, Paperclip, CalendarClock, CheckCircle2,
+  MessageSquare, Paperclip, CalendarClock, CheckCircle2, UserPlus,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "";
@@ -237,6 +237,12 @@ const TYPE_CFG = {
   // any old rows still in the `notifications` table render correctly
   // instead of falling through to the generic Bell icon.
   task_deadline_near:     { icon: AlertCircle,   category: "tasks", highPriority: true },
+  // A new account registered and is awaiting approval — see
+  // notifyAdminsOfPendingRegistration() called from the register route.
+  // Sent only to admin/program_chair users, so it shows up here for them
+  // and drives the live "New Pending Request" toast + bell badge, without
+  // needing the 30s poll in UserManagement.jsx to catch it first.
+  user_registered:        { icon: UserPlus,      category: "announcements", highPriority: true },
 };
 
 // Converts a notification row — whether it came from GET /api/notifications
