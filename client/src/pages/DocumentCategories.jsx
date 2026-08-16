@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from "./TopBar";
+import Sidebar from "./Sidebar";
 import {
   Plus, Eye, Pencil, Archive, Trash2, Search, ChevronDown,
   Layers, CheckCircle2, Inbox as InboxIcon, BarChart3,
@@ -145,38 +146,7 @@ const Icon = {
 };
 
 // ── Sidebar Item (identical to Dashboard.jsx) ───────────────────────────────
-function SbItem({ icon, label, active, onClick, badge }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "8px 14px",
-        color: active ? "white" : "#c8c4e0",
-        fontSize: 12,
-        cursor: "pointer",
-        borderLeft: active ? "2px solid #7c3aed" : "2px solid transparent",
-        background: active ? "rgba(124,58,237,0.18)" : "transparent",
-      }}
-      onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-      onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
-    >
-      <span style={{ opacity: active ? 1 : 0.7 }}>{icon}</span>
-      <span style={{ flex: 1 }}>{label}</span>
-      {badge > 0 && (
-        <span style={{
-          minWidth: 16, height: 16, padding: "0 4px", borderRadius: 8,
-          background: "#dc2626", color: "white", fontSize: 10, fontWeight: "bold",
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        }}>
-          {badge > 99 ? "99+" : badge}
-        </span>
-      )}
-    </div>
-  );
-}
+<Sidebar activePage="documentcategories" />
 
 // ── Sample category data (mirrors the reference screenshot) ────────────────
 const FIELD_TYPES = ["Text Input", "Text Area", "Date", "Dropdown", "Number", "Checkbox", "File Upload"];
