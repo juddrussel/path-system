@@ -1130,7 +1130,7 @@ router.patch("/:id/approve", requireAuth, async (req, res) => {
         userId: uid,
         type: "task_status_changed",
         title: "Task Approved",
-        message: `${actorName} approved task ${rows[0].tracking_id}`,
+        message: `${actorName} approved task "${rows[0].title}" (${rows[0].tracking_id})`,
         taskId: rows[0].id,
         trackingId: rows[0].tracking_id,
       });
@@ -1163,7 +1163,7 @@ router.patch("/:id/return", requireAuth, async (req, res) => {
         userId: uid,
         type: "task_status_changed",
         title: "Task Returned",
-        message: `${actorName} returned task ${rows[0].tracking_id}`,
+        message: `${actorName} returned task "${rows[0].title}" (${rows[0].tracking_id})`,
         taskId: rows[0].id,
         trackingId: rows[0].tracking_id,
       });
