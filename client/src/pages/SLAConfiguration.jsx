@@ -361,6 +361,7 @@ export default function SLAConfiguration() {
           turnaroundHours: Number(ruleForm.turnaroundHours),
           escalationHours: Number(ruleForm.escalationHours),
           remarks: ruleForm.remarks,
+          status: ruleForm.status,
         }),
       });
       setToast("Rule updated.");
@@ -377,6 +378,26 @@ export default function SLAConfiguration() {
   function discardChanges() {
     const r = rules.find(x => x.id === selectedRuleId);
     if (r) setRuleForm(toFormShape(r));
+  }
+
+  async function handleDeleteRule() {
+    if (!selectedRuleId) return;
+    if (!window.confirm("Delete this SLA rule? This can't be undone.")) return;
+    setSaving(true);
+    setError("");
+    try {
+      await apiFetch(`/sla/rules/${selectedRuleId}`, { method: "DELETE" });
+      setToast("Rule deleted.");
+      setShowEditModal(false);
+      setSelectedRuleId(null);
+      setRuleForm(null);
+      await loadAll();
+    } catch (err) {
+      setError(err.message || "Failed to delete rule.");
+    } finally {
+      setSaving(false);
+      setTimeout(() => setToast(""), 2500);
+    }
   }
 
   async function toggleAutoEscalation() {
@@ -419,69 +440,112 @@ export default function SLAConfiguration() {
     }
   }
 
-  function renderRuleFormBody() {
+  // ── Edit-drawer field cards (left column) ──────────────────────────────
+  function renderIdentityCard() {
     return ruleForm ? (
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
-          <input
-            value={ruleForm.docType}
-            disabled
-            readOnly
-            title="Document Type can't be changed after the rule is created."
-            style={{ ...inpStyle, cursor: "not-allowed", color: "#9ca3af", background: "#f0f0f3" }}
-          />
-        </div>
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
-          <select
-            value={ruleForm.reviewerRole}
-            onChange={e => set("reviewerRole", e.target.value)}
-            style={{ ...selStyle, color: ruleForm.reviewerRole ? "#111827" : "#9ca3af" }}
-          >
-            <option value="" disabled hidden>Select a reviewer role</option>
-            {REVIEWER_ROLES.map(role => (
-              <option key={role} value={role}>{role}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Turnaround Time (Hours)</label>
-          <input type="number" value={ruleForm.turnaroundHours} onChange={e => set("turnaroundHours", e.target.value)} style={inpStyle} />
-        </div>
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
-          <input type="number" value={ruleForm.escalationHours} onChange={e => set("escalationHours", e.target.value)} style={inpStyle} />
-        </div>
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
-          <textarea value={ruleForm.remarks} onChange={e => set("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
-        </div>
-        <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-          <button
-            disabled={saving}
-            onClick={handleUpdateRule}
-            style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
-          >
-            {saving ? "Saving…" : "Update Rule"}
-          </button>
-          <button
-            onClick={discardChanges}
-            style={{ flex: 1, padding: "10px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-          >
-            Discard Changes
-          </button>
+      <div style={drawerCardStyle}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div>
+            <label style={drawerLabelStyle}>Document Type</label>
+            <input
+              value={ruleForm.docType}
+              disabled
+              readOnly
+              title="Document Type can't be changed after the rule is created."
+              style={{ ...inpStyle, marginTop: 5, cursor: "not-allowed", color: "#9ca3af", background: "#f0f0f3" }}
+            />
+          </div>
+          <div>
+            <label style={drawerLabelStyle}>Assigned Reviewer Role</label>
+            <select
+              value={ruleForm.reviewerRole}
+              onChange={e => set("reviewerRole", e.target.value)}
+              style={{ ...selStyle, marginTop: 5, color: ruleForm.reviewerRole ? "#111827" : "#9ca3af" }}
+            >
+              <option value="" disabled hidden>Select a reviewer role</option>
+              {REVIEWER_ROLES.map(role => (
+                <option key={role} value={role}>{role}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
-    ) : (
-      <p style={{ fontSize: 12, color: "#9ca3af" }}>Select a rule from the table above to edit it.</p>
+    ) : null;
+  }
+
+  function renderTurnaroundCard() {
+    return ruleForm ? (
+      <div style={drawerCardStyle}>
+        <h3 style={drawerCardTitleStyle}>Turnaround Time</h3>
+        <div>
+          <label style={drawerLabelStyle}>Hours</label>
+          <input
+            type="number"
+            value={ruleForm.turnaroundHours}
+            onChange={e => set("turnaroundHours", e.target.value)}
+            style={{ ...inpStyle, marginTop: 5 }}
+          />
+        </div>
+      </div>
+    ) : null;
+  }
+
+  function renderEscalationTriggerCard() {
+    return ruleForm ? (
+      <div style={drawerCardStyle}>
+        <h3 style={drawerCardTitleStyle}>Escalation</h3>
+        <div>
+          <label style={drawerLabelStyle}>Escalation Trigger (Hours After Due)</label>
+          <input
+            type="number"
+            value={ruleForm.escalationHours}
+            onChange={e => set("escalationHours", e.target.value)}
+            style={{ ...inpStyle, marginTop: 5 }}
+          />
+        </div>
+      </div>
+    ) : null;
+  }
+
+  function renderRemarksCard() {
+    return ruleForm ? (
+      <div style={drawerCardStyle}>
+        <label style={drawerLabelStyle}>Internal Remarks</label>
+        <textarea
+          value={ruleForm.remarks}
+          onChange={e => set("remarks", e.target.value)}
+          rows={3}
+          style={{ ...inpStyle, marginTop: 5, resize: "vertical" }}
+        />
+      </div>
+    ) : null;
+  }
+
+  // ── Edit-drawer side cards (right column) ───────────────────────────────
+  function renderStatusCard() {
+    if (!ruleForm) return null;
+    const active = ruleForm.status !== "Paused";
+    return (
+      <div style={{ ...drawerCardStyle, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>Rule Status</p>
+          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>{active ? "Active" : "Paused"}</p>
+        </div>
+        <div
+          onClick={() => set("status", active ? "Paused" : "Active")}
+          style={{ width: 38, height: 21, borderRadius: 20, background: active ? "#7c3aed" : "#e5e7eb", position: "relative", cursor: "pointer", flexShrink: 0, transition: "background 0.15s" }}
+        >
+          <div style={{ width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 2.5, left: active ? 19 : 3, transition: "left 0.15s" }} />
+        </div>
+      </div>
     );
   }
 
-  function renderEscalationBody() {
+  function renderEscalationSettingsCard() {
     return escalation ? (
-      <>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #f5f5f8", marginBottom: 12 }}>
+      <div style={drawerCardStyle}>
+        <h3 style={drawerCardTitleStyle}>Escalation Settings</h3>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0 10px", borderBottom: "1px solid #f5f5f8", marginBottom: 10 }}>
           <div style={{ paddingRight: 10 }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>Auto-Escalation</p>
             <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>Automatically reassign to senior management if SLA fails.</p>
@@ -495,7 +559,7 @@ export default function SLAConfiguration() {
         </div>
 
         <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Reminder Notifications</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {[
             { key: "email", label: "Email Notifications", field: "notify_email" },
             { key: "dashboard", label: "In-App Dashboard Alerts", field: "notify_dashboard" },
@@ -512,8 +576,56 @@ export default function SLAConfiguration() {
             </label>
           ))}
         </div>
-      </>
+      </div>
     ) : null;
+  }
+
+  function renderPreviewCard() {
+    if (!ruleForm) return null;
+    const activeChannels = [
+      escalation?.notify_email && "Email",
+      escalation?.notify_dashboard && "Dashboard",
+      escalation?.notify_sms && "SMS",
+    ].filter(Boolean);
+    return (
+      <div style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 12, padding: 16, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, width: 4, height: "100%", background: "#7c3aed" }} />
+        <h3 style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 12 }}>
+          Configuration Preview
+        </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 11, color: "#6b7280" }}>Document</span>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.docType}</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 11, color: "#6b7280" }}>Turnaround</span>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.turnaroundHours} Hours</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 11, color: "#6b7280" }}>Reviewer</span>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.reviewerRole || "—"}</span>
+          </div>
+        </div>
+        <div style={{ borderTop: "1px solid rgba(124,58,237,0.15)", paddingTop: 12 }}>
+          <h4 style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, marginBottom: 8 }}>Escalation Timeline</h4>
+          <div style={{ position: "relative", borderLeft: "2px solid #ddd6fe", marginLeft: 6, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ position: "relative", paddingLeft: 14 }}>
+              <div style={{ position: "absolute", width: 10, height: 10, background: "#f5f3ff", border: "2px solid #7c3aed", borderRadius: "50%", left: -7, top: 2 }} />
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>Due in {ruleForm.turnaroundHours} Hours</span>
+              <span style={{ fontSize: 10.5, color: "#9ca3af" }}>Turnaround deadline</span>
+            </div>
+            <div style={{ position: "relative", paddingLeft: 14 }}>
+              <div style={{ position: "absolute", width: 10, height: 10, background: "#fef2f2", border: "2px solid #ef4444", borderRadius: "50%", left: -7, top: 2 }} />
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#ef4444", display: "block" }}>Overdue (+{ruleForm.escalationHours}h)</span>
+              <span style={{ fontSize: 10.5, color: "#9ca3af" }}>
+                {activeChannels.length ? `Alert via ${activeChannels.join(", ")}` : "Escalate to Chair"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   function ruleCode(r, idx) {
@@ -984,38 +1096,72 @@ export default function SLAConfiguration() {
         </div>
       )}
 
-      {/* ── Edit SLA Rule modal ── */}
+      {/* ── Edit SLA Rule drawer ── */}
       {showEditModal && (
         <div
           onClick={() => setShowEditModal(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 20 }}
+          style={{ position: "fixed", inset: 0, background: "rgba(24,20,69,0.4)", backdropFilter: "blur(2px)", zIndex: 50 }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#f5f4fb", borderRadius: 16, padding: 0, width: 760, maxWidth: "95vw", maxHeight: "88vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 50px rgba(17,24,39,0.25)" }}
+            style={{ position: "fixed", top: 0, right: 0, height: "100%", width: 600, maxWidth: "95vw", background: "#fcf8ff", boxShadow: "-8px 0 30px rgba(17,24,39,0.18)", display: "flex", flexDirection: "column", borderLeft: "1px solid #e5e0f5" }}
           >
             {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 22px", borderBottom: "1px solid #f1f0f5", flexShrink: 0, background: "#fff" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #e5e0f5", flexShrink: 0, background: "#fff" }}>
               <div>
-                <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>Edit SLA Rule</p>
-                <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>
-                  {ruleForm?.docType || "Select a rule"}
+                <p style={{ fontSize: 18, fontWeight: 700, color: "#181445", lineHeight: 1.2 }}>Edit SLA Configuration</p>
+                <p style={{ fontSize: 12.5, color: "#6b7280", marginTop: 4 }}>
+                  Update turnaround deadlines and escalation settings.
                 </p>
               </div>
               <X
                 onClick={() => setShowEditModal(false)}
-                style={{ width: 16, height: 16, color: "#9ca3af", cursor: "pointer" }}
+                style={{ width: 18, height: 18, color: "#9ca3af", cursor: "pointer", flexShrink: 0 }}
               />
             </div>
 
             {/* Body */}
-            <div style={{ overflowY: "auto", padding: 18, display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
-              <SectionCard title="Configure SLA Rule" subtitle="Edit parameters for the selected document category.">
-                {renderRuleFormBody()}
-              </SectionCard>
-              <SectionCard title="Escalation Settings" subtitle="Manage automated actions for overdue requests.">
-                {renderEscalationBody()}
-              </SectionCard>
+            <div style={{ overflowY: "auto", padding: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, flex: 1 }}>
+              {/* Left: form fields */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {renderIdentityCard()}
+                {renderTurnaroundCard()}
+                {renderEscalationTriggerCard()}
+                {renderRemarksCard()}
+              </div>
+              {/* Right: status, escalation settings, preview */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {renderStatusCard()}
+                {renderEscalationSettingsCard()}
+                {renderPreviewCard()}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderTop: "1px solid #e5e0f5", background: "#fff", flexShrink: 0 }}>
+              <button
+                disabled={saving}
+                onClick={handleDeleteRule}
+                style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600, color: "#ef4444", background: "none", border: "none", cursor: saving ? "default" : "pointer", padding: "8px 10px", borderRadius: 8 }}
+              >
+                <AlertTriangle style={{ width: 14, height: 14 }} />
+                Delete Rule
+              </button>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={discardChanges}
+                  style={{ padding: "10px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={saving}
+                  onClick={handleUpdateRule}
+                  style={{ padding: "10px 18px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12.5, fontWeight: 700, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
+                >
+                  {saving ? "Saving…" : "Save Changes"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1131,3 +1277,17 @@ const inpStyle = {
 };
 
 const selStyle = { ...inpStyle, cursor: "pointer" };
+
+// ── Edit-drawer card styles (right-side "Edit SLA Configuration" drawer) ──
+const drawerCardStyle = {
+  background: "#fff", border: "1px solid #e5e0f5", borderRadius: 12,
+  padding: 16, boxShadow: "0 1px 2px rgba(17,24,39,0.03)",
+};
+
+const drawerCardTitleStyle = {
+  fontSize: 11.5, fontWeight: 700, color: "#181445", marginBottom: 12,
+};
+
+const drawerLabelStyle = {
+  fontSize: 11, fontWeight: 600, color: "#6b7280",
+};
