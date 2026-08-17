@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import {
-  Bell, Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown,
+  Bell, Search, Plus, Download, Filter, MoreHorizontal, ChevronRight,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
-  AlertTriangle, CheckCircle2, Zap, UserCheck, Building2, FileText, AlertCircle,
-  Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone, ArrowUpDown, MoreVertical, ArrowUpRight,
+  AlertTriangle, CheckCircle2, Zap, UserCheck, Building2,
+  Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone,
 } from "lucide-react";
 
 // ── API base ─────────────────────────────────────────────────────────────
@@ -218,14 +218,6 @@ export default function SLAConfiguration() {
   const [documentTypes, setDocumentTypes] = useState([]);
   const [loadingDocTypes, setLoadingDocTypes] = useState(true);
   const [docTypesError, setDocTypesError] = useState("");
-
-  // ── Table toolbar state (search / priority filter / active-only / sort / pagination) ──
-  const [searchQuery, setSearchQuery] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("All Priorities");
-  const [activeOnlyFilter, setActiveOnlyFilter] = useState("Active Only");
-  const [sortAsc, setSortAsc] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const ROWS_PER_PAGE = 5;
 
   const set = (k, v) => setRuleForm(f => ({ ...f, [k]: v }));
   const setCreate = (k, v) => setCreateForm(f => ({ ...f, [k]: v }));
@@ -516,56 +508,6 @@ export default function SLAConfiguration() {
     ) : null;
   }
 
-  function ruleCode(r, idx) {
-    return `SLA-${String(r.id ?? idx + 1).padStart(3, "0")}`;
-  }
-
-  // Deterministic pseudo-count used when the API doesn't return a docs-active figure
-  function docsActiveFor(r) {
-    if (r.docs_active != null) return r.docs_active;
-    const seed = String(r.document_type || r.id || "");
-    let h = 0;
-    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-    return (h % 260) + 8;
-  }
-
-  const isNearDeadline = (r) => r.status === "Active" && Number(r.escalation_hours) <= 24;
-  const isOverdue = (r) => r.status === "Overdue" || r.status === "Breached";
-
-  const draftCount = rules.filter(r => r.status === "Draft").length;
-  const activeCount = rules.filter(r => r.status === "Active").length;
-  const nearDeadlineCount = rules.filter(isNearDeadline).length;
-  const overdueCount = rules.filter(isOverdue).length || (stats?.overdueRequests ?? 0);
-
-  const statCards = [
-    {
-      label: "Total Rules", value: stats?.totalRules ?? rules.length, icon: FileText,
-      accent: "#7c3aed", sub: `${stats?.activePolicies ?? activeCount} Active, ${draftCount} Draft`,
-    },
-    {
-      label: "Active Rules", value: stats?.activePolicies ?? activeCount, icon: CheckCircle2,
-      accent: "#059669", sub: "Monitoring current load",
-    },
-    {
-      label: "Near Deadline", value: nearDeadlineCount, icon: AlertCircle,
-      accent: "#d97706", sub: "Requires attention",
-    },
-    {
-      label: "Overdue", value: String(overdueCount).padStart(2, "0"), icon: AlertTriangle,
-      accent: "#dc2626", sub: "SLA breach occured",
-    },
-  ];
-
-  const filteredRules = rules
-    .filter(r => (r.document_type || "").toLowerCase().includes(searchQuery.toLowerCase()) || ruleCode(r).toLowerCase().includes(searchQuery.toLowerCase()))
-    .filter(r => priorityFilter === "All Priorities" || r.priority === priorityFilter)
-    .filter(r => activeOnlyFilter === "All Rules" || r.status === "Active" || (activeOnlyFilter === "Paused Only" && r.status === "Paused"))
-    .sort((a, b) => sortAsc ? a.turnaround_hours - b.turnaround_hours : b.turnaround_hours - a.turnaround_hours);
-
-  const totalPages = Math.max(1, Math.ceil(filteredRules.length / ROWS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const pagedRules = filteredRules.slice((safePage - 1) * ROWS_PER_PAGE, safePage * ROWS_PER_PAGE);
-
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
@@ -616,203 +558,78 @@ export default function SLAConfiguration() {
           </div>
 
           {/* Stat cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-            {statCards.map(s => (
-              <div key={s.label} style={{ background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", borderTop: `3px solid ${s.accent}`, padding: "16px 18px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+            {stats && [
+              { label: "Total SLA Rules", value: stats.totalRules, icon: Shield, color: "#7c3aed" },
+              { label: "Active Policies", value: stats.activePolicies, icon: CheckCircle2, color: "#059669" },
+              { label: "Open Alerts", value: stats.overdueRequests, icon: AlertTriangle, color: "#dc2626" },
+            ].map(s => (
+              <div key={s.label} style={{ background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", padding: "16px 18px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <p style={{ fontSize: 12, color: "#6d28d9", fontWeight: 700 }}>{s.label}</p>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: `${s.accent}14`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <s.icon style={{ width: 12, height: 12, color: s.accent }} />
+                  <p style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>{s.label}</p>
+                  <div style={{ width: 26, height: 26, borderRadius: 7, background: `${s.color}12`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <s.icon style={{ width: 13, height: 13, color: s.color }} />
                   </div>
                 </div>
-                <p style={{ fontSize: 26, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 6 }}>{s.sub}</p>
+                <p style={{ fontSize: 24, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{s.value}</p>
               </div>
             ))}
           </div>
 
           {/* Row: Active rules + right column */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
 
             {/* Active SLA Rules table */}
-            <div style={{ background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", overflow: "hidden" }}>
-
-              {/* Toolbar */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 16, flexWrap: "wrap" }}>
-                <div style={{ position: "relative", flex: "1 1 220px", minWidth: 180 }}>
-                  <Search style={{ width: 14, height: 14, color: "#9ca3af", position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
-                  <input
-                    value={searchQuery}
-                    onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                    placeholder="Search document type or rule ID..."
-                    style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px 9px 32px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fafafa", fontSize: 12, outline: "none" }}
-                  />
-                </div>
-                <div style={{ position: "relative" }}>
-                  <select
-                    value={priorityFilter}
-                    onChange={e => { setPriorityFilter(e.target.value); setCurrentPage(1); }}
-                    style={{ appearance: "none", padding: "9px 30px 9px 12px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", fontSize: 12, color: "#374151", cursor: "pointer", outline: "none" }}
-                  >
-                    <option>All Priorities</option>
-                    <option>High</option>
-                    <option>Medium</option>
-                    <option>Low</option>
-                  </select>
-                  <ChevronDown style={{ width: 12, height: 12, color: "#9ca3af", position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-                </div>
-                <div style={{ position: "relative" }}>
-                  <select
-                    value={activeOnlyFilter}
-                    onChange={e => { setActiveOnlyFilter(e.target.value); setCurrentPage(1); }}
-                    style={{ appearance: "none", padding: "9px 30px 9px 12px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", fontSize: 12, color: "#374151", cursor: "pointer", outline: "none" }}
-                  >
-                    <option>Active Only</option>
-                    <option>Paused Only</option>
-                    <option>All Rules</option>
-                  </select>
-                  <ChevronDown style={{ width: 12, height: 12, color: "#9ca3af", position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-                </div>
-                <button
-                  onClick={() => setSortAsc(s => !s)}
-                  title="Sort by turnaround"
-                  style={{ width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", cursor: "pointer" }}
-                >
-                  <ArrowUpDown style={{ width: 14, height: 14 }} />
-                </button>
-                <button
-                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-                >
-                  <Filter style={{ width: 13, height: 13 }} /> Filters
-                </button>
-              </div>
-
+            <SectionCard title="Active SLA Rules" subtitle="Definitions for document turnaround and automatic escalation. Click Edit to modify a rule.">
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
-                    <tr style={{ background: "#faf9fd" }}>
-                      {["Document Type", "Turnaround (Hours)", "Escalation", "Docs Active", "Status", "Actions"].map(h => (
-                        <th key={h} style={{ textAlign: "left", padding: "10px 10px", fontSize: 10.5, fontWeight: 700, color: "#7c3aed", textTransform: "none" }}>{h}</th>
+                    <tr style={{ borderBottom: "1px solid #f0f0f3" }}>
+                      {["Document Type", "Turnaround", "Escalation", "Owner Role", "Status", "Actions"].map(h => (
+                        <th key={h} style={{ textAlign: "left", padding: "0 10px 10px 0", fontSize: 10.5, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {pagedRules.map((r, i) => (
+                    {rules.map((r, i) => (
                       <tr
                         key={r.id}
                         onClick={() => selectRule(r.id)}
                         style={{
-                          borderBottom: i < pagedRules.length - 1 ? "1px solid #f5f5f8" : "none",
+                          borderBottom: i < rules.length - 1 ? "1px solid #f5f5f8" : "none",
                           cursor: "pointer",
                           background: r.id === selectedRuleId ? "#faf5ff" : "transparent",
                         }}
                       >
-                        <td style={{ padding: "14px 10px" }}>
-                          <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{r.document_type}</p>
-                          <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{ruleCode(r, i)}</p>
-                        </td>
-                        <td style={{ padding: "14px 10px", fontSize: 11.5, color: "#4b5563" }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                            <Clock style={{ width: 11, height: 11, color: "#9ca3af" }} /> {r.turnaround_hours} Hours
-                          </span>
-                        </td>
-                        <td style={{ padding: "14px 10px", fontSize: 11.5, color: "#9ca3af" }}>{r.escalation_hours} hours after</td>
-                        <td style={{ padding: "14px 10px", fontSize: 12.5, fontWeight: 700, color: "#7c3aed" }}>{docsActiveFor(r)}</td>
-                        <td style={{ padding: "14px 10px" }}><StatusDot status={r.status} /></td>
-                        <td style={{ padding: "14px 10px" }}>
+                        <td style={{ padding: "12px 10px 12px 0", fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{r.document_type}</td>
+                        <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#4b5563" }}>{r.turnaround_hours}h</td>
+                        <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#9ca3af" }}>{r.escalation_hours}h Overdue</td>
+                        <td style={{ padding: "12px 10px", fontSize: 12, color: "#4b5563" }}>{r.reviewer_role}</td>
+                        <td style={{ padding: "12px 10px" }}><StatusDot status={r.status} /></td>
+                        <td style={{ padding: "12px 10px" }}>
                           <button
                             onClick={(e) => { e.stopPropagation(); selectRule(r.id); setShowEditModal(true); }}
-                            style={{ width: 26, height: 26, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 7, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer" }}
+                            style={{
+                              display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 12px",
+                              borderRadius: 7, border: "1px solid #e5e7eb", background: "#fff",
+                              color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                            }}
                           >
-                            <MoreVertical style={{ width: 15, height: 15 }} />
+                            Edit
                           </button>
                         </td>
                       </tr>
                     ))}
-                    {!pagedRules.length && (
-                      <tr><td colSpan={6} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No SLA rules match your filters.</td></tr>
+                    {!rules.length && (
+                      <tr><td colSpan={6} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No SLA rules yet.</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
-
-              {/* Pagination footer */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderTop: "1px solid #f0f0f3" }}>
-                <p style={{ fontSize: 11.5, color: "#9ca3af" }}>
-                  Showing {pagedRules.length} of {filteredRules.length} SLA rules
-                </p>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    disabled={safePage <= 1}
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    style={{ padding: "7px 14px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: safePage <= 1 ? "#d1d5db" : "#374151", fontSize: 11.5, fontWeight: 600, cursor: safePage <= 1 ? "default" : "pointer" }}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    disabled={safePage >= totalPages}
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    style={{ padding: "7px 14px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: safePage >= totalPages ? "#d1d5db" : "#374151", fontSize: 11.5, fontWeight: 600, cursor: safePage >= totalPages ? "default" : "pointer" }}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </div>
+            </SectionCard>
 
             {/* Right column */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-              {/* SLA Performance Insights */}
-              <div style={{ background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", padding: 18 }}>
-                <p style={{ fontSize: 13.5, fontWeight: 700, color: "#111827" }}>SLA Performance Insights</p>
-                <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 2, marginBottom: 14 }}>Real-time analytics for current processing cycle.</p>
-
-                <div style={{ borderRadius: 12, overflow: "hidden", marginBottom: 16, height: 130 }}>
-                  <img
-                    src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&q=80"
-                    alt="Analytics"
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {[
-                    { label: "Avg. Processing Time", value: "4.2 Days", delta: "+0.5", up: true, icon: Clock },
-                    { label: "SLA Compliance Rate", value: "94.8%", delta: "+2.1%", up: true, icon: CheckCircle2 },
-                    { label: "At Risk Documents", value: "12", delta: "-3", up: false, icon: AlertTriangle },
-                  ].map(m => (
-                    <div key={m.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderRadius: 10, background: "#faf9fd" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <m.icon style={{ width: 13, height: 13, color: "#7c3aed" }} />
-                        </div>
-                        <div>
-                          <p style={{ fontSize: 10.5, color: "#9ca3af" }}>{m.label}</p>
-                          <p style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{m.value}</p>
-                        </div>
-                      </div>
-                      <span style={{
-                        fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
-                        color: m.up ? "#059669" : "#dc2626", background: m.up ? "#ecfdf5" : "#fef2f2",
-                      }}>
-                        {m.delta}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  style={{
-                    width: "100%", marginTop: 16, padding: "11px", borderRadius: 10, border: "none",
-                    background: "linear-gradient(90deg, #7c3aed, #6d28d9)", color: "#fff", fontSize: 12.5, fontWeight: 700,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                  }}
-                >
-                  <ArrowUpRight style={{ width: 14, height: 14 }} /> View Detailed Report
-                </button>
-              </div>
-
               <SectionCard title="System Alerts" icon={AlertTriangle}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {alerts.slice(0, 3).map(a => {
