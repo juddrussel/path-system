@@ -618,7 +618,8 @@ export default function SLAConfiguration() {
           {/* Stat cards */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
             {statCards.map(s => (
-              <div key={s.label} style={{ background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", borderTop: `3px solid ${s.accent}`, padding: "16px 18px" }}>
+              <div key={s.label} style={{ position: "relative", background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", padding: "16px 18px", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                   <p style={{ fontSize: 12, color: "#6d28d9", fontWeight: 700 }}>{s.label}</p>
                   <div style={{ width: 24, height: 24, borderRadius: "50%", background: `${s.accent}14`, display: "flex", alignItems: "center", justifyContent: "center" }}>
