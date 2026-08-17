@@ -1152,4 +1152,3 @@ const inpStyle = {
   color: "#111827", outline: "none", boxSizing: "border-box",
 };
 
-const selStyle = { ...inpStyle, cursor: "pointer" };
