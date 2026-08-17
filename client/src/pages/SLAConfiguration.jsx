@@ -566,208 +566,240 @@ export default function SLAConfiguration() {
   const safePage = Math.min(currentPage, totalPages);
   const pagedRules = filteredRules.slice((safePage - 1) * ROWS_PER_PAGE, safePage * ROWS_PER_PAGE);
 
+  const COLORS = {
+    primary: "#8b5cf6",
+    primaryLight: "#a78bfa",
+    surface: "#fcf8ff",
+    surfaceContainer: "#ffffff",
+    textPrimary: "#1e1b4b",
+    textSecondary: "#6366f1",
+    textTertiary: "#818cf8",
+    border: "#e0e7ff",
+    success: "#10b981",
+    warning: "#f59e0b",
+    danger: "#ef4444",
+  };
+  const cardShadow = "0 4px 6px -1px rgba(139,92,246,0.05), 0 2px 4px -1px rgba(139,92,246,0.03)";
+  const RADIUS = 8;
+
+  const statAccent = { "Total Rules": COLORS.primary, "Active Rules": COLORS.success, "Near Deadline": COLORS.warning, "Overdue": COLORS.danger };
+
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#111", background: "#f4f4f8" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');`}</style>
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", fontSize: 14, color: COLORS.textPrimary, background: COLORS.surface }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
 
       <Sidebar activePage="sla-configuration" />
 
       {/* ── Main ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ height: 56, display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 24px", background: "#fff", borderBottom: "1px solid #eee", gap: 14 }}>
-          <Bell style={{ width: 17, height: 17, color: "#6b7280" }} />
+        <div style={{ height: 56, display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 24px", background: COLORS.surfaceContainer, borderBottom: `1px solid ${COLORS.border}`, gap: 14 }}>
+          <Bell style={{ width: 17, height: 17, color: COLORS.textSecondary }} />
         </div>
 
         {/* ── Content ── */}
-        <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto", padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>
 
           {loading && (
-            <div style={{ padding: "10px 14px", borderRadius: 8, background: "#f5f3ff", color: "#6d28d9", fontSize: 12.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#f5f3ff", color: "#6d28d9", fontSize: 12.5 }}>
               Loading SLA data…
             </div>
           )}
           {error && (
-            <div style={{ padding: "10px 14px", borderRadius: 8, background: "#fef2f2", color: "#991b1b", fontSize: 12.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#fef2f2", color: "#991b1b", fontSize: 12.5 }}>
               {error}
             </div>
           )}
           {toast && (
-            <div style={{ padding: "10px 14px", borderRadius: 8, background: "#ecfdf5", color: "#065f46", fontSize: 12.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#ecfdf5", color: "#065f46", fontSize: 12.5 }}>
               {toast}
             </div>
           )}
 
           {/* Page header */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
             <div>
-              <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", letterSpacing: -0.4 }}>SLA Configuration</h1>
-              <p style={{ fontSize: 14, color: "#6b7280", marginTop: 6 }}>
+              <h1 style={{ fontSize: 24, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 4 }}>SLA Configuration</h1>
+              <p style={{ fontSize: 14, color: COLORS.textSecondary }}>
                 Define and manage document processing timelines and compliance rules.
               </p>
             </div>
-            <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
-              <button
-                onClick={openCreateModal}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 22px", borderRadius: 999, fontSize: 13.5, fontWeight: 700, border: "none", background: "linear-gradient(90deg, #7c3aed, #6d28d9)", color: "#fff", cursor: "pointer", boxShadow: "0 4px 14px rgba(124,58,237,0.3)" }}
-              >
-                <Icon.Plus color="#fff" size={14} /> Add New SLA Rule
-              </button>
-            </div>
+            <button
+              onClick={openCreateModal}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: RADIUS, fontSize: 14, fontWeight: 500, border: "none", background: COLORS.primary, color: "#fff", cursor: "pointer" }}
+            >
+              <Icon.Plus color="#fff" size={14} /> Add New SLA Rule
+            </button>
           </div>
 
           {/* Stat cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
-            {statCards.map(s => (
-              <div key={s.label} style={{ position: "relative", background: "#fff", borderRadius: 0, border: "1px solid rgba(0,0,0,0.06)", padding: "24px 26px", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: s.accent }} />
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-                  <p style={{ fontSize: 16, color: "#111827", fontWeight: 700 }}>{s.label}</p>
-                  <s.icon style={{ width: 18, height: 18, color: s.accent }} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+            {statCards.map(s => {
+              const accent = statAccent[s.label] || COLORS.primary;
+              return (
+                <div key={s.label} style={{ background: COLORS.surfaceContainer, padding: 20, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <p style={{ fontSize: 18, fontWeight: 500, color: COLORS.textSecondary }}>{s.label}</p>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${accent}1a`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <s.icon style={{ width: 15, height: 15, color: accent }} />
+                    </div>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 30, fontWeight: 600, color: COLORS.textPrimary, lineHeight: 1.15 }}>{s.value}</p>
+                    <p style={{ fontSize: 12, color: COLORS.textTertiary, marginTop: 4 }}>{s.sub}</p>
+                  </div>
                 </div>
-                <p style={{ fontSize: 36, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 12 }}>{s.sub}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Row: Active rules + right column */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 22, alignItems: "start" }}>
+          <div style={{ display: "flex", gap: 24, alignItems: "flex-start", flexWrap: "wrap" }}>
 
-            {/* Active SLA Rules table */}
-            <div style={{ background: "#fff", borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", overflow: "hidden" }}>
+            {/* Main column: filter bar + table */}
+            <div style={{ flex: "1 1 560px", display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
 
-              {/* Toolbar */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 20, flexWrap: "wrap" }}>
-                <div style={{ position: "relative", flex: "1 1 260px", minWidth: 200 }}>
-                  <Search style={{ width: 15, height: 15, color: "#9ca3af", position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }} />
+              {/* Filter Bar */}
+              <div style={{ background: COLORS.surfaceContainer, padding: 12, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ position: "relative", flex: "1 1 200px", minWidth: 200 }}>
+                  <Search style={{ width: 13, height: 13, color: COLORS.textTertiary, position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
                   <input
                     value={searchQuery}
                     onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                    placeholder="Search document type or rule ID..."
-                    style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px 11px 36px", borderRadius: 999, border: "1px solid #e5e7eb", background: "#fafafa", fontSize: 13, outline: "none" }}
+                    placeholder="Search document type or rule ID."
+                    style={{ width: "100%", boxSizing: "border-box", padding: "8px 12px 8px 34px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: "rgba(252,248,255,0.5)", fontSize: 13.5, outline: "none", color: COLORS.textPrimary }}
                   />
                 </div>
                 <div style={{ position: "relative" }}>
                   <select
                     value={priorityFilter}
                     onChange={e => { setPriorityFilter(e.target.value); setCurrentPage(1); }}
-                    style={{ appearance: "none", padding: "11px 34px 11px 16px", borderRadius: 999, border: "1px solid #e5e7eb", background: "#fff", fontSize: 13, color: "#374151", cursor: "pointer", outline: "none" }}
+                    style={{ appearance: "none", padding: "8px 30px 8px 12px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, fontSize: 13.5, color: COLORS.textSecondary, cursor: "pointer", outline: "none" }}
                   >
                     <option>All Priorities</option>
                     <option>High</option>
                     <option>Medium</option>
                     <option>Low</option>
                   </select>
-                  <ChevronDown style={{ width: 13, height: 13, color: "#9ca3af", position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                  <ChevronDown style={{ width: 12, height: 12, color: COLORS.textTertiary, position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
                 </div>
                 <div style={{ position: "relative" }}>
                   <select
                     value={activeOnlyFilter}
                     onChange={e => { setActiveOnlyFilter(e.target.value); setCurrentPage(1); }}
-                    style={{ appearance: "none", padding: "11px 34px 11px 16px", borderRadius: 999, border: "1px solid #e5e7eb", background: "#fff", fontSize: 13, color: "#374151", cursor: "pointer", outline: "none" }}
+                    style={{ appearance: "none", padding: "8px 30px 8px 12px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, fontSize: 13.5, color: COLORS.textSecondary, cursor: "pointer", outline: "none" }}
                   >
                     <option>Active Only</option>
                     <option>Paused Only</option>
                     <option>All Rules</option>
                   </select>
-                  <ChevronDown style={{ width: 13, height: 13, color: "#9ca3af", position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                  <ChevronDown style={{ width: 12, height: 12, color: COLORS.textTertiary, position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
                 </div>
                 <button
                   onClick={() => setSortAsc(s => !s)}
                   title="Sort by turnaround"
-                  style={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 999, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", cursor: "pointer" }}
+                  style={{ width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, color: COLORS.textSecondary, cursor: "pointer" }}
                 >
-                  <ArrowUpDown style={{ width: 15, height: 15 }} />
+                  <ArrowUpDown style={{ width: 14, height: 14 }} />
                 </button>
                 <button
-                  style={{ display: "flex", alignItems: "center", gap: 7, padding: "11px 18px", borderRadius: 999, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, color: COLORS.textSecondary, fontSize: 13.5, fontWeight: 500, cursor: "pointer" }}
                 >
-                  <Filter style={{ width: 14, height: 14 }} /> Filters
+                  <Filter style={{ width: 13, height: 13 }} /> Filters
                 </button>
               </div>
 
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ background: "#faf9fd" }}>
-                      {["Document Type", "Turnaround (Hours)", "Escalation", "Docs Active", "Status", "Actions"].map(h => (
-                        <th key={h} style={{ textAlign: "left", padding: "13px 12px", fontSize: 11.5, fontWeight: 700, color: "#7c3aed", textTransform: "none" }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pagedRules.map((r, i) => (
-                      <tr
-                        key={r.id}
-                        onClick={() => selectRule(r.id)}
-                        style={{
-                          borderBottom: i < pagedRules.length - 1 ? "1px solid #f5f5f8" : "none",
-                          cursor: "pointer",
-                          background: r.id === selectedRuleId ? "#faf5ff" : "transparent",
-                        }}
-                      >
-                        <td style={{ padding: "18px 12px" }}>
-                          <p style={{ fontSize: 13.5, fontWeight: 700, color: "#111827" }}>{r.document_type}</p>
-                          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 3 }}>{ruleCode(r, i)}</p>
-                        </td>
-                        <td style={{ padding: "18px 12px", fontSize: 12.5, color: "#4b5563" }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            <Clock style={{ width: 12, height: 12, color: "#9ca3af" }} /> {r.turnaround_hours} Hours
-                          </span>
-                        </td>
-                        <td style={{ padding: "18px 12px", fontSize: 12.5, color: "#9ca3af" }}>{r.escalation_hours} hours after</td>
-                        <td style={{ padding: "18px 12px", fontSize: 13.5, fontWeight: 700, color: "#7c3aed" }}>{docsActiveFor(r)}</td>
-                        <td style={{ padding: "18px 12px" }}><StatusDot status={r.status} /></td>
-                        <td style={{ padding: "18px 12px" }}>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); selectRule(r.id); setShowEditModal(true); }}
-                            style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer" }}
-                          >
-                            <MoreVertical style={{ width: 16, height: 16 }} />
-                          </button>
-                        </td>
+              {/* Data Table */}
+              <div style={{ background: COLORS.surfaceContainer, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, overflow: "hidden" }}>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13.5, whiteSpace: "nowrap" }}>
+                    <thead>
+                      <tr style={{ background: COLORS.surface }}>
+                        {["Document Type", "Turnaround (Hours)", "Escalation", "Docs Active", "Status", "Actions"].map((h, hi) => (
+                          <th key={h} style={{ textAlign: hi === 5 ? "center" : "left", padding: "12px 16px", fontSize: 13.5, fontWeight: 500, color: COLORS.textSecondary }}>{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                    {!pagedRules.length && (
-                      <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>No SLA rules match your filters.</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {pagedRules.map((r, i) => (
+                        <tr
+                          key={r.id}
+                          onClick={() => selectRule(r.id)}
+                          style={{
+                            borderTop: `1px solid ${COLORS.border}`,
+                            cursor: "pointer",
+                            background: r.id === selectedRuleId ? "rgba(139,92,246,0.06)" : "transparent",
+                          }}
+                        >
+                          <td style={{ padding: "12px 16px" }}>
+                            <p style={{ fontWeight: 500, color: COLORS.textPrimary }}>{r.document_type}</p>
+                            <p style={{ fontSize: 12, color: COLORS.textTertiary, fontFamily: "monospace", marginTop: 2 }}>{ruleCode(r, i)}</p>
+                          </td>
+                          <td style={{ padding: "12px 16px", color: COLORS.textSecondary }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                              <Clock style={{ width: 12, height: 12 }} /> {r.turnaround_hours} Hours
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px 16px", color: COLORS.textTertiary }}>{r.escalation_hours} hours after</td>
+                          <td style={{ padding: "12px 16px", fontWeight: 600, color: COLORS.primary }}>{docsActiveFor(r)}</td>
+                          <td style={{ padding: "12px 16px" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: COLORS.textSecondary }}>
+                              <span style={{ width: 8, height: 8, borderRadius: "50%", background: r.status === "Active" ? COLORS.success : "#9ca3af" }} />
+                              {r.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); selectRule(r.id); setShowEditModal(true); }}
+                              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", background: "transparent", color: COLORS.textTertiary, cursor: "pointer", padding: "0 8px" }}
+                            >
+                              <MoreVertical style={{ width: 15, height: 15 }} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {!pagedRules.length && (
+                        <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: COLORS.textTertiary, fontSize: 13.5 }}>No SLA rules match your filters.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
-              {/* Pagination footer */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderTop: "1px solid #f0f0f3" }}>
-                <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
-                  Showing {pagedRules.length} of {filteredRules.length} SLA rules
-                </p>
-                <div style={{ display: "flex", gap: 10 }}>
-                  <button
-                    disabled={safePage <= 1}
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    style={{ padding: "9px 18px", borderRadius: 999, border: "1px solid #e5e7eb", background: "#fff", color: safePage <= 1 ? "#d1d5db" : "#374151", fontSize: 12.5, fontWeight: 600, cursor: safePage <= 1 ? "default" : "pointer" }}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    disabled={safePage >= totalPages}
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    style={{ padding: "9px 18px", borderRadius: 999, border: "1px solid #e5e7eb", background: "#fff", color: safePage >= totalPages ? "#d1d5db" : "#374151", fontSize: 12.5, fontWeight: 600, cursor: safePage >= totalPages ? "default" : "pointer" }}
-                  >
-                    Next
-                  </button>
+                {/* Pagination */}
+                <div style={{ padding: 16, borderTop: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: COLORS.surfaceContainer }}>
+                  <p style={{ fontSize: 12, color: COLORS.textTertiary }}>
+                    Showing {pagedRules.length} of {filteredRules.length} SLA rules
+                  </p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      disabled={safePage <= 1}
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      style={{ padding: "6px 12px", fontSize: 12, fontWeight: 500, color: COLORS.textTertiary, border: `1px solid ${COLORS.border}`, borderRadius: RADIUS, background: COLORS.surfaceContainer, cursor: safePage <= 1 ? "default" : "pointer" }}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      disabled={safePage >= totalPages}
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      style={{ padding: "6px 12px", fontSize: 12, fontWeight: 500, color: COLORS.textSecondary, border: `1px solid ${COLORS.border}`, borderRadius: RADIUS, background: COLORS.surface, cursor: safePage >= totalPages ? "default" : "pointer" }}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Right column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ flex: "0 1 320px", width: 320, display: "flex", flexDirection: "column", gap: 16 }}>
 
               {/* SLA Performance Insights */}
-              <div style={{ background: "#fff", borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", padding: 22 }}>
-                <p style={{ fontSize: 15.5, fontWeight: 700, color: "#111827" }}>SLA Performance Insights</p>
-                <p style={{ fontSize: 12.5, color: "#9ca3af", marginTop: 4, marginBottom: 18 }}>Real-time analytics for current processing cycle.</p>
+              <div style={{ background: COLORS.surfaceContainer, padding: 20, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <p style={{ fontSize: 18, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 4 }}>SLA Performance Insights</p>
+                  <p style={{ fontSize: 12, color: COLORS.textTertiary }}>Real-time analytics for current processing cycle.</p>
+                </div>
 
-                <div style={{ borderRadius: 12, overflow: "hidden", marginBottom: 18, height: 150 }}>
+                <div style={{ width: "100%", height: 160, background: "#f3f4f6", borderRadius: RADIUS, overflow: "hidden" }}>
                   <img
                     src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&q=80"
                     alt="Analytics"
@@ -777,23 +809,23 @@ export default function SLAConfiguration() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {[
-                    { label: "Avg. Processing Time", value: "4.2 Days", delta: "+0.5", up: true, icon: Clock },
+                    { label: "Avg. Processing Time", value: "4.2 Days", delta: "+0.5", up: false, icon: Clock },
                     { label: "SLA Compliance Rate", value: "94.8%", delta: "+2.1%", up: true, icon: CheckCircle2 },
-                    { label: "At Risk Documents", value: "12", delta: "-3", up: false, icon: AlertTriangle },
+                    { label: "At Risk Documents", value: "12", delta: "-3", up: true, icon: AlertTriangle },
                   ].map(m => (
-                    <div key={m.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 12, background: "#faf9fd" }}>
+                    <div key={m.label} style={{ padding: 12, border: `1px solid ${COLORS.border}`, borderRadius: RADIUS, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <m.icon style={{ width: 15, height: 15, color: "#7c3aed" }} />
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(139,92,246,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <m.icon style={{ width: 15, height: 15, color: COLORS.primary }} />
                         </div>
                         <div>
-                          <p style={{ fontSize: 11.5, color: "#9ca3af" }}>{m.label}</p>
-                          <p style={{ fontSize: 14.5, fontWeight: 700, color: "#111827" }}>{m.value}</p>
+                          <p style={{ fontSize: 12, color: COLORS.textTertiary }}>{m.label}</p>
+                          <p style={{ fontSize: 13.5, fontWeight: 600, color: COLORS.textPrimary }}>{m.value}</p>
                         </div>
                       </div>
                       <span style={{
-                        fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 20,
-                        color: m.up ? "#059669" : "#dc2626", background: m.up ? "#ecfdf5" : "#fef2f2",
+                        fontSize: 10, fontWeight: 500, padding: "2px 6px", borderRadius: 4,
+                        color: m.up ? COLORS.success : COLORS.danger, background: m.up ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
                       }}>
                         {m.delta}
                       </span>
@@ -803,12 +835,12 @@ export default function SLAConfiguration() {
 
                 <button
                   style={{
-                    width: "100%", marginTop: 18, padding: "13px", borderRadius: 999, border: "none",
-                    background: "linear-gradient(90deg, #7c3aed, #6d28d9)", color: "#fff", fontSize: 13.5, fontWeight: 700,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                    width: "100%", marginTop: 8, padding: "10px", borderRadius: RADIUS, border: "none",
+                    background: COLORS.primary, color: "#fff", fontSize: 14, fontWeight: 500,
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   }}
                 >
-                  <ArrowUpRight style={{ width: 15, height: 15 }} /> View Detailed Report
+                  <ArrowUpRight style={{ width: 14, height: 14 }} /> View Detailed Report
                 </button>
               </div>
             </div>
