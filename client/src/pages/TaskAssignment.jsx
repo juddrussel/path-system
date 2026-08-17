@@ -88,12 +88,41 @@ const STATUS_CONFIG = {
   "Pending":     { bg:"#f3f4f6", color:"#374151" },
 };
 
-// SLA terms shown in the assignment form, keyed to the selected priority
+// Fallback SLA terms, only used when a document type has no matching SLA
+// rule from the backend (/api/sla/rules) yet. Whenever a rule for the
+// selected document type exists, that rule's turnaround/escalation drives
+// the SLA preview and the deadline picker instead of this table.
 const SLA_CONFIG = {
-  High:   { turnaround:"24 Hours",        escalation:"After 6 Hours",  review:"Yes — Department Head" },
-  Medium: { turnaround:"72 Hours",        escalation:"After 24 Hours", review:"Optional" },
-  Low:    { turnaround:"5 Business Days", escalation:"After 48 Hours", review:"No" },
+  High:   { turnaround:"24 Hours",        escalation:"After 6 Hours",  review:"Yes — Department Head", hours:24 },
+  Medium: { turnaround:"72 Hours",        escalation:"After 24 Hours", review:"Optional",              hours:72 },
+  Low:    { turnaround:"5 Business Days", escalation:"After 48 Hours", review:"No",                    hours:120 },
 };
+
+const pad2 = n => String(n).padStart(2, "0");
+
+// Reads a JS Date and returns its wall-clock date/time as they'd appear on
+// a clock in Manila (UTC+8, no DST), regardless of the browser's own
+// timezone. Mirrors the "+8h then read as UTC" trick used by
+// combineDeadlineToUTC below, just in reverse.
+function toManilaParts(date) {
+  const d = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  return {
+    dateStr: `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`,
+    timeStr: `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`,
+  };
+}
+
+function formatManilaLabel(dateStr, timeStr) {
+  if (!dateStr) return "";
+  const [y, mo, d] = dateStr.split("-").map(Number);
+  const [h, m] = (timeStr || "00:00").split(":").map(Number);
+  // Build a Date whose *local getters* (in the fake-UTC sense used above)
+  // read back the Manila wall-clock values, purely for display formatting.
+  const fake = new Date(Date.UTC(y, mo - 1, d, h, m));
+  return fake.toLocaleString("en-US", {
+    timeZone: "UTC", month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+  });
+}
 
 function PriorityBadge({ p }) {
   const c = PRIORITY_CONFIG[p] || PRIORITY_CONFIG.Medium;
@@ -227,6 +256,7 @@ function TaskAssignmentInner() {
   const [facultyList,    setFacultyList]    = useState([]);
   const [roleOptions,    setRoleOptions]    = useState([]);
   const [docTypes,       setDocTypes]       = useState(["Select Type…"]);
+  const [slaRules,       setSlaRules]       = useState([]);
   const [assignMode,     setAssignMode]     = useState("individual"); // "individual" | "role"
   const [selectedFacultyIds, setSelectedFacultyIds] = useState([]);
   const [selectedRole,   setSelectedRole]   = useState("");
@@ -272,7 +302,7 @@ function TaskAssignmentInner() {
   };
 
   useEffect(() => { if (!token) navigate("/login"); }, []);
-  useEffect(() => { fetchFaculty(); fetchAssignments(); fetchNextTrackingId(); fetchRoles(); fetchDocTypes(); }, []);
+  useEffect(() => { fetchFaculty(); fetchAssignments(); fetchNextTrackingId(); fetchRoles(); fetchDocTypes(); fetchSlaRules(); }, []);
   useEffect(() => {
     const onClickOutside = (e) => {
       if (facultyDropdownRef.current && !facultyDropdownRef.current.contains(e.target)) {
@@ -308,6 +338,14 @@ function TaskAssignmentInner() {
       const names = (data.categories || []).map(c => c.name);
       setDocTypes(["Select Type…", ...names]);
     } catch { setDocTypes(["Select Type…"]); }
+  };
+
+  const fetchSlaRules = async () => {
+    try {
+      const res  = await fetch(`${API}/api/sla/rules`, { headers: authH });
+      const data = await res.json();
+      setSlaRules(Array.isArray(data) ? data : (data.rules || []));
+    } catch { setSlaRules([]); }
   };
 
   const fetchAssignments = async () => {
@@ -401,8 +439,18 @@ function TaskAssignmentInner() {
       return alert("Please select at least one faculty member.");
     if (assignMode === "role" && !selectedRole)
       return alert("Please select a role to assign this task to.");
+    if (!form.doc_type)
+      return alert("Please select a Document Type so the SLA turnaround can be applied.");
     if (!form.title || !form.deadline)
       return alert("Please fill in Task Title and Deadline.");
+    {
+      const combined = `${form.deadline}T${form.deadlineTime || "00:00"}`;
+      const startCombined = `${windowStart.dateStr}T${windowStart.timeStr}`;
+      const endCombined   = `${windowEnd.dateStr}T${windowEnd.timeStr}`;
+      if (combined < startCombined || combined > endCombined) {
+        return alert(`Deadline must fall within the ${turnaroundHours}h SLA window for "${form.doc_type}" (between ${formatManilaLabel(windowStart.dateStr, windowStart.timeStr)} and ${formatManilaLabel(windowEnd.dateStr, windowEnd.timeStr)}).`);
+      }
+    }
     if (attachments.some(a => a.status === "uploading"))
       return alert("Please wait for attachments to finish uploading.");
     if (attachments.some(a => a.status === "error"))
@@ -509,7 +557,49 @@ function TaskAssignmentInner() {
   const avgLoad = Math.round(displayWorkload.reduce((s,w) => s+w.percent, 0) / displayWorkload.length);
   const capacityState = avgLoad >= 85 ? { label:"HIGH", color:"#dc2626" } : avgLoad >= 60 ? { label:"BALANCED", color:"#d97706" } : { label:"OPTIMUM", color:"#059669" };
   const availableCount = displayWorkload.filter(w => w.percent < 75).length;
-  const activeSla = SLA_CONFIG[form.priority] || SLA_CONFIG.Medium;
+  // The SLA rule configured (in SLA Configuration) for the currently
+  // selected document type — this, not the priority buttons, is the
+  // source of truth for the turnaround window once a document type
+  // with a rule is chosen.
+  const docTypeSlaRule = form.doc_type
+    ? slaRules.find(r => r.document_type === form.doc_type && (r.status ?? "Active") === "Active")
+    : null;
+
+  const fallbackSla = SLA_CONFIG[form.priority] || SLA_CONFIG.Medium;
+  const turnaroundHours = docTypeSlaRule ? Number(docTypeSlaRule.turnaround_hours) : fallbackSla.hours;
+
+  const activeSla = docTypeSlaRule
+    ? {
+        turnaround: `${docTypeSlaRule.turnaround_hours} Hours`,
+        escalation: `After ${docTypeSlaRule.escalation_hours} Hours`,
+        review: docTypeSlaRule.reviewer_role || "—",
+      }
+    : fallbackSla;
+
+  // Deadline window: from now until now + turnaroundHours, expressed in
+  // Manila wall-clock time (matching how the date/time inputs are read —
+  // see combineDeadlineToUTC). Only date/times inside this window should
+  // be selectable, since that's the whole point of the SLA turnaround.
+  const windowStart = toManilaParts(new Date());
+  const windowEnd    = toManilaParts(new Date(Date.now() + turnaroundHours * 60 * 60 * 1000));
+
+  const deadlineMinTime = form.deadline === windowStart.dateStr ? windowStart.timeStr : "00:00";
+  const deadlineMaxTime = form.deadline === windowEnd.dateStr ? windowEnd.timeStr : "23:59";
+
+  // Keep whatever the user has picked inside the current window whenever
+  // the window itself changes (doc type / priority / rule changes).
+  useEffect(() => {
+    if (!form.doc_type || !form.deadline) return;
+    const combined = `${form.deadline}T${form.deadlineTime || "00:00"}`;
+    const startCombined = `${windowStart.dateStr}T${windowStart.timeStr}`;
+    const endCombined   = `${windowEnd.dateStr}T${windowEnd.timeStr}`;
+    if (combined < startCombined) {
+      setForm(p => ({ ...p, deadline: windowStart.dateStr, deadlineTime: windowStart.timeStr }));
+    } else if (combined > endCombined) {
+      setForm(p => ({ ...p, deadline: windowEnd.dateStr, deadlineTime: windowEnd.timeStr }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.doc_type, turnaroundHours]);
 
   const hasRealAssignments = assignments.length > 0;
   const pendingReviews = hasRealAssignments
@@ -699,7 +789,18 @@ function TaskAssignmentInner() {
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:18 }}>
                   <div>
                     <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Document Type</label>
-                    <select value={form.doc_type} onChange={e=>setForm(p=>({...p,doc_type:e.target.value}))}
+                    <select value={form.doc_type} onChange={e=>{
+                        const newDocType = e.target.value;
+                        const matchedRule = slaRules.find(r => r.document_type === newDocType && (r.status ?? "Active") === "Active");
+                        setForm(p=>({
+                          ...p,
+                          doc_type: newDocType,
+                          // Selecting a document type adopts that type's configured SLA
+                          // priority too, so the turnaround shown/enforced always matches
+                          // the rule for this doc type rather than drifting from it.
+                          priority: matchedRule ? matchedRule.priority : p.priority,
+                        }));
+                      }}
                       style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color: form.doc_type?"#111":"#9ca3af", background:"white", boxSizing:"border-box" }}>
                       {docTypes.map(d => <option key={d} value={d==="Select Type…"?"":d}>{d}</option>)}
                     </select>
@@ -709,12 +810,35 @@ function TaskAssignmentInner() {
                       Deadline / Due Date <span style={{ color:"#dc2626" }}>*</span>
                     </label>
                     <div style={{ display:"flex", gap:8 }}>
-                      <input type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))}
-                        style={{ flex:1.4, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color: form.deadline?"#111":"#9ca3af", boxSizing:"border-box" }} />
-                      <input type="time" value={form.deadlineTime} onChange={e=>setForm(p=>({...p,deadlineTime:e.target.value}))}
-                        style={{ flex:1, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", boxSizing:"border-box" }} />
+                      <input type="date" value={form.deadline} disabled={!form.doc_type}
+                        min={windowStart.dateStr} max={windowEnd.dateStr}
+                        onChange={e=>{
+                          const newDate = e.target.value;
+                          setForm(p=>{
+                            // Clamp the time to stay inside the window whenever the
+                            // chosen date lands on the boundary day of the SLA window.
+                            let t = p.deadlineTime;
+                            if (newDate === windowStart.dateStr && t < windowStart.timeStr) t = windowStart.timeStr;
+                            if (newDate === windowEnd.dateStr && t > windowEnd.timeStr) t = windowEnd.timeStr;
+                            return { ...p, deadline: newDate, deadlineTime: t };
+                          });
+                        }}
+                        style={{ flex:1.4, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13,
+                          color: form.deadline?"#111":"#9ca3af", boxSizing:"border-box",
+                          background: !form.doc_type ? "#f3f4f6" : "#fff", cursor: !form.doc_type ? "not-allowed" : "text" }} />
+                      <input type="time" value={form.deadlineTime} disabled={!form.doc_type || !form.deadline}
+                        min={deadlineMinTime} max={deadlineMaxTime}
+                        onChange={e=>setForm(p=>({...p,deadlineTime:e.target.value}))}
+                        style={{ flex:1, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", boxSizing:"border-box",
+                          background: (!form.doc_type || !form.deadline) ? "#f3f4f6" : "#fff", cursor: (!form.doc_type || !form.deadline) ? "not-allowed" : "text" }} />
                     </div>
-                    <p style={{ fontSize:10, color:"#9ca3af", margin:"5px 0 0" }}>Time is Philippines local time (UTC+8).</p>
+                    {!form.doc_type ? (
+                      <p style={{ fontSize:10, color:"#9ca3af", margin:"5px 0 0" }}>Select a document type to unlock the deadline — it must fall inside that type's SLA window.</p>
+                    ) : (
+                      <p style={{ fontSize:10, color:"#7c3aed", margin:"5px 0 0", fontWeight:600 }}>
+                        Must be between {formatManilaLabel(windowStart.dateStr, windowStart.timeStr)} and {formatManilaLabel(windowEnd.dateStr, windowEnd.timeStr)} ({turnaroundHours}h SLA, Philippines time · UTC+8).
+                      </p>
+                    )}
                   </div>
                 </div>
 
