@@ -124,7 +124,7 @@ async function getRule(req, res) {
 
 async function createRule(req, res) {
   const {
-    documentType, priority,
+    documentType,
     reviewerRole, turnaroundHours, escalationHours, reminderLeadHours, remarks,
   } = req.body;
 
@@ -135,10 +135,10 @@ async function createRule(req, res) {
   try {
     const [result] = await db.query(
       `INSERT INTO sla_rules
-        (document_type, priority, reviewer_role, turnaround_hours, escalation_hours, reminder_lead_hours, remarks, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        (document_type, reviewer_role, turnaround_hours, escalation_hours, reminder_lead_hours, remarks, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        documentType, priority || "Medium", reviewerRole, turnaroundHours || 48,
+        documentType, reviewerRole, turnaroundHours || 48,
         escalationHours || 24, reminderLeadHours || 24, remarks || null, req.user?.id ?? null,
       ]
     );
@@ -153,7 +153,7 @@ async function createRule(req, res) {
 async function updateRule(req, res) {
   const { id } = req.params;
   const {
-    documentType, priority,
+    documentType,
     reviewerRole, turnaroundHours, escalationHours, reminderLeadHours, remarks, status,
   } = req.body;
 
@@ -163,12 +163,11 @@ async function updateRule(req, res) {
 
     await db.query(
       `UPDATE sla_rules SET
-        document_type = ?, priority = ?,
+        document_type = ?,
         reviewer_role = ?, turnaround_hours = ?, escalation_hours = ?, reminder_lead_hours = ?, remarks = ?, status = ?
        WHERE id = ?`,
       [
         documentType ?? existing.document_type,
-        priority ?? existing.priority,
         reviewerRole ?? existing.reviewer_role,
         turnaroundHours ?? existing.turnaround_hours,
         escalationHours ?? existing.escalation_hours,

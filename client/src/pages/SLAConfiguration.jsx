@@ -151,15 +151,6 @@ const PRIORITY_CFG = {
 const REVIEWER_ROLES = ["Program Chair", "Admin", "Faculty"];
 
 // ── Small building blocks ───────────────────────────────────────────────
-function PriorityPill({ priority }) {
-  const cfg = PRIORITY_CFG[priority] ?? PRIORITY_CFG.Medium;
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9.5, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: cfg.bg, color: cfg.color, letterSpacing: 0.3, textTransform: "uppercase" }}>
-      {priority}
-    </span>
-  );
-}
-
 function StatusDot({ status }) {
   const active = status === "Active";
   return (
@@ -434,14 +425,6 @@ export default function SLAConfiguration() {
           />
         </div>
         <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
-          <select value={ruleForm.priority} onChange={e => set("priority", e.target.value)} style={selStyle}>
-            <option>High</option>
-            <option>Medium</option>
-            <option>Low</option>
-          </select>
-        </div>
-        <div>
           <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
           <select
             value={ruleForm.reviewerRole}
@@ -602,7 +585,7 @@ export default function SLAConfiguration() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid #f0f0f3" }}>
-                      {["Document Type", "Priority", "Turnaround", "Escalation", "Owner Role", "Status", "Actions"].map(h => (
+                      {["Document Type", "Turnaround", "Escalation", "Owner Role", "Status", "Actions"].map(h => (
                         <th key={h} style={{ textAlign: "left", padding: "0 10px 10px 0", fontSize: 10.5, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.4 }}>{h}</th>
                       ))}
                     </tr>
@@ -619,7 +602,6 @@ export default function SLAConfiguration() {
                         }}
                       >
                         <td style={{ padding: "12px 10px 12px 0", fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{r.document_type}</td>
-                        <td style={{ padding: "12px 10px" }}><PriorityPill priority={r.priority} /></td>
                         <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#4b5563" }}>{r.turnaround_hours}h</td>
                         <td style={{ padding: "12px 10px", fontSize: 11.5, color: "#9ca3af" }}>{r.escalation_hours}h Overdue</td>
                         <td style={{ padding: "12px 10px", fontSize: 12, color: "#4b5563" }}>{r.reviewer_role}</td>

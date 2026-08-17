@@ -17,15 +17,26 @@ const { createAlertInternal } = require("../controllers/slaController");
 // Task statuses that mean "done" — excluded from both reminder and breach checks.
 const DONE_STATUSES = ["Completed", "Released", "Approved"];
 
-function tierForPriority(priority) {
-  return priority === "High" ? "critical" : "warning";
+// Reminder tier is now based on how close the deadline is, not on a
+// rule-level "priority" (that field was removed from sla_rules). A
+// reminder within CRITICAL_WINDOW_HOURS of the deadline is treated as
+// urgent; anything further out is a routine heads-up.
+const CRITICAL_WINDOW_HOURS = 24;
+
+function tierForDeadline(deadline) {
+  if (!deadline) return "warning";
+  const deadlineDate = deadline instanceof Date ? deadline : new Date(deadline);
+  if (Number.isNaN(deadlineDate.getTime())) return "warning";
+
+  const hoursRemaining = (deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60);
+  return hoursRemaining <= CRITICAL_WINDOW_HOURS ? "critical" : "warning";
 }
 
 async function getReminderCandidates() {
   const placeholders = DONE_STATUSES.map(() => "?").join(",");
   const [rows] = await db.query(
     `SELECT t.id AS task_id, t.title, t.deadline, t.doc_type, t.created_at,
-            r.id AS rule_id, r.priority, r.reminder_lead_hours,
+            r.id AS rule_id, r.reminder_lead_hours,
             u.email AS faculty_email
      FROM tasks t
      JOIN sla_rules r ON r.document_type = t.doc_type AND r.status = 'Active'
@@ -46,7 +57,7 @@ async function getBreachCandidates() {
   const placeholders = DONE_STATUSES.map(() => "?").join(",");
   const [rows] = await db.query(
     `SELECT t.id AS task_id, t.title, t.deadline, t.doc_type, t.created_at,
-            r.id AS rule_id, r.priority,
+            r.id AS rule_id,
             u.email AS faculty_email
      FROM tasks t
      JOIN sla_rules r ON r.document_type = t.doc_type AND r.status = 'Active'
@@ -69,7 +80,7 @@ async function runReminders() {
       ruleId: c.rule_id,
       taskId: c.task_id,
       alertType: "reminder",
-      tier: tierForPriority(c.priority),
+      tier: tierForDeadline(c.deadline),
       title: `SLA Reminder: "${c.title}" due ${c.deadline}`,
       message: `Task "${c.title}" (${c.doc_type}) is due on ${c.deadline}. Please review before the deadline.`,
       actionLabel: "Review Task",
