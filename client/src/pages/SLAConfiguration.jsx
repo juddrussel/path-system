@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import {
-  Bell, Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown,
+  Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
   AlertTriangle, CheckCircle2, Zap, UserCheck, Building2, FileText, AlertCircle,
   Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone, ArrowUpDown, MoreVertical, ArrowUpRight,
@@ -696,6 +697,11 @@ export default function SLAConfiguration() {
 
   const statAccent = { "Total Rules": COLORS.primary, "Active Rules": COLORS.success, "Near Deadline": COLORS.warning, "Overdue": COLORS.danger };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", fontSize: 14, color: COLORS.textPrimary, background: COLORS.surface }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
@@ -704,9 +710,7 @@ export default function SLAConfiguration() {
 
       {/* ── Main ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ height: 56, display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 24px", background: COLORS.surfaceContainer, borderBottom: `1px solid ${COLORS.border}`, gap: 14 }}>
-          <Bell style={{ width: 17, height: 17, color: COLORS.textSecondary }} />
-        </div>
+        <TopBar onLogout={handleLogout} />
 
         {/* ── Content ── */}
         <div style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>
