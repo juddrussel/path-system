@@ -1104,11 +1104,15 @@ export default function SLAConfiguration() {
       {showEditModal && (
         <div
           onClick={() => setShowEditModal(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(24,20,69,0.4)", backdropFilter: "blur(2px)", zIndex: 50 }}
+          style={{ position: "fixed", inset: 0, background: "rgba(24,20,69,0.4)", backdropFilter: "blur(2px)", zIndex: 50, animation: "slaDrawerBackdropIn 0.25s ease-out" }}
         >
+          <style>{`
+            @keyframes slaDrawerBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes slaDrawerSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+          `}</style>
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ position: "fixed", top: 0, right: 0, height: "100%", width: 600, maxWidth: "95vw", background: "#fcf8ff", boxShadow: "-8px 0 30px rgba(17,24,39,0.18)", display: "flex", flexDirection: "column", borderLeft: "1px solid #e5e0f5" }}
+            style={{ position: "fixed", top: 0, right: 0, height: "100%", width: 600, maxWidth: "95vw", background: "#fcf8ff", boxShadow: "-8px 0 30px rgba(17,24,39,0.18)", display: "flex", flexDirection: "column", borderLeft: "1px solid #e5e0f5", animation: "slaDrawerSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) backwards" }}
           >
             {/* Header */}
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #e5e0f5", flexShrink: 0, background: "#fff" }}>
