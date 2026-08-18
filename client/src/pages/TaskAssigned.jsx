@@ -28,13 +28,13 @@ const Icon = {
   More:       () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/></svg>,
   Download:   () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" strokeLinecap="round"/></svg>,
   Attach:     () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M13 7l-5 5a4 4 0 01-5.7-5.7l5-5a2.5 2.5 0 013.5 3.5l-5 5a1 1 0 01-1.4-1.4l4-4" strokeLinecap="round"/></svg>,
-  AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><circle cx="12.5" cy="12.5" r="3" fill="#7c3aed"/><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>,
+  AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><circle cx="12.5" cy="12.5" r="3" fill="#6b38d4"/><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>,
   Reassign:   () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5M11 8l3 3-3 3M14 11H9" strokeLinecap="round"/></svg>,
   Return:     () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M12 4H6a4 4 0 000 8h2M9 11l3 3 3-3" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   Bell:       ({ dot }) => (
     <div style={{ position: "relative" }}>
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="15" height="15"><path d="M8 1a5 5 0 00-5 5v3l-1 2h12l-1-2V6a5 5 0 00-5-5zM6 13a2 2 0 004 0"/></svg>
-      {dot && <span style={{ position: "absolute", top: -2, right: -2, width: 7, height: 7, background: "#ef4444", borderRadius: "50%", border: "1.5px solid white" }} />}
+      {dot && <span style={{ position: "absolute", top: -2, right: -2, width: 7, height: 7, background: "#ba1a1a", borderRadius: "50%", border: "1.5px solid white" }} />}
     </div>
   ),
   Live:       () => <svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><circle cx="8" cy="8" r="8"/></svg>,
@@ -51,27 +51,27 @@ const Icon = {
 
 // ── Badge system ──────────────────────────────────────────────────────────────
 const BADGE = {
-  "pending":          { bg: "#fef3c7", color: "#92400e" },
-  "for approval":     { bg: "#ede9fe", color: "#5b21b6" },
-  "in progress":      { bg: "#dbeafe", color: "#1e40af" },
-  "done":             { bg: "#d1fae5", color: "#065f46" },
-  "approved":         { bg: "#d1fae5", color: "#065f46" },
-  "overdue":          { bg: "#fee2e2", color: "#991b1b" },
+  "pending":          { bg: "#e7deff", color: "#5f5293" },
+  "for approval":     { bg: "#e7deff", color: "#5f5293" },
+  "in progress":      { bg: "#e3dfff", color: "#494454" },
+  "done":             { bg: "#e9ddff", color: "#5516be" },
+  "approved":         { bg: "#e9ddff", color: "#5516be" },
+  "overdue":          { bg: "#ffdad6", color: "#93000a" },
   "returned":         { bg: "#fce7f3", color: "#9d174d" },
-  "high":             { bg: "#fee2e2", color: "#991b1b" },
-  "medium":           { bg: "#fef3c7", color: "#92400e" },
-  "low":              { bg: "#d1fae5", color: "#065f46" },
-  "received":         { bg: "#d1fae5", color: "#065f46" },
+  "high":             { bg: "#ffdad6", color: "#93000a" },
+  "medium":           { bg: "#efe0ff", color: "#712ae2" },
+  "low":              { bg: "#f3edff", color: "#6b38d4" },
+  "received":         { bg: "#e9ddff", color: "#5516be" },
 };
 
-// Statuses that mean the task is complete/approved — shown in green with
-// an "Approved" label regardless of the raw status string ("Received").
+// Statuses that mean the task is complete/approved — shown in primary purple
+// with an "Approved" label regardless of the raw status string ("Received").
 const APPROVED_STATUSES = ["received", "approved"];
 
 function Badge({ label }) {
   const key = label?.toLowerCase();
   const isApproved = APPROVED_STATUSES.includes(key);
-  const s = isApproved ? BADGE["received"] : (BADGE[key] || { bg: "#f3f4f6", color: "#374151" });
+  const s = isApproved ? BADGE["received"] : (BADGE[key] || { bg: "#efebff", color: "#494454" });
   return (
     <span style={{ ...s, display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: "bold", textTransform: "capitalize" }}>
       {isApproved ? "Approved" : label}
@@ -80,17 +80,17 @@ function Badge({ label }) {
 }
 
 // ── Timeline Item ─────────────────────────────────────────────────────────────
-function TimelineItem({ label, value, sub, dot = "#7c3aed", isLast }) {
+function TimelineItem({ label, value, sub, dot = "#6b38d4", isLast }) {
   return (
     <div style={{ display: "flex", gap: 10, paddingBottom: isLast ? 0 : 16, position: "relative" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div style={{ width: 8, height: 8, borderRadius: "50%", background: dot, flexShrink: 0, marginTop: 3 }} />
-        {!isLast && <div style={{ width: 1, flex: 1, background: "#e5e7eb", marginTop: 4 }} />}
+        {!isLast && <div style={{ width: 1, flex: 1, background: "#cbc3d7", marginTop: 4 }} />}
       </div>
       <div>
-        <div style={{ fontSize: 11, color: "#888" }}>{label}</div>
-        <div style={{ fontSize: 12, fontWeight: "bold", color: "#111", marginTop: 1 }}>{value}</div>
-        {sub && <div style={{ fontSize: 10, color: "#aaa", marginTop: 1 }}>{sub}</div>}
+        <div style={{ fontSize: 11, color: "#7b7486" }}>{label}</div>
+        <div style={{ fontSize: 12, fontWeight: "bold", color: "#181445", marginTop: 1 }}>{value}</div>
+        {sub && <div style={{ fontSize: 10, color: "#7b7486", marginTop: 1 }}>{sub}</div>}
       </div>
     </div>
   );
@@ -124,7 +124,7 @@ function Toast({ toasts, onDismiss }) {
         return (
           <div key={t.id} style={{
             background: "white",
-            border: `1px solid ${isError ? "#fecaca" : "#e5e7eb"}`,
+            border: `1px solid ${isError ? "#fecaca" : "#cbc3d7"}`,
             borderRadius: 10, padding: "10px 14px", fontSize: 12, fontWeight: 600,
             boxShadow: "0 4px 20px rgba(0,0,0,0.12)", minWidth: 260, maxWidth: 340,
             display: "flex", alignItems: "flex-start", gap: 10,
@@ -133,14 +133,14 @@ function Toast({ toasts, onDismiss }) {
             <div style={{
               width: 26, height: 26, borderRadius: 7, flexShrink: 0,
               display: "flex", alignItems: "center", justifyContent: "center",
-              background: isError ? "#fee2e2" : "#ede9fe",
-              color: isError ? "#dc2626" : "#7c3aed",
+              background: isError ? "#ffdad6" : "#e9ddff",
+              color: isError ? "#ba1a1a" : "#6b38d4",
             }}>
               <ToastIcon />
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ marginBottom: 1, color: "#111" }}>{t.title}</div>
-              {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400, color: "#374151" }}>{t.body}</div>}
+              <div style={{ marginBottom: 1, color: "#181445" }}>{t.title}</div>
+              {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400, color: "#494454" }}>{t.body}</div>}
             </div>
             <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit" }}>
               <Icon.Close />
@@ -624,22 +624,22 @@ export default function TaskAssigned() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#181445", background: "#fcf8ff" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
         input, select, textarea { font-family: 'DM Sans', sans-serif; }
-        input:focus, select:focus, textarea:focus { border-color: #7c3aed !important; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #6b38d4 !important; outline: none; }
         @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
         @keyframes typingBounce { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-4px); opacity:1; } }
-        .task-row:hover { background: #fafafa !important; }
+        .task-row:hover { background: #f6f2ff !important; }
         .action-btn:hover { opacity: 0.85; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbc3d7; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
-        * { scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }
+        * { scrollbar-width: thin; scrollbar-color: #cbc3d7 transparent; }
       `}</style>
 
       {/* Toast stack */}
@@ -661,20 +661,20 @@ export default function TaskAssigned() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
           {/* Header + Stats + Filters */}
-          <div style={{ padding: "20px 24px 0", background: "white", borderBottom: "1px solid #f3f4f6" }}>
+          <div style={{ padding: "20px 24px 0", background: "white", borderBottom: "1px solid #efebff" }}>
 
             {/* Page Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
               <div>
-                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: "0 0 3px" }}>Tasks Assigned</h1>
-                <p style={{ fontSize: 12, color: "#888", margin: 0 }}>Track tasks you assigned to faculty — review submissions, approve, or return for revision.</p>
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#181445", margin: "0 0 3px" }}>Tasks Assigned</h1>
+                <p style={{ fontSize: 12, color: "#7b7486", margin: 0 }}>Track tasks you assigned to faculty — review submissions, approve, or return for revision.</p>
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#374151" }}>
+                <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "1px solid #cbc3d7", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#494454" }}>
                   <Icon.Download /> Export CSV
                 </button>
                 <button onClick={() => navigate("/assign-task")}
-                  style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 8, border: "none", background: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "white" }}>
+                  style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 8, border: "none", background: "#6b38d4", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "white" }}>
                   <Icon.Plus color="white" size={12} /> Assign New Task
                 </button>
               </div>
@@ -683,15 +683,15 @@ export default function TaskAssigned() {
             {/* Stat Cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 18 }}>
               {[
-                { label: "Total Assigned",  value: stats.total,           icon: <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed"  strokeWidth="1.5" width="16" height="16"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z"/></svg>,                                                                           bg: "#ede9fe" },
+                { label: "Total Assigned",  value: stats.total,           icon: <svg viewBox="0 0 16 16" fill="none" stroke="#6b38d4"  strokeWidth="1.5" width="16" height="16"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z"/></svg>,                                                                           bg: "#e9ddff" },
                 { label: "For Approval",    value: stats.pendingApproval, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#d97706"  strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2" strokeLinecap="round"/></svg>,                                                  bg: "#fef3c7" },
                 { label: "Submitted",       value: stats.submitted,       icon: <svg viewBox="0 0 16 16" fill="none" stroke="#059669"  strokeWidth="1.5" width="16" height="16"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/><path d="M8 2v12M2 6l6 2 6-2" strokeLinecap="round"/></svg>,                            bg: "#d1fae5" },
-                { label: "Overdue",         value: stats.overdue,         icon: <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626"  strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 10v1" strokeLinecap="round"/></svg>,                                              bg: "#fee2e2" },
+                { label: "Overdue",         value: stats.overdue,         icon: <svg viewBox="0 0 16 16" fill="none" stroke="#ba1a1a"  strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 10v1" strokeLinecap="round"/></svg>,                                              bg: "#ffdad6" },
               ].map(({ label, value, icon, bg }) => (
-                <div key={label} style={{ background: "white", border: "1px solid #f0f0f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div key={label} style={{ background: "white", border: "1px solid #cbc3d7", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <div style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#111" }}>{loading ? "—" : (value ?? 0)}</div>
+                    <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "#181445" }}>{loading ? "—" : (value ?? 0)}</div>
                   </div>
                   <div style={{ width: 40, height: 40, borderRadius: "50%", background: bg, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>
                 </div>
@@ -700,31 +700,31 @@ export default function TaskAssigned() {
 
             {/* Filters */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 16, flexWrap: "wrap" }}>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px" }}>
+              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f6f2ff", border: "1px solid #cbc3d7", borderRadius: 8, padding: "7px 12px" }}>
                 <Icon.Search />
                 <input type="text" value={search} onChange={e => { setSearch(e.target.value); setTaskPage(1); }} placeholder="Search by tracking #, keyword..."
-                  style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%" }} />
+                  style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#494454", width: "100%" }} />
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12, color: "#374151" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #cbc3d7", borderRadius: 8, background: "white", fontSize: 12, color: "#494454" }}>
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>
-                <span style={{ color: "#888" }}>Date Range</span>
-                <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: "none", background: "transparent", fontSize: 12, outline: "none", cursor: "pointer", color: "#374151" }} />
+                <span style={{ color: "#7b7486" }}>Date Range</span>
+                <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: "none", background: "transparent", fontSize: 12, outline: "none", cursor: "pointer", color: "#494454" }} />
               </div>
               {[
                 { label: "Priority", value: priorityFilter, set: setPriorityFilter, opts: ["All","High","Medium","Low"] },
                 { label: "Status",   value: statusFilter,   set: setStatusFilter,   opts: ["All","Pending","For Approval","In Progress","Approved","Returned","Overdue","Done"] },
                 { label: "Doc Type", value: docTypeFilter,  set: setDocTypeFilter,  opts: ["All","Financial","Legal","Sales","HR","Operations"] },
               ].map(({ label, value, set, opts }) => (
-                <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12 }}>
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #cbc3d7", borderRadius: 8, background: "white", fontSize: 12 }}>
                   <Icon.Filter />
-                  <select value={value} onChange={e => { set(e.target.value); setTaskPage(1); }} style={{ border: "none", background: "transparent", fontSize: 12, outline: "none", cursor: "pointer", color: "#374151" }}>
+                  <select value={value} onChange={e => { set(e.target.value); setTaskPage(1); }} style={{ border: "none", background: "transparent", fontSize: 12, outline: "none", cursor: "pointer", color: "#494454" }}>
                     {opts.map(o => <option key={o} value={o}>{o === "All" ? label : o}</option>)}
                   </select>
                 </div>
               ))}
               {(statusFilter !== "All" || priorityFilter !== "All" || docTypeFilter !== "All" || dateRange) && (
                 <button onClick={() => { setStatusFilter("All"); setPriorityFilter("All"); setDocTypeFilter("All"); setDateRange(""); }}
-                  style={{ fontSize: 11, color: "#7c3aed", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: "7px 10px" }}>
+                  style={{ fontSize: 11, color: "#6b38d4", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: "7px 10px" }}>
                   Clear filters
                 </button>
               )}
@@ -735,15 +735,15 @@ export default function TaskAssigned() {
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
             {/* LEFT: Task Feed */}
-            <div style={{ width: 340, flexShrink: 0, borderRight: "1px solid #f0f0f0", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div style={{ width: 340, flexShrink: 0, borderRight: "1px solid #cbc3d7", display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
               {/* Feed header */}
-              <div style={{ padding: "14px 16px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f5f5f5" }}>
+              <div style={{ padding: "14px 16px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #efebff" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>Assigned Tasks</span>
-                  <span style={{ background: "#7c3aed", color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 20 }}>{filteredTasks.length}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#181445" }}>Assigned Tasks</span>
+                  <span style={{ background: "#6b38d4", color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 20 }}>{filteredTasks.length}</span>
                   {Object.keys(newSubmissions).length > 0 && (
-                    <span style={{ background: "#ef4444", color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 20, animation: "pulse 1.5s infinite" }}>
+                    <span style={{ background: "#ba1a1a", color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 20, animation: "pulse 1.5s infinite" }}>
                       {Object.keys(newSubmissions).length} new
                     </span>
                   )}
@@ -751,26 +751,26 @@ export default function TaskAssigned() {
               </div>
 
               {/* Bulk actions */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: "1px solid #f5f5f5", background: "#fafafa" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: "1px solid #efebff", background: "#f6f2ff" }}>
                 <input type="checkbox" checked={selectAll}
                   onChange={e => { setSelectAll(e.target.checked); setCheckedIds(e.target.checked ? filteredTasks.map(t => t.id) : []); }}
-                  style={{ accentColor: "#7c3aed" }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#888", letterSpacing: 0.5 }}>SELECT ALL</span>
+                  style={{ accentColor: "#6b38d4" }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#7b7486", letterSpacing: 0.5 }}>SELECT ALL</span>
                 <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
                   <button onClick={handleArchive} disabled={!checkedIds.length}
-                    style={{ fontSize: 11, fontWeight: 700, color: checkedIds.length ? "#374151" : "#bbb", background: "none", border: "none", cursor: checkedIds.length ? "pointer" : "default" }}>Archive</button>
+                    style={{ fontSize: 11, fontWeight: 700, color: checkedIds.length ? "#494454" : "#a39aad", background: "none", border: "none", cursor: checkedIds.length ? "pointer" : "default" }}>Archive</button>
                 </div>
               </div>
 
               {/* Task rows */}
               <div style={{ flex: 1, overflowY: "auto" }}>
                 {loading ? (
-                  <div style={{ padding: 32, textAlign: "center", color: "#aaa", fontSize: 12 }}>Loading tasks...</div>
+                  <div style={{ padding: 32, textAlign: "center", color: "#7b7486", fontSize: 12 }}>Loading tasks...</div>
                 ) : pagedTasks.length === 0 ? (
                   <div style={{ padding: 40, textAlign: "center" }}>
                     <div style={{ fontSize: 32, marginBottom: 10 }}>📋</div>
-                    <div style={{ fontSize: 13, color: "#aaa", fontWeight: 600 }}>No assigned tasks found</div>
-                    <div style={{ fontSize: 11, color: "#ccc", marginTop: 4 }}>Try adjusting your filters or assign a new task</div>
+                    <div style={{ fontSize: 13, color: "#7b7486", fontWeight: 600 }}>No assigned tasks found</div>
+                    <div style={{ fontSize: 11, color: "#a39aad", marginTop: 4 }}>Try adjusting your filters or assign a new task</div>
                   </div>
                 ) : pagedTasks.map(task => {
                   const hasNew = !!newSubmissions[task.id];
@@ -781,37 +781,37 @@ export default function TaskAssigned() {
                       onClick={() => { setSelected(task); fetchSelectedTask(task.id); setNewSubmissions(prev => { const n = { ...prev }; delete n[task.id]; return n; }); setActiveTab("info"); setShowReturnBox(false); setEditingDeadline(false); }}
                       style={{
                         padding: "12px 16px",
-                        borderBottom: "1px solid #f5f5f5",
+                        borderBottom: "1px solid #efebff",
                         cursor: "pointer",
-                        background: selected?.id === task.id ? "#faf5ff" : "white",
-                        borderLeft: selected?.id === task.id ? "3px solid #7c3aed" : hasNew ? "3px solid #ef4444" : "3px solid transparent",
+                        background: selected?.id === task.id ? "#f6f2ff" : "white",
+                        borderLeft: selected?.id === task.id ? "3px solid #6b38d4" : hasNew ? "3px solid #ba1a1a" : "3px solid transparent",
                         transition: "all 0.1s",
                         position: "relative",
                       }}
                     >
                       {hasNew && (
-                        <div style={{ position: "absolute", top: 10, right: 10, width: 8, height: 8, background: "#ef4444", borderRadius: "50%", animation: "pulse 1.5s infinite" }} />
+                        <div style={{ position: "absolute", top: 10, right: 10, width: 8, height: 8, background: "#ba1a1a", borderRadius: "50%", animation: "pulse 1.5s infinite" }} />
                       )}
                       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                         <div onClick={e => { e.stopPropagation(); toggleCheck(task.id); }} style={{ paddingTop: 2 }}>
-                          <input type="checkbox" checked={checkedIds.includes(task.id)} onChange={() => toggleCheck(task.id)} style={{ accentColor: "#7c3aed" }} />
+                          <input type="checkbox" checked={checkedIds.includes(task.id)} onChange={() => toggleCheck(task.id)} style={{ accentColor: "#6b38d4" }} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                            <span style={{ fontSize: 10, color: "#7c3aed", fontWeight: 700 }}>{task.tracking_id}</span>
-                            <span style={{ fontSize: 10, color: task.deadline && new Date(task.deadline) < new Date() ? "#dc2626" : "#aaa" }}>
+                            <span style={{ fontSize: 10, color: "#6b38d4", fontWeight: 700 }}>{task.tracking_id}</span>
+                            <span style={{ fontSize: 10, color: task.deadline && new Date(task.deadline) < new Date() ? "#ba1a1a" : "#7b7486" }}>
                               {fmtDate(task.deadline || task.created_at)}
                             </span>
                           </div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111", marginBottom: 4, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#181445", marginBottom: 4, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {task.title || "(No title)"}
                           </div>
                           {/* Assigned to faculty */}
                           <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 5 }}>
-                            <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, flexShrink: 0 }}>
+                            <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, flexShrink: 0 }}>
                               {(task.assigned_to_name?.[0] || "?").toUpperCase()}
                             </div>
-                            <span style={{ fontSize: 11, color: "#666" }}>{task.assigned_to_name || "Unassigned"}</span>
+                            <span style={{ fontSize: 11, color: "#494454" }}>{task.assigned_to_name || "Unassigned"}</span>
                           </div>
                           <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                             {task.priority && <Badge label={task.priority} />}
@@ -832,17 +832,17 @@ export default function TaskAssigned() {
               </div>
 
               {/* Pagination */}
-              <div style={{ padding: "10px 16px", borderTop: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-                <span style={{ fontSize: 11, color: "#888" }}>
+              <div style={{ padding: "10px 16px", borderTop: "1px solid #cbc3d7", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+                <span style={{ fontSize: 11, color: "#7b7486" }}>
                   {filteredTasks.length === 0 ? "0 tasks" : `${Math.min((taskPage-1)*PER_PAGE+1, filteredTasks.length)}–${Math.min(taskPage*PER_PAGE, filteredTasks.length)} of ${filteredTasks.length}`}
                 </span>
                 <div style={{ display: "flex", gap: 4 }}>
                   <button onClick={() => setTaskPage(p => Math.max(1,p-1))} disabled={taskPage===1}
-                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage===1?"not-allowed":"pointer", display:"flex",alignItems:"center",justifyContent:"center", opacity: taskPage===1?0.4:1 }}>
+                    style={{ width: 24, height: 24, border: "1px solid #cbc3d7", borderRadius: 5, background: "white", cursor: taskPage===1?"not-allowed":"pointer", display:"flex",alignItems:"center",justifyContent:"center", opacity: taskPage===1?0.4:1 }}>
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M10 12L6 8l4-4"/></svg>
                   </button>
                   <button onClick={() => setTaskPage(p => Math.min(totalTaskPages,p+1))} disabled={taskPage===totalTaskPages}
-                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage===totalTaskPages?"not-allowed":"pointer", display:"flex",alignItems:"center",justifyContent:"center", opacity: taskPage===totalTaskPages?0.4:1 }}>
+                    style={{ width: 24, height: 24, border: "1px solid #cbc3d7", borderRadius: 5, background: "white", cursor: taskPage===totalTaskPages?"not-allowed":"pointer", display:"flex",alignItems:"center",justifyContent:"center", opacity: taskPage===totalTaskPages?0.4:1 }}>
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M6 12l4-4-4-4"/></svg>
                   </button>
                 </div>
@@ -853,18 +853,18 @@ export default function TaskAssigned() {
             <div style={{ flex: 1, overflow: "hidden", background: "white", display: "flex", flexDirection: "column" }}>
               {!selected ? (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 12 }}>
-                  <svg viewBox="0 0 48 48" fill="none" stroke="#e5e7eb" strokeWidth="1.5" width="56" height="56"><rect x="6" y="8" width="36" height="32" rx="3"/><path d="M14 16h20M14 22h20M14 28h12"/><circle cx="36" cy="34" r="8" fill="white" stroke="#e5e7eb"/><path d="M33 34l2 2 4-4" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
-                  <div style={{ fontSize: 14, color: "#aaa", fontWeight: 600 }}>Select a task to review</div>
-                  <div style={{ fontSize: 12, color: "#ccc" }}>You'll see task details, submitted documents, and faculty activity here</div>
+                  <svg viewBox="0 0 48 48" fill="none" stroke="#cbc3d7" strokeWidth="1.5" width="56" height="56"><rect x="6" y="8" width="36" height="32" rx="3"/><path d="M14 16h20M14 22h20M14 28h12"/><circle cx="36" cy="34" r="8" fill="white" stroke="#cbc3d7"/><path d="M33 34l2 2 4-4" stroke="#6b38d4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+                  <div style={{ fontSize: 14, color: "#7b7486", fontWeight: 600 }}>Select a task to review</div>
+                  <div style={{ fontSize: 12, color: "#a39aad" }}>You'll see task details, submitted documents, and faculty activity here</div>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
 
                   {/* Detail top bar */}
-                  <div style={{ padding: "14px 24px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+                  <div style={{ padding: "14px 24px", borderBottom: "1px solid #cbc3d7", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 11, background: "#ede9fe", color: "#7c3aed", padding: "3px 10px", borderRadius: 20, fontWeight: 700 }}>{selected.tracking_id}</span>
-                      <span style={{ fontSize: 11, color: "#aaa" }}>Created on {fmtDate(selected.created_at)}</span>
+                      <span style={{ fontSize: 11, background: "#e9ddff", color: "#6b38d4", padding: "3px 10px", borderRadius: 20, fontWeight: 700 }}>{selected.tracking_id}</span>
+                      <span style={{ fontSize: 11, color: "#7b7486" }}>Created on {fmtDate(selected.created_at)}</span>
                       {newSubmissions[selected.id] && (
                         <span style={{ fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 20, fontWeight: 700, animation: "pulse 1.5s infinite" }}>
                           📥 New submission
@@ -872,77 +872,77 @@ export default function TaskAssigned() {
                       )}
                     </div>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button style={{ width: 28, height: 28, borderRadius: 7, border: "1px solid #e5e7eb", background: "white", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icon.Share /></button>
-                      <button style={{ width: 28, height: 28, borderRadius: 7, border: "1px solid #e5e7eb", background: "white", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icon.More /></button>
+                      <button style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #cbc3d7", background: "white", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icon.Share /></button>
+                      <button style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #cbc3d7", background: "white", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icon.More /></button>
                     </div>
                   </div>
 
                   {/* Detail body — single scrolling column; top grid row holds Task Information + Task Timeline */}
                   <div style={{ flex: 1, padding: "20px 24px", overflowY: "auto", height: "100%" }}>
-                      <h2 style={{ fontSize: 19, fontWeight: 800, color: "#111", margin: "0 0 18px", lineHeight: 1.35 }}>{selected.title || "(No title)"}</h2>
+                      <h2 style={{ fontSize: 19, fontWeight: 800, color: "#181445", margin: "0 0 18px", lineHeight: 1.35 }}>{selected.title || "(No title)"}</h2>
 
                       {/* Top row: TASK INFORMATION (card) + TASK TIMELINE */}
                       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, marginBottom: 28, alignItems: "start" }}>
 
                         {/* TASK INFORMATION card */}
-                        <div style={{ background: "#faf8ff", border: "1px solid #f0f0f0", borderRadius: 14, padding: "20px 22px" }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14, paddingBottom: 10, borderBottom: "1px solid #eee" }}>Task Information</div>
+                        <div style={{ background: "#faf8ff", border: "1px solid #cbc3d7", borderRadius: 14, padding: "20px 22px" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginBottom: 14, paddingBottom: 10, borderBottom: "1px solid #cbc3d7" }}>Task Information</div>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Assigned To</div>
+                          <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 5 }}>Assigned To</div>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
+                            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
                               {(selected.assigned_to_name?.[0] || "?").toUpperCase()}
                             </div>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{selected.assigned_to_name || "—"}</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: "#181445" }}>{selected.assigned_to_name || "—"}</span>
                           </div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Document Type</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{selected.doc_type || "—"}</div>
+                          <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 5 }}>Document Type</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#181445" }}>{selected.doc_type || "—"}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Priority Level</div>
+                          <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 5 }}>Priority Level</div>
                           <Badge label={selected.priority || "—"} />
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Status</div>
+                          <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 5 }}>Status</div>
                           <Badge label={selected.status || "—"} />
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Due Date</div>
+                          <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 5 }}>Due Date</div>
                           {editingDeadline ? (
                             <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                               <input
                                 type="date"
                                 value={deadlineDraft}
                                 onChange={e => setDeadlineDraft(e.target.value)}
-                                style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #ddd", borderRadius: 6, color: "#111" }}
+                                style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #cbc3d7", borderRadius: 6, color: "#181445" }}
                               />
                               <input
                                 type="time"
                                 value={deadlineTimeDraft}
                                 onChange={e => setDeadlineTimeDraft(e.target.value)}
-                                style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #ddd", borderRadius: 6, color: "#111" }}
+                                style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #cbc3d7", borderRadius: 6, color: "#181445" }}
                               />
                               <button
                                 onClick={() => handleUpdateDeadline(selected.id)}
                                 disabled={savingDeadline}
-                                style={{ fontSize: 11, fontWeight: 700, color: "white", background: "#7c3aed", border: "none", borderRadius: 6, padding: "5px 10px", cursor: savingDeadline ? "not-allowed" : "pointer" }}
+                                style={{ fontSize: 11, fontWeight: 700, color: "white", background: "#6b38d4", border: "none", borderRadius: 6, padding: "5px 10px", cursor: savingDeadline ? "not-allowed" : "pointer" }}
                               >
                                 {savingDeadline ? "Saving…" : "Save"}
                               </button>
                               <button
                                 onClick={() => setEditingDeadline(false)}
                                 disabled={savingDeadline}
-                                style={{ fontSize: 11, fontWeight: 600, color: "#666", background: "transparent", border: "none", cursor: "pointer" }}
+                                style={{ fontSize: 11, fontWeight: 600, color: "#494454", background: "transparent", border: "none", cursor: "pointer" }}
                               >
                                 Cancel
                               </button>
                             </div>
                           ) : (
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDeadline(selected.deadline)}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#181445" }}>{fmtDeadline(selected.deadline)}</div>
                               <button
                                 onClick={() => {
                                   const d = selected.deadline ? new Date(selected.deadline) : null;
@@ -958,7 +958,7 @@ export default function TaskAssigned() {
                                   }
                                   setEditingDeadline(true);
                                 }}
-                                style={{ fontSize: 10, fontWeight: 700, color: "#7c3aed", background: "#ede9fe", border: "none", borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}
+                                style={{ fontSize: 10, fontWeight: 700, color: "#6b38d4", background: "#e9ddff", border: "none", borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}
                               >
                                 Change
                               </button>
@@ -966,41 +966,41 @@ export default function TaskAssigned() {
                           )}
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Project Category</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{selected.category || "—"}</div>
+                          <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 5 }}>Project Category</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#181445" }}>{selected.category || "—"}</div>
                         </div>
                           </div>
                         </div>
 
                         {/* TASK TIMELINE */}
-                        <div style={{ borderLeft: "1px solid #f0f0f0", paddingLeft: 22 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Task Timeline</div>
-                          <TimelineItem label="Task Created"        value={`by ${selected.assigned_by_name || "—"}`}  sub={fmtDate(selected.created_at)} dot="#7c3aed" />
-                          <TimelineItem label="Assigned to Faculty" value={selected.assigned_to_name || "—"}          sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#7c3aed" />
-                          {selected.submitted_at && <TimelineItem label="Submitted by Faculty" value={selected.assigned_to_name || "—"} sub={fmtDateTime(selected.submitted_at)} dot="#059669" />}
-                          {selected.approved_at  && <TimelineItem label="Approved"   value={`by ${selected.approved_by_name || "You"}`} sub={fmtDateTime(selected.approved_at)} dot="#059669" />}
-                          {selected.returned_at  && <TimelineItem label="Returned"   value={`by ${selected.returned_by_name || "You"}`} sub={fmtDateTime(selected.returned_at)} dot="#dc2626" />}
-                          <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "#059669" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#dc2626" : "#d1d5db"} isLast />
+                        <div style={{ borderLeft: "1px solid #cbc3d7", paddingLeft: 22 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginBottom: 14 }}>Task Timeline</div>
+                          <TimelineItem label="Task Created"        value={`by ${selected.assigned_by_name || "—"}`}  sub={fmtDate(selected.created_at)} dot="#6b38d4" />
+                          <TimelineItem label="Assigned to Faculty" value={selected.assigned_to_name || "—"}          sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#6b38d4" />
+                          {selected.submitted_at && <TimelineItem label="Submitted by Faculty" value={selected.assigned_to_name || "—"} sub={fmtDateTime(selected.submitted_at)} dot="#6b38d4" />}
+                          {selected.approved_at  && <TimelineItem label="Approved"   value={`by ${selected.approved_by_name || "You"}`} sub={fmtDateTime(selected.approved_at)} dot="#6b38d4" />}
+                          {selected.returned_at  && <TimelineItem label="Returned"   value={`by ${selected.returned_by_name || "You"}`} sub={fmtDateTime(selected.returned_at)} dot="#ba1a1a" />}
+                          <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "#6b38d4" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#ba1a1a" : "#d1d5db"} isLast />
 
                           {/* Faculty info card */}
-                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty Member</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f9fafb", borderRadius: 10, border: "1px solid #f0f0f0", marginBottom: 10 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty Member</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f6f2ff", borderRadius: 10, border: "1px solid #cbc3d7", marginBottom: 10 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
                               {(selected.assigned_to_name?.[0] || "?").toUpperCase()}
                             </div>
                             <div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{selected.assigned_to_name || "—"}</div>
-                              <div style={{ fontSize: 10, color: "#aaa" }}>{selected.assigned_to_email || "—"}</div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: "#181445" }}>{selected.assigned_to_name || "—"}</div>
+                              <div style={{ fontSize: 10, color: "#7b7486" }}>{selected.assigned_to_email || "—"}</div>
                             </div>
                           </div>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                            <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
-                              <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Documents</div>
-                              <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.attachments?.length || 0}</div>
+                            <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8, border: "1px solid #cbc3d7" }}>
+                              <div style={{ fontSize: 10, color: "#7b7486", marginBottom: 2 }}>Documents</div>
+                              <div style={{ fontSize: 16, fontWeight: 800, color: "#6b38d4" }}>{selected.attachments?.length || 0}</div>
                             </div>
-                            <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
-                              <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Comments</div>
-                              <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.comments?.length || 0}</div>
+                            <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8, border: "1px solid #cbc3d7" }}>
+                              <div style={{ fontSize: 10, color: "#7b7486", marginBottom: 2 }}>Comments</div>
+                              <div style={{ fontSize: 16, fontWeight: 800, color: "#6b38d4" }}>{selected.comments?.length || 0}</div>
                             </div>
                           </div>
                         </div>
@@ -1008,7 +1008,7 @@ export default function TaskAssigned() {
 
                       {/* ── ACTIVITY FEED ─────────────────────────────────────── */}
                       {/* Section label */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Activity</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginBottom: 14 }}>Activity</div>
 
                       {/* POST 1 — Initial task brief (posted by the assigning officer) */}
                       {(selected.attachments?.length > 0 || selected.notes || selected.doc_type) && (() => {
@@ -1018,7 +1018,7 @@ export default function TaskAssigned() {
                         const docType         = selected.doc_type || null;
                         return (
                           <div style={{
-                            border: "1px solid #e5e7eb",
+                            border: "1px solid #cbc3d7",
                             borderRadius: 12,
                             background: "white",
                             marginBottom: 12,
@@ -1033,19 +1033,19 @@ export default function TaskAssigned() {
                                   background: "#1e1b2e", color: "white",
                                   display: "flex", alignItems: "center", justifyContent: "center",
                                   fontSize: 13, fontWeight: 700, flexShrink: 0,
-                                  border: "2px solid #ede9fe",
+                                  border: "2px solid #e9ddff",
                                 }}>
                                   {assignerInitial}
                                 </div>
                                 <div>
                                   <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                    <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{assignerName}</span>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: "#181445" }}>{assignerName}</span>
                                     <span style={{ fontSize: 10, background: "#1e1b2e", color: "white", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>
                                       {user.role === "program_chair" ? "Program Chair" : "Admin"}
                                     </span>
                                   </div>
                                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-                                    <span style={{ fontSize: 10, color: "#888" }}>
+                                    <span style={{ fontSize: 10, color: "#7b7486" }}>
                                       {assignedAt ? fmtDateTime(assignedAt) : "Just now"}
                                     </span>
                                     <span style={{ fontSize: 9, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>
@@ -1057,17 +1057,17 @@ export default function TaskAssigned() {
                                   </div>
                                 </div>
                               </div>
-                              <button style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", padding: 4, display: "flex", alignItems: "center" }}>
+                              <button style={{ background: "none", border: "none", cursor: "pointer", color: "#7b7486", padding: 4, display: "flex", alignItems: "center" }}>
                                 <Icon.More />
                               </button>
                             </div>
 
                             {/* Divider */}
-                            <div style={{ height: 1, background: "#f3f4f6", margin: "0 16px" }} />
+                            <div style={{ height: 1, background: "#efebff", margin: "0 16px" }} />
 
                             {/* Document name as body text */}
                             {(selected.notes || docType) && (
-                              <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#374151", lineHeight: 1.65, whiteSpace: selected.notes ? "pre-wrap" : "normal" }}>
+                              <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#494454", lineHeight: 1.65, whiteSpace: selected.notes ? "pre-wrap" : "normal" }}>
                                 {selected.notes ? selected.notes : (
                                   <>Task brief attached for <strong>{docType}</strong>. Please review and submit your completed document by the due date.</>
                                 )}
@@ -1090,16 +1090,16 @@ export default function TaskAssigned() {
                                   : sizeBytes > 0 ? `${(sizeBytes / 1024).toFixed(0)} KB` : null;
                                 return (
                                   <button key={i} onClick={() => setFileViewer({ url, name, isPdf, isImg })}
-                                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "1px solid #e5e7eb", borderRadius: 10, background: "#fafafa", cursor: "pointer", textAlign: "left", minWidth: 180, transition: "border-color 0.15s" }}
-                                    onMouseEnter={e => e.currentTarget.style.borderColor = "#7c3aed"}
-                                    onMouseLeave={e => e.currentTarget.style.borderColor = "#e5e7eb"}
+                                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "1px solid #cbc3d7", borderRadius: 10, background: "#f6f2ff", cursor: "pointer", textAlign: "left", minWidth: 180, transition: "border-color 0.15s" }}
+                                    onMouseEnter={e => e.currentTarget.style.borderColor = "#6b38d4"}
+                                    onMouseLeave={e => e.currentTarget.style.borderColor = "#cbc3d7"}
                                   >
-                                    <div style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <div style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: isPdf ? "#ffdad6" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#e9ddff", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                       <span style={{ fontSize: 14 }}>{isPdf ? "📄" : isXlsx ? "📊" : isImg ? "🖼️" : "📎"}</span>
                                     </div>
                                     <div style={{ minWidth: 0 }}>
-                                      <div style={{ fontSize: 12, fontWeight: 700, color: "#111", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
-                                      <div style={{ fontSize: 10, color: "#7c3aed", marginTop: 2, fontWeight: 600 }}>{sizeLabel || "Click to preview"}</div>
+                                      <div style={{ fontSize: 12, fontWeight: 700, color: "#181445", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
+                                      <div style={{ fontSize: 10, color: "#6b38d4", marginTop: 2, fontWeight: 600 }}>{sizeLabel || "Click to preview"}</div>
                                     </div>
                                   </button>
                                 );
@@ -1210,26 +1210,26 @@ export default function TaskAssigned() {
                                     {/* Card header */}
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px 10px" }}>
                                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, border: "2px solid #fecaca" }}>
+                                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ffdad6", color: "#ba1a1a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, border: "2px solid #fecaca" }}>
                                           {senderInitial}
                                         </div>
                                         <div>
                                           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                            <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{c.sender_name}</span>
-                                            <span style={{ fontSize: 10, background: "#dc2626", color: "white", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: "#181445" }}>{c.sender_name}</span>
+                                            <span style={{ fontSize: 10, background: "#ba1a1a", color: "white", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>
                                               {user.role === "program_chair" ? "Program Chair" : "Admin"}
                                             </span>
-                                            <span style={{ fontSize: 10, background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>
+                                            <span style={{ fontSize: 10, background: "#ffdad6", color: "#ba1a1a", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>
                                               ↺ Revision Request
                                             </span>
                                           </div>
                                           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-                                            <span style={{ fontSize: 10, color: "#888" }}>{c._pending ? "Sending..." : fmtDateTime(c.created_at)}</span>
-                                            <span style={{ fontSize: 9, background: "#fee2e2", color: "#991b1b", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>Status: Returned</span>
+                                            <span style={{ fontSize: 10, color: "#7b7486" }}>{c._pending ? "Sending..." : fmtDateTime(c.created_at)}</span>
+                                            <span style={{ fontSize: 9, background: "#ffdad6", color: "#93000a", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>Status: Returned</span>
                                           </div>
                                         </div>
                                       </div>
-                                      <button style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", padding: 4, display: "flex", alignItems: "center" }}>
+                                      <button style={{ background: "none", border: "none", cursor: "pointer", color: "#7b7486", padding: 4, display: "flex", alignItems: "center" }}>
                                         <Icon.More />
                                       </button>
                                     </div>
@@ -1237,7 +1237,7 @@ export default function TaskAssigned() {
                                     <div style={{ height: 1, background: "#fecaca", margin: "0 16px" }} />
                                     {/* Note body */}
                                     {revisionMeta.note && (
-                                      <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#374151", lineHeight: 1.65 }}>
+                                      <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#494454", lineHeight: 1.65 }}>
                                         {revisionMeta.note}
                                       </div>
                                     )}
@@ -1259,15 +1259,15 @@ export default function TaskAssigned() {
                                             <button key={fi}
                                               onClick={() => setFileViewer({ url, name: f.name, isPdf, isImg: false })}
                                               style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "1px solid #fecaca", borderRadius: 10, background: "white", cursor: "pointer", textAlign: "left", minWidth: 176, transition: "border-color 0.15s" }}
-                                              onMouseEnter={e => e.currentTarget.style.borderColor="#dc2626"}
+                                              onMouseEnter={e => e.currentTarget.style.borderColor="#ba1a1a"}
                                               onMouseLeave={e => e.currentTarget.style.borderColor="#fecaca"}
                                             >
-                                              <div style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                              <div style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: isPdf ? "#ffdad6" : isXlsx ? "#d1fae5" : "#e9ddff", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                                 <span style={{ fontSize: 14 }}>{isPdf ? "📄" : isXlsx ? "📊" : "📎"}</span>
                                               </div>
                                               <div style={{ minWidth: 0 }}>
-                                                <div style={{ fontSize: 12, fontWeight: 700, color: "#111", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
-                                                <div style={{ fontSize: 10, color: "#dc2626", marginTop: 2, fontWeight: 600 }}>{sizeLabel || "Click to preview"}</div>
+                                                <div style={{ fontSize: 12, fontWeight: 700, color: "#181445", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
+                                                <div style={{ fontSize: 10, color: "#ba1a1a", marginTop: 2, fontWeight: 600 }}>{sizeLabel || "Click to preview"}</div>
                                               </div>
                                             </button>
                                           );
@@ -1275,7 +1275,7 @@ export default function TaskAssigned() {
                                       </div>
                                     )}
                                     {!revisionMeta.note && !revisionMeta.files?.length && (
-                                      <div style={{ padding: "10px 16px 14px", fontSize: 12, color: "#aaa", fontStyle: "italic" }}>No additional notes provided.</div>
+                                      <div style={{ padding: "10px 16px 14px", fontSize: 12, color: "#7b7486", fontStyle: "italic" }}>No additional notes provided.</div>
                                     )}
                                   </div>
                                 );
@@ -1296,9 +1296,9 @@ export default function TaskAssigned() {
 
                                 return (
                                   <div key={groupKey} style={{
-                                    border: `1px solid ${isNew ? "#d8b4fe" : "#e9d5ff"}`,
+                                    border: `1px solid ${isNew ? "#d0bcff" : "#e9ddff"}`,
                                     borderRadius: 12,
-                                    background: isNew ? "#fdf9ff" : "white",
+                                    background: isNew ? "#fcf8ff" : "white",
                                     overflow: "hidden",
                                     boxShadow: isNew ? "0 0 0 3px rgba(124,58,237,0.07)" : "0 1px 4px rgba(0,0,0,0.04)",
                                     transition: "box-shadow 0.2s",
@@ -1309,25 +1309,25 @@ export default function TaskAssigned() {
                                         {/* Avatar */}
                                         <div style={{
                                           width: 36, height: 36, borderRadius: "50%",
-                                          background: "#ede9fe", color: "#5b21b6",
+                                          background: "#e9ddff", color: "#5516be",
                                           display: "flex", alignItems: "center", justifyContent: "center",
                                           fontSize: 13, fontWeight: 700, flexShrink: 0,
-                                          border: "2px solid #f3f0ff",
+                                          border: "2px solid #efebff",
                                         }}>
                                           {facultyInitial}
                                         </div>
                                         <div>
                                           {/* Name + role badge */}
                                           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                            <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{facultyName}</span>
-                                            <span style={{ fontSize: 10, background: "#ede9fe", color: "#5b21b6", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>Faculty</span>
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: "#181445" }}>{facultyName}</span>
+                                            <span style={{ fontSize: 10, background: "#e9ddff", color: "#5516be", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>Faculty</span>
                                             {isNew && (
-                                              <span style={{ fontSize: 9, background: "#ef4444", color: "white", padding: "2px 7px", borderRadius: 20, fontWeight: 700 }}>NEW</span>
+                                              <span style={{ fontSize: 9, background: "#ba1a1a", color: "white", padding: "2px 7px", borderRadius: 20, fontWeight: 700 }}>NEW</span>
                                             )}
                                           </div>
                                           {/* Timestamp + version + status */}
                                           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-                                            <span style={{ fontSize: 10, color: "#888" }}>
+                                            <span style={{ fontSize: 10, color: "#7b7486" }}>
                                               {submittedAt ? fmtDateTime(submittedAt) : "Just now"}
                                             </span>
                                             <span style={{ fontSize: 9, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>
@@ -1339,16 +1339,16 @@ export default function TaskAssigned() {
                                           </div>
                                         </div>
                                       </div>
-                                      <button style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", padding: 4, display: "flex", alignItems: "center" }}>
+                                      <button style={{ background: "none", border: "none", cursor: "pointer", color: "#7b7486", padding: 4, display: "flex", alignItems: "center" }}>
                                         <Icon.More />
                                       </button>
                                     </div>
 
                                     {/* Divider */}
-                                    <div style={{ height: 1, background: "#f3f0ff", margin: "0 16px" }} />
+                                    <div style={{ height: 1, background: "#efebff", margin: "0 16px" }} />
 
                                     {/* Submission body — note or default submission message */}
-                                    <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#374151", lineHeight: 1.65 }}>
+                                    <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#494454", lineHeight: 1.65 }}>
                                       {note || (
                                         <span>Submitted completed document{files.length > 1 ? "s" : ""} for review.</span>
                                       )}
@@ -1374,27 +1374,27 @@ export default function TaskAssigned() {
                                             style={{
                                               display: "flex", alignItems: "center", gap: 10,
                                               padding: "10px 14px",
-                                              border: `1px solid ${a._pending ? "#e9d5ff" : "#e5e7eb"}`,
+                                              border: `1px solid ${a._pending ? "#e9ddff" : "#cbc3d7"}`,
                                               borderRadius: 10,
-                                              background: a._pending ? "#faf5ff" : "#fafafa",
+                                              background: a._pending ? "#f6f2ff" : "#f6f2ff",
                                               cursor: a._pending ? "default" : "pointer",
                                               textAlign: "left", minWidth: 176,
                                               opacity: a._pending ? 0.7 : 1,
                                               transition: "border-color 0.15s",
                                             }}
-                                            onMouseEnter={e => { if (!a._pending) e.currentTarget.style.borderColor = "#7c3aed"; }}
-                                            onMouseLeave={e => { if (!a._pending) e.currentTarget.style.borderColor = "#e5e7eb"; }}
+                                            onMouseEnter={e => { if (!a._pending) e.currentTarget.style.borderColor = "#6b38d4"; }}
+                                            onMouseLeave={e => { if (!a._pending) e.currentTarget.style.borderColor = "#cbc3d7"; }}
                                           >
                                             <div style={{
                                               width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                                              background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#ede9fe",
+                                              background: isPdf ? "#ffdad6" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#e9ddff",
                                               display: "flex", alignItems: "center", justifyContent: "center",
                                             }}>
                                               <span style={{ fontSize: 14 }}>{isPdf ? "📄" : isXlsx ? "📊" : isImg ? "🖼️" : "📎"}</span>
                                             </div>
                                             <div style={{ minWidth: 0 }}>
-                                              <div style={{ fontSize: 12, fontWeight: 700, color: "#111", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
-                                              <div style={{ fontSize: 10, color: a._pending ? "#a78bfa" : "#7c3aed", marginTop: 2, fontWeight: 600 }}>
+                                              <div style={{ fontSize: 12, fontWeight: 700, color: "#181445", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
+                                              <div style={{ fontSize: 10, color: a._pending ? "#8455ef" : "#6b38d4", marginTop: 2, fontWeight: 600 }}>
                                                 {a._pending ? "Uploading…" : (sizeLabel || "Click to preview")}
                                               </div>
                                             </div>
@@ -1416,11 +1416,11 @@ export default function TaskAssigned() {
                         const submittedStatus = ["for approval", "submitted"].includes(selected.status?.toLowerCase());
                         const actionsLocked = !submittedStatus;
                         return (
-                      <div style={{ marginBottom: 24, padding: "16px", background: actionsLocked ? "#f9fafb" : "#f8f5ff", border: `1px solid ${actionsLocked ? "#e5e7eb" : "#e9d5ff"}`, borderRadius: 12 }}>
+                      <div style={{ marginBottom: 24, padding: "16px", background: actionsLocked ? "#f6f2ff" : "#f6f2ff", border: `1px solid ${actionsLocked ? "#cbc3d7" : "#e9ddff"}`, borderRadius: 12 }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: actionsLocked ? "#9ca3af" : "#7c3aed", textTransform: "uppercase" }}>Task Actions</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: actionsLocked ? "#7b7486" : "#6b38d4", textTransform: "uppercase" }}>Task Actions</div>
                           {actionsLocked && (
-                            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, color: "#9ca3af", background: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: 20, padding: "3px 10px" }}>
+                            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, color: "#7b7486", background: "#efebff", border: "1px solid #cbc3d7", borderRadius: 20, padding: "3px 10px" }}>
                               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="11" height="11"><rect x="4" y="7" width="8" height="7" rx="1"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" strokeLinecap="round"/></svg>
                               Awaiting faculty submission
                             </span>
@@ -1439,9 +1439,9 @@ export default function TaskAssigned() {
                             onClick={() => !actionsLocked && handleApprove(selected.id)}
                             disabled={actionsLocked || actionLoading === "approve"}
                             title={actionsLocked ? "Faculty must submit before you can approve" : "Approve this task"}
-                            style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 18px", borderRadius: 8, border: "none", background: actionsLocked ? "#d1d5db" : "#7c3aed", color: "white", fontSize: 13, fontWeight: 700, cursor: actionsLocked || actionLoading === "approve" ? "not-allowed" : "pointer", opacity: actionLoading === "approve" ? 0.7 : 1 }}
-                            onMouseEnter={e => { if (!actionsLocked && actionLoading !== "approve") e.currentTarget.style.background = "#6d28d9"; }}
-                            onMouseLeave={e => { if (!actionsLocked && actionLoading !== "approve") e.currentTarget.style.background = "#7c3aed"; }}
+                            style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 18px", borderRadius: 8, border: "none", background: actionsLocked ? "#d1d5db" : "#6b38d4", color: "white", fontSize: 13, fontWeight: 700, cursor: actionsLocked || actionLoading === "approve" ? "not-allowed" : "pointer", opacity: actionLoading === "approve" ? 0.7 : 1 }}
+                            onMouseEnter={e => { if (!actionsLocked && actionLoading !== "approve") e.currentTarget.style.background = "#5a16be"; }}
+                            onMouseLeave={e => { if (!actionsLocked && actionLoading !== "approve") e.currentTarget.style.background = "#6b38d4"; }}
                           >
                             <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2" width="13" height="13"><path d="M13 5l-7 7-3-3" strokeLinecap="round"/></svg>
                             {actionLoading === "approve" ? "Approving..." : "Approve Task"}
@@ -1450,13 +1450,13 @@ export default function TaskAssigned() {
                             onClick={() => { if (!actionsLocked) { setShowReturnBox(v => !v); setReturnNote(""); } }}
                             disabled={actionsLocked || actionLoading === "return"}
                             title={actionsLocked ? "Faculty must submit before you can return" : "Return to faculty for revision"}
-                            style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 16px", borderRadius: 8, border: `1px solid ${actionsLocked ? "#e5e7eb" : "#fecaca"}`, background: actionsLocked ? "#f9fafb" : showReturnBox ? "#fef2f2" : "white", color: actionsLocked ? "#9ca3af" : "#dc2626", fontSize: 13, fontWeight: 700, cursor: actionsLocked ? "not-allowed" : "pointer" }}
+                            style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 16px", borderRadius: 8, border: `1px solid ${actionsLocked ? "#cbc3d7" : "#fecaca"}`, background: actionsLocked ? "#f6f2ff" : showReturnBox ? "#fef2f2" : "white", color: actionsLocked ? "#7b7486" : "#ba1a1a", fontSize: 13, fontWeight: 700, cursor: actionsLocked ? "not-allowed" : "pointer" }}
                           >
                             <Icon.Return /> Return to Faculty
                           </button>
                           <button
                             title="Reassign this task to another faculty member"
-                            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 16px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white", color: "#374151", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 16px", borderRadius: 8, border: "1px solid #cbc3d7", background: "white", color: "#494454", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                           >
                             <Icon.Reassign /> Reassign
                           </button>
@@ -1470,7 +1470,7 @@ export default function TaskAssigned() {
                               onChange={e => setReturnNote(e.target.value)}
                               rows={3}
                               placeholder="Explain what the faculty needs to revise or resubmit..."
-                              style={{ width: "100%", padding: "10px 12px", border: "1px solid #fecaca", borderRadius: 8, fontSize: 13, color: "#111", resize: "vertical", fontFamily: "inherit", lineHeight: 1.5, background: "white", boxSizing: "border-box", outline: "none", marginBottom: 10 }}
+                              style={{ width: "100%", padding: "10px 12px", border: "1px solid #fecaca", borderRadius: 8, fontSize: 13, color: "#181445", resize: "vertical", fontFamily: "inherit", lineHeight: 1.5, background: "white", boxSizing: "border-box", outline: "none", marginBottom: 10 }}
                             />
 
                             {/* File drop zone */}
@@ -1486,7 +1486,7 @@ export default function TaskAssigned() {
                               }}
                               onClick={() => returnFileInputRef.current?.click()}
                               style={{
-                                border: `2px dashed ${returnDragOver ? "#dc2626" : "#fca5a5"}`,
+                                border: `2px dashed ${returnDragOver ? "#ba1a1a" : "#fca5a5"}`,
                                 borderRadius: 8, padding: "12px", background: returnDragOver ? "#fff1f2" : "#fff",
                                 cursor: "pointer", textAlign: "center", marginBottom: 10, transition: "all 0.15s",
                               }}
@@ -1504,7 +1504,7 @@ export default function TaskAssigned() {
                                   e.target.value = "";
                                 }}
                               />
-                              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, color: "#dc2626" }}>
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, color: "#ba1a1a" }}>
                                 <Icon.Attach />
                                 <span style={{ fontSize: 12, fontWeight: 600 }}>Attach revision notes / reference files</span>
                               </div>
@@ -1525,7 +1525,7 @@ export default function TaskAssigned() {
                                       ) : (
                                         <>
                                           <span style={{ fontSize: 18, flexShrink: 0 }}>📄</span>
-                                          <span style={{ maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#374151", fontWeight: 600 }}>{f.name}</span>
+                                          <span style={{ maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#494454", fontWeight: 600 }}>{f.name}</span>
                                         </>
                                       )}
                                       <button
@@ -1542,11 +1542,11 @@ export default function TaskAssigned() {
 
                             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                               <button onClick={() => { setShowReturnBox(false); setReturnNote(""); returnFilePreviews.forEach(u => URL.revokeObjectURL(u)); setReturnFiles([]); setReturnFilePreviews([]); }}
-                                style={{ padding: "7px 14px", borderRadius: 7, border: "1px solid #e5e7eb", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#374151" }}>
+                                style={{ padding: "7px 14px", borderRadius: 7, border: "1px solid #cbc3d7", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#494454" }}>
                                 Cancel
                               </button>
                               <button onClick={() => handleReturn(selected.id)} disabled={actionLoading === "return"}
-                                style={{ padding: "7px 16px", borderRadius: 7, border: "none", background: "#dc2626", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", opacity: actionLoading === "return" ? 0.7 : 1, display: "flex", alignItems: "center", gap: 6 }}>
+                                style={{ padding: "7px 16px", borderRadius: 7, border: "none", background: "#ba1a1a", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", opacity: actionLoading === "return" ? 0.7 : 1, display: "flex", alignItems: "center", gap: 6 }}>
                                 <Icon.Return />
                                 {actionLoading === "return" ? "Returning..." : `Confirm Return${returnFiles.length ? ` · ${returnFiles.length} file${returnFiles.length > 1 ? "s" : ""}` : ""}`}
                               </button>
@@ -1558,10 +1558,10 @@ export default function TaskAssigned() {
                       })()}
 
                       {/* DISCUSSION */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Discussion</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginBottom: 14 }}>Discussion</div>
                       <div ref={el => { if (el) el.scrollTop = el.scrollHeight; }} style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 16, maxHeight: 320, overflowY: "auto" }}>
                         {(selected.comments || []).length === 0
-                          ? <div style={{ fontSize: 12, color: "#ccc", fontStyle: "italic" }}>No comments yet.</div>
+                          ? <div style={{ fontSize: 12, color: "#a39aad", fontStyle: "italic" }}>No comments yet.</div>
                           : (selected.comments || []).map((c, i) => {
                           const isAttachment = c.content?.startsWith("__attachment__");
                           const isRevision   = c.content?.startsWith("__revision__");
@@ -1589,54 +1589,54 @@ export default function TaskAssigned() {
 
                           return (
                             <div key={i} style={{ display: "flex", gap: 10, opacity: c._pending ? 0.55 : 1, transition: "opacity 0.3s" }}>
-                              <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                              <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
                                 {(c.sender_name?.[0] || "?").toUpperCase()}
                               </div>
                               <div style={{ flex: 1 }}>
                                 <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
-                                  <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{c.sender_name}</span>
-                                  <span style={{ fontSize: 11, color: "#aaa" }}>{c._pending ? "Sending..." : fmtDateTime(c.created_at)}</span>
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: "#181445" }}>{c.sender_name}</span>
+                                  <span style={{ fontSize: 11, color: "#7b7486" }}>{c._pending ? "Sending..." : fmtDateTime(c.created_at)}</span>
                                 </div>
                                 {isAttachment && attachMeta ? (
                                   attachMeta.isImg ? (
                                     <img
                                       src={resolveFileUrl(attachMeta.url)}
                                       alt={attachMeta.name}
-                                      style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, border: "1px solid #e5e7eb", display: "block", cursor: "pointer" }}
+                                      style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, border: "1px solid #cbc3d7", display: "block", cursor: "pointer" }}
                                       onClick={() => setFileViewer({ url: resolveFileUrl(attachMeta.url), name: attachMeta.name, isPdf: false, isImg: true })}
                                     />
                                   ) : (
                                     <div
                                       onClick={() => setFileViewer({ url: resolveFileUrl(attachMeta.url), name: attachMeta.name, isPdf: attachMeta.name?.toLowerCase().endsWith(".pdf"), isImg: false })}
-                                      style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f5f3ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "8px 12px", cursor: "pointer", maxWidth: 280 }}
+                                      style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#efebff", border: "1px solid #e9ddff", borderRadius: 8, padding: "8px 12px", cursor: "pointer", maxWidth: 280 }}
                                     >
-                                      <div style={{ width: 30, height: 30, background: "#ede9fe", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                      <div style={{ width: 30, height: 30, background: "#e9ddff", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                         <Icon.Attach />
                                       </div>
                                       <div style={{ minWidth: 0 }}>
-                                        <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{attachMeta.name}</div>
-                                        <div style={{ fontSize: 10, color: "#7c3aed", fontWeight: 600 }}>Click to preview</div>
+                                        <div style={{ fontSize: 12, fontWeight: 700, color: "#494454", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{attachMeta.name}</div>
+                                        <div style={{ fontSize: 10, color: "#6b38d4", fontWeight: 600 }}>Click to preview</div>
                                       </div>
                                     </div>
                                   )
                                 ) : isSubmission ? (
                                   <div style={{
                                     display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-                                    fontSize: 13, color: "#374151", lineHeight: 1.6,
+                                    fontSize: 13, color: "#494454", lineHeight: 1.6,
                                     background: wasReturned ? "#fff8f8" : "#f0fdf4",
                                     border: `1px solid ${wasReturned ? "#fecaca" : "#bbf7d0"}`,
                                     borderRadius: 8, padding: "8px 12px",
                                   }}>
                                     <span>{c.content}</span>
                                     {wasReturned && (
-                                      <span style={{ flexShrink: 0, fontSize: 9, background: "#fee2e2", color: "#991b1b", padding: "2px 8px", borderRadius: 20, fontWeight: 700, whiteSpace: "nowrap" }}>
+                                      <span style={{ flexShrink: 0, fontSize: 9, background: "#ffdad6", color: "#93000a", padding: "2px 8px", borderRadius: 20, fontWeight: 700, whiteSpace: "nowrap" }}>
                                         ↺ Returned
                                       </span>
                                     )}
                                   </div>
                                 ) : (
                                   <div style={{
-                                    fontSize: 13, color: "#374151", lineHeight: 1.6,
+                                    fontSize: 13, color: "#494454", lineHeight: 1.6,
                                     background: c.content?.startsWith("↺") ? "#fef2f2" : "transparent",
                                     padding: c.content?.startsWith("↺") ? "8px 12px" : 0,
                                     borderRadius: 8,
@@ -1656,10 +1656,10 @@ export default function TaskAssigned() {
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                           <div style={{ display: "flex", gap: 3, alignItems: "center" }}>
                             {[0,1,2].map(i => (
-                              <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: "#7c3aed", animation: "typingBounce 1.2s infinite ease-in-out", animationDelay: `${i * 0.2}s` }} />
+                              <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: "#6b38d4", animation: "typingBounce 1.2s infinite ease-in-out", animationDelay: `${i * 0.2}s` }} />
                             ))}
                           </div>
-                          <span style={{ fontSize: 11, color: "#7c3aed", fontStyle: "italic" }}>
+                          <span style={{ fontSize: 11, color: "#6b38d4", fontStyle: "italic" }}>
                             {typingUsers.length === 1
                               ? `${typingUsers[0].name} is typing…`
                               : typingUsers.length === 2
@@ -1671,10 +1671,10 @@ export default function TaskAssigned() {
 
                       {/* Comment input */}
                       <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
                           {(user.full_name?.[0] || user.username?.[0] || "?").toUpperCase()}
                         </div>
-                        <div style={{ flex: 1, border: "1px solid #e5e7eb", borderRadius: 10, background: "white" }}>
+                        <div style={{ flex: 1, border: "1px solid #cbc3d7", borderRadius: 10, background: "white" }}>
                           <input type="text" value={comment} onChange={handleCommentChange}
                             onKeyDown={e => { if (e.key === "Enter") { emitTyping(false); if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current); handlePostComment(); } }}
                             placeholder="Write a comment..."
@@ -1682,18 +1682,18 @@ export default function TaskAssigned() {
 
                           {/* Staged file previews */}
                           {commentFiles.length > 0 && (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "8px 10px", borderTop: "1px solid #f0f0f0", background: "#fafafa" }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "8px 10px", borderTop: "1px solid #cbc3d7", background: "#f6f2ff" }}>
                               {commentFiles.map((f, i) => {
                                 const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name);
                                 const objUrl = commentFilePreviews[i];
                                 return (
-                                  <div key={i} style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 6, background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 8, padding: "4px 8px 4px 6px", fontSize: 11, maxWidth: 180 }}>
+                                  <div key={i} style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 6, background: "#efebff", border: "1px solid #e9ddff", borderRadius: 8, padding: "4px 8px 4px 6px", fontSize: 11, maxWidth: 180 }}>
                                     {isImg ? (
                                       <img src={objUrl} alt={f.name} style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 6, display: "block", flexShrink: 0 }} />
                                     ) : (
                                       <>
                                         <span style={{ fontSize: 18, flexShrink: 0 }}>📄</span>
-                                        <span style={{ maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#374151", fontWeight: 600, fontSize: 11 }}>{f.name}</span>
+                                        <span style={{ maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#494454", fontWeight: 600, fontSize: 11 }}>{f.name}</span>
                                       </>
                                     )}
                                     <button
@@ -1702,7 +1702,7 @@ export default function TaskAssigned() {
                                         setCommentFiles(prev => prev.filter((_, idx) => idx !== i));
                                         setCommentFilePreviews(prev => prev.filter((_, idx) => idx !== i));
                                       }}
-                                      style={{ position: "absolute", top: -6, right: -6, background: "#fff", border: "1px solid #e5e7eb", borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0, flexShrink: 0, boxShadow: "0 1px 3px rgba(0,0,0,0.15)", zIndex: 1 }}
+                                      style={{ position: "absolute", top: -6, right: -6, background: "#fff", border: "1px solid #cbc3d7", borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0, flexShrink: 0, boxShadow: "0 1px 3px rgba(0,0,0,0.15)", zIndex: 1 }}
                                     >
                                       <Icon.Close />
                                     </button>
@@ -1712,7 +1712,7 @@ export default function TaskAssigned() {
                             </div>
                           )}
 
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", borderTop: "1px solid #f0f0f0", background: "#fafafa", borderRadius: "0 0 10px 10px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", borderTop: "1px solid #cbc3d7", background: "#f6f2ff", borderRadius: "0 0 10px 10px" }}>
                             <input
                               ref={commentFileInputRef}
                               type="file"
@@ -1729,13 +1729,13 @@ export default function TaskAssigned() {
                             <button
                               onClick={() => commentFileInputRef.current?.click()}
                               title="Attach image or file"
-                              style={{ background: "none", border: "none", cursor: "pointer", color: commentFiles.length > 0 ? "#7c3aed" : "#888", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600 }}
+                              style={{ background: "none", border: "none", cursor: "pointer", color: commentFiles.length > 0 ? "#6b38d4" : "#7b7486", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600 }}
                             >
                               <Icon.Attach />
-                              {commentFiles.length > 0 && <span style={{ fontSize: 10, background: "#7c3aed", color: "white", borderRadius: 10, padding: "1px 5px" }}>{commentFiles.length}</span>}
+                              {commentFiles.length > 0 && <span style={{ fontSize: 10, background: "#6b38d4", color: "white", borderRadius: 10, padding: "1px 5px" }}>{commentFiles.length}</span>}
                             </button>
                             <button onClick={() => { emitTyping(false); if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current); handlePostComment(); }}
-                              style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 16px", borderRadius: 7, border: "none", background: "#7c3aed", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                              style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 16px", borderRadius: 7, border: "none", background: "#6b38d4", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                               ↑ Post
                             </button>
                           </div>
@@ -1749,14 +1749,14 @@ export default function TaskAssigned() {
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 24px", borderTop: "1px solid #f0f0f0", fontSize: 11, color: "#aaa", background: "white", flexShrink: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 24px", borderTop: "1px solid #cbc3d7", fontSize: 11, color: "#7b7486", background: "white", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <svg viewBox="0 0 16 16" fill="none" stroke="#aaa" strokeWidth="1.2" width="12" height="12"><path d="M8 1L1 4v5c0 4 3 6 7 7 4-1 7-3 7-7V4L8 1z"/></svg>
+            <svg viewBox="0 0 16 16" fill="none" stroke="#7b7486" strokeWidth="1.2" width="12" height="12"><path d="M8 1L1 4v5c0 4 3 6 7 7 4-1 7-3 7-7V4L8 1z"/></svg>
            © 2026 PATH Document Management System. All rights reserved.
           </div>
           <div style={{ display: "flex", gap: 18 }}>
             {["HELP CENTER","API STATUS","PRIVACY POLICY","TERMS"].map(l => (
-              <a key={l} href="#" style={{ color: "#aaa", textDecoration: "none", fontSize: 10, fontWeight: 600, letterSpacing: 0.5 }}>{l}</a>
+              <a key={l} href="#" style={{ color: "#7b7486", textDecoration: "none", fontSize: 10, fontWeight: 600, letterSpacing: 0.5 }}>{l}</a>
             ))}
           </div>
         </div>
@@ -1773,8 +1773,8 @@ export default function TaskAssigned() {
                 <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{fileViewer.name}</span>
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <a href={fileViewer.url} target="_blank" rel="noreferrer" style={{ padding: "6px 14px", background: "#7c3aed", color: "white", borderRadius: 7, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>↗ Open</a>
-                <a href={fileViewer.url} download={fileViewer.name} style={{ padding: "6px 14px", background: "#ede9fe", color: "#7c3aed", borderRadius: 7, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>↓ Download</a>
+                <a href={fileViewer.url} target="_blank" rel="noreferrer" style={{ padding: "6px 14px", background: "#6b38d4", color: "white", borderRadius: 7, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>↗ Open</a>
+                <a href={fileViewer.url} download={fileViewer.name} style={{ padding: "6px 14px", background: "#e9ddff", color: "#6b38d4", borderRadius: 7, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>↓ Download</a>
                 <button onClick={() => setFileViewer(null)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 7, color: "white", cursor: "pointer", padding: "6px 10px", fontSize: 16 }}>×</button>
               </div>
             </div>
@@ -1784,10 +1784,10 @@ export default function TaskAssigned() {
               ) : fileViewer.isImg ? (
                 <img src={fileViewer.url} alt={fileViewer.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", padding: 20 }} />
               ) : (
-                <div style={{ textAlign: "center", color: "#aaa" }}>
+                <div style={{ textAlign: "center", color: "#7b7486" }}>
                   <div style={{ fontSize: 48, marginBottom: 16 }}>📎</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "white", marginBottom: 8 }}>{fileViewer.name}</div>
-                  <a href={fileViewer.url} download={fileViewer.name} style={{ padding: "10px 24px", background: "#7c3aed", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>↓ Download File</a>
+                  <a href={fileViewer.url} download={fileViewer.name} style={{ padding: "10px 24px", background: "#6b38d4", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>↓ Download File</a>
                 </div>
               )}
             </div>
