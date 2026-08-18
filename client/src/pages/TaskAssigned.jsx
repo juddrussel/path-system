@@ -625,6 +625,7 @@ export default function TaskAssigned() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#181445", background: "#fcf8ff" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
