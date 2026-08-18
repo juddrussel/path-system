@@ -693,6 +693,8 @@ export default function Inbox() {
   const [unreadTotal, setUnreadTotal] = useState(0);
   const [showNewChat, setShowNewChat] = useState(false);
   const [userSearch, setUserSearch] = useState("");
+  const [convSearch, setConvSearch] = useState("");
+  const [convFilter, setConvFilter] = useState("all"); // "all" | "unread" | "recent"
 
   // ── Per-message actions (reply / menu / pin / remove / forward) ──
   const [hoveredMsgId, setHoveredMsgId] = useState(null);
@@ -1542,6 +1544,12 @@ export default function Inbox() {
 
   const displayName = currentUser.username || "User";
 
+  // ── Conversation list: search + filter pills (layout helpers) ──
+  const visibleConversations = conversations
+    .filter(c => !convSearch.trim() || c.full_name?.toLowerCase().includes(convSearch.trim().toLowerCase()))
+    .filter(c => convFilter !== "unread" || c.unread_count > 0)
+    .filter(c => convFilter !== "recent" || (c.last_time && (Date.now() - new Date(c.last_time)) < 86400000));
+
   // ════════════════════════════════════════════════════════════════════════════
   // RENDER
   // ════════════════════════════════════════════════════════════════════════════
@@ -1606,13 +1614,13 @@ export default function Inbox() {
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
           {/* ── Left sidebar: conversation list ── */}
-          <div style={{ width: 280, borderRight: "0.5px solid #e5e7eb", display: "flex", flexDirection: "column", flexShrink: 0 }}>
+          <div style={{ width: 320, borderRight: "0.5px solid #e5e7eb", display: "flex", flexDirection: "column", flexShrink: 0, position: "relative", background: "white" }}>
 
             {/* Header */}
-            <div style={{ padding: "14px 16px", borderBottom: "0.5px solid #e5e7eb" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontWeight: "bold", fontSize: 15, color: "#111" }}>
-                  Inbox
+            <div style={{ padding: "16px 16px 12px", borderBottom: "0.5px solid #e5e7eb" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ fontWeight: "bold", fontSize: 17, color: "#181445" }}>
+                  Messages
                   {unreadTotal > 0 && (
                     <span style={{ marginLeft: 8, background: "#7c3aed", color: "white", borderRadius: 20, padding: "1px 7px", fontSize: 10, fontWeight: "bold" }}>
                       {unreadTotal}
@@ -1622,12 +1630,49 @@ export default function Inbox() {
                 <button
                   onClick={() => setShowNewChat(true)}
                   title="New message"
-                  style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#7c3aed" }}
+                  style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#494454" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#e9e5ff"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                 >
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="12" height="12"><path d="M8 1v14M1 8h14" /></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><circle cx="4" cy="10" r="1.6" /><circle cx="10" cy="10" r="1.6" /><circle cx="16" cy="10" r="1.6" /></svg>
                 </button>
               </div>
 
+              {/* Search Bar */}
+              <div style={{ position: "relative", background: "#f6f2ff", borderRadius: 10, border: "1px solid rgba(123,116,134,0.15)" }}>
+                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#7b7486", display: "flex" }}>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" width="15" height="15"><circle cx="7" cy="7" r="5" /><path d="M14 14l-3-3" strokeLinecap="round" /></svg>
+                </span>
+                <input
+                  type="text"
+                  value={convSearch}
+                  onChange={e => setConvSearch(e.target.value)}
+                  placeholder="Search conversations..."
+                  style={{ width: "100%", boxSizing: "border-box", background: "transparent", border: "none", outline: "none", padding: "9px 12px 9px 34px", fontSize: 13, color: "#181445" }}
+                />
+              </div>
+            </div>
+
+            {/* Filter pills */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", borderBottom: "0.5px solid #e5e7eb" }}>
+              {[{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "recent", label: "Recent" }].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setConvFilter(f.id)}
+                  style={{
+                    padding: "5px 14px", borderRadius: 20, border: "none", cursor: "pointer",
+                    fontSize: 11.5, fontWeight: 600,
+                    background: convFilter === f.id ? "#6b38d4" : "transparent",
+                    color: convFilter === f.id ? "white" : "#494454",
+                    boxShadow: convFilter === f.id ? "0 2px 6px rgba(107,56,212,0.25)" : "none",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={e => { if (convFilter !== f.id) e.currentTarget.style.background = "#e9e5ff"; }}
+                  onMouseLeave={e => { if (convFilter !== f.id) e.currentTarget.style.background = "transparent"; }}
+                >
+                  {f.label}
+                </button>
+              ))}
             </div>
 
             {/* New Chat User Picker */}
@@ -1661,38 +1706,55 @@ export default function Inbox() {
             )}
 
             {/* Conversation / Document list */}
-            <div style={{ flex: 1, overflowY: "auto" }}>
+            <div style={{ flex: 1, overflowY: "auto", paddingBottom: 72 }}>
               {tab === "dm" ? (
                 conversations.length === 0 ? (
                   <div style={{ padding: 24, textAlign: "center", color: "#aaa", fontSize: 12 }}>
                     No conversations yet.<br />
                     <span onClick={() => setShowNewChat(true)} style={{ color: "#7c3aed", cursor: "pointer", fontWeight: "bold" }}>Start one →</span>
                   </div>
-                ) : conversations.map(conv => (
-                  <div key={conv.id} onClick={() => openConversation(conv)}
-                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer", borderBottom: "0.5px solid #f5f5f5", background: activeConv?.id === conv.id ? "#faf5ff" : "white" }}
-                    onMouseEnter={e => { if (activeConv?.id !== conv.id) e.currentTarget.style.background = "#fafafa"; }}
-                    onMouseLeave={e => { if (activeConv?.id !== conv.id) e.currentTarget.style.background = "white"; }}
-                  >
-                    <Avatar name={conv.full_name} size={36} online={onlineUserIds.includes(String(conv.id))} photoUrl={conv.photo ? resolveUrl(conv.photo) : null} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontWeight: "bold", fontSize: 12, color: "#111" }}>{conv.full_name}</span>
-                        <span style={{ fontSize: 10, color: "#aaa" }}>{conv.last_time ? formatTime(conv.last_time) : ""}</span>
-                      </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 11, color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>
-                          {conv.last_sender_id === currentUser.id ? "You: " : ""}{parseReplyContent(conv.last_message).text || "📎 File"}
-                        </span>
-                        {conv.unread_count > 0 && (
-                          <span style={{ background: "#7c3aed", color: "white", borderRadius: "50%", width: 18, height: 18, fontSize: 9, fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            {conv.unread_count}
+                ) : visibleConversations.length === 0 ? (
+                  <div style={{ padding: 24, textAlign: "center", color: "#aaa", fontSize: 12 }}>No conversations match.</div>
+                ) : visibleConversations.map(conv => {
+                  const isActive = activeConv?.id === conv.id;
+                  return (
+                    <div key={conv.id} onClick={() => openConversation(conv)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 12,
+                        padding: "12px", margin: "4px 8px", borderRadius: 12,
+                        cursor: "pointer", position: "relative",
+                        background: isActive ? "rgba(107,56,212,0.05)" : "transparent",
+                        border: isActive ? "1px solid rgba(107,56,212,0.2)" : "1px solid transparent",
+                        transition: "background 0.12s",
+                      }}
+                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "#f6f2ff"; }}
+                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
+                    >
+                      <Avatar name={conv.full_name} size={48} online={onlineUserIds.includes(String(conv.id))} photoUrl={conv.photo ? resolveUrl(conv.photo) : null} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                          <span style={{ fontWeight: 600, fontSize: 13.5, color: "#181445" }}>{conv.full_name}</span>
+                          <span style={{ fontSize: 11, color: isActive ? "#6b38d4" : "#494454", fontWeight: isActive ? 600 : 400, flexShrink: 0 }}>
+                            {conv.last_time ? formatTime(conv.last_time) : ""}
                           </span>
+                        </div>
+                        {conv.department && (
+                          <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 2 }}>{conv.department}</div>
                         )}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 13, color: "#181445", fontWeight: conv.unread_count > 0 ? 500 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                            {conv.last_sender_id === currentUser.id ? "You: " : ""}{parseReplyContent(conv.last_message).text || "📎 File"}
+                          </span>
+                        </div>
                       </div>
+                      {conv.unread_count > 0 && (
+                        <div style={{ position: "absolute", right: 12, bottom: 12, width: 20, height: 20, background: "#6b38d4", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>
+                          {conv.unread_count}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 documents.length === 0 ? (
                   <div style={{ padding: 24, textAlign: "center", color: "#aaa", fontSize: 12 }}>No documents found.</div>
@@ -1709,6 +1771,26 @@ export default function Inbox() {
                 ))
               )}
             </div>
+
+            {/* Floating Action Button (New Message) */}
+            {tab === "dm" && (
+              <button
+                onClick={() => setShowNewChat(true)}
+                title="New message"
+                style={{
+                  position: "absolute", right: 24, bottom: 24, width: 56, height: 56,
+                  borderRadius: 16, border: "none", background: "#6b38d4", color: "white",
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 8px 16px rgba(107,56,212,0.3)", transition: "transform 0.15s, background 0.15s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#5a2fb0"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "#6b38d4"; e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                  <path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* ── Right: chat window ── */}
@@ -1729,12 +1811,13 @@ export default function Inbox() {
             {tab === "dm" && activeConv && (
               <>
                 {/* Chat header */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 18px", borderBottom: "0.5px solid #e5e7eb", background: "white" }}>
-                  <Avatar name={activeConv.full_name} size={36} online={onlineUserIds.includes(String(activeConv.id))} photoUrl={activeConv.photo ? resolveUrl(activeConv.photo) : null} />
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: "0.5px solid #e5e7eb", background: "white", boxShadow: "0 4px 12px rgba(107,56,212,0.04)", minHeight: 89, boxSizing: "border-box" }}>
+                  <Avatar name={activeConv.full_name} size={48} online={onlineUserIds.includes(String(activeConv.id))} photoUrl={activeConv.photo ? resolveUrl(activeConv.photo) : null} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: "bold", fontSize: 13, color: "#111" }}>{activeConv.full_name}</div>
-                    <div style={{ fontSize: 11, color: onlineUserIds.includes(String(activeConv.id)) ? "#22c55e" : "#aaa" }}>
-                      {onlineUserIds.includes(String(activeConv.id)) ? "Online" : "Offline"} · {activeConv.department}
+                    <div style={{ fontWeight: 600, fontSize: 16, color: "#181445" }}>{activeConv.full_name}</div>
+                    <div style={{ fontSize: 11.5, color: "#494454", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: onlineUserIds.includes(String(activeConv.id)) ? "#22c55e" : "#cbc3d7", display: "inline-block", flexShrink: 0 }} />
+                      {onlineUserIds.includes(String(activeConv.id)) ? "Online" : "Offline"}{activeConv.department ? ` · ${activeConv.department}` : ""}
                     </div>
                   </div>
                   {/* Call buttons */}
@@ -1803,7 +1886,14 @@ export default function Inbox() {
                 )}
 
                 {/* Messages */}
-                <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 4, background: "#fafafa" }}>
+                <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 4, background: "#fcf8ff" }}>
+                  {messages.length > 0 && (
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+                      <span style={{ fontSize: 11, fontWeight: 500, color: "#494454", background: "#f6f2ff", padding: "4px 16px", borderRadius: 20, border: "1px solid rgba(203,195,215,0.4)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                        Today
+                      </span>
+                    </div>
+                  )}
                   {messages.map((msg, i) => {
                     const isMine = String(msg.sender_id) === String(currentUser.id);
                     const isFirstInGroup = i === 0 || messages[i - 1]?.sender_id !== msg.sender_id;
@@ -1863,7 +1953,7 @@ export default function Inbox() {
                                 <Icon.PinSmall />
                               </span>
                             )}
-                            <div style={{ background: isMine ? "#7c3aed" : "white", color: isMine ? "white" : "#111", padding: "8px 12px", borderRadius: isMine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", fontSize: 13, boxShadow: "0 1px 3px rgba(0,0,0,0.07)", wordBreak: "break-word" }}>
+                            <div style={{ background: isMine ? "#6b38d4" : "white", color: isMine ? "white" : "#181445", padding: "10px 16px", borderRadius: isMine ? "16px 16px 4px 16px" : "16px 16px 16px 4px", fontSize: 14, lineHeight: 1.5, boxShadow: "0 4px 12px rgba(107,56,212,0.06)", border: isMine ? "none" : "1px solid #e3dfff", wordBreak: "break-word" }}>
                               {replyMeta && (() => {
                                 const repliedToSelf = String(replyMeta.senderId) === String(msg.sender_id);
                                 const repliedToViewer = !repliedToSelf && String(replyMeta.senderId) === String(currentUser.id);
@@ -2060,22 +2150,36 @@ export default function Inbox() {
                 )}
 
                 {/* Input */}
-                <div style={{ padding: "10px 16px", borderTop: "0.5px solid #e5e7eb", display: "flex", gap: 8, alignItems: "flex-end", background: "white" }}>
-                  <input type="file" ref={dmFileRef} style={{ display: "none" }} onChange={e => setDmFile(e.target.files[0])} />
-                  <button onClick={() => dmFileRef.current.click()} title="Attach file" style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#888", flexShrink: 0 }}>
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M13 8l-5 5a3.5 3.5 0 01-5-5L8 3a2 2 0 013 3L7 10a.5.5 0 01-1-1l4-4" strokeLinecap="round" /></svg>
-                  </button>
-                  <textarea
-                    value={dmInput}
-                    onChange={e => handleDmInput(e.target.value)}
-                    onKeyDown={e => handleKey(e, sendDm)}
-                    placeholder="Type a message... (Enter to send)"
-                    rows={1}
-                    style={{ flex: 1, padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 10, fontSize: 13, outline: "none", resize: "none", fontFamily: "inherit", lineHeight: 1.5, maxHeight: 100, overflowY: "auto" }}
-                  />
-                  <button onClick={sendDm} disabled={!dmInput.trim() && !dmFile} style={{ width: 34, height: 34, borderRadius: 8, border: "none", background: "#7c3aed", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !dmInput.trim() && !dmFile ? 0.5 : 1 }}>
-                    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M1 1l14 7-14 7V9l10-2L1 5V1z" /></svg>
-                  </button>
+                <div style={{ padding: "16px 24px", borderTop: "0.5px solid #e5e7eb", background: "white" }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: 8, background: "#f6f2ff", border: "1px solid rgba(123,116,134,0.15)", borderRadius: 20, padding: 6 }}>
+                    <input type="file" ref={dmFileRef} style={{ display: "none" }} onChange={e => setDmFile(e.target.files[0])} />
+                    <button onClick={() => dmFileRef.current.click()} title="Attach file" style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#7b7486", flexShrink: 0 }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#6b38d4"; e.currentTarget.style.background = "#e3dfff"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "#7b7486"; e.currentTarget.style.background = "transparent"; }}
+                    >
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M13 8l-5 5a3.5 3.5 0 01-5-5L8 3a2 2 0 013 3L7 10a.5.5 0 01-1-1l4-4" strokeLinecap="round" /></svg>
+                    </button>
+                    <textarea
+                      value={dmInput}
+                      onChange={e => handleDmInput(e.target.value)}
+                      onKeyDown={e => handleKey(e, sendDm)}
+                      placeholder="Type a message..."
+                      rows={1}
+                      style={{ flex: 1, padding: "9px 4px", border: "none", background: "transparent", borderRadius: 10, fontSize: 14, outline: "none", resize: "none", fontFamily: "inherit", lineHeight: 1.5, maxHeight: 100, overflowY: "auto" }}
+                    />
+                    <button title="Emoji" style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#7b7486", flexShrink: 0 }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#6b38d4"; e.currentTarget.style.background = "#e3dfff"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "#7b7486"; e.currentTarget.style.background = "transparent"; }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="20" height="20"><circle cx="12" cy="12" r="9" /><path d="M9 10h.01M15 10h.01M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8" strokeLinecap="round" /></svg>
+                    </button>
+                    <button onClick={sendDm} disabled={!dmInput.trim() && !dmFile} style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "#6b38d4", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !dmInput.trim() && !dmFile ? 0.5 : 1, boxShadow: "0 2px 6px rgba(107,56,212,0.3)" }}>
+                      <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M1 1l14 7-14 7V9l10-2L1 5V1z" /></svg>
+                    </button>
+                  </div>
+                  <p style={{ textAlign: "center", fontSize: 10.5, color: "#cbc3d7", marginTop: 8, marginBottom: 0 }}>
+                    Press <kbd style={{ padding: "1px 5px", background: "#f6f2ff", border: "1px solid #e3dfff", borderRadius: 4 }}>Enter</kbd> to send, <kbd style={{ padding: "1px 5px", background: "#f6f2ff", border: "1px solid #e3dfff", borderRadius: 4 }}>Shift + Enter</kbd> for new line.
+                  </p>
                 </div>
               </>
             )}
