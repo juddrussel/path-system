@@ -985,7 +985,7 @@ export default function TaskAssigned() {
 
                           {/* Faculty info card */}
                           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty Member</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f6f2ff", borderRadius: 10, border: "1px solid #cbc3d7", marginBottom: 10 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f6f2ff", borderRadius: 10, marginBottom: 10 }}>
                             <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
                               {(selected.assigned_to_name?.[0] || "?").toUpperCase()}
                             </div>
@@ -995,11 +995,11 @@ export default function TaskAssigned() {
                             </div>
                           </div>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                            <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8, border: "1px solid #cbc3d7" }}>
+                            <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8 }}>
                               <div style={{ fontSize: 10, color: "#7b7486", marginBottom: 2 }}>Documents</div>
                               <div style={{ fontSize: 16, fontWeight: 800, color: "#6b38d4" }}>{selected.attachments?.length || 0}</div>
                             </div>
-                            <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8, border: "1px solid #cbc3d7" }}>
+                            <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8 }}>
                               <div style={{ fontSize: 10, color: "#7b7486", marginBottom: 2 }}>Comments</div>
                               <div style={{ fontSize: 16, fontWeight: 800, color: "#6b38d4" }}>{selected.comments?.length || 0}</div>
                             </div>
