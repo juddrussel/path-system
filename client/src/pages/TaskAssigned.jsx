@@ -877,16 +877,17 @@ export default function TaskAssigned() {
                     </div>
                   </div>
 
-                  {/* Detail body — MyTasks-style flat layout */}
-                  <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-
-                    {/* Center content — only this column scrolls */}
-                    <div style={{ flex: 1, padding: "20px 24px", minWidth: 0, borderRight: "1px solid #f0f0f0", overflowY: "auto", height: "100%" }}>
+                  {/* Detail body — single scrolling column; top grid row holds Task Information + Task Timeline */}
+                  <div style={{ flex: 1, padding: "20px 24px", overflowY: "auto", height: "100%" }}>
                       <h2 style={{ fontSize: 19, fontWeight: 800, color: "#111", margin: "0 0 18px", lineHeight: 1.35 }}>{selected.title || "(No title)"}</h2>
 
-                      {/* TASK INFORMATION */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Task Information</div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginBottom: 24, padding: "0 0 24px", borderBottom: "1px solid #f0f0f0" }}>
+                      {/* Top row: TASK INFORMATION (card) + TASK TIMELINE */}
+                      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, marginBottom: 28, alignItems: "start" }}>
+
+                        {/* TASK INFORMATION card */}
+                        <div style={{ background: "#faf8ff", border: "1px solid #f0f0f0", borderRadius: 14, padding: "20px 22px" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14, paddingBottom: 10, borderBottom: "1px solid #eee" }}>Task Information</div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
                         <div>
                           <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Assigned To</div>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -967,6 +968,41 @@ export default function TaskAssigned() {
                         <div>
                           <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Project Category</div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{selected.category || "—"}</div>
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* TASK TIMELINE */}
+                        <div style={{ borderLeft: "1px solid #f0f0f0", paddingLeft: 22 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Task Timeline</div>
+                          <TimelineItem label="Task Created"        value={`by ${selected.assigned_by_name || "—"}`}  sub={fmtDate(selected.created_at)} dot="#7c3aed" />
+                          <TimelineItem label="Assigned to Faculty" value={selected.assigned_to_name || "—"}          sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#7c3aed" />
+                          {selected.submitted_at && <TimelineItem label="Submitted by Faculty" value={selected.assigned_to_name || "—"} sub={fmtDateTime(selected.submitted_at)} dot="#059669" />}
+                          {selected.approved_at  && <TimelineItem label="Approved"   value={`by ${selected.approved_by_name || "You"}`} sub={fmtDateTime(selected.approved_at)} dot="#059669" />}
+                          {selected.returned_at  && <TimelineItem label="Returned"   value={`by ${selected.returned_by_name || "You"}`} sub={fmtDateTime(selected.returned_at)} dot="#dc2626" />}
+                          <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "#059669" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#dc2626" : "#d1d5db"} isLast />
+
+                          {/* Faculty info card */}
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty Member</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f9fafb", borderRadius: 10, border: "1px solid #f0f0f0", marginBottom: 10 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                              {(selected.assigned_to_name?.[0] || "?").toUpperCase()}
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{selected.assigned_to_name || "—"}</div>
+                              <div style={{ fontSize: 10, color: "#aaa" }}>{selected.assigned_to_email || "—"}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                            <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
+                              <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Documents</div>
+                              <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.attachments?.length || 0}</div>
+                            </div>
+                            <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
+                              <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Comments</div>
+                              <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.comments?.length || 0}</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -1705,42 +1741,6 @@ export default function TaskAssigned() {
                           </div>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Right sidebar — timeline + faculty info */}
-                    <div style={{ width: 260, flexShrink: 0, padding: "20px", overflowY: "auto", position: "sticky", top: 0, alignSelf: "flex-start", maxHeight: "100%", borderLeft: "1px solid #f0f0f0" }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Task Timeline</div>
-                      <TimelineItem label="Task Created"        value={`by ${selected.assigned_by_name || "—"}`}  sub={fmtDate(selected.created_at)} dot="#7c3aed" />
-                      <TimelineItem label="Assigned to Faculty" value={selected.assigned_to_name || "—"}          sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#7c3aed" />
-                      {selected.submitted_at && <TimelineItem label="Submitted by Faculty" value={selected.assigned_to_name || "—"} sub={fmtDateTime(selected.submitted_at)} dot="#059669" />}
-                      {selected.approved_at  && <TimelineItem label="Approved"   value={`by ${selected.approved_by_name || "You"}`} sub={fmtDateTime(selected.approved_at)} dot="#059669" />}
-                      {selected.returned_at  && <TimelineItem label="Returned"   value={`by ${selected.returned_by_name || "You"}`} sub={fmtDateTime(selected.returned_at)} dot="#dc2626" />}
-                      <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "#059669" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#dc2626" : "#d1d5db"} isLast />
-
-                      {/* Faculty info card */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty Member</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f9fafb", borderRadius: 10, border: "1px solid #f0f0f0", marginBottom: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
-                          {(selected.assigned_to_name?.[0] || "?").toUpperCase()}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{selected.assigned_to_name || "—"}</div>
-                          <div style={{ fontSize: 10, color: "#aaa" }}>{selected.assigned_to_email || "—"}</div>
-                        </div>
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 16 }}>
-                        <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
-                          <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Documents</div>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.attachments?.length || 0}</div>
-                        </div>
-                        <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
-                          <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Comments</div>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.comments?.length || 0}</div>
-                        </div>
-                      </div>
-
-
-                    </div>
                   </div>
                 </div>
               )}
