@@ -184,6 +184,101 @@ function SectionCard({ title, subtitle, icon: Icn, action, children, style }) {
   );
 }
 
+// Chip-style editor for a comma-separated "hours before deadline" list
+// (e.g. "48,24,4") — renders each value as a removable pill plus a trailing
+// "+ Add hours" pill that turns into a small number input when clicked.
+// Keeps the underlying value as the same CSV string the rest of the form
+// already reads/writes (`onChange(csv)`), sorted descending with duplicates
+// removed, so it's a drop-in replacement for the old plain text input.
+function HourChipsInput({ value, onChange, placeholder = "Add hours…" }) {
+  const [adding, setAdding] = useState(false);
+  const [draft, setDraft] = useState("");
+
+  const hours = String(value ?? "")
+    .split(",")
+    .map(s => parseInt(s.trim(), 10))
+    .filter(n => Number.isInteger(n) && n > 0);
+
+  function commit(next) {
+    const unique = [...new Set(next)].sort((a, b) => b - a);
+    onChange(unique.join(","));
+  }
+
+  function addDraft() {
+    const n = parseInt(draft, 10);
+    if (Number.isInteger(n) && n > 0) commit([...hours, n]);
+    setDraft("");
+    setAdding(false);
+  }
+
+  function removeAt(n) {
+    commit(hours.filter(h => h !== n));
+  }
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center", marginTop: 5 }}>
+      {hours.map(h => (
+        <span
+          key={h}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 5,
+            padding: "5px 8px 5px 12px", borderRadius: 999,
+            background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 600,
+          }}
+        >
+          {h} h
+          <button
+            type="button"
+            onClick={() => removeAt(h)}
+            aria-label={`Remove ${h} hours`}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 15, height: 15, borderRadius: "50%", border: "none",
+              background: "rgba(255,255,255,0.25)", color: "#fff", cursor: "pointer", padding: 0,
+            }}
+          >
+            <X size={10} strokeWidth={3} />
+          </button>
+        </span>
+      ))}
+
+      {adding ? (
+        <input
+          autoFocus
+          type="number"
+          min={1}
+          value={draft}
+          placeholder="hrs"
+          onChange={e => setDraft(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === "Enter") { e.preventDefault(); addDraft(); }
+            if (e.key === "Escape") { setDraft(""); setAdding(false); }
+          }}
+          onBlur={addDraft}
+          style={{
+            width: 60, padding: "5px 8px", borderRadius: 999,
+            border: "1px solid #c4b5fd", background: "#faf5ff", fontSize: 12,
+            color: "#111827", outline: "none", boxSizing: "border-box",
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 4,
+            padding: "5px 10px", borderRadius: 999,
+            border: "1px dashed #c4b5fd", background: "#faf5ff",
+            color: "#7c3aed", fontSize: 12, fontWeight: 600, cursor: "pointer",
+          }}
+        >
+          + {placeholder}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function timeAgo(dateStr) {
   const diffMs = Date.now() - new Date(dateStr).getTime();
   const mins = Math.round(diffMs / 60000);
@@ -530,14 +625,12 @@ export default function SLAConfiguration() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div>
             <label style={drawerLabelStyle}>Reminder Hours Before Deadline</label>
-            <input
+            <HourChipsInput
               value={ruleForm.reminderStageDays}
-              onChange={e => set("reminderStageDays", e.target.value)}
-              placeholder="e.g. 48,24,4"
-              style={{ ...inpStyle, marginTop: 5 }}
+              onChange={v => set("reminderStageDays", v)}
             />
-            <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
-              Comma-separated hours before the deadline to remind faculty and the reviewer (e.g. "72,24,4"). "Due today" always fires in addition to these.
+            <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 6 }}>
+              Hours before the deadline to remind faculty and the reviewer. "Due today" always fires in addition to these.
             </p>
           </div>
           <div>
@@ -1316,14 +1409,12 @@ export default function SLAConfiguration() {
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Reminder Hours Before Deadline</label>
-                <input
+                <HourChipsInput
                   value={createForm.reminderStageDays}
-                  onChange={e => setCreate("reminderStageDays", e.target.value)}
-                  placeholder="e.g. 48,24,4"
-                  style={inpStyle}
+                  onChange={v => setCreate("reminderStageDays", v)}
                 />
-                <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
-                  Comma-separated hours-before-deadline to remind faculty and the reviewer (e.g. "72,24,4"). "Due today" always fires too.
+                <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 6 }}>
+                  Hours before the deadline to remind faculty and the reviewer. "Due today" always fires too.
                 </p>
               </div>
               <div>
