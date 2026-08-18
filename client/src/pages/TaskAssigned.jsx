@@ -983,18 +983,7 @@ export default function TaskAssigned() {
                           {selected.returned_at  && <TimelineItem label="Returned"   value={`by ${selected.returned_by_name || "You"}`} sub={fmtDateTime(selected.returned_at)} dot="#ba1a1a" />}
                           <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "#6b38d4" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#ba1a1a" : "#d1d5db"} isLast />
 
-                          {/* Faculty info card */}
-                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty Member</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f6f2ff", borderRadius: 10, marginBottom: 10 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
-                              {(selected.assigned_to_name?.[0] || "?").toUpperCase()}
-                            </div>
-                            <div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: "#181445" }}>{selected.assigned_to_name || "—"}</div>
-                              <div style={{ fontSize: 10, color: "#7b7486" }}>{selected.assigned_to_email || "—"}</div>
-                            </div>
-                          </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 24 }}>
                             <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8 }}>
                               <div style={{ fontSize: 10, color: "#7b7486", marginBottom: 2 }}>Documents</div>
                               <div style={{ fontSize: 16, fontWeight: 800, color: "#6b38d4" }}>{selected.attachments?.length || 0}</div>
