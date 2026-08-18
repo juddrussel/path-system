@@ -122,10 +122,27 @@ async function getRule(req, res) {
   }
 }
 
+// Validates/normalizes the "days before deadline" reminder schedule coming
+// from the client (either a real array, e.g. [14, 7, 3, 1], or a raw CSV
+// string like "14,7,3,1" from a plain text input) into a clean CSV string
+// for storage. Non-positive or non-numeric entries are dropped; duplicates
+// are removed. Falls back to "7,3,1" (the old hardcoded schedule) if
+// nothing valid is left, so a blank/garbled field can never disable
+// reminders entirely.
+function normalizeStageDays(input) {
+  const raw = Array.isArray(input) ? input : String(input ?? "").split(",");
+  const days = raw
+    .map((v) => parseInt(String(v).trim(), 10))
+    .filter((n) => Number.isInteger(n) && n > 0);
+  const unique = [...new Set(days)].sort((a, b) => b - a);
+  return (unique.length ? unique : [7, 3, 1]).join(",");
+}
+
 async function createRule(req, res) {
   const {
     documentType,
-    reviewerRole, turnaroundHours, escalationHours, reminderLeadHours, remarks,
+    reviewerRole, turnaroundHours, escalationHours, reminderLeadHours,
+    reminderStageDays, overdueReminderIntervalDays, remarks,
   } = req.body;
 
   if (!documentType || !reviewerRole) {
@@ -135,11 +152,15 @@ async function createRule(req, res) {
   try {
     const [result] = await db.query(
       `INSERT INTO sla_rules
-        (document_type, reviewer_role, turnaround_hours, escalation_hours, reminder_lead_hours, remarks, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        (document_type, reviewer_role, turnaround_hours, escalation_hours, reminder_lead_hours,
+         reminder_stage_days, overdue_reminder_interval_days, remarks, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         documentType, reviewerRole, turnaroundHours || 48,
-        escalationHours || 24, reminderLeadHours || 24, remarks || null, req.user?.id ?? null,
+        escalationHours || 24, reminderLeadHours || 24,
+        normalizeStageDays(reminderStageDays),
+        Number(overdueReminderIntervalDays) > 0 ? Number(overdueReminderIntervalDays) : 1,
+        remarks || null, req.user?.id ?? null,
       ]
     );
     await logActivity(req.user?.id, "Created", documentType);
@@ -154,7 +175,8 @@ async function updateRule(req, res) {
   const { id } = req.params;
   const {
     documentType,
-    reviewerRole, turnaroundHours, escalationHours, reminderLeadHours, remarks, status,
+    reviewerRole, turnaroundHours, escalationHours, reminderLeadHours,
+    reminderStageDays, overdueReminderIntervalDays, remarks, status,
   } = req.body;
 
   try {
@@ -164,7 +186,8 @@ async function updateRule(req, res) {
     await db.query(
       `UPDATE sla_rules SET
         document_type = ?,
-        reviewer_role = ?, turnaround_hours = ?, escalation_hours = ?, reminder_lead_hours = ?, remarks = ?, status = ?
+        reviewer_role = ?, turnaround_hours = ?, escalation_hours = ?, reminder_lead_hours = ?,
+        reminder_stage_days = ?, overdue_reminder_interval_days = ?, remarks = ?, status = ?
        WHERE id = ?`,
       [
         documentType ?? existing.document_type,
@@ -172,6 +195,8 @@ async function updateRule(req, res) {
         turnaroundHours ?? existing.turnaround_hours,
         escalationHours ?? existing.escalation_hours,
         reminderLeadHours ?? existing.reminder_lead_hours,
+        reminderStageDays !== undefined ? normalizeStageDays(reminderStageDays) : existing.reminder_stage_days,
+        Number(overdueReminderIntervalDays) > 0 ? Number(overdueReminderIntervalDays) : existing.overdue_reminder_interval_days,
         remarks ?? existing.remarks,
         status ?? existing.status,
         id,

@@ -237,6 +237,8 @@ export default function SLAConfiguration() {
     reviewerRole: "",
     turnaroundHours: 48,
     escalationHours: 24,
+    reminderStageDays: "7,3,1",
+    overdueIntervalDays: 1,
     remarks: "",
   });
 
@@ -261,6 +263,8 @@ export default function SLAConfiguration() {
           reviewerRole: createForm.reviewerRole,
           turnaroundHours: Number(createForm.turnaroundHours),
           escalationHours: Number(createForm.escalationHours),
+          reminderStageDays: createForm.reminderStageDays,
+          overdueReminderIntervalDays: Number(createForm.overdueIntervalDays),
           remarks: createForm.remarks,
         }),
       });
@@ -336,6 +340,11 @@ export default function SLAConfiguration() {
       reviewerRole: r.reviewer_role,
       turnaroundHours: r.turnaround_hours,
       escalationHours: r.escalation_hours,
+      // Falls back to the old hardcoded 7/3/1 schedule and a 1-day overdue
+      // cadence if this rule predates the reminder-schedule columns (or a
+      // value came back null for any reason).
+      reminderStageDays: r.reminder_stage_days || "7,3,1",
+      overdueIntervalDays: r.overdue_reminder_interval_days ?? 1,
       remarks: r.remarks || "",
       status: r.status,
     };
@@ -361,6 +370,8 @@ export default function SLAConfiguration() {
           reviewerRole: ruleForm.reviewerRole,
           turnaroundHours: Number(ruleForm.turnaroundHours),
           escalationHours: Number(ruleForm.escalationHours),
+          reminderStageDays: ruleForm.reminderStageDays,
+          overdueReminderIntervalDays: Number(ruleForm.overdueIntervalDays),
           remarks: ruleForm.remarks,
           status: ruleForm.status,
         }),
@@ -508,6 +519,45 @@ export default function SLAConfiguration() {
     ) : null;
   }
 
+  // Configurable version of what used to be the hardcoded 7/3/1-day
+  // DEADLINE_REMINDER_STAGES / APPROVAL_REMINDER_STAGES schedule in
+  // task.routes.js — checkDeadlineReminders() now reads these two values
+  // per task (matched by document type) instead of a fixed schedule.
+  function renderReminderScheduleCard() {
+    return ruleForm ? (
+      <div style={drawerCardStyle}>
+        <h3 style={drawerCardTitleStyle}>Deadline Reminder Schedule</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div>
+            <label style={drawerLabelStyle}>Reminder Days Before Deadline</label>
+            <input
+              value={ruleForm.reminderStageDays}
+              onChange={e => set("reminderStageDays", e.target.value)}
+              placeholder="e.g. 7,3,1"
+              style={{ ...inpStyle, marginTop: 5 }}
+            />
+            <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
+              Comma-separated days before the deadline to remind faculty and the reviewer (e.g. "14,7,3,1"). "Due today" always fires in addition to these.
+            </p>
+          </div>
+          <div>
+            <label style={drawerLabelStyle}>Overdue Reminder Interval (Days)</label>
+            <input
+              type="number"
+              min={1}
+              value={ruleForm.overdueIntervalDays}
+              onChange={e => set("overdueIntervalDays", e.target.value)}
+              style={{ ...inpStyle, marginTop: 5 }}
+            />
+            <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
+              How often to repeat "still overdue" nags once the deadline has passed.
+            </p>
+          </div>
+        </div>
+      </div>
+    ) : null;
+  }
+
   function renderRemarksCard() {
     return ruleForm ? (
       <div style={drawerCardStyle}>
@@ -611,6 +661,20 @@ export default function SLAConfiguration() {
         <div style={{ borderTop: "1px solid rgba(124,58,237,0.15)", paddingTop: 12 }}>
           <h4 style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, marginBottom: 8 }}>Escalation Timeline</h4>
           <div style={{ position: "relative", borderLeft: "2px solid #ddd6fe", marginLeft: 6, display: "flex", flexDirection: "column", gap: 10 }}>
+            {(ruleForm.reminderStageDays || "")
+              .split(",")
+              .map(s => parseInt(s.trim(), 10))
+              .filter(n => Number.isInteger(n) && n > 0)
+              .sort((a, b) => b - a)
+              .map(days => (
+                <div key={days} style={{ position: "relative", paddingLeft: 14 }}>
+                  <div style={{ position: "absolute", width: 10, height: 10, background: "#faf5ff", border: "2px solid #a78bfa", borderRadius: "50%", left: -7, top: 2 }} />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>
+                    {days} Day{days === 1 ? "" : "s"} Before Deadline
+                  </span>
+                  <span style={{ fontSize: 10.5, color: "#9ca3af" }}>Reminder to faculty + reviewer</span>
+                </div>
+              ))}
             <div style={{ position: "relative", paddingLeft: 14 }}>
               <div style={{ position: "absolute", width: 10, height: 10, background: "#f5f3ff", border: "2px solid #7c3aed", borderRadius: "50%", left: -7, top: 2 }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>Due in {ruleForm.turnaroundHours} Hours</span>
@@ -620,7 +684,7 @@ export default function SLAConfiguration() {
               <div style={{ position: "absolute", width: 10, height: 10, background: "#fef2f2", border: "2px solid #ef4444", borderRadius: "50%", left: -7, top: 2 }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: "#ef4444", display: "block" }}>Overdue (+{ruleForm.escalationHours}h)</span>
               <span style={{ fontSize: 10.5, color: "#9ca3af" }}>
-                {activeChannels.length ? `Alert via ${activeChannels.join(", ")}` : "Escalate to Chair"}
+                {activeChannels.length ? `Alert via ${activeChannels.join(", ")}` : "Escalate to Chair"} · repeats every {ruleForm.overdueIntervalDays || 1}d
               </span>
             </div>
           </div>
@@ -1135,6 +1199,7 @@ export default function SLAConfiguration() {
                 {renderIdentityCard()}
                 {renderTurnaroundCard()}
                 {renderEscalationTriggerCard()}
+                {renderReminderScheduleCard()}
                 {renderRemarksCard()}
               </div>
               {/* Right: status, escalation settings, preview */}
@@ -1248,6 +1313,28 @@ export default function SLAConfiguration() {
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
                 <input type="number" value={createForm.escalationHours} onChange={e => setCreate("escalationHours", e.target.value)} style={inpStyle} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Reminder Days Before Deadline</label>
+                <input
+                  value={createForm.reminderStageDays}
+                  onChange={e => setCreate("reminderStageDays", e.target.value)}
+                  placeholder="e.g. 7,3,1"
+                  style={inpStyle}
+                />
+                <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
+                  Comma-separated days-before-deadline to remind faculty and the reviewer (e.g. "14,7,3,1"). "Due today" always fires too.
+                </p>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Overdue Reminder Interval (Days)</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={createForm.overdueIntervalDays}
+                  onChange={e => setCreate("overdueIntervalDays", e.target.value)}
+                  style={inpStyle}
+                />
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>

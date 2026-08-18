@@ -236,11 +236,37 @@ const TYPE_CFG = {
   user_registered:        { icon: UserPlus,      category: "announcements", highPriority: true },
 };
 
+// Deadline/approval reminder day-counts are now admin-configurable per SLA
+// rule (see SLAConfiguration.jsx → Escalation Settings), so the backend can
+// emit types like "task_deadline_14d" or "task_approval_due_5d" that don't
+// have a fixed entry above. These two patterns catch any day count and
+// treat 3-days-or-closer as high-priority, mirroring the old fixed 3d/1d
+// entries above — those still match TYPE_CFG directly and take priority
+// over this fallback.
+const DEADLINE_STAGE_PATTERN = /^task_deadline_(\d+)d$/;
+const APPROVAL_STAGE_PATTERN = /^task_approval_due_(\d+)d$/;
+
+function resolveTypeCfg(type) {
+  if (TYPE_CFG[type]) return TYPE_CFG[type];
+
+  const deadlineMatch = DEADLINE_STAGE_PATTERN.exec(type);
+  if (deadlineMatch) {
+    const days = parseInt(deadlineMatch[1], 10);
+    return { icon: days <= 3 ? AlertCircle : CalendarClock, category: "tasks", highPriority: days <= 3 };
+  }
+  const approvalMatch = APPROVAL_STAGE_PATTERN.exec(type);
+  if (approvalMatch) {
+    const days = parseInt(approvalMatch[1], 10);
+    return { icon: days <= 3 ? AlertCircle : CalendarClock, category: "tasks", highPriority: days <= 3 };
+  }
+  return { icon: Bell, category: "tasks" };
+}
+
 // Converts a notification row — whether it came from GET /api/notifications
 // (snake_case DB columns) or a live "notification" socket event (same shape,
 // notify() builds it to match) — into the shape this page renders.
 function rowToNotification(row) {
-  const cfg = TYPE_CFG[row.type] || { icon: Bell, category: "tasks" };
+  const cfg = resolveTypeCfg(row.type);
   const receivedAt = new Date(row.created_at);
   const unread = !row.is_read;
   return {

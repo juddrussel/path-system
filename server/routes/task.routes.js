@@ -159,45 +159,85 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
 // (Draft), already done (Received), or no longer active (Archived).
 const DEADLINE_REMINDER_EXCLUDED_STATUSES = ["Draft", "Received", "Archived"];
 
-// The one-time "deadline approaching" milestones, checked in whole days
-// (in APP_TIMEZONE) between today and the deadline. `daysBefore: 0` is
-// "due today". Order doesn't matter — checkDeadlineReminders() matches by
-// daysBefore, not array position.
-const DEADLINE_REMINDER_STAGES = [
-  { type: "task_deadline_7d", daysBefore: 7, title: "Upcoming Deadline" },
-  { type: "task_deadline_3d", daysBefore: 3, title: "Deadline in 3 Days" },
-  { type: "task_deadline_1d", daysBefore: 1, title: "Deadline Tomorrow" },
-  { type: "task_due_today",   daysBefore: 0, title: "Due Today" },
-];
+// ─── Reminder schedule: now configurable per SLA rule, not hardcoded ─────────
+// The 7/3/1-day-before schedule used to be fixed for every task. It's now
+// read per-task from that task's SLA rule (matched by doc_type, same join
+// slaCron.js already uses) — see sla_rules.reminder_stage_days and
+// .overdue_reminder_interval_days, editable from SLAConfiguration.jsx's
+// Escalation Settings. These two constants are only the fallback used when
+// a task's doc_type has no matching *active* SLA rule.
+const DEFAULT_REMINDER_STAGE_DAYS = [7, 3, 1];
+const DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS = parseInt(process.env.OVERDUE_REMINDER_INTERVAL_DAYS || "1", 10);
 
-// Admin/program_chair side of the same schedule: every task that reaches
-// checkDeadlineReminders()'s loop is, by construction, not yet approved
-// (DEADLINE_REMINDER_EXCLUDED_STATUSES already excludes "Received"), so no
-// extra status filter is needed here — this just mirrors the stages above
-// with their own notification type/title so they render distinctly (and
-// are matched separately in the `notifications` dedup check) from the
-// faculty-facing ones.
-const APPROVAL_REMINDER_STAGES = [
-  { type: "task_approval_due_7d",    daysBefore: 7, title: "Upcoming Deadline — Awaiting Your Approval" },
-  { type: "task_approval_due_3d",    daysBefore: 3, title: "Deadline in 3 Days — Awaiting Your Approval" },
-  { type: "task_approval_due_1d",    daysBefore: 1, title: "Deadline Tomorrow — Awaiting Your Approval" },
-  { type: "task_approval_due_today", daysBefore: 0, title: "Due Today — Awaiting Your Approval" },
-];
+// Parses the CSV reminder_stage_days column (e.g. "14,7,3,1") into a
+// sorted-descending array of positive integers. Falls back to
+// DEFAULT_REMINDER_STAGE_DAYS if the value is missing, empty, or every
+// entry turns out to be malformed — a bad value in the DB should never
+// silently turn reminders off.
+function parseStageDays(csv) {
+  if (!csv) return DEFAULT_REMINDER_STAGE_DAYS;
+  const days = String(csv)
+    .split(",")
+    .map(s => parseInt(s.trim(), 10))
+    .filter(n => Number.isInteger(n) && n > 0);
+  const unique = [...new Set(days)].sort((a, b) => b - a);
+  return unique.length ? unique : DEFAULT_REMINDER_STAGE_DAYS;
+}
 
-// Every notification type this job can emit for a given deadline — used
-// when a deadline changes/moves, to know which stale rows to clear so the
-// schedule can re-fire correctly against the new date.
-const DEADLINE_REMINDER_TYPES = [
-  ...DEADLINE_REMINDER_STAGES.map(s => s.type),
-  ...APPROVAL_REMINDER_STAGES.map(s => s.type),
-  "task_deadline_now",
-  "task_overdue",
-  "task_approval_overdue",
-];
+// Builds the title text for a stage, given how many days out it fires and
+// which track it's for. "Due today" and "tomorrow" get their own phrasing;
+// everything else reads as "Deadline in N Days" — this is what lets an
+// admin configure ANY day count (not just 7/3/1) and still get a sensible
+// title instead of only the three hardcoded strings that used to exist.
+function stageTitle(daysBefore, approval) {
+  const suffix = approval ? " — Awaiting Your Approval" : "";
+  if (daysBefore === 0) return `Due Today${suffix}`;
+  if (daysBefore === 1) return `Deadline Tomorrow${suffix}`;
+  return `Deadline in ${daysBefore} Days${suffix}`;
+}
 
-// Once a task is overdue, how many days to wait before nagging again.
-// Default is daily; set to 2 (or more) via env for a lighter touch.
-const OVERDUE_REMINDER_INTERVAL_DAYS = parseInt(process.env.OVERDUE_REMINDER_INTERVAL_DAYS || "1", 10);
+// Returns the { type, title, daysBefore } stage object for the given
+// days-until-deadline, or null if that day count isn't one of the task's
+// configured stages. "Due today" (0) always fires regardless of what's
+// configured — same as before, it was never part of the editable list.
+// `type` encodes the day count directly (e.g. "task_deadline_14d") so any
+// admin-configured schedule still dedupes correctly against the
+// `notifications` table without needing a schema change there.
+function buildStage(stageDays, daysUntil, approval) {
+  if (daysUntil !== 0 && !stageDays.includes(daysUntil)) return null;
+  if (daysUntil === 0) {
+    // Keeps the original exact type names ("task_due_today" /
+    // "task_approval_due_today") since "due today" was never part of the
+    // configurable day list — only the 7/3/1-style stages below vary.
+    return {
+      type: approval ? "task_approval_due_today" : "task_due_today",
+      title: stageTitle(0, approval),
+      daysBefore: 0,
+    };
+  }
+  const prefix = approval ? "task_approval_due_" : "task_deadline_";
+  return { type: `${prefix}${daysUntil}d`, title: stageTitle(daysUntil, approval), daysBefore: daysUntil };
+}
+
+// Deletes every reminder-stage notification row for a task, regardless of
+// which day counts were configured when they were sent — used when a
+// deadline moves, so stale reminders (any of them) get cleared and
+// checkDeadlineReminders() is free to send fresh ones against the new
+// date. Matched by prefix/exact-type since the day-count suffix is no
+// longer a fixed, enumerable set (an admin could configure "14,7,3,1" or
+// anything else).
+async function clearDeadlineReminderRows(taskId) {
+  await db.query(
+    `DELETE FROM notifications
+     WHERE task_id = ?
+       AND (
+         type LIKE 'task_deadline_%'
+         OR type LIKE 'task_approval_due_%'
+         OR type IN ('task_due_today', 'task_overdue', 'task_approval_overdue')
+       )`,
+    [taskId]
+  );
+}
 
 // Timezone used for anything date/time-related shown to users — deadline
 // reminder messages, "due today" / "overdue" comparisons, etc. Without this,
@@ -249,10 +289,16 @@ async function checkDeadlineReminders(io) {
       "SELECT id FROM users WHERE role IN ('admin', 'program_chair') AND is_active = 1"
     );
 
+    // LEFT JOIN sla_rules on doc_type (same match slaCron.js uses for its
+    // email reminders) so each task carries its own configured reminder
+    // schedule. `r.status = 'Active'` means a paused/deleted rule silently
+    // falls back to the default schedule below rather than going stale.
     const [tasks] = await db.query(
-      `SELECT t.*, u.full_name AS faculty_name
+      `SELECT t.*, u.full_name AS faculty_name,
+              r.reminder_stage_days, r.overdue_reminder_interval_days
        FROM tasks t
        LEFT JOIN users u ON u.id = t.faculty_id
+       LEFT JOIN sla_rules r ON r.document_type = t.doc_type AND r.status = 'Active'
        WHERE t.deadline IS NOT NULL
          AND t.faculty_id IS NOT NULL
          AND t.status NOT IN (${placeholders})`,
@@ -262,6 +308,11 @@ async function checkDeadlineReminders(io) {
     const todayKey = phtDateKey(new Date());
 
     for (const task of tasks) {
+      const stageDays = parseStageDays(task.reminder_stage_days);
+      const overdueIntervalDays = task.overdue_reminder_interval_days > 0
+        ? task.overdue_reminder_interval_days
+        : DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS;
+
       // Whole calendar-day difference, both sides computed in APP_TIMEZONE,
       // so "1 day left" here matches what the user sees on their own clock
       // regardless of the exact time-of-day the deadline falls on.
@@ -287,19 +338,19 @@ async function checkDeadlineReminders(io) {
       }
 
       if (daysUntil < 0) {
-        await sendOverdueReminder(io, task, deadlineStr, -daysUntil);
-        await sendApprovalOverdueReminder(io, task, deadlineStr, -daysUntil, chairsAndAdmins);
+        await sendOverdueReminder(io, task, deadlineStr, -daysUntil, overdueIntervalDays);
+        await sendApprovalOverdueReminder(io, task, deadlineStr, -daysUntil, chairsAndAdmins, overdueIntervalDays);
         continue;
       }
 
-      const stage = DEADLINE_REMINDER_STAGES.find(s => s.daysBefore === daysUntil);
-      if (!stage) continue; // more than 7 days out — nothing to send yet
+      const stage = buildStage(stageDays, daysUntil, false);
+      if (!stage) continue; // not one of this task's configured stages — nothing to send yet
 
       // Admin/program_chair track runs independently of the faculty one
       // below — it has its own notification type and its own per-recipient
       // dedup check, so it can't be skipped by the faculty "already sent"
       // guard (or vice versa) even though they fire on the same tick.
-      const approvalStage = APPROVAL_REMINDER_STAGES.find(s => s.daysBefore === daysUntil);
+      const approvalStage = buildStage(stageDays, daysUntil, true);
       if (approvalStage) {
         await sendApprovalStageReminder(io, task, approvalStage, deadlineStr, chairsAndAdmins);
       }
@@ -417,10 +468,11 @@ async function sendApprovalStageReminder(io, task, stage, deadlineStr, chairsAnd
 
 // Sends (or re-sends) the overdue notification for one task. Looks at the
 // most recent task_overdue row for this task/user and only sends a new one
-// once OVERDUE_REMINDER_INTERVAL_DAYS have passed since it, so faculty get
-// a standing nag at a controlled cadence instead of either silence or a
-// fresh notification every 15-minute sweep.
-async function sendOverdueReminder(io, task, deadlineStr, daysOverdue) {
+// once intervalDays (the task's SLA rule's overdue_reminder_interval_days,
+// or DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS if it has no active rule) have
+// passed since it, so faculty get a standing nag at a controlled cadence
+// instead of either silence or a fresh notification every sweep.
+async function sendOverdueReminder(io, task, deadlineStr, daysOverdue, intervalDays = DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS) {
   const [[lastOverdue]] = await db.query(
     `SELECT created_at FROM notifications
      WHERE task_id = ? AND user_id = ? AND type = 'task_overdue'
@@ -430,7 +482,7 @@ async function sendOverdueReminder(io, task, deadlineStr, daysOverdue) {
 
   if (lastOverdue) {
     const daysSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSinceLast < OVERDUE_REMINDER_INTERVAL_DAYS) return; // not due for another nag yet
+    if (daysSinceLast < intervalDays) return; // not due for another nag yet
   }
 
   if (io) {
@@ -452,12 +504,12 @@ async function sendOverdueReminder(io, task, deadlineStr, daysOverdue) {
 }
 
 // Admin/program_chair equivalent of sendOverdueReminder() above — same
-// per-recipient cadence gate (OVERDUE_REMINDER_INTERVAL_DAYS since THAT
-// recipient's last task_approval_overdue row, not the faculty one), sent
-// to admins/program_chairs plus the original assigner. Independent of
+// per-recipient cadence gate (intervalDays since THAT recipient's last
+// task_approval_overdue row, not the faculty one), sent to
+// admins/program_chairs plus the original assigner. Independent of
 // sendOverdueReminder(): a chair's nag cadence isn't tied to whenever the
 // faculty member's own overdue reminder last fired.
-async function sendApprovalOverdueReminder(io, task, deadlineStr, daysOverdue, chairsAndAdmins) {
+async function sendApprovalOverdueReminder(io, task, deadlineStr, daysOverdue, chairsAndAdmins, intervalDays = DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS) {
   const recipientIds = new Set(chairsAndAdmins.map(u => u.id));
   if (task.assigned_by) recipientIds.add(task.assigned_by);
 
@@ -473,7 +525,7 @@ async function sendApprovalOverdueReminder(io, task, deadlineStr, daysOverdue, c
 
     if (lastOverdue) {
       const daysSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceLast < OVERDUE_REMINDER_INTERVAL_DAYS) continue; // not due for another nag yet
+      if (daysSinceLast < intervalDays) continue; // not due for another nag yet
     }
 
     if (io) {
@@ -1244,14 +1296,11 @@ router.patch("/:id/deadline", requireAuth, requireChairOrAdmin, async (req, res)
       ipAddress: req.ip,
     });
 
-    // The deadline changed, so any earlier reminders (any of the 7d/3d/1d/
-    // due-today/overdue stages) no longer reflect reality — clear them all
-    // so checkDeadlineReminders() is free to send fresh ones against the
-    // new date on its next sweep.
-    await db.query(
-      `DELETE FROM notifications WHERE task_id = ? AND type IN (${DEADLINE_REMINDER_TYPES.map(() => "?").join(", ")})`,
-      [req.params.id, ...DEADLINE_REMINDER_TYPES]
-    );
+    // The deadline changed, so any earlier reminders (any configured
+    // stage, due-today, or overdue) no longer reflect reality — clear them
+    // all so checkDeadlineReminders() is free to send fresh ones against
+    // the new date on its next sweep.
+    await clearDeadlineReminderRows(req.params.id);
 
     const io = req.app.get("io");
     const actorName = req.user.full_name || req.user.username;
@@ -1304,10 +1353,7 @@ router.patch("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
     // stale reminders so they can re-fire for the new date — same as the
     // dedicated /:id/deadline route above.
     if (deadline) {
-      await db.query(
-        `DELETE FROM notifications WHERE task_id = ? AND type IN (${DEADLINE_REMINDER_TYPES.map(() => "?").join(", ")})`,
-        [req.params.id, ...DEADLINE_REMINDER_TYPES]
-      );
+      await clearDeadlineReminderRows(req.params.id);
     }
 
     return res.json({ message: "Task updated." });
