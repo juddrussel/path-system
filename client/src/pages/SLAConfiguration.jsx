@@ -237,8 +237,8 @@ export default function SLAConfiguration() {
     reviewerRole: "",
     turnaroundHours: 48,
     escalationHours: 24,
-    reminderStageDays: "7,3,1",
-    overdueIntervalDays: 1,
+    reminderStageDays: "48,24,4",
+    overdueIntervalDays: 24,
     remarks: "",
   });
 
@@ -340,11 +340,11 @@ export default function SLAConfiguration() {
       reviewerRole: r.reviewer_role,
       turnaroundHours: r.turnaround_hours,
       escalationHours: r.escalation_hours,
-      // Falls back to the old hardcoded 7/3/1 schedule and a 1-day overdue
-      // cadence if this rule predates the reminder-schedule columns (or a
-      // value came back null for any reason).
-      reminderStageDays: r.reminder_stage_days || "7,3,1",
-      overdueIntervalDays: r.overdue_reminder_interval_days ?? 1,
+      // Falls back to the default 48/24/4-hour schedule and a 24-hour
+      // overdue cadence if this rule predates the reminder-schedule columns
+      // (or a value came back null for any reason).
+      reminderStageDays: r.reminder_stage_hours || "48,24,4",
+      overdueIntervalDays: r.overdue_reminder_interval_hours ?? 24,
       remarks: r.remarks || "",
       status: r.status,
     };
@@ -529,19 +529,19 @@ export default function SLAConfiguration() {
         <h3 style={drawerCardTitleStyle}>Deadline Reminder Schedule</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div>
-            <label style={drawerLabelStyle}>Reminder Days Before Deadline</label>
+            <label style={drawerLabelStyle}>Reminder Hours Before Deadline</label>
             <input
               value={ruleForm.reminderStageDays}
               onChange={e => set("reminderStageDays", e.target.value)}
-              placeholder="e.g. 7,3,1"
+              placeholder="e.g. 48,24,4"
               style={{ ...inpStyle, marginTop: 5 }}
             />
             <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
-              Comma-separated days before the deadline to remind faculty and the reviewer (e.g. "14,7,3,1"). "Due today" always fires in addition to these.
+              Comma-separated hours before the deadline to remind faculty and the reviewer (e.g. "72,24,4"). "Due today" always fires in addition to these.
             </p>
           </div>
           <div>
-            <label style={drawerLabelStyle}>Overdue Reminder Interval (Days)</label>
+            <label style={drawerLabelStyle}>Overdue Reminder Interval (Hours)</label>
             <input
               type="number"
               min={1}
@@ -550,7 +550,7 @@ export default function SLAConfiguration() {
               style={{ ...inpStyle, marginTop: 5 }}
             />
             <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
-              How often to repeat "still overdue" nags once the deadline has passed.
+              How often (in hours) to repeat "still overdue" nags once the deadline has passed.
             </p>
           </div>
         </div>
@@ -666,11 +666,11 @@ export default function SLAConfiguration() {
               .map(s => parseInt(s.trim(), 10))
               .filter(n => Number.isInteger(n) && n > 0)
               .sort((a, b) => b - a)
-              .map(days => (
-                <div key={days} style={{ position: "relative", paddingLeft: 14 }}>
+              .map(hours => (
+                <div key={hours} style={{ position: "relative", paddingLeft: 14 }}>
                   <div style={{ position: "absolute", width: 10, height: 10, background: "#faf5ff", border: "2px solid #a78bfa", borderRadius: "50%", left: -7, top: 2 }} />
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>
-                    {days} Day{days === 1 ? "" : "s"} Before Deadline
+                    {hours} Hour{hours === 1 ? "" : "s"} Before Deadline
                   </span>
                   <span style={{ fontSize: 10.5, color: "#9ca3af" }}>Reminder to faculty + reviewer</span>
                 </div>
@@ -684,7 +684,7 @@ export default function SLAConfiguration() {
               <div style={{ position: "absolute", width: 10, height: 10, background: "#fef2f2", border: "2px solid #ef4444", borderRadius: "50%", left: -7, top: 2 }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: "#ef4444", display: "block" }}>Overdue (+{ruleForm.escalationHours}h)</span>
               <span style={{ fontSize: 10.5, color: "#9ca3af" }}>
-                {activeChannels.length ? `Alert via ${activeChannels.join(", ")}` : "Escalate to Chair"} · repeats every {ruleForm.overdueIntervalDays || 1}d
+                {activeChannels.length ? `Alert via ${activeChannels.join(", ")}` : "Escalate to Chair"} · repeats every {ruleForm.overdueIntervalDays || 24}h
               </span>
             </div>
           </div>
@@ -1315,19 +1315,19 @@ export default function SLAConfiguration() {
                 <input type="number" value={createForm.escalationHours} onChange={e => setCreate("escalationHours", e.target.value)} style={inpStyle} />
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Reminder Days Before Deadline</label>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Reminder Hours Before Deadline</label>
                 <input
                   value={createForm.reminderStageDays}
                   onChange={e => setCreate("reminderStageDays", e.target.value)}
-                  placeholder="e.g. 7,3,1"
+                  placeholder="e.g. 48,24,4"
                   style={inpStyle}
                 />
                 <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
-                  Comma-separated days-before-deadline to remind faculty and the reviewer (e.g. "14,7,3,1"). "Due today" always fires too.
+                  Comma-separated hours-before-deadline to remind faculty and the reviewer (e.g. "72,24,4"). "Due today" always fires too.
                 </p>
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Overdue Reminder Interval (Days)</label>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Overdue Reminder Interval (Hours)</label>
                 <input
                   type="number"
                   min={1}

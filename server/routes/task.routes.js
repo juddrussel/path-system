@@ -71,21 +71,28 @@
 // sweep that walks every active task's deadline and notifies the assigned
 // faculty member at each configured milestone via the same notify() helper
 // everything else in this file already uses:
-//   7 days before   → task_deadline_7d   "Upcoming Deadline"
-//   3 days before   → task_deadline_3d   "Deadline in 3 Days"   (most important)
-//   1 day before    → task_deadline_1d   "Deadline Tomorrow"
-//   on deadline day → task_due_today     "Due Today"
+//   48 hours before → task_deadline_48h "Upcoming Deadline"
+//   24 hours before → task_deadline_24h "Deadline Tomorrow"    (most important)
+//   4 hours before  → task_deadline_4h  "Deadline in 4 Hours"
+//   on deadline day → task_due_today     "Due Today" (fires once per calendar
+//                      day, independent of the hour list above)
 //   at the exact deadline timestamp
 //                    → task_deadline_now "Deadline Reached" (first sweep at
 //                      or after the deadline's actual time, not just its day)
 //   after deadline  → task_overdue       repeats every
-//                      OVERDUE_REMINDER_INTERVAL_DAYS days (default: daily)
+//                      OVERDUE_REMINDER_INTERVAL_HOURS hours (default: 24)
 // Every stage except the overdue one fires exactly once per task (checked
 // against the notifications table); the overdue stage instead re-fires on
 // an interval so it keeps nagging until the task moves out of an active
 // status. No schema changes; it reuses the `notifications` table. Call
 // startDeadlineReminderJob(io) once from your server entry point after `io`
 // is created — see the bottom of this file for where it's exported.
+//
+// UPDATE: reminder stages and the overdue cadence are now configured in
+// HOURS, not days (see SLAConfiguration.jsx's "Deadline Reminder Schedule"
+// card). Backed by sla_rules.reminder_stage_hours / .overdue_reminder_interval_hours
+// (added via migrations/add_reminder_schedule_columns.sql — these columns
+// didn't previously exist on the table).
 // ─────────────────────────────────────────────────────────────────────────────
 const express  = require("express");
 const router   = express.Router();
@@ -160,63 +167,64 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
 const DEADLINE_REMINDER_EXCLUDED_STATUSES = ["Draft", "Received", "Archived"];
 
 // ─── Reminder schedule: now configurable per SLA rule, not hardcoded ─────────
-// The 7/3/1-day-before schedule used to be fixed for every task. It's now
+// The 48/24/4-hour-before schedule used to be fixed for every task. It's now
 // read per-task from that task's SLA rule (matched by doc_type, same join
-// slaCron.js already uses) — see sla_rules.reminder_stage_days and
-// .overdue_reminder_interval_days, editable from SLAConfiguration.jsx's
+// slaCron.js already uses) — see sla_rules.reminder_stage_hours and
+// .overdue_reminder_interval_hours, editable from SLAConfiguration.jsx's
 // Escalation Settings. These two constants are only the fallback used when
 // a task's doc_type has no matching *active* SLA rule.
-const DEFAULT_REMINDER_STAGE_DAYS = [7, 3, 1];
-const DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS = parseInt(process.env.OVERDUE_REMINDER_INTERVAL_DAYS || "1", 10);
+const DEFAULT_REMINDER_STAGE_HOURS = [48, 24, 4];
+const DEFAULT_OVERDUE_REMINDER_INTERVAL_HOURS = parseInt(process.env.OVERDUE_REMINDER_INTERVAL_HOURS || "24", 10);
 
-// Parses the CSV reminder_stage_days column (e.g. "14,7,3,1") into a
-// sorted-descending array of positive integers. Falls back to
-// DEFAULT_REMINDER_STAGE_DAYS if the value is missing, empty, or every
-// entry turns out to be malformed — a bad value in the DB should never
-// silently turn reminders off.
-function parseStageDays(csv) {
-  if (!csv) return DEFAULT_REMINDER_STAGE_DAYS;
-  const days = String(csv)
+// Parses the CSV reminder_stage_hours column (e.g. "72,24,4") into a
+// sorted-descending array of positive integers — hours before the deadline.
+// Falls back to DEFAULT_REMINDER_STAGE_HOURS if the value is missing,
+// empty, or every entry turns out to be malformed — a bad value in the DB
+// should never silently turn reminders off.
+function parseStageHours(csv) {
+  if (!csv) return DEFAULT_REMINDER_STAGE_HOURS;
+  const hours = String(csv)
     .split(",")
     .map(s => parseInt(s.trim(), 10))
     .filter(n => Number.isInteger(n) && n > 0);
-  const unique = [...new Set(days)].sort((a, b) => b - a);
-  return unique.length ? unique : DEFAULT_REMINDER_STAGE_DAYS;
+  const unique = [...new Set(hours)].sort((a, b) => b - a);
+  return unique.length ? unique : DEFAULT_REMINDER_STAGE_HOURS;
 }
 
-// Builds the title text for a stage, given how many days out it fires and
-// which track it's for. "Due today" and "tomorrow" get their own phrasing;
-// everything else reads as "Deadline in N Days" — this is what lets an
-// admin configure ANY day count (not just 7/3/1) and still get a sensible
-// title instead of only the three hardcoded strings that used to exist.
-function stageTitle(daysBefore, approval) {
+// Builds the title text for a stage, given how many hours out it fires and
+// which track it's for. "Due today" gets its own phrasing, 24-hours-before
+// reads as "Tomorrow" for readability, everything else reads as "Deadline
+// in N Hours" — this lets an admin configure ANY hour count and still get a
+// sensible title instead of only a few hardcoded strings.
+function stageTitle(hoursBefore, approval) {
   const suffix = approval ? " — Awaiting Your Approval" : "";
-  if (daysBefore === 0) return `Due Today${suffix}`;
-  if (daysBefore === 1) return `Deadline Tomorrow${suffix}`;
-  return `Deadline in ${daysBefore} Days${suffix}`;
+  if (hoursBefore === 0) return `Due Today${suffix}`;
+  if (hoursBefore === 24) return `Deadline Tomorrow${suffix}`;
+  return `Deadline in ${hoursBefore} Hour${hoursBefore === 1 ? "" : "s"}${suffix}`;
 }
 
-// Returns the { type, title, daysBefore } stage object for the given
-// days-until-deadline, or null if that day count isn't one of the task's
-// configured stages. "Due today" (0) always fires regardless of what's
-// configured — same as before, it was never part of the editable list.
-// `type` encodes the day count directly (e.g. "task_deadline_14d") so any
-// admin-configured schedule still dedupes correctly against the
-// `notifications` table without needing a schema change there.
-function buildStage(stageDays, daysUntil, approval) {
-  if (daysUntil !== 0 && !stageDays.includes(daysUntil)) return null;
-  if (daysUntil === 0) {
+// Returns the { type, title, hoursBefore } stage object for the given
+// hours-until-deadline, or null if that hour count isn't one of the task's
+// configured stages. "Due today" always fires once per calendar day
+// regardless of what's configured — it was never part of the editable list,
+// it's driven by `isDueToday` (a same-PHT-calendar-day check) instead of the
+// hour countdown. `type` encodes the hour count directly (e.g.
+// "task_deadline_24h") so any admin-configured schedule still dedupes
+// correctly against the `notifications` table without needing a schema change.
+function buildStage(stageHours, hoursUntil, isDueToday, approval) {
+  if (isDueToday) {
     // Keeps the original exact type names ("task_due_today" /
     // "task_approval_due_today") since "due today" was never part of the
-    // configurable day list — only the 7/3/1-style stages below vary.
+    // configurable hour list — only the hour-based stages below vary.
     return {
       type: approval ? "task_approval_due_today" : "task_due_today",
       title: stageTitle(0, approval),
-      daysBefore: 0,
+      hoursBefore: 0,
     };
   }
+  if (!stageHours.includes(hoursUntil)) return null;
   const prefix = approval ? "task_approval_due_" : "task_deadline_";
-  return { type: `${prefix}${daysUntil}d`, title: stageTitle(daysUntil, approval), daysBefore: daysUntil };
+  return { type: `${prefix}${hoursUntil}h`, title: stageTitle(hoursUntil, approval), hoursBefore: hoursUntil };
 }
 
 // Deletes every reminder-stage notification row for a task, regardless of
@@ -271,12 +279,12 @@ function formatDeadlineDisplay(date) {
 }
 
 // Walks every active task with a deadline and fires whichever reminder (if
-// any) applies to it right now: the 7/3/1-day-before and due-today stages
-// each fire once per task; once the deadline has passed, an overdue
-// notification repeats every OVERDUE_REMINDER_INTERVAL_DAYS days. Unlike
+// any) applies to it right now: the configured hours-before and due-today
+// stages each fire once per task; once the deadline has passed, an overdue
+// notification repeats every OVERDUE_REMINDER_INTERVAL_HOURS hours. Unlike
 // the old version this has to look at BOTH upcoming and already-passed
 // deadlines, so there's no longer a narrow time-window filter in the SQL —
-// the day-based math below decides what (if anything) to send.
+// the hour-based math below decides what (if anything) to send.
 async function checkDeadlineReminders(io) {
   try {
     const placeholders = DEADLINE_REMINDER_EXCLUDED_STATUSES.map(() => "?").join(", ");
@@ -295,7 +303,7 @@ async function checkDeadlineReminders(io) {
     // falls back to the default schedule below rather than going stale.
     const [tasks] = await db.query(
       `SELECT t.*, u.full_name AS faculty_name,
-              r.reminder_stage_days, r.overdue_reminder_interval_days
+              r.reminder_stage_hours, r.overdue_reminder_interval_hours
        FROM tasks t
        LEFT JOIN users u ON u.id = t.faculty_id
        LEFT JOIN sla_rules r ON r.document_type = t.doc_type AND r.status = 'Active'
@@ -308,49 +316,58 @@ async function checkDeadlineReminders(io) {
     const todayKey = phtDateKey(new Date());
 
     for (const task of tasks) {
-      const stageDays = parseStageDays(task.reminder_stage_days);
-      const overdueIntervalDays = task.overdue_reminder_interval_days > 0
-        ? task.overdue_reminder_interval_days
-        : DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS;
+      const stageHours = parseStageHours(task.reminder_stage_hours);
+      const overdueIntervalHours = task.overdue_reminder_interval_hours > 0
+        ? task.overdue_reminder_interval_hours
+        : DEFAULT_OVERDUE_REMINDER_INTERVAL_HOURS;
 
-      // Whole calendar-day difference, both sides computed in APP_TIMEZONE,
-      // so "1 day left" here matches what the user sees on their own clock
-      // regardless of the exact time-of-day the deadline falls on.
+      const deadlineTime = new Date(task.deadline).getTime();
+      const nowTime = Date.now();
+      const msUntil = deadlineTime - nowTime;
+
+      // Hour-precision countdown (rounded to the nearest hour) so the
+      // configured stages ("48,24,4") match on an exact hour count
+      // regardless of the deadline's minute/second. "Due today" stays a
+      // separate, calendar-day concept (isDueToday below) since it was
+      // never part of the configurable list.
+      const hoursUntil = Math.round(msUntil / 3600000);
       const deadlineKey = phtDateKey(task.deadline);
-      const daysUntil = Math.round(
-        (new Date(`${deadlineKey}T00:00:00Z`) - new Date(`${todayKey}T00:00:00Z`)) / 86400000
-      );
+      const isDueToday = deadlineKey === todayKey;
 
       const deadlineStr = new Date(task.deadline).toLocaleString("en-US", {
         month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
         timeZone: APP_TIMEZONE,
       });
 
-      // Exact-time "deadline reached" ping — separate from the day-based
+      // Exact-time "deadline reached" ping — separate from the hour-based
       // stages below. Fires once, the first sweep where the clock has
       // actually passed the deadline's timestamp (not just its calendar
       // day), so a 5:00 PM deadline notifies close to 5:00 PM rather than
       // whenever "due today" happened to fire earlier that day. Runs
-      // regardless of daysUntil, since it can be true on the due date
+      // regardless of hoursUntil, since it can be true on the due date
       // itself or any day after.
-      if (Date.now() >= new Date(task.deadline).getTime()) {
+      if (nowTime >= deadlineTime) {
         await sendDeadlineReachedReminder(io, task, deadlineStr);
       }
 
-      if (daysUntil < 0) {
-        await sendOverdueReminder(io, task, deadlineStr, -daysUntil, overdueIntervalDays);
-        await sendApprovalOverdueReminder(io, task, deadlineStr, -daysUntil, chairsAndAdmins, overdueIntervalDays);
+      if (msUntil <= 0) {
+        // Hours overdue, floored (not rounded) and clamped to at least 1 so
+        // the very first sweep after the deadline reads as "1 hour overdue"
+        // rather than "0 hours overdue".
+        const hoursOverdue = Math.max(1, Math.floor(-msUntil / 3600000));
+        await sendOverdueReminder(io, task, deadlineStr, hoursOverdue, overdueIntervalHours);
+        await sendApprovalOverdueReminder(io, task, deadlineStr, hoursOverdue, chairsAndAdmins, overdueIntervalHours);
         continue;
       }
 
-      const stage = buildStage(stageDays, daysUntil, false);
+      const stage = buildStage(stageHours, hoursUntil, isDueToday, false);
       if (!stage) continue; // not one of this task's configured stages — nothing to send yet
 
       // Admin/program_chair track runs independently of the faculty one
       // below — it has its own notification type and its own per-recipient
       // dedup check, so it can't be skipped by the faculty "already sent"
       // guard (or vice versa) even though they fire on the same tick.
-      const approvalStage = buildStage(stageDays, daysUntil, true);
+      const approvalStage = buildStage(stageHours, hoursUntil, isDueToday, true);
       if (approvalStage) {
         await sendApprovalStageReminder(io, task, approvalStage, deadlineStr, chairsAndAdmins);
       }
@@ -375,9 +392,9 @@ async function checkDeadlineReminders(io) {
         userId: task.faculty_id,
         type: stage.type,
         title: stage.title,
-        message: stage.daysBefore === 0
+        message: stage.hoursBefore === 0
           ? `Task ${task.tracking_id} ("${task.title}") is due today (${deadlineStr}).`
-          : `Task ${task.tracking_id} ("${task.title}") is due in ${stage.daysBefore} day${stage.daysBefore === 1 ? "" : "s"} (${deadlineStr}).`,
+          : `Task ${task.tracking_id} ("${task.title}") is due in ${stage.hoursBefore} hour${stage.hoursBefore === 1 ? "" : "s"} (${deadlineStr}).`,
         taskId: task.id,
         trackingId: task.tracking_id,
       });
@@ -434,9 +451,9 @@ async function sendApprovalStageReminder(io, task, stage, deadlineStr, chairsAnd
   const recipientIds = new Set(chairsAndAdmins.map(u => u.id));
   if (task.assigned_by) recipientIds.add(task.assigned_by);
 
-  const message = stage.daysBefore === 0
+  const message = stage.hoursBefore === 0
     ? `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) is due today (${deadlineStr}) and still awaiting your approval.`
-    : `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) is due in ${stage.daysBefore} day${stage.daysBefore === 1 ? "" : "s"} (${deadlineStr}) and still awaiting your approval.`;
+    : `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) is due in ${stage.hoursBefore} hour${stage.hoursBefore === 1 ? "" : "s"} (${deadlineStr}) and still awaiting your approval.`;
 
   for (const recipientId of recipientIds) {
     const [[existing]] = await db.query(
@@ -468,11 +485,12 @@ async function sendApprovalStageReminder(io, task, stage, deadlineStr, chairsAnd
 
 // Sends (or re-sends) the overdue notification for one task. Looks at the
 // most recent task_overdue row for this task/user and only sends a new one
-// once intervalDays (the task's SLA rule's overdue_reminder_interval_days,
-// or DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS if it has no active rule) have
+// once intervalHours (the task's SLA rule's overdue_reminder_interval_hours
+// column — value now interpreted as hours — or
+// DEFAULT_OVERDUE_REMINDER_INTERVAL_HOURS if it has no active rule) have
 // passed since it, so faculty get a standing nag at a controlled cadence
 // instead of either silence or a fresh notification every sweep.
-async function sendOverdueReminder(io, task, deadlineStr, daysOverdue, intervalDays = DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS) {
+async function sendOverdueReminder(io, task, deadlineStr, hoursOverdue, intervalHours = DEFAULT_OVERDUE_REMINDER_INTERVAL_HOURS) {
   const [[lastOverdue]] = await db.query(
     `SELECT created_at FROM notifications
      WHERE task_id = ? AND user_id = ? AND type = 'task_overdue'
@@ -481,15 +499,15 @@ async function sendOverdueReminder(io, task, deadlineStr, daysOverdue, intervalD
   );
 
   if (lastOverdue) {
-    const daysSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSinceLast < intervalDays) return; // not due for another nag yet
+    const hoursSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60);
+    if (hoursSinceLast < intervalHours) return; // not due for another nag yet
   }
 
   if (io) {
     io.to(`user_${task.faculty_id}`).emit("task:overdue", {
       taskId: task.id,
       deadline: task.deadline,
-      daysOverdue,
+      hoursOverdue,
     });
   }
 
@@ -497,23 +515,23 @@ async function sendOverdueReminder(io, task, deadlineStr, daysOverdue, intervalD
     userId: task.faculty_id,
     type: "task_overdue",
     title: "Task Overdue",
-    message: `Task ${task.tracking_id} ("${task.title}") was due ${deadlineStr} and is now ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue.`,
+    message: `Task ${task.tracking_id} ("${task.title}") was due ${deadlineStr} and is now ${hoursOverdue} hour${hoursOverdue === 1 ? "" : "s"} overdue.`,
     taskId: task.id,
     trackingId: task.tracking_id,
   });
 }
 
 // Admin/program_chair equivalent of sendOverdueReminder() above — same
-// per-recipient cadence gate (intervalDays since THAT recipient's last
+// per-recipient cadence gate (intervalHours since THAT recipient's last
 // task_approval_overdue row, not the faculty one), sent to
 // admins/program_chairs plus the original assigner. Independent of
 // sendOverdueReminder(): a chair's nag cadence isn't tied to whenever the
 // faculty member's own overdue reminder last fired.
-async function sendApprovalOverdueReminder(io, task, deadlineStr, daysOverdue, chairsAndAdmins, intervalDays = DEFAULT_OVERDUE_REMINDER_INTERVAL_DAYS) {
+async function sendApprovalOverdueReminder(io, task, deadlineStr, hoursOverdue, chairsAndAdmins, intervalHours = DEFAULT_OVERDUE_REMINDER_INTERVAL_HOURS) {
   const recipientIds = new Set(chairsAndAdmins.map(u => u.id));
   if (task.assigned_by) recipientIds.add(task.assigned_by);
 
-  const message = `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) was due ${deadlineStr} and is now ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue, still awaiting your approval.`;
+  const message = `Task ${task.tracking_id} ("${task.title}", assigned to ${task.faculty_name || "faculty"}) was due ${deadlineStr} and is now ${hoursOverdue} hour${hoursOverdue === 1 ? "" : "s"} overdue, still awaiting your approval.`;
 
   for (const recipientId of recipientIds) {
     const [[lastOverdue]] = await db.query(
@@ -524,15 +542,15 @@ async function sendApprovalOverdueReminder(io, task, deadlineStr, daysOverdue, c
     );
 
     if (lastOverdue) {
-      const daysSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceLast < intervalDays) continue; // not due for another nag yet
+      const hoursSinceLast = (Date.now() - new Date(lastOverdue.created_at).getTime()) / (1000 * 60 * 60);
+      if (hoursSinceLast < intervalHours) continue; // not due for another nag yet
     }
 
     if (io) {
       io.to(`user_${recipientId}`).emit("task:approval_overdue", {
         taskId: task.id,
         deadline: task.deadline,
-        daysOverdue,
+        hoursOverdue,
       });
     }
 
