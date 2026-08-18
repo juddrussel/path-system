@@ -974,7 +974,7 @@ export default function TaskAssigned() {
                         </div>
 
                         {/* TASK TIMELINE */}
-                        <div style={{ borderLeft: "1px solid #cbc3d7", paddingLeft: 22 }}>
+                        <div style={{ paddingLeft: 22 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginBottom: 14 }}>Task Timeline</div>
                           <TimelineItem label="Task Created"        value={`by ${selected.assigned_by_name || "—"}`}  sub={fmtDate(selected.created_at)} dot="#6b38d4" />
                           <TimelineItem label="Assigned to Faculty" value={selected.assigned_to_name || "—"}          sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#6b38d4" />
