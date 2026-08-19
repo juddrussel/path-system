@@ -614,7 +614,7 @@ export default function AuditTrail() {
                         <tr key={log.id} className="hover:bg-[#f6f2ff]/60 transition-colors group">
                           {/* Timestamp */}
                           <td className="px-6 py-4 whitespace-nowrap text-[#494454]">
-                            <div className="text-[10px] uppercase tracking-tighter opacity-70 mb-0.5">{timeSince(log.timestamp)}</div>
+                            <span className="inline-block text-[10px] font-bold uppercase tracking-wide text-[#5a00c6] bg-[#e9ddff] px-1.5 py-0.5 rounded-full mb-1">{timeSince(log.timestamp)}</span>
                             <div className="text-sm">{fmtDate(log.timestamp)}</div>
                           </td>
 
@@ -624,7 +624,7 @@ export default function AuditTrail() {
                               <Avatar firstName={log.user?.first_name} lastName={log.user?.last_name} avatarUrl={log.user?.avatar_url} />
                               <div>
                                 <div className="font-medium leading-tight">{log.user?.full_name || log.user?.username || "System"}</div>
-                                <div className="text-xs text-[#7b7486]">@{log.user?.username || "system"}</div>
+                                <div className="inline-block text-[10px] font-semibold text-[#5f5293] bg-[#e7deff] px-1.5 py-0.5 rounded-full mt-0.5">@{log.user?.username || "system"}</div>
                               </div>
                             </div>
                           </td>
@@ -646,13 +646,13 @@ export default function AuditTrail() {
                             {log.document_id && (
                               <button
                                 onClick={() => navigate(`/documents/${log.document_id}`)}
-                                className="ml-2 text-[#6b38d4] font-medium hover:underline"
+                                className="ml-2 inline-flex items-center text-[11px] font-bold text-[#6b38d4] bg-[#efebff] px-1.5 py-0.5 rounded-full hover:bg-[#e9ddff] hover:underline align-middle"
                               >
                                 #{log.document_id}
                               </button>
                             )}
                             {log.ip_address && (
-                              <span className="block text-[10px] text-[#7b7486] font-mono mt-0.5">IP: {log.ip_address}</span>
+                              <span className="block w-fit text-[10px] font-semibold text-[#93000a] bg-[#ffdad6] font-mono px-1.5 py-0.5 rounded-full mt-1">IP: {log.ip_address}</span>
                             )}
                           </td>
                         </tr>
