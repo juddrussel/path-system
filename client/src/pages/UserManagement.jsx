@@ -111,9 +111,15 @@ function RoleBadge({ role }) {
 
 function StatusBadge({ active }) {
   return active ? (
-    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Active</span>
+    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-violet-50 text-gray-700 text-[11px] font-bold border border-gray-100">
+      <span className="w-1.5 h-1.5 rounded-full bg-violet-600" />
+      Active
+    </span>
   ) : (
-    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">Inactive</span>
+    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-100 text-gray-500 text-[11px] font-bold border border-gray-100">
+      <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+      Inactive
+    </span>
   );
 }
 
@@ -378,6 +384,8 @@ const FilterIcon = () => <svg viewBox="0 0 16 16" fill="currentColor" width="12"
 const SearchIcon = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6.5" cy="6.5" r="4.5" /><path d="M10.5 10.5L14 14" strokeLinecap="round" /></svg>;
 const Spinner = () => <svg className="animate-spin" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><circle cx="8" cy="8" r="6" strokeOpacity=".25" /><path d="M14 8a6 6 0 00-6-6" strokeLinecap="round" /></svg>;
 const EyeIcon = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" strokeLinecap="round"/><circle cx="8" cy="8" r="2"/></svg>;
+const DownloadIcon = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const MoreIcon = () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="3" r="1.3" /><circle cx="8" cy="8" r="1.3" /><circle cx="8" cy="13" r="1.3" /></svg>;
 
 
 // ─── USER DETAIL PANEL ────────────────────────────────────────────────────────
@@ -529,13 +537,18 @@ function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
 }
 
 // ─── STAT CARD ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, iconBg, icon }) {
+function StatCard({ label, value, sub, iconBg, icon, badge }) {
   return (
-    <div className="bg-violet-50/60 rounded-xl px-4 py-3.5 relative overflow-hidden">
-      <div className="text-xs text-gray-400 mb-1">{label}</div>
-      <div className="text-2xl font-bold text-gray-900">{value ?? "—"}</div>
-      <div className="text-xs text-gray-400 mt-1">{sub}</div>
-      <div className={`absolute right-3 top-3 w-8 h-8 rounded-full flex items-center justify-center ${iconBg}`}>{icon}</div>
+    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconBg}`}>{icon}</div>
+        {badge && (
+          <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-1 rounded-md">{badge}</span>
+        )}
+      </div>
+      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-2xl font-bold text-gray-900">{value ?? "—"}</p>
+      {sub && !badge && <p className="text-[11px] text-gray-400 mt-1">{sub}</p>}
     </div>
   );
 }
@@ -743,18 +756,18 @@ export default function UserManagement() {
         </TopBar>
 
         {/* Tab Nav */}
-        <div className="flex border-b border-gray-100 bg-white">
+        <div className="flex items-center gap-6 border-b border-gray-100 bg-white px-5 md:px-8">
           <button
             onClick={() => setTab("users")}
-            className={`flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold border-b-2 transition-colors ${tab === "users" ? "text-violet-600 border-violet-600" : "text-gray-400 border-transparent hover:text-gray-700"}`}
+            className={`flex items-center gap-1.5 pb-3 pt-4 px-1 text-sm font-medium border-b-2 transition-colors ${tab === "users" ? "text-violet-600 border-violet-600" : "text-gray-400 border-transparent hover:text-gray-700"}`}
           >
-            <UsersIcon /> System Users
+            System Users
           </button>
           <button
             onClick={() => setTab("permissions")}
-            className={`flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold border-b-2 transition-colors ${tab === "permissions" ? "text-violet-600 border-violet-600" : "text-gray-400 border-transparent hover:text-gray-700"}`}
+            className={`flex items-center gap-1.5 pb-3 pt-4 px-1 text-sm font-medium border-b-2 transition-colors ${tab === "permissions" ? "text-violet-600 border-violet-600" : "text-gray-400 border-transparent hover:text-gray-700"}`}
           >
-            <ShieldIcon /> Permissions &amp; Approvals
+            Account Requests
             {pending.length > 0 && (
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${tab === "permissions" ? "bg-violet-100 text-violet-700" : "bg-amber-100 text-amber-700"}`}>
                 {pending.length}
@@ -763,7 +776,7 @@ export default function UserManagement() {
           </button>
         </div>
 
-        <div className="p-5 flex flex-col gap-4 flex-1 overflow-y-auto">
+        <div className="p-5 md:p-8 flex flex-col gap-6 flex-1 overflow-y-auto">
 
           {toast.msg && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast({ msg: "", type: "" })} />}
 
@@ -776,83 +789,87 @@ export default function UserManagement() {
               {/* ══ USERS TAB ══════════════════════════════════════════════════════ */}
               {tab === "users" && (
                 <>
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
-                      <h1 className="text-xl font-bold text-gray-900">User &amp; Role Management</h1>
-                      <p className="text-xs text-gray-400 mt-0.5">Manage system accounts, assign roles, and control access levels.</p>
+                      <h1 className="text-2xl font-bold text-gray-900">System Users</h1>
+                      <p className="text-sm text-gray-400 mt-1">Manage and monitor all users within the system.</p>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-3">
-                    <StatCard label="Total Users" value={stats.total} sub="All accounts" iconBg="bg-violet-100" icon={<UsersIcon />} />
-                    <StatCard label="Active" value={stats.active} sub="Currently enabled" iconBg="bg-emerald-100" icon={<CheckIcon />} />
-                    <StatCard label="Inactive" value={stats.inactive} sub="Suspended accounts" iconBg="bg-red-100" icon={<svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>} />
-                    <StatCard label="Admins" value={stats.admins} sub="Full access roles" iconBg="bg-violet-100" icon={<ShieldIcon />} />
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <FilterIcon />
-                    <span className="text-xs font-bold text-gray-600">Filters</span>
-                    <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-500">
-                      <span>Role</span>
-                      <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-transparent text-xs text-gray-700 outline-none cursor-pointer">
-                        <option value="all">All</option>
-                        <option value="admin">Admin</option>
-                        <option value="program_chair">Program Chair</option>
-                        <option value="faculty">Faculty</option>
-                      </select>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-500">
-                      <span>Status</span>
-                      <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-transparent text-xs text-gray-700 outline-none cursor-pointer">
-                        <option value="all">All</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
-                    <div className="flex justify-between items-center px-4 py-3.5 border-b border-gray-100">
-                      <div>
-                        <h2 className="text-sm font-bold text-gray-900">System Users</h2>
-                        <p className="text-xs text-gray-400 mt-0.5">All registered accounts and their access levels</p>
-                      </div>
-                      <button onClick={() => setShowModal(true)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700">
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                      <button className="flex-1 md:flex-none border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg py-2 px-4 text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <DownloadIcon /> Export Users
+                      </button>
+                      <button onClick={() => setShowModal(true)} className="flex-1 md:flex-none bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2 px-4 text-xs font-bold transition-colors shadow-sm">
                         + Add User
                       </button>
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard label="Total Users" value={stats.total} sub="All accounts" iconBg="bg-violet-100 text-violet-600" icon={<UsersIcon />} badge="+12%" />
+                    <StatCard label="Active Users" value={stats.active} sub="Currently enabled" iconBg="bg-emerald-100 text-emerald-600" icon={<CheckIcon />} badge="+5%" />
+                    <StatCard label="Inactive Users" value={stats.inactive} sub="Suspended accounts" iconBg="bg-gray-100 text-gray-500" icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>} />
+                    <StatCard label="Administrators" value={stats.admins} sub="Full access roles" iconBg="bg-violet-100 text-violet-600" icon={<ShieldIcon />} />
+                  </div>
+
+                  <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                    {/* Filter Toolbar */}
+                    <div className="p-4 border-b border-gray-100 bg-gray-50/60 flex flex-col lg:flex-row gap-3 items-center justify-between">
+                      <div className="relative w-full lg:w-72">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                          <SearchIcon />
+                        </span>
+                        <input
+                          value={search}
+                          onChange={e => setSearch(e.target.value)}
+                          placeholder="Search by name, email, or username…"
+                          className="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-xs text-gray-700 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors shadow-sm"
+                        />
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 outline-none focus:border-violet-500 cursor-pointer shadow-sm min-w-[120px]">
+                          <option value="all">All Roles</option>
+                          <option value="admin">Admin</option>
+                          <option value="program_chair">Program Chair</option>
+                          <option value="faculty">Faculty</option>
+                        </select>
+                        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 outline-none focus:border-violet-500 cursor-pointer shadow-sm min-w-[120px]">
+                          <option value="all">All Statuses</option>
+                          <option value="Active">Active</option>
+                          <option value="Inactive">Inactive</option>
+                        </select>
+                      </div>
+                    </div>
                     <table className="w-full border-collapse text-xs">
-                      <thead>
-                        <tr className="bg-gray-50">
-                          {["Name", "Email / Username", "Role", "Status", "Joined", "Actions"].map((h, i) => (
-                            <th key={h} className={`text-[10px] text-gray-400 uppercase tracking-wide font-semibold px-4 py-2.5 text-left border-b border-gray-100 ${i === 5 ? "text-right" : ""}`}>{h}</th>
+                      <thead className="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                          {["User", "User ID", "Role", "Department", "Status", "Actions"].map((h, i) => (
+                            <th key={h} className={`text-[10px] text-gray-400 uppercase tracking-wider font-semibold px-6 py-3 text-left ${i === 5 ? "text-right" : ""}`}>{h}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className="divide-y divide-gray-50">
                         {filteredUsers.length === 0 ? (
                           <tr><td colSpan={6} className="text-center py-10 text-gray-400">No users found.</td></tr>
                         ) : filteredUsers.map(u => (
-                          <tr key={u.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
-                            <td className="px-4 py-2.5">
-                              <div className="flex items-center">
+                          <tr key={u.id} className="hover:bg-gray-50/70 transition-colors group">
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-3">
                                 <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.avatar_url} />
-                                <span className="text-gray-800 font-medium">{u.first_name} {u.last_name}</span>
+                                <div>
+                                  <p className="font-medium text-gray-900">{u.first_name} {u.last_name}</p>
+                                  <p className="text-gray-400 text-[11px] mt-0.5">{u.email || `@${u.username}`}</p>
+                                </div>
                               </div>
                             </td>
-                            <td className="px-4 py-2.5">
-                              <div className="text-gray-700">{u.email || "—"}</div>
-                              <div className="text-[10px] text-gray-400 mt-0.5">@{u.username}</div>
-                            </td>
-                            <td className="px-4 py-2.5"><RoleBadge role={u.role} /></td>
-                            <td className="px-4 py-2.5"><StatusBadge active={u.is_active} /></td>
-                            <td className="px-4 py-2.5 text-gray-400">{fmtDate(u.date_joined || u.created_at)}</td>
-                            <td className="px-4 py-2.5">
-                              <div className="flex gap-1 justify-end">
+                            <td className="py-4 px-6 text-gray-400">USR-{String(u.id).padStart(4, "0")}</td>
+                            <td className="py-4 px-6"><RoleBadge role={u.role} /></td>
+                            <td className="py-4 px-6 text-gray-700">{u.department || "—"}</td>
+                            <td className="py-4 px-6"><StatusBadge active={u.is_active} /></td>
+                            <td className="py-4 px-6 text-right">
+                              <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => setSelectedUser(u)}
-                                  className="w-6 h-6 rounded-md border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-violet-50 hover:border-violet-200 hover:text-violet-600 transition-colors"
+                                  className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:bg-violet-50 hover:text-violet-600 transition-colors"
                                   title="View details"
                                 >
                                   <EyeIcon />
@@ -860,7 +877,7 @@ export default function UserManagement() {
                                 {canEdit && (
                                   <button
                                     onClick={() => setEditUser(u)}
-                                    className="w-6 h-6 rounded-md border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-colors"
+                                    className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                                     title="Edit user"
                                   >
                                     <EditIcon />
@@ -869,13 +886,13 @@ export default function UserManagement() {
                                 {u.id !== currentUserId ? (
                                   <button
                                     onClick={() => setDeleteTarget({ id: u.id, name: `${u.first_name} ${u.last_name}` })}
-                                    className="w-6 h-6 rounded-md border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+                                    className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                                     title="Remove user"
                                   >
                                     <TrashIcon />
                                   </button>
                                 ) : (
-                                  <span className="text-[10px] text-gray-400 leading-6">(you)</span>
+                                  <span className="text-[10px] text-gray-400 leading-7">(you)</span>
                                 )}
                               </div>
                             </td>
@@ -883,7 +900,7 @@ export default function UserManagement() {
                         ))}
                       </tbody>
                     </table>
-                    <div className="px-4 py-2.5 text-xs text-gray-400 border-t border-gray-50">
+                    <div className="px-6 py-3.5 text-xs text-gray-400 border-t border-gray-100 bg-white">
                       Showing {filteredUsers.length} of {users.length} user{users.length !== 1 ? "s" : ""}
                     </div>
                   </div>
