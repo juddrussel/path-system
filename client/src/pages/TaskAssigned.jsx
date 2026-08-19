@@ -1719,25 +1719,26 @@ export default function TaskAssigned() {
                       <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "#6b38d4" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#ba1a1a" : "#d1d5db"} isLast />
 
                       {/* Faculty card */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Faculty</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f6f2ff", borderRadius: 10, border: "1px solid #cbc3d7", marginBottom: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e9ddff", color: "#5516be", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
-                          {(selected.assigned_to_name?.[0] || "?").toUpperCase()}
+                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#7b7486", textTransform: "uppercase", marginTop: 24, marginBottom: 14 }}>Faculty</div>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: 18 }}>
+                        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#8b3ff2", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, flexShrink: 0, marginBottom: 10 }}>
+                          {(selected.assigned_to_name || "?").split(" ").filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("") || "?"}
                         </div>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: "#181445" }}>{selected.assigned_to_name || "—"}</div>
-                          <div style={{ fontSize: 10, color: "#7b7486" }}>{selected.assigned_to_email || "—"}</div>
-                        </div>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: "#181445" }}>{selected.assigned_to_name || "—"}</div>
+                        <div style={{ fontSize: 12, color: "#8b3ff2", fontWeight: 600, marginTop: 3 }}>{selected.assigned_to_email || "—"}</div>
+                        <span style={{ display: "inline-block", marginTop: 9, padding: "3px 12px", borderRadius: 20, background: "#e9ddff", color: "#6b38d4", fontSize: 11, fontWeight: 700 }}>Faculty</span>
                       </div>
 
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 16 }}>
-                        <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8 }}>
-                          <div style={{ fontSize: 10, color: "#7b7486", marginBottom: 2 }}>Documents</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 16 }}>
+                        <div style={{ padding: "14px 8px", background: "#f6f2ff", borderRadius: 12, textAlign: "center" }}>
+                          <svg viewBox="0 0 16 16" fill="none" stroke="#6b38d4" strokeWidth="1.4" width="18" height="18" style={{ margin: "0 auto 6px" }}><path d="M4 1.5h6l3 3v10a.5.5 0 01-.5.5h-8a.5.5 0 01-.5-.5v-12a.5.5 0 01.5-.5z"/><path d="M10 1.5V4a.5.5 0 00.5.5H13"/><path d="M6 8.5h4M6 11h4" strokeLinecap="round"/></svg>
                           <div style={{ fontSize: 16, fontWeight: 800, color: "#6b38d4" }}>{selected.attachments?.length || 0}</div>
+                          <div style={{ fontSize: 10, color: "#7b7486", marginTop: 2, letterSpacing: 0.5 }}>DOCUMENTS</div>
                         </div>
-                        <div style={{ padding: "8px 10px", background: "#f6f2ff", borderRadius: 8 }}>
-                          <div style={{ fontSize: 10, color: "#7b7486", marginBottom: 2 }}>Comments</div>
+                        <div style={{ padding: "14px 8px", background: "#f6f2ff", borderRadius: 12, textAlign: "center" }}>
+                          <svg viewBox="0 0 16 16" fill="#6b38d4" width="18" height="18" style={{ margin: "0 auto 6px" }}><path d="M2 2.5A1.5 1.5 0 013.5 1h9A1.5 1.5 0 0114 2.5v6A1.5 1.5 0 0112.5 10H7l-3 3v-3H3.5A1.5 1.5 0 012 8.5v-6z"/></svg>
                           <div style={{ fontSize: 16, fontWeight: 800, color: "#6b38d4" }}>{selected.comments?.length || 0}</div>
+                          <div style={{ fontSize: 10, color: "#7b7486", marginTop: 2, letterSpacing: 0.5 }}>COMMENTS</div>
                         </div>
                       </div>
                     </div>
