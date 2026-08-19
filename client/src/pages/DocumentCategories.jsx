@@ -181,6 +181,22 @@ const STATUS_CFG = {
 
 const STATUS_FILTERS = ["All", "Active", "Inactive", "Archived"];
 
+// ── PATH admin palette (matches the Document Categories reference layout) ───
+const PAGE = {
+  primary: "#6b38d4",
+  primaryHover: "#5c2fb8",
+  onBackground: "#181445",
+  onSurfaceVariant: "#494454",
+  outline: "#7b7486",
+  outlineVariant: "#cbc3d7",
+  surface: "#fcf8ff",
+  surfaceContainerLow: "#f6f2ff",
+  surfaceContainerLowest: "#ffffff",
+  background: "#f8f6ff",
+  borderSoft: "rgba(107,56,212,0.16)",
+  shadow: "0 4px 12px rgba(139,92,246,0.05)",
+};
+
 function ActionBtn({ children, title, onClick, danger }) {
   return (
     <button
@@ -1087,15 +1103,28 @@ function ViewCategoryModal({ category, onClose, onEdit }) {
   );
 }
 
-function StatCard({ label, value, valueColor, sub }) {
+function StatCard({ label, value, sub, icon, iconBg, iconColor }) {
   return (
-    <div style={{
-      flex: 1, background: "white", border: "1px solid #e5e7eb", borderRadius: 12,
-      padding: "16px 18px",
-    }}>
-      <p style={{ fontSize: 10.5, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, textTransform: "uppercase" }}>{label}</p>
-      <p style={{ fontSize: 26, fontWeight: 800, color: valueColor || "#111827", margin: "6px 0 4px", lineHeight: 1 }}>{value}</p>
-      <p style={{ fontSize: 11.5, color: "#9ca3af" }}>{sub}</p>
+    <div
+      style={{
+        flex: 1, background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.borderSoft}`,
+        borderRadius: 12, padding: "20px 22px", boxShadow: PAGE.shadow,
+        transition: "box-shadow 0.2s",
+      }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = "0 12px 24px rgba(139,92,246,0.10)"}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = PAGE.shadow}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+        <div style={{
+          width: 34, height: 34, borderRadius: 9, background: iconBg, color: iconColor,
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          {icon}
+        </div>
+        <span style={{ fontSize: 11.5, fontWeight: 600, color: PAGE.onSurfaceVariant }}>{label}</span>
+      </div>
+      <p style={{ fontSize: 30, fontWeight: 700, color: PAGE.onBackground, lineHeight: 1, letterSpacing: "-0.02em" }}>{value}</p>
+      {sub && <p style={{ fontSize: 11.5, color: PAGE.outline, marginTop: 6 }}>{sub}</p>}
     </div>
   );
 }
@@ -1253,54 +1282,87 @@ export default function DocumentCategories() {
   }, [search, statusFilter, categories]);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: PAGE.onBackground, background: PAGE.background }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
 
       <Sidebar activePage="document-categories" />
 
       {/* ── Main ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "white", minWidth: 0 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: PAGE.surfaceContainerLowest, minWidth: 0 }}>
 
         {/* Topbar */}
         <TopBar onLogout={handleLogout} />
 
         {/* ── Content ── */}
-        <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto", padding: "24px 28px" }}>
+        <div style={{ minHeight: "calc(100vh - 56px)", background: PAGE.background, overflowY: "auto", padding: "28px 32px" }}>
 
           {/* Header */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 22 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
             <div>
-              <h1 style={{ fontSize: 24, fontWeight: 800, color: "#111827", marginBottom: 4 }}>Document Categories</h1>
-              <p style={{ fontSize: 13, color: "#6b7280" }}>Create and manage document categories with custom form fields.</p>
+              <h1 style={{ fontSize: 26, fontWeight: 700, color: PAGE.onBackground, marginBottom: 4, letterSpacing: "-0.01em" }}>Document Categories</h1>
+              <p style={{ fontSize: 13, color: PAGE.onSurfaceVariant }}>Manage document types available within the PATH System.</p>
             </div>
             <button
               onClick={() => setShowAddModal(true)}
               style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "10px 16px",
-                borderRadius: 9, border: "none", background: "#7c3aed", color: "white",
-                fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+                display: "flex", alignItems: "center", gap: 6, padding: "10px 20px",
+                borderRadius: 9, border: "none", background: PAGE.primary, color: "white",
+                fontSize: 12.5, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
+                boxShadow: "0 2px 6px rgba(107,56,212,0.25)",
               }}
-              onMouseEnter={e => e.currentTarget.style.background = "#6d28d9"}
-              onMouseLeave={e => e.currentTarget.style.background = "#7c3aed"}
+              onMouseEnter={e => e.currentTarget.style.background = PAGE.primaryHover}
+              onMouseLeave={e => e.currentTarget.style.background = PAGE.primary}
             >
-              <Icon.Plus size={13} color="white" /> Add Category
+              <Icon.Plus size={14} color="white" /> Add Category
             </button>
           </div>
 
           {/* Stat cards */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-            <StatCard label="Total Categories" value={totalCategories} sub={`${totalCategories - archivedCategories} non-archived`} />
-            <StatCard label="Active Categories" value={activeCategories} valueColor="#059669" sub="Visible to users" />
-            <StatCard label="Archived Categories" value={archivedCategories} valueColor="#d97706" sub="Hidden from users" />
-            <StatCard label="Used This Month" value={usedThisMonth} valueColor="#2563eb" sub="Total submissions" />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
+            <StatCard
+              label="Total Categories"
+              value={totalCategories}
+              sub={`${totalCategories - archivedCategories} non-archived`}
+              icon={<Layers style={{ width: 17, height: 17 }} />}
+              iconBg="rgba(107,56,212,0.10)"
+              iconColor={PAGE.primary}
+            />
+            <StatCard
+              label="Active"
+              value={activeCategories}
+              sub="Visible to users"
+              icon={<CheckCircle2 style={{ width: 17, height: 17 }} />}
+              iconBg="#d1fae5"
+              iconColor="#059669"
+            />
+            <StatCard
+              label="Archived"
+              value={archivedCategories}
+              sub="Hidden from users"
+              icon={<InboxIcon style={{ width: 17, height: 17 }} />}
+              iconBg="#ffe4e6"
+              iconColor="#e11d48"
+            />
+            <StatCard
+              label="Used This Month"
+              value={usedThisMonth}
+              sub="Total submissions"
+              icon={<BarChart3 style={{ width: 17, height: 17 }} />}
+              iconBg="rgba(138,76,252,0.12)"
+              iconColor="#8a4cfc"
+            />
           </div>
 
           {/* Search + filters */}
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12, flexWrap: "wrap" }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 14, marginBottom: 20, flexWrap: "wrap",
+            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.borderSoft}`,
+            borderRadius: 12, padding: "14px 16px", boxShadow: PAGE.shadow,
+          }}>
             <div style={{
               flex: "1 1 320px", display: "flex", alignItems: "center", gap: 8,
-              background: "white", border: "1px solid #e5e7eb", borderRadius: 9,
-              padding: "10px 14px", color: "#9ca3af",
+              background: PAGE.surfaceContainerLow, border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 9,
+              padding: "10px 14px", color: PAGE.outline,
             }}>
               <Search style={{ width: 15, height: 15 }} />
               <input
@@ -1308,22 +1370,25 @@ export default function DocumentCategories() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search category name, code, or description..."
-                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12.5, color: "#374151", width: "100%", fontFamily: "'DM Sans', sans-serif" }}
+                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12.5, color: PAGE.onBackground, width: "100%", fontFamily: "'DM Sans', sans-serif" }}
               />
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>Status:</span>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 2, background: PAGE.surfaceContainerLow,
+              border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 9, padding: 3,
+            }}>
               {STATUS_FILTERS.map(s => (
                 <button
                   key={s}
                   onClick={() => setStatusFilter(s)}
                   style={{
-                    padding: "6px 14px", borderRadius: 7, fontSize: 12, fontWeight: 700,
-                    cursor: "pointer", whiteSpace: "nowrap",
-                    border: statusFilter === s ? "1px solid #7c3aed" : "1px solid #e5e7eb",
-                    background: statusFilter === s ? "#7c3aed" : "white",
-                    color: statusFilter === s ? "white" : "#6b7280",
+                    padding: "6px 14px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                    cursor: "pointer", whiteSpace: "nowrap", border: "none",
+                    background: statusFilter === s ? PAGE.surfaceContainerLowest : "transparent",
+                    color: statusFilter === s ? PAGE.primary : PAGE.onSurfaceVariant,
+                    boxShadow: statusFilter === s ? "0 1px 3px rgba(107,56,212,0.15)" : "none",
+                    transition: "all 0.15s",
                   }}
                 >
                   {s}
@@ -1332,13 +1397,12 @@ export default function DocumentCategories() {
             </div>
 
             <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>Sort by:</span>
               <div style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "8px 12px",
-                border: "1px solid #e5e7eb", borderRadius: 8, background: "white",
-                fontSize: 12, color: "#374151", fontWeight: 600, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 6, padding: "9px 14px",
+                border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 9, background: PAGE.surfaceContainerLowest,
+                fontSize: 12, color: PAGE.onSurfaceVariant, fontWeight: 600, cursor: "pointer",
               }}>
-                {sortBy} <ChevronDown style={{ width: 13, height: 13, color: "#9ca3af" }} />
+                {sortBy} <ChevronDown style={{ width: 13, height: 13, color: PAGE.outline }} />
               </div>
             </div>
           </div>
@@ -1356,7 +1420,7 @@ export default function DocumentCategories() {
             </div>
           )}
 
-          <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 10 }}>
+          <p style={{ fontSize: 12, color: PAGE.outline, marginBottom: 10 }}>
             {loading ? "Loading categories…" : `${filtered.length} categories found`}
           </p>
 
@@ -1377,90 +1441,109 @@ export default function DocumentCategories() {
           )}
 
           {/* Table */}
-          <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#fafafa", borderBottom: "1px solid #e5e7eb" }}>
-                  {["Category Name", "Code", "Description", "Type", "Fields", "Status", "Date Created", "Actions"].map((h, i) => (
-                    <th key={h} style={{
-                      textAlign: i === 7 ? "center" : "left", padding: "12px 16px",
-                      fontSize: 10.5, fontWeight: 700, color: "#6b7280",
-                      letterSpacing: 0.4, textTransform: "uppercase", whiteSpace: "nowrap",
-                    }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {loading && (
-                  <tr>
-                    <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
-                      Loading categories…
-                    </td>
+          <div style={{
+            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.borderSoft}`,
+            borderRadius: 12, overflow: "hidden", boxShadow: PAGE.shadow,
+          }}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: PAGE.surfaceContainerLow, borderBottom: `1px solid ${PAGE.outlineVariant}` }}>
+                    {["Category Name", "Code", "Description", "Type", "Fields", "Status", "Date Created", "Actions"].map((h, i) => (
+                      <th key={h} style={{
+                        textAlign: i === 7 ? "right" : "left", padding: "14px 20px",
+                        fontSize: 10.5, fontWeight: 600, color: PAGE.onSurfaceVariant,
+                        letterSpacing: 0.4, whiteSpace: "nowrap",
+                      }}>
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                )}
-                {!loading && filtered.map((c, idx) => {
-                  const tCfg = TYPE_CFG[c.type];
-                  const sCfg = STATUS_CFG[c.status];
-                  return (
-                    <tr key={c.id} style={{ borderBottom: idx === filtered.length - 1 ? "none" : "1px solid #f1f1f4" }}>
-                      <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#111827", maxWidth: 160 }}>{c.name}</td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <span style={{
-                          fontSize: 11, fontWeight: 700, color: "#6b7280", background: "#f3f4f6",
-                          border: "1px solid #e5e7eb", borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap",
-                        }}>
-                          {c.code}
-                        </span>
-                      </td>
-                      <td style={{ padding: "14px 16px", fontSize: 12.5, color: "#6b7280", maxWidth: 280 }}>{c.description}</td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <span style={{
-                          fontSize: 11.5, fontWeight: 700, padding: "3px 10px", borderRadius: 6,
-                          background: tCfg.bg, color: tCfg.color, border: `1px solid ${tCfg.border}`,
-                        }}>
-                          {c.type}
-                        </span>
-                      </td>
-                      <td style={{ padding: "14px 16px", fontSize: 13, color: "#374151", fontWeight: 600 }}>{c.fields}</td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <span style={{
-                          display: "inline-flex", alignItems: "center", gap: 5,
-                          fontSize: 11.5, fontWeight: 700, padding: "3px 10px", borderRadius: 20,
-                          background: sCfg.bg, color: sCfg.color,
-                        }}>
-                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: sCfg.dot, display: "inline-block" }} />
-                          {c.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: "14px 16px", fontSize: 12.5, color: "#6b7280", whiteSpace: "nowrap" }}>{c.dateCreated}</td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
-                          <ActionBtn title="View" onClick={() => setViewingCategory(c)}><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
-                          <ActionBtn title="Edit" onClick={() => setEditingCategory(c)}><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
-                          {c.status !== "Archived" && (
-                            <ActionBtn title="Archive" onClick={() => handleArchiveCategory(c)}><Archive style={{ width: 14, height: 14 }} /></ActionBtn>
-                          )}
-                          <ActionBtn title="Delete" danger onClick={() => handleDeleteCategory(c)}><Trash2 style={{ width: 14, height: 14 }} /></ActionBtn>
-                        </div>
+                </thead>
+                <tbody>
+                  {loading && (
+                    <tr>
+                      <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: PAGE.outline, fontSize: 13 }}>
+                        Loading categories…
                       </td>
                     </tr>
-                  );
-                })}
-                {!loading && filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
-                      No categories match your search.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                  {!loading && filtered.map((c, idx) => {
+                    const tCfg = TYPE_CFG[c.type];
+                    const sCfg = STATUS_CFG[c.status];
+                    return (
+                      <tr
+                        key={c.id}
+                        className="table-row-hover"
+                        style={{
+                          borderBottom: idx === filtered.length - 1 ? "none" : `1px solid ${PAGE.outlineVariant}55`,
+                          transition: "background-color 0.15s",
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = PAGE.surfaceContainerLow}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                      >
+                        <td style={{ padding: "16px 20px", fontSize: 13, fontWeight: 600, color: PAGE.onBackground, maxWidth: 160 }}>{c.name}</td>
+                        <td style={{ padding: "16px 20px" }}>
+                          <span style={{
+                            fontSize: 11, fontWeight: 600, color: PAGE.onSurfaceVariant, background: PAGE.surfaceContainerLow,
+                            border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap",
+                          }}>
+                            {c.code}
+                          </span>
+                        </td>
+                        <td style={{ padding: "16px 20px", fontSize: 12.5, color: PAGE.onSurfaceVariant, maxWidth: 280 }}>{c.description}</td>
+                        <td style={{ padding: "16px 20px" }}>
+                          <span style={{
+                            fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 6,
+                            background: tCfg.bg, color: tCfg.color, border: `1px solid ${tCfg.border}`,
+                          }}>
+                            {c.type}
+                          </span>
+                        </td>
+                        <td style={{ padding: "16px 20px", fontSize: 13, color: PAGE.onSurfaceVariant, fontWeight: 600 }}>{c.fields}</td>
+                        <td style={{ padding: "16px 20px" }}>
+                          <span style={{
+                            display: "inline-flex", alignItems: "center", gap: 5,
+                            fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
+                            background: sCfg.bg, color: sCfg.color, border: `1px solid ${sCfg.dot}33`,
+                          }}>
+                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: sCfg.dot, display: "inline-block" }} />
+                            {c.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: "16px 20px", fontSize: 12.5, color: PAGE.onSurfaceVariant, whiteSpace: "nowrap" }}>{c.dateCreated}</td>
+                        <td style={{ padding: "16px 20px" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
+                            <ActionBtn title="View" onClick={() => setViewingCategory(c)}><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
+                            <ActionBtn title="Edit" onClick={() => setEditingCategory(c)}><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
+                            {c.status !== "Archived" && (
+                              <ActionBtn title="Archive" onClick={() => handleArchiveCategory(c)}><Archive style={{ width: 14, height: 14 }} /></ActionBtn>
+                            )}
+                            <ActionBtn title="Delete" danger onClick={() => handleDeleteCategory(c)}><Trash2 style={{ width: 14, height: 14 }} /></ActionBtn>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {!loading && filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: PAGE.outline, fontSize: 13 }}>
+                        No categories match your search.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 16px", borderTop: "1px solid #f1f1f4" }}>
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>Last updated: July 23, 2026</span>
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>PATH v2.4 · Document Categories Module</span>
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "12px 20px", borderTop: `1px solid ${PAGE.outlineVariant}55`, background: PAGE.surfaceContainerLowest,
+            }}>
+              <span style={{ fontSize: 11, color: PAGE.outline }}>
+                Showing {filtered.length} of {totalCategories} categories
+              </span>
+              <span style={{ fontSize: 11, color: PAGE.outline }}>PATH v2.4 · Document Categories Module</span>
             </div>
           </div>
 
