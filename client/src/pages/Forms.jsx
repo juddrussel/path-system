@@ -60,6 +60,10 @@ const Icon = {
       <circle cx="8" cy="8" r="6.5" />
       <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>,
+  InfoCircle: ({ color = "#7c3aed", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><circle cx="8" cy="8" r="6.5" /><path d="M8 7.2v4M8 5v.2" strokeLinecap="round" /></svg>,
+  DynamicForm: ({ color = "#7c3aed", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" /><path d="M4 6h4M4 8.5h6M4 11h3" strokeLinecap="round" /></svg>,
+  AttachFile: ({ color = "#7c3aed", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><path d="M11.5 5.5l-5 5a2 2 0 102.8 2.8l5-5a3.5 3.5 0 10-5-5l-5 5a5 5 0 007 7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  Send: ({ color = "white", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><path d="M14.5 1.5L7 9M14.5 1.5L10 14.5l-3-5.5-5.5-3 13-4.5z" strokeLinecap="round" strokeLinejoin="round" /></svg>,
 };
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
@@ -607,9 +611,22 @@ export default function Forms() {
           {/* Page Header + Tabs */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Forms Management</h1>
+              {activeTab === "submit" && !isProgramChair && (
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "#9ca3af", marginBottom: 6 }}>
+                  <span>Dashboard</span>
+                  <span style={{ fontSize: 13 }}>›</span>
+                  <span>Forms</span>
+                  <span style={{ fontSize: 13 }}>›</span>
+                  <span style={{ color: "#7c3aed", fontWeight: 700 }}>Submit Form</span>
+                </div>
+              )}
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>
+                {activeTab === "submit" && !isProgramChair ? "Submit Form" : "Forms Management"}
+              </h1>
               <p style={{ fontSize: 12, color: "#666", margin: 0 }}>
-                {isProgramChair ? "Review, approve, and manage submitted student forms." : "Upload and submit student forms for program chair review."}
+                {activeTab === "submit" && !isProgramChair
+                  ? "Complete the required information and submit your form for review."
+                  : isProgramChair ? "Review, approve, and manage submitted student forms." : "Upload and submit student forms for program chair review."}
               </p>
             </div>
             {/* Tabs */}
@@ -666,11 +683,14 @@ export default function Forms() {
               )}
 
               {/* ── STEP 1: FORM TYPE SELECTION ── */}
-              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24, marginBottom: 20 }}>
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: "0 4px 12px rgba(124,58,237,0.05)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #f3f4f6", paddingBottom: 12, marginBottom: 16 }}>
+                  <Icon.InfoCircle />
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>Form Type Selection</h3>
+                </div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                   <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>1</div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Form Type Selection</h3>
                     <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Choose the specific form you wish to file from the list below.</p>
 
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 6 }}>Form Type</label>
@@ -698,11 +718,14 @@ export default function Forms() {
               </div>
 
               {/* ── STEP 2: FORM FIELDS (dynamic — driven by the selected template) ── */}
-              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24, marginBottom: 20 }}>
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: "0 4px 12px rgba(124,58,237,0.05)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #f3f4f6", paddingBottom: 12, marginBottom: 16 }}>
+                  <Icon.DynamicForm />
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>Form Fields</h3>
+                </div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                   <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>2</div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Form Fields</h3>
                     <p style={{ fontSize: 12, color: "#888", margin: "0 0 18px" }}>
                       {selectedCategory ? "Fill in the fields required for this form type." : "Select a form type in Step 1 to load its required fields."}
                     </p>
@@ -909,11 +932,14 @@ export default function Forms() {
               </div>
 
               {/* ── STEP 3: ADDITIONAL INFORMATION ── */}
-              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 24, marginBottom: 20 }}>
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: "0 4px 12px rgba(124,58,237,0.05)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #f3f4f6", paddingBottom: 12, marginBottom: 16 }}>
+                  <Icon.AttachFile />
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>Additional Information</h3>
+                </div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                   <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 4px" }}>Additional Information</h3>
                     <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Provide any extra context for the program chair.</p>
 
                     <div>
@@ -930,49 +956,53 @@ export default function Forms() {
 
             {/* ── RIGHT: SUBMISSION SUMMARY ── */}
             <div style={{ position: "sticky", top: 20 }}>
-              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 14, padding: 20 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="15" height="15"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M10 2v4h4" /></svg>
-                  <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111", margin: 0 }}>Submission Summary</h3>
-                </div>
-                <p style={{ fontSize: 11, color: "#888", margin: "0 0 16px" }}>Step 3: Review details</p>
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 16, padding: 20, boxShadow: "0 4px 12px rgba(124,58,237,0.05)" }}>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 2px" }}>Submission Summary</h3>
+                <p style={{ fontSize: 11, color: "#888", margin: "0 0 14px" }}>Step 3: Review details</p>
 
-                <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 12px", marginBottom: 16 }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, color: "#9ca3af", textTransform: "uppercase", marginBottom: 4 }}>Form Type</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: wizardFormType ? "#7c3aed" : "#9ca3af" }}>{wizardFormType || "Not selected"}</div>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                <div style={{ display: "flex", flexDirection: "column", marginBottom: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
+                    <span style={{ fontSize: 11, color: "#6b7280" }}>Form Type</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: wizardFormType ? "#7c3aed" : "#9ca3af" }}>{wizardFormType || "Not selected"}</span>
+                  </div>
                   {[
                     ["Required Fields", wizardRequiredCount],
                     ["Completed", wizardUploadedCount],
                     ["Uploading", wizardUploadingCount],
                     ["Missing", wizardMissingCount],
                   ].map(([label, val]) => (
-                    <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f3f4f6", fontSize: 12 }}>
                       <span style={{ color: "#6b7280" }}>{label}</span>
                       <span style={{ fontWeight: 700, color: label === "Missing" && val > 0 ? "#dc2626" : "#111" }}>{val}</span>
                     </div>
                   ))}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}>
+                    <span style={{ fontSize: 11, color: "#6b7280" }}>Status</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: wizardStatusColor, display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: wizardStatusColor, display: "inline-block" }} />
+                      {wizardStatusLabel}
+                    </span>
+                  </div>
                 </div>
 
-                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 12, marginBottom: 16 }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, color: "#9ca3af", textTransform: "uppercase", marginBottom: 4 }}>Status</div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: wizardStatusColor }}>{wizardStatusLabel}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <button onClick={handleWizardSubmit} disabled={wizardSubmitting}
+                    style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "11px", background: wizardSubmitting ? "#a78bfa" : "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: wizardSubmitting ? "not-allowed" : "pointer", boxShadow: "0 2px 6px rgba(124,58,237,0.25)" }}>
+                    <Icon.Send /> {wizardSubmitting ? "Submitting..." : "Submit Form"}
+                  </button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={handleWizardSaveDraft} disabled={wizardSubmitting}
+                      style={{ flex: 1, padding: "9px", background: "transparent", color: "#374151", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: wizardSubmitting ? "not-allowed" : "pointer" }}>
+                      Save as Draft
+                    </button>
+                    <button onClick={handleWizardCancel}
+                      style={{ flex: 1, padding: "9px", background: "transparent", color: "#9ca3af", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "#fecaca"; e.currentTarget.style.background = "#fee2e2"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.background = "transparent"; }}>
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-
-                <button onClick={handleWizardSubmit} disabled={wizardSubmitting}
-                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px", background: wizardSubmitting ? "#a78bfa" : "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: wizardSubmitting ? "not-allowed" : "pointer", marginBottom: 8 }}>
-                  {wizardSubmitting ? "Submitting..." : "Submit Form"} {!wizardSubmitting && "→"}
-                </button>
-                <button onClick={handleWizardSaveDraft} disabled={wizardSubmitting}
-                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "9px", background: "white", color: "#374151", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: wizardSubmitting ? "not-allowed" : "pointer", marginBottom: 8 }}>
-                  Save as Draft
-                </button>
-                <button onClick={handleWizardCancel}
-                  style={{ width: "100%", padding: "8px", background: "transparent", color: "#9ca3af", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                  Cancel
-                </button>
               </div>
 
               <div style={{ marginTop: 14, background: "#faf5ff", border: "1px solid #ede9fe", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
