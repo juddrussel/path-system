@@ -63,6 +63,7 @@ const Icon = {
   InfoCircle: ({ color = "#7c3aed", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><circle cx="8" cy="8" r="6.5" /><path d="M8 7.2v4M8 5v.2" strokeLinecap="round" /></svg>,
   DynamicForm: ({ color = "#7c3aed", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" /><path d="M4 6h4M4 8.5h6M4 11h3" strokeLinecap="round" /></svg>,
   AttachFile: ({ color = "#7c3aed", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><path d="M11.5 5.5l-5 5a2 2 0 102.8 2.8l5-5a3.5 3.5 0 10-5-5l-5 5a5 5 0 007 7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  Notes: ({ color = "#7c3aed", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M5 6h6M5 8.5h6M5 11h3" strokeLinecap="round" /></svg>,
   Send: ({ color = "white", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><path d="M14.5 1.5L7 9M14.5 1.5L10 14.5l-3-5.5-5.5-3 13-4.5z" strokeLinecap="round" strokeLinejoin="round" /></svg>,
   Chevron: ({ color = "#6b7280", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><path d="M4 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" /></svg>,
   Trash: ({ color = "currentColor", size = 16 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" width={size} height={size}><path d="M2.5 4h11M6 4V2.5a1 1 0 011-1h2a1 1 0 011 1V4m1.5 0l-.6 9.4a1 1 0 01-1 .9H5.1a1 1 0 01-1-.9L3.5 4" strokeLinecap="round" strokeLinejoin="round" /></svg>,
@@ -236,6 +237,10 @@ export default function Forms() {
   const selectedCategory = categories.find(c => c.name === wizardFormType) || null;
   const selectedFields = selectedCategory?.formFields || [];
   const isFileField = (f) => f.fieldType === "File Upload";
+  // Required file-upload fields get pulled into their own "Required Attachments"
+  // panel; everything else (including any optional file fields) stays in Form Fields.
+  const requiredFileFields = selectedFields.filter(f => isFileField(f) && f.required);
+  const otherFields = selectedFields.filter(f => !(isFileField(f) && f.required));
   // A Checkbox field only becomes a choice group (checkboxes or radios) once
   // the reviewer has defined choices for it in Document Categories; otherwise
   // it stays the legacy single "Confirm" toggle.
@@ -580,6 +585,7 @@ export default function Forms() {
   const wizardUploadedCount = selectedFields.filter(f => f.required && isFieldComplete(f)).length;
   const wizardUploadingCount = Object.values(wizardDocs).filter(d => d.status === "uploading").length;
   const wizardMissingCount = selectedFields.filter(f => f.required && !isFieldComplete(f)).length;
+  const wizardAttachmentsCompleteCount = requiredFileFields.filter(f => isFieldComplete(f)).length;
   let wizardStatusLabel, wizardStatusColor;
   if (wizardMissingCount > 0) {
     wizardStatusLabel = wizardUploadingCount > 0 ? "Incomplete / Uploading" : "Incomplete";
@@ -594,6 +600,219 @@ export default function Forms() {
     wizardStatusLabel = "Ready to Submit";
     wizardStatusColor = "#059669";
   }
+
+  // ── Renders a single dynamic field row (shared between "Form Fields" and "Required Attachments") ──
+  const renderFieldRow = (f, idx) => {
+    const isFile = isFileField(f);
+    const isTextArea = f.fieldType === "Text Area";
+    const isChoiceCheckbox = hasCheckboxChoices(f);
+    const isMultiCheckbox = isChoiceCheckbox && f.multiSelect !== false;
+    const stacked = isTextArea || isChoiceCheckbox;
+    const doc = isFile ? wizardDocs[f.id] : null;
+    const isDragOver = wizardDragOver === f.id;
+    const val = wizardFieldValues[f.id] ?? (isMultiCheckbox ? [] : "");
+    const controlStyle = { ...fieldBase, padding: "8px 12px", borderRadius: 7, fontSize: 12.5, color: "#111" };
+    const hint = isChoiceCheckbox
+      ? (isMultiCheckbox ? "Select all that apply" : "Select one option")
+      : ({
+          "File Upload": "PDF, JPG, or PNG (Max 5MB)",
+          "Text Input": "Short text answer",
+          "Text Area": "Long-form text answer",
+          "Date": "Select a date",
+          "Number": "Numeric value",
+          "Dropdown": "Choose from the options",
+          "Checkbox": "Check to confirm",
+        }[f.fieldType] || f.fieldType);
+
+    return (
+      <div key={f.id}
+        style={{ border: `1px solid ${isDragOver ? "#7c3aed" : "#e5e7eb"}`, borderRadius: 10, padding: "12px 14px", background: isDragOver ? "#faf5ff" : "#fafafa", boxShadow: isDragOver ? "0 0 0 3px rgba(124,58,237,0.12)" : "none", transition: "border-color .15s, box-shadow .15s" }}
+        onDragOver={isFile ? (e => { e.preventDefault(); setWizardDragOver(f.id); }) : undefined}
+        onDragLeave={isFile ? (() => setWizardDragOver(null)) : undefined}
+        onDrop={isFile ? (e => handleWizardDrop(f.id, e)) : undefined}>
+        <div style={{ display: "flex", flexDirection: stacked ? "column" : "row", justifyContent: "space-between", alignItems: stacked ? "stretch" : "flex-start", gap: stacked ? 8 : 12, flexWrap: "wrap" }}>
+          <div style={{ minWidth: 200 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{
+                width: 18, height: 18, borderRadius: 5, background: "#e5e7eb", color: "#6b7280",
+                fontSize: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>{idx + 1}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{f.name}</span>
+              <span style={{
+                fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20, textTransform: "uppercase",
+                background: f.required ? "#ede9fe" : "#f3f4f6", color: f.required ? "#5b21b6" : "#6b7280",
+              }}>{f.required ? "Required" : "Optional"}</span>
+            </div>
+            <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2, marginLeft: 26 }}>{hint}</div>
+          </div>
+
+          {/* ── File Upload ── */}
+          {isFile && (
+            <>
+              <input ref={el => (wizardFileRefs.current[f.id] = el)} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }}
+                onChange={e => handleWizardFile(f.id, e.target.files[0])} />
+              {doc ? (
+                doc.status === "done" ? (
+                  // ── Attached file card (matches mockup's file-item styling) ──
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flex: 1, minWidth: 220, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      {(() => { const meta = fileTypeMeta(doc.file?.name); return (
+                        <div style={{ width: 34, height: 34, borderRadius: 7, background: meta.bg, color: meta.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">{meta.icon}</svg>
+                        </div>
+                      ); })()}
+                      <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                        <span style={{ fontSize: 11.5, color: "#111", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{doc.file?.name}</span>
+                        <span style={{ fontSize: 10, color: "#9ca3af" }}>{formatFileSize(doc.file?.size)}</span>
+                      </div>
+                    </div>
+                    <button onClick={() => removeWizardDoc(f.id)} title="Remove file"
+                      style={{ background: "transparent", border: "none", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", cursor: "pointer", flexShrink: 0 }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#ba1a1a"; e.currentTarget.style.background = "#ffdad6"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}>
+                      <Icon.Trash size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  // ── Uploading progress ──
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 180, justifyContent: "flex-end" }}>
+                    <div style={{ flex: 1, minWidth: 100 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#888", marginBottom: 3 }}>
+                        <span>Uploading...</span>
+                        <span>{doc.progress}%</span>
+                      </div>
+                      <div style={{ height: 5, background: "#e5e7eb", borderRadius: 20, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${doc.progress}%`, background: "#7c3aed", borderRadius: 20, transition: "width 0.2s" }} />
+                      </div>
+                    </div>
+                    <button onClick={() => removeWizardDoc(f.id)}
+                      style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
+                      Cancel
+                    </button>
+                  </div>
+                )
+              ) : (
+                // ── Empty dropzone (matches mockup's "Drag & drop files here" style) ──
+                <div onClick={() => wizardFileRefs.current[f.id]?.click()}
+                  style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 220, padding: "10px 14px", borderRadius: 8, border: `1.5px dashed ${isDragOver ? "#7c3aed" : "#cbc3d7"}`, background: isDragOver ? "#faf5ff" : "#fcf8ff", cursor: "pointer", transition: "border-color .15s, background .15s" }}
+                  onMouseEnter={e => { if (!isDragOver) e.currentTarget.style.borderColor = "#7c3aed"; }}
+                  onMouseLeave={e => { if (!isDragOver) e.currentTarget.style.borderColor = "#cbc3d7"; }}>
+                  <Icon.CloudUpload size={20} />
+                  <span style={{ fontSize: 11, color: "#6b7280", flex: 1 }}>Drag &amp; drop or click to browse</span>
+                  <button onClick={e => { e.stopPropagation(); wizardFileRefs.current[f.id]?.click(); }}
+                    style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
+                    Browse
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ── Text Input ── */}
+          {f.fieldType === "Text Input" && (
+            <input type="text" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+              onFocus={onFieldFocus} onBlur={onFieldBlur}
+              placeholder={`Enter ${f.name.toLowerCase()}`} style={{ ...controlStyle, width: 220 }} />
+          )}
+
+          {/* ── Number ── */}
+          {f.fieldType === "Number" && (
+            <input type="number" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+              onFocus={onFieldFocus} onBlur={onFieldBlur}
+              placeholder="0" style={{ ...controlStyle, width: 140 }} />
+          )}
+
+          {/* ── Date ── */}
+          {f.fieldType === "Date" && (
+            <input type="date" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+              onFocus={onFieldFocus} onBlur={onFieldBlur}
+              style={{ ...controlStyle, width: 160 }} />
+          )}
+
+          {/* ── Dropdown (falls back to free text if the template has no options configured) ── */}
+          {f.fieldType === "Dropdown" && (
+            Array.isArray(f.options) && f.options.length > 0 ? (
+              <div style={{ position: "relative", width: 180 }}>
+                <select value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+                  onFocus={onFieldFocus} onBlur={onFieldBlur}
+                  style={{ ...controlStyle, width: "100%", padding: "8px 28px 8px 12px", appearance: "none", WebkitAppearance: "none", MozAppearance: "none" }}>
+                  <option value="" disabled>Select…</option>
+                  {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+                  <Icon.Chevron size={14} />
+                </span>
+              </div>
+            ) : (
+              <input type="text" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
+                onFocus={onFieldFocus} onBlur={onFieldBlur}
+                placeholder="Enter value" style={{ ...controlStyle, width: 220 }} />
+            )
+          )}
+
+          {/* ── Checkbox ── */}
+          {f.fieldType === "Checkbox" && (
+            isChoiceCheckbox ? (
+              isMultiCheckbox ? (
+                // Multiple selection — checkbox group, value is an array of chosen options
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {f.options.map(opt => {
+                    const arr = Array.isArray(val) ? val : [];
+                    const checked = arr.includes(opt);
+                    return (
+                      <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={e => {
+                            const next = e.target.checked ? [...arr, opt] : arr.filter(o => o !== opt);
+                            handleWizardFieldChange(f.id, next);
+                          }}
+                          style={{ width: 15, height: 15, accentColor: "#7c3aed" }}
+                        />
+                        {opt}
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : (
+                // Single selection — radio group, value is one option string
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {f.options.map(opt => (
+                    <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
+                      <input
+                        type="radio"
+                        name={`field-${f.id}`}
+                        checked={val === opt}
+                        onChange={() => handleWizardFieldChange(f.id, opt)}
+                        style={{ width: 15, height: 15, accentColor: "#7c3aed" }}
+                      />
+                      {opt}
+                    </label>
+                  ))}
+                </div>
+              )
+            ) : (
+              // Legacy Checkbox field with no choices configured — plain confirm toggle
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
+                <input type="checkbox" checked={val === true} onChange={e => handleWizardFieldChange(f.id, e.target.checked)}
+                  style={{ width: 15, height: 15, accentColor: "#7c3aed" }} />
+                Confirm
+              </label>
+            )
+          )}
+
+          {/* ── Text Area (full width, stacked below the label) ── */}
+          {isTextArea && (
+            <textarea value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)} rows={3}
+              onFocus={onFieldFocus} onBlur={onFieldBlur}
+              placeholder={`Enter ${f.name.toLowerCase()}`}
+              style={{ ...controlStyle, width: "100%", resize: "vertical", fontFamily: "'DM Sans',sans-serif" }} />
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // ── RENDER ──────────────────────────────────────────────────────────────────
   return (
@@ -772,240 +991,72 @@ export default function Forms() {
                       </div>
                     )}
 
-                    {selectedCategory && selectedFields.length > 0 && (
+                    {selectedCategory && otherFields.length > 0 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {selectedFields.map((f, idx) => {
-                          const isFile = isFileField(f);
-                          const isTextArea = f.fieldType === "Text Area";
-                          const isChoiceCheckbox = hasCheckboxChoices(f);
-                          const isMultiCheckbox = isChoiceCheckbox && f.multiSelect !== false;
-                          const stacked = isTextArea || isChoiceCheckbox;
-                          const doc = isFile ? wizardDocs[f.id] : null;
-                          const isDragOver = wizardDragOver === f.id;
-                          const val = wizardFieldValues[f.id] ?? (isMultiCheckbox ? [] : "");
-                          const controlStyle = { ...fieldBase, padding: "8px 12px", borderRadius: 7, fontSize: 12.5, color: "#111" };
-                          const hint = isChoiceCheckbox
-                            ? (isMultiCheckbox ? "Select all that apply" : "Select one option")
-                            : ({
-                                "File Upload": "PDF, JPG, or PNG (Max 5MB)",
-                                "Text Input": "Short text answer",
-                                "Text Area": "Long-form text answer",
-                                "Date": "Select a date",
-                                "Number": "Numeric value",
-                                "Dropdown": "Choose from the options",
-                                "Checkbox": "Check to confirm",
-                              }[f.fieldType] || f.fieldType);
-
-                          return (
-                            <div key={f.id}
-                              style={{ border: `1px solid ${isDragOver ? "#7c3aed" : "#e5e7eb"}`, borderRadius: 10, padding: "12px 14px", background: isDragOver ? "#faf5ff" : "#fafafa", boxShadow: isDragOver ? "0 0 0 3px rgba(124,58,237,0.12)" : "none", transition: "border-color .15s, box-shadow .15s" }}
-                              onDragOver={isFile ? (e => { e.preventDefault(); setWizardDragOver(f.id); }) : undefined}
-                              onDragLeave={isFile ? (() => setWizardDragOver(null)) : undefined}
-                              onDrop={isFile ? (e => handleWizardDrop(f.id, e)) : undefined}>
-                              <div style={{ display: "flex", flexDirection: stacked ? "column" : "row", justifyContent: "space-between", alignItems: stacked ? "stretch" : "flex-start", gap: stacked ? 8 : 12, flexWrap: "wrap" }}>
-                                <div style={{ minWidth: 200 }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <span style={{
-                                      width: 18, height: 18, borderRadius: 5, background: "#e5e7eb", color: "#6b7280",
-                                      fontSize: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                                    }}>{idx + 1}</span>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{f.name}</span>
-                                    <span style={{
-                                      fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20, textTransform: "uppercase",
-                                      background: f.required ? "#ede9fe" : "#f3f4f6", color: f.required ? "#5b21b6" : "#6b7280",
-                                    }}>{f.required ? "Required" : "Optional"}</span>
-                                  </div>
-                                  <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2, marginLeft: 26 }}>{hint}</div>
-                                </div>
-
-                                {/* ── File Upload ── */}
-                                {isFile && (
-                                  <>
-                                    <input ref={el => (wizardFileRefs.current[f.id] = el)} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }}
-                                      onChange={e => handleWizardFile(f.id, e.target.files[0])} />
-                                    {doc ? (
-                                      doc.status === "done" ? (
-                                        // ── Attached file card (matches mockup's file-item styling) ──
-                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flex: 1, minWidth: 220, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white" }}>
-                                          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                                            {(() => { const meta = fileTypeMeta(doc.file?.name); return (
-                                              <div style={{ width: 34, height: 34, borderRadius: 7, background: meta.bg, color: meta.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                                <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">{meta.icon}</svg>
-                                              </div>
-                                            ); })()}
-                                            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                                              <span style={{ fontSize: 11.5, color: "#111", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{doc.file?.name}</span>
-                                              <span style={{ fontSize: 10, color: "#9ca3af" }}>{formatFileSize(doc.file?.size)}</span>
-                                            </div>
-                                          </div>
-                                          <button onClick={() => removeWizardDoc(f.id)} title="Remove file"
-                                            style={{ background: "transparent", border: "none", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", cursor: "pointer", flexShrink: 0 }}
-                                            onMouseEnter={e => { e.currentTarget.style.color = "#ba1a1a"; e.currentTarget.style.background = "#ffdad6"; }}
-                                            onMouseLeave={e => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}>
-                                            <Icon.Trash size={15} />
-                                          </button>
-                                        </div>
-                                      ) : (
-                                        // ── Uploading progress ──
-                                        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 180, justifyContent: "flex-end" }}>
-                                          <div style={{ flex: 1, minWidth: 100 }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#888", marginBottom: 3 }}>
-                                              <span>Uploading...</span>
-                                              <span>{doc.progress}%</span>
-                                            </div>
-                                            <div style={{ height: 5, background: "#e5e7eb", borderRadius: 20, overflow: "hidden" }}>
-                                              <div style={{ height: "100%", width: `${doc.progress}%`, background: "#7c3aed", borderRadius: 20, transition: "width 0.2s" }} />
-                                            </div>
-                                          </div>
-                                          <button onClick={() => removeWizardDoc(f.id)}
-                                            style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
-                                            Cancel
-                                          </button>
-                                        </div>
-                                      )
-                                    ) : (
-                                      // ── Empty dropzone (matches mockup's "Drag & drop files here" style) ──
-                                      <div onClick={() => wizardFileRefs.current[f.id]?.click()}
-                                        style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 220, padding: "10px 14px", borderRadius: 8, border: `1.5px dashed ${isDragOver ? "#7c3aed" : "#cbc3d7"}`, background: isDragOver ? "#faf5ff" : "#fcf8ff", cursor: "pointer", transition: "border-color .15s, background .15s" }}
-                                        onMouseEnter={e => { if (!isDragOver) e.currentTarget.style.borderColor = "#7c3aed"; }}
-                                        onMouseLeave={e => { if (!isDragOver) e.currentTarget.style.borderColor = "#cbc3d7"; }}>
-                                        <Icon.CloudUpload size={20} />
-                                        <span style={{ fontSize: 11, color: "#6b7280", flex: 1 }}>Drag &amp; drop or click to browse</span>
-                                        <button onClick={e => { e.stopPropagation(); wizardFileRefs.current[f.id]?.click(); }}
-                                          style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: "#374151", cursor: "pointer", whiteSpace: "nowrap" }}>
-                                          Browse
-                                        </button>
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-
-                                {/* ── Text Input ── */}
-                                {f.fieldType === "Text Input" && (
-                                  <input type="text" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
-                                    onFocus={onFieldFocus} onBlur={onFieldBlur}
-                                    placeholder={`Enter ${f.name.toLowerCase()}`} style={{ ...controlStyle, width: 220 }} />
-                                )}
-
-                                {/* ── Number ── */}
-                                {f.fieldType === "Number" && (
-                                  <input type="number" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
-                                    onFocus={onFieldFocus} onBlur={onFieldBlur}
-                                    placeholder="0" style={{ ...controlStyle, width: 140 }} />
-                                )}
-
-                                {/* ── Date ── */}
-                                {f.fieldType === "Date" && (
-                                  <input type="date" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
-                                    onFocus={onFieldFocus} onBlur={onFieldBlur}
-                                    style={{ ...controlStyle, width: 160 }} />
-                                )}
-
-                                {/* ── Dropdown (falls back to free text if the template has no options configured) ── */}
-                                {f.fieldType === "Dropdown" && (
-                                  Array.isArray(f.options) && f.options.length > 0 ? (
-                                    <div style={{ position: "relative", width: 180 }}>
-                                      <select value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
-                                        onFocus={onFieldFocus} onBlur={onFieldBlur}
-                                        style={{ ...controlStyle, width: "100%", padding: "8px 28px 8px 12px", appearance: "none", WebkitAppearance: "none", MozAppearance: "none" }}>
-                                        <option value="" disabled>Select…</option>
-                                        {f.options.map(o => <option key={o} value={o}>{o}</option>)}
-                                      </select>
-                                      <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                                        <Icon.Chevron size={14} />
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <input type="text" value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)}
-                                      onFocus={onFieldFocus} onBlur={onFieldBlur}
-                                      placeholder="Enter value" style={{ ...controlStyle, width: 220 }} />
-                                  )
-                                )}
-
-                                {/* ── Checkbox ── */}
-                                {f.fieldType === "Checkbox" && (
-                                  isChoiceCheckbox ? (
-                                    isMultiCheckbox ? (
-                                      // Multiple selection — checkbox group, value is an array of chosen options
-                                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                        {f.options.map(opt => {
-                                          const arr = Array.isArray(val) ? val : [];
-                                          const checked = arr.includes(opt);
-                                          return (
-                                            <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
-                                              <input
-                                                type="checkbox"
-                                                checked={checked}
-                                                onChange={e => {
-                                                  const next = e.target.checked ? [...arr, opt] : arr.filter(o => o !== opt);
-                                                  handleWizardFieldChange(f.id, next);
-                                                }}
-                                                style={{ width: 15, height: 15, accentColor: "#7c3aed" }}
-                                              />
-                                              {opt}
-                                            </label>
-                                          );
-                                        })}
-                                      </div>
-                                    ) : (
-                                      // Single selection — radio group, value is one option string
-                                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                        {f.options.map(opt => (
-                                          <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
-                                            <input
-                                              type="radio"
-                                              name={`field-${f.id}`}
-                                              checked={val === opt}
-                                              onChange={() => handleWizardFieldChange(f.id, opt)}
-                                              style={{ width: 15, height: 15, accentColor: "#7c3aed" }}
-                                            />
-                                            {opt}
-                                          </label>
-                                        ))}
-                                      </div>
-                                    )
-                                  ) : (
-                                    // Legacy Checkbox field with no choices configured — plain confirm toggle
-                                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#374151", cursor: "pointer" }}>
-                                      <input type="checkbox" checked={val === true} onChange={e => handleWizardFieldChange(f.id, e.target.checked)}
-                                        style={{ width: 15, height: 15, accentColor: "#7c3aed" }} />
-                                      Confirm
-                                    </label>
-                                  )
-                                )}
-
-                                {/* ── Text Area (full width, stacked below the label) ── */}
-                                {isTextArea && (
-                                  <textarea value={val} onChange={e => handleWizardFieldChange(f.id, e.target.value)} rows={3}
-                                    onFocus={onFieldFocus} onBlur={onFieldBlur}
-                                    placeholder={`Enter ${f.name.toLowerCase()}`}
-                                    style={{ ...controlStyle, width: "100%", resize: "vertical", fontFamily: "'DM Sans',sans-serif" }} />
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                        {otherFields.map((f, idx) => renderFieldRow(f, idx))}
                       </div>
                     )}
 
-                    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 14, background: "#faf5ff", borderRadius: 8, padding: "10px 12px" }}>
-                      <Icon.Tip />
-                      <p style={{ fontSize: 11, color: "#6b7280", margin: 0, lineHeight: 1.6 }}>
-                        These fields are pulled from the <strong>{selectedCategory ? selectedCategory.name : "selected"}</strong> template in Document Categories — edit them there to change what's asked for here.
-                      </p>
-                    </div>
+                    {selectedCategory && selectedFields.length > 0 && otherFields.length === 0 && (
+                      <div style={{ padding: "24px 18px", borderRadius: 10, background: "#fafafa", border: "1px dashed #e5e7eb", textAlign: "center" }}>
+                        <p style={{ fontSize: 12.5, color: "#9ca3af" }}>All fields for this form type are required attachments — see the panel below.</p>
+                      </div>
+                    )}
+
+                    {selectedCategory && selectedFields.length > 0 && (
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 14, background: "#faf5ff", borderRadius: 8, padding: "10px 12px" }}>
+                        <Icon.Tip />
+                        <p style={{ fontSize: 11, color: "#6b7280", margin: 0, lineHeight: 1.6 }}>
+                          These fields are pulled from the <strong>{selectedCategory.name}</strong> template in Document Categories — edit them there to change what's asked for here.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* ── STEP 3: ADDITIONAL INFORMATION ── */}
+              {/* ── STEP 3: REQUIRED ATTACHMENTS (dedicated panel for mandatory File Upload fields) ── */}
               <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: "0 4px 12px rgba(124,58,237,0.05)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #f3f4f6", paddingBottom: 12, marginBottom: 16 }}>
                   <Icon.AttachFile />
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>Additional Information</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>Required Attachments</h3>
                 </div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                   <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 12, color: "#888", margin: "0 0 18px" }}>
+                      {selectedCategory ? "These documents are mandatory — the form can't be submitted until each one is attached." : "Select a form type in Step 1 to see which documents are required."}
+                    </p>
+
+                    {!selectedCategory && (
+                      <div style={{ padding: "24px 18px", borderRadius: 10, background: "#fafafa", border: "1px dashed #e5e7eb", textAlign: "center" }}>
+                        <p style={{ fontSize: 12.5, color: "#9ca3af" }}>No form type selected yet.</p>
+                      </div>
+                    )}
+
+                    {selectedCategory && requiredFileFields.length === 0 && (
+                      <div style={{ padding: "24px 18px", borderRadius: 10, background: "#fafafa", border: "1px dashed #e5e7eb", textAlign: "center" }}>
+                        <p style={{ fontSize: 12.5, color: "#9ca3af" }}>This form type has no required attachments.</p>
+                      </div>
+                    )}
+
+                    {selectedCategory && requiredFileFields.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {requiredFileFields.map((f, idx) => renderFieldRow(f, idx))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ── STEP 4: ADDITIONAL INFORMATION ── */}
+              <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: "0 4px 12px rgba(124,58,237,0.05)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #f3f4f6", paddingBottom: 12, marginBottom: 16 }}>
+                  <Icon.Notes />
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>Additional Information</h3>
+                </div>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7c3aed", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>4</div>
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 12, color: "#888", margin: "0 0 16px" }}>Provide any extra context for the program chair.</p>
 
@@ -1026,13 +1077,21 @@ export default function Forms() {
             <div style={{ position: "sticky", top: 20 }}>
               <div style={{ background: "white", border: "1px solid #f3f4f6", borderRadius: 16, padding: 20, boxShadow: "0 4px 12px rgba(124,58,237,0.05)" }}>
                 <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "0 0 2px" }}>Submission Summary</h3>
-                <p style={{ fontSize: 11, color: "#888", margin: "0 0 14px" }}>Step 3: Review details</p>
+                <p style={{ fontSize: 11, color: "#888", margin: "0 0 14px" }}>Step 4: Review details</p>
 
                 <div style={{ display: "flex", flexDirection: "column", marginBottom: 16 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
                     <span style={{ fontSize: 11, color: "#6b7280" }}>Form Type</span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: wizardFormType ? "#7c3aed" : "#9ca3af" }}>{wizardFormType || "Not selected"}</span>
                   </div>
+                  {requiredFileFields.length > 0 && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
+                      <span style={{ fontSize: 11, color: "#6b7280" }}>Attachments</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: wizardAttachmentsCompleteCount === requiredFileFields.length ? "#059669" : "#111" }}>
+                        {wizardAttachmentsCompleteCount} of {requiredFileFields.length} Files
+                      </span>
+                    </div>
+                  )}
                   {[
                     ["Required Fields", wizardRequiredCount],
                     ["Completed", wizardUploadedCount],
