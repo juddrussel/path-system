@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
@@ -51,42 +51,63 @@ async function apiFetch(path, options = {}) {
   return res.json();
 }
 
-// ─── ACTION PILL ──────────────────────────────────────────────────────────────
-const ACTION_STYLES = {
-  DOCUMENT_CREATE: "bg-violet-100 text-violet-700",
-  REGISTER: "bg-violet-100 text-violet-700",
-  DOCUMENT_UPDATE: "bg-blue-100 text-blue-800",
-  DOCUMENT_DELETE: "bg-[#1e1b2e] text-purple-300",
-  ATTACHMENT_DELETE: "bg-[#1e1b2e] text-purple-300",
-  USER_DELETE: "bg-[#1e1b2e] text-purple-300",
-  DOCUMENT_DRAFT: "bg-gray-100 text-gray-700",
-  LOGOUT: "bg-gray-100 text-gray-700",
-  DOCUMENT_REGISTER: "bg-emerald-100 text-emerald-800",
-  USER_APPROVE: "bg-emerald-100 text-emerald-800",
-  LOGIN_SUCCESS: "bg-emerald-100 text-emerald-800",
-  ATTACHMENT_UPLOAD: "bg-amber-100 text-amber-800",
-  ATTACHMENT_RENAME: "bg-amber-100 text-amber-800",
-  USER_REJECT: "bg-red-100 text-red-700",
-  USER_CREATE: "bg-violet-100 text-violet-700",
-  LOGIN_FAIL: "bg-red-100 text-red-700",
+// ─── ACTIVITY TYPE META (icon + short label per action code) ─────────────────
+const ACTIVITY_META = {
+  LOGIN_SUCCESS: { icon: "login", label: "Login" },
+  LOGIN_FAIL: { icon: "key", label: "Login" },
+  LOGOUT: { icon: "logout", label: "Logout" },
+  REGISTER: { icon: "person_add", label: "Registration" },
+  DOCUMENT_CREATE: { icon: "description", label: "Document Created" },
+  DOCUMENT_REGISTER: { icon: "description", label: "Registration" },
+  DOCUMENT_UPDATE: { icon: "edit_document", label: "Update" },
+  DOCUMENT_DRAFT: { icon: "draft", label: "Draft Saved" },
+  DOCUMENT_DELETE: { icon: "delete", label: "Deletion" },
+  ATTACHMENT_UPLOAD: { icon: "upload_file", label: "Upload" },
+  ATTACHMENT_RENAME: { icon: "drive_file_rename_outline", label: "Rename" },
+  ATTACHMENT_DELETE: { icon: "delete", label: "Deletion" },
+  USER_CREATE: { icon: "person_add", label: "User Created" },
+  USER_APPROVE: { icon: "how_to_reg", label: "Approval" },
+  USER_REJECT: { icon: "person_remove", label: "Rejection" },
+  USER_DELETE: { icon: "person_remove", label: "Deletion" },
 };
 
-function ActionPill({ action }) {
-  const cls = ACTION_STYLES[action] || "bg-gray-100 text-gray-600";
-  return (
-    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wide whitespace-nowrap ${cls}`}>
-      {action}
-    </span>
-  );
+function prettifyAction(action) {
+  if (!action) return "Activity";
+  return action
+    .toLowerCase()
+    .split("_")
+    .map(w => w[0].toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function activityMeta(action) {
+  return ACTIVITY_META[action] || { icon: "history", label: prettifyAction(action) };
+}
+
+function isFailedAction(action) {
+  return /FAIL|REJECT|DELETE/i.test(action || "");
+}
+
+// ─── ROLE LABELS ──────────────────────────────────────────────────────────────
+const ROLE_LABELS = {
+  admin: "Administrator",
+  program_chair: "Program Chair",
+  faculty: "Faculty",
+  staff: "Staff",
+  dept_chair: "Dept. Chair",
+};
+function formatRole(role) {
+  if (!role) return "—";
+  return ROLE_LABELS[role] || prettifyAction(role);
 }
 
 // ─── AVATAR ───────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
-  ["#ede9fe", "#5b21b6"], ["#dbeafe", "#1d4ed8"], ["#d1fae5", "#065f46"],
-  ["#fef3c7", "#92400e"], ["#fce7f3", "#9d174d"], ["#e0f2fe", "#0369a1"],
+  ["#e9ddff", "#5a00c6"], ["#e7deff", "#4a3d7c"], ["#eaddff", "#5516be"],
+  ["#dad6ff", "#2d2a5b"], ["#f6f2ff", "#6b38d4"], ["#efebff", "#5f5293"],
 ];
 function Avatar({ firstName = "", lastName = "", avatarUrl }) {
-  const i = ((firstName.charCodeAt(0) || 0)) % AVATAR_COLORS.length;
+  const i = (firstName.charCodeAt(0) || 0) % AVATAR_COLORS.length;
   const [bg, color] = AVATAR_COLORS[i];
   const ini = `${firstName[0] || ""}${lastName[0] || ""}`.toUpperCase() || "?";
   const src = fullAvatarUrl(avatarUrl);
@@ -95,14 +116,14 @@ function Avatar({ firstName = "", lastName = "", avatarUrl }) {
       <img
         src={src}
         alt={ini}
-        className="inline-flex w-6 h-6 rounded-full object-cover shrink-0 border border-gray-100"
+        className="inline-flex w-8 h-8 rounded-full object-cover shrink-0 border border-[#cbc3d7]"
         onError={e => { e.currentTarget.style.display = "none"; }}
       />
     );
   }
   return (
     <span
-      className="inline-flex items-center justify-center w-6 h-6 rounded-full text-[9px] font-bold shrink-0"
+      className="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold shrink-0"
       style={{ background: bg, color }}
     >
       {ini}
@@ -121,155 +142,93 @@ function timeSince(iso) {
 
 function fmtDate(iso) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " UTC";
 }
 
-// ─── STAT CARD ────────────────────────────────────────────────────────────────
-function StatCard({ label, value, delta, iconBg, icon }) {
+// ─── PAGE NUMBER LIST (with ellipses) ─────────────────────────────────────────
+function getPageList(current, total) {
+  if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+  const keep = new Set([1, 2, total - 1, total, current - 1, current, current + 1]);
+  const arr = Array.from(keep).filter(p => p >= 1 && p <= total).sort((a, b) => a - b);
+  const out = [];
+  let prev = 0;
+  for (const p of arr) {
+    if (p - prev > 1) out.push("…");
+    out.push(p);
+    prev = p;
+  }
+  return out;
+}
+
+// ─── CSV EXPORT ───────────────────────────────────────────────────────────────
+function exportCSV(rows, page) {
+  const header = ["Timestamp", "User", "Username", "Role", "Activity Type", "Action Performed", "IP Address"];
+  const escape = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const body = rows.map(l => [
+    fmtDate(l.timestamp),
+    l.user?.full_name || l.user?.username || "System",
+    l.user?.username || "",
+    formatRole(l.user?.role),
+    activityMeta(l.action).label,
+    l.detail || "",
+    l.ip_address || "",
+  ].map(escape).join(","));
+  const csv = [header.map(escape).join(","), ...body].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `audit-log-page-${page}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// ─── STAT CARD (bento style) ──────────────────────────────────────────────────
+function StatCard({ label, value, delta, deltaTone = "neutral", accent, icon, danger }) {
+  const deltaColor = deltaTone === "up" ? "text-[#6b38d4]" : deltaTone === "down" ? "text-[#ba1a1a]" : "text-[#494454]";
   return (
-    <div className="bg-violet-50/60 rounded-xl px-4 py-3.5 relative overflow-hidden">
-      <div className="text-xs text-gray-400 mb-1">{label}</div>
-      <div className="text-2xl font-bold text-gray-900">{value ?? "—"}</div>
-      <div className="text-xs text-gray-400 mt-1">{delta}</div>
-      <div className={`absolute right-3 top-3 w-8 h-8 rounded-full flex items-center justify-center ${iconBg}`}>{icon}</div>
+    <div className={`bg-white border ${danger ? "border-[#ba1a1a]/20" : "border-[#cbc3d7]"} rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_12px_24px_-12px_rgba(107,56,212,0.15)] transition-all duration-300`}>
+      <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-2xl transition-colors ${accent}`} />
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <span className="text-[11px] font-medium text-[#494454] uppercase tracking-wider">{label}</span>
+        <span className={`material-symbols-outlined text-[20px] ${danger ? "text-[#ba1a1a]" : "text-[#7b7486]"}`}>{icon}</span>
+      </div>
+      <div className="relative z-10">
+        <span className={`block text-4xl font-bold leading-tight ${danger ? "text-[#ba1a1a]" : "text-[#181445]"}`}>{value ?? "—"}</span>
+        {delta && (
+          <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${deltaColor}`}>
+            {deltaTone !== "neutral" && (
+              <span className="material-symbols-outlined text-[14px]">{deltaTone === "up" ? "trending_up" : "error"}</span>
+            )}
+            <span>{delta}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-// ─── ICONS ────────────────────────────────────────────────────────────────────
-const ShieldIcon = () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" /></svg>;
-const UsersIcon = () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-5 5-5s5 2 5 5" /><path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" /></svg>;
-const SearchIcon = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6.5" cy="6.5" r="4.5" /><path d="M10.5 10.5L14 14" strokeLinecap="round" /></svg>;
-const FilterIcon = () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z" /></svg>;
+// ─── SMALL ICONS ──────────────────────────────────────────────────────────────
+const SearchIcon = () => <span className="material-symbols-outlined text-[18px]">search</span>;
 const Spinner = () => <svg className="animate-spin" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><circle cx="8" cy="8" r="6" strokeOpacity=".25" /><path d="M14 8a6 6 0 00-6-6" strokeLinecap="round" /></svg>;
-
-// ─── SIDEBAR ICONS ────────────────────────────────────────────────────────────
-const Icon = {
-  Grid: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <rect x="1" y="1" width="6" height="6" rx="1" />
-      <rect x="9" y="1" width="6" height="6" rx="1" />
-      <rect x="1" y="9" width="6" height="6" rx="1" />
-      <rect x="9" y="9" width="6" height="6" rx="1" />
-    </svg>
-  ),
-  Inbox: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" />
-    </svg>
-  ),
-  Plus: ({ color = "currentColor", size = 14 }) => (
-    <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" width={size} height={size}>
-      <path d="M8 1v14M1 8h14" />
-    </svg>
-  ),
-  Tasks: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" />
-    </svg>
-  ),
-  Workflow: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <circle cx="8" cy="8" r="3" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  ),
-  Reports: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" />
-    </svg>
-  ),
-  Forms: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" />
-    </svg>
-  ),
-  Users: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <circle cx="6" cy="5" r="3" />
-      <path d="M1 14c0-3 2-5 5-5s5 2 5 5" />
-      <path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" />
-    </svg>
-  ),
-  Shield: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" />
-    </svg>
-  ),
-  Settings: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <circle cx="8" cy="8" r="2" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  ),
-  Help: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="7" />
-      <path d="M8 7v4M8 5v1" />
-    </svg>
-  ),
-  Logout: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
-    </svg>
-  ),
-  Search: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
-      <circle cx="6.5" cy="6.5" r="4.5" />
-      <path d="M10.5 10.5L14 14" strokeLinecap="round" />
-    </svg>
-  ),
-  Download: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="1.5" width="12" height="12">
-      <path d="M8 1v9M4 7l4 4 4-4M2 13h12" />
-    </svg>
-  ),
-  AssignTask: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
-      <path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" />
-      <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  ),
-  Tracking: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>
-  ),
-  Categories: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" />
-      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" />
-    </svg>
-  ),
-  SLA: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-};
 
 // ─── ACCESS DENIED SCREEN ─────────────────────────────────────────────────────
 function AccessDenied({ onBack }) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 py-24 gap-4">
-      <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" width="28" height="28">
-          <path d="M12 2L3 7v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V7L12 2z" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M12 8v4M12 16h.01" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+      <div className="w-14 h-14 rounded-full bg-[#ba1a1a]/10 flex items-center justify-center">
+        <span className="material-symbols-outlined text-[#ba1a1a] text-[28px]">shield</span>
       </div>
       <div className="text-center">
-        <h2 className="text-base font-bold text-gray-900">Access Restricted</h2>
-        <p className="text-xs text-gray-500 mt-1">You don't have permission to view the audit trail.</p>
-        <p className="text-xs text-gray-400 mt-0.5">This page is only accessible to Admins and Program Chairs.</p>
+        <h2 className="text-base font-bold text-[#181445]">Access Restricted</h2>
+        <p className="text-xs text-[#494454] mt-1">You don't have permission to view the audit trail.</p>
+        <p className="text-xs text-[#7b7486] mt-0.5">This page is only accessible to Admins and Program Chairs.</p>
       </div>
       <button
         onClick={onBack}
-        className="mt-2 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700"
+        className="mt-2 px-4 py-2 rounded-lg text-xs font-bold bg-[#6b38d4] text-white hover:bg-[#6b38d4]/90"
       >
         ← Back to Dashboard
       </button>
@@ -294,12 +253,17 @@ export default function AuditTrail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Filters
+  // Server-side filters
   const [filterAction, setFilterAction] = useState("");
-  const [filterDocument, setFilterDocument] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filterQ, setFilterQ] = useState("");
-  const [search, setSearch] = useState(""); // topbar search
+
+  // Client-side filters (scoped to the current page of results)
+  const [filterUser, setFilterUser] = useState("");
+  const [filterRole, setFilterRole] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [search, setSearch] = useState(""); // topbar quick search
+
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 10;
 
@@ -309,9 +273,6 @@ export default function AuditTrail() {
   };
 
   // ── Fetch (only runs when role is allowed) ─────────────────────────────────
-  // Server-side pagination: the backend defaults to limit=20 per page if we
-  // don't say otherwise, so we explicitly pass page/limit and read back the
-  // real total row count instead of assuming the whole log fits in one batch.
   const fetchData = useCallback(async () => {
     if (!canViewAudit) return;
     setLoading(true);
@@ -319,7 +280,6 @@ export default function AuditTrail() {
     try {
       const params = new URLSearchParams();
       if (filterAction) params.set("action", filterAction);
-      if (filterDocument) params.set("document", filterDocument);
       if (filterDate) params.set("date", filterDate);
       if (filterQ) params.set("q", filterQ);
       params.set("page", String(page));
@@ -340,57 +300,93 @@ export default function AuditTrail() {
     } finally {
       setLoading(false);
     }
-  }, [filterAction, filterDocument, filterDate, filterQ, page, canViewAudit]);
+  }, [filterAction, filterDate, filterQ, page, canViewAudit]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // ── Client-side topbar search (further narrows the current page only) ──────
+  // ── Options for the User / Role selects, derived from the loaded page ──────
+  const userOptions = useMemo(() => {
+    const map = new Map();
+    logs.forEach(l => {
+      if (l.user?.username) map.set(l.user.username, l.user.full_name || l.user.username);
+    });
+    return Array.from(map.entries());
+  }, [logs]);
+
+  const roleOptions = useMemo(
+    () => Array.from(new Set(logs.map(l => l.user?.role).filter(Boolean))),
+    [logs]
+  );
+
+  // ── Client-side narrowing (search, user, role, status) on the current page ─
   const displayed = logs.filter(l => {
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return (
-      l.action?.toLowerCase().includes(q) ||
-      l.detail?.toLowerCase().includes(q) ||
-      l.user?.username?.toLowerCase().includes(q) ||
-      l.user?.full_name?.toLowerCase().includes(q) ||
-      String(l.document_id || "").includes(q)
-    );
+    if (search) {
+      const q = search.toLowerCase();
+      const matches =
+        l.action?.toLowerCase().includes(q) ||
+        l.detail?.toLowerCase().includes(q) ||
+        l.user?.username?.toLowerCase().includes(q) ||
+        l.user?.full_name?.toLowerCase().includes(q) ||
+        String(l.document_id || "").includes(q);
+      if (!matches) return false;
+    }
+    if (filterUser && l.user?.username !== filterUser) return false;
+    if (filterRole && l.user?.role !== filterRole) return false;
+    if (filterStatus) {
+      const failed = isFailedAction(l.action);
+      if (filterStatus === "failed" && !failed) return false;
+      if (filterStatus === "success" && failed) return false;
+    }
+    return true;
   });
 
-  const hasFilters = filterAction || filterDocument || filterDate || filterQ;
+  const hasFilters = filterAction || filterDate || filterQ || filterUser || filterRole || filterStatus;
+
+  const clearFilters = () => {
+    setFilterAction("");
+    setFilterDate("");
+    setFilterQ("");
+    setFilterUser("");
+    setFilterRole("");
+    setFilterStatus("");
+  };
 
   // Reset to page 1 whenever a server-side filter changes (new result set)
-  useEffect(() => { setPage(1); }, [filterAction, filterDocument, filterDate, filterQ]);
+  useEffect(() => { setPage(1); }, [filterAction, filterDate, filterQ]);
 
   const pageItems = displayed;
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-gray-50" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
+    <div className="flex min-h-screen bg-[#fcf8ff]" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; vertical-align: middle; }
+      `}</style>
 
       <Sidebar activePage="audit" />
 
       {/* ── MAIN ── */}
-      <main className="flex-1 flex flex-col bg-white min-w-0">
+      <main className="flex-1 flex flex-col bg-[#fcf8ff] min-w-0">
 
         {/* Topbar */}
         <TopBar onLogout={handleLogout}>
           <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">
+            <div className="flex-1 flex items-center gap-2 bg-[#f6f2ff] border border-[#cbc3d7] rounded-lg px-3 py-1.5">
               <SearchIcon />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search tracking #, user, keyword..."
-                className="bg-transparent outline-none text-xs text-gray-700 w-full placeholder:text-gray-400"
+                className="bg-transparent outline-none text-xs text-[#181445] w-full placeholder:text-[#7b7486]"
               />
             </div>
             <button
               onClick={() => navigate("/documents/new")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#6b38d4] text-white hover:bg-[#6b38d4]/90 whitespace-nowrap"
             >
-              <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="1.5" width="11" height="11"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" /></svg>
+              <span className="material-symbols-outlined text-[14px]">upload_file</span>
               Intake Document
             </button>
           </div>
@@ -401,241 +397,307 @@ export default function AuditTrail() {
           <AccessDenied onBack={() => navigate("/dashboard")} />
         ) : (
           /* ── AUTHORIZED CONTENT ── */
-          <div className="flex flex-col gap-4 p-5 overflow-y-auto flex-1">
+          <div className="flex flex-col gap-6 p-8 overflow-y-auto flex-1">
 
             {/* Page header */}
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Audit Trail &amp; Versions</h1>
-                <p className="text-xs text-gray-500 mt-0.5">Comprehensive activity monitoring for all system events.</p>
+                <h1 className="text-[32px] leading-10 font-semibold text-[#181445] tracking-tight">Audit Logs</h1>
+                <p className="text-sm text-[#494454] mt-2">Monitor and track all activities performed within the system.</p>
               </div>
-              <button onClick={() => navigate("/dashboard")} className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
-                ← Back to Dashboard
-              </button>
-            </div>
-
-            {/* Stat cards */}
-            <div className="grid grid-cols-4 gap-3">
-              <StatCard
-                label="Total Logs (Today)" value={stats.total_today ?? "—"}
-                delta={stats.total_yesterday > 0 ? `vs ${stats.total_yesterday} yesterday` : "No data yesterday"}
-                iconBg="bg-violet-100"
-                icon={<svg viewBox="0 0 16 16" fill="#7c3aed" width="14" height="14"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" /></svg>}
-              />
-              <StatCard
-                label="Security Events (Today)" value={stats.security_events ?? "—"}
-                delta="Deletions &amp; login fails"
-                iconBg="bg-red-100"
-                icon={<svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" /></svg>}
-              />
-              <StatCard
-                label="Total Log Entries" value={stats.total ?? totalLogs}
-                delta="All-time count"
-                iconBg="bg-emerald-100"
-                icon={<svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="1.5" width="14" height="14"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>}
-              />
-              <StatCard
-                label="Retention Period" value="365d"
-                delta="Compliance policy"
-                iconBg="bg-amber-100"
-                icon={<svg viewBox="0 0 16 16" fill="none" stroke="#d97706" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l2 2" strokeLinecap="round" /></svg>}
-              />
-            </div>
-
-            {/* Filters bar */}
-            <div className="flex items-center gap-2 flex-wrap bg-white border border-gray-200 rounded-xl px-3.5 py-2.5">
-              <FilterIcon />
-              <span className="text-xs font-bold text-gray-700">Filters</span>
-
-              {/* Action */}
-              <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
-                <span>Action</span>
-                <select
-                  value={filterAction}
-                  onChange={e => setFilterAction(e.target.value)}
-                  className="border-none bg-transparent text-xs text-gray-800 outline-none cursor-pointer"
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="flex items-center gap-2 px-4 py-2 border border-[#cbc3d7] text-[#181445] text-sm font-medium rounded-lg hover:bg-[#efebff] transition-colors"
                 >
-                  <option value="">All</option>
-                  {actions.map(a => <option key={a} value={a}>{a}</option>)}
-                </select>
+                  <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                  Dashboard
+                </button>
+                <button
+                  onClick={fetchData}
+                  disabled={loading}
+                  className="flex items-center gap-2 px-4 py-2 border border-[#cbc3d7] text-[#181445] text-sm font-medium rounded-lg hover:bg-[#efebff] transition-colors disabled:opacity-50"
+                >
+                  <span className={`material-symbols-outlined text-[18px] ${loading ? "animate-spin" : ""}`}>refresh</span>
+                  Refresh
+                </button>
+                <button
+                  onClick={() => exportCSV(pageItems, page)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-[#6b38d4] border border-[#d0bcff] text-sm font-medium rounded-lg hover:bg-[#6b38d4]/5 transition-colors shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[18px]">download</span>
+                  Export Logs
+                </button>
               </div>
+            </div>
 
-              {/* Document */}
-              <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
-                <span>Document ID</span>
-                <input
-                  type="text"
-                  value={filterDocument}
-                  onChange={e => setFilterDocument(e.target.value)}
-                  placeholder="e.g. 42"
-                  className="border-none bg-transparent text-xs text-gray-800 outline-none w-16"
-                />
-              </div>
+            {/* Summary Cards (Bento Grid) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard
+                label="Total Log Entries"
+                value={(stats.total ?? totalLogs)?.toLocaleString?.() ?? (stats.total ?? totalLogs)}
+                delta={stats.total_yesterday > 0 ? `vs ${stats.total_yesterday.toLocaleString()} yesterday` : "All-time count"}
+                deltaTone="up"
+                accent="bg-[#6b38d4]/5 group-hover:bg-[#6b38d4]/10"
+                icon="database"
+              />
+              <StatCard
+                label="Activities Today"
+                value={stats.total_today ?? "—"}
+                delta={stats.avg_per_hour ? `Avg ${stats.avg_per_hour}/hour` : "Since midnight"}
+                deltaTone="neutral"
+                accent="bg-[#5f5293]/5 group-hover:bg-[#5f5293]/10"
+                icon="history"
+              />
+              <StatCard
+                label="Active Users Today"
+                value={stats.active_users_today ?? "—"}
+                delta={stats.active_users_yesterday != null ? `vs ${stats.active_users_yesterday} yesterday` : "Unique sign-ins"}
+                deltaTone="up"
+                accent="bg-[#712ae2]/5 group-hover:bg-[#712ae2]/10"
+                icon="group"
+              />
+              <StatCard
+                label="Failed Activities"
+                value={stats.security_events ?? "—"}
+                delta="Requires attention"
+                deltaTone="down"
+                danger
+                accent="bg-[#ba1a1a]/5 group-hover:bg-[#ba1a1a]/10"
+                icon="warning"
+              />
+            </div>
 
-              {/* Date */}
-              <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
-                <span>Date</span>
+            {/* Search and Filter Toolbar */}
+            <div className="bg-white border border-[#cbc3d7] rounded-lg p-4 shadow-sm flex flex-col xl:flex-row gap-4 items-center">
+              <div className="w-full xl:w-1/3 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="material-symbols-outlined text-[#7b7486] text-[20px]">search</span>
+                </div>
                 <input
-                  type="date"
-                  value={filterDate}
-                  onChange={e => setFilterDate(e.target.value)}
-                  className="border-none bg-transparent text-xs text-gray-800 outline-none cursor-pointer"
-                />
-              </div>
-
-              {/* Quick search */}
-              <div className="flex-1 flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
-                <SearchIcon />
-                <input
-                  type="text"
                   value={filterQ}
                   onChange={e => setFilterQ(e.target.value)}
-                  placeholder="Quick search events..."
-                  className="border-none bg-transparent text-xs text-gray-800 outline-none w-full"
+                  placeholder="Search by activity, user, or IP..."
+                  className="block w-full pl-10 pr-3 py-2 border border-[#cbc3d7] rounded-md bg-[#fcf8ff] text-sm text-[#181445] focus:outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] h-[40px]"
                 />
               </div>
 
-              {/* Clear */}
-              {hasFilters && (
+              <div className="w-full xl:w-2/3 flex flex-wrap lg:flex-nowrap gap-3 items-center">
+                {/* User Filter */}
+                <div className="relative flex-1 min-w-[140px]">
+                  <select
+                    value={filterUser}
+                    onChange={e => setFilterUser(e.target.value)}
+                    className="block w-full pl-3 pr-10 py-2 border border-[#cbc3d7] rounded-md bg-[#fcf8ff] text-sm text-[#181445] focus:outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] appearance-none h-[40px] cursor-pointer"
+                  >
+                    <option value="">All Users</option>
+                    {userOptions.map(([username, name]) => (
+                      <option key={username} value={username}>{name}</option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <span className="material-symbols-outlined text-[#7b7486] text-[20px]">expand_more</span>
+                  </div>
+                </div>
+
+                {/* Role Filter */}
+                <div className="relative flex-1 min-w-[140px]">
+                  <select
+                    value={filterRole}
+                    onChange={e => setFilterRole(e.target.value)}
+                    className="block w-full pl-3 pr-10 py-2 border border-[#cbc3d7] rounded-md bg-[#fcf8ff] text-sm text-[#181445] focus:outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] appearance-none h-[40px] cursor-pointer"
+                  >
+                    <option value="">All Roles</option>
+                    {roleOptions.map(r => (
+                      <option key={r} value={r}>{formatRole(r)}</option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <span className="material-symbols-outlined text-[#7b7486] text-[20px]">expand_more</span>
+                  </div>
+                </div>
+
+                {/* Activity Type Filter */}
+                <div className="relative flex-1 min-w-[140px]">
+                  <select
+                    value={filterAction}
+                    onChange={e => setFilterAction(e.target.value)}
+                    className="block w-full pl-3 pr-10 py-2 border border-[#cbc3d7] rounded-md bg-[#fcf8ff] text-sm text-[#181445] focus:outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] appearance-none h-[40px] cursor-pointer"
+                  >
+                    <option value="">Activity Type</option>
+                    {actions.map(a => <option key={a} value={a}>{activityMeta(a).label}</option>)}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <span className="material-symbols-outlined text-[#7b7486] text-[20px]">expand_more</span>
+                  </div>
+                </div>
+
+                {/* Status Filter */}
+                <div className="relative flex-1 min-w-[120px]">
+                  <select
+                    value={filterStatus}
+                    onChange={e => setFilterStatus(e.target.value)}
+                    className="block w-full pl-3 pr-10 py-2 border border-[#cbc3d7] rounded-md bg-[#fcf8ff] text-sm text-[#181445] focus:outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] appearance-none h-[40px] cursor-pointer"
+                  >
+                    <option value="">Status</option>
+                    <option value="success">Success</option>
+                    <option value="failed">Failed</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <span className="material-symbols-outlined text-[#7b7486] text-[20px]">expand_more</span>
+                  </div>
+                </div>
+
+                {/* Date */}
+                <div className="relative flex-1 min-w-[200px]">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="material-symbols-outlined text-[#7b7486] text-[20px]">calendar_today</span>
+                  </div>
+                  <input
+                    type="date"
+                    value={filterDate}
+                    onChange={e => setFilterDate(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-[#cbc3d7] rounded-md bg-[#fcf8ff] text-sm text-[#181445] focus:outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] h-[40px] cursor-pointer"
+                  />
+                </div>
+
+                {/* Clear Filters */}
                 <button
-                  onClick={() => { setFilterAction(""); setFilterDocument(""); setFilterDate(""); setFilterQ(""); }}
-                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-red-200 text-red-600 hover:bg-red-50"
+                  onClick={clearFilters}
+                  disabled={!hasFilters}
+                  title="Clear Filters"
+                  className="p-2 text-[#494454] hover:text-[#6b38d4] transition-colors hover:bg-[#6b38d4]/5 rounded-full disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  ✕ Clear
+                  <span className="material-symbols-outlined text-[20px]">filter_alt_off</span>
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-2.5 rounded-xl">{error}</div>
+              <div className="bg-[#ba1a1a]/5 border border-[#ba1a1a]/30 text-[#93000a] text-sm px-4 py-2.5 rounded-xl">{error}</div>
             )}
 
-            {/* Log table */}
-            <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
-              <div className="flex justify-between items-center px-4 py-3.5 border-b border-gray-100">
-                <div>
-                  <h2 className="text-sm font-bold text-gray-900">Activity Log</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">All system actions — documents, users, auth events</p>
-                </div>
-                <span className="text-xs text-gray-400">
-                  {loading ? "Loading…" : `${totalLogs} ${totalLogs === 1 ? "entry" : "entries"}`}
-                </span>
-              </div>
-
-              {loading ? (
-                <div className="flex items-center justify-center py-16 gap-2 text-gray-400 text-xs">
-                  <Spinner /> Loading audit log…
-                </div>
-              ) : (
-                <table className="w-full border-collapse text-xs" style={{ tableLayout: "fixed" }}>
+            {/* Audit Logs Table */}
+            <div className="bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-gray-50">
-                      {[
-                        ["Timestamp", "16%"],
-                        ["User", "17%"],
-                        ["Action", "18%"],
-                        ["Document", "14%"],
-                        ["Detail", "25%"],
-                        ["IP Address", "10%"],
-                      ].map(([h, w]) => (
-                        <th
-                          key={h}
-                          style={{ width: w }}
-                          className="text-[10px] text-gray-400 uppercase tracking-wide font-semibold px-4 py-2.5 text-left border-b border-gray-100"
-                        >
-                          {h}
-                        </th>
-                      ))}
+                    <tr className="bg-[#f6f2ff] border-b border-[#cbc3d7] text-[11px] text-[#494454] uppercase tracking-wider">
+                      <th className="px-6 py-4 font-medium">Timestamp</th>
+                      <th className="px-6 py-4 font-medium">User</th>
+                      <th className="px-6 py-4 font-medium">Role</th>
+                      <th className="px-6 py-4 font-medium">Activity Type</th>
+                      <th className="px-6 py-4 font-medium">Action Performed</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {displayed.length === 0 ? (
+                  <tbody className="divide-y divide-[#e3dfff] text-sm text-[#181445]">
+                    {loading ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12">
-                          <svg viewBox="0 0 40 40" fill="none" stroke="#d1d5db" strokeWidth="1.5" width="36" height="36" className="mx-auto mb-2">
-                            <path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" transform="translate(12 8) scale(1.1)" />
-                          </svg>
-                          <p className="text-gray-400 text-xs">No audit logs found.{hasFilters ? " Try clearing the filters." : ""}</p>
-                        </td>
-                      </tr>
-                    ) : pageItems.map(log => (
-                      <tr key={log.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
-
-                        {/* Timestamp */}
-                        <td className="px-4 py-2.5">
-                          <div className="text-[11px] font-bold text-gray-900">{timeSince(log.timestamp)}</div>
-                          <div className="text-[10px] text-gray-400">{fmtDate(log.timestamp)}</div>
-                        </td>
-
-                        {/* User */}
-                        <td className="px-4 py-2.5">
-                          <div className="flex items-center gap-1.5">
-                            <Avatar firstName={log.user?.first_name} lastName={log.user?.last_name} avatarUrl={log.user?.avatar_url} />
-                            <div>
-                              <div className="text-[11px] font-bold text-gray-900 leading-tight">
-                                {log.user?.full_name || log.user?.username || "System"}
-                              </div>
-                              <div className="text-[10px] text-gray-400">@{log.user?.username || "—"}</div>
-                            </div>
+                        <td colSpan={5} className="text-center py-16">
+                          <div className="flex items-center justify-center gap-2 text-[#7b7486] text-xs">
+                            <Spinner /> Loading audit log…
                           </div>
                         </td>
-
-                        {/* Action */}
-                        <td className="px-4 py-2.5">
-                          <ActionPill action={log.action} />
-                        </td>
-
-                        {/* Document */}
-                        <td className="px-4 py-2.5">
-                          {log.document_id ? (
-                            <span className="text-violet-600 font-bold text-[11px] cursor-pointer hover:underline"
-                              onClick={() => navigate(`/documents/${log.document_id}`)}>
-                              #{log.document_id}
-                            </span>
-                          ) : (
-                            <span className="text-[11px] text-gray-300 italic">—</span>
-                          )}
-                        </td>
-
-                        {/* Detail */}
-                        <td className="px-4 py-2.5 text-[11px] text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap" title={log.detail || ""}>
-                          {log.detail || "—"}
-                        </td>
-
-                        {/* IP */}
-                        <td className="px-4 py-2.5 text-[10px] text-gray-400 font-mono">
-                          {log.ip_address || "—"}
+                      </tr>
+                    ) : pageItems.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="text-center py-16">
+                          <span className="material-symbols-outlined text-[36px] text-[#cbc3d7] block mb-2">manage_search</span>
+                          <p className="text-[#7b7486] text-sm">No audit logs found.{hasFilters ? " Try clearing the filters." : ""}</p>
                         </td>
                       </tr>
-                    ))}
+                    ) : pageItems.map(log => {
+                      const meta = activityMeta(log.action);
+                      const failed = isFailedAction(log.action);
+                      return (
+                        <tr key={log.id} className="hover:bg-[#f6f2ff]/60 transition-colors group">
+                          {/* Timestamp */}
+                          <td className="px-6 py-4 whitespace-nowrap text-[#494454]">
+                            <div className="text-[10px] uppercase tracking-tighter opacity-70 mb-0.5">{timeSince(log.timestamp)}</div>
+                            <div className="text-sm">{fmtDate(log.timestamp)}</div>
+                          </td>
+
+                          {/* User */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <Avatar firstName={log.user?.first_name} lastName={log.user?.last_name} avatarUrl={log.user?.avatar_url} />
+                              <div>
+                                <div className="font-medium leading-tight">{log.user?.full_name || log.user?.username || "System"}</div>
+                                <div className="text-xs text-[#7b7486]">@{log.user?.username || "system"}</div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Role */}
+                          <td className="px-6 py-4 whitespace-nowrap text-[#494454]">{formatRole(log.user?.role)}</td>
+
+                          {/* Activity Type */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <span className={`material-symbols-outlined text-[18px] ${failed ? "text-[#ba1a1a]" : "text-[#7b7486]"}`}>{meta.icon}</span>
+                              <span className={failed ? "text-[#ba1a1a] font-medium" : ""}>{meta.label}</span>
+                            </div>
+                          </td>
+
+                          {/* Action Performed */}
+                          <td className="px-6 py-4 text-[#494454]">
+                            <span>{log.detail || "—"}</span>
+                            {log.document_id && (
+                              <button
+                                onClick={() => navigate(`/documents/${log.document_id}`)}
+                                className="ml-2 text-[#6b38d4] font-medium hover:underline"
+                              >
+                                #{log.document_id}
+                              </button>
+                            )}
+                            {log.ip_address && (
+                              <span className="block text-[10px] text-[#7b7486] font-mono mt-0.5">IP: {log.ip_address}</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
-              )}
+              </div>
 
-              <div className="flex items-center justify-between px-4 py-2.5 text-xs text-gray-400 border-t border-gray-50">
-                <span>
-                  Showing {totalLogs === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalLogs)} of {totalLogs} log {totalLogs === 1 ? "entry" : "entries"} · Logs are retained for 365 days per compliance policy.
+              {/* Pagination Footer */}
+              <div className="bg-white border-t border-[#cbc3d7] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <span className="text-sm text-[#494454]">
+                  Showing {totalLogs === 0 ? 0 : (page - 1) * PAGE_SIZE + 1} to {Math.min(page * PAGE_SIZE, totalLogs)} of {totalLogs.toLocaleString()} entries
                 </span>
-                {totalPages > 1 && (
-                  <div className="flex items-center gap-2 shrink-0 ml-4">
-                    <button
-                      onClick={() => setPage(p => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                      className="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      ← Previous
-                    </button>
-                    <span className="text-gray-400">Page {page} of {totalPages}</span>
-                    <button
-                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                      disabled={page === totalPages}
-                      className="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      Next →
-                    </button>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="px-3 py-1 border border-[#cbc3d7] rounded-md text-[#494454] hover:bg-[#f6f2ff] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  {getPageList(page, totalPages).map((p, idx) =>
+                    p === "…" ? (
+                      <span key={`dots-${idx}`} className="px-2 py-1 text-[#7b7486]">…</span>
+                    ) : (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={p === page
+                          ? "px-3 py-1 bg-[#6b38d4] text-white rounded-md"
+                          : "px-3 py-1 border border-[#cbc3d7] rounded-md text-[#494454] hover:bg-[#f6f2ff]"}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="px-3 py-1 border border-[#cbc3d7] rounded-md text-[#494454] hover:bg-[#f6f2ff] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -643,12 +705,12 @@ export default function AuditTrail() {
         )}
 
         {/* Footer */}
-        <footer className="flex justify-between items-center px-5 py-2.5 border-t border-gray-100 text-[10px] text-gray-400 bg-white">
+        <footer className="flex justify-between items-center px-8 py-2.5 border-t border-[#cbc3d7] text-[10px] text-[#7b7486] bg-white">
           <span>© 2026 PATH Document Management System. All rights reserved.</span>
           <div className="flex items-center gap-4">
             <span><span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1" />System Operational</span>
-            <a href="#" className="hover:text-gray-600">Privacy Policy</a>
-            <a href="#" className="hover:text-gray-600">Terms of Service</a>
+            <a href="#" className="hover:text-[#494454]">Privacy Policy</a>
+            <a href="#" className="hover:text-[#494454]">Terms of Service</a>
           </div>
         </footer>
       </main>
