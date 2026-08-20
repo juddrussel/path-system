@@ -1188,13 +1188,13 @@ export default function Forms() {
 
           {/* ── REVIEW QUEUE (Program Chair) / MY SUBMISSIONS (Faculty) ── */}
           {(activeTab === "history" || activeTab === "review") && (
-            <>
-            <div style={{ background: "white", border: "1px solid #ede9fe", borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 12px rgba(139,92,246,0.05)" }}>
-              <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
+            <div style={{ fontFamily: "'Inter', sans-serif" }}>
+            <div style={{ background: "white", border: "1px solid #cbc3d7", borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 12px rgba(139,92,246,0.05)" }}>
+              <div style={{ padding: "16px 24px", borderBottom: "1px solid #cbc3d7", background: "#fcf8ff" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <h3 style={{ fontSize: 15, fontWeight: 700, color: "#181445", margin: "0 0 2px" }}>
+                      <h3 style={{ fontSize: 14, fontWeight: 700, color: "#181445", margin: "0 0 2px" }}>
                         {isProgramChair ? "Review Queue" : "Document Repository"}
                       </h3>
                       {isProgramChair && stats.pending > 0 && (
@@ -1203,7 +1203,7 @@ export default function Forms() {
                         </span>
                       )}
                     </div>
-                    <p style={{ fontSize: 11, color: "#888", margin: 0 }}>
+                    <p style={{ fontSize: 12, color: "#7b7486", margin: 0 }}>
                       {isProgramChair
                         ? "Pending forms from faculty — review, approve, or reject below."
                         : "Track the status of all your submitted forms."}
@@ -1224,16 +1224,16 @@ export default function Forms() {
                   <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#7b7486" }}><Icon.Search /></span>
                   <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                     placeholder="Search forms by ID, title, or submitter..."
-                    style={{ width: "100%", padding: "9px 12px 9px 34px", border: "1px solid #cbc3d7", borderRadius: 10, fontSize: 12.5, color: "#181445", background: "#fcf8ff", fontFamily: "'DM Sans', sans-serif" }} />
+                    style={{ width: "100%", padding: "9px 12px 9px 34px", border: "1px solid #cbc3d7", borderRadius: 8, fontSize: 13, color: "#181445", background: "white", fontFamily: "'Inter', sans-serif" }} />
                 </div>
               </div>
 
               <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
                 <thead>
-                  <tr style={{ background: "#fcf8ff" }}>
+                  <tr style={{ background: "#f6f2ff" }}>
                     {["Document ID", "Name", "Category", "Filing Date", "Status", "Actions"].map((h, i) => (
-                      <th key={h} style={{ padding: "12px 20px", textAlign: i === 5 ? "right" : "left", fontSize: 11, fontWeight: 600, color: "#494454", borderBottom: "1px solid #e9ddff", whiteSpace: "nowrap" }}>{h}</th>
+                      <th key={h} style={{ padding: "16px 24px", textAlign: i === 5 ? "right" : "left", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "1px solid #cbc3d7", whiteSpace: "nowrap" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -1249,27 +1249,27 @@ export default function Forms() {
                       </td>
                     </tr>
                   ) : forms.map(row => (
-                    <tr key={row.id} className="group" style={{ borderBottom: "1px solid rgba(203,195,215,0.4)", transition: "background .15s" }}
+                    <tr key={row.id} className="group" style={{ borderBottom: "1px solid #e3dfff", transition: "background .15s" }}
                       onMouseEnter={e => e.currentTarget.style.background = "#f6f2ff"}
                       onMouseLeave={e => e.currentTarget.style.background = "white"}>
-                      <td style={{ padding: "13px 20px" }}>
+                      <td style={{ padding: "16px 24px" }}>
                         <span style={{ color: "#7b7486", fontWeight: 500, fontSize: 12, fontFamily: "monospace" }}>{row.tracking_id || row.id}</span>
                       </td>
-                      <td style={{ padding: "13px 20px" }}>
+                      <td style={{ padding: "16px 24px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <Avatar name={row.full_name || row.student_id || "?"} />
                           <div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "#181445" }}>{row.full_name}</div>
-                            <div style={{ fontSize: 11, color: "#9ca3af" }}>{row.student_id}</div>
+                            <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
+                            <div style={{ fontSize: 11, color: "#7b7486" }}>{row.student_id}</div>
                             {isProgramChair && row.submitter_name && (
-                              <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>by {row.submitter_name}</div>
+                              <div style={{ fontSize: 10, color: "#7b7486", marginTop: 1 }}>by {row.submitter_name}</div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "13px 20px", fontSize: 12, color: "#494454" }}>{row.category}</td>
-                      <td style={{ padding: "13px 20px", fontSize: 12, color: "#494454" }}>{row.filing_date}</td>
-                      <td style={{ padding: "13px 20px" }}>
+                      <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.category}</td>
+                      <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.filing_date}</td>
+                      <td style={{ padding: "16px 24px" }}>
                         <StatusBadge status={row.status} />
                         {!isProgramChair && row.status === "Revision" && row.review_note && (
                           <div style={{ marginTop: 5, background: "#fef9c3", border: "1px solid #fef08a", borderRadius: 6, padding: "5px 8px", maxWidth: 220 }}>
@@ -1280,7 +1280,7 @@ export default function Forms() {
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: "13px 20px" }}>
+                      <td style={{ padding: "16px 24px" }}>
                         <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                           {isProgramChair && (row.status === "Pending" || row.status === "Reviewing") && (
                             <button onClick={() => handleReview(row)}
@@ -1303,8 +1303,8 @@ export default function Forms() {
               </div>
 
               {/* Pagination */}
-              <div style={{ padding: "12px 20px", borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fcf8ff" }}>
-                <span style={{ fontSize: 11, color: "#7b7486" }}>Showing page {page} of {totalPages} ({stats.pending || 0} pending)</span>
+              <div style={{ padding: "16px 24px", borderTop: "1px solid #cbc3d7", display: "flex", justifyContent: "space-between", alignItems: "center", background: "white" }}>
+                <span style={{ fontSize: 14, color: "#494454" }}>Showing page {page} of {totalPages} ({stats.pending || 0} pending)</span>
                 <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                   <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: "4px 10px", border: "1px solid #cbc3d7", borderRadius: 8, background: "white", cursor: "pointer", fontSize: 12, color: "#494454" }}>Previous</button>
                   {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1).map(n => (
@@ -1317,11 +1317,11 @@ export default function Forms() {
 
             {/* ── EXISTING FORMS (Program Chair): full history, any status ── */}
             {isProgramChair && (
-              <div style={{ background: "white", border: "1px solid #ede9fe", borderRadius: 14, overflow: "hidden", marginTop: 20, boxShadow: "0 4px 12px rgba(139,92,246,0.05)" }}>
-                <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f3f4f6", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ background: "white", border: "1px solid #cbc3d7", borderRadius: 16, overflow: "hidden", marginTop: 20, boxShadow: "0 4px 12px rgba(139,92,246,0.05)" }}>
+                <div style={{ padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #cbc3d7", background: "#fcf8ff", flexWrap: "wrap", gap: 10 }}>
                   <div>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#181445", margin: "0 0 2px" }}>Existing Forms</h3>
-                    <p style={{ fontSize: 11, color: "#888", margin: 0 }}>Every form ever submitted, regardless of status — approved, rejected, or in progress.</p>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: "#181445", margin: "0 0 2px" }}>Existing Forms</h3>
+                    <p style={{ fontSize: 12, color: "#7b7486", margin: 0 }}>Every form ever submitted, regardless of status — approved, rejected, or in progress.</p>
                   </div>
                   <div style={{ position: "relative" }}>
                     <select value={allFormsStatusFilter} onChange={e => { setAllFormsStatusFilter(e.target.value); setAllFormsPage(1); }}
@@ -1335,9 +1335,9 @@ export default function Forms() {
                 <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
                   <thead>
-                    <tr style={{ background: "#fcf8ff" }}>
+                    <tr style={{ background: "#f6f2ff" }}>
                       {["Document ID", "Name", "Category", "Filing Date", "Status", "Submitted By"].map(h => (
-                        <th key={h} style={{ padding: "12px 20px", textAlign: "left", fontSize: 11, fontWeight: 600, color: "#494454", borderBottom: "1px solid #e9ddff", whiteSpace: "nowrap" }}>{h}</th>
+                        <th key={h} style={{ padding: "16px 24px", textAlign: "left", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "1px solid #cbc3d7", whiteSpace: "nowrap" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1351,25 +1351,25 @@ export default function Forms() {
                         </td>
                       </tr>
                     ) : allForms.map(row => (
-                      <tr key={row.id} style={{ borderBottom: "1px solid rgba(203,195,215,0.4)", transition: "background .15s" }}
+                      <tr key={row.id} style={{ borderBottom: "1px solid #e3dfff", transition: "background .15s" }}
                         onMouseEnter={e => e.currentTarget.style.background = "#f6f2ff"}
                         onMouseLeave={e => e.currentTarget.style.background = "white"}>
-                        <td style={{ padding: "13px 20px" }}>
+                        <td style={{ padding: "16px 24px" }}>
                           <span style={{ color: "#7b7486", fontWeight: 500, fontSize: 12, fontFamily: "monospace" }}>{row.tracking_id || row.id}</span>
                         </td>
-                        <td style={{ padding: "13px 20px" }}>
+                        <td style={{ padding: "16px 24px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <Avatar name={row.full_name || row.student_id || "?"} />
                             <div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "#181445" }}>{row.full_name}</div>
-                              <div style={{ fontSize: 11, color: "#9ca3af" }}>{row.student_id}</div>
+                              <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
+                              <div style={{ fontSize: 11, color: "#7b7486" }}>{row.student_id}</div>
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: "13px 20px", fontSize: 12, color: "#494454" }}>{row.category}</td>
-                        <td style={{ padding: "13px 20px", fontSize: 12, color: "#494454" }}>{row.filing_date}</td>
-                        <td style={{ padding: "13px 20px" }}><StatusBadge status={row.status} /></td>
-                        <td style={{ padding: "13px 20px", fontSize: 12, color: "#494454" }}>{row.submitter_name || "—"}</td>
+                        <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.category}</td>
+                        <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.filing_date}</td>
+                        <td style={{ padding: "16px 24px" }}><StatusBadge status={row.status} /></td>
+                        <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.submitter_name || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1377,8 +1377,8 @@ export default function Forms() {
                 </div>
 
                 {/* Pagination */}
-                <div style={{ padding: "12px 20px", borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fcf8ff" }}>
-                  <span style={{ fontSize: 11, color: "#7b7486" }}>Showing page {allFormsPage} of {allFormsTotalPages}</span>
+                <div style={{ padding: "16px 24px", borderTop: "1px solid #cbc3d7", display: "flex", justifyContent: "space-between", alignItems: "center", background: "white" }}>
+                  <span style={{ fontSize: 14, color: "#494454" }}>Showing page {allFormsPage} of {allFormsTotalPages}</span>
                   <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                     <button onClick={() => setAllFormsPage(p => Math.max(1, p - 1))} disabled={allFormsPage === 1} style={{ padding: "4px 10px", border: "1px solid #cbc3d7", borderRadius: 8, background: "white", cursor: "pointer", fontSize: 12, color: "#494454" }}>Previous</button>
                     {Array.from({ length: Math.min(allFormsTotalPages, 3) }, (_, i) => i + 1).map(n => (
@@ -1389,7 +1389,7 @@ export default function Forms() {
                 </div>
               </div>
             )}
-            </>
+            </div>
           )}
 
           {/* ── PROGRAM CHAIR: FORM TEMPLATES TAB ── */}
