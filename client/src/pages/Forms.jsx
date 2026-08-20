@@ -1281,9 +1281,11 @@ export default function Forms() {
                           <Avatar name={row.full_name || row.student_id || "?"} />
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
-                            <div style={{ fontSize: 11, color: "#7b7486" }}>{row.student_id}</div>
+                            {row.student_id && (
+                              <span style={{ display: "inline-block", fontSize: 10, fontWeight: 600, color: "#5f5293", background: "#e7deff", padding: "2px 6px", borderRadius: 999, marginTop: 2 }}>{row.student_id}</span>
+                            )}
                             {isProgramChair && row.submitter_name && (
-                              <div style={{ fontSize: 10, color: "#7b7486", marginTop: 1 }}>by {row.submitter_name}</div>
+                              <div style={{ fontSize: 10, color: "#7b7486", marginTop: 2 }}>by {row.submitter_name}</div>
                             )}
                           </div>
                         </div>
@@ -1383,7 +1385,9 @@ export default function Forms() {
                             <Avatar name={row.full_name || row.student_id || "?"} />
                             <div>
                               <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
-                              <div style={{ fontSize: 11, color: "#7b7486" }}>{row.student_id}</div>
+                              {row.student_id && (
+                                <span style={{ display: "inline-block", fontSize: 10, fontWeight: 600, color: "#5f5293", background: "#e7deff", padding: "2px 6px", borderRadius: 999, marginTop: 2 }}>{row.student_id}</span>
+                              )}
                             </div>
                           </div>
                         </td>
