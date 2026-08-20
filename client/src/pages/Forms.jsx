@@ -1288,8 +1288,8 @@ export default function Forms() {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.category}</td>
-                      <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.filing_date}</td>
+                      <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454" }}>{row.category}</td>
+                      <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454" }}>{row.filing_date}</td>
                       <td style={{ padding: "16px 24px" }}>
                         <StatusBadge status={row.status} />
                         {!isProgramChair && row.status === "Revision" && row.review_note && (
@@ -1387,10 +1387,10 @@ export default function Forms() {
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.category}</td>
-                        <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.filing_date}</td>
+                        <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454" }}>{row.category}</td>
+                        <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454" }}>{row.filing_date}</td>
                         <td style={{ padding: "16px 24px" }}><StatusBadge status={row.status} /></td>
-                        <td style={{ padding: "16px 24px", fontSize: 13, color: "#494454" }}>{row.submitter_name || "—"}</td>
+                        <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454" }}>{row.submitter_name || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
