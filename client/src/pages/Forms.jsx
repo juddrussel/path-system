@@ -905,10 +905,10 @@ export default function Forms() {
                   <span style={{ color: "#7c3aed", fontWeight: 700 }}>Submit Form</span>
                 </div>
               )}
-              <h1 style={{ fontSize: 26, fontWeight: 700, color: "#181445", margin: "0 0 4px", letterSpacing: "-0.01em" }}>
+              <h1 style={{ fontSize: 32, lineHeight: "40px", fontWeight: 600, color: "#181445", margin: 0, letterSpacing: "-0.025em" }}>
                 {activeTab === "submit" && !isProgramChair ? "Submit Form" : "Forms Management"}
               </h1>
-              <p style={{ fontSize: 13, color: "#494454", margin: 0 }}>
+              <p style={{ fontSize: 14, color: "#494454", margin: "8px 0 0" }}>
                 {activeTab === "submit" && !isProgramChair
                   ? "Complete the required information and submit your form for review."
                   : isProgramChair ? "Review, approve, and manage submitted student forms." : "Upload and submit student forms for program chair review."}
