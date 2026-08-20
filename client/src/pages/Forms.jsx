@@ -138,27 +138,48 @@ function Avatar({ name = "" }) {
   );
 }
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, delta, deltaType, icon, bg, iconColor }) {
-  const deltaColor = deltaType === "up" ? "#15803d" : deltaType === "down" ? "#dc2626" : "#9ca3af";
+// ── Stat Card (bento style, matches Audit Logs overview cards) ────────────────
+function StatCard({ label, value, delta, deltaType = "neutral", icon, bg, iconColor, danger }) {
+  const deltaColor = deltaType === "up" ? "#6b38d4" : deltaType === "down" ? "#ba1a1a" : "#494454";
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid #ede9fe", borderRadius: 14, padding: "18px 20px",
-        boxShadow: "0 4px 12px rgba(139,92,246,0.05)", transition: "box-shadow .2s, transform .2s",
+        background: "#ffffff",
+        border: `1px solid ${danger ? "rgba(186,26,26,0.2)" : "#cbc3d7"}`,
+        borderRadius: 16,
+        padding: 24,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        position: "relative",
+        overflow: "hidden",
+        transition: "box-shadow .3s, transform .3s",
       }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 12px 24px rgba(139,92,246,0.10)"; }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 4px 12px rgba(139,92,246,0.05)"; }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 12px 24px -12px rgba(107,56,212,0.15)"; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, color: iconColor, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {icon}
-        </div>
-        {delta && <span style={{ fontSize: 10.5, fontWeight: 600, color: deltaColor }}>{delta}</span>}
+      {/* Accent blur */}
+      <div style={{ position: "absolute", right: -16, top: -16, width: 96, height: 96, borderRadius: "50%", background: bg, filter: "blur(32px)", opacity: 0.7, pointerEvents: "none" }} />
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, position: "relative", zIndex: 1 }}>
+        <span style={{ fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
+        <span style={{ color: danger ? "#ba1a1a" : iconColor, display: "flex" }}>{icon}</span>
       </div>
-      <div style={{ fontSize: 11.5, color: "#6b7280", marginBottom: 3, fontWeight: 500 }}>{label}</div>
-      <div style={{ fontSize: 26, fontWeight: 700, color: "#181445", letterSpacing: "-0.01em" }}>{value}</div>
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <span style={{ display: "block", fontSize: 36, fontWeight: 700, lineHeight: 1.15, color: danger ? "#ba1a1a" : "#181445" }}>{value ?? "—"}</span>
+        {delta && (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8, fontSize: 12, fontWeight: 500, color: deltaColor }}>
+            {deltaType === "up" && (
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M2 12l4-4 3 3 5-6" strokeLinecap="round" strokeLinejoin="round" /><path d="M11 5h4v4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            )}
+            {deltaType === "down" && (
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M8 1.5l7 12h-14l7-12z" strokeLinejoin="round" /><path d="M8 6.5v3.5M8 11.75h.01" strokeLinecap="round" /></svg>
+            )}
+            <span>{delta}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -941,15 +962,15 @@ export default function Forms() {
           </div>
 
           {/* Stat Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 24 }}>
             <StatCard label="Total Submissions" value={stats.total?.toLocaleString() || "1,284"} delta="+12% this week" deltaType="up"
-              icon={<svg viewBox="0 0 16 16" fill="currentColor" width="18" height="18"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" /></svg>} bg="#ede9fe" iconColor="#6d3bd7" />
+              icon={<svg viewBox="0 0 16 16" fill="currentColor" width="20" height="20"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" /></svg>} bg="#6b38d4" iconColor="#7b7486" />
             <StatCard label="Pending Review" value={stats.pending || "0"} delta="Action needed" deltaType="neutral"
-              icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l2 2" strokeLinecap="round" /></svg>} bg="#f3e8ff" iconColor="#8a4cfc" />
+              icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l2 2" strokeLinecap="round" /></svg>} bg="#5f5293" iconColor="#7b7486" />
             <StatCard label="Approved Forms" value={stats.approved?.toLocaleString() || "0"} delta="+8% this week" deltaType="up"
-              icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>} bg="#d1fae5" iconColor="#15803d" />
-            <StatCard label="Rejection Rate" value={stats.rejection_rate || "0%"} delta="Stable" deltaType="neutral"
-              icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><circle cx="8" cy="8" r="6" /><path d="M5 5l6 6M11 5l-6 6" strokeLinecap="round" /></svg>} bg="#ffdad6" iconColor="#ba1a1a" />
+              icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>} bg="#712ae2" iconColor="#7b7486" />
+            <StatCard label="Rejection Rate" value={stats.rejection_rate || "0%"} delta="Requires attention" deltaType="down" danger
+              icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><circle cx="8" cy="8" r="6" /><path d="M5 5l6 6M11 5l-6 6" strokeLinecap="round" /></svg>} bg="#ba1a1a" />
           </div>
 
           {/* ── FACULTY: SUBMIT TAB (Submit New Form wizard) ── */}
