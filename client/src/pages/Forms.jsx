@@ -912,10 +912,10 @@ export default function Forms() {
         </TopBar>
 
         {/* Content */}
-        <div style={{ flex: 1, padding: 24, overflowY: "auto", display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ flex: 1, padding: 32, overflowY: "auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
           {/* Page Header + Tabs */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
             <div>
               {activeTab === "submit" && !isProgramChair && (
                 <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "#9ca3af", marginBottom: 6 }}>
@@ -1277,7 +1277,7 @@ export default function Forms() {
                         <span style={{ color: "#7b7486", fontWeight: 500, fontSize: 12, fontFamily: "monospace" }}>{row.tracking_id || row.id}</span>
                       </td>
                       <td style={{ padding: "16px 24px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                           <Avatar name={row.full_name || row.student_id || "?"} />
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
@@ -1381,7 +1381,7 @@ export default function Forms() {
                           <span style={{ color: "#7b7486", fontWeight: 500, fontSize: 12, fontFamily: "monospace" }}>{row.tracking_id || row.id}</span>
                         </td>
                         <td style={{ padding: "16px 24px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                             <Avatar name={row.full_name || row.student_id || "?"} />
                             <div>
                               <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
