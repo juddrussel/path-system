@@ -948,145 +948,150 @@ export default function UserManagement() {
 
               {/* ══ PERMISSIONS TAB ════════════════════════════════════════════════ */}
               {tab === "permissions" && (
-                <>
+                <div style={{ fontFamily: "'Inter', sans-serif" }}>
                   <div className="flex justify-between items-start">
                     <div>
-                      <h1 className="text-xl font-bold text-gray-900">Permissions &amp; Approvals</h1>
-                      <p className="text-xs text-gray-400 mt-0.5">Review and approve pending account registration requests.</p>
+                      <h1 className="text-[32px] leading-10 font-semibold text-[#181445] tracking-tight">Permissions &amp; Approvals</h1>
+                      <p className="text-sm text-[#494454] mt-2">Review and approve pending account registration requests.</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
                     <StatCard
+                      variant="audit"
                       label="Pending Approval" value={pending.length} sub="Awaiting admin review"
                       iconBg="bg-amber-100"
                       icon={<svg viewBox="0 0 16 16" fill="#d97706" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 5v3.5M8 10.5v1" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>}
                     />
-                    <StatCard label="Approved This Month" value={stats.approved_this_month ?? 0} sub="Accounts activated" iconBg="bg-emerald-100" icon={<CheckIcon />} />
-                    <StatCard label="Rejected This Month" value={stats.rejected_this_month ?? 0} sub="Requests denied" iconBg="bg-red-100" icon={<RejectIcon />} />
+                    <StatCard variant="audit" label="Approved This Month" value={stats.approved_this_month ?? 0} sub="Accounts activated" iconBg="bg-emerald-100 text-emerald-600" icon={<CheckIcon />} />
+                    <StatCard variant="audit" label="Rejected This Month" value={stats.rejected_this_month ?? 0} sub="Requests denied" iconBg="bg-[#ba1a1a]/10 text-[#ba1a1a]" icon={<RejectIcon />} />
                   </div>
 
-                  <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
-                    <div className="flex justify-between items-center px-4 py-3.5 border-b border-gray-100">
+                  <div className="bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden mt-6">
+                    <div className="flex justify-between items-center px-6 py-4 border-b border-[#cbc3d7] bg-[#fcf8ff]">
                       <div>
-                        <h2 className="text-sm font-bold text-gray-900">Pending Account Requests</h2>
-                        <p className="text-xs text-gray-400 mt-0.5">Users who registered and are awaiting approval</p>
+                        <h2 className="text-sm font-bold text-[#181445]">Pending Account Requests</h2>
+                        <p className="text-xs text-[#7b7486] mt-0.5">Users who registered and are awaiting approval</p>
                       </div>
                       {pending.length > 0 && (
-                        <button onClick={handleApproveAll} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700">
+                        <button onClick={handleApproveAll} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-[#6b38d4] text-white hover:bg-[#6b38d4]/90 transition-colors">
                           <CheckIcon /> Approve All
                         </button>
                       )}
                     </div>
-                    <table className="w-full border-collapse text-xs">
-                      <thead>
-                        <tr className="bg-gray-50">
-                          {["Applicant", "Email / Username", "Requested Role", "Requested On", "Status", "Actions"].map((h, i) => (
-                            <th key={h} className={`text-[10px] text-gray-400 uppercase tracking-wide font-semibold px-4 py-2.5 text-left border-b border-gray-100 ${i === 5 ? "text-right" : ""}`}>{h}</th>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse text-left">
+                        <thead>
+                          <tr className="bg-[#f6f2ff] border-b border-[#cbc3d7]">
+                            {["Applicant", "Email / Username", "Requested Role", "Requested On", "Status", "Actions"].map((h, i) => (
+                              <th key={h} className={`text-[11px] text-[#494454] uppercase tracking-wider font-medium px-6 py-4 text-left ${i === 5 ? "text-right" : ""}`}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#e3dfff] text-sm text-[#181445]">
+                          {pending.length === 0 ? (
+                            <tr>
+                              <td colSpan={6}>
+                                <div className="text-center py-10">
+                                  <svg viewBox="0 0 40 40" fill="none" stroke="#cbc3d7" strokeWidth="1.5" width="40" height="40" className="mx-auto mb-2">
+                                    <circle cx="20" cy="20" r="17" />
+                                    <path d="M13 20l5 5 9-9" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                  <p className="text-[#7b7486] text-sm">All clear — no pending account requests.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          ) : pending.map(u => (
+                            <tr key={u.id} className="hover:bg-[#f6f2ff]/60 transition-colors group">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center">
+                                  <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.avatar_url} />
+                                  <span className="text-[#181445] font-medium">{u.first_name} {u.last_name}</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="text-[#494454]">{u.email || "—"}</div>
+                                <div className="text-[11px] text-[#7b7486] mt-0.5">@{u.username}</div>
+                              </td>
+                              <td className="px-6 py-4"><RoleBadge role={u.role} variant="audit" /></td>
+                              <td className="px-6 py-4 text-[#494454]">{fmtDate(u.date_joined || u.created_at)}</td>
+                              <td className="px-6 py-4">
+                                <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Pending</span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex gap-1.5 justify-end">
+                                  <button
+                                    onClick={() => handleApprove(u.id)}
+                                    className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                                  >
+                                    <ApproveIcon /> Approve
+                                  </button>
+                                  <button
+                                    onClick={() => handleReject(u.id, `${u.first_name} ${u.last_name}`)}
+                                    className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border border-[#ba1a1a]/30 bg-[#ba1a1a]/5 text-[#ba1a1a] hover:bg-[#ba1a1a]/10 transition-colors"
+                                  >
+                                    <RejectIcon /> Reject
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
                           ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {pending.length === 0 ? (
-                          <tr>
-                            <td colSpan={6}>
-                              <div className="text-center py-10">
-                                <svg viewBox="0 0 40 40" fill="none" stroke="#d1d5db" strokeWidth="1.5" width="40" height="40" className="mx-auto mb-2">
-                                  <circle cx="20" cy="20" r="17" />
-                                  <path d="M13 20l5 5 9-9" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <p className="text-gray-400 text-xs">All clear — no pending account requests.</p>
-                              </div>
-                            </td>
-                          </tr>
-                        ) : pending.map(u => (
-                          <tr key={u.id} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
-                            <td className="px-4 py-2.5">
-                              <div className="flex items-center">
-                                <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.avatar_url} />
-                                <span className="text-gray-800 font-medium">{u.first_name} {u.last_name}</span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <div className="text-gray-700">{u.email || "—"}</div>
-                              <div className="text-[10px] text-gray-400 mt-0.5">@{u.username}</div>
-                            </td>
-                            <td className="px-4 py-2.5"><RoleBadge role={u.role} /></td>
-                            <td className="px-4 py-2.5 text-gray-400">{fmtDate(u.date_joined || u.created_at)}</td>
-                            <td className="px-4 py-2.5">
-                              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Pending</span>
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <div className="flex gap-1.5 justify-end">
-                                <button
-                                  onClick={() => handleApprove(u.id)}
-                                  className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
-                                >
-                                  <ApproveIcon /> Approve
-                                </button>
-                                <button
-                                  onClick={() => handleReject(u.id, `${u.first_name} ${u.last_name}`)}
-                                  className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                                >
-                                  <RejectIcon /> Reject
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <div className="px-4 py-2.5 text-xs text-gray-400 border-t border-gray-50">
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="px-6 py-4 text-sm text-[#494454] border-t border-[#cbc3d7] bg-white">
                       Showing {pending.length} pending request{pending.length !== 1 ? "s" : ""}
                     </div>
                   </div>
 
                   {/* Recently Resolved — always show, even if empty */}
-                  <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
-                    <div className="px-4 py-3.5 border-b border-gray-100">
-                      <h2 className="text-sm font-bold text-gray-900">Recently Resolved</h2>
-                      <p className="text-xs text-gray-400 mt-0.5">Accounts approved or rejected in the last 30 days</p>
+                  <div className="bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden mt-6">
+                    <div className="px-6 py-4 border-b border-[#cbc3d7] bg-[#fcf8ff]">
+                      <h2 className="text-sm font-bold text-[#181445]">Recently Resolved</h2>
+                      <p className="text-xs text-[#7b7486] mt-0.5">Accounts approved or rejected in the last 30 days</p>
                     </div>
-                    <table className="w-full border-collapse text-xs">
-                      <thead>
-                        <tr className="bg-gray-50">
-                          {["User", "Email / Username", "Role", "Resolved On", "Decision", "Resolved By"].map(h => (
-                            <th key={h} className="text-[10px] text-gray-400 uppercase tracking-wide font-semibold px-4 py-2.5 text-left border-b border-gray-100">{h}</th>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse text-left">
+                        <thead>
+                          <tr className="bg-[#f6f2ff] border-b border-[#cbc3d7]">
+                            {["User", "Email / Username", "Role", "Resolved On", "Decision", "Resolved By"].map(h => (
+                              <th key={h} className="text-[11px] text-[#494454] uppercase tracking-wider font-medium px-6 py-4 text-left">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#e3dfff] text-sm text-[#181445]">
+                          {resolved.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="text-center py-10 text-[#7b7486] text-sm">No resolved requests yet.</td>
+                            </tr>
+                          ) : resolved.map((r, i) => (
+                            <tr key={i} className="hover:bg-[#f6f2ff]/60 transition-colors group">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center">
+                                  <Avatar firstName={r.first_name} lastName={r.last_name} pictureUrl={r.avatar_url} />
+                                  <span className="text-[#181445] font-medium">{r.first_name} {r.last_name}</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="text-[#494454]">{r.email || "—"}</div>
+                                <div className="text-[11px] text-[#7b7486] mt-0.5">@{r.username}</div>
+                              </td>
+                              <td className="px-6 py-4"><RoleBadge role={r.role} variant="audit" /></td>
+                              <td className="px-6 py-4 text-[#494454]">{fmtDate(r.resolved_on)}</td>
+                              <td className="px-6 py-4">
+                                {r.decision === "approved"
+                                  ? <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Approved</span>
+                                  : <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-[#ffdad6] text-[#93000a]">Rejected</span>
+                                }
+                              </td>
+                              <td className="px-6 py-4 text-[#494454]">{r.resolved_by || "—"}</td>
+                            </tr>
                           ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resolved.length === 0 ? (
-                          <tr>
-                            <td colSpan={6} className="text-center py-8 text-gray-400 text-xs">No resolved requests yet.</td>
-                          </tr>
-                        ) : resolved.map((r, i) => (
-                          <tr key={i} className="hover:bg-gray-50/70 border-b border-gray-50 last:border-0 transition-colors">
-                            <td className="px-4 py-2.5">
-                              <div className="flex items-center">
-                                <Avatar firstName={r.first_name} lastName={r.last_name} pictureUrl={r.avatar_url} />
-                                <span className="text-gray-800 font-medium">{r.first_name} {r.last_name}</span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <div className="text-gray-700">{r.email || "—"}</div>
-                              <div className="text-[10px] text-gray-400 mt-0.5">@{r.username}</div>
-                            </td>
-                            <td className="px-4 py-2.5"><RoleBadge role={r.role} /></td>
-                            <td className="px-4 py-2.5 text-gray-400">{fmtDate(r.resolved_on)}</td>
-                            <td className="px-4 py-2.5">
-                              {r.decision === "approved"
-                                ? <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Approved</span>
-                                : <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">Rejected</span>
-                              }
-                            </td>
-                            <td className="px-4 py-2.5 text-gray-400">{r.resolved_by || "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </>
+                </div>
               )}
             </>
           )}
