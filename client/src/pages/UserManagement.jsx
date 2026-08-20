@@ -537,7 +537,23 @@ function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
 }
 
 // ─── STAT CARD ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, iconBg, icon, badge }) {
+function StatCard({ label, value, sub, iconBg, icon, badge, variant }) {
+  if (variant === "audit") {
+    // Audit Trail–style card: border-[#cbc3d7], rounded-2xl, shadow-sm, larger value type
+    return (
+      <div className="bg-white border border-[#cbc3d7] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconBg}`}>{icon}</div>
+          {badge && (
+            <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-1 rounded-md">{badge}</span>
+          )}
+        </div>
+        <p className="text-[11px] font-medium text-[#494454] uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-4xl font-bold text-[#181445] leading-tight">{value ?? "—"}</p>
+        {sub && !badge && <p className="text-xs text-[#7b7486] mt-2">{sub}</p>}
+      </div>
+    );
+  }
   return (
     <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-4">
@@ -788,14 +804,14 @@ export default function UserManagement() {
             <>
               {/* ══ USERS TAB ══════════════════════════════════════════════════════ */}
               {tab === "users" && (
-                <>
+                <div style={{ fontFamily: "'Inter', sans-serif" }}>
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
-                      <h1 className="text-2xl font-bold text-gray-900">System Users</h1>
-                      <p className="text-sm text-gray-400 mt-1">Manage and monitor all users within the system.</p>
+                      <h1 className="text-[32px] leading-10 font-semibold text-[#181445] tracking-tight">System Users</h1>
+                      <p className="text-sm text-[#494454] mt-2">Manage and monitor all users within the system.</p>
                     </div>
                     <div className="flex items-center gap-3 w-full md:w-auto">
-                      <button className="flex-1 md:flex-none border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg py-2 px-4 text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                      <button className="flex-1 md:flex-none border border-[#cbc3d7] text-gray-700 bg-white hover:bg-gray-50 rounded-lg py-2 px-4 text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
                         <DownloadIcon /> Export Users
                       </button>
                       <button onClick={() => setShowModal(true)} className="flex-1 md:flex-none bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2 px-4 text-xs font-bold transition-colors shadow-sm">
@@ -804,72 +820,72 @@ export default function UserManagement() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard label="Total Users" value={stats.total} sub="All accounts" iconBg="bg-violet-100 text-violet-600" icon={<UsersIcon />} badge="+12%" />
-                    <StatCard label="Active Users" value={stats.active} sub="Currently enabled" iconBg="bg-emerald-100 text-emerald-600" icon={<CheckIcon />} badge="+5%" />
-                    <StatCard label="Inactive Users" value={stats.inactive} sub="Suspended accounts" iconBg="bg-gray-100 text-gray-500" icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>} />
-                    <StatCard label="Administrators" value={stats.admins} sub="Full access roles" iconBg="bg-violet-100 text-violet-600" icon={<ShieldIcon />} />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+                    <StatCard variant="audit" label="Total Users" value={stats.total} sub="All accounts" iconBg="bg-violet-100 text-violet-600" icon={<UsersIcon />} badge="+12%" />
+                    <StatCard variant="audit" label="Active Users" value={stats.active} sub="Currently enabled" iconBg="bg-emerald-100 text-emerald-600" icon={<CheckIcon />} badge="+5%" />
+                    <StatCard variant="audit" label="Inactive Users" value={stats.inactive} sub="Suspended accounts" iconBg="bg-gray-100 text-gray-500" icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>} />
+                    <StatCard variant="audit" label="Administrators" value={stats.admins} sub="Full access roles" iconBg="bg-violet-100 text-violet-600" icon={<ShieldIcon />} />
                   </div>
 
-                  <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                  <div className="bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden flex flex-col mt-6">
                     {/* Filter Toolbar */}
-                    <div className="p-4 border-b border-gray-100 bg-gray-50/60 flex flex-col lg:flex-row gap-3 items-center justify-between">
+                    <div className="p-4 border-b border-[#cbc3d7] bg-[#fcf8ff] flex flex-col lg:flex-row gap-3 items-center justify-between">
                       <div className="relative w-full lg:w-72">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7b7486]">
                           <SearchIcon />
                         </span>
                         <input
                           value={search}
                           onChange={e => setSearch(e.target.value)}
                           placeholder="Search by name, email, or username…"
-                          className="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-xs text-gray-700 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors shadow-sm"
+                          className="w-full bg-white border border-[#cbc3d7] rounded-md pl-9 pr-4 py-2 text-sm text-[#181445] outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] transition-colors h-[40px]"
                         />
                       </div>
                       <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 outline-none focus:border-violet-500 cursor-pointer shadow-sm min-w-[120px]">
+                        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-[#fcf8ff] border border-[#cbc3d7] rounded-md px-3 py-2 text-sm text-[#181445] outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] cursor-pointer min-w-[120px] h-[40px]">
                           <option value="all">All Roles</option>
                           <option value="admin">Admin</option>
                           <option value="program_chair">Program Chair</option>
                           <option value="faculty">Faculty</option>
                         </select>
-                        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 outline-none focus:border-violet-500 cursor-pointer shadow-sm min-w-[120px]">
+                        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-[#fcf8ff] border border-[#cbc3d7] rounded-md px-3 py-2 text-sm text-[#181445] outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] cursor-pointer min-w-[120px] h-[40px]">
                           <option value="all">All Statuses</option>
                           <option value="Active">Active</option>
                           <option value="Inactive">Inactive</option>
                         </select>
                       </div>
                     </div>
-                    <table className="w-full border-collapse text-xs">
-                      <thead className="bg-gray-50 border-b border-gray-100">
-                        <tr>
+                    <table className="w-full border-collapse text-left">
+                      <thead>
+                        <tr className="bg-[#f6f2ff] border-b border-[#cbc3d7]">
                           {["User", "User ID", "Role", "Department", "Status", "Actions"].map((h, i) => (
-                            <th key={h} className={`text-[10px] text-gray-400 uppercase tracking-wider font-semibold px-6 py-3 text-left ${i === 5 ? "text-right" : ""}`}>{h}</th>
+                            <th key={h} className={`text-[11px] text-[#494454] uppercase tracking-wider font-medium px-6 py-4 text-left ${i === 5 ? "text-right" : ""}`}>{h}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody className="divide-y divide-[#e3dfff] text-sm text-[#181445]">
                         {filteredUsers.length === 0 ? (
                           <tr><td colSpan={6} className="text-center py-10 text-gray-400">No users found.</td></tr>
                         ) : filteredUsers.map(u => (
-                          <tr key={u.id} className="hover:bg-gray-50/70 transition-colors group">
+                          <tr key={u.id} className="hover:bg-[#f6f2ff]/60 transition-colors group">
                             <td className="py-4 px-6">
                               <div className="flex items-center gap-3">
                                 <Avatar firstName={u.first_name} lastName={u.last_name} pictureUrl={u.avatar_url} />
                                 <div>
-                                  <p className="font-medium text-gray-900">{u.first_name} {u.last_name}</p>
-                                  <p className="text-gray-400 text-[11px] mt-0.5">{u.email || `@${u.username}`}</p>
+                                  <p className="font-medium text-[#181445]">{u.first_name} {u.last_name}</p>
+                                  <p className="text-[#494454] text-[11px] mt-0.5">{u.email || `@${u.username}`}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="py-4 px-6 text-gray-400">USR-{String(u.id).padStart(4, "0")}</td>
+                            <td className="py-4 px-6 text-[#494454]">USR-{String(u.id).padStart(4, "0")}</td>
                             <td className="py-4 px-6"><RoleBadge role={u.role} /></td>
-                            <td className="py-4 px-6 text-gray-700">{u.department || "—"}</td>
+                            <td className="py-4 px-6 text-[#494454]">{u.department || "—"}</td>
                             <td className="py-4 px-6"><StatusBadge active={u.is_active} /></td>
                             <td className="py-4 px-6 text-right">
                               <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => setSelectedUser(u)}
-                                  className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                                  className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-violet-50 hover:text-violet-600 transition-colors"
                                   title="View details"
                                 >
                                   <EyeIcon />
@@ -877,7 +893,7 @@ export default function UserManagement() {
                                 {canEdit && (
                                   <button
                                     onClick={() => setEditUser(u)}
-                                    className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-blue-50 hover:text-blue-600 transition-colors"
                                     title="Edit user"
                                   >
                                     <EditIcon />
@@ -886,13 +902,13 @@ export default function UserManagement() {
                                 {u.id !== currentUserId ? (
                                   <button
                                     onClick={() => setDeleteTarget({ id: u.id, name: `${u.first_name} ${u.last_name}` })}
-                                    className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-red-50 hover:text-red-600 transition-colors"
                                     title="Remove user"
                                   >
                                     <TrashIcon />
                                   </button>
                                 ) : (
-                                  <span className="text-[10px] text-gray-400 leading-7">(you)</span>
+                                  <span className="text-[10px] text-[#7b7486] leading-7">(you)</span>
                                 )}
                               </div>
                             </td>
@@ -900,11 +916,11 @@ export default function UserManagement() {
                         ))}
                       </tbody>
                     </table>
-                    <div className="px-6 py-3.5 text-xs text-gray-400 border-t border-gray-100 bg-white">
+                    <div className="px-6 py-4 text-sm text-[#494454] border-t border-[#cbc3d7] bg-white">
                       Showing {filteredUsers.length} of {users.length} user{users.length !== 1 ? "s" : ""}
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
               {/* ══ PERMISSIONS TAB ════════════════════════════════════════════════ */}
