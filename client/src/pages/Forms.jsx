@@ -898,7 +898,7 @@ export default function Forms() {
       <Sidebar activePage="forms" />
 
       {/* ── MAIN ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "white", minWidth: 0 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#fcf8ff", minWidth: 0 }}>
 
         {/* Topbar */}
         <TopBar onLogout={handleLogout}>
