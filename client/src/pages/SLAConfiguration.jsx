@@ -164,7 +164,7 @@ function StatusDot({ status }) {
 
 function SectionCard({ title, subtitle, icon: Icn, action, children, style }) {
   return (
-    <div style={{ background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", padding: 18, ...style }}>
+    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #cbc3d7", boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)", padding: 18, ...style }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           {Icn && (
@@ -732,7 +732,7 @@ export default function SLAConfiguration() {
       escalation?.notify_sms && "SMS",
     ].filter(Boolean);
     return (
-      <div style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 12, padding: 16, position: "relative", overflow: "hidden" }}>
+      <div style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: BOX_RADIUS, padding: 16, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: 0, left: 0, width: 4, height: "100%", background: "#7c3aed" }} />
         <h3 style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 12 }}>
           Configuration Preview
@@ -844,13 +844,15 @@ export default function SLAConfiguration() {
     textPrimary: "#1e1b4b",
     textSecondary: "#8b7cf6",
     textTertiary: "#b3a3f7",
-    border: "#e0e7ff",
+    border: "#cbc3d7",
     success: "#10b981",
     warning: "#f59e0b",
     danger: "#ef4444",
   };
-  const cardShadow = "0 4px 6px -1px rgba(139,92,246,0.05), 0 2px 4px -1px rgba(139,92,246,0.03)";
-  const RADIUS = 8;
+  // Matches the Audit Trail page's card look (border-[#cbc3d7], shadow-sm)
+  const cardShadow = "0 1px 2px 0 rgba(0,0,0,0.05)";
+  const RADIUS = 8; // inputs, buttons, filter bar (Audit's rounded-md/rounded-lg)
+  const BOX_RADIUS = 16; // stat cards, table, side cards, modals (Audit's rounded-2xl)
 
   const statAccent = { "Total Rules": COLORS.primary, "Active Rules": COLORS.success, "Near Deadline": COLORS.warning, "Overdue": COLORS.danger };
 
@@ -861,7 +863,11 @@ export default function SLAConfiguration() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", fontSize: 14, color: COLORS.textPrimary, background: COLORS.surface }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .sla-row { transition: background-color 0.15s; }
+        .sla-row:hover { background-color: rgba(246,242,255,0.6); }
+      `}</style>
 
       <Sidebar activePage="sla-configuration" />
 
@@ -891,8 +897,8 @@ export default function SLAConfiguration() {
           {/* Page header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
             <div>
-              <h1 style={{ fontSize: 24, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 4 }}>SLA Configuration</h1>
-              <p style={{ fontSize: 14, color: COLORS.textSecondary }}>
+              <h1 style={{ fontSize: 32, lineHeight: "40px", fontWeight: 600, color: "#181445", letterSpacing: "-0.01em" }}>SLA Configuration</h1>
+              <p style={{ fontSize: 14, color: "#494454", marginTop: 8 }}>
                 Define and manage document processing timelines and compliance rules.
               </p>
             </div>
@@ -909,15 +915,15 @@ export default function SLAConfiguration() {
             {statCards.map(s => {
               const accent = statAccent[s.label] || COLORS.primary;
               return (
-                <div key={s.label} style={{ background: COLORS.surfaceContainer, padding: 20, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 12 }}>
+                <div key={s.label} style={{ background: COLORS.surfaceContainer, padding: 24, borderRadius: BOX_RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <p style={{ fontSize: 18, fontWeight: 500, color: COLORS.textSecondary }}>{s.label}</p>
+                    <p style={{ fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: 0.6 }}>{s.label}</p>
                     <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${accent}1a`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <s.icon style={{ width: 15, height: 15, color: accent }} />
                     </div>
                   </div>
                   <div>
-                    <p style={{ fontSize: 30, fontWeight: 600, color: COLORS.textPrimary, lineHeight: 1.15 }}>{s.value}</p>
+                    <p style={{ fontSize: 36, fontWeight: 700, color: COLORS.textPrimary, lineHeight: 1.2 }}>{s.value}</p>
                     <p style={{ fontSize: 12, color: COLORS.textTertiary, marginTop: 4 }}>{s.sub}</p>
                   </div>
                 </div>
@@ -982,13 +988,13 @@ export default function SLAConfiguration() {
               </div>
 
               {/* Data Table */}
-              <div style={{ background: COLORS.surfaceContainer, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, overflow: "hidden" }}>
+              <div style={{ background: COLORS.surfaceContainer, borderRadius: BOX_RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, overflow: "hidden" }}>
                 <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13.5, whiteSpace: "nowrap" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 14, whiteSpace: "nowrap" }}>
                     <thead>
-                      <tr style={{ background: COLORS.surface }}>
+                      <tr style={{ background: "#f6f2ff", borderBottom: `1px solid ${COLORS.border}` }}>
                         {["Document Type", "Turnaround (Hours)", "Escalation", "Docs Active", "Status", "Actions"].map((h, hi) => (
-                          <th key={h} style={{ textAlign: hi === 5 ? "center" : "left", padding: "12px 16px", fontSize: 13.5, fontWeight: 500, color: COLORS.textSecondary }}>{h}</th>
+                          <th key={h} style={{ textAlign: hi === 5 ? "center" : "left", padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: 0.6 }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -997,30 +1003,31 @@ export default function SLAConfiguration() {
                         <tr
                           key={r.id}
                           onClick={() => selectRule(r.id)}
+                          className="sla-row"
                           style={{
-                            borderTop: `1px solid ${COLORS.border}`,
+                            borderTop: i === 0 ? "none" : "1px solid #e3dfff",
                             cursor: "pointer",
-                            background: r.id === selectedRuleId ? "rgba(139,92,246,0.06)" : "transparent",
+                            ...(r.id === selectedRuleId ? { background: "rgba(139,92,246,0.08)" } : {}),
                           }}
                         >
-                          <td style={{ padding: "12px 16px" }}>
-                            <p style={{ fontWeight: 500, color: COLORS.textPrimary }}>{r.document_type}</p>
+                          <td style={{ padding: "16px 24px" }}>
+                            <p style={{ fontWeight: 500, color: "#181445" }}>{r.document_type}</p>
                             <p style={{ fontSize: 12, color: COLORS.textTertiary, fontFamily: "monospace", marginTop: 2 }}>{ruleCode(r, i)}</p>
                           </td>
-                          <td style={{ padding: "12px 16px", color: COLORS.textSecondary }}>
+                          <td style={{ padding: "16px 24px", color: "#494454" }}>
                             <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                               <Clock style={{ width: 12, height: 12 }} /> {r.turnaround_hours} Hours
                             </span>
                           </td>
-                          <td style={{ padding: "12px 16px", color: COLORS.textTertiary }}>{r.escalation_hours} hours after</td>
-                          <td style={{ padding: "12px 16px", fontWeight: 600, color: COLORS.primary }}>{docsActiveFor(r)}</td>
-                          <td style={{ padding: "12px 16px" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: COLORS.textSecondary }}>
+                          <td style={{ padding: "16px 24px", color: "#494454" }}>{r.escalation_hours} hours after</td>
+                          <td style={{ padding: "16px 24px", fontWeight: 600, color: COLORS.primary }}>{docsActiveFor(r)}</td>
+                          <td style={{ padding: "16px 24px" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#494454" }}>
                               <span style={{ width: 8, height: 8, borderRadius: "50%", background: r.status === "Active" ? COLORS.success : "#9ca3af" }} />
                               {r.status}
                             </span>
                           </td>
-                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                          <td style={{ padding: "16px 24px", textAlign: "center" }}>
                             <button
                               onClick={(e) => { e.stopPropagation(); selectRule(r.id); setShowEditModal(true); }}
                               style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", background: "transparent", color: COLORS.textTertiary, cursor: "pointer", padding: "0 8px" }}
@@ -1038,7 +1045,7 @@ export default function SLAConfiguration() {
                 </div>
 
                 {/* Pagination */}
-                <div style={{ padding: 16, borderTop: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: COLORS.surfaceContainer }}>
+                <div style={{ padding: "16px 24px", borderTop: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: COLORS.surfaceContainer }}>
                   <p style={{ fontSize: 12, color: COLORS.textTertiary }}>
                     Showing {pagedRules.length} of {filteredRules.length} SLA rules
                   </p>
@@ -1066,7 +1073,7 @@ export default function SLAConfiguration() {
             <div style={{ flex: "0 1 320px", width: 320, display: "flex", flexDirection: "column", gap: 16 }}>
 
               {/* SLA Performance Insights */}
-              <div style={{ background: COLORS.surfaceContainer, padding: 20, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ background: COLORS.surfaceContainer, padding: 20, borderRadius: BOX_RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
                   <p style={{ fontSize: 18, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 4 }}>SLA Performance Insights</p>
                   <p style={{ fontSize: 12, color: COLORS.textTertiary }}>Real-time analytics for current processing cycle.</p>
@@ -1341,7 +1348,7 @@ export default function SLAConfiguration() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 14, padding: 22, width: 420, maxWidth: "90vw", maxHeight: "85vh", overflowY: "auto" }}
+            style={{ background: "#fff", borderRadius: 16, padding: 22, width: 420, maxWidth: "90vw", maxHeight: "85vh", overflowY: "auto", border: "1px solid #cbc3d7" }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827" }}>Create SLA Rule</p>
@@ -1429,7 +1436,7 @@ export default function SLAConfiguration() {
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
-                <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
+                <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'Inter', sans-serif" }} />
               </div>
 
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
@@ -1457,17 +1464,17 @@ export default function SLAConfiguration() {
 }
 
 const inpStyle = {
-  width: "100%", marginTop: 5, padding: "9px 11px", borderRadius: 8,
-  border: "1px solid #e5e7eb", background: "#fafafa", fontSize: 12.5,
-  color: "#111827", outline: "none", boxSizing: "border-box",
+  width: "100%", marginTop: 5, padding: "9px 11px", borderRadius: 6,
+  border: "1px solid #cbc3d7", background: "#fcf8ff", fontSize: 13,
+  fontFamily: "'Inter', sans-serif", color: "#181445", outline: "none", boxSizing: "border-box",
 };
 
 const selStyle = { ...inpStyle, cursor: "pointer" };
 
 // ── Edit-drawer card styles (right-side "Edit SLA Configuration" drawer) ──
 const drawerCardStyle = {
-  background: "#fff", border: "1px solid #e5e0f5", borderRadius: 12,
-  padding: 16, boxShadow: "0 1px 2px rgba(17,24,39,0.03)",
+  background: "#fff", border: "1px solid #cbc3d7", borderRadius: 16,
+  padding: 16, boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
 };
 
 const drawerCardTitleStyle = {
