@@ -21,8 +21,8 @@ class ErrorBoundary extends Component {
     if (this.state.error) {
       return (
         <div style={{ padding: 40, fontFamily: "sans-serif" }}>
-          <h2 style={{ color: "#dc2626" }}>Something went wrong</h2>
-          <pre style={{ background: "#fee2e2", padding: 16, borderRadius: 8, fontSize: 12, overflow: "auto" }}>
+          <h2 style={{ color: "#ba1a1a" }}>Something went wrong</h2>
+          <pre style={{ background: "#ffdad6", padding: 16, borderRadius: 8, fontSize: 12, overflow: "auto" }}>
             {this.state.error.message}\n{this.state.error.stack}
           </pre>
         </div>
@@ -51,19 +51,19 @@ const Icon = {
       <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none"/>
       <path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2"/>
       <path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-      <circle cx="12.5" cy="12.5" r="3" fill="#7c3aed"/>
+      <circle cx="12.5" cy="12.5" r="3" fill="#6b38d4"/>
       <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
     </svg>
   ),
   Search:   () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14" strokeLinecap="round"/></svg>,
-  Clip:     () => <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="22" height="22"><path d="M13 7l-5.5 5.5a3.5 3.5 0 01-4.95-4.95l5.5-5.5a2 2 0 012.83 2.83L5.38 10.4a.5.5 0 01-.71-.71L10 4.5" strokeLinecap="round"/></svg>,
+  Clip:     () => <svg viewBox="0 0 16 16" fill="none" stroke="#6b38d4" strokeWidth="1.5" width="22" height="22"><path d="M13 7l-5.5 5.5a3.5 3.5 0 01-4.95-4.95l5.5-5.5a2 2 0 012.83 2.83L5.38 10.4a.5.5 0 01-.71-.71L10 4.5" strokeLinecap="round"/></svg>,
   Calendar: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><rect x="1" y="3" width="14" height="12" rx="1"/><path d="M5 1v4M11 1v4M1 7h14" strokeLinecap="round"/></svg>,
   X:        () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11"><path d="M3 3l10 10M13 3L3 13" strokeLinecap="round"/></svg>,
   Filter:   () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z"/></svg>,
   Dots:     () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="3" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="13" cy="8" r="1.5"/></svg>,
   Check:    () => <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2.5" width="11" height="11"><path d="M13 4l-7.5 7.5L2 8" strokeLinecap="round"/></svg>,
-  Info:     () => <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="7"/><path d="M8 7v4M8 5v1" strokeLinecap="round"/></svg>,
-  AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><circle cx="12.5" cy="12.5" r="3" fill="#7c3aed"/><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>,
+  Info:     () => <svg viewBox="0 0 16 16" fill="none" stroke="#6b38d4" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="7"/><path d="M8 7v4M8 5v1" strokeLinecap="round"/></svg>,
+  AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><circle cx="12.5" cy="12.5" r="3" fill="#6b38d4"/><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>,
   Tracking: () => 
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>,
   Categories:() => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2"/></svg>,
@@ -75,17 +75,17 @@ const Icon = {
 };
 
 const PRIORITY_CONFIG = {
-  High:   { bg:"#fee2e2", color:"#991b1b", dot:"#dc2626" },
+  High:   { bg:"#ffdad6", color:"#93000a", dot:"#ba1a1a" },
   Medium: { bg:"#fef3c7", color:"#92400e", dot:"#f59e0b" },
   Low:    { bg:"#d1fae5", color:"#065f46", dot:"#10b981" },
 };
 
 const STATUS_CONFIG = {
-  "In Review":   { bg:"#ede9fe", color:"#5b21b6" },
+  "In Review":   { bg:"#e9e5ff", color:"#5516be" },
   "For Approval":{ bg:"#fef3c7", color:"#92400e" },
-  "Returned":    { bg:"#fee2e2", color:"#991b1b" },
+  "Returned":    { bg:"#ffdad6", color:"#93000a" },
   "Received":    { bg:"#d1fae5", color:"#065f46" },
-  "Pending":     { bg:"#f3f4f6", color:"#374151" },
+  "Pending":     { bg:"#e9e5ff", color:"#494454" },
 };
 
 // Fallback SLA terms, only used when a document type has no matching SLA
@@ -143,16 +143,16 @@ function StatusBadge({ s }) {
 function WorkloadBar({ name, role, percent, isOver }) {
   return (
     <div style={{ display:"flex", alignItems:"center", gap:10, padding:"7px 0" }}>
-      <div style={{ width:28, height:28, borderRadius:"50%", background: isOver ? "#fee2e2" : "#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, fontWeight:800, color: isOver ? "#dc2626" : "#7c3aed", flexShrink:0 }}>
+      <div style={{ width:28, height:28, borderRadius:"50%", background: isOver ? "#ffdad6" : "#e9e5ff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, fontWeight:800, color: isOver ? "#ba1a1a" : "#6b38d4", flexShrink:0 }}>
         {name.split(" ").map(n=>n[0]).join("").slice(0,2)}
       </div>
       <div style={{ flex:1, minWidth:0 }}>
         <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-          <span style={{ fontSize:11, fontWeight:700, color:"#111", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", maxWidth:100 }}>{name}</span>
-          <span style={{ fontSize:10, fontWeight:800, color: isOver ? "#dc2626" : "#7c3aed" }}>{percent}% {isOver ? "Over" : "Load"}</span>
+          <span style={{ fontSize:11, fontWeight:700, color:"#181445", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", maxWidth:100 }}>{name}</span>
+          <span style={{ fontSize:10, fontWeight:800, color: isOver ? "#ba1a1a" : "#6b38d4" }}>{percent}% {isOver ? "Over" : "Load"}</span>
         </div>
-        <div style={{ height:4, background:"#f3f4f6", borderRadius:4, overflow:"hidden" }}>
-          <div style={{ height:"100%", width:`${Math.min(percent,100)}%`, background: isOver ? "#dc2626" : "#7c3aed", borderRadius:4, transition:"width 0.5s ease" }}/>
+        <div style={{ height:4, background:"#e9e5ff", borderRadius:4, overflow:"hidden" }}>
+          <div style={{ height:"100%", width:`${Math.min(percent,100)}%`, background: isOver ? "#ba1a1a" : "#6b38d4", borderRadius:4, transition:"width 0.5s ease" }}/>
         </div>
       </div>
     </div>
@@ -162,8 +162,8 @@ function WorkloadBar({ name, role, percent, isOver }) {
 function SectionLabel({ icon, children }) {
   return (
     <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:11 }}>
-      <span style={{ width:19, height:19, borderRadius:5.5, background:"#ede9fe", color:"#7c3aed", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</span>
-      <span style={{ fontSize:10.5, fontWeight:800, color:"#6b7280", textTransform:"uppercase", letterSpacing:0.8 }}>{children}</span>
+      <span style={{ width:19, height:19, borderRadius:5.5, background:"#e9e5ff", color:"#6b38d4", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</span>
+      <span style={{ fontSize:10.5, fontWeight:800, color:"#494454", textTransform:"uppercase", letterSpacing:0.8 }}>{children}</span>
     </div>
   );
 }
@@ -171,7 +171,7 @@ function SectionLabel({ icon, children }) {
 function SlaStat({ label, value, accent }) {
   return (
     <div style={{ flex:1, minWidth:0 }}>
-      <div style={{ fontSize:9.5, fontWeight:700, color:"#a78bfa", textTransform:"uppercase", letterSpacing:0.6, marginBottom:3 }}>{label}</div>
+      <div style={{ fontSize:9.5, fontWeight:700, color:"#8a4cfc", textTransform:"uppercase", letterSpacing:0.6, marginBottom:3 }}>{label}</div>
       <div style={{ fontSize:12.5, fontWeight:800, color: accent || "#3b0764" }}>{value}</div>
     </div>
   );
@@ -179,10 +179,10 @@ function SlaStat({ label, value, accent }) {
 
 function FacultyChip({ label, onRemove }) {
   return (
-    <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"#ede9fe", color:"#5b21b6", borderRadius:20, padding:"3px 6px 3px 10px", fontSize:11.5, fontWeight:700 }}>
+    <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"#e9e5ff", color:"#5516be", borderRadius:20, padding:"3px 6px 3px 10px", fontSize:11.5, fontWeight:700 }}>
       {label}
       <button type="button" onClick={onRemove}
-        style={{ width:14, height:14, borderRadius:"50%", border:"none", background:"rgba(124,58,237,0.15)", color:"#7c3aed", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1 }}>
+        style={{ width:14, height:14, borderRadius:"50%", border:"none", background:"rgba(124,58,237,0.15)", color:"#6b38d4", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1 }}>
         <Icon.X />
       </button>
     </span>
@@ -194,11 +194,11 @@ function FacultyStatusRow({ name, percent }) {
   const initials = name.split(" ").map(n=>n[0]).join("").slice(0,2);
   return (
     <div style={{ display:"flex", alignItems:"center", gap:10, padding:"7px 0" }}>
-      <div style={{ width:30, height:30, borderRadius:"50%", background: busy ? "#fee2e2" : "#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10.5, fontWeight:800, color: busy ? "#dc2626" : "#7c3aed", flexShrink:0 }}>
+      <div style={{ width:30, height:30, borderRadius:"50%", background: busy ? "#ffdad6" : "#e9e5ff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10.5, fontWeight:800, color: busy ? "#ba1a1a" : "#6b38d4", flexShrink:0 }}>
         {initials}
       </div>
       <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:12.5, fontWeight:700, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{name}</div>
+        <div style={{ fontSize:12.5, fontWeight:700, color:"#181445", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{name}</div>
         <div style={{ fontSize:10.5, color:"#999" }}>{percent}% LOAD</div>
       </div>
       <span style={{ fontSize:9.5, fontWeight:800, padding:"3px 9px", borderRadius:20, flexShrink:0,
@@ -211,10 +211,10 @@ function FacultyStatusRow({ name, percent }) {
 
 function StatMini({ icon, iconBg, iconColor, label, value }) {
   return (
-    <div style={{ background:"white", border:"1px solid #f0f0f5", borderRadius:14, padding:"13px 14px", display:"flex", alignItems:"center", gap:11, boxShadow:"0 1px 3px rgba(17,17,17,0.05)" }}>
+    <div style={{ background:"white", border:"1px solid #e3dfff", borderRadius:14, padding:"13px 14px", display:"flex", alignItems:"center", gap:11, boxShadow:"0 1px 3px rgba(17,17,17,0.05)" }}>
       <div style={{ width:32, height:32, borderRadius:9, background:iconBg, color:iconColor, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</div>
       <div style={{ minWidth:0 }}>
-        <div style={{ fontSize:16, fontWeight:800, color:"#111", lineHeight:1.1 }}>{value}</div>
+        <div style={{ fontSize:16, fontWeight:800, color:"#181445", lineHeight:1.1 }}>{value}</div>
         <div style={{ fontSize:10, color:"#888", marginTop:2, whiteSpace:"nowrap" }}>{label}</div>
       </div>
     </div>
@@ -223,12 +223,12 @@ function StatMini({ icon, iconBg, iconColor, label, value }) {
 
 function fileKind(name = "") {
   const ext = (name.split(".").pop() || "").toLowerCase();
-  if (ext === "pdf") return { label:"PDF", bg:"#fee2e2", color:"#dc2626" };
+  if (ext === "pdf") return { label:"PDF", bg:"#ffdad6", color:"#ba1a1a" };
   if (["doc","docx"].includes(ext)) return { label:"DOC", bg:"#dbeafe", color:"#2563eb" };
   if (["xls","xlsx","csv"].includes(ext)) return { label:"XLS", bg:"#d1fae5", color:"#059669" };
   if (["ppt","pptx"].includes(ext)) return { label:"PPT", bg:"#ffedd5", color:"#ea580c" };
   if (["jpg","jpeg","png","gif","webp","heic"].includes(ext)) return { label:"IMG", bg:"#fce7f3", color:"#db2777" };
-  return { label: ext ? ext.slice(0,4).toUpperCase() : "FILE", bg:"#ede9fe", color:"#7c3aed" };
+  return { label: ext ? ext.slice(0,4).toUpperCase() : "FILE", bg:"#e9e5ff", color:"#6b38d4" };
 }
 
 function timeAgo(iso) {
@@ -555,7 +555,7 @@ function TaskAssignmentInner() {
     { name:"Dr. James Wilson",    percent:45, isOver:false },
   ];
   const avgLoad = Math.round(displayWorkload.reduce((s,w) => s+w.percent, 0) / displayWorkload.length);
-  const capacityState = avgLoad >= 85 ? { label:"HIGH", color:"#dc2626" } : avgLoad >= 60 ? { label:"BALANCED", color:"#d97706" } : { label:"OPTIMUM", color:"#059669" };
+  const capacityState = avgLoad >= 85 ? { label:"HIGH", color:"#ba1a1a" } : avgLoad >= 60 ? { label:"BALANCED", color:"#d97706" } : { label:"OPTIMUM", color:"#059669" };
   const availableCount = displayWorkload.filter(w => w.percent < 75).length;
   // The SLA rule configured (in SLA Configuration) for the currently
   // selected document type — this, not the priority buttons, is the
@@ -623,12 +623,12 @@ function TaskAssignmentInner() {
   };
 
   return (
-    <div style={{ display:"flex", minHeight:"100vh", fontFamily:"'DM Sans', sans-serif", fontSize:13, color:"#111", background:"#f4f4f8" }}>
+    <div style={{ display:"flex", minHeight:"100vh", fontFamily:"'DM Sans', sans-serif", fontSize:13, color:"#181445", background:"#fcf8ff" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
         input, select, textarea { font-family: 'DM Sans', sans-serif; }
-        input:focus, select:focus, textarea:focus { border-color: #7c3aed !important; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #6b38d4 !important; outline: none; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
         @keyframes spin { to { transform:rotate(360deg); } }
       `}</style>
@@ -639,10 +639,10 @@ function TaskAssignmentInner() {
       <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0 }}>
         <TopBar onLogout={handleLogout}>
           <div style={{ display:"flex", alignItems:"center", gap:8, width:"100%" }}>
-            <div style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#f9fafb", border:"1px solid #e5e7eb", borderRadius:8, padding:"6px 12px", color:"#9ca3af" }}>
+            <div style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#f6f2ff", border:"1px solid #cbc3d7", borderRadius:8, padding:"6px 12px", color:"#7b7486" }}>
               <Icon.Search />
               <input type="text" placeholder="Search tasks, faculty, tracking ID..." value={assignSearch} onChange={e=>setAssignSearch(e.target.value)}
-                style={{ border:"none", background:"transparent", outline:"none", fontSize:12, color:"#374151", width:"100%", fontFamily:"'DM Sans', sans-serif" }} />
+                style={{ border:"none", background:"transparent", outline:"none", fontSize:12, color:"#494454", width:"100%", fontFamily:"'DM Sans', sans-serif" }} />
             </div>
           </div>
         </TopBar>
@@ -651,8 +651,8 @@ function TaskAssignmentInner() {
 
           {/* Page header */}
           <div>
-            <div style={{ fontSize:11, color:"#9ca3af", marginBottom:2 }}>Department Admin / Chair Assignments</div>
-            <h1 style={{ fontSize:22, fontWeight:800, color:"#111", margin:"0 0 4px" }}>Faculty Task Assignment</h1>
+            <div style={{ fontSize:11, color:"#7b7486", marginBottom:2 }}>Department Admin / Chair Assignments</div>
+            <h1 style={{ fontSize:22, fontWeight:800, color:"#181445", margin:"0 0 4px" }}>Faculty Task Assignment</h1>
             <p style={{ fontSize:12, color:"#666", margin:0 }}>Delegate incoming documents and administrative tasks to department faculty members.</p>
           </div>
 
@@ -660,22 +660,22 @@ function TaskAssignmentInner() {
           <div style={{ display:"grid", gridTemplateColumns:"1fr 300px", gap:20, alignItems:"start" }}>
 
             {/* Assignment Configuration Card */}
-            <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", overflow:"hidden", animation:"fadeUp 0.3s ease" }}>
+            <div style={{ background:"white", borderRadius:16, border:"1px solid #e3dfff", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", overflow:"hidden", animation:"fadeUp 0.3s ease" }}>
 
               {/* Header */}
-              <div style={{ padding:"18px 24px", borderBottom:"1px solid #f3f4f6", display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:16, background:"linear-gradient(180deg,#faf8ff 0%, white 100%)" }}>
+              <div style={{ padding:"18px 24px", borderBottom:"1px solid #e9e5ff", display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:16, background:"linear-gradient(180deg,#f6f2ff 0%, white 100%)" }}>
                 <div>
                   <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:3 }}>
-                    <div style={{ width:27, height:27, borderRadius:8, background:"#7c3aed", display:"flex", alignItems:"center", justifyContent:"center", color:"white", flexShrink:0 }}>
+                    <div style={{ width:27, height:27, borderRadius:8, background:"#6b38d4", display:"flex", alignItems:"center", justifyContent:"center", color:"white", flexShrink:0 }}>
                       <Icon.AssignTask />
                     </div>
-                    <h3 style={{ fontSize:14.5, fontWeight:800, color:"#111", margin:0 }}>Assignment Configuration</h3>
+                    <h3 style={{ fontSize:14.5, fontWeight:800, color:"#181445", margin:0 }}>Assignment Configuration</h3>
                   </div>
                   <p style={{ fontSize:11.5, color:"#8a8a95", margin:0, paddingLeft:36 }}>Fill in the details to route this task to a faculty member.</p>
                 </div>
-                <div style={{ textAlign:"right", flexShrink:0, background:"#faf5ff", border:"1px solid #ede9fe", borderRadius:9, padding:"6px 12px" }}>
-                  <div style={{ fontSize:9, fontWeight:800, color:"#a78bfa", textTransform:"uppercase", letterSpacing:0.8, marginBottom:1 }}>Tracking ID</div>
-                  <div style={{ fontSize:12.5, fontWeight:800, color:"#7c3aed", fontFamily:"monospace" }}>{previewTrackingId}</div>
+                <div style={{ textAlign:"right", flexShrink:0, background:"#f6f2ff", border:"1px solid #e9e5ff", borderRadius:9, padding:"6px 12px" }}>
+                  <div style={{ fontSize:9, fontWeight:800, color:"#8a4cfc", textTransform:"uppercase", letterSpacing:0.8, marginBottom:1 }}>Tracking ID</div>
+                  <div style={{ fontSize:12.5, fontWeight:800, color:"#6b38d4", fontFamily:"monospace" }}>{previewTrackingId}</div>
                 </div>
               </div>
 
@@ -684,47 +684,39 @@ function TaskAssignmentInner() {
                 {/* RECIPIENT */}
                 <SectionLabel icon={<Icon.Users />}>Recipient</SectionLabel>
                 <div style={{ marginBottom:22 }}>
-                  <div style={{ display:"flex", gap:4, marginBottom:10, background:"#f5f4fa", padding:4, borderRadius:10 }}>
-                    <button type="button"
-                      onClick={() => { setAssignMode("individual"); setSelectedRole(""); }}
-                      style={{ flex:1, padding:"7px 8px", borderRadius:7, fontSize:11.5, fontWeight:700, cursor:"pointer", border:"none",
-                        background: assignMode==="individual" ? "white" : "transparent",
-                        color: assignMode==="individual" ? "#7c3aed" : "#7a7a85",
-                        boxShadow: assignMode==="individual" ? "0 1px 3px rgba(17,17,17,0.1)" : "none",
-                        transition:"all 0.15s ease" }}>
-                      Specific Faculty
-                    </button>
-                    <button type="button"
-                      onClick={() => { setAssignMode("role"); setSelectedFacultyIds([]); setFacultyDropdownOpen(false); }}
-                      style={{ flex:1, padding:"7px 8px", borderRadius:7, fontSize:11.5, fontWeight:700, cursor:"pointer", border:"none",
-                        background: assignMode==="role" ? "white" : "transparent",
-                        color: assignMode==="role" ? "#7c3aed" : "#7a7a85",
-                        boxShadow: assignMode==="role" ? "0 1px 3px rgba(17,17,17,0.1)" : "none",
-                        transition:"all 0.15s ease" }}>
-                      Entire Role
-                    </button>
+                  <div style={{ display:"flex", gap:20, marginBottom:14 }}>
+                    <label style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }}
+                      onClick={() => { setAssignMode("individual"); setSelectedRole(""); }}>
+                      <span style={{ width:16, height:16, borderRadius:"50%", border: assignMode==="individual" ? "5px solid #6b38d4" : "1.5px solid #7b7486", flexShrink:0, transition:"all 0.15s ease" }} />
+                      <span style={{ fontSize:13, color:"#181445", fontWeight: assignMode==="individual" ? 700 : 500 }}>Specific Faculty</span>
+                    </label>
+                    <label style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }}
+                      onClick={() => { setAssignMode("role"); setSelectedFacultyIds([]); setFacultyDropdownOpen(false); }}>
+                      <span style={{ width:16, height:16, borderRadius:"50%", border: assignMode==="role" ? "5px solid #6b38d4" : "1.5px solid #7b7486", flexShrink:0, transition:"all 0.15s ease" }} />
+                      <span style={{ fontSize:13, color:"#181445", fontWeight: assignMode==="role" ? 700 : 500 }}>Entire Role Group</span>
+                    </label>
                   </div>
 
                   {assignMode === "individual" ? (
                     <div ref={facultyDropdownRef} style={{ position:"relative" }}>
                       <div onClick={() => setFacultyDropdownOpen(o => !o)}
-                        style={{ width:"100%", padding:"10px 14px", border: facultyDropdownOpen ? "1px solid #7c3aed" : "1px solid #e5e7eb", borderRadius:10, fontSize:13,
-                          color: selectedFacultyIds.length ? "#111" : "#9ca3af", background:"white", cursor:"pointer",
+                        style={{ width:"100%", padding:"10px 14px", border: facultyDropdownOpen ? "1px solid #6b38d4" : "1px solid #cbc3d7", borderRadius:10, fontSize:13,
+                          color: selectedFacultyIds.length ? "#181445" : "#7b7486", background:"white", cursor:"pointer",
                           display:"flex", alignItems:"center", justifyContent:"space-between", boxSizing:"border-box", transition:"border-color 0.15s" }}>
                         <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
                           {selectedFacultyIds.length === 0
                             ? "Select faculty (multiple allowed)"
                             : `${selectedFacultyIds.length} faculty member${selectedFacultyIds.length>1?"s":""} selected`}
                         </span>
-                        <span style={{ fontSize:10, color:"#9ca3af", marginLeft:6, transform: facultyDropdownOpen ? "rotate(180deg)" : "none", transition:"transform 0.15s" }}>▾</span>
+                        <span style={{ fontSize:10, color:"#7b7486", marginLeft:6, transform: facultyDropdownOpen ? "rotate(180deg)" : "none", transition:"transform 0.15s" }}>▾</span>
                       </div>
 
                       {facultyDropdownOpen && (
                         <div style={{ position:"absolute", top:"calc(100% + 4px)", left:0, right:0, zIndex:20,
-                          background:"white", border:"1px solid #e5e7eb", borderRadius:10, boxShadow:"0 10px 24px rgba(17,17,17,0.12)",
+                          background:"white", border:"1px solid #cbc3d7", borderRadius:10, boxShadow:"0 10px 24px rgba(17,17,17,0.12)",
                           maxHeight:230, overflowY:"auto" }}>
                           <label style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 14px", fontSize:12,
-                            fontWeight:700, color:"#7c3aed", cursor:"pointer", borderBottom:"1px solid #f3f4f6", position:"sticky", top:0, background:"white" }}>
+                            fontWeight:700, color:"#6b38d4", cursor:"pointer", borderBottom:"1px solid #e9e5ff", position:"sticky", top:0, background:"white" }}>
                             <input type="checkbox"
                               checked={facultyList.length > 0 && selectedFacultyIds.length === facultyList.length}
                               onChange={toggleAllFaculty} />
@@ -732,20 +724,20 @@ function TaskAssignmentInner() {
                           </label>
                           {facultyList.map(f => (
                             <label key={f.id} style={{ display:"flex", alignItems:"center", gap:9, padding:"7px 14px",
-                              fontSize:12.5, color:"#374151", cursor:"pointer" }}
-                              onMouseEnter={e=>e.currentTarget.style.background="#faf5ff"}
+                              fontSize:12.5, color:"#494454", cursor:"pointer" }}
+                              onMouseEnter={e=>e.currentTarget.style.background="#f6f2ff"}
                               onMouseLeave={e=>e.currentTarget.style.background="white"}>
                               <input type="checkbox"
                                 checked={selectedFacultyIds.includes(f.id)}
                                 onChange={() => toggleFacultyId(f.id)} />
-                              <span style={{ width:20, height:20, borderRadius:"50%", background:"#ede9fe", color:"#7c3aed", fontSize:9, fontWeight:800, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                              <span style={{ width:20, height:20, borderRadius:"50%", background:"#e9e5ff", color:"#6b38d4", fontSize:9, fontWeight:800, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                                 {(f.full_name||"?").split(" ").map(n=>n[0]).join("").slice(0,2)}
                               </span>
                               {f.full_name}
                             </label>
                           ))}
                           {facultyList.length === 0 && (
-                            <div style={{ padding:"10px 14px", fontSize:12, color:"#9ca3af" }}>No faculty found.</div>
+                            <div style={{ padding:"10px 14px", fontSize:12, color:"#7b7486" }}>No faculty found.</div>
                           )}
                         </div>
                       )}
@@ -763,8 +755,8 @@ function TaskAssignmentInner() {
                     </div>
                   ) : (
                     <select value={selectedRole} onChange={e=>setSelectedRole(e.target.value)}
-                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13,
-                        color: selectedRole ? "#111" : "#9ca3af", background:"white", boxSizing:"border-box" }}>
+                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #cbc3d7", borderRadius:10, fontSize:13,
+                        color: selectedRole ? "#181445" : "#7b7486", background:"white", boxSizing:"border-box" }}>
                       <option value="">Select a role</option>
                       {roleOptions.map(r => (
                         <option key={r} value={r}>{r.replace(/_/g," ").replace(/\b\w/g, c => c.toUpperCase())}</option>
@@ -773,22 +765,22 @@ function TaskAssignmentInner() {
                   )}
                 </div>
 
-                <div style={{ height:1, background:"#f3f4f6", margin:"0 0 22px" }} />
+                <div style={{ height:1, background:"#e9e5ff", margin:"0 0 22px" }} />
 
                 {/* TASK DETAILS */}
                 <SectionLabel icon={<Icon.Forms />}>Task Details</SectionLabel>
                 <div style={{ marginBottom:14 }}>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
-                    Task Title / Subject <span style={{ color:"#dc2626" }}>*</span>
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#494454", marginBottom:5 }}>
+                    Task Title / Subject <span style={{ color:"#ba1a1a" }}>*</span>
                   </label>
                   <input type="text" value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))}
                     placeholder="e.g. Annual Research Grant Proposal Review"
-                    style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", boxSizing:"border-box" }} />
+                    style={{ width:"100%", padding:"10px 14px", border:"1px solid #cbc3d7", borderRadius:10, fontSize:13, color:"#181445", boxSizing:"border-box" }} />
                 </div>
 
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:18 }}>
                   <div>
-                    <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>Document Type</label>
+                    <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#494454", marginBottom:5 }}>Document Type</label>
                     <select value={form.doc_type} onChange={e=>{
                         const newDocType = e.target.value;
                         const matchedRule = slaRules.find(r => r.document_type === newDocType && (r.status ?? "Active") === "Active");
@@ -801,13 +793,13 @@ function TaskAssignmentInner() {
                           priority: matchedRule ? matchedRule.priority : p.priority,
                         }));
                       }}
-                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color: form.doc_type?"#111":"#9ca3af", background:"white", boxSizing:"border-box" }}>
+                      style={{ width:"100%", padding:"10px 14px", border:"1px solid #cbc3d7", borderRadius:10, fontSize:13, color: form.doc_type?"#181445":"#7b7486", background:"white", boxSizing:"border-box" }}>
                       {docTypes.map(d => <option key={d} value={d==="Select Type…"?"":d}>{d}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:5 }}>
-                      Deadline / Due Date <span style={{ color:"#dc2626" }}>*</span>
+                    <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#494454", marginBottom:5 }}>
+                      Deadline / Due Date <span style={{ color:"#ba1a1a" }}>*</span>
                     </label>
                     <div style={{ display:"flex", gap:8 }}>
                       <input type="date" value={form.deadline} disabled={!form.doc_type}
@@ -823,27 +815,28 @@ function TaskAssignmentInner() {
                             return { ...p, deadline: newDate, deadlineTime: t };
                           });
                         }}
-                        style={{ flex:1.4, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13,
-                          color: form.deadline?"#111":"#9ca3af", boxSizing:"border-box",
-                          background: !form.doc_type ? "#f3f4f6" : "#fff", cursor: !form.doc_type ? "not-allowed" : "text" }} />
+                        style={{ flex:1.4, padding:"10px 14px", border:"1px solid #cbc3d7", borderRadius:10, fontSize:13,
+                          color: form.deadline?"#181445":"#7b7486", boxSizing:"border-box",
+                          background: !form.doc_type ? "#e9e5ff" : "#fff", cursor: !form.doc_type ? "not-allowed" : "text" }} />
                       <input type="time" value={form.deadlineTime} disabled={!form.doc_type || !form.deadline}
                         min={deadlineMinTime} max={deadlineMaxTime}
                         onChange={e=>setForm(p=>({...p,deadlineTime:e.target.value}))}
-                        style={{ flex:1, padding:"10px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", boxSizing:"border-box",
-                          background: (!form.doc_type || !form.deadline) ? "#f3f4f6" : "#fff", cursor: (!form.doc_type || !form.deadline) ? "not-allowed" : "text" }} />
+                        style={{ flex:1, padding:"10px 14px", border:"1px solid #cbc3d7", borderRadius:10, fontSize:13, color:"#181445", boxSizing:"border-box",
+                          background: (!form.doc_type || !form.deadline) ? "#e9e5ff" : "#fff", cursor: (!form.doc_type || !form.deadline) ? "not-allowed" : "text" }} />
                     </div>
                     {!form.doc_type ? (
-                      <p style={{ fontSize:10, color:"#9ca3af", margin:"5px 0 0" }}>Select a document type to unlock the deadline — it must fall inside that type's SLA window.</p>
+                      <p style={{ fontSize:10, color:"#7b7486", margin:"5px 0 0" }}>Select a document type to unlock the deadline — it must fall inside that type's SLA window.</p>
                     ) : (
-                      <p style={{ fontSize:10, color:"#7c3aed", margin:"5px 0 0", fontWeight:600 }}>
+                      <p style={{ fontSize:10, color:"#6b38d4", margin:"5px 0 0", fontWeight:600 }}>
                         Must be between {formatManilaLabel(windowStart.dateStr, windowStart.timeStr)} and {formatManilaLabel(windowEnd.dateStr, windowEnd.timeStr)} ({turnaroundHours}h SLA, Philippines time · UTC+8).
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div style={{ marginBottom:22 }}>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#374151", marginBottom:6 }}>Priority Level</label>
+                <SectionLabel icon={<Icon.Shield />}>Priority &amp; Routing</SectionLabel>
+                <div style={{ marginBottom:14 }}>
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#494454", marginBottom:6 }}>Priority Level</label>
                   <div style={{ display:"flex", gap:8 }}>
                     {["High","Medium","Low"].map(p => {
                       const c = PRIORITY_CONFIG[p];
@@ -852,9 +845,9 @@ function TaskAssignmentInner() {
                         <button key={p} type="button" onClick={() => setForm(prev => ({...prev, priority:p}))}
                           style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"8px 10px",
                             borderRadius:9, fontSize:12, fontWeight:700, cursor:"pointer",
-                            border: active ? `1px solid ${c.dot}` : "1px solid #e5e7eb",
+                            border: active ? `1px solid ${c.dot}` : "1px solid #cbc3d7",
                             background: active ? c.bg : "white",
-                            color: active ? c.color : "#6b7280",
+                            color: active ? c.color : "#494454",
                             transition:"all 0.15s ease" }}>
                           <span style={{ width:6, height:6, borderRadius:"50%", background:c.dot, flexShrink:0 }} />
                           {p}
@@ -864,30 +857,40 @@ function TaskAssignmentInner() {
                   </div>
                 </div>
 
-                <div style={{ height:1, background:"#f3f4f6", margin:"0 0 22px" }} />
+                {/* SLA preview strip — now grouped under Priority & Routing */}
+                <div style={{ marginBottom:22, background:"#f6f2ff", border:"1px solid #e9e5ff", borderRadius:12, padding:"12px 16px", display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginRight:6, flexShrink:0 }}>
+                    <Icon.SLA />
+                    <span style={{ fontSize:10.5, fontWeight:800, color:"#6b38d4" }}>Standard SLA</span>
+                  </div>
+                  <div style={{ width:1, alignSelf:"stretch", background:"#e4d9f9" }} />
+                  <SlaStat label="Turnaround" value={activeSla.turnaround} />
+                  <SlaStat label="Escalation" value={activeSla.escalation} accent="#b45309" />
+                  <SlaStat label="Review Required" value={activeSla.review} />
+                </div>
 
-                {/* NOTES */}
-                <SectionLabel icon={<Icon.Info />}>Notes &amp; Instructions</SectionLabel>
-                <div style={{ marginBottom:22 }}>
+                <div style={{ height:1, background:"#e9e5ff", margin:"0 0 22px" }} />
+
+                {/* INSTRUCTIONS & FILES */}
+                <SectionLabel icon={<Icon.Info />}>Instructions &amp; Files</SectionLabel>
+                <div style={{ marginBottom:18 }}>
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#494454", marginBottom:5 }}>Notes &amp; Objectives</label>
                   <textarea value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}
                     placeholder="Provide detailed context, specific objectives, or references for the assigned faculty member…"
                     rows={3}
-                    style={{ width:"100%", padding:"11px 14px", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, color:"#111", resize:"vertical", fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box" }} />
+                    style={{ width:"100%", padding:"11px 14px", border:"1px solid #cbc3d7", borderRadius:10, fontSize:13, color:"#181445", resize:"vertical", fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box" }} />
                 </div>
 
-                <div style={{ height:1, background:"#f3f4f6", margin:"0 0 22px" }} />
-
-                {/* ATTACHMENTS */}
-                <SectionLabel icon={<Icon.Clip />}>Attachments &amp; Reference Files</SectionLabel>
                 <div style={{ marginBottom:18 }}>
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#494454", marginBottom:5 }}>Attachments</label>
                   <div
                     onDragOver={e=>{ e.preventDefault(); setDragOver(true); }}
                     onDragLeave={()=>setDragOver(false)}
                     onDrop={e=>{ e.preventDefault(); setDragOver(false); handleAttach(e.dataTransfer.files); }}
                     onClick={()=>attachRef.current?.click()}
-                    style={{ position:"relative", overflow:"hidden", border: dragOver ? "1.5px solid #7c3aed" : "1.5px dashed #ddd0f7", borderRadius:14,
+                    style={{ position:"relative", overflow:"hidden", border: dragOver ? "1.5px solid #6b38d4" : "1.5px dashed #ddd0f7", borderRadius:14,
                       padding:"26px 20px", textAlign:"center", cursor:"pointer",
-                      background: dragOver ? "linear-gradient(160deg,#f3ebff,#ede4fd)" : "linear-gradient(160deg,#faf8ff 0%,#f5f0fd 100%)",
+                      background: dragOver ? "linear-gradient(160deg,#f3ebff,#ede4fd)" : "linear-gradient(160deg,#f6f2ff 0%,#f5f0fd 100%)",
                       transform: dragOver ? "scale(1.01)" : "scale(1)",
                       transition:"all 0.18s ease" }}>
                     {/* soft decorative blobs */}
@@ -895,14 +898,14 @@ function TaskAssignmentInner() {
                     <div style={{ position:"absolute", bottom:-24, left:-16, width:70, height:70, borderRadius:"50%", background:"radial-gradient(circle,rgba(168,85,247,0.10),transparent 70%)" }} />
 
                     <input ref={attachRef} type="file" multiple style={{ display:"none" }} onChange={e=>handleAttach(e.target.files)} />
-                    <div style={{ position:"relative", width:44, height:44, borderRadius:"50%", background:"linear-gradient(135deg,#7c3aed,#a855f7)", boxShadow:"0 6px 16px rgba(124,58,237,0.3)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px" }}>
+                    <div style={{ position:"relative", width:44, height:44, borderRadius:"50%", background:"linear-gradient(135deg,#6b38d4,#8a4cfc)", boxShadow:"0 6px 16px rgba(124,58,237,0.3)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px" }}>
                       <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="white" strokeWidth="1.6"><path d="M13 7l-5.5 5.5a3.5 3.5 0 01-4.95-4.95l5.5-5.5a2 2 0 012.83 2.83L5.38 10.4a.5.5 0 01-.71-.71L10 4.5" strokeLinecap="round"/></svg>
                     </div>
                     <p style={{ position:"relative", fontSize:13, color:"#3f2d63", margin:"0 0 3px", fontWeight:700 }}>Drag and drop files here</p>
                     <p style={{ position:"relative", fontSize:10.5, color:"#9a8fc2", margin:"0 0 12px" }}>or click to browse your computer</p>
                     <div style={{ position:"relative", display:"flex", justifyContent:"center", gap:6, flexWrap:"wrap" }}>
                       {["PDF","JPG","PNG"].map(fmt => (
-                        <span key={fmt} style={{ fontSize:9.5, fontWeight:800, color:"#7c3aed", background:"rgba(124,58,237,0.09)", border:"1px solid rgba(124,58,237,0.18)", borderRadius:20, padding:"2.5px 9px" }}>{fmt}</span>
+                        <span key={fmt} style={{ fontSize:9.5, fontWeight:800, color:"#6b38d4", background:"rgba(124,58,237,0.09)", border:"1px solid rgba(124,58,237,0.18)", borderRadius:20, padding:"2.5px 9px" }}>{fmt}</span>
                       ))}
                       <span style={{ fontSize:9.5, fontWeight:600, color:"#9a8fc2", padding:"2.5px 2px" }}>· max 10MB each</span>
                     </div>
@@ -914,7 +917,7 @@ function TaskAssignmentInner() {
                         <span style={{ fontSize:10.5, fontWeight:700, color:"#8a8a95" }}>
                           {attachments.length} file{attachments.length>1?"s":""} attached · {(attachments.reduce((s,a)=>s+a.file.size,0)/1024/1024).toFixed(2)} MB total
                         </span>
-                        <span onClick={()=>attachments.forEach(a=>removeAttachment(a.id))} style={{ fontSize:10.5, fontWeight:700, color:"#dc2626", cursor:"pointer" }}>Clear all</span>
+                        <span onClick={()=>attachments.forEach(a=>removeAttachment(a.id))} style={{ fontSize:10.5, fontWeight:700, color:"#ba1a1a", cursor:"pointer" }}>Clear all</span>
                       </div>
                       <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
                         {attachments.map((a,idx) => {
@@ -935,17 +938,17 @@ function TaskAssignmentInner() {
                               )}
 
                               <div style={{ flex:1, minWidth:0 }}>
-                                <div style={{ fontSize:12, fontWeight:600, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.file.name}</div>
+                                <div style={{ fontSize:12, fontWeight:600, color:"#181445", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.file.name}</div>
                                 {uploading ? (
                                   <div style={{ display:"flex", alignItems:"center", gap:7, marginTop:4 }}>
                                     <div style={{ flex:1, height:4, background:"#ece9f5", borderRadius:4, overflow:"hidden" }}>
-                                      <div style={{ height:"100%", width:`${pct}%`, background:"linear-gradient(90deg,#7c3aed,#a855f7)", borderRadius:4, transition:"width 0.15s linear" }} />
+                                      <div style={{ height:"100%", width:`${pct}%`, background:"linear-gradient(90deg,#6b38d4,#8a4cfc)", borderRadius:4, transition:"width 0.15s linear" }} />
                                     </div>
-                                    <span style={{ fontSize:9.5, color:"#a78bfa", fontWeight:700, flexShrink:0, minWidth:26, textAlign:"right" }}>{pct}%</span>
+                                    <span style={{ fontSize:9.5, color:"#8a4cfc", fontWeight:700, flexShrink:0, minWidth:26, textAlign:"right" }}>{pct}%</span>
                                   </div>
                                 ) : errored ? (
                                   <div style={{ display:"flex", alignItems:"center", gap:4, marginTop:1 }}>
-                                    <span style={{ fontSize:10, color:"#dc2626", fontWeight:600 }}>Upload failed — remove and try again</span>
+                                    <span style={{ fontSize:10, color:"#ba1a1a", fontWeight:600 }}>Upload failed — remove and try again</span>
                                   </div>
                                 ) : (
                                   <div style={{ display:"flex", alignItems:"center", gap:4, marginTop:1 }}>
@@ -958,11 +961,11 @@ function TaskAssignmentInner() {
                               {uploading ? (
                                 <svg viewBox="0 0 16 16" width="15" height="15" style={{ animation:"spin 0.8s linear infinite", flexShrink:0 }}>
                                   <circle cx="8" cy="8" r="6" fill="none" stroke="#ede4fd" strokeWidth="2.5" />
-                                  <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" />
+                                  <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="#6b38d4" strokeWidth="2.5" strokeLinecap="round" />
                                 </svg>
                               ) : (
                                 <button onClick={()=>removeAttachment(a.id)}
-                                  style={{ background:"#f6f5fa", border:"none", cursor:"pointer", color:"#9ca3af", width:22, height:22, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                                  style={{ background:"#f6f5fa", border:"none", cursor:"pointer", color:"#7b7486", width:22, height:22, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                                   <Icon.X />
                                 </button>
                               )}
@@ -974,40 +977,12 @@ function TaskAssignmentInner() {
                   )}
                 </div>
 
-                {/* SLA preview strip */}
-                <div style={{ marginBottom:20, background:"linear-gradient(135deg,#faf5ff,#f5f0ff)", border:"1px solid #ede9fe", borderRadius:12, padding:"14px 18px", display:"flex", alignItems:"center", gap:10 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:6, marginRight:6, flexShrink:0 }}>
-                    <Icon.Info />
-                    <span style={{ fontSize:10.5, fontWeight:800, color:"#7c3aed" }}>SLA Preview</span>
-                  </div>
-                  <div style={{ width:1, alignSelf:"stretch", background:"#e4d9f9" }} />
-                  <SlaStat label="Turnaround" value={activeSla.turnaround} />
-                  <SlaStat label="Escalation" value={activeSla.escalation} accent="#b45309" />
-                  <SlaStat label="Review Required" value={activeSla.review} />
-                </div>
-
                 {successMsg && (
                   <div style={{ marginBottom:16, background:"#d1fae5", border:"1px solid #6ee7b7", borderRadius:10, padding:"11px 14px", fontSize:12, fontWeight:700, color:"#065f46", display:"flex", alignItems:"center", gap:8 }}>
                     <Icon.Check />
-                    <span>Task assigned! Tracking ID: <span style={{ color:"#7c3aed", fontFamily:"monospace" }}>{lastTrackingId}</span></span>
+                    <span>Task assigned! Tracking ID: <span style={{ color:"#6b38d4", fontFamily:"monospace" }}>{lastTrackingId}</span></span>
                   </div>
                 )}
-
-                {/* Action buttons */}
-                <div style={{ display:"flex", gap:10 }}>
-                  <button onClick={resetForm}
-                    style={{ padding:"11px 16px", background:"white", color:"#888", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer" }}>
-                    Cancel
-                  </button>
-                  <button onClick={handleSaveDraft}
-                    style={{ flex:1, padding:"11px", background:"white", color:"#555", border:"1px solid #e5e7eb", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer" }}>
-                    Save as Draft
-                  </button>
-                  <button onClick={handleSubmit} disabled={submitting || attachments.some(a=>a.status==="uploading")}
-                    style={{ flex:1.6, padding:"11px", background: (submitting||attachments.some(a=>a.status==="uploading"))?"#a78bfa":"#7c3aed", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:800, cursor: (submitting||attachments.some(a=>a.status==="uploading"))?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7, boxShadow: submitting?"none":"0 4px 10px rgba(124,58,237,0.28)", transition:"box-shadow 0.15s" }}>
-                    <Icon.Assign /> {submitting ? "Assigning…" : attachments.some(a=>a.status==="uploading") ? "Uploading files…" : "Assign Task"}
-                  </button>
-                </div>
               </div>
             </div>
 
@@ -1015,10 +990,10 @@ function TaskAssignmentInner() {
             <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
 
               {/* Department Workload Insights */}
-              <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", overflow:"hidden" }}>
+              <div style={{ background:"white", borderRadius:16, border:"1px solid #e3dfff", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", overflow:"hidden" }}>
 
                 {/* Decorative banner */}
-                <div style={{ position:"relative", height:84, background:"linear-gradient(135deg,#5b21b6 0%,#7c3aed 55%,#c084fc 100%)", overflow:"hidden" }}>
+                <div style={{ position:"relative", height:84, background:"linear-gradient(135deg,#5516be 0%,#6b38d4 55%,#c084fc 100%)", overflow:"hidden" }}>
                   <svg viewBox="0 0 300 84" style={{ width:"100%", height:"100%", display:"block" }} preserveAspectRatio="xMidYMid slice">
                     <line x1="40" y1="20" x2="90" y2="45" stroke="rgba(255,255,255,0.28)" strokeWidth="1"/>
                     <line x1="90" y1="45" x2="150" y2="18" stroke="rgba(255,255,255,0.28)" strokeWidth="1"/>
@@ -1038,7 +1013,7 @@ function TaskAssignmentInner() {
                 </div>
 
                 <div style={{ padding:"14px 18px 18px" }}>
-                  <div style={{ fontSize:13.5, fontWeight:800, color:"#111", margin:"0 0 12px" }}>Department Workload Insights</div>
+                  <div style={{ fontSize:13.5, fontWeight:800, color:"#181445", margin:"0 0 12px" }}>Department Workload Insights</div>
 
                   <div style={{ background:"#faf9fc", border:"1px solid #f0eef7", borderRadius:10, padding:"10px 12px", marginBottom:10 }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
@@ -1055,14 +1030,14 @@ function TaskAssignmentInner() {
 
                   <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
                     <Icon.Users />
-                    <span style={{ fontSize:11, fontWeight:800, color:"#111" }}>Faculty Status</span>
+                    <span style={{ fontSize:11, fontWeight:800, color:"#181445" }}>Faculty Status</span>
                   </div>
                   <div style={{ marginBottom:8 }}>
                     {displayWorkload.map((w,i) => <FacultyStatusRow key={i} name={w.name} percent={w.percent} />)}
                   </div>
 
-                  <div style={{ textAlign:"center", paddingTop:6, borderTop:"1px solid #f3f4f6" }}>
-                    <span style={{ fontSize:11.5, color:"#7c3aed", fontWeight:700, cursor:"pointer" }}>View All Faculty Metrics</span>
+                  <div style={{ textAlign:"center", paddingTop:6, borderTop:"1px solid #e9e5ff" }}>
+                    <span style={{ fontSize:11.5, color:"#6b38d4", fontWeight:700, cursor:"pointer" }}>View All Faculty Metrics</span>
                   </div>
                 </div>
               </div>
@@ -1070,16 +1045,16 @@ function TaskAssignmentInner() {
               {/* Quick stats */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                 <StatMini icon={<Icon.Tracking />} iconBg="#e0edff" iconColor="#2563eb" label="Pending Reviews" value={pendingReviews} />
-                <StatMini icon={<Icon.Check />} iconBg="#ede9fe" iconColor="#7c3aed" label="Completion Rate" value={`${completionRate}%`} />
+                <StatMini icon={<Icon.Check />} iconBg="#e9e5ff" iconColor="#6b38d4" label="Completion Rate" value={`${completionRate}%`} />
               </div>
 
               {/* Recent Activity */}
-              <div style={{ background:"white", borderRadius:16, border:"1px solid #f0f0f5", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", padding:20 }}>
-                <div style={{ fontSize:13, fontWeight:800, color:"#111", marginBottom:6 }}>Recent Activity</div>
+              <div style={{ background:"white", borderRadius:16, border:"1px solid #e3dfff", boxShadow:"0 1px 3px rgba(17,17,17,0.05)", padding:20 }}>
+                <div style={{ fontSize:13, fontWeight:800, color:"#181445", marginBottom:6 }}>Recent Activity</div>
                 {recentActivity.map((a,i) => (
                   <div key={i} style={{ padding:"10px 0", borderBottom: i < recentActivity.length-1 ? "1px solid #f5f4f9" : "none" }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:8 }}>
-                      <span style={{ fontSize:11.5, fontWeight:800, color:"#7c3aed", fontFamily:"monospace" }}>{a.tracking_id || "—"}</span>
+                      <span style={{ fontSize:11.5, fontWeight:800, color:"#6b38d4", fontFamily:"monospace" }}>{a.tracking_id || "—"}</span>
                       {a.time && <span style={{ fontSize:10, color:"#bbb", flexShrink:0, whiteSpace:"nowrap" }}>{a.time}</span>}
                     </div>
                     <div style={{ fontSize:12.5, fontWeight:600, color:"#222", marginTop:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.title || "Untitled task"}</div>
@@ -1091,22 +1066,22 @@ function TaskAssignmentInner() {
           </div>
 
           {/* ── Current Assignments Table ── */}
-          <div style={{ background:"white", borderRadius:14, border:"1px solid #f3f4f6", overflow:"hidden" }}>
-            <div style={{ padding:"16px 20px", borderBottom:"1px solid #f3f4f6", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <div style={{ background:"white", borderRadius:14, border:"1px solid #e9e5ff", overflow:"hidden" }}>
+            <div style={{ padding:"16px 20px", borderBottom:"1px solid #e9e5ff", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
-                <h3 style={{ fontSize:14, fontWeight:800, color:"#111", margin:"0 0 2px" }}>Current Assignments</h3>
+                <h3 style={{ fontSize:14, fontWeight:800, color:"#181445", margin:"0 0 2px" }}>Current Assignments</h3>
                 <p style={{ fontSize:11, color:"#888", margin:0 }}>Review and manage tasks currently assigned to department faculty.</p>
               </div>
               <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:7, background:"#f9fafb", border:"1px solid #e5e7eb", borderRadius:8, padding:"6px 12px" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:7, background:"#f6f2ff", border:"1px solid #cbc3d7", borderRadius:8, padding:"6px 12px" }}>
                   <Icon.Search />
                   <input type="text" placeholder="Search assignments..." value={assignSearch} onChange={e=>setAssignSearch(e.target.value)}
-                    style={{ border:"none", background:"transparent", outline:"none", fontSize:12, color:"#374151", width:160, fontFamily:"'DM Sans', sans-serif" }} />
+                    style={{ border:"none", background:"transparent", outline:"none", fontSize:12, color:"#494454", width:160, fontFamily:"'DM Sans', sans-serif" }} />
                 </div>
-                <button style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 12px", border:"1px solid #e5e7eb", borderRadius:8, background:"white", fontSize:12, fontWeight:600, cursor:"pointer", color:"#374151" }}>
+                <button style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 12px", border:"1px solid #cbc3d7", borderRadius:8, background:"white", fontSize:12, fontWeight:600, cursor:"pointer", color:"#494454" }}>
                   <Icon.Filter /> Filters
                 </button>
-                <button style={{ padding:"7px 10px", border:"1px solid #e5e7eb", borderRadius:8, background:"white", cursor:"pointer", color:"#374151" }}>
+                <button style={{ padding:"7px 10px", border:"1px solid #cbc3d7", borderRadius:8, background:"white", cursor:"pointer", color:"#494454" }}>
                   <Icon.Dots />
                 </button>
               </div>
@@ -1116,7 +1091,7 @@ function TaskAssignmentInner() {
               <thead>
                 <tr style={{ background:"#fafafa" }}>
                   {["Tracking #","Subject / Description","Assigned Faculty","Priority","Status","Due Date"].map(h => (
-                    <th key={h} style={{ padding:"10px 20px", textAlign:"left", fontSize:11, fontWeight:700, color:"#6b7280", borderBottom:"1px solid #f3f4f6", whiteSpace:"nowrap" }}>{h}</th>
+                    <th key={h} style={{ padding:"10px 20px", textAlign:"left", fontSize:11, fontWeight:700, color:"#494454", borderBottom:"1px solid #e9e5ff", whiteSpace:"nowrap" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1141,18 +1116,34 @@ function TaskAssignmentInner() {
               </tbody>
             </table>
 
-            <div style={{ padding:"12px 20px", borderTop:"1px solid #f3f4f6", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <div style={{ padding:"12px 20px", borderTop:"1px solid #e9e5ff", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <span style={{ fontSize:11, color:"#888" }}>Showing {Math.min(filtered.length || 5, 5)} of {filtered.length || 5} active assignments</span>
               <div style={{ display:"flex", gap:4 }}>
-                <button style={{ padding:"4px 10px", border:"1px solid #e5e7eb", borderRadius:6, background:"white", cursor:"pointer", fontSize:12, color:"#374151" }}>Previous</button>
-                <button style={{ padding:"4px 10px", border:"1px solid #e5e7eb", borderRadius:6, background:"white", cursor:"pointer", fontSize:12, color:"#374151" }}>Next</button>
+                <button style={{ padding:"4px 10px", border:"1px solid #cbc3d7", borderRadius:6, background:"white", cursor:"pointer", fontSize:12, color:"#494454" }}>Previous</button>
+                <button style={{ padding:"4px 10px", border:"1px solid #cbc3d7", borderRadius:6, background:"white", cursor:"pointer", fontSize:12, color:"#494454" }}>Next</button>
               </div>
             </div>
           </div>
 
-          <div style={{ textAlign:"center", fontSize:11, color:"#ccc" }}>
+          <div style={{ textAlign:"center", fontSize:11, color:"#ccc", paddingBottom:8 }}>
             © 2026 PATH Document Management System. All Rights Reserved.
           </div>
+        </div>
+
+        {/* Bottom actions bar — pinned to the foot of the main content column */}
+        <div style={{ background:"rgba(252,248,255,0.92)", backdropFilter:"blur(10px)", borderTop:"1px solid #cbc3d7", padding:"14px 24px", display:"flex", justifyContent:"flex-end", gap:12, boxShadow:"0 -4px 6px -1px rgba(17,17,17,0.05)", flexShrink:0 }}>
+          <button onClick={resetForm}
+            style={{ padding:"10px 20px", background:"transparent", color:"#494454", border:"none", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer" }}>
+            Cancel
+          </button>
+          <button onClick={handleSaveDraft}
+            style={{ padding:"10px 20px", background:"white", color:"#181445", border:"1px solid #cbc3d7", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer" }}>
+            Save as Draft
+          </button>
+          <button onClick={handleSubmit} disabled={submitting || attachments.some(a=>a.status==="uploading")}
+            style={{ padding:"10px 26px", background: (submitting||attachments.some(a=>a.status==="uploading"))?"#8a4cfc":"#6b38d4", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:800, cursor: (submitting||attachments.some(a=>a.status==="uploading"))?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7, boxShadow: submitting?"none":"0 4px 10px rgba(107,56,212,0.28)", transition:"box-shadow 0.15s" }}>
+            <Icon.Assign /> {submitting ? "Assigning…" : attachments.some(a=>a.status==="uploading") ? "Uploading files…" : "Assign Task"}
+          </button>
         </div>
       </div>
     </div>
@@ -1161,7 +1152,7 @@ function TaskAssignmentInner() {
 
 function AssignRow({ row }) {
   const priorityColor = {
-    High:"#dc2626", Urgent:"#dc2626", Medium:"#f59e0b", Low:"#10b981"
+    High:"#ba1a1a", Urgent:"#ba1a1a", Medium:"#f59e0b", Low:"#10b981"
   };
   return (
     <tr style={{ borderBottom:"1px solid #f9f9f9" }}
@@ -1169,20 +1160,20 @@ function AssignRow({ row }) {
       onMouseLeave={e=>e.currentTarget.style.background="white"}>
       <td style={{ padding:"12px 20px" }}>
         {row.tracking_id
-          ? <span style={{ color:"#7c3aed", fontWeight:700, fontSize:12, fontFamily:"monospace" }}>{row.tracking_id}</span>
+          ? <span style={{ color:"#6b38d4", fontWeight:700, fontSize:12, fontFamily:"monospace" }}>{row.tracking_id}</span>
           : <span style={{ color:"#d1d5db", fontSize:11, fontStyle:"italic" }}>—</span>
         }
       </td>
       <td style={{ padding:"12px 20px" }}>
-        <div style={{ fontSize:13, fontWeight:600, color:"#111" }}>{row.title}</div>
+        <div style={{ fontSize:13, fontWeight:600, color:"#181445" }}>{row.title}</div>
         <div style={{ fontSize:11, color:"#aaa" }}>{row.subtitle || row.doc_type || ""}</div>
       </td>
       <td style={{ padding:"12px 20px" }}>
         <div style={{ display:"flex", alignItems:"center", gap:7 }}>
-          <div style={{ width:24, height:24, borderRadius:"50%", background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:"#7c3aed", flexShrink:0 }}>
+          <div style={{ width:24, height:24, borderRadius:"50%", background:"#e9e5ff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:"#6b38d4", flexShrink:0 }}>
             {(row.faculty_name||"?").split(" ").map(n=>n[0]).join("").slice(0,2)}
           </div>
-          <span style={{ fontSize:12, fontWeight:600, color:"#374151" }}>{row.faculty_name || "—"}</span>
+          <span style={{ fontSize:12, fontWeight:600, color:"#494454" }}>{row.faculty_name || "—"}</span>
         </div>
       </td>
       <td style={{ padding:"12px 20px" }}>
@@ -1191,12 +1182,12 @@ function AssignRow({ row }) {
       <td style={{ padding:"12px 20px" }}>
         <StatusBadge s={row.status} />
       </td>
-      <td style={{ padding:"12px 20px", fontSize:12, color:"#374151" }}>
+      <td style={{ padding:"12px 20px", fontSize:12, color:"#494454" }}>
         <div style={{ display:"flex", alignItems:"center", gap:5 }}>
           <Icon.Calendar />
           {row.deadline || row.due_date || "—"}
         </div>
-        {row.subtitle && <div style={{ fontSize:10, color:"#dc2626", marginTop:1 }}>Due soon</div>}
+        {row.subtitle && <div style={{ fontSize:10, color:"#ba1a1a", marginTop:1 }}>Due soon</div>}
       </td>
     </tr>
   );
