@@ -406,7 +406,7 @@ export default function DocumentReview() {
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Submitter</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Avatar name={submitterName} src={form.avatar_url ? resolveFileUrl(form.avatar_url) : null} />
+                  <Avatar name={submitterName} src={form.submitter_avatar ? resolveFileUrl(form.submitter_avatar) : null} />
                   <span style={{ fontSize: 13, color: T.onSurface, fontWeight: 600 }}>{submitterName}</span>
                 </div>
               </div>

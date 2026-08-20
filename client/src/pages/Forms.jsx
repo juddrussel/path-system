@@ -1263,7 +1263,7 @@ export default function Forms() {
                       </td>
                       <td style={{ padding: "16px 24px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <Avatar name={row.full_name || row.student_id || "?"} src={row.avatar_url ? resolveFileUrl(row.avatar_url) : null} />
+                          <Avatar name={row.full_name || row.student_id || "?"} src={row.submitter_avatar ? resolveFileUrl(row.submitter_avatar) : null} />
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
                             {row.student_id && (
@@ -1367,7 +1367,7 @@ export default function Forms() {
                         </td>
                         <td style={{ padding: "16px 24px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <Avatar name={row.full_name || row.student_id || "?"} src={row.avatar_url ? resolveFileUrl(row.avatar_url) : null} />
+                            <Avatar name={row.full_name || row.student_id || "?"} src={row.submitter_avatar ? resolveFileUrl(row.submitter_avatar) : null} />
                             <div>
                               <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
                               {row.student_id && (

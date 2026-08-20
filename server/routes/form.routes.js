@@ -39,6 +39,14 @@
 // (to avoid precision loss on large BIGINTs), not a JS number. That meant
 // `+` triggered string concatenation instead of arithmetic: "18" + 1 gave
 // "181" instead of 19. Wrapped maxSeq in Number(...) so it adds correctly.
+//
+// ─── FIX (this version): submitter/reviewer avatars weren't returned ──────
+// GET /my, GET /all, GET /:id, and the notify-shaping SELECTs after /submit
+// and /:id/resubmit joined `users` for full_name/email but never selected
+// avatar_url, so the frontend's <Avatar src={...}> always fell back to
+// initials even when a user had a real profile photo. Added
+// u.avatar_url AS submitter_avatar (and r.avatar_url AS reviewer_avatar
+// where a reviewer is joined) everywhere a submitter/reviewer is joined.
 const express  = require("express");
 const router   = express.Router();
 const jwt      = require("jsonwebtoken");
@@ -259,7 +267,7 @@ router.post("/submit", requireAuth, upload.any(), async (req, res) => {
     }
 
     const [rows] = await db.query(
-      `SELECT fs.*, u.full_name AS submitter_name, u.email AS submitter_email
+      `SELECT fs.*, u.full_name AS submitter_name, u.email AS submitter_email, u.avatar_url AS submitter_avatar
        FROM form_submissions fs
        LEFT JOIN users u ON u.id = fs.submitted_by
        WHERE fs.id = ?`,
@@ -372,10 +380,12 @@ router.get("/my", requireAuth, async (req, res) => {
 
   try {
     const [forms] = await db.query(
-      `SELECT * FROM form_submissions
-       WHERE submitted_by = ?
-         AND (tracking_id LIKE ? OR full_name LIKE ? OR student_id LIKE ? OR category LIKE ?)
-       ORDER BY created_at DESC
+      `SELECT fs.*, u.avatar_url AS submitter_avatar
+       FROM form_submissions fs
+       LEFT JOIN users u ON u.id = fs.submitted_by
+       WHERE fs.submitted_by = ?
+         AND (fs.tracking_id LIKE ? OR fs.full_name LIKE ? OR fs.student_id LIKE ? OR fs.category LIKE ?)
+       ORDER BY fs.created_at DESC
        LIMIT ? OFFSET ?`,
       [req.user.id, like, like, like, like, parseInt(per_page), offset]
     );
@@ -417,9 +427,11 @@ router.get("/all", requireAuth, requireReviewer, async (req, res) => {
 
     const [forms] = await db.query(
       `SELECT fs.*,
-              u.full_name  AS submitter_name,
-              u.email      AS submitter_email,
-              r.full_name  AS reviewer_name
+              u.full_name   AS submitter_name,
+              u.email       AS submitter_email,
+              u.avatar_url  AS submitter_avatar,
+              r.full_name   AS reviewer_name,
+              r.avatar_url  AS reviewer_avatar
        FROM form_submissions fs
        LEFT JOIN users u ON u.id = fs.submitted_by
        LEFT JOIN users r ON r.id = fs.reviewed_by
@@ -458,9 +470,11 @@ router.get("/:id", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query(
       `SELECT fs.*,
-              u.full_name AS submitter_name,
-              u.email     AS submitter_email,
-              r.full_name AS reviewer_name
+              u.full_name   AS submitter_name,
+              u.email       AS submitter_email,
+              u.avatar_url  AS submitter_avatar,
+              r.full_name   AS reviewer_name,
+              r.avatar_url  AS reviewer_avatar
        FROM form_submissions fs
        LEFT JOIN users u ON u.id = fs.submitted_by
        LEFT JOIN users r ON r.id = fs.reviewed_by
@@ -680,7 +694,7 @@ router.post("/:id/resubmit", requireAuth, upload.single("file"), async (req, res
     );
 
     const [updated] = await db.query(
-      `SELECT fs.*, u.full_name AS submitter_name, u.email AS submitter_email
+      `SELECT fs.*, u.full_name AS submitter_name, u.email AS submitter_email, u.avatar_url AS submitter_avatar
        FROM form_submissions fs
        LEFT JOIN users u ON u.id = fs.submitted_by
        WHERE fs.id = ?`,
