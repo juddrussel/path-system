@@ -937,29 +937,31 @@ export default function Tracking() {
           </div>
 
           {/* Bento stat grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 24, marginBottom: 24 }}>
             {[
-              { label: "Total Documents",      value: stats.total,         icon: <Icon.Doc />,      bigIcon: <Icon.Doc />, iconBg: "rgba(107,56,212,0.1)", iconColor: "#6b38d4", tag: null, tagBg: "rgba(95,82,147,0.1)", tagColor: "#5f5293" },
-              { label: "In Progress",          value: stats.inProgress,    icon: <Icon.Tracking />, bigIcon: <Icon.Tracking />, iconBg: "#eff6ff", iconColor: "#2563eb", tag: "Active", tagBg: "#eff6ff", tagColor: "#2563eb" },
-              { label: "Pending Review",       value: stats.pendingReview, icon: <Icon.Eye />,      bigIcon: <Icon.Eye />, iconBg: "#fffbeb", iconColor: "#d97706", tag: "Needs Action", tagBg: "#fffbeb", tagColor: "#d97706" },
-              { label: "Completed / Approved", value: stats.completed,     icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4" strokeLinecap="round"/></svg>, bigIcon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4" strokeLinecap="round"/></svg>, iconBg: "#f0fdf4", iconColor: "#16a34a", tag: "Last 30 days", tagBg: "#f0fdf4", tagColor: "#16a34a" },
-            ].map(({ label, value, icon, bigIcon, iconBg, iconColor, tag, tagBg, tagColor }) => (
+              { label: "Total Documents",      value: stats.total,         icon: <Icon.Doc />,      accent: "rgba(107,56,212,0.12)", iconColor: "#7b7486", tag: null,               tagColor: "#494454" },
+              { label: "In Progress",          value: stats.inProgress,    icon: <Icon.Tracking />, accent: "rgba(37,99,235,0.12)",  iconColor: "#7b7486", tag: "Active",           tagColor: "#6b38d4" },
+              { label: "Pending Review",       value: stats.pendingReview, icon: <Icon.Eye />,      accent: "rgba(217,119,6,0.12)",  iconColor: "#7b7486", tag: "Needs Action",     tagColor: "#ba1a1a" },
+              { label: "Completed / Approved", value: stats.completed,     icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4" strokeLinecap="round"/></svg>, accent: "rgba(22,163,74,0.12)", iconColor: "#7b7486", tag: "Last 30 days", tagColor: "#6b38d4" },
+            ].map(({ label, value, icon, accent, iconColor, tag, tagColor }) => (
               <div key={label} style={{
                 position: "relative", overflow: "hidden",
-                background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)",
-                border: "1px solid #E9D5FF", borderRadius: 12, padding: 20,
-                boxShadow: "0 4px 12px rgba(107, 56, 212, 0.03)",
+                background: "white", border: "1px solid #cbc3d7", borderRadius: 16, padding: 24,
+                display: "flex", flexDirection: "column", justifyContent: "space-between",
+                transition: "box-shadow 0.3s",
               }}>
-                <div style={{ position: "absolute", top: 0, right: 0, padding: 16, opacity: 0.08, color: iconColor, fontSize: 80, lineHeight: 0 }}>
-                  <div style={{ width: 72, height: 72 }}>{bigIcon}</div>
+                <div style={{ position: "absolute", top: -16, right: -16, width: 96, height: 96, borderRadius: "50%", background: accent, filter: "blur(24px)" }} />
+                <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
+                  <span style={{ color: iconColor, display: "flex" }}>{icon}</span>
                 </div>
                 <div style={{ position: "relative", zIndex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: iconBg, color: iconColor, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>
-                    {tag && <span style={{ fontSize: 10, fontWeight: 600, color: tagColor, background: tagBg, padding: "3px 10px", borderRadius: 20 }}>{tag}</span>}
-                  </div>
-                  <h3 style={{ fontSize: 11, fontWeight: 600, color: "#494454", textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 4px" }}>{label}</h3>
-                  <p style={{ fontSize: 30, fontWeight: 700, color: "#181445", margin: 0 }}>{loading ? "—" : value}</p>
+                  <span style={{ display: "block", fontSize: 36, fontWeight: 700, lineHeight: 1.2, color: "#181445" }}>{loading ? "—" : value}</span>
+                  {tag && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8, fontSize: 12, fontWeight: 500, color: tagColor }}>
+                      <span>{tag}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
