@@ -135,7 +135,7 @@ function Avatar({ name = "", src = null, size = 26 }) {
         src={src}
         alt={name || "User"}
         onError={() => setImgFailed(true)}
-        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "1px solid #cbc3d7" }}
       />
     );
   }
