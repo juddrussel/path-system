@@ -274,7 +274,7 @@ export default function DocumentReview() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.surface, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
 
         {/* ── TOPBAR (persistent, same as the rest of the app) ── */}
-        <div style={{ flexShrink: 0 }}>
+        <div style={{ flexShrink: 0, position: "relative", zIndex: 1, boxShadow: "0 2px 6px rgba(24,20,69,0.08)" }}>
         <TopBar onLogout={handleLogout} />
         </div>
 
