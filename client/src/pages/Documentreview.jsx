@@ -184,9 +184,9 @@ export default function DocumentReview() {
   // ── Loading / error states (still rendered inside the Sidebar/TopBar shell) ──
   if (loading) {
     return (
-      <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
+      <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
         <Sidebar activePage="forms" />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0, overflow: "hidden" }}>
           <TopBar onLogout={handleLogout}>
             <div style={{ fontSize: 14, fontWeight: 700, color: T.onSurface }}>Document Review</div>
           </TopBar>
@@ -199,9 +199,9 @@ export default function DocumentReview() {
   }
   if (loadError || !form) {
     return (
-      <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
+      <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
         <Sidebar activePage="forms" />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0, overflow: "hidden" }}>
           <TopBar onLogout={handleLogout}>
             <div style={{ fontSize: 14, fontWeight: 700, color: T.onSurface }}>Document Review</div>
           </TopBar>
@@ -259,7 +259,7 @@ export default function DocumentReview() {
   const isPdf = ext === "pdf";
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
@@ -271,7 +271,7 @@ export default function DocumentReview() {
       <Sidebar activePage="forms" />
 
       {/* ── MAIN ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.surface, minWidth: 0 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.surface, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
 
         {/* ── TOPBAR (persistent, same as the rest of the app) ── */}
         <TopBar onLogout={handleLogout}>
@@ -311,38 +311,41 @@ export default function DocumentReview() {
         </TopBar>
 
       {/* ── Content ── */}
-      <main style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      <main style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
 
         {/* LEFT: document preview + audit trail */}
-        <div style={{ flex: 1, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", borderRight: `1px solid ${T.surfaceVariant}` }}>
+        <div style={{ flex: 1, minHeight: 0, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", borderRight: `1px solid ${T.surfaceVariant}` }}>
 
           {/* Document preview card */}
           <div style={{ flex: 1, minHeight: 500, background: T.surfaceContainerLow, border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: 24 }}>
-              {/* White "page" the document sits on top of */}
-              <div style={{ background: "white", borderRadius: 6, boxShadow: "0 1px 3px rgba(24,20,69,0.08)", width: "100%", maxWidth: 640, height: "100%", display: "flex", overflow: "hidden" }}>
-                {url ? (
-                  isPdf ? (
-                    <iframe src={`${url}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`} title="Form Preview" style={{ width: "100%", height: "100%", border: "none" }} />
-                  ) : isImg ? (
-                    <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-                      <img src={url} alt="Form Preview" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
-                    </div>
-                  ) : (
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 14, color: T.onSurfaceVariant }}>
-                      <FileIcon />
-                      <div style={{ fontSize: 13, fontWeight: 600, color: T.onSurface }}>{form.file_name || "Attached file"}</div>
-                      <div style={{ fontSize: 11, color: T.outline }}>Preview not available for this file type.</div>
-                    </div>
-                  )
-                ) : (
-                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 10, color: T.outline }}>
-                    <FileIcon />
-                    <div style={{ fontSize: 13, color: T.onSurfaceVariant }}>No file attached</div>
-                  </div>
-                )}
+            {url && isImg ? (
+              // Photos/screenshots: full-bleed, no paper skeuomorph — the image IS the surface.
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto", background: "#0b0a17" }}>
+                <img src={url} alt="Form Preview" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }} />
               </div>
-            </div>
+            ) : (
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: 24 }}>
+                {/* White "page" the document sits on top of */}
+                <div style={{ background: "white", borderRadius: 6, boxShadow: "0 1px 3px rgba(24,20,69,0.08)", width: "100%", maxWidth: 640, height: "100%", display: "flex", overflow: "hidden" }}>
+                  {url ? (
+                    isPdf ? (
+                      <iframe src={`${url}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`} title="Form Preview" style={{ width: "100%", height: "100%", border: "none" }} />
+                    ) : (
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 14, color: T.onSurfaceVariant }}>
+                        <FileIcon />
+                        <div style={{ fontSize: 13, fontWeight: 600, color: T.onSurface }}>{form.file_name || "Attached file"}</div>
+                        <div style={{ fontSize: 11, color: T.outline }}>Preview not available for this file type.</div>
+                      </div>
+                    )
+                  ) : (
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 10, color: T.outline }}>
+                      <FileIcon />
+                      <div style={{ fontSize: 13, color: T.onSurfaceVariant }}>No file attached</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Floating toolbar */}
             {url && (
@@ -376,7 +379,7 @@ export default function DocumentReview() {
         </div>
 
         {/* RIGHT: metadata + review action */}
-        <aside style={{ width: 400, flexShrink: 0, background: T.surfaceContainerLowest, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto" }}>
+        <aside style={{ width: 400, flexShrink: 0, minHeight: 0, background: T.surfaceContainerLowest, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto" }}>
 
           {/* Metadata */}
           <section>
