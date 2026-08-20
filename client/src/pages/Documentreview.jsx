@@ -275,7 +275,11 @@ export default function DocumentReview() {
 
         {/* ── TOPBAR (persistent, same as the rest of the app) ── */}
         <div style={{ flexShrink: 0 }}>
-        <TopBar onLogout={handleLogout}>
+        <TopBar onLogout={handleLogout} />
+        </div>
+
+        {/* ── PAGE HEADER (specific to this Document Review screen, sits below the app topbar) ── */}
+        <div style={{ flexShrink: 0, borderBottom: `1px solid ${T.surfaceVariant}`, background: T.surfaceContainerLowest, padding: "14px 24px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
               <button onClick={goBack} title="Back to Review Queue"
@@ -309,7 +313,6 @@ export default function DocumentReview() {
               </button>
             </div>
           </div>
-        </TopBar>
         </div>
 
       {/* ── Content ── */}
