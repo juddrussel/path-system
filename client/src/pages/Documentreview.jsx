@@ -274,6 +274,7 @@ export default function DocumentReview() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.surface, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
 
         {/* ── TOPBAR (persistent, same as the rest of the app) ── */}
+        <div style={{ flexShrink: 0 }}>
         <TopBar onLogout={handleLogout}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
@@ -309,6 +310,7 @@ export default function DocumentReview() {
             </div>
           </div>
         </TopBar>
+        </div>
 
       {/* ── Content ── */}
       <main style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
@@ -317,7 +319,7 @@ export default function DocumentReview() {
         <div style={{ flex: 1, minHeight: 0, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", borderRight: `1px solid ${T.surfaceVariant}` }}>
 
           {/* Document preview card */}
-          <div style={{ flex: 1, minHeight: 500, background: T.surfaceContainerLow, border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+          <div style={{ flex: 1, background: T.surfaceContainerLow, border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
             {url && isImg ? (
               // Photos/screenshots: full-bleed, no paper skeuomorph — the image IS the surface.
               <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto", background: "#0b0a17" }}>
