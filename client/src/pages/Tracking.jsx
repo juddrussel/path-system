@@ -922,8 +922,8 @@ export default function Tracking() {
           {/* Page title */}
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 24 }}>
             <div>
-              <h1 style={{ fontSize: 30, fontWeight: 700, color: "#181445", margin: "0 0 4px", letterSpacing: "-0.01em" }}>Document Tracking</h1>
-              <p style={{ fontSize: 13, color: "#494454", margin: 0 }}>Monitor document progress and routing history — read-only access</p>
+              <h1 style={{ fontSize: 32, lineHeight: "2.5rem", fontWeight: 600, color: "#181445", margin: 0, letterSpacing: "-0.025em" }}>Document Tracking</h1>
+              <p style={{ fontSize: 14, color: "#494454", margin: "8px 0 0" }}>Monitor document progress and routing history — read-only access</p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button onClick={fetchDocs} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
@@ -1017,11 +1017,11 @@ export default function Tracking() {
 
             {/* Table */}
             <div style={{ overflowX: "auto", background: "white" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, textAlign: "left" }}>
                 <thead>
-                  <tr style={{ background: "#F8F7FF", borderBottom: "1px solid #E9D5FF" }}>
+                  <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
                     {["Document ID", "Title / Department", "Submitted By", "Current Handler", "Stage", "Status"].map(col => (
-                      <th key={col} style={{ padding: "12px 16px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#494454", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap" }}>
+                      <th key={col} style={{ padding: "16px 24px", textAlign: "left", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
                         {col}
                       </th>
                     ))}
@@ -1029,40 +1029,40 @@ export default function Tracking() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={6} style={{ padding: 40, textAlign: "center", color: "#9ca3af" }}>
+                    <tr><td colSpan={6} style={{ padding: "64px 24px", textAlign: "center", color: "#9ca3af" }}>
                       <div style={{ display: "inline-block", width: 20, height: 20, border: "2px solid #e5e7eb", borderTopColor: "#7c3aed", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                     </td></tr>
                   ) : paginated.length === 0 ? (
-                    <tr><td colSpan={6} style={{ padding: 48, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
+                    <tr><td colSpan={6} style={{ padding: "64px 24px", textAlign: "center", color: "#7b7486", fontSize: 14 }}>
                       No documents found{search ? ` for "${search}"` : ""}.
                     </td></tr>
                   ) : paginated.map(doc => (
                     <tr key={doc.id || doc.document_id} className="doc-row"
                       onClick={() => setSelected(doc)}
-                      style={{ borderBottom: "1px solid #F2EDFF", transition: "background 0.1s" }}>
+                      style={{ borderBottom: "1px solid #e3dfff", transition: "background 0.1s" }}>
 
                       {/* Document ID */}
-                      <td style={{ padding: "13px 16px" }}>
-                        <div style={{ color: "#7c3aed", fontWeight: 700, fontSize: 12 }}>{doc.document_id}</div>
-                        <div style={{ color: "#9ca3af", fontSize: 10, marginTop: 2 }}>
+                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
+                        <div style={{ color: "#7c3aed", fontWeight: 700, fontSize: 14 }}>{doc.document_id}</div>
+                        <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 2 }}>
                           {doc.submitted_at ? new Date(doc.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
                         </div>
                       </td>
 
                       {/* Title / Dept */}
-                      <td style={{ padding: "13px 16px", maxWidth: 220 }}>
+                      <td style={{ padding: "16px 24px", maxWidth: 220 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                           <span style={{ fontWeight: 600, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{doc.title}</span>
                           {doc.source_type && <TypeBadge type={doc.source_type} />}
                         </div>
-                        <div style={{ color: "#9ca3af", fontSize: 10, display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ color: "#9ca3af", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
                           <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M2 14V6l6-4 6 4v8H10V9H6v5H2z"/></svg>
                           {doc.department}
                         </div>
                       </td>
 
                       {/* Submitted By */}
-                      <td style={{ padding: "13px 16px" }}>
+                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
                         {doc.submitted_by
                           ? <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                               <Avatar name={doc.submitted_by} size={24} color="#7c3aed" />
@@ -1073,7 +1073,7 @@ export default function Tracking() {
                       </td>
 
                       {/* Current Handler */}
-                      <td style={{ padding: "13px 16px" }}>
+                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
                         {doc.current_handler
                           ? <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                               <Avatar name={doc.current_handler} size={24} color="#059669" />
@@ -1084,13 +1084,13 @@ export default function Tracking() {
                       </td>
 
                       {/* Stage bar */}
-                      <td style={{ padding: "13px 16px", minWidth: 140 }}>
-                        <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 5, fontWeight: 500 }}>{doc.stage || "—"}</div>
+                      <td style={{ padding: "16px 24px", minWidth: 140 }}>
+                        <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 5, fontWeight: 500 }}>{doc.stage || "—"}</div>
                         <StageBar stage={doc.stage} status={doc.status} />
                       </td>
 
                       {/* Status */}
-                      <td style={{ padding: "13px 16px" }}>
+                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
                         <StatusBadge status={doc.status} />
                       </td>
                     </tr>
@@ -1100,8 +1100,8 @@ export default function Tracking() {
             </div>
 
             {/* Pagination */}
-            <div style={{ padding: "16px 20px", borderTop: "1px solid #E9D5FF", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white" }}>
-              <span style={{ fontSize: 12, color: "#494454" }}>
+            <div style={{ padding: "16px 24px", borderTop: "1px solid #cbc3d7", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white" }}>
+              <span style={{ fontSize: 14, color: "#494454" }}>
                 Showing {Math.min((page - 1) * PER_PAGE + 1, filtered.length)}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length} document{filtered.length !== 1 ? "s" : ""}
                 {filtered.length > 0 && <span style={{ marginLeft: 8, color: "#6b38d4" }}>· Click a row to view full tracking details</span>}
               </span>
