@@ -1471,259 +1471,288 @@ export default function Forms() {
         </div>
       </div>
 
-      {/* ── REVIEW MODAL ── */}
-      {reviewModal && selectedForm && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={() => setReviewModal(false)}
-            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 40, backdropFilter: "blur(3px)" }}
-          />
+      {/* ── DOCUMENT REVIEW PANEL (full-page style, replaces the old centered popup) ── */}
+      {reviewModal && selectedForm && (() => {
+        const T = {
+          primary: "#6b38d4",
+          primaryFixed: "#e9ddff",
+          secondary: "#712ae2",
+          tertiary: "#5f5293",
+          onSurface: "#181445",
+          onSurfaceVariant: "#494454",
+          surface: "#fcf8ff",
+          surfaceContainerLowest: "#ffffff",
+          surfaceContainerLow: "#f6f2ff",
+          surfaceContainer: "#efebff",
+          surfaceContainerHigh: "#e9e5ff",
+          surfaceVariant: "#e3dfff",
+          outline: "#7b7486",
+          outlineVariant: "#cbc3d7",
+          error: "#ba1a1a",
+          errorContainer: "#ffdad6",
+          inverseSurface: "#2d2a5b",
+          inverseOnSurface: "#f3eeff",
+        };
 
-          {/* Centered panel — much larger */}
-          <div style={{
-            position: "fixed",
-            top: "50%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "min(1280px, 96vw)",
-            height: "min(880px, 94vh)",
-            background: "white", zIndex: 50,
-            display: "flex", flexDirection: "column",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.3)",
-            borderRadius: 16,
-            overflow: "hidden",
-            animation: "fadeUp 0.2s ease",
-          }}>
+        const displayName = selectedForm.file_name || selectedForm.tracking_id || `Form #${selectedForm.id}`;
+        const submitterName = selectedForm.submitter_name || selectedForm.full_name || "Unknown Submitter";
+        const filingDateRaw = selectedForm.filing_date || selectedForm.date || selectedForm.created_at;
+        const filingDateLabel = filingDateRaw
+          ? new Date(filingDateRaw).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          : "—";
 
-            {/* Panel header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderBottom: "1px solid #e5e7eb", flexShrink: 0, background: "white" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 36, height: 36, background: "#ede9fe", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon.Forms />
-                </div>
+        // Dynamic "Submitted Fields" from Step 2 of the wizard
+        let dynFields = null;
+        try {
+          dynFields = typeof selectedForm.field_values === "string" ? JSON.parse(selectedForm.field_values) : selectedForm.field_values;
+        } catch { dynFields = null; }
+        let dynEntries = dynFields ? Object.entries(dynFields) : [];
+        const tmpl = categories.find(c => c.name === selectedForm.category);
+        const fileFieldNames = new Set((tmpl?.formFields || []).filter(isFileField).map(f => f.name));
+        dynEntries = [
+          ...dynEntries.filter(([label]) => !fileFieldNames.has(label)),
+          ...dynEntries.filter(([label]) => fileFieldNames.has(label)),
+        ];
+
+        // Derived audit trail (built from the data actually available on the form)
+        const auditSteps = [
+          { label: "Submitted", by: `by ${submitterName}`, when: filingDateLabel, active: true },
+        ];
+        auditSteps.push({ label: "Assigned", by: "to Program Chair (You)", when: filingDateLabel, active: true });
+        if (selectedForm.status === "Revision") {
+          auditSteps.push({ label: "Revision Requested", by: selectedForm.review_note ? "Feedback provided" : "Awaiting resubmission", when: "—", active: true });
+        } else if (selectedForm.status === "Approved") {
+          auditSteps.push({ label: "Approved", by: "by Program Chair", when: "—", active: true });
+        } else if (selectedForm.status === "Rejected") {
+          auditSteps.push({ label: "Rejected", by: "by Program Chair", when: "—", active: true });
+        } else {
+          auditSteps.push({ label: "Under Review", by: "by Program Chair (You)", when: "—", active: true });
+        }
+
+        const statusColors = {
+          Pending: { bg: "#fef9c3", color: "#854d0e" },
+          Reviewing: { bg: "#ede9fe", color: "#5b21b6" },
+          Approved: { bg: "#d1fae5", color: "#065f46" },
+          Rejected: { bg: "#fee2e2", color: "#991b1b" },
+          Revision: { bg: "#fee2e2", color: "#991b1b" },
+        };
+        const sc = statusColors[selectedForm.status] || statusColors.Pending;
+
+        const url = selectedForm.file_url ? resolveFileUrl(selectedForm.file_url) : null;
+        const ext = (selectedForm.file_name || selectedForm.file_url || "").split(".").pop().toLowerCase();
+        const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+        const isPdf = ext === "pdf";
+
+        return (
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: T.surface, display: "flex", flexDirection: "column", fontFamily: "'DM Sans', sans-serif", animation: "fadeUp 0.15s ease" }}>
+
+            {/* ── Top bar ── */}
+            <header style={{ background: T.surfaceContainerLowest, borderBottom: `1px solid ${T.surfaceVariant}`, position: "sticky", top: 0, zIndex: 10, padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <button onClick={() => setReviewModal(false)} title="Back to Review Queue"
+                  style={{ background: "none", border: "none", cursor: "pointer", color: T.onSurfaceVariant, fontSize: 20, display: "flex", alignItems: "center", padding: 4 }}
+                  onMouseEnter={e => e.currentTarget.style.color = T.primary}
+                  onMouseLeave={e => e.currentTarget.style.color = T.onSurfaceVariant}>
+                  ←
+                </button>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: "#111" }}>Review Form Submission</div>
-                  <div style={{ fontSize: 12, color: "#888", marginTop: 1 }}>
-                    {selectedForm.tracking_id || `Form #${selectedForm.id}`} · {selectedForm.category}
+                  <div style={{ fontSize: 11, fontWeight: 600, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 1 }}>
+                    Submissions / Documents
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                    <h1 style={{ fontSize: 18, fontWeight: 700, color: T.onSurface, margin: 0 }}>{displayName}</h1>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 999, background: sc.bg, color: sc.color, fontSize: 11, fontWeight: 700 }}>
+                      🕓 {selectedForm.status || "Pending"} Review
+                    </span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setReviewModal(false)} style={{ background: "none", border: "1px solid #e5e7eb", borderRadius: 8, cursor: "pointer", padding: "6px 14px", color: "#666", fontSize: 20, lineHeight: 1 }}>×</button>
-            </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {url && (
+                  <a href={url} download={selectedForm.file_name} target="_blank" rel="noreferrer"
+                    style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, textDecoration: "none" }}>
+                    Download Copy
+                  </a>
+                )}
+                <button onClick={() => { navigator.clipboard?.writeText(window.location.href); addToast("Link copied to clipboard.", "info"); }}
+                  style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, background: "white", cursor: "pointer" }}>
+                  Share
+                </button>
+                <button onClick={() => setReviewModal(false)}
+                  style={{ padding: "8px 12px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 16, color: T.onSurfaceVariant, background: "white", cursor: "pointer", lineHeight: 1 }}>
+                  ×
+                </button>
+              </div>
+            </header>
 
-            {/* Panel body — two columns */}
-            <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+            {/* ── Main ── */}
+            <main style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
-              {/* LEFT — file preview (takes most space) */}
-              <div style={{ flex: 1, borderRight: "1px solid #e5e7eb", display: "flex", flexDirection: "column", overflow: "hidden", background: "#1e1e2e" }}>
+              {/* LEFT: document preview + audit trail */}
+              <div style={{ flex: 1, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", borderRight: `1px solid ${T.surfaceVariant}` }}>
 
-                {/* Preview toolbar */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid #2d2d3e", background: "#16162a", flexShrink: 0 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#a78bfa", textTransform: "uppercase", letterSpacing: 1 }}>
-                    File Preview
-                  </span>
-                  {selectedForm.file_url && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 11, color: "#888", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        📎 {selectedForm.file_name || "attachment"}
-                      </span>
-                      <a
-                        href={resolveFileUrl(selectedForm.file_url)}
-                        download={selectedForm.file_name}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ fontSize: 11, fontWeight: 700, color: "white", textDecoration: "none", padding: "4px 12px", borderRadius: 6, background: "#7c3aed", whiteSpace: "nowrap" }}
-                      >
-                        ↓ Download
-                      </a>
-                      <a
-                        href={resolveFileUrl(selectedForm.file_url)}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ fontSize: 11, fontWeight: 700, color: "#a78bfa", textDecoration: "none", padding: "4px 12px", borderRadius: 6, border: "1px solid #4c3d7a", whiteSpace: "nowrap" }}
-                      >
-                        ↗ Open in new tab
-                      </a>
+                {/* Document preview card */}
+                <div style={{ flex: 1, minHeight: 500, background: "#1e1e2e", border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+                  <div style={{ flex: 1, display: "flex", alignItems: "stretch", justifyContent: "center", overflow: "hidden" }}>
+                    {url ? (
+                      isPdf ? (
+                        <iframe src={`${url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`} title="Form Preview" style={{ width: "100%", height: "100%", border: "none" }} />
+                      ) : isImg ? (
+                        <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+                          <img src={url} alt="Form Preview" style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 8, boxShadow: "0 4px 24px rgba(0,0,0,0.4)", objectFit: "contain" }} />
+                        </div>
+                      ) : (
+                        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 14, color: "#888" }}>
+                          <Icon.File />
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#aaa" }}>{selectedForm.file_name || "Attached file"}</div>
+                          <div style={{ fontSize: 11, color: "#666" }}>Preview not available for this file type.</div>
+                        </div>
+                      )
+                    ) : (
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 10, color: "#555" }}>
+                        <Icon.File />
+                        <div style={{ fontSize: 13 }}>No file attached</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Floating toolbar */}
+                  {url && (
+                    <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", background: "rgba(45,42,91,0.9)", backdropFilter: "blur(8px)", color: T.inverseOnSurface, borderRadius: 999, padding: "8px 16px", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}>
+                      <a href={url} target="_blank" rel="noreferrer" download={selectedForm.file_name}
+                        title="Download" style={{ color: "inherit", textDecoration: "none", display: "flex", alignItems: "center" }}>⬇</a>
+                      <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.25)" }} />
+                      <button onClick={() => window.open(url, "_blank")?.print?.()} title="Print"
+                        style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", display: "flex", alignItems: "center", fontSize: 14 }}>🖶</button>
+                      <a href={url} target="_blank" rel="noreferrer" title="Open in new tab"
+                        style={{ color: "inherit", textDecoration: "none", display: "flex", alignItems: "center" }}>↗</a>
                     </div>
                   )}
                 </div>
 
-                {/* File content */}
-                <div style={{ flex: 1, overflow: "hidden", display: "flex", alignItems: "stretch", justifyContent: "center" }}>
-                  {selectedForm.file_url ? (() => {
-                    const url = resolveFileUrl(selectedForm.file_url);
-                    const ext = (selectedForm.file_name || selectedForm.file_url || "").split(".").pop().toLowerCase();
-                    const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-                    const isPdf = ext === "pdf";
-
-                    if (isPdf) return (
-                      <iframe
-                        src={`${url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
-                        title="Form Preview"
-                        style={{ width: "100%", height: "100%", border: "none" }}
-                      />
-                    );
-                    if (isImg) return (
-                      <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, background: "#1e1e2e" }}>
-                        <img
-                          src={url}
-                          alt="Form Preview"
-                          style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 8, boxShadow: "0 4px 24px rgba(0,0,0,0.4)", objectFit: "contain" }}
-                        />
+                {/* Document audit trail */}
+                <div style={{ background: T.surfaceContainerLowest, border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, padding: 20 }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: T.onSurface, margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    🕘 Document Audit Trail
+                  </h3>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+                    {auditSteps.map((step, i) => (
+                      <div key={i} style={{ flex: 1, minWidth: 180, borderLeft: `2px solid ${step.active ? T.primary : T.surfaceVariant}`, paddingLeft: 14 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: T.onSurface, marginBottom: 3 }}>{step.label}</div>
+                        <div style={{ fontSize: 13, color: T.onSurfaceVariant, marginBottom: 3 }}>{step.by}</div>
+                        <div style={{ fontSize: 11, color: T.outline }}>{step.when}</div>
                       </div>
-                    );
-                    return (
-                      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 14, color: "#888" }}>
-                        <Icon.File />
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#aaa" }}>{selectedForm.file_name || "Attached file"}</div>
-                        <div style={{ fontSize: 11, color: "#666" }}>Preview not available for this file type.</div>
-                        <a
-                          href={url} target="_blank" rel="noreferrer" download={selectedForm.file_name}
-                          style={{ marginTop: 8, padding: "10px 22px", background: "#7c3aed", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none" }}
-                        >
-                          Download File
-                        </a>
-                      </div>
-                    );
-                  })() : (
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 10, color: "#555" }}>
-                      <Icon.File />
-                      <div style={{ fontSize: 13 }}>No file attached</div>
-                    </div>
-                  )}
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* RIGHT — info + review actions (wider than before) */}
-              <div style={{ width: 360, display: "flex", flexDirection: "column", overflowY: "auto", flexShrink: 0 }}>
+              {/* RIGHT: metadata + review action */}
+              <aside style={{ width: 400, flexShrink: 0, background: T.surfaceContainerLowest, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto" }}>
 
-                {/* Submission info */}
-                <div style={{ padding: "14px 16px", borderBottom: "1px solid #f0f0f0" }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Submission Details</div>
-                  {[
-                    ["Document ID", selectedForm.tracking_id || `#${selectedForm.id}`],
-                    ["Submitted by", selectedForm.submitter_name || selectedForm.full_name || "—"],
-                    ["Department", selectedForm.department || "—"],
-                    ["Category", selectedForm.category || "—"],
-                    ["Date Filed", selectedForm.filing_date || selectedForm.date || selectedForm.created_at
-                      ? new Date(selectedForm.filing_date || selectedForm.date || selectedForm.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                      : "—"],
-                    ["Status", selectedForm.status || "Pending"],
-                  ].map(([label, value]) => (
-                    <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid #f9f9f9" }}>
-                      <span style={{ fontSize: 11, color: "#888", fontWeight: 600, flexShrink: 0, marginRight: 8 }}>{label}</span>
-                      <span style={{ fontSize: 12, color: "#111", fontWeight: 600, textAlign: "right", wordBreak: "break-word" }}>
-                        {label === "Status" ? (
-                          <span style={{ padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: 700, ...({ Pending: { background: "#fef3c7", color: "#92400e" }, Approved: { background: "#d1fae5", color: "#065f46" }, Rejected: { background: "#fee2e2", color: "#991b1b" }, Reviewing: { background: "#ede9fe", color: "#5b21b6" }, Revision: { background: "#fef3c7", color: "#92400e" } }[value] || { background: "#f3f4f6", color: "#374151" }) }}>
-                            {value}
-                          </span>
-                        ) : value}
-                      </span>
+                {/* Metadata */}
+                <section>
+                  <h2 style={{ fontSize: 15, fontWeight: 700, color: T.onSurface, margin: "0 0 12px" }}>Metadata</h2>
+                  <div style={{ background: T.surfaceContainerLow, borderRadius: 12, padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Submitter</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <Avatar name={submitterName} />
+                        <span style={{ fontSize: 13, color: T.onSurface, fontWeight: 600 }}>{submitterName}</span>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                    <div style={{ display: "flex", gap: 20 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Submission Date</div>
+                        <div style={{ fontSize: 13, color: T.onSurface }}>{filingDateLabel}</div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Category</div>
+                        <div style={{ fontSize: 13, color: T.onSurface }}>{selectedForm.category || "—"}</div>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Status</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: sc.color, display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: sc.color, display: "inline-block" }} />
+                        {selectedForm.status || "Pending"}
+                      </div>
+                    </div>
+                  </div>
+                </section>
 
-                {/* Dynamic fields the faculty filled in during Step 2 */}
-                {(() => {
-                  let fields = null;
-                  try {
-                    fields = typeof selectedForm.field_values === "string"
-                      ? JSON.parse(selectedForm.field_values)
-                      : selectedForm.field_values;
-                  } catch { fields = null; }
-                  let entries = fields ? Object.entries(fields) : [];
-                  if (!entries.length) return null;
-
-                  // Put file-upload fields (e.g. "Masterlist") after the regular
-                  // text fields, regardless of the order they were stored in —
-                  // matches the template's field types from Document Categories.
-                  const tmpl = categories.find(c => c.name === selectedForm.category);
-                  const fileFieldNames = new Set((tmpl?.formFields || []).filter(isFileField).map(f => f.name));
-                  entries = [
-                    ...entries.filter(([label]) => !fileFieldNames.has(label)),
-                    ...entries.filter(([label]) => fileFieldNames.has(label)),
-                  ];
-
-                  return (
-                    <div style={{ padding: "14px 16px", borderBottom: "1px solid #f0f0f0" }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Submitted Fields</div>
-                      {entries.map(([label, value]) => {
+                {/* Submitted fields (from Step 2 of the wizard) */}
+                {dynEntries.length > 0 && (
+                  <section>
+                    <h2 style={{ fontSize: 15, fontWeight: 700, color: T.onSurface, margin: "0 0 12px" }}>Submitted Fields</h2>
+                    <div style={{ background: T.surfaceContainerLow, borderRadius: 12, padding: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+                      {dynEntries.map(([label, value]) => {
                         const display = value === null || value === "" ? "—" : String(value);
-                        const isLong = display.length > 18; // e.g. filenames — stack below the label instead of squeezing right-aligned
                         return (
-                          <div key={label} style={{
-                            display: "flex", flexDirection: isLong ? "column" : "row",
-                            justifyContent: "space-between", alignItems: isLong ? "flex-start" : "flex-start",
-                            gap: isLong ? 4 : 0, paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid #f9f9f9",
-                          }}>
-                            <span style={{ fontSize: 11, color: "#888", fontWeight: 600, flexShrink: 0, marginRight: isLong ? 0 : 8 }}>{label}</span>
-                            <span style={{ fontSize: 12, color: "#111", fontWeight: 600, textAlign: isLong ? "left" : "right", wordBreak: "break-word" }}>
-                              {display}
-                            </span>
+                          <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingBottom: 8, borderBottom: `1px solid ${T.surfaceVariant}` }}>
+                            <span style={{ fontSize: 11, color: T.onSurfaceVariant, fontWeight: 600, flexShrink: 0 }}>{label}</span>
+                            <span style={{ fontSize: 12, color: T.onSurface, fontWeight: 600, textAlign: "right", wordBreak: "break-word" }}>{display}</span>
                           </div>
                         );
                       })}
                     </div>
-                  );
-                })()}
+                  </section>
+                )}
 
-                {/* Previous review note if any */}
+                {/* Previous review note, if any */}
                 {selectedForm.review_note && (
-                  <div style={{ margin: "10px 16px", background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: 8, padding: "10px 12px" }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Previous Review Note</div>
+                  <div style={{ background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: 10, padding: "12px 14px" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Previous Review Note</div>
                     <div style={{ fontSize: 12, color: "#78350f", lineHeight: 1.5 }}>{selectedForm.review_note}</div>
                   </div>
                 )}
 
-                {/* Review note input */}
-                <div style={{ padding: "14px 16px", borderBottom: "1px solid #f0f0f0" }}>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                    Review Note
-                    <span style={{ color: "#dc2626", fontWeight: 400, textTransform: "none", marginLeft: 4 }}>(required for rejection & revision)</span>
-                  </label>
-                  <textarea
-                    value={reviewNote}
-                    onChange={e => setReviewNote(e.target.value)}
-                    rows={4}
-                    placeholder="Add comments, feedback, or reason for your decision..."
-                    style={{ width: "100%", padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, color: "#111", resize: "vertical", fontFamily: "'DM Sans',sans-serif", lineHeight: 1.5, boxSizing: "border-box" }}
-                  />
-                </div>
+                <div style={{ height: 1, background: T.surfaceVariant, width: "100%" }} />
 
-                {/* Action buttons */}
-                <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8, marginTop: "auto" }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Decision</div>
-                  <button
-                    onClick={handleApprove}
-                    style={{ width: "100%", padding: "10px", background: "#059669", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#047857"}
-                    onMouseLeave={e => e.currentTarget.style.background = "#059669"}
-                  >
-                    ✓ Approve
-                  </button>
-                  <button
-                    onClick={handleRevise}
-                    style={{ width: "100%", padding: "10px", background: "#d97706", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#b45309"}
-                    onMouseLeave={e => e.currentTarget.style.background = "#d97706"}
-                  >
-                    ↩ Request Revision
-                  </button>
-                  <button
-                    onClick={handleReject}
-                    style={{ width: "100%", padding: "10px", background: "white", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "white"; }}
-                  >
-                    ✗ Reject
-                  </button>
-                </div>
+                {/* Review action */}
+                <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <h2 style={{ fontSize: 15, fontWeight: 700, color: T.onSurface, margin: 0 }}>Review Action</h2>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: T.onSurface, marginBottom: 6, display: "block" }}>
+                      Feedback &amp; Comments <span style={{ color: T.error }}>*</span>
+                    </label>
+                    <textarea
+                      value={reviewNote}
+                      onChange={e => setReviewNote(e.target.value)}
+                      placeholder="Required for rejections and revisions. Detail what needs to be changed or why the document was approved with conditions..."
+                      rows={5}
+                      style={{ width: "100%", background: "white", border: `1px solid ${T.outlineVariant}`, borderRadius: 10, padding: 12, fontSize: 13, color: T.onSurface, resize: "none", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                      onFocus={e => { e.target.style.borderColor = T.primary; e.target.style.boxShadow = `0 0 0 3px ${T.primaryFixed}`; }}
+                      onBlur={e => { e.target.style.borderColor = T.outlineVariant; e.target.style.boxShadow = "none"; }}
+                    />
+                  </div>
 
-              </div>
-            </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+                    <button onClick={handleApprove}
+                      style={{ width: "100%", background: T.inverseSurface, color: T.inverseOnSurface, border: "none", borderRadius: 10, padding: "13px 18px", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = 0.9}
+                      onMouseLeave={e => e.currentTarget.style.opacity = 1}>
+                      ✓ Approve Document
+                    </button>
+                    <button onClick={handleRevise}
+                      style={{ width: "100%", background: "white", color: T.tertiary, border: `2px solid ${T.tertiary}`, borderRadius: 10, padding: "12px 18px", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#f3f1fb"}
+                      onMouseLeave={e => e.currentTarget.style.background = "white"}>
+                      ↩ Request Revision
+                    </button>
+                    <button onClick={handleReject}
+                      style={{ width: "100%", background: "white", color: T.error, border: `1px solid ${T.error}`, borderRadius: 10, padding: "13px 18px", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
+                      onMouseEnter={e => e.currentTarget.style.background = T.errorContainer}
+                      onMouseLeave={e => e.currentTarget.style.background = "white"}>
+                      ✗ Reject &amp; Archive
+                    </button>
+                  </div>
+                </section>
+              </aside>
+            </main>
           </div>
-        </>
-      )}
+        );
+      })()}
 
       {/* ── RESUBMIT MODAL (Faculty) ── */}
       {resubmitModal && resubmitForm && (
