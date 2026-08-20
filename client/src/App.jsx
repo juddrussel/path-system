@@ -21,7 +21,7 @@ import Reports from "./pages/Reports";
 import DocumentCategories from "./pages/DocumentCategories";
 import SLAConfiguration from "./pages/SLAConfiguration";
 import Notifications from "./pages/Notifications";
-
+import DocumentReview from "./DocumentReview";
 
 // Separated so useLocation works inside BrowserRouter
 function AppRoutes() {
@@ -77,6 +77,7 @@ function AppRoutes() {
       <Route path="/document-categories" element={<DocumentCategories />} />
       <Route path="/sla-configuration" element={<SLAConfiguration/>} />
       <Route path="/notifications" element={<Notifications/>} />
+      <Route path="/document-review/:id" element={<DocumentReview />} />
     </Routes>
   );
 }
