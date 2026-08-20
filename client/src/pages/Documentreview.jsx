@@ -344,7 +344,7 @@ export default function DocumentReview() {
             ) : (
               <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: 24 }}>
                 {/* White "page" the document sits on top of */}
-                <div style={{ background: "white", borderRadius: 6, boxShadow: "0 1px 3px rgba(24,20,69,0.08)", width: "100%", maxWidth: 640, height: "100%", display: "flex", overflow: "hidden" }}>
+                <div style={{ background: "white", borderRadius: 6, boxShadow: "0 4px 10px rgba(24,20,69,0.10), 0 12px 28px rgba(24,20,69,0.14)", width: "100%", maxWidth: 640, height: "100%", display: "flex", overflow: "hidden" }}>
                   {url ? (
                     isPdf ? (
                       <iframe src={`${url}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`} title="Form Preview" style={{ width: "100%", height: "100%", border: "none" }} />
