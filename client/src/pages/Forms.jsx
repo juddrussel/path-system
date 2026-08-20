@@ -1188,7 +1188,7 @@ export default function Forms() {
 
           {/* ── REVIEW QUEUE (Program Chair) / MY SUBMISSIONS (Faculty) ── */}
           {(activeTab === "history" || activeTab === "review") && (
-            <div style={{ fontFamily: "'Inter', sans-serif" }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 14 }}>
             <div style={{ background: "white", border: "1px solid #cbc3d7", borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 12px rgba(139,92,246,0.05)" }}>
               <div style={{ padding: "16px 24px", borderBottom: "1px solid #cbc3d7", background: "#fcf8ff" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
