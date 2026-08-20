@@ -88,13 +88,20 @@ function Avatar({ firstName, lastName, pictureUrl }) {
   );
 }
 
-function RoleBadge({ role }) {
-  const map = {
-    admin:         "bg-violet-100 text-violet-700",
-    program_chair: "bg-blue-100 text-blue-700",
-    faculty:       "bg-blue-100 text-blue-700",
-    guest:         "bg-gray-100 text-gray-600",
-  };
+function RoleBadge({ role, variant }) {
+  const map = variant === "audit"
+    ? {
+        admin:         "bg-[#e9ddff] text-[#5a00c6]",
+        program_chair: "bg-[#efebff] text-[#6b38d4]",
+        faculty:       "bg-[#efebff] text-[#6b38d4]",
+        guest:         "bg-gray-100 text-gray-600",
+      }
+    : {
+        admin:         "bg-violet-100 text-violet-700",
+        program_chair: "bg-blue-100 text-blue-700",
+        faculty:       "bg-blue-100 text-blue-700",
+        guest:         "bg-gray-100 text-gray-600",
+      };
   const labels = {
     admin:         "Admin",
     program_chair: "Program Chair",
@@ -109,7 +116,20 @@ function RoleBadge({ role }) {
   );
 }
 
-function StatusBadge({ active }) {
+function StatusBadge({ active, variant }) {
+  if (variant === "audit") {
+    return active ? (
+      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#efebff] text-[#5a00c6] text-[11px] font-bold border border-[#cbc3d7]">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#6b38d4]" />
+        Active
+      </span>
+    ) : (
+      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-100 text-gray-500 text-[11px] font-bold border border-[#cbc3d7]">
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+        Inactive
+      </span>
+    );
+  }
   return active ? (
     <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-violet-50 text-gray-700 text-[11px] font-bold border border-gray-100">
       <span className="w-1.5 h-1.5 rounded-full bg-violet-600" />
@@ -545,7 +565,7 @@ function StatCard({ label, value, sub, iconBg, icon, badge, variant }) {
         <div className="flex items-center justify-between mb-4">
           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconBg}`}>{icon}</div>
           {badge && (
-            <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-1 rounded-md">{badge}</span>
+            <span className="text-[10px] font-bold text-[#5a00c6] bg-[#efebff] px-2 py-1 rounded-md">{badge}</span>
           )}
         </div>
         <p className="text-[11px] font-medium text-[#494454] uppercase tracking-wider mb-1">{label}</p>
@@ -749,7 +769,10 @@ export default function UserManagement() {
 
   return (
     <div className="flex min-h-screen bg-gray-50" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+      `}</style>
 
       <Sidebar activePage="users" />
 
@@ -811,20 +834,20 @@ export default function UserManagement() {
                       <p className="text-sm text-[#494454] mt-2">Manage and monitor all users within the system.</p>
                     </div>
                     <div className="flex items-center gap-3 w-full md:w-auto">
-                      <button className="flex-1 md:flex-none border border-[#cbc3d7] text-gray-700 bg-white hover:bg-gray-50 rounded-lg py-2 px-4 text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                      <button className="flex-1 md:flex-none border border-[#cbc3d7] text-[#181445] bg-white hover:bg-[#efebff] rounded-lg py-2 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2">
                         <DownloadIcon /> Export Users
                       </button>
-                      <button onClick={() => setShowModal(true)} className="flex-1 md:flex-none bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2 px-4 text-xs font-bold transition-colors shadow-sm">
+                      <button onClick={() => setShowModal(true)} className="flex-1 md:flex-none bg-[#6b38d4] hover:bg-[#6b38d4]/90 text-white rounded-lg py-2 px-4 text-sm font-medium transition-colors shadow-sm">
                         + Add User
                       </button>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-                    <StatCard variant="audit" label="Total Users" value={stats.total} sub="All accounts" iconBg="bg-violet-100 text-violet-600" icon={<UsersIcon />} badge="+12%" />
+                    <StatCard variant="audit" label="Total Users" value={stats.total} sub="All accounts" iconBg="bg-[#e9ddff] text-[#5a00c6]" icon={<UsersIcon />} badge="+12%" />
                     <StatCard variant="audit" label="Active Users" value={stats.active} sub="Currently enabled" iconBg="bg-emerald-100 text-emerald-600" icon={<CheckIcon />} badge="+5%" />
                     <StatCard variant="audit" label="Inactive Users" value={stats.inactive} sub="Suspended accounts" iconBg="bg-gray-100 text-gray-500" icon={<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>} />
-                    <StatCard variant="audit" label="Administrators" value={stats.admins} sub="Full access roles" iconBg="bg-violet-100 text-violet-600" icon={<ShieldIcon />} />
+                    <StatCard variant="audit" label="Administrators" value={stats.admins} sub="Full access roles" iconBg="bg-[#e9ddff] text-[#5a00c6]" icon={<ShieldIcon />} />
                   </div>
 
                   <div className="bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden flex flex-col mt-6">
@@ -878,14 +901,14 @@ export default function UserManagement() {
                               </div>
                             </td>
                             <td className="py-4 px-6 text-[#494454]">USR-{String(u.id).padStart(4, "0")}</td>
-                            <td className="py-4 px-6"><RoleBadge role={u.role} /></td>
+                            <td className="py-4 px-6"><RoleBadge role={u.role} variant="audit" /></td>
                             <td className="py-4 px-6 text-[#494454]">{u.department || "—"}</td>
-                            <td className="py-4 px-6"><StatusBadge active={u.is_active} /></td>
+                            <td className="py-4 px-6"><StatusBadge active={u.is_active} variant="audit" /></td>
                             <td className="py-4 px-6 text-right">
                               <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => setSelectedUser(u)}
-                                  className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                                  className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-[#6b38d4]/10 hover:text-[#6b38d4] transition-colors"
                                   title="View details"
                                 >
                                   <EyeIcon />
@@ -893,7 +916,7 @@ export default function UserManagement() {
                                 {canEdit && (
                                   <button
                                     onClick={() => setEditUser(u)}
-                                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-[#6b38d4]/10 hover:text-[#6b38d4] transition-colors"
                                     title="Edit user"
                                   >
                                     <EditIcon />
@@ -902,7 +925,7 @@ export default function UserManagement() {
                                 {u.id !== currentUserId ? (
                                   <button
                                     onClick={() => setDeleteTarget({ id: u.id, name: `${u.first_name} ${u.last_name}` })}
-                                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-red-50 hover:text-red-600 transition-colors"
+                                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-[#ba1a1a]/10 hover:text-[#ba1a1a] transition-colors"
                                     title="Remove user"
                                   >
                                     <TrashIcon />
