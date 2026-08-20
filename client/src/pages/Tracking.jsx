@@ -917,7 +917,7 @@ export default function Tracking() {
         </TopBar>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 24, background: "#F8F7FF" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 32, background: "#F8F7FF" }}>
 
           {/* Page title */}
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 24 }}>
@@ -925,11 +925,11 @@ export default function Tracking() {
               <h1 style={{ fontSize: 32, lineHeight: "2.5rem", fontWeight: 600, color: "#181445", margin: 0, letterSpacing: "-0.025em" }}>Document Tracking</h1>
               <p style={{ fontSize: 14, color: "#494454", margin: "8px 0 0" }}>Monitor document progress and routing history — read-only access</p>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button onClick={fetchDocs} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button onClick={fetchDocs} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
                 <Icon.Refresh /> Refresh
               </button>
-              <button style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+              <button style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
                 Export
               </button>
@@ -975,7 +975,7 @@ export default function Tracking() {
           }}>
 
             {/* Filter bar */}
-            <div style={{ padding: "16px 20px", borderBottom: "1px solid #E9D5FF", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "space-between", background: "white" }}>
+            <div style={{ padding: 16, borderBottom: "1px solid #E9D5FF", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", justifyContent: "space-between", background: "white" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#fcf8ff", border: "1px solid #E9D5FF", borderRadius: 8, padding: "8px 12px", color: "#9ca3af" }}>
                   <Icon.Search />
@@ -1107,7 +1107,7 @@ export default function Tracking() {
                 Showing {Math.min((page - 1) * PER_PAGE + 1, filtered.length)}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length} document{filtered.length !== 1 ? "s" : ""}
                 {filtered.length > 0 && <span style={{ marginLeft: 8, color: "#6b38d4" }}>· Click a row to view full tracking details</span>}
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
                   style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid #E9D5FF", background: page === 1 ? "#F8F7FF" : "white", color: page === 1 ? "#d1d5db" : "#494454", cursor: page === 1 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Icon.ChevronL />
