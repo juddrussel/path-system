@@ -795,20 +795,20 @@ export default function UserManagement() {
         </TopBar>
 
         {/* Tab Nav */}
-        <div className="flex items-center gap-6 border-b border-gray-100 bg-white px-5 md:px-8">
+        <div className="flex items-center gap-6 border-b border-[#cbc3d7] bg-white px-5 md:px-8" style={{ fontFamily: "'Inter', sans-serif" }}>
           <button
             onClick={() => setTab("users")}
-            className={`flex items-center gap-1.5 pb-3 pt-4 px-1 text-sm font-medium border-b-2 transition-colors ${tab === "users" ? "text-violet-600 border-violet-600" : "text-gray-400 border-transparent hover:text-gray-700"}`}
+            className={`flex items-center gap-1.5 pb-3 pt-4 px-1 text-sm font-medium border-b-2 transition-colors ${tab === "users" ? "text-[#6b38d4] border-[#6b38d4]" : "text-[#7b7486] border-transparent hover:text-[#181445]"}`}
           >
             System Users
           </button>
           <button
             onClick={() => setTab("permissions")}
-            className={`flex items-center gap-1.5 pb-3 pt-4 px-1 text-sm font-medium border-b-2 transition-colors ${tab === "permissions" ? "text-violet-600 border-violet-600" : "text-gray-400 border-transparent hover:text-gray-700"}`}
+            className={`flex items-center gap-1.5 pb-3 pt-4 px-1 text-sm font-medium border-b-2 transition-colors ${tab === "permissions" ? "text-[#6b38d4] border-[#6b38d4]" : "text-[#7b7486] border-transparent hover:text-[#181445]"}`}
           >
             Account Requests
             {pending.length > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${tab === "permissions" ? "bg-violet-100 text-violet-700" : "bg-amber-100 text-amber-700"}`}>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${tab === "permissions" ? "bg-[#e9ddff] text-[#5a00c6]" : "bg-amber-100 text-amber-700"}`}>
                 {pending.length}
               </span>
             )}
