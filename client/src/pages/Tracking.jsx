@@ -98,7 +98,7 @@ function StageBar({ stage, status }) {
         const isLast  = i === STAGES.length - 1;
         const barColor = rejected && active ? "#ef4444"
           : approved ? "#10b981"
-          : done || active ? "#7c3aed" : "#e5e7eb";
+          : done || active ? "#8B5CF6" : "#e5e7eb";
         return (
           <div key={s} style={{ display: "flex", alignItems: "center", flex: isLast ? "0 0 auto" : 1 }}>
             <div title={s} style={{
@@ -130,9 +130,9 @@ function FilterPill({ label, active, count, onClick }) {
   return (
     <button onClick={onClick} style={{
       display: "inline-flex", alignItems: "center", gap: 5,
-      padding: "5px 13px", borderRadius: 20, border: "none", cursor: "pointer", fontSize: 12, fontWeight: active ? 700 : 500,
-      background: active ? "#7c3aed" : "transparent",
-      color: active ? "white" : "#6b7280",
+      padding: "6px 13px", borderRadius: 20, border: active ? "none" : "1px solid #E9D5FF", cursor: "pointer", fontSize: 12, fontWeight: active ? 700 : 500,
+      background: active ? "#8B5CF6" : "white",
+      color: active ? "white" : "#494454",
       transition: "all 0.15s",
     }}>
       {label}
@@ -895,9 +895,11 @@ export default function Tracking() {
         input:focus, select:focus, textarea:focus { border-color: #7c3aed !important; outline: none; }
         @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .doc-row:hover { background: #faf9ff !important; cursor: pointer; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+        .doc-row:hover { background: #F8F7FF !important; cursor: pointer; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbc3d7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
       `}</style>
 
       <Sidebar activePage="tracking" />
@@ -915,52 +917,78 @@ export default function Tracking() {
         </TopBar>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 24, background: "#F8F7FF" }}>
 
           {/* Page title */}
-          <div style={{ marginBottom: 20 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: "0 0 3px" }}>Document Tracking</h1>
-            <p style={{ fontSize: 12, color: "#9ca3af", margin: "4px 0 0" }}>Monitor document progress and routing history — read-only access</p>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 24 }}>
+            <div>
+              <h1 style={{ fontSize: 30, fontWeight: 700, color: "#181445", margin: "0 0 4px", letterSpacing: "-0.01em" }}>Document Tracking</h1>
+              <p style={{ fontSize: 13, color: "#494454", margin: 0 }}>Monitor document progress and routing history — read-only access</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={fetchDocs} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                <Icon.Refresh /> Refresh
+              </button>
+              <button style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
+                Export
+              </button>
+            </div>
           </div>
 
-          {/* Stat cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
+          {/* Bento stat grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
             {[
-              { label: "Total Documents",    value: stats.total,         icon: <Icon.Doc />,      bg: "#ede9fe", color: "#7c3aed" },
-              { label: "In Progress",        value: stats.inProgress,    icon: <Icon.Tracking />, bg: "#dbeafe", color: "#3b82f6" },
-              { label: "Pending Review",     value: stats.pendingReview, icon: <Icon.Eye />,      bg: "#fef3c7", color: "#d97706" },
-              { label: "Completed / Approved", value: stats.completed,  icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4" strokeLinecap="round"/></svg>, bg: "#d1fae5", color: "#059669" },
-            ].map(({ label, value, icon, bg, color }) => (
-              <div key={label} style={{ background: "white", border: "1px solid #f0f0f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 4 }}>{label}</div>
-                  <div style={{ fontSize: 26, fontWeight: 800, color: "#111" }}>{loading ? "—" : value}</div>
+              { label: "Total Documents",      value: stats.total,         icon: <Icon.Doc />,      bigIcon: <Icon.Doc />, iconBg: "rgba(107,56,212,0.1)", iconColor: "#6b38d4", tag: null, tagBg: "rgba(95,82,147,0.1)", tagColor: "#5f5293" },
+              { label: "In Progress",          value: stats.inProgress,    icon: <Icon.Tracking />, bigIcon: <Icon.Tracking />, iconBg: "#eff6ff", iconColor: "#2563eb", tag: "Active", tagBg: "#eff6ff", tagColor: "#2563eb" },
+              { label: "Pending Review",       value: stats.pendingReview, icon: <Icon.Eye />,      bigIcon: <Icon.Eye />, iconBg: "#fffbeb", iconColor: "#d97706", tag: "Needs Action", tagBg: "#fffbeb", tagColor: "#d97706" },
+              { label: "Completed / Approved", value: stats.completed,     icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4" strokeLinecap="round"/></svg>, bigIcon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4" strokeLinecap="round"/></svg>, iconBg: "#f0fdf4", iconColor: "#16a34a", tag: "Last 30 days", tagBg: "#f0fdf4", tagColor: "#16a34a" },
+            ].map(({ label, value, icon, bigIcon, iconBg, iconColor, tag, tagBg, tagColor }) => (
+              <div key={label} style={{
+                position: "relative", overflow: "hidden",
+                background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)",
+                border: "1px solid #E9D5FF", borderRadius: 12, padding: 20,
+                boxShadow: "0 4px 12px rgba(107, 56, 212, 0.03)",
+              }}>
+                <div style={{ position: "absolute", top: 0, right: 0, padding: 16, opacity: 0.08, color: iconColor, fontSize: 80, lineHeight: 0 }}>
+                  <div style={{ width: 72, height: 72 }}>{bigIcon}</div>
                 </div>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", background: bg, color, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: iconBg, color: iconColor, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>
+                    {tag && <span style={{ fontSize: 10, fontWeight: 600, color: tagColor, background: tagBg, padding: "3px 10px", borderRadius: 20 }}>{tag}</span>}
+                  </div>
+                  <h3 style={{ fontSize: 11, fontWeight: 600, color: "#494454", textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 4px" }}>{label}</h3>
+                  <p style={{ fontSize: 30, fontWeight: 700, color: "#181445", margin: 0 }}>{loading ? "—" : value}</p>
+                </div>
               </div>
             ))}
           </div>
 
           {/* Table card */}
-          <div style={{ background: "white", borderRadius: 14, border: "1px solid #f0f0f0", overflow: "hidden" }}>
+          <div style={{
+            background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)",
+            borderRadius: 12, border: "1px solid #E9D5FF", overflow: "hidden",
+            boxShadow: "0 4px 12px rgba(107, 56, 212, 0.03)",
+          }}>
 
             {/* Filter bar */}
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "space-between" }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #E9D5FF", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "space-between", background: "white" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", color: "#9ca3af" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#fcf8ff", border: "1px solid #E9D5FF", borderRadius: 8, padding: "8px 12px", color: "#9ca3af" }}>
                   <Icon.Search />
                   <input
                     type="text"
                     value={search}
                     onChange={e => { setSearch(e.target.value); setPage(1); }}
-                    placeholder="Search..."
-                    style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: 160 }}
+                    placeholder="Search by ID, Title, or Submitter..."
+                    style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: 200 }}
                   />
                 </div>
                 <select
                   value={searchBy}
                   onChange={e => { setSearchBy(e.target.value); setPage(1); }}
-                  style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", fontSize: 12, color: "#374151", background: "white", cursor: "pointer" }}
+                  style={{ border: "1px solid #E9D5FF", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#374151", background: "#fcf8ff", cursor: "pointer" }}
                 >
                   <option value="all">Search by: All Fields</option>
                   <option value="document_id">Document ID</option>
@@ -970,9 +998,8 @@ export default function Tracking() {
                   <option value="department">Department</option>
                 </select>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-                <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12" style={{ color: "#9ca3af", marginRight: 4 }}><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z"/></svg>
-                <span style={{ fontSize: 11, color: "#9ca3af", marginRight: 6 }}>FILTER:</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5, marginRight: 4 }}>Filter:</span>
                 {STATUS_FILTERS.map(f => (
                   <FilterPill
                     key={f.value}
@@ -989,12 +1016,12 @@ export default function Tracking() {
             </div>
 
             {/* Table */}
-            <div style={{ overflowX: "auto" }}>
+            <div style={{ overflowX: "auto", background: "white" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #f0f0f0" }}>
+                  <tr style={{ background: "#F8F7FF", borderBottom: "1px solid #E9D5FF" }}>
                     {["Document ID", "Title / Department", "Submitted By", "Current Handler", "Stage", "Status"].map(col => (
-                      <th key={col} style={{ padding: "10px 16px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap" }}>
+                      <th key={col} style={{ padding: "12px 16px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#494454", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap" }}>
                         {col}
                       </th>
                     ))}
@@ -1012,7 +1039,7 @@ export default function Tracking() {
                   ) : paginated.map(doc => (
                     <tr key={doc.id || doc.document_id} className="doc-row"
                       onClick={() => setSelected(doc)}
-                      style={{ borderBottom: "1px solid #f9f9f9", transition: "background 0.1s" }}>
+                      style={{ borderBottom: "1px solid #F2EDFF", transition: "background 0.1s" }}>
 
                       {/* Document ID */}
                       <td style={{ padding: "13px 16px" }}>
@@ -1073,25 +1100,25 @@ export default function Tracking() {
             </div>
 
             {/* Pagination */}
-            <div style={{ padding: "12px 16px", borderTop: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>
+            <div style={{ padding: "16px 20px", borderTop: "1px solid #E9D5FF", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white" }}>
+              <span style={{ fontSize: 12, color: "#494454" }}>
                 Showing {Math.min((page - 1) * PER_PAGE + 1, filtered.length)}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length} document{filtered.length !== 1 ? "s" : ""}
-                {filtered.length > 0 && <span style={{ marginLeft: 8, color: "#7c3aed" }}>· Click a row to view full tracking details</span>}
+                {filtered.length > 0 && <span style={{ marginLeft: 8, color: "#6b38d4" }}>· Click a row to view full tracking details</span>}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                  style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #e5e7eb", background: page === 1 ? "#f9fafb" : "white", color: page === 1 ? "#d1d5db" : "#374151", cursor: page === 1 ? "default" : "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
-                  <Icon.ChevronL /> Previous
+                  style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid #E9D5FF", background: page === 1 ? "#F8F7FF" : "white", color: page === 1 ? "#d1d5db" : "#494454", cursor: page === 1 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon.ChevronL />
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
                   <button key={p} onClick={() => setPage(p)}
-                    style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: p === page ? "#7c3aed" : "transparent", color: p === page ? "white" : "#374151", cursor: "pointer", fontSize: 12, fontWeight: p === page ? 700 : 400 }}>
+                    style={{ width: 32, height: 32, borderRadius: 8, border: p === page ? "none" : "1px solid #E9D5FF", background: p === page ? "#8B5CF6" : "white", color: p === page ? "white" : "#374151", cursor: "pointer", fontSize: 12, fontWeight: p === page ? 700 : 500 }}>
                     {p}
                   </button>
                 ))}
                 <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages || totalPages === 0}
-                  style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #e5e7eb", background: page === totalPages || totalPages === 0 ? "#f9fafb" : "white", color: page === totalPages || totalPages === 0 ? "#d1d5db" : "#374151", cursor: page >= totalPages ? "default" : "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
-                  Next <Icon.ChevronR />
+                  style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid #E9D5FF", background: page === totalPages || totalPages === 0 ? "#F8F7FF" : "white", color: page === totalPages || totalPages === 0 ? "#d1d5db" : "#494454", cursor: page >= totalPages ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon.ChevronR />
                 </button>
               </div>
             </div>
