@@ -122,15 +122,28 @@ const AVATAR_PALETTE = [
   { bg: "#ffe4e6", color: "#9d174d" },
   { bg: "#fef3c7", color: "#92400e" },
 ];
-function Avatar({ name = "" }) {
+function Avatar({ name = "", src = null, size = 26 }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const initials = name.trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() || "").join("") || "?";
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
   const palette = AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
+
+  if (src && !imgFailed) {
+    return (
+      <img
+        src={src}
+        alt={name || "User"}
+        onError={() => setImgFailed(true)}
+        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+      />
+    );
+  }
+
   return (
     <div style={{
-      width: 26, height: 26, borderRadius: "50%", background: palette.bg, color: palette.color,
-      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10.5, fontWeight: 800,
+      width: size, height: size, borderRadius: "50%", background: palette.bg, color: palette.color,
+      display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 800,
       flexShrink: 0,
     }}>
       {initials}
@@ -1250,7 +1263,7 @@ export default function Forms() {
                       </td>
                       <td style={{ padding: "16px 24px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <Avatar name={row.full_name || row.student_id || "?"} />
+                          <Avatar name={row.full_name || row.student_id || "?"} src={row.avatar_url ? resolveFileUrl(row.avatar_url) : null} />
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
                             {row.student_id && (
@@ -1354,7 +1367,7 @@ export default function Forms() {
                         </td>
                         <td style={{ padding: "16px 24px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <Avatar name={row.full_name || row.student_id || "?"} />
+                            <Avatar name={row.full_name || row.student_id || "?"} src={row.avatar_url ? resolveFileUrl(row.avatar_url) : null} />
                             <div>
                               <div style={{ fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.full_name}</div>
                               {row.student_id && (
