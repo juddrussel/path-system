@@ -335,7 +335,7 @@ export default function DocumentReview() {
         <div style={{ flex: 1, minHeight: 0, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", borderRight: `1px solid ${T.surfaceVariant}` }}>
 
           {/* Document preview card */}
-          <div style={{ flex: 1, background: "#4b2694", border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+          <div style={{ flex: 1, background: "#2d1660", border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
             {url && isImg ? (
               // Photos/screenshots: full-bleed, no paper skeuomorph — the image IS the surface.
               <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto" }}>
