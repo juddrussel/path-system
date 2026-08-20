@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import TopBar from "./TopBar";
+import Sidebar from "./Sidebar";
 
 const API = import.meta.env.VITE_API_URL;
 const resolveFileUrl = (u) => (!u ? "" : /^https?:\/\//i.test(u) ? u : `${API || "http://localhost:5000"}${u}`);
@@ -97,6 +99,7 @@ export default function DocumentReview() {
   const token = localStorage.getItem("token");
   const user = getUser();
   const authHeaders = { Authorization: `Bearer ${token}` };
+  const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
 
   const [form, setForm] = useState(location.state?.form || null);
   const [loading, setLoading] = useState(!location.state?.form);
@@ -178,21 +181,37 @@ export default function DocumentReview() {
   const handleReject = () => postDecision("reject", "Please provide a reason for rejection.", "Form rejected.");
   const handleRevise = () => postDecision("revise", "Please provide revision instructions for the faculty.", "Revision requested.");
 
-  // ── Loading / error states ──────────────────────────────────────────────
+  // ── Loading / error states (still rendered inside the Sidebar/TopBar shell) ──
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: T.surface, fontFamily: "'DM Sans', sans-serif", color: T.onSurfaceVariant, fontSize: 14 }}>
-        Loading document…
+      <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
+        <Sidebar activePage="forms" />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <TopBar onLogout={handleLogout}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: T.onSurface }}>Document Review</div>
+          </TopBar>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: T.onSurfaceVariant, fontSize: 14 }}>
+            Loading document…
+          </div>
+        </div>
       </div>
     );
   }
   if (loadError || !form) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: T.surface, fontFamily: "'DM Sans', sans-serif" }}>
-        <div style={{ fontSize: 14, color: T.onSurfaceVariant }}>This form could not be found.</div>
-        <button onClick={goBack} style={{ padding: "10px 18px", background: T.primary, color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-          ← Back to Review Queue
-        </button>
+      <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
+        <Sidebar activePage="forms" />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <TopBar onLogout={handleLogout}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: T.onSurface }}>Document Review</div>
+          </TopBar>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
+            <div style={{ fontSize: 14, color: T.onSurfaceVariant }}>This form could not be found.</div>
+            <button onClick={goBack} style={{ padding: "10px 18px", background: T.primary, color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+              ← Back to Review Queue
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -240,7 +259,7 @@ export default function DocumentReview() {
   const isPdf = ext === "pdf";
 
   return (
-    <div style={{ minHeight: "100vh", background: T.surface, display: "flex", flexDirection: "column", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
@@ -248,42 +267,50 @@ export default function DocumentReview() {
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* ── Top bar ── */}
-      <header style={{ background: T.surfaceContainerLowest, borderBottom: `1px solid ${T.surfaceVariant}`, position: "sticky", top: 0, zIndex: 10, padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <button onClick={goBack} title="Back to Review Queue"
-            style={{ background: "none", border: "none", cursor: "pointer", color: T.onSurfaceVariant, fontSize: 20, display: "flex", alignItems: "center", padding: 4 }}
-            onMouseEnter={e => e.currentTarget.style.color = T.primary}
-            onMouseLeave={e => e.currentTarget.style.color = T.onSurfaceVariant}>
-            ←
-          </button>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 1 }}>
-              Submissions / Documents
+      {/* ── SIDEBAR (persistent, same as the rest of the app) ── */}
+      <Sidebar activePage="forms" />
+
+      {/* ── MAIN ── */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.surface, minWidth: 0 }}>
+
+        {/* ── TOPBAR (persistent, same as the rest of the app) ── */}
+        <TopBar onLogout={handleLogout}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
+              <button onClick={goBack} title="Back to Review Queue"
+                style={{ background: "none", border: "none", cursor: "pointer", color: T.onSurfaceVariant, fontSize: 20, display: "flex", alignItems: "center", padding: 4, flexShrink: 0 }}
+                onMouseEnter={e => e.currentTarget.style.color = T.primary}
+                onMouseLeave={e => e.currentTarget.style.color = T.onSurfaceVariant}>
+                ←
+              </button>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 1 }}>
+                  Submissions / Documents
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                  <h1 style={{ fontSize: 16, fontWeight: 700, color: T.onSurface, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 320 }}>{displayName}</h1>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 999, background: sc.bg, color: sc.color, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
+                    🕓 {form.status || "Pending"} Review
+                  </span>
+                </div>
+              </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
-              <h1 style={{ fontSize: 18, fontWeight: 700, color: T.onSurface, margin: 0 }}>{displayName}</h1>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 999, background: sc.bg, color: sc.color, fontSize: 11, fontWeight: 700 }}>
-                🕓 {form.status || "Pending"} Review
-              </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+              {url && (
+                <a href={url} download={form.file_name} target="_blank" rel="noreferrer"
+                  style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, textDecoration: "none", whiteSpace: "nowrap" }}>
+                  Download Copy
+                </a>
+              )}
+              <button onClick={() => { navigator.clipboard?.writeText(window.location.href); addToast("Link copied to clipboard.", "info"); }}
+                style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, background: "white", cursor: "pointer", whiteSpace: "nowrap" }}>
+                Share
+              </button>
             </div>
           </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {url && (
-            <a href={url} download={form.file_name} target="_blank" rel="noreferrer"
-              style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, textDecoration: "none" }}>
-              Download Copy
-            </a>
-          )}
-          <button onClick={() => { navigator.clipboard?.writeText(window.location.href); addToast("Link copied to clipboard.", "info"); }}
-            style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, background: "white", cursor: "pointer" }}>
-            Share
-          </button>
-        </div>
-      </header>
+        </TopBar>
 
-      {/* ── Main ── */}
+      {/* ── Content ── */}
       <main style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
         {/* LEFT: document preview + audit trail */}
@@ -442,6 +469,7 @@ export default function DocumentReview() {
           </section>
         </aside>
       </main>
+      </div>
     </div>
   );
 }
