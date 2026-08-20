@@ -323,7 +323,7 @@ export default function DocumentReview() {
               <div style={{ background: "white", borderRadius: 6, boxShadow: "0 1px 3px rgba(24,20,69,0.08)", width: "100%", maxWidth: 640, height: "100%", display: "flex", overflow: "hidden" }}>
                 {url ? (
                   isPdf ? (
-                    <iframe src={`${url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`} title="Form Preview" style={{ width: "100%", height: "100%", border: "none" }} />
+                    <iframe src={`${url}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`} title="Form Preview" style={{ width: "100%", height: "100%", border: "none" }} />
                   ) : isImg ? (
                     <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
                       <img src={url} alt="Form Preview" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
