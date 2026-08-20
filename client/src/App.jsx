@@ -21,7 +21,7 @@ import Reports from "./pages/Reports";
 import DocumentCategories from "./pages/DocumentCategories";
 import SLAConfiguration from "./pages/SLAConfiguration";
 import Notifications from "./pages/Notifications";
-import DocumentReview from "./pages/DocumentReview";
+import DocumentReview from "./pages/Documentreview";
 
 // Separated so useLocation works inside BrowserRouter
 function AppRoutes() {
