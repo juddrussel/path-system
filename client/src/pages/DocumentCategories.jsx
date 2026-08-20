@@ -1107,24 +1107,24 @@ function StatCard({ label, value, sub, icon, iconBg, iconColor }) {
   return (
     <div
       style={{
-        flex: 1, background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.borderSoft}`,
-        borderRadius: 12, padding: "20px 22px", boxShadow: PAGE.shadow,
+        flex: 1, background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.outlineVariant}`,
+        borderRadius: 16, padding: 24, boxShadow: PAGE.shadow,
         transition: "box-shadow 0.2s",
       }}
       onMouseEnter={e => e.currentTarget.style.boxShadow = "0 12px 24px rgba(139,92,246,0.10)"}
       onMouseLeave={e => e.currentTarget.style.boxShadow = PAGE.shadow}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
         <div style={{
-          width: 34, height: 34, borderRadius: 9, background: iconBg, color: iconColor,
+          width: 40, height: 40, borderRadius: 8, background: iconBg, color: iconColor,
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
         }}>
           {icon}
         </div>
-        <span style={{ fontSize: 11.5, fontWeight: 600, color: PAGE.onSurfaceVariant }}>{label}</span>
+        <span style={{ fontSize: 11, fontWeight: 500, color: PAGE.onSurfaceVariant, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
       </div>
-      <p style={{ fontSize: 30, fontWeight: 700, color: PAGE.onBackground, lineHeight: 1, letterSpacing: "-0.02em" }}>{value}</p>
-      {sub && <p style={{ fontSize: 11.5, color: PAGE.outline, marginTop: 6 }}>{sub}</p>}
+      <p style={{ fontSize: 36, fontWeight: 700, color: PAGE.onBackground, lineHeight: 1.2, letterSpacing: "-0.02em" }}>{value}</p>
+      {sub && <p style={{ fontSize: 12, color: PAGE.outline, marginTop: 8 }}>{sub}</p>}
     </div>
   );
 }
@@ -1282,8 +1282,8 @@ export default function DocumentCategories() {
   }, [search, statusFilter, categories]);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: PAGE.onBackground, background: PAGE.background }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", fontSize: 13, color: PAGE.onBackground, background: PAGE.background }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
 
       <Sidebar activePage="document-categories" />
 
@@ -1299,8 +1299,8 @@ export default function DocumentCategories() {
           {/* Header */}
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
             <div>
-              <h1 style={{ fontSize: 26, fontWeight: 700, color: PAGE.onBackground, marginBottom: 4, letterSpacing: "-0.01em" }}>Document Categories</h1>
-              <p style={{ fontSize: 13, color: PAGE.onSurfaceVariant }}>Manage document types available within the PATH System.</p>
+              <h1 style={{ fontSize: 32, lineHeight: "40px", fontWeight: 600, color: PAGE.onBackground, marginBottom: 0, letterSpacing: "-0.02em" }}>Document Categories</h1>
+              <p style={{ fontSize: 14, color: PAGE.onSurfaceVariant, marginTop: 8 }}>Manage document types available within the PATH System.</p>
             </div>
             <button
               onClick={() => setShowAddModal(true)}
@@ -1356,8 +1356,8 @@ export default function DocumentCategories() {
           {/* Search + filters */}
           <div style={{
             display: "flex", alignItems: "center", gap: 14, marginBottom: 20, flexWrap: "wrap",
-            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.borderSoft}`,
-            borderRadius: 12, padding: "14px 16px", boxShadow: PAGE.shadow,
+            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.outlineVariant}`,
+            borderRadius: 8, padding: 16, boxShadow: PAGE.shadow,
           }}>
             <div style={{
               flex: "1 1 320px", display: "flex", alignItems: "center", gap: 8,
@@ -1442,8 +1442,8 @@ export default function DocumentCategories() {
 
           {/* Table */}
           <div style={{
-            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.borderSoft}`,
-            borderRadius: 12, overflow: "hidden", boxShadow: PAGE.shadow,
+            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.outlineVariant}`,
+            borderRadius: 16, overflow: "hidden", boxShadow: PAGE.shadow,
           }}>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -1451,9 +1451,9 @@ export default function DocumentCategories() {
                   <tr style={{ background: PAGE.surfaceContainerLow, borderBottom: `1px solid ${PAGE.outlineVariant}` }}>
                     {["Category Name", "Code", "Description", "Type", "Fields", "Status", "Date Created", "Actions"].map((h, i) => (
                       <th key={h} style={{
-                        textAlign: i === 7 ? "right" : "left", padding: "14px 20px",
-                        fontSize: 10.5, fontWeight: 600, color: PAGE.onSurfaceVariant,
-                        letterSpacing: 0.4, whiteSpace: "nowrap",
+                        textAlign: i === 7 ? "right" : "left", padding: "16px 24px",
+                        fontSize: 11, fontWeight: 500, color: PAGE.onSurfaceVariant,
+                        letterSpacing: 0.5, textTransform: "uppercase", whiteSpace: "nowrap",
                       }}>
                         {h}
                       </th>
@@ -1476,14 +1476,14 @@ export default function DocumentCategories() {
                         key={c.id}
                         className="table-row-hover"
                         style={{
-                          borderBottom: idx === filtered.length - 1 ? "none" : `1px solid ${PAGE.outlineVariant}55`,
+                          borderBottom: idx === filtered.length - 1 ? "none" : `1px solid #e3dfff`,
                           transition: "background-color 0.15s",
                         }}
                         onMouseEnter={e => e.currentTarget.style.backgroundColor = PAGE.surfaceContainerLow}
                         onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                       >
-                        <td style={{ padding: "16px 20px", fontSize: 13, fontWeight: 600, color: PAGE.onBackground, maxWidth: 160 }}>{c.name}</td>
-                        <td style={{ padding: "16px 20px" }}>
+                        <td style={{ padding: "16px 24px", fontSize: 14, fontWeight: 500, color: PAGE.onBackground, maxWidth: 160 }}>{c.name}</td>
+                        <td style={{ padding: "16px 24px" }}>
                           <span style={{
                             fontSize: 11, fontWeight: 600, color: PAGE.onSurfaceVariant, background: PAGE.surfaceContainerLow,
                             border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap",
@@ -1491,8 +1491,8 @@ export default function DocumentCategories() {
                             {c.code}
                           </span>
                         </td>
-                        <td style={{ padding: "16px 20px", fontSize: 12.5, color: PAGE.onSurfaceVariant, maxWidth: 280 }}>{c.description}</td>
-                        <td style={{ padding: "16px 20px" }}>
+                        <td style={{ padding: "16px 24px", fontSize: 13, color: PAGE.onSurfaceVariant, maxWidth: 280 }}>{c.description}</td>
+                        <td style={{ padding: "16px 24px" }}>
                           <span style={{
                             fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 6,
                             background: tCfg.bg, color: tCfg.color, border: `1px solid ${tCfg.border}`,
@@ -1500,8 +1500,8 @@ export default function DocumentCategories() {
                             {c.type}
                           </span>
                         </td>
-                        <td style={{ padding: "16px 20px", fontSize: 13, color: PAGE.onSurfaceVariant, fontWeight: 600 }}>{c.fields}</td>
-                        <td style={{ padding: "16px 20px" }}>
+                        <td style={{ padding: "16px 24px", fontSize: 14, color: PAGE.onSurfaceVariant, fontWeight: 500 }}>{c.fields}</td>
+                        <td style={{ padding: "16px 24px" }}>
                           <span style={{
                             display: "inline-flex", alignItems: "center", gap: 5,
                             fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
@@ -1511,8 +1511,8 @@ export default function DocumentCategories() {
                             {c.status}
                           </span>
                         </td>
-                        <td style={{ padding: "16px 20px", fontSize: 12.5, color: PAGE.onSurfaceVariant, whiteSpace: "nowrap" }}>{c.dateCreated}</td>
-                        <td style={{ padding: "16px 20px" }}>
+                        <td style={{ padding: "16px 24px", fontSize: 13, color: PAGE.onSurfaceVariant, whiteSpace: "nowrap" }}>{c.dateCreated}</td>
+                        <td style={{ padding: "16px 24px" }}>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
                             <ActionBtn title="View" onClick={() => setViewingCategory(c)}><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
                             <ActionBtn title="Edit" onClick={() => setEditingCategory(c)}><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
@@ -1538,9 +1538,9 @@ export default function DocumentCategories() {
 
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "12px 20px", borderTop: `1px solid ${PAGE.outlineVariant}55`, background: PAGE.surfaceContainerLowest,
+              padding: "16px 24px", borderTop: `1px solid ${PAGE.outlineVariant}`, background: PAGE.surfaceContainerLowest,
             }}>
-              <span style={{ fontSize: 11, color: PAGE.outline }}>
+              <span style={{ fontSize: 14, color: PAGE.onSurfaceVariant }}>
                 Showing {filtered.length} of {totalCategories} categories
               </span>
               <span style={{ fontSize: 11, color: PAGE.outline }}>PATH v2.4 · Document Categories Module</span>
