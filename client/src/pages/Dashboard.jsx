@@ -1580,15 +1580,15 @@ export default function Dashboard() {
                 style={{
                   background: "#ffdad6", border: "1px solid #ffb4ab", borderRadius: 12,
                   padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", position: "relative",
-                  overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between",
-                  height: "100%", cursor: BOTTLENECK_ALERTS.length > 0 ? "pointer" : "default",
+                  overflow: "hidden", display: "flex", flexDirection: "column", gap: 20,
+                  alignSelf: "start", cursor: BOTTLENECK_ALERTS.length > 0 ? "pointer" : "default",
                 }}
               >
                 <TriangleAlert style={{ position: "absolute", right: -14, top: -14, width: 100, height: 100, color: "#ba1a1a", opacity: 0.1 }} />
 
                 <div style={{ position: "relative", zIndex: 1 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: "#93000a" }}>Bottlenecks &amp; Alerts</h3>
-                  <p style={{ fontSize: 12, color: "#93000a", opacity: 0.8, marginTop: 2, marginBottom: 16 }}>
+                  <p style={{ fontSize: 12, color: "#93000a", opacity: 0.8, marginTop: 2 }}>
                     {BOTTLENECK_ALERTS.length === 0 ? "Everything is moving smoothly" : "Immediate attention required"}
                   </p>
                 </div>
