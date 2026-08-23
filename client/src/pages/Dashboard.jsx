@@ -13,7 +13,7 @@ import {
   ListTodo, Gauge, PieChart, X,
 } from "lucide-react";
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line,
+  AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart as RPie, Pie, Cell,
 } from "recharts";
@@ -1167,15 +1167,6 @@ export default function Dashboard() {
     };
   });
 
-  // Processing Time Trend — avg age (in days) of resolved items submitted that month
-  const processingTrendData = last6Months.map(({ label, year, month }) => {
-    const resolved = trackedItems.filter(t =>
-      DONE_ITEM_STATUSES.includes(t.status) && t.dateObj && t.dateObj.getFullYear() === year && t.dateObj.getMonth() === month
-    );
-    const avgDays = resolved.length ? resolved.reduce((sum, t) => sum + t.days, 0) / resolved.length : 0;
-    return { month: label, days: Math.round(avgDays * 10) / 10 };
-  });
-
   // Approval Rate donut — status breakdown for items submitted this month
   const monthStartForCharts = new Date(now.getFullYear(), now.getMonth(), 1);
   const itemsThisMonth = trackedItems.filter(t => t.dateObj && t.dateObj >= monthStartForCharts);
@@ -1245,6 +1236,22 @@ export default function Dashboard() {
   ).length;
   const approvedItemsOnly = trackedItems.filter(t => t.status === "Approved");
   const avgApprovalDays = approvedItemsOnly.length ? approvedItemsOnly.reduce((sum, t) => sum + t.days, 0) / approvedItemsOnly.length : 0;
+
+  // Monthly Task Completion Trend — completed tasks per month, last 6 months,
+  // powers the Department Overview mini bar chart (mirrors the DS PATH mockup).
+  const monthlyTaskCompletionData = last6Months.map(({ label, year, month }) => ({
+    month: label,
+    completed: allTaskItems.filter(t =>
+      DONE_ITEM_STATUSES.includes(t.status) && t.dateObj && t.dateObj.getFullYear() === year && t.dateObj.getMonth() === month
+    ).length,
+  }));
+  const maxMonthlyTaskCompletion = Math.max(1, ...monthlyTaskCompletionData.map(d => d.completed));
+  const prevMonthTaskCompletion = monthlyTaskCompletionData.length > 1
+    ? monthlyTaskCompletionData[monthlyTaskCompletionData.length - 2].completed
+    : 0;
+  const taskCompletionPctChange = prevMonthTaskCompletion > 0
+    ? Math.round(((tasksCompletedThisMonth - prevMonthTaskCompletion) / prevMonthTaskCompletion) * 1000) / 10
+    : null;
 
   const monthlyChartSubtitle = `${MONTH_ABBR[now.getMonth()]} ${now.getFullYear()} — Submitted vs Approved`;
 
@@ -1670,6 +1677,41 @@ export default function Dashboard() {
                     </div>
                   </div>
 
+                  {/* Monthly Task Completion Trend — mirrors the DS PATH mockup's
+                      bar chart, driven by live completed-task counts per month */}
+                  <div style={{ background: "rgba(0,0,0,0.1)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 10 }}>
+                      <div>
+                        <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Monthly Task Completion Trend</p>
+                        <p style={{ fontSize: 18, fontWeight: 700 }}>{tasksCompletedThisMonth} Tasks Completed</p>
+                      </div>
+                      {taskCompletionPctChange !== null && (
+                        <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "3px 8px", borderRadius: 20, whiteSpace: "nowrap" }}>
+                          {taskCompletionPctChange >= 0 ? "+" : ""}{taskCompletionPctChange}%
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 56 }}>
+                      {monthlyTaskCompletionData.map((d, i) => {
+                        const isLast = i === monthlyTaskCompletionData.length - 1;
+                        const heightPct = Math.max(8, Math.round((d.completed / maxMonthlyTaskCompletion) * 100));
+                        return (
+                          <div key={d.month} style={{ flex: 1, height: "100%", display: "flex", alignItems: "flex-end" }}>
+                            <div
+                              title={`${d.month}: ${d.completed} completed`}
+                              style={{ width: "100%", height: `${heightPct}%`, background: "#ffffff", opacity: isLast ? 1 : 0.3 + (i / monthlyTaskCompletionData.length) * 0.4, borderRadius: "3px 3px 0 0" }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+                      {monthlyTaskCompletionData.map(d => (
+                        <span key={d.month} style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.03em", flex: 1, textAlign: "center" }}>{d.month}</span>
+                      ))}
+                    </div>
+                  </div>
+
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
                     <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12 }}>
                       <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Faculty</p>
@@ -1696,16 +1738,6 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Processing time trend mini */}
-                  <div>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#cabeff", marginBottom: 6 }}>Processing Time Trend</p>
-                    <ResponsiveContainer width="100%" height={56}>
-                      <LineChart data={processingTrendData} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                        <Line type="monotone" dataKey="days" stroke="#ffffff" strokeWidth={2} dot={{ fill: "#ffffff", r: 3 }} name="Avg Days" />
-                        <Tooltip content={<CustomTip />} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
                 </div>
               </div>
             </div>
