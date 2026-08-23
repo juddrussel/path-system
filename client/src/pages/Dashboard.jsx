@@ -1906,7 +1906,7 @@ export default function Dashboard() {
                       </button>
                     }
                   >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minHeight: 240 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                       <thead>
                         <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                           {["Task Title", "Priority", "Due Date", "Status", "Action"].map(col => (
@@ -1923,7 +1923,7 @@ export default function Dashboard() {
                           const pCfg = PRIORITY_CFG[t.priority] || PRIORITY_CFG.Normal;
                           const sCfg = STATUS_CFG[t.status?.toLowerCase()] || STATUS_CFG["pending"];
                           return (
-                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top" }}>
                               <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
                               <td style={{ padding: "10px 14px" }}>
                                 <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: pCfg.bg, color: pCfg.color }}>{t.priority}</span>
@@ -1981,7 +1981,7 @@ export default function Dashboard() {
                       <button onClick={() => navigate("/forms")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>Manage All Forms</button>
                     }
                   >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minHeight: 240 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                       <thead>
                         <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                           {["Form Name", "Submission Date", "Current Status", "Action"].map(col => (
@@ -1997,7 +1997,7 @@ export default function Dashboard() {
                         ) : myFormsPageItems.map(f => {
                           const sCfg = STATUS_CFG[f.status?.toLowerCase()] || STATUS_CFG["pending"];
                           return (
-                            <tr key={f.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                            <tr key={f.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top" }}>
                               <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{f.title}</td>
                               <td style={{ padding: "10px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{f.date}</td>
                               <td style={{ padding: "10px 14px" }}>
