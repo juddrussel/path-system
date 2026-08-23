@@ -348,48 +348,48 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick }) {
   return (
     <tr
       onClick={() => onClick && onClick(f)}
-      style={{ cursor: onClick ? "pointer" : "default", transition: "background 0.15s" }}
-      onMouseEnter={e => { if (onClick) e.currentTarget.style.background = "#faf8ff"; }}
+      style={{ cursor: onClick ? "pointer" : "default", borderBottom: "1px solid #e3dfff", transition: "background-color 0.15s" }}
+      onMouseEnter={e => { if (onClick) e.currentTarget.style.background = "rgba(246,242,255,0.6)"; }}
       onMouseLeave={e => { if (onClick) e.currentTarget.style.background = "transparent"; }}
     >
-      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9" }}>
+      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div
             style={{
-              width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+              width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
               background: `hsl(${idx * 55 + 250}, 60%, 92%)`,
               border: `2px solid hsl(${idx * 55 + 250}, 50%, 78%)`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            <span style={{ fontSize: 12, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 55%, 35%)` }}>{initials}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: `hsl(${idx * 55 + 250}, 55%, 35%)` }}>{initials}</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-            <span style={{ fontSize: 13.5, fontWeight: 600, color: "#191b24", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.full_name}</span>
-            <span style={{ fontSize: 11, color: "#5d5e64" }}>{idx === 0 ? "Top performer" : "Faculty member"}</span>
+            <span style={{ fontSize: 14, fontWeight: 500, color: "#181445", lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.full_name}</span>
+            <span style={{ fontSize: 11, color: "#7b7486" }}>{idx === 0 ? "Top performer" : "Faculty member"}</span>
           </div>
         </div>
       </td>
-      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "center", fontWeight: 700, color: "#191b24" }}>
+      <td style={{ padding: "16px 24px", textAlign: "center", fontSize: 14, fontWeight: 600, color: "#181445" }}>
         {f.completed_count ?? 0}
       </td>
-      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "center", fontWeight: 700, color: "#5e3bdb" }}>
+      <td style={{ padding: "16px 24px", textAlign: "center", fontSize: 14, fontWeight: 600, color: "#6b38d4" }}>
         {f.active_count ?? 0}
       </td>
-      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "center", fontWeight: 700, color: delayedCount > 0 ? "#dc2626" : "#191b24" }}>
+      <td style={{ padding: "16px 24px", textAlign: "center", fontSize: 14, fontWeight: 600, color: delayedCount > 0 ? "#ba1a1a" : "#181445" }}>
         {f.pending_count ?? 0}
       </td>
-      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9" }}>
+      <td style={{ padding: "16px 24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 5, width: 110 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: rateColor }}>{rate}%</span>
-          <div style={{ width: "100%", background: "#e2e1ee", borderRadius: 999, height: 6 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: rateColor }}>{rate}%</span>
+          <div style={{ width: "100%", background: "#e3dfff", borderRadius: 999, height: 6 }}>
             <div style={{ width: `${Math.min(rate, 100)}%`, background: rateColor, height: 6, borderRadius: 999 }} />
           </div>
         </div>
       </td>
       {onClick && (
-        <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "right" }}>
-          <ChevronRight style={{ width: 14, height: 14, color: "#c4c4d4" }} />
+        <td style={{ padding: "16px 24px", textAlign: "right" }}>
+          <ChevronRight style={{ width: 14, height: 14, color: "#cbc3d7" }} />
         </td>
       )}
     </tr>
@@ -1482,41 +1482,43 @@ export default function Dashboard() {
                   </span>
                 }
               >
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontFamily: "'Hanken Grotesk', sans-serif" }}>
                   <thead>
-                    <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                    <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
                       {["ID", "Type", "Title", "Submitted By / Assigned To", "Date", "Priority", "Status", "Actions"].map(col => (
-                        <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
+                        <th key={col} style={{ padding: "16px 24px", textAlign: "left", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {itemsLoading ? (
-                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading tasks, forms, and documents…</td></tr>
+                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#7b7486", fontSize: 14 }}>Loading tasks, forms, and documents…</td></tr>
                     ) : trackedItems.length === 0 ? (
-                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Nothing in the system yet.</td></tr>
+                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#7b7486", fontSize: 14 }}>Nothing in the system yet.</td></tr>
                     ) : trackedPageItems.map((row, idx) => {
+                      const rowBg = row.days >= 7 && !["Approved", "Rejected", "Archived"].includes(row.status)
+                        ? "rgba(220,38,38,0.025)"
+                        : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : "#ffffff";
                       return (
                         <tr
                           key={row.id}
-                          style={{
-                            borderBottom: idx < trackedPageItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
-                            background: row.days >= 7 && !["Approved", "Rejected", "Archived"].includes(row.status) ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : "#fff",
-                          }}
+                          style={{ borderBottom: "1px solid #e3dfff", background: rowBg, transition: "background-color 0.15s" }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(246,242,255,0.6)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = rowBg; }}
                         >
-                          <td style={{ padding: "12px 14px", fontFamily: "monospace", fontWeight: 700, color: "#5e3bdb", fontSize: 11 }}>{row.id}</td>
-                          <td style={{ padding: "12px 14px" }}><TypeBadge type={row.sourceType} /></td>
-                          <td style={{ padding: "12px 14px", fontWeight: 500, color: "#111827" }}>{row.title}</td>
-                          <td style={{ padding: "12px 14px", color: "#374151" }}>{row.person}</td>
-                          <td style={{ padding: "12px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{row.date}</td>
-                          <td style={{ padding: "12px 14px" }}><PriorityPill p={row.priority} /></td>
-                          <td style={{ padding: "12px 14px" }}>
+                          <td style={{ padding: "16px 24px", fontFamily: "monospace", fontWeight: 700, color: "#5e3bdb", fontSize: 12, whiteSpace: "nowrap" }}>{row.id}</td>
+                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}><TypeBadge type={row.sourceType} /></td>
+                          <td style={{ padding: "16px 24px", fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.title}</td>
+                          <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454", whiteSpace: "nowrap" }}>{row.person}</td>
+                          <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454", whiteSpace: "nowrap" }}>{row.date}</td>
+                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}><PriorityPill p={row.priority} /></td>
+                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                               <StatusBadge s={row.status} />
                               {row.days >= 5 && !["Approved", "Rejected", "Archived"].includes(row.status) && <span style={{ fontSize: 10, color: "#dc2626", fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}><AlertTriangle style={{ width: 9, height: 9 }} />{row.days}d</span>}
                             </div>
                           </td>
-                          <td style={{ padding: "12px 14px" }}>
+                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
                             <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f3f2ff", color: "#5e3bdb", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
                               <Eye style={{ width: 11, height: 11 }} /> View
                             </button>
@@ -1645,15 +1647,15 @@ export default function Dashboard() {
                     <p style={{ padding: "24px 16px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
                   ) : (
                     <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                        <thead style={{ background: "#f3f2ff" }}>
-                          <tr>
-                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9" }}>Faculty Member</th>
-                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9", textAlign: "center" }}>Tasks Done</th>
-                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9", textAlign: "center" }}>Active</th>
-                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9", textAlign: "center" }}>Pending</th>
-                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9" }}>Success Rate</th>
-                            <th style={{ borderBottom: "1px solid #ededf9" }} />
+                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontFamily: "'Hanken Grotesk', sans-serif" }}>
+                        <thead>
+                          <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
+                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>Faculty Member</th>
+                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Tasks Done</th>
+                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Active</th>
+                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Pending</th>
+                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>Success Rate</th>
+                            <th />
                           </tr>
                         </thead>
                         <tbody>
