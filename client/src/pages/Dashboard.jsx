@@ -12,10 +12,6 @@ import {
   GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
   ListTodo, PieChart, X, Tag,
 } from "lucide-react";
-import {
-  Tooltip, ResponsiveContainer,
-  PieChart as RPie, Pie, Cell,
-} from "recharts";
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
@@ -260,18 +256,6 @@ function PriorityPill({ p }) {
     </span>
   );
 }
-
-const CustomTip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div style={{ background: "#191b24", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#fff" }}>
-      <p style={{ fontWeight: 700, marginBottom: 4, color: "#cabeff" }}>{label}</p>
-      {payload.map((p) => (
-        <p key={p.name} style={{ color: p.color ?? "#fff" }}>{p.name}: <strong>{p.value}</strong></p>
-      ))}
-    </div>
-  );
-};
 
 function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
   const rate = Number(f.performance_score) || 0;
@@ -1244,6 +1228,22 @@ export default function Dashboard() {
   ];
   const trackingOverviewTotal = trackingOverviewData.reduce((s, d) => s + d.value, 0);
 
+  // Conic-gradient stops for the octagon "squircle" donut ring — each slice
+  // gets a small gap on either side so segments read as distinct pieces.
+  const TRACKING_RING_GAP_DEG = 5;
+  let trackingRingAngle = 0;
+  const trackingRingStops = [];
+  trackingOverviewData.forEach(d => {
+    if (!d.value) return;
+    const sweep = (d.value / (trackingOverviewTotal || 1)) * 360;
+    const start = trackingRingAngle + (sweep < TRACKING_RING_GAP_DEG * 2 ? 0 : TRACKING_RING_GAP_DEG / 2);
+    const end = trackingRingAngle + sweep - (sweep < TRACKING_RING_GAP_DEG * 2 ? 0 : TRACKING_RING_GAP_DEG / 2);
+    trackingRingStops.push(`${d.color} ${start}deg ${end}deg`);
+    trackingRingAngle += sweep;
+  });
+  const trackingRingGradient = `conic-gradient(${trackingRingStops.join(", ")})`;
+  const OCTAGON_CLIP = "polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)";
+
   const DONE_FOR_DEADLINES = ["Approved", "Completed", "Archived", "Rejected"];
   const upcomingDeadlines = myItems
     .filter(t => !DONE_FOR_DEADLINES.includes(t.status) && t.dateObj)
@@ -1972,29 +1972,16 @@ export default function Dashboard() {
                       <p style={{ padding: "30px 0", fontSize: 12, color: "#9ca3af", textAlign: "center" }}>No tracked items yet.</p>
                     ) : (
                       <>
-                        <div style={{ position: "relative", width: 160, height: 160, margin: "0 auto" }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <RPie>
-                              <Pie
-                                data={trackingOverviewData}
-                                dataKey="value"
-                                nameKey="name"
-                                innerRadius={54}
-                                outerRadius={78}
-                                paddingAngle={5}
-                                cornerRadius={12}
-                                startAngle={90}
-                                endAngle={-270}
-                                stroke="none"
-                              >
-                                {trackingOverviewData.map((d, i) => <Cell key={i} fill={d.color} />)}
-                              </Pie>
-                              <Tooltip content={<CustomTip />} />
-                            </RPie>
-                          </ResponsiveContainer>
-                          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                        <div style={{ position: "relative", width: 140, height: 140, margin: "0 auto", clipPath: OCTAGON_CLIP, background: trackingRingGradient }}>
+                          <div
+                            style={{
+                              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+                              width: 90, height: 90, background: "#ffffff", clipPath: OCTAGON_CLIP,
+                              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                            }}
+                          >
                             <span style={{ fontSize: 26, fontWeight: 800, color: "#191b24", lineHeight: 1 }}>{trackingOverviewTotal}</span>
-                            <span style={{ fontSize: 10, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 3 }}>Total</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 3 }}>Total</span>
                           </div>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 18 }}>
