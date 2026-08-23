@@ -648,6 +648,89 @@ function SectionCard({ id, title, subtitle, icon: Icon, children, action, noPad,
   );
 }
 
+// ── Empty state for dashboard tables — icon + message, replaces bare gray text ─
+function TableEmptyState({ icon: Icon, message, colSpan }) {
+  return (
+    <tr>
+      <td colSpan={colSpan} style={{ padding: "36px 20px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon style={{ width: 16, height: 16, color: "#a89cdb" }} />
+          </div>
+          <p style={{ fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>{message}</p>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+// ── Table row with a subtle hover state (inline styles need JS for :hover) ──
+function HoverRow({ children, style }) {
+  return (
+    <tr
+      style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top", transition: "background-color 0.12s", ...style }}
+      onMouseEnter={e => { e.currentTarget.style.background = "#faf9ff"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+    >
+      {children}
+    </tr>
+  );
+}
+
+// ── Text-only action link with a hover underline, used for row-level "View"/"Track" links ──
+function RowLinkButton({ onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer", padding: 0, textDecoration: "none" }}
+      onMouseEnter={e => { e.currentTarget.style.textDecoration = "underline"; }}
+      onMouseLeave={e => { e.currentTarget.style.textDecoration = "none"; }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ── Pagination footer shared by the faculty-side dashboard tables ──────────
+function TablePagination({ page, totalPages, start, end, total, onPrev, onNext }) {
+  const btnStyle = disabled => ({
+    padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
+    border: "1px solid #e5e7eb", background: disabled ? "#f9fafb" : "#fff",
+    color: disabled ? "#c1c5cb" : "#374151", cursor: disabled ? "not-allowed" : "pointer",
+    transition: "background-color 0.12s, border-color 0.12s",
+  });
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)", background: "#fcfcfd" }}>
+      <span style={{ fontSize: 11, color: "#6b7280" }}>
+        Showing {start}–{end} of {total}
+      </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <button
+          onClick={onPrev}
+          disabled={page === 1}
+          style={btnStyle(page === 1)}
+          onMouseEnter={e => { if (page !== 1) e.currentTarget.style.borderColor = "#ddd6fe"; }}
+          onMouseLeave={e => { if (page !== 1) e.currentTarget.style.borderColor = "#e5e7eb"; }}
+        >
+          Previous
+        </button>
+        <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
+          Page {page} of {totalPages}
+        </span>
+        <button
+          onClick={onNext}
+          disabled={page === totalPages}
+          style={btnStyle(page === totalPages)}
+          onMouseEnter={e => { if (page !== totalPages) e.currentTarget.style.borderColor = "#ddd6fe"; }}
+          onMouseLeave={e => { if (page !== totalPages) e.currentTarget.style.borderColor = "#e5e7eb"; }}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Quick Actions — compact shortcut list, used to fill out the right-hand
 //    column under Bottlenecks & Alerts so it doesn't sit half-empty next to
 //    the taller tracking table. ───────────────────────────────────────────
@@ -1867,7 +1950,7 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {upcomingDeadlines.length === 0 ? (
-                          <tr><td colSpan={4} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No upcoming deadlines.</td></tr>
+                          <TableEmptyState icon={Calendar} message="No upcoming deadlines." colSpan={4} />
                         ) : upcomingDeadlines.map(t => {
                           const overdue = t.daysLeft < 0;
                           const dueSoon = !overdue && t.daysLeft <= 3;
@@ -1876,7 +1959,7 @@ export default function Dashboard() {
                           const pillDot   = overdue ? "#ef4444" : dueSoon ? "#f59e0b" : "#38bdf8";
                           const label = overdue ? "Overdue" : `${t.daysLeft} Day${t.daysLeft === 1 ? "" : "s"} Left`;
                           return (
-                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top" }}>
+                            <HoverRow key={t.id}>
                               <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
                               <td style={{ padding: "10px 14px", color: overdue ? "#dc2626" : "#6b7280", fontWeight: overdue ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
                               <td style={{ padding: "10px 14px" }}>
@@ -1886,9 +1969,9 @@ export default function Dashboard() {
                                 </span>
                               </td>
                               <td style={{ padding: "10px 14px" }}>
-                                <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
+                                <RowLinkButton onClick={() => navigate("/tasks")}>View Task</RowLinkButton>
                               </td>
-                            </tr>
+                            </HoverRow>
                           );
                         })}
                       </tbody>
@@ -1901,7 +1984,12 @@ export default function Dashboard() {
                     icon={ListTodo}
                     noPad
                     action={
-                      <button onClick={() => navigate("/tasks")} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px", cursor: "pointer" }}>
+                      <button
+                        onClick={() => navigate("/tasks")}
+                        style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px", cursor: "pointer", transition: "background-color 0.12s, border-color 0.12s" }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "#ece8ff"; e.currentTarget.style.borderColor = "#c9bdfb"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "#f3f2ff"; e.currentTarget.style.borderColor = "#ddd6fe"; }}
+                      >
                         View All Tasks <ChevronRight style={{ width: 12, height: 12 }} />
                       </button>
                     }
@@ -1916,14 +2004,14 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {itemsLoading ? (
-                          <tr><td colSpan={5} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
+                          <TableEmptyState icon={ListTodo} message="Loading…" colSpan={5} />
                         ) : myTasksFaculty.length === 0 ? (
-                          <tr><td colSpan={5} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No tasks assigned to you yet.</td></tr>
+                          <TableEmptyState icon={ListTodo} message="No tasks assigned to you yet." colSpan={5} />
                         ) : myTasksPageItems.map(t => {
                           const pCfg = PRIORITY_CFG[t.priority] || PRIORITY_CFG.Normal;
                           const sCfg = STATUS_CFG[t.status?.toLowerCase()] || STATUS_CFG["pending"];
                           return (
-                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top" }}>
+                            <HoverRow key={t.id}>
                               <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
                               <td style={{ padding: "10px 14px" }}>
                                 <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: pCfg.bg, color: pCfg.color }}>{t.priority}</span>
@@ -1936,39 +2024,23 @@ export default function Dashboard() {
                                 </span>
                               </td>
                               <td style={{ padding: "10px 14px" }}>
-                                <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
+                                <RowLinkButton onClick={() => navigate("/tasks")}>View Task</RowLinkButton>
                               </td>
-                            </tr>
+                            </HoverRow>
                           );
                         })}
                       </tbody>
                     </table>
                     {!itemsLoading && myTasksFaculty.length > 0 && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-                        <span style={{ fontSize: 11, color: "#6b7280" }}>
-                          Showing {(myTasksPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
-                          –{Math.min(myTasksPage * FACULTY_CARD_PAGE_SIZE, myTasksFaculty.length)} of {myTasksFaculty.length}
-                        </span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <button
-                            onClick={() => setMyTasksPage(p => Math.max(1, p - 1))}
-                            disabled={myTasksPage === 1}
-                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myTasksPage === 1 ? "#f9fafb" : "#fff", color: myTasksPage === 1 ? "#c1c5cb" : "#374151", cursor: myTasksPage === 1 ? "not-allowed" : "pointer" }}
-                          >
-                            Previous
-                          </button>
-                          <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
-                            Page {myTasksPage} of {myTasksTotalPages}
-                          </span>
-                          <button
-                            onClick={() => setMyTasksPage(p => Math.min(myTasksTotalPages, p + 1))}
-                            disabled={myTasksPage === myTasksTotalPages}
-                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myTasksPage === myTasksTotalPages ? "#f9fafb" : "#fff", color: myTasksPage === myTasksTotalPages ? "#c1c5cb" : "#374151", cursor: myTasksPage === myTasksTotalPages ? "not-allowed" : "pointer" }}
-                          >
-                            Next
-                          </button>
-                        </div>
-                      </div>
+                      <TablePagination
+                        page={myTasksPage}
+                        totalPages={myTasksTotalPages}
+                        start={(myTasksPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
+                        end={Math.min(myTasksPage * FACULTY_CARD_PAGE_SIZE, myTasksFaculty.length)}
+                        total={myTasksFaculty.length}
+                        onPrev={() => setMyTasksPage(p => Math.max(1, p - 1))}
+                        onNext={() => setMyTasksPage(p => Math.min(myTasksTotalPages, p + 1))}
+                      />
                     )}
                   </SectionCard>
 
@@ -1977,9 +2049,7 @@ export default function Dashboard() {
                     subtitle="Tracking your recently submitted document requests"
                     icon={FileText}
                     noPad
-                    action={
-                      <button onClick={() => navigate("/forms")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>Manage All Forms</button>
-                    }
+                    action={<RowLinkButton onClick={() => navigate("/forms")}>Manage All Forms</RowLinkButton>}
                   >
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                       <thead>
@@ -1991,13 +2061,13 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {myFormsDataLoading ? (
-                          <tr><td colSpan={4} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
+                          <TableEmptyState icon={FileText} message="Loading…" colSpan={4} />
                         ) : myFormsData.length === 0 ? (
-                          <tr><td colSpan={4} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>You haven't submitted any forms yet.</td></tr>
+                          <TableEmptyState icon={FileText} message="You haven't submitted any forms yet." colSpan={4} />
                         ) : myFormsPageItems.map(f => {
                           const sCfg = STATUS_CFG[f.status?.toLowerCase()] || STATUS_CFG["pending"];
                           return (
-                            <tr key={f.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top" }}>
+                            <HoverRow key={f.id}>
                               <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{f.title}</td>
                               <td style={{ padding: "10px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{f.date}</td>
                               <td style={{ padding: "10px 14px" }}>
@@ -2007,39 +2077,30 @@ export default function Dashboard() {
                                 </span>
                               </td>
                               <td style={{ padding: "10px 14px" }}>
-                                <button onClick={() => navigate("/tracking")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "3px 10px", cursor: "pointer" }}>Track</button>
+                                <button
+                                  onClick={() => navigate("/tracking")}
+                                  style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "3px 10px", cursor: "pointer", transition: "background-color 0.12s, border-color 0.12s" }}
+                                  onMouseEnter={e => { e.currentTarget.style.background = "#ece8ff"; e.currentTarget.style.borderColor = "#c9bdfb"; }}
+                                  onMouseLeave={e => { e.currentTarget.style.background = "#f3f2ff"; e.currentTarget.style.borderColor = "#ddd6fe"; }}
+                                >
+                                  Track
+                                </button>
                               </td>
-                            </tr>
+                            </HoverRow>
                           );
                         })}
                       </tbody>
                     </table>
                     {!myFormsDataLoading && myFormsData.length > 0 && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-                        <span style={{ fontSize: 11, color: "#6b7280" }}>
-                          Showing {(myFormsPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
-                          –{Math.min(myFormsPage * FACULTY_CARD_PAGE_SIZE, myFormsData.length)} of {myFormsData.length}
-                        </span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <button
-                            onClick={() => setMyFormsPage(p => Math.max(1, p - 1))}
-                            disabled={myFormsPage === 1}
-                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myFormsPage === 1 ? "#f9fafb" : "#fff", color: myFormsPage === 1 ? "#c1c5cb" : "#374151", cursor: myFormsPage === 1 ? "not-allowed" : "pointer" }}
-                          >
-                            Previous
-                          </button>
-                          <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
-                            Page {myFormsPage} of {myFormsTotalPages}
-                          </span>
-                          <button
-                            onClick={() => setMyFormsPage(p => Math.min(myFormsTotalPages, p + 1))}
-                            disabled={myFormsPage === myFormsTotalPages}
-                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myFormsPage === myFormsTotalPages ? "#f9fafb" : "#fff", color: myFormsPage === myFormsTotalPages ? "#c1c5cb" : "#374151", cursor: myFormsPage === myFormsTotalPages ? "not-allowed" : "pointer" }}
-                          >
-                            Next
-                          </button>
-                        </div>
-                      </div>
+                      <TablePagination
+                        page={myFormsPage}
+                        totalPages={myFormsTotalPages}
+                        start={(myFormsPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
+                        end={Math.min(myFormsPage * FACULTY_CARD_PAGE_SIZE, myFormsData.length)}
+                        total={myFormsData.length}
+                        onPrev={() => setMyFormsPage(p => Math.max(1, p - 1))}
+                        onNext={() => setMyFormsPage(p => Math.min(myFormsTotalPages, p + 1))}
+                      />
                     )}
                   </SectionCard>
                 </div>
@@ -2049,7 +2110,12 @@ export default function Dashboard() {
 
                   <SectionCard title="Tracking Overview" subtitle="Status distribution of all your documents" icon={PieChart}>
                     {trackingOverviewTotal === 0 ? (
-                      <p style={{ padding: "30px 0", fontSize: 12, color: "#9ca3af", textAlign: "center" }}>No tracked items yet.</p>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "30px 0" }}>
+                        <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <PieChart style={{ width: 16, height: 16, color: "#a89cdb" }} />
+                        </div>
+                        <p style={{ fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>No tracked items yet.</p>
+                      </div>
                     ) : (
                       <>
                         <div style={{ position: "relative", width: 140, height: 140, margin: "0 auto", clipPath: OCTAGON_CLIP, background: trackingRingGradient }}>
