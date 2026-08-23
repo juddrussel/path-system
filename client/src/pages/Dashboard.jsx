@@ -1482,7 +1482,7 @@ export default function Dashboard() {
                   </span>
                 }
               >
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontFamily: "'Hanken Grotesk', sans-serif" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                   <thead>
                     <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
                       {["ID", "Type", "Title", "Submitted By / Assigned To", "Date", "Priority", "Status", "Actions"].map(col => (
@@ -1647,7 +1647,7 @@ export default function Dashboard() {
                     <p style={{ padding: "24px 16px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
                   ) : (
                     <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontFamily: "'Hanken Grotesk', sans-serif" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                         <thead>
                           <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
                             <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>Faculty Member</th>
