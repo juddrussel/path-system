@@ -1857,7 +1857,7 @@ export default function Dashboard() {
                       </span>
                     }
                   >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minHeight: 240 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                       <thead>
                         <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                           {["Task Title", "Due Date", "Status", "Action"].map(col => (
@@ -1876,7 +1876,7 @@ export default function Dashboard() {
                           const pillDot   = overdue ? "#ef4444" : dueSoon ? "#f59e0b" : "#38bdf8";
                           const label = overdue ? "Overdue" : `${t.daysLeft} Day${t.daysLeft === 1 ? "" : "s"} Left`;
                           return (
-                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top" }}>
                               <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
                               <td style={{ padding: "10px 14px", color: overdue ? "#dc2626" : "#6b7280", fontWeight: overdue ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
                               <td style={{ padding: "10px 14px" }}>
