@@ -720,6 +720,13 @@ export default function Dashboard() {
   const [taskPage, setTaskPage] = useState(1);
   const TASK_PAGE_SIZE = 10;
 
+  // ── Pagination for the faculty-side "My Tasks" / "My Forms" cards ───────────
+  // Fixed at 5 rows per page so these cards stay a consistent height instead
+  // of shrinking/growing with however many items happen to exist.
+  const [myTasksPage, setMyTasksPage] = useState(1);
+  const [myFormsPage, setMyFormsPage] = useState(1);
+  const FACULTY_CARD_PAGE_SIZE = 5;
+
   // ── Live data for the "Faculty Performance Summary" widget ──────────────────
   const [facultyPerformance, setFacultyPerformance] = useState([]);
   const [facultyLoading, setFacultyLoading] = useState(true);
@@ -961,6 +968,14 @@ export default function Dashboard() {
   useEffect(() => {
     setTrackedPage(1);
   }, [trackedItems.length]);
+
+  useEffect(() => {
+    setMyTasksPage(1);
+  }, [trackedItems.length]);
+
+  useEffect(() => {
+    setMyFormsPage(1);
+  }, [myFormsData.length]);
 
   const trackedTotalPages = Math.max(1, Math.ceil(trackedItems.length / TRACKED_PAGE_SIZE));
   const trackedPageItems = trackedItems.slice(
@@ -1211,6 +1226,17 @@ export default function Dashboard() {
   const myItems = trackedItems.filter(t => t.person === displayName);
   const myTasksFaculty = myItems.filter(t => t.sourceType === "task");
   const myFormsFaculty = myItems.filter(t => t.sourceType === "form");
+
+  const myTasksTotalPages = Math.max(1, Math.ceil(myTasksFaculty.length / FACULTY_CARD_PAGE_SIZE));
+  const myTasksPageItems = myTasksFaculty.slice(
+    (myTasksPage - 1) * FACULTY_CARD_PAGE_SIZE,
+    myTasksPage * FACULTY_CARD_PAGE_SIZE
+  );
+  const myFormsTotalPages = Math.max(1, Math.ceil(myFormsData.length / FACULTY_CARD_PAGE_SIZE));
+  const myFormsPageItems = myFormsData.slice(
+    (myFormsPage - 1) * FACULTY_CARD_PAGE_SIZE,
+    myFormsPage * FACULTY_CARD_PAGE_SIZE
+  );
 
   const trackingBucketOf = (status) => {
     if (["Approved", "Completed", "Archived", "Received"].includes(status)) return "Approved";
@@ -1831,7 +1857,7 @@ export default function Dashboard() {
                       </span>
                     }
                   >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minHeight: 240 }}>
                       <thead>
                         <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                           {["Task Title", "Due Date", "Status", "Action"].map(col => (
@@ -1841,7 +1867,7 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {upcomingDeadlines.length === 0 ? (
-                          <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No upcoming deadlines.</td></tr>
+                          <tr><td colSpan={4} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No upcoming deadlines.</td></tr>
                         ) : upcomingDeadlines.map(t => {
                           const overdue = t.daysLeft < 0;
                           const dueSoon = !overdue && t.daysLeft <= 3;
@@ -1880,7 +1906,7 @@ export default function Dashboard() {
                       </button>
                     }
                   >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minHeight: 240 }}>
                       <thead>
                         <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                           {["Task Title", "Priority", "Due Date", "Status", "Action"].map(col => (
@@ -1890,10 +1916,10 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {itemsLoading ? (
-                          <tr><td colSpan={5} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
+                          <tr><td colSpan={5} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
                         ) : myTasksFaculty.length === 0 ? (
-                          <tr><td colSpan={5} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No tasks assigned to you yet.</td></tr>
-                        ) : myTasksFaculty.slice(0, 6).map(t => {
+                          <tr><td colSpan={5} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No tasks assigned to you yet.</td></tr>
+                        ) : myTasksPageItems.map(t => {
                           const pCfg = PRIORITY_CFG[t.priority] || PRIORITY_CFG.Normal;
                           const sCfg = STATUS_CFG[t.status?.toLowerCase()] || STATUS_CFG["pending"];
                           return (
@@ -1917,6 +1943,33 @@ export default function Dashboard() {
                         })}
                       </tbody>
                     </table>
+                    {!itemsLoading && myTasksFaculty.length > 0 && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                        <span style={{ fontSize: 11, color: "#6b7280" }}>
+                          Showing {(myTasksPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
+                          –{Math.min(myTasksPage * FACULTY_CARD_PAGE_SIZE, myTasksFaculty.length)} of {myTasksFaculty.length}
+                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <button
+                            onClick={() => setMyTasksPage(p => Math.max(1, p - 1))}
+                            disabled={myTasksPage === 1}
+                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myTasksPage === 1 ? "#f9fafb" : "#fff", color: myTasksPage === 1 ? "#c1c5cb" : "#374151", cursor: myTasksPage === 1 ? "not-allowed" : "pointer" }}
+                          >
+                            Previous
+                          </button>
+                          <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
+                            Page {myTasksPage} of {myTasksTotalPages}
+                          </span>
+                          <button
+                            onClick={() => setMyTasksPage(p => Math.min(myTasksTotalPages, p + 1))}
+                            disabled={myTasksPage === myTasksTotalPages}
+                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myTasksPage === myTasksTotalPages ? "#f9fafb" : "#fff", color: myTasksPage === myTasksTotalPages ? "#c1c5cb" : "#374151", cursor: myTasksPage === myTasksTotalPages ? "not-allowed" : "pointer" }}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </SectionCard>
 
                   <SectionCard
@@ -1928,7 +1981,7 @@ export default function Dashboard() {
                       <button onClick={() => navigate("/forms")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>Manage All Forms</button>
                     }
                   >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minHeight: 240 }}>
                       <thead>
                         <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                           {["Form Name", "Submission Date", "Current Status", "Action"].map(col => (
@@ -1938,10 +1991,10 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {myFormsDataLoading ? (
-                          <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
+                          <tr><td colSpan={4} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading…</td></tr>
                         ) : myFormsData.length === 0 ? (
-                          <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>You haven't submitted any forms yet.</td></tr>
-                        ) : myFormsData.slice(0, 6).map(f => {
+                          <tr><td colSpan={4} style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>You haven't submitted any forms yet.</td></tr>
+                        ) : myFormsPageItems.map(f => {
                           const sCfg = STATUS_CFG[f.status?.toLowerCase()] || STATUS_CFG["pending"];
                           return (
                             <tr key={f.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
@@ -1961,6 +2014,33 @@ export default function Dashboard() {
                         })}
                       </tbody>
                     </table>
+                    {!myFormsDataLoading && myFormsData.length > 0 && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                        <span style={{ fontSize: 11, color: "#6b7280" }}>
+                          Showing {(myFormsPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
+                          –{Math.min(myFormsPage * FACULTY_CARD_PAGE_SIZE, myFormsData.length)} of {myFormsData.length}
+                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <button
+                            onClick={() => setMyFormsPage(p => Math.max(1, p - 1))}
+                            disabled={myFormsPage === 1}
+                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myFormsPage === 1 ? "#f9fafb" : "#fff", color: myFormsPage === 1 ? "#c1c5cb" : "#374151", cursor: myFormsPage === 1 ? "not-allowed" : "pointer" }}
+                          >
+                            Previous
+                          </button>
+                          <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
+                            Page {myFormsPage} of {myFormsTotalPages}
+                          </span>
+                          <button
+                            onClick={() => setMyFormsPage(p => Math.min(myFormsTotalPages, p + 1))}
+                            disabled={myFormsPage === myFormsTotalPages}
+                            style={{ padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid #e5e7eb", background: myFormsPage === myFormsTotalPages ? "#f9fafb" : "#fff", color: myFormsPage === myFormsTotalPages ? "#c1c5cb" : "#374151", cursor: myFormsPage === myFormsTotalPages ? "not-allowed" : "pointer" }}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </SectionCard>
                 </div>
 
