@@ -1238,8 +1238,8 @@ export default function Dashboard() {
   myItems.forEach(t => { trackingBuckets[trackingBucketOf(t.status)]++; });
   const trackingOverviewData = [
     { name: "Approved", value: trackingBuckets.Approved, color: "#22c55e" },
-    { name: "Pending",  value: trackingBuckets.Pending,  color: "#5e3bdb" },
-    { name: "Returned", value: trackingBuckets.Returned, color: "#f59e0b" },
+    { name: "Pending",  value: trackingBuckets.Pending,  color: "#f59e0b" },
+    { name: "Returned", value: trackingBuckets.Returned, color: "#6366f1" },
     { name: "Rejected", value: trackingBuckets.Rejected, color: "#ef4444" },
   ];
   const trackingOverviewTotal = trackingOverviewData.reduce((s, d) => s + d.value, 0);
@@ -1972,19 +1972,40 @@ export default function Dashboard() {
                       <p style={{ padding: "30px 0", fontSize: 12, color: "#9ca3af", textAlign: "center" }}>No tracked items yet.</p>
                     ) : (
                       <>
-                        <ResponsiveContainer width="100%" height={180}>
-                          <RPie>
-                            <Pie data={trackingOverviewData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={75} paddingAngle={3}>
-                              {trackingOverviewData.map((d, i) => <Cell key={i} fill={d.color} />)}
-                            </Pie>
-                            <Tooltip content={<CustomTip />} />
-                          </RPie>
-                        </ResponsiveContainer>
-                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 14px", marginTop: 4 }}>
+                        <div style={{ position: "relative", width: 160, height: 160, margin: "0 auto" }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RPie>
+                              <Pie
+                                data={trackingOverviewData}
+                                dataKey="value"
+                                nameKey="name"
+                                innerRadius={54}
+                                outerRadius={78}
+                                paddingAngle={5}
+                                cornerRadius={12}
+                                startAngle={90}
+                                endAngle={-270}
+                                stroke="none"
+                              >
+                                {trackingOverviewData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                              </Pie>
+                              <Tooltip content={<CustomTip />} />
+                            </RPie>
+                          </ResponsiveContainer>
+                          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                            <span style={{ fontSize: 26, fontWeight: 800, color: "#191b24", lineHeight: 1 }}>{trackingOverviewTotal}</span>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 3 }}>Total</span>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 18 }}>
                           {trackingOverviewData.map(d => (
-                            <span key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#6b7280" }}>
-                              <span style={{ width: 8, height: 8, borderRadius: "50%", background: d.color }} /> {d.name}
-                            </span>
+                            <div key={d.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#374151", fontWeight: 500 }}>
+                                <span style={{ width: 9, height: 9, borderRadius: "50%", background: d.color, flexShrink: 0 }} />
+                                {d.name}
+                              </span>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#191b24" }}>{d.value}</span>
+                            </div>
                           ))}
                         </div>
                       </>
