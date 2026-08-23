@@ -1513,87 +1513,45 @@ export default function Dashboard() {
               </SectionCard>
 
               {/* Bottleneck & Delay Alerts — live data, same source/logic as
-                  the Bottleneck tab on Reports.jsx */}
-              <SectionCard
-                title="Bottleneck & Alerts"
-                subtitle="Items requiring immediate attention"
-                icon={ShieldAlert}
-                accentColor="#dc2626"
-                titleColor="#dc2626"
-                footer={
-                  <button
-                    onClick={() => navigate("/reports", { state: { tab: "Bottleneck" } })}
-                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, background: "transparent", color: "#dc2626", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", letterSpacing: "0.03em" }}
-                  >
-                    {BOTTLENECK_ALERTS.length > 6 ? `VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})` : "VIEW ALL CRITICAL ALERTS"}
-                  </button>
-                }
+                  the Bottleneck tab on Reports.jsx. Solid alert-tinted card,
+                  matching the DS PATH mockup's "Bottlenecks & Alerts" panel. */}
+              <div
+                onClick={() => BOTTLENECK_ALERTS.length > 0 && setAlertsModalOpen(true)}
+                style={{
+                  background: "#ffdad6", border: "1px solid #ffb4ab", borderRadius: 12,
+                  padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", position: "relative",
+                  overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between",
+                  height: "100%", cursor: BOTTLENECK_ALERTS.length > 0 ? "pointer" : "default",
+                }}
               >
+                <TriangleAlert style={{ position: "absolute", right: -14, top: -14, width: 100, height: 100, color: "#ba1a1a", opacity: 0.1 }} />
+
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: "#93000a" }}>Bottlenecks &amp; Alerts</h3>
+                  <p style={{ fontSize: 12, color: "#93000a", opacity: 0.8, marginTop: 2, marginBottom: 16 }}>
+                    {BOTTLENECK_ALERTS.length === 0 ? "Everything is moving smoothly" : "Immediate attention required"}
+                  </p>
+                </div>
+
                 {itemsLoading ? (
-                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>Loading alerts…</p>
-                ) : BOTTLENECK_ALERTS.length === 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, height: "100%", padding: "24px 0" }}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <CheckCircle2 style={{ width: 20, height: 20, color: "#059669" }} />
-                    </div>
-                    <p style={{ fontSize: 12.5, fontWeight: 600, color: "#374151" }}>No active alerts</p>
-                    <p style={{ fontSize: 11, color: "#9ca3af" }}>Everything is moving smoothly.</p>
-                  </div>
+                  <p style={{ fontSize: 12, color: "#93000a", opacity: 0.7, textAlign: "center", padding: "16px 0", position: "relative", zIndex: 1 }}>Loading alerts…</p>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-                    {/* Severity breakdown strip — quick read on the mix of
-                        alerts without having to scan the whole list */}
-                    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                      {Object.entries(ALERT_TIER_CFG).map(([tier, cfg]) => {
-                        const count = BOTTLENECK_ALERTS.filter(a => a.tier === tier).length;
-                        return (
-                          <div key={tier} style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, padding: "7px 9px", borderRadius: 8, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                            <span style={{ fontSize: 14, fontWeight: 800, color: cfg.color, lineHeight: 1 }}>{count}</span>
-                            <span style={{ fontSize: 10, fontWeight: 600, color: cfg.color, opacity: 0.85 }}>{cfg.label}</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative", zIndex: 1 }}>
+                    {Object.entries(ALERT_TIER_CFG).map(([tier, cfg]) => {
+                      const count = BOTTLENECK_ALERTS.filter(a => a.tier === tier).length;
+                      return (
+                        <div key={tier} style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(4px)", borderRadius: 8, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.4)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />
+                            <span style={{ fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {BOTTLENECK_ALERTS.slice(0, 6).map(a => {
-                        const cfg = ALERT_TIER_CFG[a.tier];
-                        const AlertIcon = a.icon;
-                        return (
-                          <div key={a.key} style={{ display: "flex", gap: 9, padding: "9px 11px", borderRadius: 9, background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                            <div style={{ width: 24, height: 24, borderRadius: 6, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                              <AlertIcon style={{ width: 11, height: 11, color: cfg.iconColor }} />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1, flexWrap: "wrap" }}>
-                                <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{a.title}</span>
-                                {cfg.showPill && (
-                                  <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 20, background: cfg.color, color: "#fff" }}>CRITICAL</span>
-                                )}
-                              </div>
-                              <p style={{ fontSize: 11, color: "#374151", lineHeight: 1.4 }}>{a.message}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* When there are only one or two alerts, the card would
-                        otherwise trail off into dead space before the footer
-                        (it stretches to match the taller table card next to
-                        it). Fill that leftover room with a calm status note
-                        instead of leaving it blank. */}
-                    {BOTTLENECK_ALERTS.length <= 3 && (
-                      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, padding: "14px 0", borderRadius: 9, background: "#fafafa", border: "1px dashed #e5e7eb" }}>
-                        <CheckCircle2 style={{ width: 16, height: 16, color: "#059669" }} />
-                        <p style={{ fontSize: 11, color: "#6b7280", textAlign: "center" }}>
-                          No other bottlenecks detected — the rest of the workflow is on track.
-                        </p>
-                      </div>
-                    )}
+                          <span style={{ fontSize: tier === "critical" ? 24 : 18, fontWeight: 700, color: cfg.color, lineHeight: 1 }}>{count}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
-              </SectionCard>
+              </div>
             </div>
 
             {/* Row 3: Faculty + Charts */}
