@@ -1807,60 +1807,84 @@ export default function Dashboard() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-                {/* Upcoming Deadlines — full width, sits above My Tasks */}
-                <SectionCard
-                  title="Upcoming Deadlines"
-                  subtitle="Stay ahead of your closest due dates"
-                  icon={Calendar}
-                  noPad
-                  action={
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px" }}>
-                      {upcomingDeadlines.length} Upcoming
-                    </span>
-                  }
-                >
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                    <thead>
-                      <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                        {["Task Title", "Due Date", "Status", "Action"].map(col => (
-                          <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {upcomingDeadlines.length === 0 ? (
-                        <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No upcoming deadlines.</td></tr>
-                      ) : upcomingDeadlines.map(t => {
-                        const overdue = t.daysLeft < 0;
-                        const dueSoon = !overdue && t.daysLeft <= 3;
-                        const pillColor = overdue ? "#991b1b" : dueSoon ? "#92400e" : "#0369a1";
-                        const pillBg    = overdue ? "#fef2f2" : dueSoon ? "#fef3c7" : "#f0f9ff";
-                        const pillDot   = overdue ? "#ef4444" : dueSoon ? "#f59e0b" : "#38bdf8";
-                        const label = overdue ? "Overdue" : `${t.daysLeft} Day${t.daysLeft === 1 ? "" : "s"} Left`;
-                        return (
-                          <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                            <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
-                            <td style={{ padding: "10px 14px", color: overdue ? "#dc2626" : "#6b7280", fontWeight: overdue ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
-                            <td style={{ padding: "10px 14px" }}>
-                              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: pillBg, color: pillColor }}>
-                                <span style={{ width: 5, height: 5, borderRadius: "50%", background: pillDot }} />
-                                {label}
-                              </span>
-                            </td>
-                            <td style={{ padding: "10px 14px" }}>
-                              <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </SectionCard>
+                {/* Quick Actions — outlined pill shortcuts scoped to the faculty
+                    member's own workflow (My Tasks, Submit Forms, Tracking, Messages) */}
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: "#191b24", marginBottom: 10 }}>Quick Actions</p>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    {[
+                      { label: "My Tasks",     icon: ListTodo,      to: "/tasks" },
+                      { label: "Submit Forms", icon: FileText,      to: "/forms" },
+                      { label: "Tracking",     icon: Activity,      to: "/tracking" },
+                      { label: "Messages",     icon: MessageSquare, to: "/inbox" },
+                    ].map(a => (
+                      <button
+                        key={a.label}
+                        onClick={() => navigate(a.to)}
+                        style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "#ffffff", color: "#484555", border: "1px solid #c9c4d7", cursor: "pointer", fontSize: 12, fontWeight: 600, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", transition: "border-color 0.15s, color 0.15s" }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = "#5e3bdb"; e.currentTarget.style.color = "#5e3bdb"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "#c9c4d7"; e.currentTarget.style.color = "#484555"; }}
+                      >
+                        <a.icon style={{ width: 16, height: 16 }} />
+                        <span>{a.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, alignItems: "start" }}>
 
-                {/* Left column: My Tasks + My Forms */}
+                {/* Left column: Upcoming Deadlines + My Tasks + My Forms */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                  <SectionCard
+                    title="Upcoming Deadlines"
+                    subtitle="Stay ahead of your closest due dates"
+                    icon={Calendar}
+                    noPad
+                    action={
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px" }}>
+                        {upcomingDeadlines.length} Upcoming
+                      </span>
+                    }
+                  >
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                      <thead>
+                        <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+                          {["Task Title", "Due Date", "Status", "Action"].map(col => (
+                            <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {upcomingDeadlines.length === 0 ? (
+                          <tr><td colSpan={4} style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No upcoming deadlines.</td></tr>
+                        ) : upcomingDeadlines.map(t => {
+                          const overdue = t.daysLeft < 0;
+                          const dueSoon = !overdue && t.daysLeft <= 3;
+                          const pillColor = overdue ? "#991b1b" : dueSoon ? "#92400e" : "#0369a1";
+                          const pillBg    = overdue ? "#fef2f2" : dueSoon ? "#fef3c7" : "#f0f9ff";
+                          const pillDot   = overdue ? "#ef4444" : dueSoon ? "#f59e0b" : "#38bdf8";
+                          const label = overdue ? "Overdue" : `${t.daysLeft} Day${t.daysLeft === 1 ? "" : "s"} Left`;
+                          return (
+                            <tr key={t.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                              <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
+                              <td style={{ padding: "10px 14px", color: overdue ? "#dc2626" : "#6b7280", fontWeight: overdue ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
+                              <td style={{ padding: "10px 14px" }}>
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: pillBg, color: pillColor }}>
+                                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: pillDot }} />
+                                  {label}
+                                </span>
+                              </td>
+                              <td style={{ padding: "10px 14px" }}>
+                                <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </SectionCard>
 
                   <SectionCard
                     title="My Tasks"
