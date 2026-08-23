@@ -1319,17 +1319,17 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* KPI strip */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10, marginTop: 20 }}>
+            {/* KPI strip — rounded-xl cards with a top icon chip, matching the mockup's stat-card style */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginTop: 20 }}>
               {kpis.map(k => (
-                <div key={k.label} style={{ background: "#ffffff", border: "1px solid #c9c4d7", borderRadius: 10, padding: "12px 14px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 7, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <k.icon style={{ width: 13, height: 13, color: k.tint }} />
-                    </div>
+                <div key={k.label} style={{ background: "#ffffff", border: "1px solid #c9c4d7", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <k.icon style={{ width: 15, height: 15, color: k.color }} />
                   </div>
-                  <p style={{ fontSize: 24, fontWeight: 700, color: "#191b24", lineHeight: 1 }}>{kpisLoading ? "—" : k.value}</p>
-                  <p style={{ fontSize: 10, color: "#484555", marginTop: 3, lineHeight: 1.3 }}>{k.label}</p>
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#484555", textTransform: "uppercase", letterSpacing: "0.05em" }}>{k.label}</p>
+                    <p style={{ fontSize: 24, fontWeight: 700, color: k.color, lineHeight: 1.3, marginTop: 2 }}>{kpisLoading ? "—" : k.value}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1374,42 +1374,41 @@ export default function Dashboard() {
           <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
 
             {/* Quick Actions — admin/program_chair see the full ops toolbar;
-                faculty see a simplified set scoped to their own workflow */}
-            <div style={{ display: "flex", gap: 8 }}>
+                faculty see a simplified set scoped to their own workflow.
+                Solid primary pill buttons, matching the DS PATH mockup's Row 1. */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               {(canViewAdminNav
                 ? [
-                    { label: "Assign Task",       icon: UserCheck,     color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/assign-task") },
-                    { label: "Tasks",             icon: ListTodo,      color: "#5e3bdb", bg: "#f3f2ff", onClick: () => navigate("/task-assigned") },
-                    { label: "Tracking",          icon: Activity,      color: "#0369a1", bg: "#e0f2fe", onClick: () => navigate("/tracking") },
-                    { label: "Generate Report",   icon: BarChart3,     color: "#481bc6", bg: "#e6deff", onClick: () => navigate("/reports") },
-                    { label: "SLA Configuration", icon: Timer,         color: "#059669", bg: "#ecfdf5", onClick: () => navigate("/sla-configuration") },
+                    { label: "Assign Task",       icon: UserCheck, onClick: () => navigate("/assign-task") },
+                    { label: "Tasks",             icon: ListTodo,  onClick: () => navigate("/task-assigned") },
+                    { label: "Tracking",          icon: Activity,  onClick: () => navigate("/tracking") },
+                    { label: "Generate Report",   icon: BarChart3, onClick: () => navigate("/reports") },
+                    { label: "SLA Configuration", icon: Timer,     onClick: () => navigate("/sla-configuration") },
                   ]
                 : [
-                    { label: "My Tasks",     icon: ListTodo,      color: "#5e3bdb", bg: "#f3f2ff", onClick: () => navigate("/tasks") },
-                    { label: "Submit Forms", icon: FileText,      color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/forms") },
-                    { label: "Tracking",     icon: Activity,      color: "#059669", bg: "#ecfdf5", onClick: () => navigate("/tracking") },
-                    { label: "Messages",     icon: MessageSquare, color: "#481bc6", bg: "#e6deff", onClick: () => navigate("/inbox") },
+                    { label: "My Tasks",     icon: ListTodo,      onClick: () => navigate("/tasks") },
+                    { label: "Submit Forms", icon: FileText,      onClick: () => navigate("/forms") },
+                    { label: "Tracking",     icon: Activity,      onClick: () => navigate("/tracking") },
+                    { label: "Messages",     icon: MessageSquare, onClick: () => navigate("/inbox") },
                   ]
               ).map(a => (
                 <button
                   key={a.label}
                   onClick={a.onClick}
-                  style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: "12px 8px", borderRadius: 10, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", cursor: "pointer", transition: "all 0.15s", boxShadow: "0 1px 3px rgba(91,33,182,0.04)" }}
-                  onMouseEnter={e => { e.currentTarget.style.background = a.bg; e.currentTarget.style.borderColor = `${a.color}30`; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "#5e3bdb", color: "#ffffff", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, boxShadow: "0 1px 3px rgba(91,33,182,0.15)", transition: "background 0.15s" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#7858f5"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "#5e3bdb"; }}
                 >
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: a.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <a.icon style={{ width: 16, height: 16, color: a.color }} />
-                  </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "#374151", textAlign: "center", lineHeight: 1.3 }}>{a.label}</span>
+                  <a.icon style={{ width: 16, height: 16 }} />
+                  <span>{a.label}</span>
                 </button>
               ))}
             </div>
 
             {canViewAdminNav ? (
             <>
-            {/* Row 1: Approval Queue + Alerts */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
+            {/* Row 1: Approval Queue + Alerts (75% / 25%, mirrors the mockup's 4-col grid) */}
+            <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16 }}>
 
               {/* Document, Form & Task Tracking — merges forms, tasks, and
                   documents into one table, the same way Tracking.jsx does */}
@@ -1554,60 +1553,93 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Row 3: Faculty + Charts */}
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
+            {/* Workflow Monitoring Snapshot — full-width row, directly beneath the
+                tracking table + alerts row, matching the mockup's stacking order */}
+            <SectionCard title="Workflow Monitoring Snapshot" subtitle="Live status of all documents currently in workflow" icon={Gauge}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
+                {[
+                  { label: "In Workflow",      value: activeWorkflowItems.length,        icon: Layers,       color: "#5e3bdb" },
+                  { label: "Awaiting Approval", value: awaitingApprovalCount,             icon: Clock,        color: "#d97706" },
+                  { label: "Delayed",           value: delayedDocs.length,                icon: AlertCircle,  color: "#dc2626" },
+                  { label: "Avg. Proc. Time",   value: `${avgProcessingDays.toFixed(1)}d`, icon: Timer,       color: "#059669" },
+                ].map(s => (
+                  <div key={s.label} style={{ padding: "12px", borderRadius: 9, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
+                      <s.icon style={{ width: 14, height: 14, color: s.color }} />
+                    </div>
+                    <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                    <p style={{ fontSize: 10, color: "#6b7280", marginTop: 3 }}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={monthlySubmissionsData} margin={{ top: 0, right: 8, left: -22, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTip />} />
+                  <Bar dataKey="submitted" name="Submitted" fill="#5e3bdb" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="approved"  name="Approved"  fill="#059669" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="rejected"  name="Rejected"  fill="#dc2626" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </SectionCard>
 
-              {/* Faculty Performance */}
-              <SectionCard
-                title="Faculty Performance Summary"
-                subtitle="Activity and completion rates across department faculty"
-                icon={Users}
-                footer={
-                  facultyPerformance.length > 0 && (
-                    <button
-                      onClick={() => setFacultyModalOpen(true)}
-                      style={{ width: "100%", background: "none", border: "none", color: "#5e3bdb", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 0" }}
-                    >
-                      View all <ChevronRight style={{ width: 12, height: 12 }} />
-                    </button>
-                  )
-                }
-              >
-                <div
-                  onClick={() => facultyPerformance.length > 0 && setFacultyModalOpen(true)}
-                  style={{ display: "flex", flexDirection: "column", gap: 8, cursor: facultyPerformance.length > 0 ? "pointer" : "default" }}
+            {/* Row 2: Faculty Performance (60%) + Department Overview (40%),
+                mirrors the mockup's lg:col-span-3 / lg:col-span-2 of 5 split */}
+            <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
+
+              {/* Left column: Faculty Performance + Approval Rate, stacked */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                {/* Faculty Performance */}
+                <SectionCard
+                  title="Faculty Performance Summary"
+                  subtitle="Activity and completion rates across department faculty"
+                  icon={Users}
+                  footer={
+                    facultyPerformance.length > 0 && (
+                      <button
+                        onClick={() => setFacultyModalOpen(true)}
+                        style={{ width: "100%", background: "none", border: "none", color: "#5e3bdb", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 0" }}
+                      >
+                        View all <ChevronRight style={{ width: 12, height: 12 }} />
+                      </button>
+                    )
+                  }
                 >
-                  {facultyLoading ? (
-                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading faculty performance…</p>
-                  ) : facultyPerformance.length === 0 ? (
-                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
-                  ) : (
-                    facultyPerformance.slice(0, 4).map((f, idx) => (
-                      <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />
-                    ))
-                  )}
-                </div>
-              </SectionCard>
+                  <div
+                    onClick={() => facultyPerformance.length > 0 && setFacultyModalOpen(true)}
+                    style={{ display: "flex", flexDirection: "column", gap: 8, cursor: facultyPerformance.length > 0 ? "pointer" : "default" }}
+                  >
+                    {facultyLoading ? (
+                      <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading faculty performance…</p>
+                    ) : facultyPerformance.length === 0 ? (
+                      <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
+                    ) : (
+                      facultyPerformance.slice(0, 4).map((f, idx) => (
+                        <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />
+                      ))
+                    )}
+                  </div>
+                </SectionCard>
 
-              <FacultyPerformanceModal
-                open={facultyModalOpen}
-                onClose={() => setFacultyModalOpen(false)}
-                faculty={facultyPerformance}
-                delayedDocs={delayedDocs}
-                onSelectFaculty={setSelectedFaculty}
-              />
+                <FacultyPerformanceModal
+                  open={facultyModalOpen}
+                  onClose={() => setFacultyModalOpen(false)}
+                  faculty={facultyPerformance}
+                  delayedDocs={delayedDocs}
+                  onSelectFaculty={setSelectedFaculty}
+                />
 
-              <FacultyDetailPanel
-                open={!!selectedFaculty}
-                onClose={() => setSelectedFaculty(null)}
-                onBack={facultyModalOpen ? () => setSelectedFaculty(null) : null}
-                faculty={selectedFaculty}
-                delayedDocs={delayedDocs}
-                trackedItems={trackedItems}
-              />
-
-              {/* Analytics charts */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <FacultyDetailPanel
+                  open={!!selectedFaculty}
+                  onClose={() => setSelectedFaculty(null)}
+                  onBack={facultyModalOpen ? () => setSelectedFaculty(null) : null}
+                  faculty={selectedFaculty}
+                  delayedDocs={delayedDocs}
+                  trackedItems={trackedItems}
+                />
 
                 {/* Approval Rate */}
                 <SectionCard title="Approval Rate" icon={PieChart} subtitle="This month">
@@ -1631,48 +1663,34 @@ export default function Dashboard() {
                   </div>
                 </SectionCard>
               </div>
-            </div>
 
-            {/* Row 4: Workflow Snapshot + Dept Overview */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 16 }}>
-
-              {/* Workflow monitoring snapshot */}
-              <SectionCard title="Workflow Monitoring Snapshot" subtitle="Live status of all documents currently in workflow" icon={Gauge}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
-                  {[
-                    { label: "In Workflow",      value: activeWorkflowItems.length,        icon: Layers,       color: "#5e3bdb" },
-                    { label: "Awaiting Approval", value: awaitingApprovalCount,             icon: Clock,        color: "#d97706" },
-                    { label: "Delayed",           value: delayedDocs.length,                icon: AlertCircle,  color: "#dc2626" },
-                    { label: "Avg. Proc. Time",   value: `${avgProcessingDays.toFixed(1)}d`, icon: Timer,       color: "#059669" },
-                  ].map(s => (
-                    <div key={s.label} style={{ padding: "12px", borderRadius: 9, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
-                      <div style={{ width: 28, height: 28, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
-                        <s.icon style={{ width: 14, height: 14, color: s.color }} />
-                      </div>
-                      <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
-                      <p style={{ fontSize: 10, color: "#6b7280", marginTop: 3 }}>{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={monthlySubmissionsData} margin={{ top: 0, right: 8, left: -22, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                    <Tooltip content={<CustomTip />} />
-                    <Bar dataKey="submitted" name="Submitted" fill="#5e3bdb" radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="approved"  name="Approved"  fill="#059669" radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="rejected"  name="Rejected"  fill="#dc2626" radius={[3, 3, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </SectionCard>
-
-              {/* Department Overview — solid primary card, mirrors the DS PATH mockup */}
+              {/* Right column: Department Overview — solid primary card with an
+                  approval-rate ring up top, mirrors the DS PATH mockup */}
               <div style={{ background: "#5e3bdb", color: "#ffffff", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.08)", position: "relative", overflow: "hidden" }}>
                 <Building2 style={{ position: "absolute", right: -16, bottom: -16, width: 120, height: 120, opacity: 0.15 }} />
                 <div style={{ position: "relative", zIndex: 1 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 2 }}>Department Overview</h3>
-                  <p style={{ fontSize: 11, color: "#cabeff", marginBottom: 18 }}>College of Information Technology</p>
+                  <p style={{ fontSize: 11, color: "#cabeff", marginBottom: 14 }}>College of Information Technology</p>
+
+                  {/* Approval-rate ring */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(0,0,0,0.1)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                    <div style={{ position: "relative", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg viewBox="0 0 36 36" style={{ width: "100%", height: "100%", transform: "rotate(-90deg)" }}>
+                        <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+                        <circle
+                          cx="18" cy="18" r="16" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round"
+                          strokeDasharray={`${itemsThisMonth.length ? Math.round((approvalRateData.find(d => d.name === "Approved")?.value ?? 0) / itemsThisMonth.length * 100) : 0}, 100`}
+                        />
+                      </svg>
+                      <span style={{ position: "absolute", fontSize: 11, fontWeight: 700 }}>
+                        {itemsThisMonth.length ? Math.round((approvalRateData.find(d => d.name === "Approved")?.value ?? 0) / itemsThisMonth.length * 100) : 0}%
+                      </span>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Approval Rate</p>
+                      <p style={{ fontSize: 13, fontWeight: 500 }}>This month</p>
+                    </div>
+                  </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
                     <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12 }}>
