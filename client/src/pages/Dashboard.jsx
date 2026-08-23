@@ -328,6 +328,74 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
   );
 }
 
+// ── Faculty Performance — table row (mirrors the "Faculty Performance
+//    Summary" table from the DS PATH mockup: avatar+name/role cell,
+//    Tasks Done / Active columns, and a Success Rate progress bar) ─────────
+function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick }) {
+  const rate = Number(f.performance_score) || 0;
+  const rateColor = rate >= 90 ? "#10b981" : rate >= 80 ? "#d97706" : "#dc2626";
+  const initials = (f.full_name || "?")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join("")
+    .toUpperCase();
+  const delayedCount = Array.isArray(delayedDocs)
+    ? delayedDocs.filter(d => d.faculty_name === f.full_name).length
+    : 0;
+
+  return (
+    <tr
+      onClick={() => onClick && onClick(f)}
+      style={{ cursor: onClick ? "pointer" : "default", transition: "background 0.15s" }}
+      onMouseEnter={e => { if (onClick) e.currentTarget.style.background = "#faf8ff"; }}
+      onMouseLeave={e => { if (onClick) e.currentTarget.style.background = "transparent"; }}
+    >
+      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+              background: `hsl(${idx * 55 + 250}, 60%, 92%)`,
+              border: `2px solid hsl(${idx * 55 + 250}, 50%, 78%)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 55%, 35%)` }}>{initials}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+            <span style={{ fontSize: 13.5, fontWeight: 600, color: "#191b24", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.full_name}</span>
+            <span style={{ fontSize: 11, color: "#5d5e64" }}>{idx === 0 ? "Top performer" : "Faculty member"}</span>
+          </div>
+        </div>
+      </td>
+      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "center", fontWeight: 700, color: "#191b24" }}>
+        {f.completed_count ?? 0}
+      </td>
+      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "center", fontWeight: 700, color: "#5e3bdb" }}>
+        {f.active_count ?? 0}
+      </td>
+      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "center", fontWeight: 700, color: delayedCount > 0 ? "#dc2626" : "#191b24" }}>
+        {f.pending_count ?? 0}
+      </td>
+      <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, width: 110 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: rateColor }}>{rate}%</span>
+          <div style={{ width: "100%", background: "#e2e1ee", borderRadius: 999, height: 6 }}>
+            <div style={{ width: `${Math.min(rate, 100)}%`, background: rateColor, height: 6, borderRadius: 999 }} />
+          </div>
+        </div>
+      </td>
+      {onClick && (
+        <td style={{ padding: "12px 16px", borderBottom: "1px solid #ededf9", textAlign: "right" }}>
+          <ChevronRight style={{ width: 14, height: 14, color: "#c4c4d4" }} />
+        </td>
+      )}
+    </tr>
+  );
+}
+
 // ── Faculty Performance — individual detail panel ───────────────────────────
 const DONE_STATUSES = ["Approved", "Completed", "Archived"];
 
@@ -1551,36 +1619,51 @@ export default function Dashboard() {
               {/* Left column: Faculty Performance + Approval Rate, stacked */}
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-                {/* Faculty Performance */}
+                {/* Faculty Performance — table layout mirroring the DS PATH
+                    mockup's "Faculty Performance Summary" card: header with
+                    a "View All" link, then a table with avatar/name, Tasks
+                    Done, Active, Pending, and a Success Rate progress bar. */}
                 <SectionCard
                   title="Faculty Performance Summary"
                   subtitle="Activity and completion rates across department faculty"
                   icon={Users}
-                  footer={
+                  noPad
+                  action={
                     facultyPerformance.length > 0 && (
                       <button
                         onClick={() => setFacultyModalOpen(true)}
-                        style={{ width: "100%", background: "none", border: "none", color: "#5e3bdb", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 0" }}
+                        style={{ background: "none", border: "none", color: "#5e3bdb", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                       >
-                        View all <ChevronRight style={{ width: 12, height: 12 }} />
+                        View All
                       </button>
                     )
                   }
                 >
-                  <div
-                    onClick={() => facultyPerformance.length > 0 && setFacultyModalOpen(true)}
-                    style={{ display: "flex", flexDirection: "column", gap: 8, cursor: facultyPerformance.length > 0 ? "pointer" : "default" }}
-                  >
-                    {facultyLoading ? (
-                      <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading faculty performance…</p>
-                    ) : facultyPerformance.length === 0 ? (
-                      <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
-                    ) : (
-                      facultyPerformance.slice(0, 4).map((f, idx) => (
-                        <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />
-                      ))
-                    )}
-                  </div>
+                  {facultyLoading ? (
+                    <p style={{ padding: "24px 16px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading faculty performance…</p>
+                  ) : facultyPerformance.length === 0 ? (
+                    <p style={{ padding: "24px 16px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
+                  ) : (
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                        <thead style={{ background: "#f3f2ff" }}>
+                          <tr>
+                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9" }}>Faculty Member</th>
+                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9", textAlign: "center" }}>Tasks Done</th>
+                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9", textAlign: "center" }}>Active</th>
+                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9", textAlign: "center" }}>Pending</th>
+                            <th style={{ padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "#5d5e64", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #ededf9" }}>Success Rate</th>
+                            <th style={{ borderBottom: "1px solid #ededf9" }} />
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {facultyPerformance.slice(0, 4).map((f, idx) => (
+                            <FacultyPerformanceTableRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </SectionCard>
 
                 <FacultyPerformanceModal
@@ -1607,7 +1690,7 @@ export default function Dashboard() {
                 <Building2 style={{ position: "absolute", right: -16, bottom: -16, width: 120, height: 120, opacity: 0.15 }} />
                 <div style={{ position: "relative", zIndex: 1 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 2 }}>Department Overview</h3>
-                  <p style={{ fontSize: 11, color: "#cabeff", marginBottom: 14 }}>College of Information Technology</p>
+                  <p style={{ fontSize: 11, color: "#cabeff", marginBottom: 14 }}>Bachelor of Science in Information Systems - College of Information Technology</p>
 
                   {/* Approval-rate ring */}
                   <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(0,0,0,0.1)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
