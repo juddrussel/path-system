@@ -691,14 +691,22 @@ function QuickActionRow({ icon: Icon, title, subtitle, onClick }) {
   );
 }
 
-function QuickActionsPanel({ navigate }) {
-  const actions = [
-    { icon: UserCheck, title: "Assign Task", subtitle: "Delegate work to faculty", to: "/tasks" },
-    { icon: PieChart, title: "View Tracking", subtitle: "Monitor submission progress", to: "/tracking" },
-    { icon: Tag, title: "Manage Categories", subtitle: "Organize form categories", to: "/categories" },
-    { icon: Users, title: "System Users", subtitle: "Manage accounts and roles", to: "/users" },
-    { icon: Timer, title: "SLA Configuration", subtitle: "Set response and resolution targets", to: "/sla-configuration" },
-  ];
+const ADMIN_QUICK_ACTIONS = [
+  { icon: UserCheck, title: "Assign Task", subtitle: "Delegate work to faculty", to: "/tasks" },
+  { icon: PieChart, title: "View Tracking", subtitle: "Monitor submission progress", to: "/tracking" },
+  { icon: Tag, title: "Manage Categories", subtitle: "Organize form categories", to: "/categories" },
+  { icon: Users, title: "System Users", subtitle: "Manage accounts and roles", to: "/users" },
+  { icon: Timer, title: "SLA Configuration", subtitle: "Set response and resolution targets", to: "/sla-configuration" },
+];
+
+const FACULTY_QUICK_ACTIONS = [
+  { icon: ListTodo, title: "My Tasks", subtitle: "Review your current assignments", to: "/tasks" },
+  { icon: FileText, title: "Submit Forms", subtitle: "Start a new form submission", to: "/forms" },
+  { icon: Activity, title: "Tracking", subtitle: "Check the status of your items", to: "/tracking" },
+  { icon: MessageSquare, title: "Messages", subtitle: "View your inbox", to: "/inbox" },
+];
+
+function QuickActionsPanel({ navigate, actions = ADMIN_QUICK_ACTIONS }) {
   return (
     <SectionCard title="Quick Actions" subtitle="Shortcuts to common tasks" icon={Zap}>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1807,31 +1815,6 @@ export default function Dashboard() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-                {/* Quick Actions — outlined pill shortcuts scoped to the faculty
-                    member's own workflow (My Tasks, Submit Forms, Tracking, Messages) */}
-                <div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: "#191b24", marginBottom: 10 }}>Quick Actions</p>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    {[
-                      { label: "My Tasks",     icon: ListTodo,      to: "/tasks" },
-                      { label: "Submit Forms", icon: FileText,      to: "/forms" },
-                      { label: "Tracking",     icon: Activity,      to: "/tracking" },
-                      { label: "Messages",     icon: MessageSquare, to: "/inbox" },
-                    ].map(a => (
-                      <button
-                        key={a.label}
-                        onClick={() => navigate(a.to)}
-                        style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "#ffffff", color: "#484555", border: "1px solid #c9c4d7", cursor: "pointer", fontSize: 12, fontWeight: 600, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", transition: "border-color 0.15s, color 0.15s" }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor = "#5e3bdb"; e.currentTarget.style.color = "#5e3bdb"; }}
-                        onMouseLeave={e => { e.currentTarget.style.borderColor = "#c9c4d7"; e.currentTarget.style.color = "#484555"; }}
-                      >
-                        <a.icon style={{ width: 16, height: 16 }} />
-                        <span>{a.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
               <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, alignItems: "start" }}>
 
                 {/* Left column: Upcoming Deadlines + My Tasks + My Forms */}
@@ -2008,31 +1991,7 @@ export default function Dashboard() {
                     )}
                   </SectionCard>
 
-                  <SectionCard
-                    title="Notifications"
-                    icon={Bell}
-                    noPad
-                    action={unread > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: "#5e3bdb", color: "#fff", padding: "2px 8px", borderRadius: 20 }}>{unread} New</span>}
-                  >
-                    {NOTIFICATIONS.slice(0, 4).map(n => {
-                      const cfg = NOTIF_CFG[n.type];
-                      const NIcon = cfg.icon;
-                      return (
-                        <div key={n.id} style={{ display: "flex", gap: 10, padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)", background: n.read ? "#fff" : "#faf5ff" }}>
-                          <div style={{ width: 28, height: 28, borderRadius: 8, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            <NIcon style={{ width: 12, height: 12, color: cfg.color }} />
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 11.5, fontWeight: n.read ? 400 : 600, color: "#111827" }}>{n.text}</p>
-                            <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>{n.time}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div style={{ padding: "9px 16px", textAlign: "center" }}>
-                      <button style={{ fontSize: 11, color: "#5e3bdb", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>Mark all as read</button>
-                    </div>
-                  </SectionCard>
+                  <QuickActionsPanel navigate={navigate} actions={FACULTY_QUICK_ACTIONS} />
 
                 </div>
               </div>
