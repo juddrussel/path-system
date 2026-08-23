@@ -1379,7 +1379,6 @@ export default function Dashboard() {
               {(canViewAdminNav
                 ? [
                     { label: "Assign Task",       icon: UserCheck,     color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/assign-task") },
-                    { label: "View Pending",      icon: ClipboardList, color: "#d97706", bg: "#fffbeb", onClick: () => document.getElementById("pending-tasks-overview")?.scrollIntoView({ behavior: "smooth", block: "start" }) },
                     { label: "Tasks",             icon: ListTodo,      color: "#5e3bdb", bg: "#f3f2ff", onClick: () => navigate("/task-assigned") },
                     { label: "Tracking",          icon: Activity,      color: "#0369a1", bg: "#e0f2fe", onClick: () => navigate("/tracking") },
                     { label: "Generate Report",   icon: BarChart3,     color: "#481bc6", bg: "#e6deff", onClick: () => navigate("/reports") },
@@ -1597,150 +1596,6 @@ export default function Dashboard() {
               </SectionCard>
             </div>
 
-            {/* Row 2: Tasks + Activity */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
-
-              {/* Task Overview */}
-              <SectionCard id="pending-tasks-overview" title="Pending Tasks Overview" subtitle="Tasks assigned to you and your faculty" icon={ListTodo}
-                action={
-                  <div style={{ display: "flex", gap: 4 }}>
-                    {["All", "In Progress", "Not Started", "Overdue"].map(f => (
-                      <button key={f} onClick={() => setTaskFilter(f)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: taskFilter === f ? 600 : 400, background: taskFilter === f ? "#5e3bdb" : "#f3f4f6", color: taskFilter === f ? "#fff" : "#6b7280", border: "none", cursor: "pointer" }}>{f}</button>
-                    ))}
-                  </div>
-                }
-              >
-                {/* Summary chips */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
-                  {[
-                    { label: "Assigned",    value: taskItems.length,                                          color: "#5e3bdb" },
-                    { label: "In Progress", value: taskItems.filter(isInProgress).length,  color: "#0284c7" },
-                    { label: "Completed",   value: taskItems.filter(t => t.status === "Completed" || t.status === "Approved").length, color: "#059669" },
-                    { label: "Overdue",     value: taskItems.filter(t => t.overdue).length,                    color: "#dc2626" },
-                  ].map(s => (
-                    <div key={s.label} style={{ padding: "8px 10px", borderRadius: 8, background: `${s.color}10`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
-                      <p style={{ fontSize: 20, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
-                      <p style={{ fontSize: 10, color: "#6b7280", marginTop: 2 }}>{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ overflowX: "auto", borderRadius: 8, border: "1px solid rgba(0,0,0,0.07)" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                    <thead>
-                      <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                        {["Task", "Assigned To", "Deadline", "Progress", "Status"].map(col => (
-                          <th key={col} style={{ padding: "8px 12px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {itemsLoading ? (
-                        <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading tasks…</td></tr>
-                      ) : filteredTasks.length === 0 ? (
-                        <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No tasks found.</td></tr>
-                      ) : taskPageItems.map((task, idx) => (
-                        <tr key={task.id} style={{ borderBottom: idx < taskPageItems.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none", background: task.overdue ? "rgba(220,38,38,0.03)" : "#fff" }}>
-                          <td style={{ padding: "8px 12px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                              {task.overdue && <AlertTriangle style={{ width: 11, height: 11, color: "#dc2626", flexShrink: 0 }} />}
-                              <span style={{ fontWeight: 500, color: "#111827" }}>{task.name}</span>
-                            </div>
-                          </td>
-                          <td style={{ padding: "8px 12px", color: "#374151", whiteSpace: "nowrap" }}>{task.assignedTo}</td>
-                          <td style={{ padding: "8px 12px", color: task.overdue ? "#dc2626" : "#6b7280", fontWeight: task.overdue ? 700 : 400, whiteSpace: "nowrap" }}>{task.deadline}</td>
-                          <td style={{ padding: "8px 12px", width: 120 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                              <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
-                                <div style={{ height: 5, borderRadius: 3, width: `${task.progress}%`, background: task.overdue ? "#dc2626" : task.progress > 70 ? "#059669" : "#5e3bdb", transition: "width 0.3s" }} />
-                              </div>
-                              <span style={{ fontSize: 10, fontWeight: 700, color: "#374151", width: 26, textAlign: "right" }}>{task.progress}%</span>
-                            </div>
-                          </td>
-                          <td style={{ padding: "8px 12px" }}><StatusBadge s={task.status} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination controls */}
-                {!itemsLoading && filteredTasks.length > 0 && (
-                  <div style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    padding: "10px 4px 0",
-                  }}>
-                    <span style={{ fontSize: 11, color: "#6b7280" }}>
-                      Showing {(taskPage - 1) * TASK_PAGE_SIZE + 1}
-                      –{Math.min(taskPage * TASK_PAGE_SIZE, filteredTasks.length)} of {filteredTasks.length}
-                    </span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <button
-                        onClick={() => setTaskPage(p => Math.max(1, p - 1))}
-                        disabled={taskPage === 1}
-                        style={{
-                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                          border: "1px solid #e5e7eb", background: taskPage === 1 ? "#f9fafb" : "#fff",
-                          color: taskPage === 1 ? "#c1c5cb" : "#374151",
-                          cursor: taskPage === 1 ? "not-allowed" : "pointer",
-                        }}
-                      >
-                        Previous
-                      </button>
-                      <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
-                        Page {taskPage} of {taskTotalPages}
-                      </span>
-                      <button
-                        onClick={() => setTaskPage(p => Math.min(taskTotalPages, p + 1))}
-                        disabled={taskPage === taskTotalPages}
-                        style={{
-                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                          border: "1px solid #e5e7eb", background: taskPage === taskTotalPages ? "#f9fafb" : "#fff",
-                          color: taskPage === taskTotalPages ? "#c1c5cb" : "#374151",
-                          cursor: taskPage === taskTotalPages ? "not-allowed" : "pointer",
-                        }}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </SectionCard>
-
-              {/* Activity Feed */}
-              <SectionCard title="Recent Activity" subtitle="Latest actions in your department" icon={Activity}
-                action={<span style={{ width: 8, height: 8, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 0 3px #a7f3d050", display: "inline-block" }} />}
-              >
-                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {itemsLoading ? (
-                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading recent activity…</p>
-                  ) : recentActivityData.length === 0 ? (
-                    <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No recent activity yet.</p>
-                  ) : (
-                    recentActivityData.map((a, idx) => {
-                      const cfg = ACTIVITY_CFG[a.type] ?? ACTIVITY_CFG.submitted;
-                      const AIcon = cfg.icon;
-                      return (
-                        <div key={a.id} style={{ display: "flex", gap: 9, padding: "8px 0", borderBottom: idx < recentActivityData.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                          <div style={{ width: 26, height: 26, borderRadius: 6, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            <AIcon style={{ width: 12, height: 12, color: cfg.color }} />
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 11, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
-                              <span style={{ color: a.actor === "You" ? "#5e3bdb" : "#111827" }}>{a.actor}</span>
-                              {" "}<span style={{ fontWeight: 400, color: "#374151" }}>{a.action}</span>
-                            </p>
-                            <p style={{ fontSize: 10, color: "#6b7280", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.target}</p>
-                          </div>
-                          <span style={{ fontSize: 10, color: "#9ca3af", whiteSpace: "nowrap", marginTop: 1 }}>{a.time}</span>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </SectionCard>
-            </div>
-
             {/* Row 3: Faculty + Charts */}
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
 
@@ -1796,66 +1651,27 @@ export default function Dashboard() {
               {/* Analytics charts */}
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
-                {/* Monthly submissions area */}
-                <SectionCard title="Monthly Form Submissions" subtitle={monthlyChartSubtitle} icon={BarChart3}>
-                  <ResponsiveContainer width="100%" height={130}>
-                    <AreaChart data={monthlySubmissionsData} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="gSub" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#5e3bdb" stopOpacity={0.15} />
-                          <stop offset="95%" stopColor="#5e3bdb" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="gApp" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#059669" stopOpacity={0.15} />
-                          <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                      <Tooltip content={<CustomTip />} />
-                      <Area type="monotone" dataKey="submitted" stroke="#5e3bdb" strokeWidth={2} fill="url(#gSub)" name="Submitted" />
-                      <Area type="monotone" dataKey="approved"  stroke="#059669" strokeWidth={2} fill="url(#gApp)"  name="Approved"  />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </SectionCard>
-
-                {/* Approval pie + task trend */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <SectionCard title="Approval Rate" icon={PieChart} subtitle="This month">
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <ResponsiveContainer width={90} height={90}>
-                        <RPie>
-                          <Pie data={approvalRateData} cx="50%" cy="50%" innerRadius={26} outerRadius={42} paddingAngle={2} dataKey="value">
-                            {approvalRateData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                          </Pie>
-                        </RPie>
-                      </ResponsiveContainer>
-                      <div style={{ flex: 1 }}>
-                        {approvalRateData.map(d => (
-                          <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
-                            <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-                            <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>{d.name}</span>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{d.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </SectionCard>
-
-                  <SectionCard title="Task Completion" icon={TrendingUp} subtitle="6-week trend">
-                    <ResponsiveContainer width="100%" height={90}>
-                      <LineChart data={taskCompletionData} margin={{ top: 4, right: 8, left: -28, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-                        <XAxis dataKey="week" tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                        <Tooltip content={<CustomTip />} />
-                        <Line type="monotone" dataKey="assigned"  stroke="#5e3bdb" strokeWidth={1.5} dot={false} name="Assigned"  />
-                        <Line type="monotone" dataKey="completed" stroke="#059669" strokeWidth={1.5} dot={false} name="Completed" />
-                      </LineChart>
+                {/* Approval Rate */}
+                <SectionCard title="Approval Rate" icon={PieChart} subtitle="This month">
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <ResponsiveContainer width={90} height={90}>
+                      <RPie>
+                        <Pie data={approvalRateData} cx="50%" cy="50%" innerRadius={26} outerRadius={42} paddingAngle={2} dataKey="value">
+                          {approvalRateData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                        </Pie>
+                      </RPie>
                     </ResponsiveContainer>
-                  </SectionCard>
-                </div>
+                    <div style={{ flex: 1 }}>
+                      {approvalRateData.map(d => (
+                        <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
+                          <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
+                          <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>{d.name}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{d.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </SectionCard>
               </div>
             </div>
 
