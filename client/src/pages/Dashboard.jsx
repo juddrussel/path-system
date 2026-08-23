@@ -10,11 +10,10 @@ import {
   ClipboardList, Inbox, MessageSquare, Megaphone, RefreshCw,
   Filter, Search, CircleCheck, Timer, ArrowUpRight, BookOpen,
   GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
-  ListTodo, Gauge, PieChart, X,
+  ListTodo, PieChart, X,
 } from "lucide-react";
 import {
-  AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  Tooltip, ResponsiveContainer,
   PieChart as RPie, Pie, Cell,
 } from "recharts";
 
@@ -1156,17 +1155,6 @@ export default function Dashboard() {
     last6Months.push({ label: MONTH_ABBR[d.getMonth()], year: d.getFullYear(), month: d.getMonth() });
   }
 
-  // Monthly Form Submissions chart — submitted / approved / rejected, bucketed by month
-  const monthlySubmissionsData = last6Months.map(({ label, year, month }) => {
-    const inMonth = trackedItems.filter(t => t.dateObj && t.dateObj.getFullYear() === year && t.dateObj.getMonth() === month);
-    return {
-      month: label,
-      submitted: inMonth.length,
-      approved: inMonth.filter(t => t.status === "Approved" || t.status === "Completed").length,
-      rejected: inMonth.filter(t => t.status === "Rejected").length,
-    };
-  });
-
   // Approval Rate donut — status breakdown for items submitted this month
   const monthStartForCharts = new Date(now.getFullYear(), now.getMonth(), 1);
   const itemsThisMonth = trackedItems.filter(t => t.dateObj && t.dateObj >= monthStartForCharts);
@@ -1223,11 +1211,8 @@ export default function Dashboard() {
       };
     });
 
-  // Workflow Monitoring Snapshot — live counts across all tracked items
+  // Still used by Department Overview's "Active Workflows" stat
   const activeWorkflowItems = trackedItems.filter(t => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected");
-  const awaitingApprovalCount = trackedItems.filter(t => t.status === "For Approval").length;
-  const resolvedItems = trackedItems.filter(t => DONE_ITEM_STATUSES.includes(t.status));
-  const avgProcessingDays = resolvedItems.length ? resolvedItems.reduce((sum, t) => sum + t.days, 0) / resolvedItems.length : 0;
 
   // Department Overview — live faculty/workflow/form/task counts
   const formsSubmittedThisMonth = itemsThisMonth.filter(t => t.sourceType === "form").length;
@@ -1253,7 +1238,6 @@ export default function Dashboard() {
     ? Math.round(((tasksCompletedThisMonth - prevMonthTaskCompletion) / prevMonthTaskCompletion) * 1000) / 10
     : null;
 
-  const monthlyChartSubtitle = `${MONTH_ABBR[now.getMonth()]} ${now.getFullYear()} — Submitted vs Approved`;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
@@ -1559,38 +1543,6 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-
-            {/* Workflow Monitoring Snapshot — full-width row, directly beneath the
-                tracking table + alerts row, matching the mockup's stacking order */}
-            <SectionCard title="Workflow Monitoring Snapshot" subtitle="Live status of all documents currently in workflow" icon={Gauge}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
-                {[
-                  { label: "In Workflow",      value: activeWorkflowItems.length,        icon: Layers,       color: "#5e3bdb" },
-                  { label: "Awaiting Approval", value: awaitingApprovalCount,             icon: Clock,        color: "#d97706" },
-                  { label: "Delayed",           value: delayedDocs.length,                icon: AlertCircle,  color: "#dc2626" },
-                  { label: "Avg. Proc. Time",   value: `${avgProcessingDays.toFixed(1)}d`, icon: Timer,       color: "#059669" },
-                ].map(s => (
-                  <div key={s.label} style={{ padding: "12px", borderRadius: 9, background: `${s.color}09`, border: `1px solid ${s.color}20`, textAlign: "center" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
-                      <s.icon style={{ width: 14, height: 14, color: s.color }} />
-                    </div>
-                    <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
-                    <p style={{ fontSize: 10, color: "#6b7280", marginTop: 3 }}>{s.label}</p>
-                  </div>
-                ))}
-              </div>
-              <ResponsiveContainer width="100%" height={160}>
-                <BarChart data={monthlySubmissionsData} margin={{ top: 0, right: 8, left: -22, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTip />} />
-                  <Bar dataKey="submitted" name="Submitted" fill="#5e3bdb" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="approved"  name="Approved"  fill="#059669" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="rejected"  name="Rejected"  fill="#dc2626" radius={[3, 3, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </SectionCard>
 
             {/* Row 2: Faculty Performance (60%) + Department Overview (40%),
                 mirrors the mockup's lg:col-span-3 / lg:col-span-2 of 5 split */}
