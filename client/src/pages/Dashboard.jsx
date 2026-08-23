@@ -108,7 +108,7 @@ const Icon = {
       <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
       <path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" />
       <path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" />
+      <circle cx="12.5" cy="12.5" r="3" fill="#5e3bdb" />
       <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   ),
@@ -185,7 +185,7 @@ const PRIORITY_CFG = {
 // with the extra statuses used across forms, tasks, and documents here.
 const STATUS_CFG = {
   "pending":        { color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
-  "pending review": { color: "#5b21b6", bg: "#ede9fe", dot: "#7c3aed" },
+  "pending review": { color: "#481bc6", bg: "#e6deff", dot: "#5e3bdb" },
   "under review":   { color: "#0369a1", bg: "#f0f9ff", dot: "#38bdf8" },
   "for approval":   { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
   "in progress":    { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
@@ -201,23 +201,23 @@ const STATUS_CFG = {
 
 // Type badge — same Task/Form pattern as Tracking.jsx, extended with Document
 const TYPE_CFG = {
-  task:     { label: "Task",     bg: "#ede9fe", color: "#6d28d9" },
+  task:     { label: "Task",     bg: "#e6deff", color: "#5e3bdb" },
   form:     { label: "Form",     bg: "#dbeafe", color: "#1e40af" },
   document: { label: "Document", bg: "#d1fae5", color: "#065f46" },
 };
 
 const ACTIVITY_CFG = {
   approved:  { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2  },
-  submitted: { color: "#7c3aed", bg: "#f5f3ff", icon: FileText      },
+  submitted: { color: "#5e3bdb", bg: "#f3f2ff", icon: FileText      },
   completed: { color: "#059669", bg: "#ecfdf5", icon: CircleCheck   },
   assigned:  { color: "#0284c7", bg: "#e0f2fe", icon: UserCheck     },
   revision:  { color: "#d97706", bg: "#fffbeb", icon: RotateCcw     },
-  workflow:  { color: "#7c3aed", bg: "#ede9fe", icon: Layers        },
+  workflow:  { color: "#5e3bdb", bg: "#e6deff", icon: Layers        },
   overdue:   { color: "#dc2626", bg: "#fef2f2", icon: AlertTriangle },
 };
 
 const NOTIF_CFG = {
-  submission:   { color: "#7c3aed", bg: "#f5f3ff", icon: Inbox        },
+  submission:   { color: "#5e3bdb", bg: "#f3f2ff", icon: Inbox        },
   completed:    { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2 },
   revision:     { color: "#d97706", bg: "#fffbeb", icon: RotateCcw    },
   announcement: { color: "#0284c7", bg: "#e0f2fe", icon: Megaphone    },
@@ -228,7 +228,7 @@ const NOTIF_CFG = {
 const ALERT_TIER_CFG = {
   critical: { color: "#dc2626", bg: "#fef2f2", border: "#fecaca", iconBg: "#fee2e2", iconColor: "#dc2626", label: "Critical", showPill: true },
   warning:  { color: "#d97706", bg: "#fffbeb", border: "#fde68a", iconBg: "#fef3c7", iconColor: "#d97706", label: "Warning",  showPill: false },
-  info:     { color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd", iconBg: "#ede9fe", iconColor: "#7c3aed", label: "Info",     showPill: false },
+  info:     { color: "#5e3bdb", bg: "#f3f2ff", border: "#cabeff", iconBg: "#e6deff", iconColor: "#5e3bdb", label: "Info",     showPill: false },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -265,8 +265,8 @@ function PriorityPill({ p }) {
 const CustomTip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: "#1e1b4b", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#fff" }}>
-      <p style={{ fontWeight: 700, marginBottom: 4, color: "#c4b5fd" }}>{label}</p>
+    <div style={{ background: "#191b24", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#fff" }}>
+      <p style={{ fontWeight: 700, marginBottom: 4, color: "#cabeff" }}>{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color ?? "#fff" }}>{p.name}: <strong>{p.value}</strong></p>
       ))}
@@ -374,7 +374,7 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, track
   const delayedCount = facultyDelayedDocs.length || delayedItems.length;
 
   const stats = [
-    { label: "Active",  value: faculty.active_count ?? activeItems.length,    icon: Layers,       color: "#7c3aed", items: activeItems  },
+    { label: "Active",  value: faculty.active_count ?? activeItems.length,    icon: Layers,       color: "#5e3bdb", items: activeItems  },
     { label: "Done",    value: faculty.completed_count ?? doneItems.length,   icon: CheckCircle2, color: "#059669", items: doneItems    },
     { label: "Pending", value: faculty.pending_count ?? pendingItems.length,  icon: Clock,        color: "#d97706", items: pendingItems },
     { label: "Delayed", value: delayedCount,                                  icon: AlertCircle,  color: "#dc2626", items: delayedItems },
@@ -414,8 +414,8 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, track
                 <ChevronRight style={{ width: 14, height: 14, color: "#374151", transform: "rotate(180deg)" }} />
               </button>
             )}
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ede9fe", border: "2px solid #c4b5fd", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#5b21b6" }}>{initials}</span>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e6deff", border: "2px solid #cabeff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#481bc6" }}>{initials}</span>
             </div>
             <div style={{ minWidth: 0 }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{faculty.full_name}</p>
@@ -578,21 +578,21 @@ function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs, onSelect
 
 function SectionCard({ id, title, subtitle, icon: Icon, children, action, noPad, accentColor, titleColor, footer }) {
   return (
-    <div id={id} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ width: 29, height: 29, borderRadius: 7, background: accentColor ? `${accentColor}18` : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon style={{ width: 14, height: 14, color: accentColor || "#7c3aed" }} />
+    <div id={id} style={{ background: "#ffffff", border: "1px solid #c9c4d7", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(25,27,36,0.05)", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid #c9c4d7", background: "#faf8ff", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 30, height: 30, borderRadius: 8, background: accentColor ? `${accentColor}18` : "#e6deff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon style={{ width: 15, height: 15, color: accentColor || "#5e3bdb" }} />
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: titleColor || "#111827", lineHeight: 1.2 }}>{title}</p>
-            {subtitle && <p style={{ fontSize: 11, color: "#6b7280" }}>{subtitle}</p>}
+            <p style={{ fontSize: 14, fontWeight: 600, color: titleColor || "#191b24", lineHeight: 1.3 }}>{title}</p>
+            {subtitle && <p style={{ fontSize: 12, color: "#484555", marginTop: 1 }}>{subtitle}</p>}
           </div>
         </div>
         {action}
       </div>
-      <div style={{ padding: noPad ? 0 : "14px 18px", flex: 1 }}>{children}</div>
-      {footer && <div style={{ padding: "10px 18px", borderTop: "1px solid rgba(0,0,0,0.07)", flexShrink: 0 }}>{footer}</div>}
+      <div style={{ padding: noPad ? 0 : "16px 20px", flex: 1 }}>{children}</div>
+      {footer && <div style={{ padding: "12px 20px", borderTop: "1px solid #c9c4d7", flexShrink: 0 }}>{footer}</div>}
     </div>
   );
 }
@@ -1088,12 +1088,12 @@ export default function Dashboard() {
   const returnedRevisionsCount = trackedItems.filter(t => t.status === "Returned").length;
 
   const kpis = [
-    { label: "Pending Approvals",   value: String(pendingApprovalsCount),   color: "#7c3aed", tint: "#c4b5fd", icon: ClipboardList },
+    { label: "Pending Approvals",   value: String(pendingApprovalsCount),   color: "#5e3bdb", tint: "#cabeff", icon: ClipboardList },
     { label: "Active Tasks",        value: String(activeTasksCount),        color: "#d97706", tint: "#fde68a", icon: ListTodo      },
     { label: "Assigned Tasks",      value: String(assignedTasksCount),      color: "#0284c7", tint: "#7dd3fc", icon: Eye           },
     { label: "Overdue Items",       value: String(overdueItemsCount),       color: "#dc2626", tint: "#fca5a5", icon: AlertTriangle },
     { label: "Approved This Month", value: String(approvedThisMonthCount),  color: "#059669", tint: "#6ee7b7", icon: CheckCircle2  },
-    { label: "Submitted Forms",     value: String(submittedFormsCount),     color: "#5b21b6", tint: "#c4b5fd", icon: FileText      },
+    { label: "Submitted Forms",     value: String(submittedFormsCount),     color: "#481bc6", tint: "#cabeff", icon: FileText      },
     { label: "Returned/Revisions",  value: String(returnedRevisionsCount),  color: "#ea580c", tint: "#fdba74", icon: RotateCcw     },
   ];
 
@@ -1117,7 +1117,7 @@ export default function Dashboard() {
   myItems.forEach(t => { trackingBuckets[trackingBucketOf(t.status)]++; });
   const trackingOverviewData = [
     { name: "Approved", value: trackingBuckets.Approved, color: "#22c55e" },
-    { name: "Pending",  value: trackingBuckets.Pending,  color: "#7c3aed" },
+    { name: "Pending",  value: trackingBuckets.Pending,  color: "#5e3bdb" },
     { name: "Returned", value: trackingBuckets.Returned, color: "#f59e0b" },
     { name: "Rejected", value: trackingBuckets.Rejected, color: "#ef4444" },
   ];
@@ -1183,7 +1183,7 @@ export default function Dashboard() {
     { name: "Approved", value: itemsThisMonth.filter(t => t.status === "Approved" || t.status === "Completed").length, color: "#059669" },
     { name: "Rejected", value: itemsThisMonth.filter(t => t.status === "Rejected").length, color: "#dc2626" },
     { name: "Returned", value: itemsThisMonth.filter(t => t.status === "Returned").length, color: "#d97706" },
-    { name: "Pending",  value: itemsThisMonth.filter(t => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected" && t.status !== "Returned").length, color: "#7c3aed" },
+    { name: "Pending",  value: itemsThisMonth.filter(t => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected" && t.status !== "Returned").length, color: "#5e3bdb" },
   ];
 
   // Task Completion — assigned vs completed tasks, last 6 calendar weeks
@@ -1271,86 +1271,65 @@ export default function Dashboard() {
             <button onClick={() => navigate("/documents/new")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 whitespace-nowrap" style={{ cursor: "pointer" }}>
               <Icon.Plus /> New Document
             </button>
-            <button onClick={() => navigate("/documents/new")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 whitespace-nowrap" style={{ cursor: "pointer" }}>
+            <button onClick={() => navigate("/documents/new")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#5e3bdb] text-white hover:bg-[#481bc6] whitespace-nowrap" style={{ cursor: "pointer" }}>
               <Icon.Download /> Intake Document
             </button>
           </div>
         </TopBar>
 
         {/* ── Content: Program Chair layout ── */}
-        <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto" }}>
+        <div style={{ minHeight: "calc(100vh - 56px)", background: "#faf8ff", overflowY: "auto" }}>
 
-          {/* ── Welcome Banner ── */}
-          <div style={{
-            background: "linear-gradient(135deg, #1e1b4b 0%, #3b1fa8 60%, #5b21b6 100%)",
-            padding: "24px 32px",
-            position: "relative",
-            overflow: "hidden",
-          }}>
-            {/* Decorative circles */}
-            <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
-            <div style={{ position: "absolute", bottom: -60, right: 120, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.03)" }} />
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-                {/* Avatar */}
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #a78bfa, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
-                  <span style={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>{displayName.slice(0, 2).toUpperCase()}</span>
-                </div>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                    <Sparkles style={{ width: 14, height: 14, color: "#c4b5fd" }} />
-                    <span style={{ fontSize: 12, color: "#c4b5fd", fontWeight: 500 }}>Good morning</span>
-                  </div>
-                  <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 2 }}>
-                    {displayName}
-                  </h1>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{displayRole} — Bachelor of Science in Information Systems, College of Information Technology</span>
-                    <span style={{ fontSize: 11, color: "#a78bfa", background: "rgba(167,139,250,0.15)", padding: "2px 8px", borderRadius: 20, border: "1px solid rgba(167,139,250,0.3)" }}>
-                      PATH Administrator
-                    </span>
-                  </div>
+          {/* ── Welcome Header ── */}
+          <div style={{ background: "#faf8ff", borderBottom: "1px solid #c9c4d7", padding: "24px 32px" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+              <div>
+                <h1 style={{ fontSize: 32, fontWeight: 700, color: "#191b24", lineHeight: 1.2, letterSpacing: "-0.02em", marginBottom: 4 }}>
+                  Good morning, {displayName}
+                </h1>
+                <p style={{ fontSize: 14, color: "#484555" }}>{displayRole} — Bachelor of Science in Information Systems, College of Information Technology</p>
+                <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 12px", borderRadius: 20, background: "#e6deff", color: "#1c0062" }}>
+                  <ShieldAlert style={{ width: 13, height: 13 }} />
+                  <span style={{ fontSize: 11, fontWeight: 600 }}>PATH Administrator</span>
                 </div>
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                {/* Date/time */}
-                <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Today</p>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{dateStr}</p>
-                  <p style={{ fontSize: 12, color: "#c4b5fd" }}>{timeStr}</p>
-                </div>
-
                 {/* Notification bell */}
                 <button
                   onClick={() => setNotifOpen(v => !v)}
-                  style={{ position: "relative", width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ position: "relative", width: 38, height: 38, borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#484555" }}
                 >
-                  <Bell style={{ width: 18, height: 18, color: "#fff" }} />
+                  <Bell style={{ width: 18, height: 18 }} />
                   {unread > 0 && (
-                    <span style={{ position: "absolute", top: 7, right: 7, width: 8, height: 8, borderRadius: "50%", background: "#ef4444", border: "2px solid #1e1b4b" }} />
+                    <span style={{ position: "absolute", top: 6, right: 6, width: 8, height: 8, borderRadius: "50%", background: "#ba1a1a", border: "2px solid #faf8ff" }} />
                   )}
                 </button>
 
                 {/* Quick refresh */}
-                <button style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <RefreshCw style={{ width: 16, height: 16, color: "#c4b5fd" }} />
+                <button style={{ width: 30, height: 30, borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#484555" }}>
+                  <RefreshCw style={{ width: 16, height: 16 }} />
                 </button>
+
+                {/* Date/time */}
+                <div style={{ textAlign: "right" }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "#191b24" }}>{dateStr}</p>
+                  <p style={{ fontSize: 11, color: "#484555" }}>{timeStr}</p>
+                </div>
               </div>
             </div>
 
             {/* KPI strip */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10, marginTop: 20, position: "relative", zIndex: 1 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10, marginTop: 20 }}>
               {kpis.map(k => (
-                <div key={k.label} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "12px 14px", backdropFilter: "blur(4px)" }}>
+                <div key={k.label} style={{ background: "#ffffff", border: "1px solid #c9c4d7", borderRadius: 10, padding: "12px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 7, background: `${k.color}25`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 7, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <k.icon style={{ width: 13, height: 13, color: k.tint }} />
                     </div>
                   </div>
-                  <p style={{ fontSize: 24, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{kpisLoading ? "—" : k.value}</p>
-                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 3, lineHeight: 1.3 }}>{k.label}</p>
+                  <p style={{ fontSize: 24, fontWeight: 700, color: "#191b24", lineHeight: 1 }}>{kpisLoading ? "—" : k.value}</p>
+                  <p style={{ fontSize: 10, color: "#484555", marginTop: 3, lineHeight: 1.3 }}>{k.label}</p>
                 </div>
               ))}
             </div>
@@ -1362,7 +1341,7 @@ export default function Dashboard() {
               <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Notifications</span>
-                  {unread > 0 && <span style={{ fontSize: 11, fontWeight: 700, background: "#7c3aed", color: "#fff", padding: "1px 7px", borderRadius: 20 }}>{unread} new</span>}
+                  {unread > 0 && <span style={{ fontSize: 11, fontWeight: 700, background: "#5e3bdb", color: "#fff", padding: "1px 7px", borderRadius: 20 }}>{unread} new</span>}
                 </div>
                 <button onClick={() => setNotifOpen(false)} style={{ width: 26, height: 26, borderRadius: 6, background: "#f3f4f6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <XCircle style={{ width: 13, height: 13, color: "#6b7280" }} />
@@ -1381,12 +1360,12 @@ export default function Dashboard() {
                       <p style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>{n.sub}</p>
                       <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{n.time}</p>
                     </div>
-                    {!n.read && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#7c3aed", marginTop: 4, flexShrink: 0 }} />}
+                    {!n.read && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#5e3bdb", marginTop: 4, flexShrink: 0 }} />}
                   </div>
                 );
               })}
               <div style={{ padding: "10px 16px", textAlign: "center" }}>
-                <button style={{ fontSize: 12, color: "#7c3aed", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>View All Notifications</button>
+                <button style={{ fontSize: 12, color: "#5e3bdb", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>View All Notifications</button>
               </div>
             </div>
           )}
@@ -1401,16 +1380,16 @@ export default function Dashboard() {
                 ? [
                     { label: "Assign Task",       icon: UserCheck,     color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/assign-task") },
                     { label: "View Pending",      icon: ClipboardList, color: "#d97706", bg: "#fffbeb", onClick: () => document.getElementById("pending-tasks-overview")?.scrollIntoView({ behavior: "smooth", block: "start" }) },
-                    { label: "Tasks",             icon: ListTodo,      color: "#7c3aed", bg: "#f5f3ff", onClick: () => navigate("/task-assigned") },
+                    { label: "Tasks",             icon: ListTodo,      color: "#5e3bdb", bg: "#f3f2ff", onClick: () => navigate("/task-assigned") },
                     { label: "Tracking",          icon: Activity,      color: "#0369a1", bg: "#e0f2fe", onClick: () => navigate("/tracking") },
-                    { label: "Generate Report",   icon: BarChart3,     color: "#5b21b6", bg: "#ede9fe", onClick: () => navigate("/reports") },
+                    { label: "Generate Report",   icon: BarChart3,     color: "#481bc6", bg: "#e6deff", onClick: () => navigate("/reports") },
                     { label: "SLA Configuration", icon: Timer,         color: "#059669", bg: "#ecfdf5", onClick: () => navigate("/sla-configuration") },
                   ]
                 : [
-                    { label: "My Tasks",     icon: ListTodo,      color: "#7c3aed", bg: "#f5f3ff", onClick: () => navigate("/tasks") },
+                    { label: "My Tasks",     icon: ListTodo,      color: "#5e3bdb", bg: "#f3f2ff", onClick: () => navigate("/tasks") },
                     { label: "Submit Forms", icon: FileText,      color: "#0284c7", bg: "#e0f2fe", onClick: () => navigate("/forms") },
                     { label: "Tracking",     icon: Activity,      color: "#059669", bg: "#ecfdf5", onClick: () => navigate("/tracking") },
-                    { label: "Messages",     icon: MessageSquare, color: "#5b21b6", bg: "#ede9fe", onClick: () => navigate("/inbox") },
+                    { label: "Messages",     icon: MessageSquare, color: "#481bc6", bg: "#e6deff", onClick: () => navigate("/inbox") },
                   ]
               ).map(a => (
                 <button
@@ -1468,7 +1447,7 @@ export default function Dashboard() {
                             background: row.days >= 7 && !["Approved", "Rejected", "Archived"].includes(row.status) ? "rgba(220,38,38,0.025)" : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : "#fff",
                           }}
                         >
-                          <td style={{ padding: "12px 14px", fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{row.id}</td>
+                          <td style={{ padding: "12px 14px", fontFamily: "monospace", fontWeight: 700, color: "#5e3bdb", fontSize: 11 }}>{row.id}</td>
                           <td style={{ padding: "12px 14px" }}><TypeBadge type={row.sourceType} /></td>
                           <td style={{ padding: "12px 14px", fontWeight: 500, color: "#111827" }}>{row.title}</td>
                           <td style={{ padding: "12px 14px", color: "#374151" }}>{row.person}</td>
@@ -1481,7 +1460,7 @@ export default function Dashboard() {
                             </div>
                           </td>
                           <td style={{ padding: "12px 14px" }}>
-                            <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f5f3ff", color: "#7c3aed", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f3f2ff", color: "#5e3bdb", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
                               <Eye style={{ width: 11, height: 11 }} /> View
                             </button>
                           </td>
@@ -1626,7 +1605,7 @@ export default function Dashboard() {
                 action={
                   <div style={{ display: "flex", gap: 4 }}>
                     {["All", "In Progress", "Not Started", "Overdue"].map(f => (
-                      <button key={f} onClick={() => setTaskFilter(f)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: taskFilter === f ? 600 : 400, background: taskFilter === f ? "#7c3aed" : "#f3f4f6", color: taskFilter === f ? "#fff" : "#6b7280", border: "none", cursor: "pointer" }}>{f}</button>
+                      <button key={f} onClick={() => setTaskFilter(f)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: taskFilter === f ? 600 : 400, background: taskFilter === f ? "#5e3bdb" : "#f3f4f6", color: taskFilter === f ? "#fff" : "#6b7280", border: "none", cursor: "pointer" }}>{f}</button>
                     ))}
                   </div>
                 }
@@ -1634,7 +1613,7 @@ export default function Dashboard() {
                 {/* Summary chips */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
                   {[
-                    { label: "Assigned",    value: taskItems.length,                                          color: "#7c3aed" },
+                    { label: "Assigned",    value: taskItems.length,                                          color: "#5e3bdb" },
                     { label: "In Progress", value: taskItems.filter(isInProgress).length,  color: "#0284c7" },
                     { label: "Completed",   value: taskItems.filter(t => t.status === "Completed" || t.status === "Approved").length, color: "#059669" },
                     { label: "Overdue",     value: taskItems.filter(t => t.overdue).length,                    color: "#dc2626" },
@@ -1673,7 +1652,7 @@ export default function Dashboard() {
                           <td style={{ padding: "8px 12px", width: 120 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                               <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
-                                <div style={{ height: 5, borderRadius: 3, width: `${task.progress}%`, background: task.overdue ? "#dc2626" : task.progress > 70 ? "#059669" : "#7c3aed", transition: "width 0.3s" }} />
+                                <div style={{ height: 5, borderRadius: 3, width: `${task.progress}%`, background: task.overdue ? "#dc2626" : task.progress > 70 ? "#059669" : "#5e3bdb", transition: "width 0.3s" }} />
                               </div>
                               <span style={{ fontSize: 10, fontWeight: 700, color: "#374151", width: 26, textAlign: "right" }}>{task.progress}%</span>
                             </div>
@@ -1748,7 +1727,7 @@ export default function Dashboard() {
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p style={{ fontSize: 11, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
-                              <span style={{ color: a.actor === "You" ? "#7c3aed" : "#111827" }}>{a.actor}</span>
+                              <span style={{ color: a.actor === "You" ? "#5e3bdb" : "#111827" }}>{a.actor}</span>
                               {" "}<span style={{ fontWeight: 400, color: "#374151" }}>{a.action}</span>
                             </p>
                             <p style={{ fontSize: 10, color: "#6b7280", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.target}</p>
@@ -1763,7 +1742,7 @@ export default function Dashboard() {
             </div>
 
             {/* Row 3: Faculty + Charts */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
 
               {/* Faculty Performance */}
               <SectionCard
@@ -1774,7 +1753,7 @@ export default function Dashboard() {
                   facultyPerformance.length > 0 && (
                     <button
                       onClick={() => setFacultyModalOpen(true)}
-                      style={{ width: "100%", background: "none", border: "none", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 0" }}
+                      style={{ width: "100%", background: "none", border: "none", color: "#5e3bdb", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 0" }}
                     >
                       View all <ChevronRight style={{ width: 12, height: 12 }} />
                     </button>
@@ -1823,8 +1802,8 @@ export default function Dashboard() {
                     <AreaChart data={monthlySubmissionsData} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
                       <defs>
                         <linearGradient id="gSub" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.15} />
-                          <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#5e3bdb" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="#5e3bdb" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="gApp" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#059669" stopOpacity={0.15} />
@@ -1835,7 +1814,7 @@ export default function Dashboard() {
                       <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                       <Tooltip content={<CustomTip />} />
-                      <Area type="monotone" dataKey="submitted" stroke="#7c3aed" strokeWidth={2} fill="url(#gSub)" name="Submitted" />
+                      <Area type="monotone" dataKey="submitted" stroke="#5e3bdb" strokeWidth={2} fill="url(#gSub)" name="Submitted" />
                       <Area type="monotone" dataKey="approved"  stroke="#059669" strokeWidth={2} fill="url(#gApp)"  name="Approved"  />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -1871,7 +1850,7 @@ export default function Dashboard() {
                         <XAxis dataKey="week" tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 9, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                         <Tooltip content={<CustomTip />} />
-                        <Line type="monotone" dataKey="assigned"  stroke="#7c3aed" strokeWidth={1.5} dot={false} name="Assigned"  />
+                        <Line type="monotone" dataKey="assigned"  stroke="#5e3bdb" strokeWidth={1.5} dot={false} name="Assigned"  />
                         <Line type="monotone" dataKey="completed" stroke="#059669" strokeWidth={1.5} dot={false} name="Completed" />
                       </LineChart>
                     </ResponsiveContainer>
@@ -1887,7 +1866,7 @@ export default function Dashboard() {
               <SectionCard title="Workflow Monitoring Snapshot" subtitle="Live status of all documents currently in workflow" icon={Gauge}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
                   {[
-                    { label: "In Workflow",      value: activeWorkflowItems.length,        icon: Layers,       color: "#7c3aed" },
+                    { label: "In Workflow",      value: activeWorkflowItems.length,        icon: Layers,       color: "#5e3bdb" },
                     { label: "Awaiting Approval", value: awaitingApprovalCount,             icon: Clock,        color: "#d97706" },
                     { label: "Delayed",           value: delayedDocs.length,                icon: AlertCircle,  color: "#dc2626" },
                     { label: "Avg. Proc. Time",   value: `${avgProcessingDays.toFixed(1)}d`, icon: Timer,       color: "#059669" },
@@ -1907,46 +1886,58 @@ export default function Dashboard() {
                     <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTip />} />
-                    <Bar dataKey="submitted" name="Submitted" fill="#7c3aed" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="submitted" name="Submitted" fill="#5e3bdb" radius={[3, 3, 0, 0]} />
                     <Bar dataKey="approved"  name="Approved"  fill="#059669" radius={[3, 3, 0, 0]} />
                     <Bar dataKey="rejected"  name="Rejected"  fill="#dc2626" radius={[3, 3, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </SectionCard>
 
-              {/* Department Overview */}
-              <SectionCard title="Department Overview" subtitle="College of Information Technology" icon={Building2}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {[
-                    { label: "Total Faculty Members",      value: facultyPerformance.length,               icon: Users,        color: "#5b21b6" },
-                    { label: "Active Workflows",           value: activeWorkflowItems.length,               icon: Layers,       color: "#7c3aed" },
-                    { label: "Forms Submitted This Month", value: formsSubmittedThisMonth,                  icon: FileText,     color: "#0284c7" },
-                    { label: "Tasks Completed This Month", value: tasksCompletedThisMonth,                  icon: CheckCircle2, color: "#059669" },
-                    { label: "Average Approval Time",      value: `${avgApprovalDays.toFixed(1)}d`,         icon: Timer,        color: "#d97706" },
-                  ].map(s => (
-                    <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 8, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${s.color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <s.icon style={{ width: 15, height: 15, color: s.color }} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 11, color: "#6b7280" }}>{s.label}</p>
-                      </div>
-                      <p style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>{s.value}</p>
+              {/* Department Overview — solid primary card, mirrors the DS PATH mockup */}
+              <div style={{ background: "#5e3bdb", color: "#ffffff", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.08)", position: "relative", overflow: "hidden" }}>
+                <Building2 style={{ position: "absolute", right: -16, bottom: -16, width: 120, height: 120, opacity: 0.15 }} />
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 2 }}>Department Overview</h3>
+                  <p style={{ fontSize: 11, color: "#cabeff", marginBottom: 18 }}>College of Information Technology</p>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+                    <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12 }}>
+                      <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Faculty</p>
+                      <p style={{ fontSize: 24, fontWeight: 700 }}>{facultyPerformance.length}</p>
                     </div>
-                  ))}
+                    <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12 }}>
+                      <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Active Workflows</p>
+                      <p style={{ fontSize: 24, fontWeight: 700 }}>{activeWorkflowItems.length}</p>
+                    </div>
+                  </div>
+
+                  <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.15)", paddingBottom: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, color: "#cabeff" }}>Avg Approval Time</span>
+                      <span style={{ fontSize: 13, fontWeight: 600 }}>{avgApprovalDays.toFixed(1)} Days</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.15)", paddingBottom: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, color: "#cabeff" }}>Forms Submitted (mo.)</span>
+                      <span style={{ fontSize: 13, fontWeight: 600 }}>{formsSubmittedThisMonth}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 11, color: "#cabeff" }}>Monthly Completions</span>
+                      <span style={{ fontSize: 13, fontWeight: 600 }}>{tasksCompletedThisMonth}</span>
+                    </div>
+                  </div>
 
                   {/* Processing time trend mini */}
-                  <div style={{ marginTop: 4 }}>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", marginBottom: 6 }}>Processing Time Trend</p>
-                    <ResponsiveContainer width="100%" height={60}>
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#cabeff", marginBottom: 6 }}>Processing Time Trend</p>
+                    <ResponsiveContainer width="100%" height={56}>
                       <LineChart data={processingTrendData} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                        <Line type="monotone" dataKey="days" stroke="#7c3aed" strokeWidth={2} dot={{ fill: "#7c3aed", r: 3 }} name="Avg Days" />
+                        <Line type="monotone" dataKey="days" stroke="#ffffff" strokeWidth={2} dot={{ fill: "#ffffff", r: 3 }} name="Avg Days" />
                         <Tooltip content={<CustomTip />} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
-              </SectionCard>
+              </div>
             </div>
 
             </>
@@ -1960,7 +1951,7 @@ export default function Dashboard() {
                   icon={Calendar}
                   noPad
                   action={
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px" }}>
                       {upcomingDeadlines.length} Upcoming
                     </span>
                   }
@@ -1994,7 +1985,7 @@ export default function Dashboard() {
                               </span>
                             </td>
                             <td style={{ padding: "10px 14px" }}>
-                              <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
+                              <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
                             </td>
                           </tr>
                         );
@@ -2014,7 +2005,7 @@ export default function Dashboard() {
                     icon={ListTodo}
                     noPad
                     action={
-                      <button onClick={() => navigate("/tasks")} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px", cursor: "pointer" }}>
+                      <button onClick={() => navigate("/tasks")} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px", cursor: "pointer" }}>
                         View All Tasks <ChevronRight style={{ width: 12, height: 12 }} />
                       </button>
                     }
@@ -2049,7 +2040,7 @@ export default function Dashboard() {
                                 </span>
                               </td>
                               <td style={{ padding: "10px 14px" }}>
-                                <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
+                                <button onClick={() => navigate("/tasks")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>View Task</button>
                               </td>
                             </tr>
                           );
@@ -2064,7 +2055,7 @@ export default function Dashboard() {
                     icon={FileText}
                     noPad
                     action={
-                      <button onClick={() => navigate("/forms")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}>Manage All Forms</button>
+                      <button onClick={() => navigate("/forms")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer" }}>Manage All Forms</button>
                     }
                   >
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
@@ -2093,7 +2084,7 @@ export default function Dashboard() {
                                 </span>
                               </td>
                               <td style={{ padding: "10px 14px" }}>
-                                <button onClick={() => navigate("/tracking")} style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "3px 10px", cursor: "pointer" }}>Track</button>
+                                <button onClick={() => navigate("/tracking")} style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "3px 10px", cursor: "pointer" }}>Track</button>
                               </td>
                             </tr>
                           );
@@ -2134,7 +2125,7 @@ export default function Dashboard() {
                     title="Notifications"
                     icon={Bell}
                     noPad
-                    action={unread > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: "#7c3aed", color: "#fff", padding: "2px 8px", borderRadius: 20 }}>{unread} New</span>}
+                    action={unread > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: "#5e3bdb", color: "#fff", padding: "2px 8px", borderRadius: 20 }}>{unread} New</span>}
                   >
                     {NOTIFICATIONS.slice(0, 4).map(n => {
                       const cfg = NOTIF_CFG[n.type];
@@ -2152,7 +2143,7 @@ export default function Dashboard() {
                       );
                     })}
                     <div style={{ padding: "9px 16px", textAlign: "center" }}>
-                      <button style={{ fontSize: 11, color: "#7c3aed", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>Mark all as read</button>
+                      <button style={{ fontSize: 11, color: "#5e3bdb", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>Mark all as read</button>
                     </div>
                   </SectionCard>
 
