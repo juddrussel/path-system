@@ -1640,28 +1640,6 @@ export default function Dashboard() {
                   delayedDocs={delayedDocs}
                   trackedItems={trackedItems}
                 />
-
-                {/* Approval Rate */}
-                <SectionCard title="Approval Rate" icon={PieChart} subtitle="This month">
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <ResponsiveContainer width={90} height={90}>
-                      <RPie>
-                        <Pie data={approvalRateData} cx="50%" cy="50%" innerRadius={26} outerRadius={42} paddingAngle={2} dataKey="value">
-                          {approvalRateData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                        </Pie>
-                      </RPie>
-                    </ResponsiveContainer>
-                    <div style={{ flex: 1 }}>
-                      {approvalRateData.map(d => (
-                        <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
-                          <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-                          <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>{d.name}</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{d.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </SectionCard>
               </div>
 
               {/* Right column: Department Overview — solid primary card with an
