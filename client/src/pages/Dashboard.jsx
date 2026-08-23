@@ -10,7 +10,7 @@ import {
   ClipboardList, Inbox, MessageSquare, Megaphone, RefreshCw,
   Filter, Search, CircleCheck, Timer, ArrowUpRight, BookOpen,
   GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
-  ListTodo, PieChart, X,
+  ListTodo, PieChart, X, Upload, Tag,
 } from "lucide-react";
 import {
   Tooltip, ResponsiveContainer,
@@ -661,6 +661,52 @@ function SectionCard({ id, title, subtitle, icon: Icon, children, action, noPad,
       <div style={{ padding: noPad ? 0 : "16px 20px", flex: 1 }}>{children}</div>
       {footer && <div style={{ padding: "12px 20px", borderTop: "1px solid #c9c4d7", flexShrink: 0 }}>{footer}</div>}
     </div>
+  );
+}
+
+// ── Quick Actions — compact shortcut list, used to fill out the right-hand
+//    column under Bottlenecks & Alerts so it doesn't sit half-empty next to
+//    the taller tracking table. ───────────────────────────────────────────
+function QuickActionRow({ icon: Icon, title, subtitle, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        display: "flex", alignItems: "center", gap: 12, padding: "12px 14px",
+        border: "1px solid #ededf9", borderRadius: 10, cursor: "pointer",
+        transition: "background-color 0.15s, border-color 0.15s",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = "#faf8ff"; e.currentTarget.style.borderColor = "#ddd6fe"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "#ededf9"; }}
+    >
+      <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <Icon style={{ width: 16, height: 16, color: "#5e3bdb" }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: "#191b24" }}>{title}</p>
+        <p style={{ fontSize: 11.5, color: "#5d5e64", marginTop: 1 }}>{subtitle}</p>
+      </div>
+      <ChevronRight style={{ width: 15, height: 15, color: "#c1c5dc", flexShrink: 0 }} />
+    </div>
+  );
+}
+
+function QuickActionsPanel({ navigate }) {
+  const actions = [
+    { icon: Upload, title: "Submit Form", subtitle: "Create a new submission", to: "/documents/new" },
+    { icon: UserCheck, title: "Assign Task", subtitle: "Delegate work to faculty", to: "/tasks" },
+    { icon: PieChart, title: "View Tracking", subtitle: "Monitor submission progress", to: "/tracking" },
+    { icon: Tag, title: "Manage Categories", subtitle: "Organize form categories", to: "/categories" },
+    { icon: Users, title: "System Users", subtitle: "Manage accounts and roles", to: "/users" },
+  ];
+  return (
+    <SectionCard title="Quick Actions" subtitle="Shortcuts to common tasks" icon={Zap}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {actions.map(a => (
+          <QuickActionRow key={a.title} icon={a.icon} title={a.title} subtitle={a.subtitle} onClick={() => navigate(a.to)} />
+        ))}
+      </div>
+    </SectionCard>
   );
 }
 
@@ -1572,45 +1618,55 @@ export default function Dashboard() {
                 )}
               </SectionCard>
 
-              {/* Bottleneck & Delay Alerts — live data, same source/logic as
-                  the Bottleneck tab on Reports.jsx. Solid alert-tinted card,
-                  matching the DS PATH mockup's "Bottlenecks & Alerts" panel. */}
-              <div
-                onClick={() => BOTTLENECK_ALERTS.length > 0 && setAlertsModalOpen(true)}
-                style={{
-                  background: "#ffdad6", border: "1px solid #ffb4ab", borderRadius: 12,
-                  padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", position: "relative",
-                  overflow: "hidden", display: "flex", flexDirection: "column", gap: 20,
-                  alignSelf: "start", cursor: BOTTLENECK_ALERTS.length > 0 ? "pointer" : "default",
-                }}
-              >
-                <TriangleAlert style={{ position: "absolute", right: -14, top: -14, width: 100, height: 100, color: "#ba1a1a", opacity: 0.1 }} />
+              {/* Right column: Bottleneck & Delay Alerts stacked above Quick
+                  Actions, so the column fills out next to the taller
+                  tracking table instead of leaving empty space below. */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-                <div style={{ position: "relative", zIndex: 1 }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 600, color: "#93000a" }}>Bottlenecks &amp; Alerts</h3>
-                  <p style={{ fontSize: 12, color: "#93000a", opacity: 0.8, marginTop: 2 }}>
-                    {BOTTLENECK_ALERTS.length === 0 ? "Everything is moving smoothly" : "Immediate attention required"}
-                  </p>
+                {/* Bottleneck & Delay Alerts — live data, same source/logic as
+                    the Bottleneck tab on Reports.jsx. Solid alert-tinted card,
+                    matching the DS PATH mockup's "Bottlenecks & Alerts" panel. */}
+                <div
+                  onClick={() => BOTTLENECK_ALERTS.length > 0 && setAlertsModalOpen(true)}
+                  style={{
+                    background: "#ffdad6", border: "1px solid #ffb4ab", borderRadius: 12,
+                    padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", position: "relative",
+                    overflow: "hidden", display: "flex", flexDirection: "column", gap: 20,
+                    cursor: BOTTLENECK_ALERTS.length > 0 ? "pointer" : "default",
+                  }}
+                >
+                  <TriangleAlert style={{ position: "absolute", right: -14, top: -14, width: 100, height: 100, color: "#ba1a1a", opacity: 0.1 }} />
+
+                  <div style={{ position: "relative", zIndex: 1 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: "#93000a" }}>Bottlenecks &amp; Alerts</h3>
+                    <p style={{ fontSize: 12, color: "#93000a", opacity: 0.8, marginTop: 2 }}>
+                      {BOTTLENECK_ALERTS.length === 0 ? "Everything is moving smoothly" : "Immediate attention required"}
+                    </p>
+                  </div>
+
+                  {itemsLoading ? (
+                    <p style={{ fontSize: 12, color: "#93000a", opacity: 0.7, textAlign: "center", padding: "16px 0", position: "relative", zIndex: 1 }}>Loading alerts…</p>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative", zIndex: 1 }}>
+                      {Object.entries(ALERT_TIER_CFG).map(([tier, cfg]) => {
+                        const count = BOTTLENECK_ALERTS.filter(a => a.tier === tier).length;
+                        return (
+                          <div key={tier} style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(4px)", borderRadius: 8, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.4)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />
+                              <span style={{ fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
+                            </div>
+                            <span style={{ fontSize: tier === "critical" ? 24 : 18, fontWeight: 700, color: cfg.color, lineHeight: 1 }}>{count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                {itemsLoading ? (
-                  <p style={{ fontSize: 12, color: "#93000a", opacity: 0.7, textAlign: "center", padding: "16px 0", position: "relative", zIndex: 1 }}>Loading alerts…</p>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative", zIndex: 1 }}>
-                    {Object.entries(ALERT_TIER_CFG).map(([tier, cfg]) => {
-                      const count = BOTTLENECK_ALERTS.filter(a => a.tier === tier).length;
-                      return (
-                        <div key={tier} style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(4px)", borderRadius: 8, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.4)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />
-                            <span style={{ fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
-                          </div>
-                          <span style={{ fontSize: tier === "critical" ? 24 : 18, fontWeight: 700, color: cfg.color, lineHeight: 1 }}>{count}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* Quick Actions — shortcut list to fill the remaining space
+                    in this column, matching the DS PATH shortcuts panel. */}
+                <QuickActionsPanel navigate={navigate} />
               </div>
             </div>
 
