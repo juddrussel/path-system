@@ -10,7 +10,7 @@ import {
   ClipboardList, Inbox, MessageSquare, Megaphone, RefreshCw,
   Filter, Search, CircleCheck, Timer, ArrowUpRight, BookOpen,
   GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
-  ListTodo, PieChart, X, Upload, Tag,
+  ListTodo, PieChart, X, Tag,
 } from "lucide-react";
 import {
   Tooltip, ResponsiveContainer,
@@ -693,11 +693,11 @@ function QuickActionRow({ icon: Icon, title, subtitle, onClick }) {
 
 function QuickActionsPanel({ navigate }) {
   const actions = [
-    { icon: Upload, title: "Submit Form", subtitle: "Create a new submission", to: "/documents/new" },
     { icon: UserCheck, title: "Assign Task", subtitle: "Delegate work to faculty", to: "/tasks" },
     { icon: PieChart, title: "View Tracking", subtitle: "Monitor submission progress", to: "/tracking" },
     { icon: Tag, title: "Manage Categories", subtitle: "Organize form categories", to: "/categories" },
     { icon: Users, title: "System Users", subtitle: "Manage accounts and roles", to: "/users" },
+    { icon: Timer, title: "SLA Configuration", subtitle: "Set response and resolution targets", to: "/sla-configuration" },
   ];
   return (
     <SectionCard title="Quick Actions" subtitle="Shortcuts to common tasks" icon={Zap}>
@@ -1477,38 +1477,6 @@ export default function Dashboard() {
 
           {/* ── Main grid ── */}
           <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
-
-            {/* Quick Actions — admin/program_chair see the full ops toolbar;
-                faculty see a simplified set scoped to their own workflow.
-                Solid primary pill buttons, matching the DS PATH mockup's Row 1. */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-              {(canViewAdminNav
-                ? [
-                    { label: "Assign Task",       icon: UserCheck, onClick: () => navigate("/assign-task") },
-                    { label: "Tasks",             icon: ListTodo,  onClick: () => navigate("/task-assigned") },
-                    { label: "Tracking",          icon: Activity,  onClick: () => navigate("/tracking") },
-                    { label: "Generate Report",   icon: BarChart3, onClick: () => navigate("/reports") },
-                    { label: "SLA Configuration", icon: Timer,     onClick: () => navigate("/sla-configuration") },
-                  ]
-                : [
-                    { label: "My Tasks",     icon: ListTodo,      onClick: () => navigate("/tasks") },
-                    { label: "Submit Forms", icon: FileText,      onClick: () => navigate("/forms") },
-                    { label: "Tracking",     icon: Activity,      onClick: () => navigate("/tracking") },
-                    { label: "Messages",     icon: MessageSquare, onClick: () => navigate("/inbox") },
-                  ]
-              ).map(a => (
-                <button
-                  key={a.label}
-                  onClick={a.onClick}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "#5e3bdb", color: "#ffffff", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, boxShadow: "0 1px 3px rgba(91,33,182,0.15)", transition: "background 0.15s" }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#7858f5"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#5e3bdb"; }}
-                >
-                  <a.icon style={{ width: 16, height: 16 }} />
-                  <span>{a.label}</span>
-                </button>
-              ))}
-            </div>
 
             {canViewAdminNav ? (
             <>
