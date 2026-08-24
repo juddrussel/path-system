@@ -995,6 +995,22 @@ export default function SLAConfiguration() {
         .sla-policy-status strong { color:#5f536c !important; font:700 10px/1.1 Manrope,sans-serif !important; }
         .sla-policy-status small { color:#9b91a3 !important; font:400 9px/1.2 "DM Sans",sans-serif !important; white-space:nowrap !important; }
         @media (max-width:700px) { .sla-config-hero { align-items:flex-start !important; flex-direction:column !important; gap:18px !important; padding:22px 18px !important; } .sla-policy-status { width:100% !important; min-width:0 !important; margin-left:0 !important; } .sla-config-hero h1 { font-size:26px !important; } }
+      /* Final PATH sizing scale: match the canonical SLA Configuration page. */
+        .sla-config-view { width:100% !important; max-width:1380px !important; margin:0 auto !important; padding:16px 0 48px !important; }
+        .sla-config-hero { width:100% !important; min-height:148px !important; height:148px !important; padding:29px 24px 27px !important; margin:0 0 22px !important; }
+        .sla-document-stats { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:12px !important; margin:0 0 18px !important; }
+        .sla-document-stats article { min-height:116px !important; height:116px !important; padding:18px 17px !important; }
+        .sla-document-layout { display:block !important; width:100% !important; }
+        .sla-document-list { width:100% !important; max-width:none !important; }
+        .sla-list-heading { min-height:98px !important; padding:22px 22px 18px !important; }
+        .sla-policy-table-head, .sla-policy-row { grid-template-columns:minmax(250px,1.8fr) minmax(170px,1.25fr) 70px 90px 100px minmax(135px,1.1fr) 82px 72px !important; }
+        .sla-policy-table-head { min-height:42px !important; padding:0 18px !important; }
+        .sla-policy-row { min-height:72px !important; height:72px !important; padding:12px 18px !important; }
+        .sla-list-footer { min-height:56px !important; padding:0 18px !important; }
+        .sla-side-panel { width:min(430px,calc(100vw - 36px)) !important; }
+        @media (max-width:1200px) { .sla-document-stats { grid-template-columns:repeat(2,minmax(0,1fr)) !important; } .sla-policy-table-head,.sla-policy-row { grid-template-columns:minmax(220px,1.6fr) minmax(150px,1fr) 62px 82px 88px minmax(110px,1fr) 72px 68px !important; } }
+        @media (max-width:900px) { .sla-config-view { padding:12px 12px 32px !important; } .sla-config-hero { height:auto !important; min-height:0 !important; } .sla-document-stats { grid-template-columns:repeat(2,minmax(0,1fr)) !important; } }
+        @media (max-width:560px) { .sla-config-view { padding:8px 8px 28px !important; } .sla-document-stats { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px !important; } .sla-document-stats article { height:96px !important; min-height:96px !important; padding:13px !important; } .sla-list-heading { min-height:0 !important; padding:18px 14px !important; } .sla-policy-row { height:auto !important; min-height:70px !important; padding:11px 14px !important; } }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
