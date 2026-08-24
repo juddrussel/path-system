@@ -1069,6 +1069,11 @@ export default function SLAConfiguration() {
         .sla-side-panel .sla-detail-facts span { color:#aaa0ae !important; font:800 8px/1 "DM Sans",sans-serif !important; letter-spacing:.08em !important; text-transform:uppercase !important; }
         .sla-side-panel .sla-detail-facts strong { color:#51435d !important; font:600 11px/1.2 Manrope,sans-serif !important; }
         @media (max-width:560px) { .sla-side-panel > .panel-topline { padding:14px 18px !important; } .sla-side-panel > .sla-panel-body { padding:14px 20px 28px !important; } .sla-side-panel .sla-document-fields { gap:14px !important; } .sla-side-panel .sla-input-with-unit input { height:34px !important; } }
+        .sla-list-heading-actions { display:flex !important; align-items:center !important; gap:10px !important; flex:0 0 auto !important; }
+        .sla-add-policy { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:36px !important; padding:0 14px !important; border:0 !important; border-radius:8px !important; background:#7c3aed !important; color:#fff !important; box-shadow:0 8px 18px rgba(124,58,237,.16) !important; font:700 11px/1 "DM Sans",sans-serif !important; cursor:pointer !important; transition:background .16s ease,transform .16s ease !important; }
+        .sla-add-policy:hover { background:#6d28d9 !important; }
+        .sla-add-policy:active { transform:scale(.98) !important; }
+        @media (max-width:700px) { .sla-list-heading-actions { width:100% !important; flex-wrap:wrap !important; } .sla-list-heading-actions select { flex:1 1 150px !important; } .sla-add-policy { flex:1 1 150px !important; } }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
@@ -1128,9 +1133,12 @@ export default function SLAConfiguration() {
                     <h2>SLA by document type <span>{filteredRules.length}</span></h2>
                     <p>Matching documents inherit the target, reminders, escalation, and owner shown below.</p>
                   </div>
-                  <select value={activeOnlyFilter === "All Rules" ? "All categories" : activeOnlyFilter} onChange={e => { setActiveOnlyFilter(e.target.value === "All categories" ? "All Rules" : e.target.value); setCurrentPage(1); }} aria-label="Filter SLA policies">
-                    <option>Active Only</option><option>Paused Only</option><option>All Rules</option>
-                  </select>
+                  <div className="sla-list-heading-actions">
+                    <select value={activeOnlyFilter === "All Rules" ? "All categories" : activeOnlyFilter} onChange={e => { setActiveOnlyFilter(e.target.value === "All categories" ? "All Rules" : e.target.value); setCurrentPage(1); }} aria-label="Filter SLA policies">
+                      <option>Active Only</option><option>Paused Only</option><option>All Rules</option>
+                    </select>
+                    <button type="button" className="sla-add-policy" onClick={() => setShowCreateModal(true)} aria-label="Add SLA policy"><Plus size={14} /> Add SLA policy</button>
+                  </div>
                 </div>
                 <div className="sla-policy-table-head"><span>Document type</span><span>Category</span><span>Target</span><span>Reminder</span><span>Escalation</span><span>Owner</span><span>Coverage</span><span>Action</span></div>
                 <div className="sla-policy-rows">
