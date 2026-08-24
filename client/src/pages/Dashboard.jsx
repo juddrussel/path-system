@@ -1471,8 +1471,27 @@ export default function Dashboard() {
 
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
+    <div className="path-overview-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#27213a", background: "#f8f7ff" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap');
+.path-overview-shell{--path-ink:#27213a;--path-muted:#776b83;--path-violet:#7c3aed;--path-violet-2:#8b5cf6;--path-lilac:#f1ebff;--path-paper:#f8f7ff;--path-border:#ebe4f4;background:var(--path-paper)!important;color:var(--path-ink)!important}
+.path-overview-shell h1,.path-overview-shell h2,.path-overview-shell h3{font-family:Manrope,'DM Sans',sans-serif!important;letter-spacing:-.025em}
+.path-overview-shell button{transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+.path-overview-shell button:active{transform:scale(.97)}
+.path-overview-shell input:focus{border-color:var(--path-violet-2)!important;box-shadow:0 0 0 3px rgba(139,92,246,.13)!important}
+.path-overview-shell>div:last-child{background:var(--path-paper)!important}
+.path-overview-shell>div:last-child>div:nth-child(2){background:var(--path-paper)!important}
+.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child{padding:42px 48px 30px!important;border-bottom:1px solid var(--path-border)!important;background:linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)!important}
+.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child h1{font-size:36px!important;color:var(--path-ink)!important}
+.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child p{color:var(--path-muted)!important}
+.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child>div:last-child{margin-top:26px!important}
+.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child>div:last-child>div{background:#fff!important;border:1px solid var(--path-border)!important;border-radius:16px!important;box-shadow:0 8px 22px rgba(76,29,149,.06)!important;padding:18px!important}
+.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3){padding:28px 48px!important;gap:22px!important}
+.path-overview-shell table thead tr{background:#faf7ff!important;border-bottom-color:#e7def2!important}
+.path-overview-shell table tbody tr{border-bottom-color:#f0eaf5!important}
+.path-overview-shell table th{color:#8b7c96!important;font-weight:700!important;font-size:10px!important;letter-spacing:.08em!important}
+.path-overview-shell table td{color:#51465e!important}
+@media(max-width:900px){.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child{padding:28px 20px 22px!important}.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child h1{font-size:29px!important}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3){padding:20px 16px!important;overflow-x:hidden}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}}
+`}</style>
 
       <Sidebar activePage="dashboard" />
 
