@@ -1704,6 +1704,10 @@ export default function UserManagement() {
         .path-um-request-review .path-um-request-row{align-items:center!important}.path-um-request-review .path-um-request-person{flex-direction:row!important;align-items:center!important;justify-self:start}.path-um-request-review .path-um-request-person>div{justify-content:center}.path-um-request-review .path-um-request-role,.path-um-request-review .path-um-request-row>p,.path-um-request-review .path-um-request-actions{align-self:center}.path-um-request-review .path-um-request-actions{justify-self:end}.path-um-request-review .path-um-avatar-fallback{display:inline-flex!important;align-items:center!important;justify-content:center!important}
       `}</style>
 
+      <style>{`
+        .path-um-directory .path-um-person .path-um-avatar-fallback{display:flex!important;width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;flex:0 0 28px!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important;line-height:0!important;transform:none!important}.path-um-directory .path-um-person .path-um-avatar-fallback svg{display:block!important;width:12px!important;height:12px!important;margin:0!important;transform:none!important}.path-um-directory .path-um-person{align-items:center!important;gap:10px!important}.path-um-directory .path-um-person>div{display:flex!important;min-width:0;flex-direction:column!important;justify-content:center!important}
+      `}</style>
+
       <Sidebar activePage="users" />
 
       {/* ── MAIN ── */}
