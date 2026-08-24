@@ -10,7 +10,7 @@ import {
   ClipboardList, Inbox, MessageSquare, Megaphone, RefreshCw,
   Filter, Search, CircleCheck, Timer, ArrowUpRight, BookOpen,
   GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
-  ListTodo, PieChart, X, Tag,
+  ListTodo, PieChart, X, Tag, ShieldCheck,
 } from "lucide-react";
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
