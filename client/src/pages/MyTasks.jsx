@@ -1155,7 +1155,7 @@ export default function MyTasks() {
       )
     : 0;
   const documentDetailsPath = (documentId, taskId) =>
-    `/documents/${documentId}?from=tasks&task=${encodeURIComponent(taskId)}`;
+    `/document-details/${encodeURIComponent(documentId)}?from=tasks&task=${encodeURIComponent(taskId)}`;
   const openDocumentDetails = async (task) => {
     let documentId =
       task.document_id ||

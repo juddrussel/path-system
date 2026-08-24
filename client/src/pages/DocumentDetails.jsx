@@ -211,8 +211,12 @@ function StatusPill({ status }) {
   );
 }
 
-export default function DocumentDetails() {
-  const { id } = useParams();
+export default function DocumentDetails({
+  documentId: documentIdProp,
+  onBack,
+}) {
+  const { id: routeId } = useParams();
+  const id = documentIdProp || routeId;
   const navigate = useNavigate();
   const API = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -485,7 +489,7 @@ export default function DocumentDetails() {
             <button
               className="document-back"
               type="button"
-              onClick={() => navigate("/tasks")}
+              onClick={() => (onBack ? onBack() : navigate("/tasks"))}
             >
               <Icon.Back /> Back to priority queue{" "}
               <span>/ Document details</span>
