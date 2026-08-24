@@ -1301,6 +1301,12 @@ export default function Dashboard() {
   ];
 
   const kpisLoading = itemsLoading || facultyLoading;
+  // Used by the PATH Overview workflow-health card. Keep this derived from
+  // the same live tracked items used by the KPI strip so the new layout never
+  // references an undefined render-time value.
+  const onTimeCompletionRate = trackedItems.length
+    ? Math.round(((trackedItems.length - overdueItemsCount) / trackedItems.length) * 100)
+    : 0;
 
   /* ── Faculty-side dashboard data ──────────────────────────────────────
      Everything below is scoped to the logged-in faculty member (matched
