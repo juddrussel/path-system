@@ -88,6 +88,15 @@ const PATH_REPORTS_LIVE_CSS = `
   @media (max-width:760px) { .path-trend { min-height:205px; }.path-range-scale { margin-left:121px; }.path-range-row { grid-template-columns:108px minmax(0,1fr); gap:10px; }.path-range-row > strong { font-size:8px; white-space:normal; }.path-faculty-pulse-row { grid-template-columns:112px minmax(110px,1fr) 23px; gap:8px; }.path-faculty-pulse-row > div strong { font-size:8px; white-space:normal; }.path-faculty-pulse-row section small { font-size:7px; } }
 `;
 
+const PATH_OVERVIEW_CSS = `
+  .path-overview-workspace { display:flex; flex-direction:column; gap:14px; }.path-overview-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }.path-overview-metric { min-height:116px; padding:17px 18px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-overview-metric > div { display:flex; align-items:center; justify-content:space-between; color:#9b91a1; }.path-overview-metric > div span,.path-overview-panel header > div > span { font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-overview-metric > div svg { width:25px; height:25px; padding:5px; border-radius:7px; background:#f1ebff; color:#7c3aed; }.path-overview-metric.green > div svg { background:#e5f8ef; color:#32926c; }.path-overview-metric.blue > div svg { background:#e9f2ff; color:#4b7fc4; }.path-overview-metric.amber > div svg { background:#fff4dc; color:#bd8130; }.path-overview-metric strong { display:block; margin-top:14px; color:#3e3248; font-family:'Manrope',sans-serif; font-size:27px; letter-spacing:-.055em; }.path-overview-metric small { display:block; margin-top:6px; color:#9e95a5; font-family:'DM Sans',sans-serif; font-size:9px; }
+  .path-overview-main-grid,.path-overview-bottom-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr); gap:14px; }.path-overview-panel { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-overview-panel header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }.path-overview-panel header h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:16px; letter-spacing:-.035em; }.path-overview-panel header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; line-height:1.45; }.path-overview-panel header > button { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#7c3aed; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-overview-panel header > button svg { width:13px; height:13px; }.path-flow-total { display:flex; align-items:baseline; gap:9px; margin:24px 0 18px; }.path-flow-total strong { color:#3d2d4b; font-family:'Manrope',sans-serif; font-size:34px; letter-spacing:-.07em; }.path-flow-total span { color:#887c92; font-family:'DM Sans',sans-serif; font-size:10px; }.path-flow-bars { display:flex; flex-direction:column; gap:14px; }.path-flow-bars > div > div { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; color:#82758b; font-family:'DM Sans',sans-serif; font-size:9px; }.path-flow-bars > div > div strong { color:#5d4c68; font-size:9px; }.path-flow-bars i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f0ecf5; }.path-flow-bars b { display:block; min-width:4px; height:100%; border-radius:inherit; }
+  .path-health-state { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border-radius:999px; background:#e8f8ef; color:#3b9675; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-health-state i { width:5px; height:5px; border-radius:50%; background:#4aae83; }.path-health-main { display:flex; align-items:center; gap:18px; margin:24px 0 22px; }.path-health-ring { display:flex; width:92px; height:92px; flex:0 0 auto; align-items:center; justify-content:center; flex-direction:column; border-radius:50%; background:conic-gradient(#7c3aed calc(var(--health) * 1%),#e8e0fa 0); position:relative; }.path-health-ring::after { position:absolute; width:76px; height:76px; border-radius:50%; background:#fff; content:''; }.path-health-ring strong,.path-health-ring small { position:relative; z-index:1; }.path-health-ring strong { color:#5d32a7; font-family:'Manrope',sans-serif; font-size:21px; letter-spacing:-.06em; }.path-health-ring small { color:#9a8fac; font-family:'DM Sans',sans-serif; font-size:8px; }.path-health-main > div:last-child { min-width:0; }.path-health-main > div:last-child > strong { color:#4b3a57; font-family:'Manrope',sans-serif; font-size:12px; }.path-health-main p { margin:6px 0 8px; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; line-height:1.45; }.path-health-main button { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#6d28d9; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-health-main button svg { width:12px; height:12px; }.path-health-panel footer { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding-top:16px; border-top:1px solid #f0edf4; }.path-health-panel footer div { display:flex; flex-direction:column; gap:4px; }.path-health-panel footer span { color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:8px; }.path-health-panel footer strong { color:#55445f; font-family:'Manrope',sans-serif; font-size:17px; letter-spacing:-.04em; }.path-health-panel footer small { color:#a79cab; font-family:'DM Sans',sans-serif; font-size:8px; }
+  .path-category-table { margin-top:22px; }.path-category-head,.path-category-row { display:grid; grid-template-columns:minmax(0,1.7fr) 80px 80px 70px; gap:12px; align-items:center; }.path-category-head { padding:0 0 9px; border-bottom:1px solid #eeeaf3; color:#a096a6; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }.path-category-row { min-height:49px; border-bottom:1px solid #f1eef4; color:#65576d; font-family:'DM Sans',sans-serif; font-size:9px; }.path-category-row > strong { display:flex; align-items:center; gap:8px; min-width:0; color:#4d4057; font-family:'Manrope',sans-serif; font-size:10px; }.path-category-row > strong i { width:7px; height:7px; flex:0 0 auto; border-radius:50%; background:#8b5cf6; }.path-category-row > strong i.dot-1 { background:#6d9fe0; }.path-category-row > strong i.dot-2 { background:#edbb59; }.path-category-row > strong i.dot-3 { background:#58b78d; }.path-category-row > span { color:#61536a; font-family:'Manrope',sans-serif; font-size:10px; }.path-category-row em { color:#399273; font-style:normal; font-weight:800; }.path-category-row em:not(:empty) { color:#399273; }
+  .path-library-panel { display:flex; flex-direction:column; }.path-library-list { display:flex; flex-direction:column; margin-top:16px; }.path-library-list > button { display:grid; grid-template-columns:30px minmax(0,1fr) auto 14px; gap:9px; align-items:center; padding:12px 0; border:0; border-bottom:1px solid #f1eef4; background:transparent; color:inherit; cursor:pointer; text-align:left; }.path-library-list > button:hover { background:#fbf9ff; }.path-library-icon { display:grid; width:29px; height:29px; place-items:center; border-radius:8px; background:#f0eaff; color:#7c3aed; }.path-library-icon.item-1 { background:#eaf2ff; color:#4c80c4; }.path-library-icon.item-2 { background:#fff3dc; color:#bd8130; }.path-library-icon svg { width:14px; height:14px; }.path-library-list > button > span { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-library-list strong { overflow:hidden; color:#55465f; font-family:'Manrope',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-library-list small { overflow:hidden; color:#a097a7; font-family:'DM Sans',sans-serif; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.path-library-list em { padding:4px 7px; border-radius:999px; background:#e7f7ee; color:#3c9675; font-family:'DM Sans',sans-serif; font-size:8px; font-style:normal; font-weight:800; }.path-library-list > button > svg { color:#b1a8b8; width:14px; height:14px; }.path-library-create { align-self:flex-start; margin-top:auto; padding:8px 10px; border:1px solid #e6def1; border-radius:8px; background:#faf8ff; color:#67428f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }
+  @media (max-width:1100px) { .path-overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }.path-overview-main-grid,.path-overview-bottom-grid { grid-template-columns:1fr; } }.path-overview-metrics + .path-overview-main-grid { margin-top:0; } @media (max-width:760px) { .path-overview-metrics { gap:8px; }.path-overview-metric { min-height:106px; padding:15px 14px; }.path-overview-metric strong { font-size:23px; }.path-overview-main-grid,.path-overview-bottom-grid { gap:10px; }.path-overview-panel { padding:17px 15px; }.path-health-main { align-items:flex-start; flex-direction:column; }.path-category-head,.path-category-row { grid-template-columns:minmax(0,1fr) 55px 55px; }.path-category-head span:last-child,.path-category-row em { display:none; }.path-library-list > button { grid-template-columns:30px minmax(0,1fr) 14px; }.path-library-list em { display:none; } }
+`;
+
 
 function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, footer }) {
   return (
@@ -353,6 +362,49 @@ function PathFacultyPulse({ data }) {
   const max = Math.max(1, ...data.map((item) => item.assigned || 0));
   if (!data.length) return <p className="path-chart-empty">No faculty workload data available.</p>;
   return <div className="path-faculty-pulse">{data.map((item) => <div className="path-faculty-pulse-row" key={item.name}><div><Avatar name={item.name} size={25} /><strong>{item.name}</strong></div><section><i><b style={{ width: `${((item.completed || 0) / max) * 100}%` }} /><em style={{ width: `${((item.pending || 0) / max) * 100}%` }} /></i><small>{item.completed} complete · {(item.pending || 0) + (item.delayed || 0)} open</small></section><span>{item.assigned}</span></div>)}</div>;
+}
+
+function PathOverview({ items, processing, bottlenecks, quickReports, onSelectTab, onExport, onNavigate }) {
+  const completed = items.filter((item) => item.done);
+  const onTime = completed.length ? Math.round((completed.filter((item) => !item.overdue).length / completed.length) * 1000) / 10 : 0;
+  const returned = items.filter((item) => item.status === "Returned").length;
+  const approved = items.filter((item) => item.status === "Approved" || item.status === "Completed").length;
+  const reviewing = items.filter((item) => item.status === "Under Review" || item.status === "For Approval").length;
+  const atRisk = items.filter((item) => item.overdue || item.status === "Delayed").length;
+  const average = processing.length ? processing.reduce((sum, item) => sum + item.avg, 0) / processing.length : 0;
+  const flow = [
+    { label: "Submitted", value: items.length, color: "#8b5cf6" },
+    { label: "In review", value: reviewing, color: "#a78bfa" },
+    { label: "Approved", value: approved, color: "#7c3aed" },
+    { label: "Returned", value: returned, color: "#c4b5fd" },
+  ];
+  const maxFlow = Math.max(1, ...flow.map((item) => item.value));
+  const categories = Object.entries(items.reduce((acc, item) => {
+    const key = item.docType || "Other";
+    acc[key] ??= { type: key, processed: 0, done: 0, onTime: 0, atRisk: 0 };
+    acc[key].processed += 1;
+    if (item.done) { acc[key].done += 1; if (!item.overdue) acc[key].onTime += 1; }
+    if (item.overdue || item.status === "Delayed") acc[key].atRisk += 1;
+    return acc;
+  }, {})).map(([, item]) => ({ ...item, onTimeRate: item.done ? Math.round((item.onTime / item.done) * 100) : 0 })).sort((a, b) => b.processed - a.processed).slice(0, 4);
+  const library = quickReports.slice(0, 3);
+  const cards = [
+    { label: "Documents processed", value: items.length, note: "Live reporting window", icon: FileText, tone: "violet" },
+    { label: "On-time completion", value: `${onTime}%`, note: completed.length ? `${completed.length} completed records` : "No completed records yet", icon: CheckCircle2, tone: "green" },
+    { label: "Average turnaround", value: `${average.toFixed(1)} days`, note: "Across completed document types", icon: Clock, tone: "blue" },
+    { label: "Returned for revision", value: returned, note: items.length ? `${((returned / items.length) * 100).toFixed(1)}% of processed records` : "No processed records yet", icon: RotateCcw, tone: "amber" },
+  ];
+  return <div className="path-overview-workspace">
+    <div className="path-overview-metrics">{cards.map(({ label, value, note, icon: Icon, tone }) => <article className={`path-overview-metric ${tone}`} key={label}><div><span>{label}</span><Icon /></div><strong>{value}</strong><small>{note}</small></article>)}</div>
+    <div className="path-overview-main-grid">
+      <section className="path-overview-panel path-flow-panel"><header><div><span>Workflow health</span><h2>Document flow</h2><p>Shares of records by current lifecycle stage.</p></div><button onClick={() => onSelectTab("Transactions")} aria-label="Open Transactions"><ChevronRight /></button></header><div className="path-flow-total"><strong>{items.length}</strong><span>documents processed</span></div><div className="path-flow-bars">{flow.map((item) => <div key={item.label}><div><span>{item.label}</span><strong>{item.value}</strong></div><i><b style={{ width: `${(item.value / maxFlow) * 100}%`, background: item.color }} /></i></div>)}</div></section>
+      <section className="path-overview-panel path-health-panel"><header><div><span>SLA monitoring</span><h2>Service level health</h2><p>How consistently active workflows close within target.</p></div><div className="path-health-state"><i />Healthy</div></header><div className="path-health-main"><div className="path-health-ring" style={{ "--health": String(onTime) }}><strong>{onTime}%</strong><small>on time</small></div><div><strong>Healthy workflow</strong><p>Service health is calculated from the completed records in the active filter window.</p><button onClick={() => onNavigate("/sla-configuration")}>Review SLA policies <ChevronRight /></button></div></div><footer><div><span>At risk</span><strong>{String(atRisk).padStart(2, "0")}</strong><small>Needs attention</small></div><div><span>Avg. turnaround</span><strong>{average.toFixed(1)}d</strong><small>Live average</small></div><div><span>Escalations</span><strong>{String(bottlenecks.filter((item) => item.severity === "Critical").length).padStart(2, "0")}</strong><small>Critical stages</small></div></footer></section>
+    </div>
+    <div className="path-overview-bottom-grid">
+      <section className="path-overview-panel path-category-panel"><header><div><span>Document mix</span><h2>Category performance</h2><p>Throughput and on-time completion by document type.</p></div><button onClick={() => onExport("Full Analytics Report", "Excel")}>Export data <ChevronRight /></button></header><div className="path-category-table"><div className="path-category-head"><span>Document type</span><span>Processed</span><span>On time</span><span>At risk</span></div>{categories.map((item, index) => <div className="path-category-row" key={item.type}><strong><i className={`dot-${index % 4}`} />{item.type}</strong><span>{item.processed}</span><span>{item.onTimeRate}%</span><em>{item.atRisk ? `${item.atRisk} risk` : "Clear"}</em></div>)}{!categories.length && <p className="path-chart-empty">No category data matches these filters.</p>}</div></section>
+      <section className="path-overview-panel path-library-panel"><header><div><span>Saved reports</span><h2>Report library</h2></div><button aria-label="More reports"><Activity /></button></header><div className="path-library-list">{library.map((report, index) => { const Icon = report.icon; return <button key={report.title} onClick={() => report.title === "Audit Trail" ? onNavigate("/audit") : onExport(report.title, "View")}><i className={`path-library-icon item-${index}`}><Icon /></i><span><strong>{report.title}</strong><small>{report.desc}</small></span><em>Open</em><ChevronRight /></button>; })}</div><button className="path-library-create" onClick={() => onExport("Full Analytics Report", "PDF")}>＋ Create custom report</button></section>
+    </div>
+  </div>;
 }
 
 function PdfFileIcon({ size = 14, color }) {
@@ -1423,7 +1475,7 @@ export default function Reports() {
 
   return (
     <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}`}</style>
+      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}${PATH_OVERVIEW_CSS}`}</style>
 
       {/* ── Sidebar ── */}
       <Sidebar activePage="reports" />
@@ -1500,7 +1552,7 @@ export default function Reports() {
             </div>
 
             {/* ── Overview tab ── */}
-            {activeTab === "Overview" && (
+            {activeTab === "Overview__legacy" && (
               <>
             {/* ── KPI Summary Cards ── */}
             <div className="path-kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
@@ -1668,6 +1720,18 @@ export default function Reports() {
               </div>
             </SectionCard>
               </>
+            )}
+
+            {activeTab === "Overview" && (
+              <PathOverview
+                items={items}
+                processing={PROCESSING_TIME_DATA}
+                bottlenecks={BOTTLENECKS}
+                quickReports={QUICK_REPORTS}
+                onSelectTab={setActiveTab}
+                onExport={handleExport}
+                onNavigate={navigate}
+              />
             )}
 
             {/* ── Transactions tab ── */}
