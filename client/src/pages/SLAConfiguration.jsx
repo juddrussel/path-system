@@ -6,7 +6,7 @@ import {
   Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown, Pencil,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
   AlertTriangle, CheckCircle2, Zap, UserCheck, Building2, FileText, AlertCircle,
-  Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone, ArrowUpDown, MoreVertical, ArrowUpRight,
+  Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone, ArrowUpDown, MoreVertical, ArrowUpRight, SlidersHorizontal,
 } from "lucide-react";
 
 // ── API base ─────────────────────────────────────────────────────────────
