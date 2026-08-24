@@ -983,6 +983,18 @@ export default function SLAConfiguration() {
         .sla-document-stats strong { font-weight: 700 !important; }
         .sla-policy-table-head, .sla-policy-table-head span { font-family: "DM Sans", sans-serif !important; font-weight: 800 !important; letter-spacing: .08em; }
         .sla-document-cell strong, .sla-selected-document strong, .sla-inheritance-banner strong, .sla-detail-setting strong { font-family: Manrope, sans-serif !important; font-weight: 700 !important; }
+      /* Exact PATH hero alignment from the supplied reference. */
+        .sla-config-hero { display:flex !important; align-items:center !important; justify-content:space-between !important; width:100% !important; min-height:148px !important; padding:29px 24px 27px !important; margin:0 0 22px !important; border:1px solid #e6ddf5 !important; border-radius:12px !important; background:linear-gradient(112deg,#fcfaff 0%,#f5efff 100%) !important; }
+        .sla-config-hero > div:first-child { min-width:0; }
+        .sla-config-hero .date-kicker { margin:0 0 13px !important; color:#8e8499 !important; font:700 10px/1 "DM Sans",sans-serif !important; letter-spacing:.11em !important; text-transform:uppercase !important; }
+        .sla-config-hero .live-dot { width:6px !important; height:6px !important; box-shadow:0 0 0 4px #eee8ff !important; }
+        .sla-config-hero h1 { margin:0 0 7px !important; color:#2c2537 !important; font:700 31px/1.12 Manrope,sans-serif !important; letter-spacing:-.045em !important; }
+        .sla-config-hero p { margin:0 !important; color:#83778b !important; font:400 13px/1.4 "DM Sans",sans-serif !important; }
+        .sla-policy-status { display:flex !important; align-items:center !important; gap:10px !important; min-width:240px !important; height:54px !important; padding:10px 13px !important; margin-left:24px !important; border:1px solid #ddd1ed !important; border-radius:9px !important; background:rgba(255,255,255,.82) !important; }
+        .sla-policy-status > span:last-child { display:flex !important; flex-direction:column !important; gap:3px !important; }
+        .sla-policy-status strong { color:#5f536c !important; font:700 10px/1.1 Manrope,sans-serif !important; }
+        .sla-policy-status small { color:#9b91a3 !important; font:400 9px/1.2 "DM Sans",sans-serif !important; white-space:nowrap !important; }
+        @media (max-width:700px) { .sla-config-hero { align-items:flex-start !important; flex-direction:column !important; gap:18px !important; padding:22px 18px !important; } .sla-policy-status { width:100% !important; min-width:0 !important; margin-left:0 !important; } .sla-config-hero h1 { font-size:26px !important; } }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
