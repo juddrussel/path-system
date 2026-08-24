@@ -1134,58 +1134,99 @@ function PathDirectoryList({
   );
 }
 
-function PathRequestList({ pending, onApprove, onReject, fmtDate }) {
+function PathRequestList({
+  pending,
+  onApprove,
+  onReject,
+  onApproveAll,
+  fmtDate,
+}) {
   return (
-    <div className="path-um-request-list">
-      {pending.length === 0 ? (
-        <div className="path-um-empty">
-          <ShieldIcon />
-          <strong>All clear</strong>
-          <span>There are no pending account requests to review.</span>
+    <section className="path-um-request-review">
+      <header className="path-um-request-review-head">
+        <div>
+          <div className="path-um-kicker">Access review</div>
+          <h2>
+            Pending account requests <span>{pending.length}</span>
+          </h2>
+          <p>
+            Approve to grant the requested workspace role, or decline when
+            access is not yet appropriate.
+          </p>
         </div>
-      ) : (
-        pending.map((u) => (
-          <article className="path-um-request-row" key={u.id}>
-            <Avatar
-              firstName={u.first_name}
-              lastName={u.last_name}
-              pictureUrl={u.avatar_url}
-            />
-            <div className="path-um-request-person">
-              <strong>
-                {u.first_name} {u.last_name}
-              </strong>
-              <span>{u.email || "No email provided"}</span>
-              <small>
-                @{u.username} · Requested{" "}
-                {fmtDate(u.date_joined || u.created_at)}
-              </small>
-            </div>
-            <div className="path-um-request-role">
-              <span>Requested role</span>
-              <RoleBadge role={u.role} variant="audit" />
-            </div>
-            <p>
-              {u.department || "New workspace access request awaiting review."}
-            </p>
-            <div className="path-um-request-actions">
-              <button
-                onClick={() => onReject(u.id, `${u.first_name} ${u.last_name}`)}
-                className="path-um-decline"
-              >
-                <RejectIcon /> Decline
-              </button>
-              <button
-                onClick={() => onApprove(u.id)}
-                className="path-um-approve"
-              >
-                <ApproveIcon /> Approve
-              </button>
-            </div>
-          </article>
-        ))
-      )}
-    </div>
+        {pending.length > 1 && (
+          <button
+            type="button"
+            className="path-um-approve-all"
+            onClick={onApproveAll}
+          >
+            Approve all
+          </button>
+        )}
+      </header>
+      <div className="path-um-request-list">
+        {pending.length === 0 ? (
+          <div className="path-um-empty">
+            <ShieldIcon />
+            <strong>All clear</strong>
+            <span>There are no pending account requests to review.</span>
+          </div>
+        ) : (
+          pending.map((u) => (
+            <article className="path-um-request-row" key={u.id}>
+              <div className="path-um-request-person">
+                <Avatar
+                  firstName={u.first_name}
+                  lastName={u.last_name}
+                  pictureUrl={u.avatar_url}
+                />
+                <div>
+                  <strong>
+                    {u.first_name} {u.last_name}
+                  </strong>
+                  <span>{u.email || "No email provided"}</span>
+                  <small>
+                    {u.department || "Workspace member"} · Requested{" "}
+                    {fmtDate(u.date_joined || u.created_at)}
+                  </small>
+                </div>
+              </div>
+              <div className="path-um-request-role">
+                <span>Requested role</span>
+                <strong>
+                  {u.role
+                    ? u.role
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (letter) => letter.toUpperCase())
+                    : "Faculty"}
+                </strong>
+              </div>
+              <p>
+                {u.request_reason ||
+                  u.reason ||
+                  "Requesting access to submit and track department documents."}
+              </p>
+              <div className="path-um-request-actions">
+                <button
+                  onClick={() =>
+                    onReject(u.id, `${u.first_name} ${u.last_name}`)
+                  }
+                  className="path-um-decline"
+                >
+                  <RejectIcon /> Decline
+                </button>
+                <button
+                  onClick={() => onApprove(u.id)}
+                  className="path-um-approve"
+                >
+                  <ApproveIcon /> Approve
+                </button>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -1628,6 +1669,14 @@ export default function UserManagement() {
         @media (max-width:900px) { .path-um-directory-head { align-items:flex-start; flex-direction:column; }.path-um-directory-controls { width:100%; }.path-um-directory-search { flex:1; width:auto; }.path-um-list-head { display:none; }.path-um-person-row { grid-template-columns:minmax(0,1fr) minmax(110px,.7fr) auto; }.path-um-access { grid-column:2; }.path-um-assignment { display:none; }.path-um-row-actions { grid-column:3; grid-row:1 / span 2; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr) auto; gap:10px; }.path-um-request-role { grid-column:2; }.path-um-request-row > p { grid-column:2 / -1; }.path-um-request-actions { grid-column:3; grid-row:1 / span 2; align-self:center; } }
         @media (max-width:620px) { .path-um-tabs, .path-um-content { padding-left:15px; padding-right:15px; }.path-um-hero { min-height:0; padding:20px 17px 22px; }.path-um-hero h1 { font-size:36px; }.path-um-hero-actions { align-items:stretch; flex-direction:column; }.path-um-insight, .path-um-primary { width:100%; }.path-um-stat-grid { grid-template-columns:1fr; gap:10px; }.path-um-stat-card { min-height:105px; padding:16px; }.path-um-stat-card span { font-size:9px; }.path-um-stat-card strong { font-size:29px; }.path-um-stat-card small { font-size:9px; }.path-um-directory-head { padding:18px 16px 14px; }.path-um-directory-controls { align-items:stretch; flex-wrap:wrap; gap:7px; }.path-um-directory-search { flex-basis:100%; padding:5px 2px; }.path-um-directory-controls select { flex:1; min-width:0; padding-left:0; }.path-um-person-row { grid-template-columns:minmax(0,1fr) auto; padding:14px 16px; }.path-um-role, .path-um-access { grid-column:1; }.path-um-row-actions { grid-column:2; grid-row:1 / span 3; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr); padding:15px 16px; }.path-um-request-role, .path-um-request-row > p { grid-column:2; }.path-um-request-actions { grid-column:1 / -1; grid-row:auto; justify-content:stretch; }.path-um-request-actions button { flex:1; justify-content:center; }.path-um-resolved-row { grid-template-columns:32px minmax(0,1fr); padding:14px 16px; }.path-um-resolved-row .path-um-request-role, .path-um-resolution { grid-column:2; } }
       `}</style>
+      <style>{`
+        .path-um-request-review{margin-top:24px;overflow:hidden;border:1px solid #e5deed;border-radius:12px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}
+        .path-um-request-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:20px 22px 17px;border-bottom:1px solid #f0edf4;background:linear-gradient(180deg,#fff,#fdfbff)}
+        .path-um-request-review-head h2{margin:3px 0 0;color:#43364c;font:700 16px/1.2 Manrope,sans-serif;letter-spacing:-.04em}.path-um-request-review-head h2 span{display:inline-grid;min-width:18px;height:17px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font:700 8px/1 'DM Sans',sans-serif;vertical-align:middle}.path-um-request-review-head p{margin:7px 0 0;color:#9a91a2;font:400 9px/1.45 'DM Sans',sans-serif}.path-um-approve-all{height:32px;padding:0 11px;border-radius:7px;background:#7c3aed;color:#fff;font:800 8px/1 'DM Sans',sans-serif;box-shadow:0 5px 12px rgba(124,58,237,.16)}
+        .path-um-request-review .path-um-request-row{display:grid;grid-template-columns:minmax(250px,1.25fr) 120px minmax(210px,1fr) auto;gap:18px;align-items:center;min-height:82px;padding:14px 22px;border-bottom:1px solid #f0edf4;background:#fff}.path-um-request-review .path-um-request-row:last-child{border-bottom:0}.path-um-request-review .path-um-request-person{display:flex;min-width:0;align-items:center;gap:11px}.path-um-request-review .path-um-request-person>span,.path-um-request-review .path-um-request-person>img{width:30px;height:30px;flex:0 0 30px;margin:0!important}.path-um-request-review .path-um-request-person>div{display:flex;min-width:0;flex-direction:column;gap:3px}.path-um-request-review .path-um-request-person strong{display:block;overflow:hidden;max-width:100%;color:#4e414f;font:700 9px/1.25 Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.path-um-request-review .path-um-request-person span,.path-um-request-review .path-um-request-person small{display:block;overflow:hidden;max-width:100%;color:#9c92a3;font:400 8px/1.2 'DM Sans',sans-serif;text-overflow:ellipsis;white-space:nowrap}.path-um-request-review .path-um-request-role{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:5px}.path-um-request-review .path-um-request-role>span{color:#aaa0ae;font:800 7px/1 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase}.path-um-request-review .path-um-request-role strong{color:#58495f;font:700 9px/1.2 Manrope,sans-serif}.path-um-request-review .path-um-request-row>p{margin:0;color:#887d8f;font:400 8px/1.45 'DM Sans',sans-serif}.path-um-request-review .path-um-request-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px}.path-um-request-review .path-um-request-actions button{display:inline-flex;height:30px;align-items:center;gap:5px;border-radius:7px;padding:0 10px;font:800 8px/1 'DM Sans',sans-serif}.path-um-request-review .path-um-decline{border:1px solid #e8e1ed;background:#fff;color:#9a6d71}.path-um-request-review .path-um-approve{background:#7c3aed;color:#fff;box-shadow:0 6px 13px rgba(124,58,237,.19)}
+        @media(max-width:900px){.path-um-request-review .path-um-request-row{grid-template-columns:minmax(0,1fr) 120px auto;gap:12px}.path-um-request-review .path-um-request-row>p{grid-column:1 / -1}.path-um-request-review .path-um-request-actions{grid-column:3;grid-row:1 / span 2}}
+        @media(max-width:620px){.path-um-request-review-head{align-items:stretch;flex-direction:column;padding:18px 16px}.path-um-approve-all{width:100%}.path-um-request-review .path-um-request-row{grid-template-columns:minmax(0,1fr);gap:10px;padding:15px 16px}.path-um-request-review .path-um-request-actions{grid-column:auto;grid-row:auto;justify-content:stretch}.path-um-request-review .path-um-request-actions button{flex:1;justify-content:center}.path-um-request-review .path-um-request-role{grid-column:auto}.path-um-request-review .path-um-request-row>p{grid-column:auto}}
+      `}</style>
 
       <Sidebar activePage="users" />
 
@@ -1853,32 +1902,13 @@ export default function UserManagement() {
                     </article>
                   </div>
 
-                  <div className="path-um-panel bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden mt-6">
-                    <div className="flex justify-between items-center px-6 py-4 border-b border-[#cbc3d7] bg-[#fcf8ff]">
-                      <div>
-                        <h2 className="text-sm font-bold text-[#181445]">
-                          Pending Account Requests
-                        </h2>
-                        <p className="text-xs text-[#7b7486] mt-0.5">
-                          Users who registered and are awaiting approval
-                        </p>
-                      </div>
-                      {pending.length > 0 && (
-                        <button
-                          onClick={handleApproveAll}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-[#6b38d4] text-white hover:bg-[#6b38d4]/90 transition-colors"
-                        >
-                          <CheckIcon /> Approve All
-                        </button>
-                      )}
-                    </div>
-                    <PathRequestList
-                      pending={pending}
-                      onApprove={handleApprove}
-                      onReject={handleReject}
-                      fmtDate={fmtDate}
-                    />
-                  </div>
+                  <PathRequestList
+                    pending={pending}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                    onApproveAll={handleApproveAll}
+                    fmtDate={fmtDate}
+                  />
 
                   {/* Recently Resolved — always show, even if empty */}
                   <div className="path-um-panel bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden mt-6">
