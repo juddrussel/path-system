@@ -880,7 +880,7 @@ export default function Reports() {
     return [...fromEndpoint, ...fromItems];
   }, [delayedDocs, items]);
 
-  const DELAYED_PAGE_SIZE = 2;
+  const DELAYED_PAGE_SIZE = 5;
   const delayedPageCount = Math.max(1, Math.ceil(DELAYED_TRANSACTIONS.length / DELAYED_PAGE_SIZE));
   const safeDelayedPage = Math.min(delayedPage, delayedPageCount);
   const delayedStart = (safeDelayedPage - 1) * DELAYED_PAGE_SIZE;
@@ -1750,11 +1750,6 @@ export default function Reports() {
             {/* ── Transactions tab ── */}
             {activeTab === "Transactions" && (
               <>
-            {/* ── KPI Cards ── */}
-            <div className="path-kpi-grid path-transactions-kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
-              {KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
-            </div>
-
             {/* ── Transaction Overview ── */}
             <div className="path-transactions-visuals" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
               <SectionCard title="By Status" icon={PieIcon}>
