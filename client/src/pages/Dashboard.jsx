@@ -1611,567 +1611,71 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── Main grid ── */}
-          <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
-
-            {canViewAdminNav ? (
-            <>
-            {/* Row 1: Approval Queue + Alerts (75% / 25%, mirrors the mockup's 4-col grid) */}
-            <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16 }}>
-
-              {/* Document, Form & Task Tracking — merges forms, tasks, and
-                  documents into one table, the same way Tracking.jsx does */}
-              <SectionCard
-                title="Document, Form & Task Tracking"
-                subtitle="All forms, tasks, and documents currently in your workflow"
-                icon={ClipboardList}
-                noPad
-                action={
-                  <span style={{ fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 20, border: "1px solid #fecaca" }}>
-                    {itemsLoading ? "…" : trackedItems.length} tracked
-                  </span>
-                }
-              >
-                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
-                      {["ID", "Type", "Title", "Submitted By / Assigned To", "Date", "Priority", "Status", "Actions"].map(col => (
-                        <th key={col} style={{ padding: "16px 24px", textAlign: "left", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {itemsLoading ? (
-                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#7b7486", fontSize: 14 }}>Loading tasks, forms, and documents…</td></tr>
-                    ) : trackedItems.length === 0 ? (
-                      <tr><td colSpan={8} style={{ padding: 28, textAlign: "center", color: "#7b7486", fontSize: 14 }}>Nothing in the system yet.</td></tr>
-                    ) : trackedPageItems.map((row, idx) => {
-                      const rowBg = row.days >= 7 && !["Approved", "Rejected", "Archived"].includes(row.status)
-                        ? "rgba(220,38,38,0.025)"
-                        : row.priority === "Urgent" ? "rgba(220,38,38,0.015)" : "#ffffff";
-                      return (
-                        <tr
-                          key={row.id}
-                          style={{ borderBottom: "1px solid #e3dfff", background: rowBg, transition: "background-color 0.15s" }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(246,242,255,0.6)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = rowBg; }}
-                        >
-                          <td style={{ padding: "16px 24px", fontFamily: "monospace", fontWeight: 700, color: "#5e3bdb", fontSize: 12, whiteSpace: "nowrap" }}>{row.id}</td>
-                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}><TypeBadge type={row.sourceType} /></td>
-                          <td style={{ padding: "16px 24px", fontSize: 14, fontWeight: 500, color: "#181445" }}>{row.title}</td>
-                          <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454", whiteSpace: "nowrap" }}>{row.person}</td>
-                          <td style={{ padding: "16px 24px", fontSize: 14, color: "#494454", whiteSpace: "nowrap" }}>{row.date}</td>
-                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}><PriorityPill p={row.priority} /></td>
-                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                              <StatusBadge s={row.status} />
-                              {row.days >= 5 && !["Approved", "Rejected", "Archived"].includes(row.status) && <span style={{ fontSize: 10, color: "#dc2626", fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}><AlertTriangle style={{ width: 9, height: 9 }} />{row.days}d</span>}
-                            </div>
-                          </td>
-                          <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
-                            <button onClick={() => navigate("/tracking")} style={{ padding: "4px 9px", borderRadius: 6, background: "#f3f2ff", color: "#5e3bdb", fontSize: 11, fontWeight: 600, border: "1px solid #ddd6fe", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                              <Eye style={{ width: 11, height: 11 }} /> View
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-
-                {/* Pagination controls */}
-                {!itemsLoading && trackedItems.length > 0 && (
-                  <div style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)",
-                  }}>
-                    <span style={{ fontSize: 11, color: "#6b7280" }}>
-                      Showing {(trackedPage - 1) * TRACKED_PAGE_SIZE + 1}
-                      –{Math.min(trackedPage * TRACKED_PAGE_SIZE, trackedItems.length)} of {trackedItems.length}
-                    </span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <button
-                        onClick={() => setTrackedPage(p => Math.max(1, p - 1))}
-                        disabled={trackedPage === 1}
-                        style={{
-                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                          border: "1px solid #e5e7eb", background: trackedPage === 1 ? "#f9fafb" : "#fff",
-                          color: trackedPage === 1 ? "#c1c5cb" : "#374151",
-                          cursor: trackedPage === 1 ? "not-allowed" : "pointer",
-                        }}
-                      >
-                        Previous
-                      </button>
-                      <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
-                        Page {trackedPage} of {trackedTotalPages}
-                      </span>
-                      <button
-                        onClick={() => setTrackedPage(p => Math.min(trackedTotalPages, p + 1))}
-                        disabled={trackedPage === trackedTotalPages}
-                        style={{
-                          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                          border: "1px solid #e5e7eb", background: trackedPage === trackedTotalPages ? "#f9fafb" : "#fff",
-                          color: trackedPage === trackedTotalPages ? "#c1c5cb" : "#374151",
-                          cursor: trackedPage === trackedTotalPages ? "not-allowed" : "pointer",
-                        }}
-                      >
-                        Next
-                      </button>
+          {/* ── PATH Overview layout ── */}
+          <div className="path-overview-content" style={{ padding: "28px 48px 42px", display: "flex", flexDirection: "column", gap: 22 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.55fr) minmax(300px, .75fr)", gap: 22, alignItems: "stretch" }}>
+              <SectionCard title="Priority queue" subtitle="Items that need your attention across the department" icon={Flag} noPad action={<button onClick={() => navigate("/tracking")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Review all items <ArrowUpRight size={13} /></button>}>
+                {itemsLoading ? <p style={{ padding: 28, color: "#776b83", textAlign: "center" }}>Loading priority queue…</p> : trackedPageItems.slice(0, 4).map((row, index) => <div key={row.id} style={{ display: "grid", gridTemplateColumns: "28px 34px minmax(0,1fr) auto", gap: 12, alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #f0eaf5" }}><span style={{ color: "#8b5cf6", fontSize: 11, fontWeight: 800 }}>{String(index + 1).padStart(2, "0")}</span><span style={{ width: 32, height: 32, borderRadius: 10, background: "#f1ebff", color: "#7c3aed", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 800 }}>{(row.person || "--").split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span><div style={{ minWidth: 0 }}><strong style={{ display: "block", color: "#27213a", fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.title}</strong><small style={{ color: "#8d8196", fontSize: 11 }}>{row.person} · {row.sourceType}</small></div><div style={{ textAlign: "right" }}><PriorityPill p={row.priority} /><small style={{ display: "block", color: "#9a8fa3", fontSize: 10, marginTop: 5 }}>{row.date}</small></div></div>)}
+                {!itemsLoading && trackedPageItems.length === 0 && <TableEmptyState icon={Inbox} message="No priority items right now." colSpan={1} />}
+                <div style={{ padding: "11px 20px", color: "#8d8196", fontSize: 11 }}>SLA health is monitored automatically across active workflows.</div>
+                {!itemsLoading && trackedItems.length > TRACKED_PAGE_SIZE && (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 20px", borderTop: "1px solid #f0eaf5" }}>
+                    <small style={{ color: "#8d8196", fontSize: 11 }}>
+                      Showing {(trackedPage - 1) * TRACKED_PAGE_SIZE + 1}–{Math.min(trackedPage * TRACKED_PAGE_SIZE, trackedItems.length)} of {trackedItems.length}
+                    </small>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                      <button type="button" onClick={() => setTrackedPage((page) => Math.max(1, page - 1))} disabled={trackedPage === 1} style={{ border: "1px solid #e9e1f2", borderRadius: 8, padding: "6px 9px", background: trackedPage === 1 ? "#faf8ff" : "#fff", color: trackedPage === 1 ? "#c7bdce" : "#6d4bb0", fontSize: 11, cursor: trackedPage === 1 ? "not-allowed" : "pointer" }}>Previous</button>
+                      <span style={{ color: "#6d4bb0", fontSize: 11, fontWeight: 800 }}>Page {trackedPage} of {trackedTotalPages}</span>
+                      <button type="button" onClick={() => setTrackedPage((page) => Math.min(trackedTotalPages, page + 1))} disabled={trackedPage === trackedTotalPages} style={{ border: "1px solid #e9e1f2", borderRadius: 8, padding: "6px 9px", background: trackedPage === trackedTotalPages ? "#faf8ff" : "#fff", color: trackedPage === trackedTotalPages ? "#c7bdce" : "#6d4bb0", fontSize: 11, cursor: trackedPage === trackedTotalPages ? "not-allowed" : "pointer" }}>Next</button>
                     </div>
                   </div>
                 )}
               </SectionCard>
 
-              {/* Right column: Bottleneck & Delay Alerts stacked above Quick
-                  Actions, so the column fills out next to the taller
-                  tracking table instead of leaving empty space below. */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-                {/* Bottleneck & Delay Alerts — live data, same source/logic as
-                    the Bottleneck tab on Reports.jsx. Solid alert-tinted card,
-                    matching the DS PATH mockup's "Bottlenecks & Alerts" panel. */}
-                <div
-                  onClick={() => BOTTLENECK_ALERTS.length > 0 && setAlertsModalOpen(true)}
-                  style={{
-                    background: "#ffdad6", border: "1px solid #ffb4ab", borderRadius: 12,
-                    padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", position: "relative",
-                    overflow: "hidden", display: "flex", flexDirection: "column", gap: 20,
-                    cursor: BOTTLENECK_ALERTS.length > 0 ? "pointer" : "default",
-                  }}
-                >
-                  <TriangleAlert style={{ position: "absolute", right: -14, top: -14, width: 100, height: 100, color: "#ba1a1a", opacity: 0.1 }} />
-
-                  <div style={{ position: "relative", zIndex: 1 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: "#93000a" }}>Bottlenecks &amp; Alerts</h3>
-                    <p style={{ fontSize: 12, color: "#93000a", opacity: 0.8, marginTop: 2 }}>
-                      {BOTTLENECK_ALERTS.length === 0 ? "Everything is moving smoothly" : "Immediate attention required"}
-                    </p>
-                  </div>
-
-                  {itemsLoading ? (
-                    <p style={{ fontSize: 12, color: "#93000a", opacity: 0.7, textAlign: "center", padding: "16px 0", position: "relative", zIndex: 1 }}>Loading alerts…</p>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative", zIndex: 1 }}>
-                      {Object.entries(ALERT_TIER_CFG).map(([tier, cfg]) => {
-                        const count = BOTTLENECK_ALERTS.filter(a => a.tier === tier).length;
-                        return (
-                          <div key={tier} style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(4px)", borderRadius: 8, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.4)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />
-                              <span style={{ fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
-                            </div>
-                            <span style={{ fontSize: tier === "critical" ? 24 : 18, fontWeight: 700, color: cfg.color, lineHeight: 1 }}>{count}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* Quick Actions — shortcut list to fill the remaining space
-                    in this column, matching the DS PATH shortcuts panel. */}
-                <QuickActionsPanel navigate={navigate} />
+              <div style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>SLA monitoring</div><h2 style={{ color: "#27213a", fontSize: 20, margin: "7px 0 0" }}>Workflow health</h2></div><button onClick={() => navigate("/sla")} style={{ border: "none", background: "#f1ebff", color: "#7c3aed", borderRadius: 8, padding: 8, cursor: "pointer" }}><ArrowUpRight size={15} /></button></div>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0 20px" }}><div style={{ width: 92, height: 92, borderRadius: "50%", background: `conic-gradient(#7c3aed ${Math.min(100, Math.max(0, onTimeCompletionRate))}%, #eee7f4 0)`, display: "grid", placeItems: "center" }}><div style={{ width: 70, height: 70, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center", color: "#5b21b6", fontSize: 18, fontWeight: 800 }}>{kpisLoading ? "—" : `${onTimeCompletionRate}%`}</div></div><div><strong style={{ display: "block", fontSize: 16, color: "#27213a" }}>{onTimeCompletionRate >= 90 ? "Healthy" : "Needs attention"}</strong><span style={{ color: "#8d8196", fontSize: 11 }}>Across active workflows</span></div></div>
+                <div style={{ height: 7, background: "#eee7f4", borderRadius: 20, overflow: "hidden" }}><div style={{ width: `${Math.min(100, Math.max(0, onTimeCompletionRate))}%`, height: "100%", background: "linear-gradient(90deg,#7c3aed,#a78bfa)", borderRadius: 20 }} /></div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 22 }}><div style={{ padding: 12, background: "#faf8ff", borderRadius: 10 }}><span style={{ color: "#9a8fa3", fontSize: 10 }}>AVG. TURNAROUND</span><strong style={{ display: "block", color: "#27213a", fontSize: 18, marginTop: 4 }}>{avgApprovalDays.toFixed(1)} days</strong></div><div style={{ padding: 12, background: "#fff8f4", borderRadius: 10 }}><span style={{ color: "#9a8fa3", fontSize: 10 }}>AT RISK</span><strong style={{ display: "block", color: "#b45309", fontSize: 18, marginTop: 4 }}>{BOTTLENECK_ALERTS.length}</strong></div></div>
               </div>
             </div>
 
-            {/* Row 2: Faculty Performance (60%) + Department Overview (40%),
-                mirrors the mockup's lg:col-span-3 / lg:col-span-2 of 5 split */}
-            <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, .85fr)", gap: 22 }}>
+              <SectionCard title="Recent activity" subtitle="What’s moving across PATH" icon={Activity} noPad action={<button onClick={() => navigate("/audit")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Open audit trail <ArrowUpRight size={13} /></button>}>
+                {recentActivityData.slice(0, 5).map((activity) => { const ActivityIcon = activity.icon || Activity; return <div key={activity.id || activity.key || activity.title} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: "1px solid #f0eaf5" }}><div style={{ width: 30, height: 30, borderRadius: 9, background: activity.bg || "#f1ebff", color: activity.color || "#7c3aed", display: "grid", placeItems: "center", flexShrink: 0 }}><ActivityIcon size={14} /></div><div style={{ minWidth: 0, flex: 1 }}><strong style={{ display: "block", color: "#3b3045", fontSize: 12 }}>{activity.title || activity.text || "Workflow activity"}</strong><small style={{ color: "#94879c", fontSize: 11 }}>{activity.subtitle || activity.description || activity.time || "Recently"}</small></div><ChevronRight size={14} color="#b3a6bd" /></div>; })}
+                {recentActivityData.length === 0 && <TableEmptyState icon={Activity} message="No recent activity yet." colSpan={1} />}
+              </SectionCard>
 
-              {/* Left column: Faculty Performance + Approval Rate, stacked */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-                {/* Faculty Performance — table layout mirroring the DS PATH
-                    mockup's "Faculty Performance Summary" card: header with
-                    a "View All" link, then a table with avatar/name, Tasks
-                    Done, Active, Pending, and a Success Rate progress bar. */}
-                <SectionCard
-                  title="Faculty Performance Summary"
-                  subtitle="Activity and completion rates across department faculty"
-                  icon={Users}
-                  noPad
-                  action={
-                    facultyPerformance.length > 0 && (
-                      <button
-                        onClick={() => setFacultyModalOpen(true)}
-                        style={{ background: "none", border: "none", color: "#5e3bdb", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                      >
-                        View All
-                      </button>
-                    )
-                  }
-                >
-                  {facultyLoading ? (
-                    <p style={{ padding: "24px 16px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>Loading faculty performance…</p>
-                  ) : facultyPerformance.length === 0 ? (
-                    <p style={{ padding: "24px 16px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
-                  ) : (
-                    <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                        <thead>
-                          <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
-                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>Faculty Member</th>
-                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Tasks Done</th>
-                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Active</th>
-                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Pending</th>
-                            <th style={{ padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>Success Rate</th>
-                            <th />
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {facultyPerformance.slice(0, 4).map((f, idx) => (
-                            <FacultyPerformanceTableRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </SectionCard>
-
-                <FacultyPerformanceModal
-                  open={facultyModalOpen}
-                  onClose={() => setFacultyModalOpen(false)}
-                  faculty={facultyPerformance}
-                  delayedDocs={delayedDocs}
-                  onSelectFaculty={setSelectedFaculty}
-                />
-
-                <FacultyDetailPanel
-                  open={!!selectedFaculty}
-                  onClose={() => setSelectedFaculty(null)}
-                  onBack={facultyModalOpen ? () => setSelectedFaculty(null) : null}
-                  faculty={selectedFaculty}
-                  delayedDocs={delayedDocs}
-                  trackedItems={trackedItems}
-                />
-              </div>
-
-              {/* Right column: Department Overview — solid primary card with an
-                  approval-rate ring up top, mirrors the DS PATH mockup */}
-              <div style={{ background: "#5e3bdb", color: "#ffffff", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px rgba(25,27,36,0.08)", position: "relative", overflow: "hidden" }}>
-                <Building2 style={{ position: "absolute", right: -16, bottom: -16, width: 120, height: 120, opacity: 0.15 }} />
-                <div style={{ position: "relative", zIndex: 1 }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 2 }}>Department Overview</h3>
-                  <p style={{ fontSize: 11, color: "#cabeff", marginBottom: 14 }}>Bachelor of Science in Information Systems - College of Information Technology</p>
-
-                  {/* Approval-rate ring */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(0,0,0,0.1)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
-                    <div style={{ position: "relative", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <svg viewBox="0 0 36 36" style={{ width: "100%", height: "100%", transform: "rotate(-90deg)" }}>
-                        <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
-                        <circle
-                          cx="18" cy="18" r="16" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round"
-                          strokeDasharray={`${itemsThisMonth.length ? Math.round((approvalRateData.find(d => d.name === "Approved")?.value ?? 0) / itemsThisMonth.length * 100) : 0}, 100`}
-                        />
-                      </svg>
-                      <span style={{ position: "absolute", fontSize: 11, fontWeight: 700 }}>
-                        {itemsThisMonth.length ? Math.round((approvalRateData.find(d => d.name === "Approved")?.value ?? 0) / itemsThisMonth.length * 100) : 0}%
-                      </span>
-                    </div>
-                    <div>
-                      <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Approval Rate</p>
-                      <p style={{ fontSize: 13, fontWeight: 500 }}>This month</p>
-                    </div>
-                  </div>
-
-                  {/* Monthly Task Completion Trend — mirrors the DS PATH mockup's
-                      bar chart, driven by live completed-task counts per month */}
-                  <div style={{ background: "rgba(0,0,0,0.1)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 10 }}>
-                      <div>
-                        <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Monthly Task Completion Trend</p>
-                        <p style={{ fontSize: 18, fontWeight: 700 }}>{tasksCompletedThisMonth} Tasks Completed</p>
-                      </div>
-                      {taskCompletionPctChange !== null && (
-                        <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "3px 8px", borderRadius: 20, whiteSpace: "nowrap" }}>
-                          {taskCompletionPctChange >= 0 ? "+" : ""}{taskCompletionPctChange}%
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 56 }}>
-                      {monthlyTaskCompletionData.map((d, i) => {
-                        const isLast = i === monthlyTaskCompletionData.length - 1;
-                        const heightPct = Math.max(8, Math.round((d.completed / maxMonthlyTaskCompletion) * 100));
-                        return (
-                          <div key={d.month} style={{ flex: 1, height: "100%", display: "flex", alignItems: "flex-end" }}>
-                            <div
-                              title={`${d.month}: ${d.completed} completed`}
-                              style={{ width: "100%", height: `${heightPct}%`, background: "#ffffff", opacity: isLast ? 1 : 0.3 + (i / monthlyTaskCompletionData.length) * 0.4, borderRadius: "3px 3px 0 0" }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-                      {monthlyTaskCompletionData.map(d => (
-                        <span key={d.month} style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.03em", flex: 1, textAlign: "center" }}>{d.month}</span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
-                    <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12 }}>
-                      <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Faculty</p>
-                      <p style={{ fontSize: 24, fontWeight: 700 }}>{facultyPerformance.length}</p>
-                    </div>
-                    <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12 }}>
-                      <p style={{ fontSize: 10, color: "#cabeff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Active Workflows</p>
-                      <p style={{ fontSize: 24, fontWeight: 700 }}>{activeWorkflowItems.length}</p>
-                    </div>
-                  </div>
-
-                  <div style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.15)", paddingBottom: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: "#cabeff" }}>Avg Approval Time</span>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{avgApprovalDays.toFixed(1)} Days</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.15)", paddingBottom: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: "#cabeff" }}>Forms Submitted (mo.)</span>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{formsSubmittedThisMonth}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 11, color: "#cabeff" }}>Monthly Completions</span>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{tasksCompletedThisMonth}</span>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
+              <SectionCard title="Document flow" subtitle="Current distribution across workflow stages" icon={BarChart3}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>{trackingOverviewData.map((item) => { const pct = trackingOverviewTotal ? Math.round((item.value / trackingOverviewTotal) * 100) : 0; return <div key={item.name}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}><span style={{ color: "#554961", fontSize: 12, fontWeight: 700 }}>{item.name}</span><strong style={{ color: "#27213a", fontSize: 12 }}>{item.value}</strong></div><div style={{ height: 8, borderRadius: 20, background: "#eee7f4", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", borderRadius: 20, background: item.color || "#8b5cf6" }} /></div></div>; })}</div>
+                <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #eee8f1", display: "flex", justifyContent: "space-between" }}><span style={{ color: "#8d8196", fontSize: 11 }}>Total tracked</span><strong style={{ color: "#5b21b6", fontSize: 18 }}>{trackingOverviewTotal}</strong></div>
+              </SectionCard>
             </div>
 
-            </>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-              <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, alignItems: "start" }}>
-
-                {/* Left column: Upcoming Deadlines + My Tasks + My Forms */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-                  <SectionCard
-                    title="Upcoming Deadlines"
-                    subtitle="Stay ahead of your closest due dates"
-                    icon={Calendar}
-                    noPad
-                    action={
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px" }}>
-                        {upcomingDeadlines.length} Upcoming
-                      </span>
-                    }
-                  >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                      <thead>
-                        <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                          {["Task Title", "Due Date", "Status", "Action"].map(col => (
-                            <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {upcomingDeadlines.length === 0 ? (
-                          <TableEmptyState icon={Calendar} message="No upcoming deadlines." colSpan={4} />
-                        ) : upcomingDeadlines.map(t => {
-                          const overdue = t.daysLeft < 0;
-                          const dueSoon = !overdue && t.daysLeft <= 3;
-                          const pillColor = overdue ? "#991b1b" : dueSoon ? "#92400e" : "#0369a1";
-                          const pillBg    = overdue ? "#fef2f2" : dueSoon ? "#fef3c7" : "#f0f9ff";
-                          const pillDot   = overdue ? "#ef4444" : dueSoon ? "#f59e0b" : "#38bdf8";
-                          const label = overdue ? "Overdue" : `${t.daysLeft} Day${t.daysLeft === 1 ? "" : "s"} Left`;
-                          return (
-                            <HoverRow key={t.id}>
-                              <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
-                              <td style={{ padding: "10px 14px", color: overdue ? "#dc2626" : "#6b7280", fontWeight: overdue ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
-                              <td style={{ padding: "10px 14px" }}>
-                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: pillBg, color: pillColor }}>
-                                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: pillDot }} />
-                                  {label}
-                                </span>
-                              </td>
-                              <td style={{ padding: "10px 14px" }}>
-                                <RowLinkButton onClick={() => navigate("/tasks")}>View Task</RowLinkButton>
-                              </td>
-                            </HoverRow>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </SectionCard>
-
-                  <SectionCard
-                    title="My Tasks"
-                    subtitle="Review and manage your current administrative assignments"
-                    icon={ListTodo}
-                    noPad
-                    action={
-                      <button
-                        onClick={() => navigate("/tasks")}
-                        style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "5px 12px", cursor: "pointer", transition: "background-color 0.12s, border-color 0.12s" }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "#ece8ff"; e.currentTarget.style.borderColor = "#c9bdfb"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "#f3f2ff"; e.currentTarget.style.borderColor = "#ddd6fe"; }}
-                      >
-                        View All Tasks <ChevronRight style={{ width: 12, height: 12 }} />
-                      </button>
-                    }
-                  >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                      <thead>
-                        <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                          {["Task Title", "Priority", "Due Date", "Status", "Action"].map(col => (
-                            <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {itemsLoading ? (
-                          <TableEmptyState icon={ListTodo} message="Loading…" colSpan={5} />
-                        ) : myTasksFaculty.length === 0 ? (
-                          <TableEmptyState icon={ListTodo} message="No tasks assigned to you yet." colSpan={5} />
-                        ) : myTasksPageItems.map(t => {
-                          const pCfg = PRIORITY_CFG[t.priority] || PRIORITY_CFG.Normal;
-                          const sCfg = STATUS_CFG[t.status?.toLowerCase()] || STATUS_CFG["pending"];
-                          return (
-                            <HoverRow key={t.id}>
-                              <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{t.title}</td>
-                              <td style={{ padding: "10px 14px" }}>
-                                <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: pCfg.bg, color: pCfg.color }}>{t.priority}</span>
-                              </td>
-                              <td style={{ padding: "10px 14px", color: t.status === "Overdue" ? "#dc2626" : "#6b7280", fontWeight: t.status === "Overdue" ? 700 : 400, whiteSpace: "nowrap" }}>{t.date}</td>
-                              <td style={{ padding: "10px 14px" }}>
-                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: sCfg.bg, color: sCfg.color }}>
-                                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: sCfg.dot }} />
-                                  {t.status}
-                                </span>
-                              </td>
-                              <td style={{ padding: "10px 14px" }}>
-                                <RowLinkButton onClick={() => navigate("/tasks")}>View Task</RowLinkButton>
-                              </td>
-                            </HoverRow>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                    {!itemsLoading && myTasksFaculty.length > 0 && (
-                      <TablePagination
-                        page={myTasksPage}
-                        totalPages={myTasksTotalPages}
-                        start={(myTasksPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
-                        end={Math.min(myTasksPage * FACULTY_CARD_PAGE_SIZE, myTasksFaculty.length)}
-                        total={myTasksFaculty.length}
-                        onPrev={() => setMyTasksPage(p => Math.max(1, p - 1))}
-                        onNext={() => setMyTasksPage(p => Math.min(myTasksTotalPages, p + 1))}
-                      />
-                    )}
-                  </SectionCard>
-
-                  <SectionCard
-                    title="My Forms"
-                    subtitle="Tracking your recently submitted document requests"
-                    icon={FileText}
-                    noPad
-                    action={<RowLinkButton onClick={() => navigate("/forms")}>Manage All Forms</RowLinkButton>}
-                  >
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                      <thead>
-                        <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-                          {["Form Name", "Submission Date", "Current Status", "Action"].map(col => (
-                            <th key={col} style={{ padding: "9px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{col}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {myFormsDataLoading ? (
-                          <TableEmptyState icon={FileText} message="Loading…" colSpan={4} />
-                        ) : myFormsData.length === 0 ? (
-                          <TableEmptyState icon={FileText} message="You haven't submitted any forms yet." colSpan={4} />
-                        ) : myFormsPageItems.map(f => {
-                          const sCfg = STATUS_CFG[f.status?.toLowerCase()] || STATUS_CFG["pending"];
-                          return (
-                            <HoverRow key={f.id}>
-                              <td style={{ padding: "10px 14px", fontWeight: 600, color: "#111827" }}>{f.title}</td>
-                              <td style={{ padding: "10px 14px", color: "#6b7280", whiteSpace: "nowrap" }}>{f.date}</td>
-                              <td style={{ padding: "10px 14px" }}>
-                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: sCfg.bg, color: sCfg.color }}>
-                                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: sCfg.dot }} />
-                                  {f.status}
-                                </span>
-                              </td>
-                              <td style={{ padding: "10px 14px" }}>
-                                <button
-                                  onClick={() => navigate("/tracking")}
-                                  style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "#f3f2ff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "3px 10px", cursor: "pointer", transition: "background-color 0.12s, border-color 0.12s" }}
-                                  onMouseEnter={e => { e.currentTarget.style.background = "#ece8ff"; e.currentTarget.style.borderColor = "#c9bdfb"; }}
-                                  onMouseLeave={e => { e.currentTarget.style.background = "#f3f2ff"; e.currentTarget.style.borderColor = "#ddd6fe"; }}
-                                >
-                                  Track
-                                </button>
-                              </td>
-                            </HoverRow>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                    {!myFormsDataLoading && myFormsData.length > 0 && (
-                      <TablePagination
-                        page={myFormsPage}
-                        totalPages={myFormsTotalPages}
-                        start={(myFormsPage - 1) * FACULTY_CARD_PAGE_SIZE + 1}
-                        end={Math.min(myFormsPage * FACULTY_CARD_PAGE_SIZE, myFormsData.length)}
-                        total={myFormsData.length}
-                        onPrev={() => setMyFormsPage(p => Math.max(1, p - 1))}
-                        onNext={() => setMyFormsPage(p => Math.min(myFormsTotalPages, p + 1))}
-                      />
-                    )}
-                  </SectionCard>
-                </div>
-
-                {/* Right column: Tracking Overview donut + Notifications + Upcoming Deadlines */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-                  <SectionCard title="Tracking Overview" subtitle="Status distribution of all your documents" icon={PieChart}>
-                    {trackingOverviewTotal === 0 ? (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "30px 0" }}>
-                        <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <PieChart style={{ width: 16, height: 16, color: "#a89cdb" }} />
-                        </div>
-                        <p style={{ fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>No tracked items yet.</p>
-                      </div>
-                    ) : (
-                      <>
-                        <div style={{ position: "relative", width: 140, height: 140, margin: "0 auto", clipPath: OCTAGON_CLIP, background: trackingRingGradient }}>
-                          <div
-                            style={{
-                              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-                              width: 90, height: 90, background: "#ffffff", clipPath: OCTAGON_CLIP,
-                              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                            }}
-                          >
-                            <span style={{ fontSize: 26, fontWeight: 800, color: "#191b24", lineHeight: 1 }}>{trackingOverviewTotal}</span>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 3 }}>Total</span>
-                          </div>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 18 }}>
-                          {trackingOverviewData.map(d => (
-                            <div key={d.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                              <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#374151", fontWeight: 500 }}>
-                                <span style={{ width: 9, height: 9, borderRadius: "50%", background: d.color, flexShrink: 0 }} />
-                                {d.name}
-                              </span>
-                              <span style={{ fontSize: 13, fontWeight: 700, color: "#191b24" }}>{d.value}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </SectionCard>
-
-                  <QuickActionsPanel navigate={navigate} actions={FACULTY_QUICK_ACTIONS} />
-
-                </div>
-              </div>
-              </div>
-            )}
-
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) minmax(300px, .6fr)", gap: 22 }}>
+              <SectionCard title="Faculty performance" subtitle="Activity and completion rates across department faculty" icon={Users} noPad action={facultyPerformance.length > 0 && <button onClick={() => setFacultyModalOpen(true)} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>View all <ArrowUpRight size={13} /></button>}>
+                {facultyPerformance.slice(0, 4).map((faculty, idx) => <FacultyPerformanceRow key={faculty.id || faculty.full_name} f={faculty} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />)}
+                {facultyPerformance.length === 0 && <TableEmptyState icon={Users} message="No faculty performance data yet." colSpan={1} />}
+              </SectionCard>
+              <QuickActionsPanel navigate={navigate} actions={canViewAdminNav ? ADMIN_QUICK_ACTIONS : FACULTY_QUICK_ACTIONS} />
+            </div>
           </div>
+
+          <FacultyPerformanceModal
+            open={facultyModalOpen}
+            onClose={() => setFacultyModalOpen(false)}
+            faculty={facultyPerformance}
+            delayedDocs={delayedDocs}
+            onSelectFaculty={setSelectedFaculty}
+          />
+          <FacultyDetailPanel
+            open={!!selectedFaculty}
+            onClose={() => setSelectedFaculty(null)}
+            onBack={facultyModalOpen ? () => setSelectedFaculty(null) : null}
+            faculty={selectedFaculty}
+            delayedDocs={delayedDocs}
+            trackedItems={trackedItems}
+          />
 
           {/* All Alerts modal (Bottleneck & Alerts) */}
           {alertsModalOpen && (
