@@ -976,6 +976,14 @@ export default function SLAConfiguration() {
         @media (max-width: 1200px) { .sla-document-stats { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } .sla-policy-table-head, .sla-policy-row { grid-template-columns: minmax(220px,1.6fr) minmax(150px,1fr) 62px 82px 88px minmax(110px,1fr) 72px 68px !important; } }
         @media (max-width: 900px) { .sla-config-view { padding: 12px 12px 32px !important; } .sla-config-hero { min-height: 0 !important; } .sla-document-stats { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } .sla-policy-row .sla-row-edit { grid-column: 4 !important; grid-row: 1 / span 2 !important; justify-self: end !important; } }
         @media (max-width: 560px) { .sla-config-view { padding: 8px 8px 28px !important; } .sla-document-stats { grid-template-columns: 1fr 1fr !important; gap: 8px !important; } .sla-document-stats article { min-height: 96px !important; padding: 13px !important; } }
+      /* PATH typography: Manrope for display/value hierarchy, DM Sans for interface copy. */
+        .sla-config-view, .sla-config-view button, .sla-config-view select, .sla-config-view input, .sla-config-view textarea { font-family: "DM Sans", sans-serif !important; }
+        .sla-config-view h1, .sla-config-view h2, .sla-config-view h3, .sla-config-view strong, .sla-config-view .sla-document-stats strong, .sla-config-view .sla-target-cell, .sla-config-view .sla-policy-escalation, .sla-config-view .sla-coverage-cell strong { font-family: Manrope, sans-serif !important; }
+        .sla-config-hero h1 { font-weight: 700 !important; letter-spacing: -.045em !important; }
+        .sla-list-heading h2 { font-family: Manrope, sans-serif !important; font-weight: 700 !important; }
+        .sla-document-stats strong { font-weight: 700 !important; }
+        .sla-policy-table-head, .sla-policy-table-head span { font-family: "DM Sans", sans-serif !important; font-weight: 800 !important; letter-spacing: .08em; }
+        .sla-document-cell strong, .sla-selected-document strong, .sla-inheritance-banner strong, .sla-detail-setting strong { font-family: Manrope, sans-serif !important; font-weight: 700 !important; }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
