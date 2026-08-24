@@ -1143,6 +1143,52 @@ export default function MyTasks() {
     1,
     Math.ceil(filteredTasks.length / PER_PAGE),
   );
+  const completedTaskCount = tasks.filter((task) =>
+    ["done", "received", "approved", "completed"].includes(
+      String(task.status || "").toLowerCase(),
+    ),
+  ).length;
+  const focusProgress = stats.total
+    ? Math.min(
+        100,
+        Math.round(((stats.total - stats.overdue) / stats.total) * 100),
+      )
+    : 0;
+  const openDocumentDetails = async (task) => {
+    let documentId =
+      task.document_id ||
+      task.related_document_id ||
+      task.document?.id ||
+      task.document?.document_id;
+    if (!documentId) {
+      try {
+        const response = await fetch(`${API}/api/tasks/${task.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const payload = await response.json();
+          const detailedTask = payload.task || payload;
+          documentId =
+            detailedTask.document_id ||
+            detailedTask.related_document_id ||
+            detailedTask.document?.id ||
+            detailedTask.document?.document_id;
+          if (!documentId) setSelected(detailedTask);
+        }
+      } catch (error) {
+        console.error("Unable to resolve a document from task", error);
+      }
+    }
+    if (documentId) {
+      navigate(`/documents/${documentId}`);
+      return;
+    }
+    fetchSelectedTask(task.id);
+    pushToast(
+      "Task details opened",
+      "This task has no linked document identifier yet, so its task details are shown instead.",
+    );
+  };
 
   return (
     <div className="path-tasks-shell">
@@ -1199,6 +1245,19 @@ export default function MyTasks() {
         .path-tasks-detail > div { background:#fff !important; }
         .path-tasks-detail h2 { color:#44354d !important; font-family:'Manrope',sans-serif !important; letter-spacing:-.04em; }
         .path-tasks-detail button { font-family:'DM Sans',sans-serif; }
+        .path-tasks-workspace { display:block !important; }
+        .path-tasks-ledger { width:100% !important; min-height:0; max-height:none; overflow:visible !important; }
+        .path-tasks-ledger-heading > div:last-child, .path-tasks-bulk, .path-tasks-detail { display:none !important; }
+        .path-tasks-table-head { display:grid; grid-template-columns:minmax(240px,1.65fr) minmax(135px,.8fr) 100px 84px 98px 105px 30px; gap:12px; align-items:center; padding:10px 18px; border-bottom:1px solid #f0edf4; background:#fbf9fd; color:#aaa0ad; font-size:8px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+        .path-tasks-row { display:grid !important; grid-template-columns:minmax(240px,1.65fr) minmax(135px,.8fr) 100px 84px 98px 105px 30px; gap:12px; align-items:center; min-height:66px; padding:10px 18px !important; }
+        .path-task-main-cell { min-width:0; align-items:center !important; }
+        .path-task-check { display:none; }
+        .path-task-owner-cell { display:flex; min-width:0; align-items:center; gap:7px; color:#75697d; font-size:9px; }.path-task-owner-cell i { display:grid; flex:0 0 auto; width:23px; height:23px; place-items:center; border-radius:7px; background:#eee7fd; color:#7143c2; font-size:7px; font-weight:800; font-style:normal; }.path-task-owner-cell span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .path-task-due-cell { display:flex; flex-direction:column; gap:3px; color:#978c9d; font-size:8px; }.path-task-due-cell strong { color:#62556a; font-family:'Manrope',sans-serif; font-size:9px; }.path-task-priority-cell { display:flex; align-items:center; gap:5px; color:#857a8e; font-size:8px; font-weight:700; }.path-task-priority-cell i { width:5px; height:5px; border-radius:50%; background:#8b5cf6; }.path-task-priority-cell.high i { background:#c98a33; }.path-task-priority-cell.urgent i { background:#c76b5b; }.path-task-status-cell { display:flex; flex-direction:column; gap:4px; }.path-task-status-cell small { color:#a095a5; font-size:8px; }.path-task-sla-cell { display:flex; align-items:center; gap:5px; color:#579176; font-size:8px; font-weight:800; }.path-task-sla-cell i { width:6px; height:6px; border-radius:50%; background:currentColor; }.path-task-sla-cell.risk { color:#bf7a35; }.path-task-open { width:26px; height:26px; border:1px solid #e7e1ed; border-radius:6px; background:#fff; color:#8a7e91; display:grid; place-items:center; cursor:pointer; }.path-task-open:hover { border-color:#cdbbf5; color:#7c3aed; background:#faf8ff; }
+        .path-tasks-lower-grid { display:grid; grid-template-columns:1fr .83fr; gap:16px; margin-top:16px; }.path-tasks-lower-card { min-height:145px; padding:18px 20px; border:1px solid #e5deed; border-radius:11px; background:#fff; box-shadow:0 10px 24px rgba(57,36,93,.035); }.path-tasks-lower-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }.path-tasks-lower-head h3 { margin:6px 0 0; color:#44354d; font-family:'Manrope',sans-serif; font-size:16px; letter-spacing:-.04em; }.path-tasks-lower-card p { margin:12px 0 0; color:#958b9b; font-size:9px; line-height:1.5; }.path-tasks-progress { height:6px; margin-top:20px; overflow:hidden; border-radius:999px; background:#eee8f5; }.path-tasks-progress i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#bca1f6,#7c3aed); }.path-tasks-progress-meta { display:flex; justify-content:space-between; margin-top:8px; color:#8d8098; font-size:9px; }.path-tasks-focus-link { display:inline-flex; align-items:center; gap:5px; margin-top:12px; border:0; padding:0; background:none; color:#6d3ec5; font-size:9px; font-weight:800; cursor:pointer; }.path-tasks-balance-row { margin-top:12px; }.path-tasks-balance-row > div { display:flex; align-items:center; justify-content:space-between; color:#776a80; font-size:9px; }.path-tasks-balance-row strong { color:#5f5268; font-size:9px; }.path-tasks-balance-bar { height:5px; margin-top:6px; overflow:hidden; border-radius:999px; background:#eee8f5; }.path-tasks-balance-bar i { display:block; height:100%; border-radius:inherit; background:#9d7bea; }.path-tasks-balance-row:last-child .path-tasks-balance-bar i { background:#8db7d6; }
+        .path-tasks-page > div[style*="borderTop"] { margin-top:16px; border:0 !important; border-radius:9px; background:#fbf9fd !important; }
+        @media (max-width:980px) { .path-tasks-table-head, .path-tasks-row { grid-template-columns:minmax(220px,1.4fr) minmax(120px,.8fr) 94px 82px 92px; }.path-task-status-cell, .path-task-open { display:none; } }
+        @media (max-width:680px) { .path-tasks-table-head { display:none; }.path-tasks-row { grid-template-columns:minmax(0,1fr) auto; gap:8px; }.path-task-main-cell { grid-column:1; }.path-task-owner-cell { grid-column:1; }.path-task-due-cell { grid-column:2; grid-row:1; align-items:flex-end; }.path-task-priority-cell, .path-task-sla-cell { display:none; }.path-tasks-lower-grid { grid-template-columns:1fr; } }
         @media (max-width:1100px) { .path-tasks-workspace { grid-template-columns:1fr; } .path-tasks-detail { max-height:none; } }
         @media (max-width:760px) { .path-tasks-page { padding:16px 14px 24px; } .path-tasks-hero { align-items:flex-start; flex-direction:column; min-height:0; padding:21px 18px; } .path-tasks-hero h1 { font-size:32px !important; } .path-tasks-hero-actions { width:100%; justify-content:stretch; } .path-tasks-hero-actions button { flex:1; justify-content:center; } .path-tasks-stat-grid { grid-template-columns:1fr 1fr !important; gap:9px !important; } .path-tasks-stat { min-height:96px; padding:14px !important; } .path-tasks-filters { align-items:stretch; flex-wrap:wrap; padding:13px !important; } .path-tasks-filters > div:first-child { width:100%; flex-basis:100%; } .path-tasks-filter-control { flex:1; min-width:120px; } .path-tasks-ledger { min-height:0; max-height:none; } .path-tasks-detail { max-height:none; } }
       `}</style>
@@ -1727,6 +1786,16 @@ export default function MyTasks() {
                 </div>
               </div>
 
+              <div className="path-tasks-table-head">
+                <span>Task</span>
+                <span>Owner</span>
+                <span>Due</span>
+                <span>Priority</span>
+                <span>Status</span>
+                <span>SLA</span>
+                <span />
+              </div>
+
               {/* Bulk actions */}
               <div
                 className="path-tasks-bulk"
@@ -1803,109 +1872,92 @@ export default function MyTasks() {
                     No tasks assigned to you yet.
                   </div>
                 ) : (
-                  pagedTasks.map((task) => (
-                    <div
-                      className={`path-tasks-row ${selected?.id === task.id ? "selected" : ""}`}
-                      key={task.id}
-                      onClick={() => fetchSelectedTask(task.id)}
-                      style={{
-                        padding: "12px 16px",
-                        borderBottom: "1px solid #f5f5f5",
-                        cursor: "pointer",
-                        background:
-                          selected?.id === task.id ? "#faf5ff" : "white",
-                        borderLeft:
-                          selected?.id === task.id
-                            ? "3px solid #7c3aed"
-                            : "3px solid transparent",
-                        transition: "all 0.1s",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selected?.id !== task.id)
-                          e.currentTarget.style.background = "#fafafa";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selected?.id !== task.id)
-                          e.currentTarget.style.background = "white";
-                      }}
-                    >
+                  pagedTasks.map((task) => {
+                    const priorityClass = String(
+                      task.priority || "medium",
+                    ).toLowerCase();
+                    const statusClass = String(
+                      task.status || "to do",
+                    ).toLowerCase();
+                    const isRisk =
+                      statusClass.includes("overdue") ||
+                      statusClass.includes("returned");
+                    const ownerName =
+                      task.assigned_to_name ||
+                      task.assigned_by_name ||
+                      "Unassigned";
+                    return (
                       <div
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: 10,
+                        className={`path-tasks-row ${selected?.id === task.id ? "selected" : ""}`}
+                        key={task.id}
+                        onClick={() => openDocumentDetails(task)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ")
+                            openDocumentDetails(task);
                         }}
                       >
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleCheck(task.id);
-                          }}
-                          style={{ paddingTop: 2 }}
+                        <div className="path-task-main-cell">
+                          <span className="path-task-id">
+                            {task.tracking_id || `TSK-${task.id}`}
+                          </span>
+                          <div>
+                            <strong className="path-task-title">
+                              {task.title || "(No title)"}
+                            </strong>
+                            <span className="path-task-date">
+                              {task.doc_type || "General task"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="path-task-owner-cell">
+                          <i>{(ownerName?.[0] || "?").toUpperCase()}</i>
+                          <span>{ownerName}</span>
+                        </div>
+                        <div className="path-task-due-cell">
+                          <strong>
+                            {fmtDate(task.deadline || task.created_at)}
+                          </strong>
+                          <span>{task.deadline ? "Deadline" : "Created"}</span>
+                        </div>
+                        <span
+                          className={`path-task-priority-cell ${priorityClass}`}
                         >
-                          <input
-                            type="checkbox"
-                            checked={checkedIds.includes(task.id)}
-                            onChange={() => toggleCheck(task.id)}
-                            style={{ accentColor: "#7c3aed" }}
-                          />
+                          <i /> {task.priority || "Medium"}
+                        </span>
+                        <div className="path-task-status-cell">
+                          <Badge label={task.status || "To do"} />
+                          <small>
+                            {statusClass.includes("done")
+                              ? "Closed"
+                              : "Active handoff"}
+                          </small>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              marginBottom: 3,
-                            }}
-                          >
-                            <span
-                              className="path-task-id"
-                              style={{
-                                fontSize: 10,
-                                color: "#7c3aed",
-                                fontWeight: 700,
-                              }}
-                            >
-                              {task.tracking_id}
-                            </span>
-                            <span
-                              className="path-task-date"
-                              style={{ fontSize: 10, color: "#aaa" }}
-                            >
-                              {fmtDate(task.deadline || task.created_at)}
-                            </span>
-                          </div>
-                          <div
-                            className="path-task-title"
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 600,
-                              color: "#111",
-                              marginBottom: 6,
-                              lineHeight: 1.3,
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {task.title || "(No title)"}
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: 4,
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            {task.doc_type && <Badge label={task.doc_type} />}
-                            {task.priority && <Badge label={task.priority} />}
-                            {task.status && <Badge label={task.status} />}
-                          </div>
-                        </div>
+                        <span
+                          className={`path-task-sla-cell ${isRisk ? "risk" : ""}`}
+                        >
+                          <i />{" "}
+                          {isRisk
+                            ? "Needs action"
+                            : task.deadline
+                              ? "On track"
+                              : "No deadline"}
+                        </span>
+                        <button
+                          className="path-task-open"
+                          type="button"
+                          aria-label={`Open task details for ${task.title || "task"}`}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            fetchSelectedTask(task.id);
+                          }}
+                        >
+                          <Icon.Settings />
+                        </button>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 
@@ -4679,6 +4731,68 @@ export default function MyTasks() {
             </div>
           </div>
         </div>
+
+        <section className="path-tasks-lower-grid">
+          <article className="path-tasks-lower-card">
+            <div className="path-tasks-lower-head">
+              <div>
+                <div className="path-tasks-kicker">
+                  <i /> Today’s focus
+                </div>
+                <h3>Keep the queue moving</h3>
+              </div>
+              <Icon.Workflow />
+            </div>
+            <div className="path-tasks-progress">
+              <i style={{ width: `${focusProgress}%` }} />
+            </div>
+            <div className="path-tasks-progress-meta">
+              <span>Complete urgent handoffs first</span>
+              <strong>{focusProgress}%</strong>
+            </div>
+            <p>
+              {stats.dueToday || 0} task{stats.dueToday === 1 ? " is" : "s are"}{" "}
+              due today. Finish time-sensitive review work before the next SLA
+              threshold.
+            </p>
+            <button
+              className="path-tasks-focus-link"
+              type="button"
+              onClick={() => setPriorityFilter("High")}
+            >
+              Show urgent work <span>↗</span>
+            </button>
+          </article>
+          <article className="path-tasks-lower-card">
+            <div className="path-tasks-lower-head">
+              <div>
+                <div className="path-tasks-kicker">
+                  <i /> Workload view
+                </div>
+                <h3>Ownership balance</h3>
+              </div>
+              <Icon.Users />
+            </div>
+            <div className="path-tasks-balance-row">
+              <div>
+                <span>{user.full_name || user.username || "You"}</span>
+                <strong>{stats.total || 0} active tasks</strong>
+              </div>
+              <div className="path-tasks-balance-bar">
+                <i style={{ width: "76%" }} />
+              </div>
+            </div>
+            <div className="path-tasks-balance-row">
+              <div>
+                <span>Review partners</span>
+                <strong>{completedTaskCount} completed</strong>
+              </div>
+              <div className="path-tasks-balance-bar">
+                <i style={{ width: "29%" }} />
+              </div>
+            </div>
+          </article>
+        </section>
 
         {/* Footer */}
         <div
