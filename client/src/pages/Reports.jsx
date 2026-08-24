@@ -109,6 +109,13 @@ const PATH_BOTTLENECK_CSS = `
   @media (max-width:1000px) { .path-bn-main-grid { grid-template-columns:1fr; } }.path-bn-signals { grid-template-columns:repeat(3,minmax(0,1fr)); } @media (max-width:760px) { .path-bn-signals { grid-template-columns:1fr; gap:8px; }.path-bn-panel,.path-bn-priority { padding:17px 15px; }.path-bn-priority-list { overflow-x:auto; }.path-bn-priority-list article { min-width:640px; }.path-bn-stage footer { gap:8px; }.path-bn-stage footer small { text-align:right; } }
 `;
 
+const PATH_FOLLOWUP_CSS = `
+  .path-followup-workspace { display:flex; flex-direction:column; gap:14px; }.path-followup-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }.path-followup-cards article { min-height:89px; padding:15px 17px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-cards article > div { display:flex; align-items:center; gap:8px; }.path-followup-cards article > div svg { width:25px; height:25px; padding:5px; border-radius:7px; background:#f0eaff; color:#7c3aed; }.path-followup-cards article.red > div svg { background:#fff0ef; color:#d64550; }.path-followup-cards article.green > div svg { background:#e8f8ef; color:#169b77; }.path-followup-cards article.amber > div svg { background:#fff4df; color:#c48224; }.path-followup-cards span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }.path-followup-cards strong { display:block; margin-top:12px; color:#483650; font-family:'Manrope',sans-serif; font-size:24px; letter-spacing:-.06em; }.path-followup-cards small { display:block; margin-top:5px; color:#9f95a6; font-family:'DM Sans',sans-serif; font-size:8px; }
+  .path-followup-top-grid { display:grid; grid-template-columns:minmax(0,.98fr) minmax(0,1.02fr); gap:14px; }.path-followup-panel,.path-followup-records { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-panel header,.path-followup-records header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0edf4; }.path-followup-panel header > div > span,.path-followup-records header > div > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-followup-panel h2,.path-followup-records h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:15px; letter-spacing:-.035em; }.path-followup-panel header p,.path-followup-records header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; }.path-followup-panel > header > svg { width:14px; height:14px; color:#8c7b9d; }.path-followup-reason-list { display:flex; flex-direction:column; gap:17px; padding-top:21px; }.path-followup-reason-list > div > div { display:flex; justify-content:space-between; gap:10px; margin-bottom:7px; }.path-followup-reason-list strong { color:#55445e; font-family:'Manrope',sans-serif; font-size:10px; }.path-followup-reason-list small { color:#a097a7; font-family:'DM Sans',sans-serif; font-size:8px; }.path-followup-reason-list i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f0edf4; }.path-followup-reason-list b { display:block; min-width:4px; height:100%; border-radius:inherit; }.path-followup-pulse .path-trend { min-height:200px; padding-top:12px; }.path-followup-pulse .path-trend-plot { height:150px; }.path-followup-pulse .path-chart-legend { padding-top:9px; }
+  .path-followup-records { padding-bottom:0; }.path-followup-records header > div:last-child { display:flex; flex-wrap:wrap; justify-content:flex-end; }.path-followup-list { display:flex; flex-direction:column; }.path-followup-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 58px 100px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-followup-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-followup-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-followup-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#f1ebff; color:#6d42ba; font-family:'DM Sans',sans-serif; font-size:8px; font-style:normal; font-weight:800; }.path-followup-list article > em.rejected { background:#fff0ef; color:#c83c43; }.path-followup-list article > span { color:#94899c; font-family:'DM Sans',sans-serif; font-size:8px; text-align:center; }.path-followup-list article > button { padding:7px 8px; border:1px solid #e3dbea; border-radius:7px; background:#fff; color:#6a4a7f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-followup-list article > button:hover { border-color:#bda6e2; background:#fbf8ff; }
+  @media (max-width:1000px) { .path-followup-top-grid { grid-template-columns:1fr; } }.path-followup-cards { grid-template-columns:repeat(4,minmax(0,1fr)); } @media (max-width:760px) { .path-followup-cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }.path-followup-cards article { padding:13px; }.path-followup-panel,.path-followup-records { padding:17px 15px; }.path-followup-list { overflow-x:auto; }.path-followup-list article { min-width:620px; } }
+`;
+
 
 function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, footer }) {
   return (
@@ -440,6 +447,29 @@ function PathBottleneckWorkspace({ items, bottlenecks, alerts, onOpenAlerts, onE
       <section className="path-bn-panel path-bn-intervention"><header><div><span>Intervention signal</span><h2>Intervention signal</h2><p>Where the next action will have the most impact.</p></div></header>{lead ? <><div className={`path-bn-lead ${tone(lead.severity)}`}><i /><div><strong>{lead.label}</strong><p>{lead.waiting} documents are waiting here, with an average wait of {lead.avgWait} days.</p></div></div><div className="path-bn-impact"><div><span>Queue share</span><strong>{leadShare}%</strong></div><div><span>Median wait</span><strong>{lead.avgWait}d</strong></div></div><button className="path-bn-open-plan" onClick={() => onOpenAlerts()}>Open intervention plan <ChevronRight /></button></> : <p className="path-chart-empty">No intervention is required in the active filter window.</p>}</section>
     </div>
     <section className="path-bn-priority"><header><div><span>Priority bottlenecks</span><h2>Priority bottlenecks</h2><p>Records requiring an owner decision or workflow intervention.</p></div><button onClick={() => onExport("Bottleneck Intervention Report", "Excel")}>Export list <ChevronRight /></button></header><div className="path-bn-priority-list">{priority.map((item) => <article key={item.id}><div><strong>{formatId(item.id)}</strong><b>{item.title || item.docType}</b><small>{item.faculty || "Unassigned"} · {item.stage}</small></div><em className={item.overdue ? "critical" : "high"}>{item.overdue ? "Critical" : "At risk"}</em><span>{item.days}d<small>waiting</small></span><button onClick={() => onOpenAlerts()}>{item.overdue ? "Escalate" : "Open alerts"}</button></article>)}{!priority.length && <p className="path-chart-empty">No at-risk documents match these filters.</p>}</div></section>
+  </div>;
+}
+
+function PathFollowUpWorkspace({ records, reasons, trend, resolutions, onExport, onSelect, formatId }) {
+  const returned = records.filter((item) => item.status === "Returned").length;
+  const rejected = records.filter((item) => item.status === "Rejected").length;
+  const resolutionRate = records.length ? Math.round((resolutions.stats.resolved / records.length) * 100) : 0;
+  const visibleReasons = reasons.filter((item) => item.value > 0);
+  const maxReason = Math.max(1, ...visibleReasons.map((item) => item.value));
+  const followUps = [...records].sort((a, b) => new Date(b.actionDate || b.rawDate || 0) - new Date(a.actionDate || a.rawDate || 0)).slice(0, 6);
+  const cards = [
+    { label: "Returned for revision", value: returned, note: "Needs faculty action", icon: RotateCcw, tone: "violet" },
+    { label: "Rejected decisions", value: rejected, note: "Closed without resubmission", icon: XCircle, tone: "red" },
+    { label: "Resubmitted", value: resolutions.stats.resubmitted, note: "Back in active review", icon: CheckCircle2, tone: "green" },
+    { label: "Resolution rate", value: `${resolutionRate}%`, note: "Resolved after feedback", icon: Activity, tone: "amber" },
+  ];
+  return <div className="path-followup-workspace">
+    <div className="path-followup-cards">{cards.map(({ label, value, note, icon: Icon, tone }) => <article className={tone} key={label}><div><Icon /><span>{label}</span></div><strong>{value}</strong><small>{note}</small></article>)}</div>
+    <div className="path-followup-top-grid">
+      <section className="path-followup-panel path-followup-reasons"><header><div><span>Return patterns</span><h2>Why records come back</h2><p>Most common reasons behind returned or rejected decisions.</p></div><ChevronRight /></header><div className="path-followup-reason-list">{visibleReasons.map((item) => <div key={item.name}><div><strong>{item.name}</strong><small>{item.value} record{item.value === 1 ? "" : "s"}</small></div><i><b style={{ width: `${(item.value / maxReason) * 100}%`, background: item.color }} /></i></div>)}{!visibleReasons.length && <p className="path-chart-empty">No reason categories are available.</p>}</div></section>
+      <section className="path-followup-panel path-followup-pulse"><header><div><span>Outcome pulse</span><h2>Outcome pulse</h2><p>Returned, rejected, and resolved records over the reporting period.</p></div></header><PathTrendChart data={trend} series={[{ key: "returned", label: "Returned", color: "#8b5cf6" }, { key: "rejected", label: "Rejected", color: "#d64550", dashed: true }, { key: "resolved", label: "Resolved", color: "#169b77" }]} emptyText="No outcome history is available." /></section>
+    </div>
+    <section className="path-followup-records"><header><div><span>Records needing follow-up</span><h2>Records needing follow-up</h2><p>Keep feedback loops moving with a clear next action.</p></div><div><ExportButtons size="small" onExport={(format) => onExport("Returned / Rejected Follow-up Report", format)} /></div></header><div className="path-followup-list">{followUps.map((item) => <article key={item.id}><div><strong>{formatId(item.id)}</strong><b>{item.title || item.docType}</b><small>{item.person || item.faculty || "—"} · {item.reasonCategory || "Reason pending"}</small></div><em className={item.status === "Rejected" ? "rejected" : "returned"}>{item.status}</em><span>{item.days}d ago</span><button onClick={() => onSelect(item)}>{item.status === "Rejected" ? "Open decision" : "Review revision"}</button></article>)}{!followUps.length && <p className="path-chart-empty">No returned or rejected records need follow-up.</p>}</div></section>
   </div>;
 }
 
@@ -1224,6 +1254,32 @@ export default function Reports() {
     });
   }, [auditTrail]);
 
+  const RR_RESOLUTION_DATA = useMemo(() => {
+    const monthMap = new Map(RR_MONTHLY_TREND.map((item) => [item.month, { ...item, resolved: 0 }]));
+    const resubmittedIds = new Set();
+    const resolvedIds = new Set();
+    auditTrail.filter(isDocumentRelated).forEach((entry) => {
+      const previous = String(entry.old_status || entry.previous_status || entry.from_status || "").toLowerCase();
+      const current = String(entry.new_status || entry.current_status || entry.to_status || entry.status || "").toLowerCase();
+      if (!previous || !current || !(previous.includes("returned") || previous.includes("rejected"))) return;
+      const id = String(entry.document_id || entry.target_id || entry.id || "");
+      const month = entry.timestamp ? new Date(entry.timestamp).toLocaleDateString("en-US", { month: "short" }) : null;
+      const isResubmitted = ["pending", "under review", "for approval", "submitted"].some((status) => current.includes(status));
+      const isResolved = ["approved", "completed"].some((status) => current.includes(status));
+      if (isResubmitted && id) resubmittedIds.add(id);
+      if (isResolved && id) resolvedIds.add(id);
+      if (isResolved && month) {
+        const point = monthMap.get(month) || { month, returned: 0, rejected: 0, resolved: 0, order: new Date(entry.timestamp).getTime(), rate: 0 };
+        point.resolved += 1;
+        monthMap.set(month, point);
+      }
+    });
+    return {
+      stats: { resubmitted: resubmittedIds.size, resolved: resolvedIds.size },
+      trend: [...monthMap.values()].sort((a, b) => (a.order || 0) - (b.order || 0)).slice(-8),
+    };
+  }, [auditTrail, RR_MONTHLY_TREND]);
+
   // Best-effort match of a transaction's workflow history from the global
   // audit trail (audit rows only carry a document_id, not the tracking_id
   // shown in this table, so we match on the numeric id when possible).
@@ -1518,7 +1574,7 @@ export default function Reports() {
 
   return (
     <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}${PATH_OVERVIEW_CSS}${PATH_TRANSACTION_REGISTER_CSS}${PATH_BOTTLENECK_CSS}`}</style>
+      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}${PATH_OVERVIEW_CSS}${PATH_TRANSACTION_REGISTER_CSS}${PATH_BOTTLENECK_CSS}${PATH_FOLLOWUP_CSS}`}</style>
 
       {/* ── Sidebar ── */}
       <Sidebar activePage="reports" />
@@ -2056,7 +2112,7 @@ export default function Reports() {
             )}
 
             {/* ── Returned / Rejected tab ── */}
-            {activeTab === "Returned / Rejected" && (
+            {activeTab === "Returned / Rejected__legacy" && (
               <>
             {/* ── KPI Summary Cards ── */}
             <div className="path-returned-summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
@@ -2133,6 +2189,18 @@ export default function Reports() {
             </SectionCard>
 
               </>
+            )}
+
+            {activeTab === "Returned / Rejected" && (
+              <PathFollowUpWorkspace
+                records={RR_ALL}
+                reasons={RR_REASON_BREAKDOWN}
+                trend={RR_RESOLUTION_DATA.trend}
+                resolutions={RR_RESOLUTION_DATA}
+                onExport={handleExport}
+                onSelect={setRrSelected}
+                formatId={formatTxnId}
+              />
             )}
 
             {/* ── Audit Trail tab ── */}
