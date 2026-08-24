@@ -1154,6 +1154,8 @@ export default function MyTasks() {
         Math.round(((stats.total - stats.overdue) / stats.total) * 100),
       )
     : 0;
+  const documentDetailsPath = (documentId, taskId) =>
+    `/documents/${documentId}?from=tasks&task=${encodeURIComponent(taskId)}`;
   const openDocumentDetails = async (task) => {
     let documentId =
       task.document_id ||
@@ -1180,7 +1182,7 @@ export default function MyTasks() {
       }
     }
     if (documentId) {
-      navigate(`/documents/${documentId}`);
+      navigate(documentDetailsPath(documentId, task.id));
       return;
     }
     fetchSelectedTask(task.id);
