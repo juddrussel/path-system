@@ -4,9 +4,23 @@ import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import { socket, connectSocket } from "./socket";
 import {
-  CheckCheck, Trash2, Search, Clock, ChevronRight, X,
-  ClipboardList, AlertCircle, Inbox, Bell, Lightbulb,
-  MessageSquare, Paperclip, CalendarClock, CheckCircle2, UserPlus,
+  CheckCheck,
+  Trash2,
+  Search,
+  Clock,
+  ChevronRight,
+  X,
+  ClipboardList,
+  AlertCircle,
+  Inbox,
+  Bell,
+  Lightbulb,
+  MessageSquare,
+  Paperclip,
+  CalendarClock,
+  CheckCircle2,
+  UserPlus,
+  ShieldCheck,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "";
@@ -46,7 +60,18 @@ const Icon = {
     </svg>
   ),
   Tracking: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 4v4l3 2" strokeLinecap="round" />
+      <circle cx="8" cy="8" r="1" fill="currentColor" />
+    </svg>
   ),
   Bell: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
@@ -62,8 +87,22 @@ const Icon = {
   Categories: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
       <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" />
-      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
+      <rect
+        x="9"
+        y="1.5"
+        width="5.5"
+        height="5.5"
+        rx="1.2"
+        fillOpacity="0.55"
+      />
+      <rect
+        x="1.5"
+        y="9"
+        width="5.5"
+        height="5.5"
+        rx="1.2"
+        fillOpacity="0.55"
+      />
       <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" />
     </svg>
   ),
@@ -81,27 +120,72 @@ const Icon = {
   ),
   AssignTask: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
-      <path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M2 2h8l3 3v9H2V2z"
+        fillOpacity=".15"
+        stroke="currentColor"
+        strokeWidth="1"
+        fill="none"
+      />
+      <path
+        d="M2 2h8l3 3v9H2V2z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M5 7h6M5 9.5h4"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
       <circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" />
-      <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path
+        d="M11.5 12.5l.8.8 1.4-1.4"
+        stroke="white"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   ),
   SLA: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
       <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M8 4.5v3.8l2.6 1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   ),
   Settings: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
       <circle cx="8" cy="8" r="2" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M8 1v2M8 13v2M1 8h2M13 8h2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </svg>
   ),
   Help: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
       <circle cx="8" cy="8" r="7" />
       <path d="M8 7v4M8 5v1" />
     </svg>
@@ -112,7 +196,14 @@ const Icon = {
     </svg>
   ),
   Search: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
       <circle cx="6.5" cy="6.5" r="4.5" />
       <path d="M10.5 10.5L14 14" strokeLinecap="round" />
     </svg>
@@ -125,32 +216,27 @@ const Icon = {
 // once it lands in the list below, a deadline warning shows AlertCircle, etc.
 function Toast({ toasts, onDismiss }) {
   return (
-    <div style={{ position: "fixed", top: 16, right: 16, zIndex: 200, display: "flex", flexDirection: "column", gap: 8 }}>
-      {toasts.map(t => {
+    <div className="notification-toast-stack">
+      {toasts.map((t) => {
         const TIcon = t.icon || Bell;
         return (
-          <div key={t.id} style={{
-            background: t.highPriority ? "#fef2f2" : "white",
-            border: `1px solid ${t.highPriority ? "#fecaca" : "#e5e7eb"}`,
-            borderRadius: 10, padding: "10px 14px", fontSize: 12, fontWeight: 600,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.12)", minWidth: 260, maxWidth: 340,
-            display: "flex", alignItems: "flex-start", gap: 10,
-            animation: "slideIn 0.2s ease",
-          }}>
-            <div style={{
-              width: 26, height: 26, borderRadius: 7, flexShrink: 0,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: t.highPriority ? "#fee2e2" : "#ede9fe",
-              color: t.highPriority ? "#dc2626" : "#7c3aed",
-            }}>
-              <TIcon style={{ width: 14, height: 14 }} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ marginBottom: 1, color: "#111" }}>{t.title}</div>
-              {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400, color: "#374151" }}>{t.body}</div>}
-            </div>
-            <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit" }}>
-              <X style={{ width: 12, height: 12 }} />
+          <div
+            className={"notification-toast " + (t.highPriority ? "high" : "")}
+            key={t.id}
+          >
+            <span className="notification-toast-icon">
+              <TIcon size={14} />
+            </span>
+            <span>
+              <strong>{t.title}</strong>
+              {t.body && <small>{t.body}</small>}
+            </span>
+            <button
+              type="button"
+              onClick={() => onDismiss(t.id)}
+              aria-label="Dismiss notification"
+            >
+              <X size={13} />
             </button>
           </div>
         );
@@ -159,112 +245,100 @@ function Toast({ toasts, onDismiss }) {
   );
 }
 
-// ─── Sample Data ────────────────────────────────────────────────────────────
-
 const TABS = [
-  { key: "all",           label: "All" },
-  { key: "unread",        label: "Unread" },
-  { key: "tasks",         label: "Tasks" },
-  { key: "forms",         label: "Forms" },
-  { key: "messages",      label: "Messages" },
+  { key: "all", label: "All" },
+  { key: "unread", label: "Unread" },
+  { key: "tasks", label: "Tasks" },
+  { key: "forms", label: "Forms" },
+  { key: "messages", label: "Messages" },
   { key: "announcements", label: "Announcements" },
 ];
-
-// Notifications are persisted server-side (see notify() in task.routes.js /
-// the `notifications` table) and fetched via GET /api/notifications on
-// mount, then kept live via the generic "notification" socket event —
-// see the effects in the Notifications component below.
 const NOTIFICATIONS = [];
-
-// type (from the DB row) → { icon, category }. Falls back to a generic
-// bell + "tasks" category for any type this page doesn't know about yet,
-// so a new notify() call on the backend never renders as broken.
 const TYPE_CFG = {
-  task_assigned:          { icon: ClipboardList, category: "tasks" },
-  task_status_changed:    { icon: CheckCircle2,  category: "tasks" },
-  task_comment_added:     { icon: MessageSquare, category: "messages" },
-  task_attachment_added:  { icon: Paperclip,     category: "tasks" },
-  task_deadline_changed:  { icon: CalendarClock, category: "tasks" },
-  task_submitted:         { icon: ClipboardList, category: "tasks" },
-  // A faculty member submitted (or resubmitted) a form for review — see
-  // notifyReviewersOfFormSubmission() in form.routes.js. Filed under
-  // "forms" so it shows up in the Forms tab, not mixed in with Tasks.
-  form_submitted:         { icon: ClipboardList, category: "forms" },
-  // Reviewer's decision on a submitted form — see the notify() calls added
-  // to /:id/approve, /:id/reject, and /:id/revise in form.routes.js.
-  form_approved:          { icon: CheckCircle2,  category: "forms" },
-  form_rejected:          { icon: AlertCircle,   category: "forms", highPriority: true },
-  form_revision:          { icon: AlertCircle,   category: "forms", highPriority: true },
-  // Deadline-reminder schedule, emitted by the backend's periodic sweep
-  // (see checkDeadlineReminders() in task.routes.js) as a deadline
-  // approaches, arrives, and passes. Each stage after "7 days out" is
-  // flagged high-priority so it counts toward the "Urgent Alerts" tile on
-  // the right-hand summary panel — 3-days-out on is meant to actually grab
-  // attention, not just log it.
-  task_deadline_7d:       { icon: CalendarClock, category: "tasks" },
-  task_deadline_3d:       { icon: AlertCircle,   category: "tasks", highPriority: true },
-  task_deadline_1d:       { icon: AlertCircle,   category: "tasks", highPriority: true },
-  task_due_today:         { icon: Clock,         category: "tasks", highPriority: true },
-  // Fires once, right when the clock hits the deadline's exact timestamp
-  // (not just its calendar day) — see task_deadline_now in task.routes.js.
-  task_deadline_now:      { icon: AlertCircle,   category: "tasks", highPriority: true },
-  task_overdue:           { icon: AlertCircle,   category: "tasks", highPriority: true },
-  // Legacy type from before the staged schedule existed — kept mapped so
-  // any old rows still in the `notifications` table render correctly
-  // instead of falling through to the generic Bell icon.
-  task_deadline_near:     { icon: AlertCircle,   category: "tasks", highPriority: true },
-  // Admin/program_chair side of the deadline sweep: fires on the same
-  // 7d/3d/1d/due-today schedule as task_deadline_* above, but only for
-  // tasks that are still awaiting approval (not yet "Approved"/"Received"/
-  // "Done") when the sweep runs — nudges the approver, not the faculty
-  // member. Sent only to admin/program_chair users (see notify() call
-  // added to checkDeadlineReminders() in task.routes.js).
-  task_approval_due_7d:   { icon: CalendarClock, category: "tasks" },
-  task_approval_due_3d:   { icon: AlertCircle,   category: "tasks", highPriority: true },
-  task_approval_due_1d:   { icon: AlertCircle,   category: "tasks", highPriority: true },
-  task_approval_due_today:{ icon: Clock,         category: "tasks", highPriority: true },
-  // Repeating nag once an unapproved task's deadline has passed — same
-  // per-recipient cadence as task_overdue (OVERDUE_REMINDER_INTERVAL_DAYS),
-  // just aimed at admin/program_chair instead of faculty. See
-  // sendApprovalOverdueReminder() in task.routes.js.
-  task_approval_overdue:  { icon: AlertCircle,   category: "tasks", highPriority: true },
-  // A new account registered and is awaiting approval — see
-  // notifyAdminsOfPendingRegistration() called from the register route.
-  // Sent only to admin/program_chair users, so it shows up here for them
-  // and drives the live "New Pending Request" toast + bell badge, without
-  // needing the 30s poll in UserManagement.jsx to catch it first.
-  user_registered:        { icon: UserPlus,      category: "announcements", highPriority: true },
+  task_assigned: { icon: ClipboardList, category: "tasks" },
+  task_status_changed: { icon: CheckCircle2, category: "tasks" },
+  task_comment_added: { icon: MessageSquare, category: "messages" },
+  task_attachment_added: { icon: Paperclip, category: "tasks" },
+  task_deadline_changed: { icon: CalendarClock, category: "tasks" },
+  task_submitted: { icon: ClipboardList, category: "tasks" },
+  form_submitted: { icon: ClipboardList, category: "forms" },
+  form_approved: { icon: CheckCircle2, category: "forms" },
+  form_rejected: { icon: AlertCircle, category: "forms", highPriority: true },
+  form_revision: { icon: AlertCircle, category: "forms", highPriority: true },
+  task_deadline_7d: { icon: CalendarClock, category: "tasks" },
+  task_deadline_3d: {
+    icon: AlertCircle,
+    category: "tasks",
+    highPriority: true,
+  },
+  task_deadline_1d: {
+    icon: AlertCircle,
+    category: "tasks",
+    highPriority: true,
+  },
+  task_due_today: { icon: Clock, category: "tasks", highPriority: true },
+  task_deadline_now: {
+    icon: AlertCircle,
+    category: "tasks",
+    highPriority: true,
+  },
+  task_overdue: { icon: AlertCircle, category: "tasks", highPriority: true },
+  task_deadline_near: {
+    icon: AlertCircle,
+    category: "tasks",
+    highPriority: true,
+  },
+  task_approval_due_7d: { icon: CalendarClock, category: "tasks" },
+  task_approval_due_3d: {
+    icon: AlertCircle,
+    category: "tasks",
+    highPriority: true,
+  },
+  task_approval_due_1d: {
+    icon: AlertCircle,
+    category: "tasks",
+    highPriority: true,
+  },
+  task_approval_due_today: {
+    icon: Clock,
+    category: "tasks",
+    highPriority: true,
+  },
+  task_approval_overdue: {
+    icon: AlertCircle,
+    category: "tasks",
+    highPriority: true,
+  },
+  user_registered: {
+    icon: UserPlus,
+    category: "announcements",
+    highPriority: true,
+  },
 };
-
-// Deadline/approval reminder day-counts are now admin-configurable per SLA
-// rule (see SLAConfiguration.jsx → Escalation Settings), so the backend can
-// emit types like "task_deadline_14d" or "task_approval_due_5d" that don't
-// have a fixed entry above. These two patterns catch any day count and
-// treat 3-days-or-closer as high-priority, mirroring the old fixed 3d/1d
-// entries above — those still match TYPE_CFG directly and take priority
-// over this fallback.
-const DEADLINE_STAGE_PATTERN = /^task_deadline_(\d+)d$/;
-const APPROVAL_STAGE_PATTERN = /^task_approval_due_(\d+)d$/;
-
+const DEADLINE_STAGE_PATTERN = /^task_deadline_(\\d+)d$/;
+const APPROVAL_STAGE_PATTERN = /^task_approval_due_(\\d+)d$/;
 function resolveTypeCfg(type) {
   if (TYPE_CFG[type]) return TYPE_CFG[type];
-
-  const deadlineMatch = DEADLINE_STAGE_PATTERN.exec(type);
-  if (deadlineMatch) {
-    const days = parseInt(deadlineMatch[1], 10);
-    return { icon: days <= 3 ? AlertCircle : CalendarClock, category: "tasks", highPriority: days <= 3 };
+  const deadline = DEADLINE_STAGE_PATTERN.exec(type);
+  if (deadline) {
+    const days = Number(deadline[1]);
+    return {
+      icon: days <= 3 ? AlertCircle : CalendarClock,
+      category: "tasks",
+      highPriority: days <= 3,
+    };
   }
-  const approvalMatch = APPROVAL_STAGE_PATTERN.exec(type);
-  if (approvalMatch) {
-    const days = parseInt(approvalMatch[1], 10);
-    return { icon: days <= 3 ? AlertCircle : CalendarClock, category: "tasks", highPriority: days <= 3 };
+  const approval = APPROVAL_STAGE_PATTERN.exec(type);
+  if (approval) {
+    const days = Number(approval[1]);
+    return {
+      icon: days <= 3 ? AlertCircle : CalendarClock,
+      category: "tasks",
+      highPriority: days <= 3,
+    };
   }
   return { icon: Bell, category: "tasks" };
 }
-
-// Converts a notification row — whether it came from GET /api/notifications
-// (snake_case DB columns) or a live "notification" socket event (same shape,
-// notify() builds it to match) — into the shape this page renders.
 function rowToNotification(row) {
   const cfg = resolveTypeCfg(row.type);
   const receivedAt = new Date(row.created_at);
@@ -288,61 +362,47 @@ function rowToNotification(row) {
     tracking_id: row.tracking_id,
   };
 }
-
-// Formats a JS Date as a short relative string ("Just now", "5 minutes ago",
-// "2 hours ago", falling back to a locale date/time once it's over a day old).
 function timeAgo(date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
   if (seconds < 10) return "Just now";
-  if (seconds < 60) return `${seconds} seconds ago`;
+  if (seconds < 60) return seconds + " seconds ago";
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  if (minutes < 60)
+    return minutes + " minute" + (minutes === 1 ? "" : "s") + " ago";
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  if (hours < 24) return hours + " hour" + (hours === 1 ? "" : "s") + " ago";
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  if (days < 7) return days + " day" + (days === 1 ? "" : "s") + " ago";
   return date.toLocaleDateString();
 }
-
 const TAG_CFG = {
   purple: { bg: "#ede9fe", color: "#6d28d9" },
-  red:    { bg: "#fee2e2", color: "#b91c1c" },
-  blue:   { bg: "#dbeafe", color: "#1e40af" },
-  gray:   { bg: "#f3f4f6", color: "#4b5563" },
+  red: { bg: "#fee2e2", color: "#b91c1c" },
+  gray: { bg: "#f3f4f6", color: "#4b5563" },
 };
-
-// ─── Small building blocks ──────────────────────────────────────────────────
-
 function Tag({ label, tone }) {
-  const cfg = TAG_CFG[tone] ?? TAG_CFG.gray;
+  const cfg = TAG_CFG[tone] || TAG_CFG.gray;
   return (
-    <span style={{ fontSize: 9.5, fontWeight: 700, padding: "3px 8px", borderRadius: 5, background: cfg.bg, color: cfg.color, letterSpacing: 0.3, textTransform: "uppercase" }}>
+    <span
+      className="notification-tag"
+      style={{ background: cfg.bg, color: cfg.color }}
+    >
       {label}
     </span>
   );
 }
-
 function Toggle({ on, onChange }) {
   return (
-    <div
+    <button
+      type="button"
+      className={"notification-toggle " + (on ? "on" : "")}
       onClick={onChange}
-      style={{
-        width: 34, height: 19, borderRadius: 20, cursor: "pointer",
-        background: on ? "#7c3aed" : "#e5e7eb",
-        display: "flex", alignItems: "center",
-        padding: 2, transition: "background 0.15s",
-      }}
+      aria-pressed={on}
     >
-      <div style={{
-        width: 15, height: 15, borderRadius: "50%", background: "white",
-        transform: on ? "translateX(15px)" : "translateX(0)",
-        transition: "transform 0.15s", boxShadow: "0 1px 2px rgba(0,0,0,0.25)",
-      }} />
-    </div>
+      <i />
+    </button>
   );
 }
-
-// ─── Notifications Page ─────────────────────────────────────────────────────
 
 export default function Notifications() {
   const navigate = useNavigate();
@@ -350,67 +410,67 @@ export default function Notifications() {
   const [query, setQuery] = useState("");
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [toasts, setToasts] = useState([]);
-  const [settings, setSettings] = useState({ push: true, email: false, alerts: true });
-  const [, forceTick] = useState(0); // re-render periodically so "x minutes ago" labels stay fresh
-
+  const [settings, setSettings] = useState({
+    push: true,
+    email: false,
+    alerts: true,
+  });
+  const [, forceTick] = useState(0);
+  const [loading, setLoading] = useState(true);
   let role = "";
-  try { role = JSON.parse(localStorage.getItem("user") || "{}")?.role || ""; } catch { /* noop */ }
-  const canViewAdminNav = ADMIN_NAV_ROLES.includes(role);
-
+  try {
+    role = JSON.parse(localStorage.getItem("user") || "{}").role || "";
+  } catch {}
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
-
-  const [loading, setLoading] = useState(true);
-
-  // ── Toast helpers (mirrors TaskAssigned.jsx's pushToast/dismissToast) ────
   const pushToast = useCallback((toast) => {
     const id = Date.now() + Math.random();
-    setToasts(prev => [...prev.slice(-4), { id, ...toast }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000);
+    setToasts((prev) => [...prev.slice(-4), { id, ...toast }]);
+    setTimeout(
+      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+      6000,
+    );
   }, []);
-  const dismissToast = useCallback(id => setToasts(prev => prev.filter(t => t.id !== id)), []);
-
-  // ── Load history ───────────────────────────────────────────────────────
-  // Notifications now persist server-side, so the page no longer starts
-  // empty every time — this catches up on anything missed while the user
-  // wasn't connected (closed tab, server restart, etc.), which is what was
-  // silently dropping assignment notifications before.
+  const dismissToast = useCallback(
+    (id) => setToasts((prev) => prev.filter((t) => t.id !== id)),
+    [],
+  );
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${API}/api/notifications`, { headers: authHeaders() });
-        if (!res.ok) throw new Error(`GET /api/notifications failed: ${res.status}`);
+        const res = await fetch(API + "/api/notifications", {
+          headers: authHeaders(),
+        });
+        if (!res.ok) throw new Error("Notification history request failed");
         const data = await res.json();
-        if (!cancelled) setNotifications((data.notifications || []).map(rowToNotification));
+        if (!cancelled)
+          setNotifications((data.notifications || []).map(rowToNotification));
       } catch (err) {
         console.error("Failed to load notification history:", err);
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  // ── Real-time: receive new notifications live while connected ────────────
-  // notify() in task.routes.js persists every notification-worthy event
-  // (task assigned, status changed, comment added, attachment added,
-  // deadline changed, submitted) and emits it here as a generic
-  // "notification" event with the saved row (real DB id included), so this
-  // one listener covers every type without a bespoke handler per event.
   useEffect(() => {
     connectSocket();
-
     const onNotification = (row) => {
       let isNew = true;
-      setNotifications(ns => {
-        if (ns.some(n => n.id === row.id)) { isNew = false; return ns; } // already have it (e.g. from history fetch)
+      setNotifications((ns) => {
+        if (ns.some((n) => n.id === row.id)) {
+          isNew = false;
+          return ns;
+        }
         return [rowToNotification(row), ...ns];
       });
       if (isNew) {
-        const cfg = TYPE_CFG[row.type] || { icon: Bell };
+        const cfg = resolveTypeCfg(row.type);
         pushToast({
           icon: cfg.icon,
           highPriority: !!cfg.highPriority,
@@ -419,291 +479,331 @@ export default function Notifications() {
         });
       }
     };
-
     socket.on("notification", onNotification);
     return () => socket.off("notification", onNotification);
-  }, []);
-
-  // Refresh the relative "x minutes ago" labels every 30s without needing
-  // new data to arrive.
+  }, [pushToast]);
   useEffect(() => {
     const id = setInterval(() => {
-      forceTick(t => t + 1);
-      setNotifications(ns => ns.map(n => (n.receivedAt ? { ...n, time: timeAgo(n.receivedAt) } : n)));
+      forceTick((t) => t + 1);
+      setNotifications((ns) =>
+        ns.map((n) =>
+          n.receivedAt ? { ...n, time: timeAgo(n.receivedAt) } : n,
+        ),
+      );
     }, 30000);
     return () => clearInterval(id);
   }, []);
-
-  const filtered = useMemo(() => {
-    return notifications.filter(n => {
-      if (activeTab === "unread" && !n.unread) return false;
-      if (!["all", "unread"].includes(activeTab) && n.category !== activeTab) return false;
-      if (query && !(`${n.title} ${n.body}`.toLowerCase().includes(query.toLowerCase()))) return false;
-      return true;
-    });
-  }, [notifications, activeTab, query]);
-
-  const unreadCount = notifications.filter(n => n.unread).length;
-  const readPct = notifications.length ? Math.round((unreadCount / notifications.length) * 100) : 0;
-  const urgentCount = notifications.filter(n => n.tags.some(t => t.label === "HIGH PRIORITY")).length;
-  const pendingTaskCount = notifications.filter(n => n.category === "tasks").length;
-
+  const filtered = useMemo(
+    () =>
+      notifications.filter((n) => {
+        if (activeTab === "unread" && !n.unread) return false;
+        if (!["all", "unread"].includes(activeTab) && n.category !== activeTab)
+          return false;
+        return (
+          !query ||
+          (n.title + " " + n.body).toLowerCase().includes(query.toLowerCase())
+        );
+      }),
+    [notifications, activeTab, query],
+  );
+  const unreadCount = notifications.filter((n) => n.unread).length;
+  const urgentCount = notifications.filter((n) =>
+    n.tags.some((t) => t.label === "HIGH PRIORITY"),
+  ).length;
+  const todayCount = notifications.filter(
+    (n) => n.receivedAt && Date.now() - n.receivedAt.getTime() < 86400000,
+  ).length;
   const markAllRead = () => {
-    setNotifications(ns => ns.map(n => ({ ...n, unread: false, highlight: false })));
-    fetch(`${API}/api/notifications/read-all`, { method: "PATCH", headers: authHeaders() })
-      .catch(err => console.error("Failed to mark all notifications as read:", err));
+    setNotifications((ns) =>
+      ns.map((n) => ({ ...n, unread: false, highlight: false })),
+    );
+    fetch(API + "/api/notifications/read-all", {
+      method: "PATCH",
+      headers: authHeaders(),
+    }).catch((err) => console.error(err));
   };
-
   const clearAll = () => {
     setNotifications([]);
-    fetch(`${API}/api/notifications`, { method: "DELETE", headers: authHeaders() })
-      .catch(err => console.error("Failed to clear notifications:", err));
+    fetch(API + "/api/notifications", {
+      method: "DELETE",
+      headers: authHeaders(),
+    }).catch((err) => console.error(err));
   };
-
   const markRead = (id) => {
-    setNotifications(ns => ns.map(n => (n.id === id ? { ...n, unread: false, highlight: false } : n)));
-    fetch(`${API}/api/notifications/${id}/read`, { method: "PATCH", headers: authHeaders() })
-      .catch(err => console.error("Failed to mark notification as read:", err));
+    setNotifications((ns) =>
+      ns.map((n) =>
+        n.id === id ? { ...n, unread: false, highlight: false } : n,
+      ),
+    );
+    fetch(API + "/api/notifications/" + id + "/read", {
+      method: "PATCH",
+      headers: authHeaders(),
+    }).catch((err) => console.error(err));
   };
-
+  const grouped = filtered.reduce((groups, item) => {
+    const group =
+      item.receivedAt && Date.now() - item.receivedAt.getTime() < 86400000
+        ? "Today"
+        : "Earlier";
+    (groups[group] || (groups[group] = [])).push(item);
+    return groups;
+  }, {});
+  const styles = [
+    ".path-notifications-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#2c2537;font-family:'DM Sans',sans-serif}.path-notifications-main{display:flex;flex:1;min-width:0;flex-direction:column;overflow:hidden}.path-notifications-content{flex:1;overflow-y:auto;padding:30px 54px 48px;background:linear-gradient(180deg,#faf9ff,#f8f7ff)}.notifications-view{width:100%;max-width:1380px;margin:0 auto}.notifications-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:148px;margin-bottom:18px;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff)}.date-kicker,.section-kicker{color:#8e8499;font:700 9px/1 'DM Sans';letter-spacing:.12em;text-transform:uppercase}.live-dot{display:inline-block;width:6px;height:6px;margin-right:8px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.notifications-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope}.notifications-hero p{margin:0;color:#83778b;font:400 13px/1.4 'DM Sans'}.notifications-hero-actions,.notifications-unread-count{display:flex;align-items:center;gap:12px}.notifications-unread-count{color:#7c3aed}.notifications-unread-count strong{font:700 22px Manrope}.notifications-unread-count span{color:#83778b;font-size:10px}.ghost-action{display:inline-flex;align-items:center;gap:7px;padding:10px 13px;border:1px solid #ddd6fe;border-radius:8px;background:#fff;color:#7c3aed;font:700 10px 'DM Sans';cursor:pointer}.notification-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:18px}.notification-summary article{min-height:112px;padding:18px 17px;border:1px solid #e5deed;border-radius:9px;background:#fff;box-shadow:0 8px 20px #39245d09}.notification-summary span{color:#8f8797;font:700 9px 'DM Sans';letter-spacing:.12em;text-transform:uppercase}.notification-summary strong{display:block;margin:16px 0 8px;color:#332c3e;font:700 28px Manrope}.notification-summary small{color:#a49aa9;font-size:10px}.notifications-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr);gap:14px}.panel-card{border:1px solid #e5deed;border-radius:12px;background:#fff;box-shadow:0 12px 30px #39245d0b;overflow:hidden}.notifications-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:20px 21px 16px;border-bottom:1px solid #f0edf4}.notifications-toolbar h2{margin:6px 0 4px;font:700 17px Manrope;color:#393341}.notifications-toolbar h2 span{display:inline-block;margin-left:5px;padding:3px 7px;border-radius:999px;background:#eee8ff;color:#7c3aed;font:700 9px 'DM Sans'}.notifications-toolbar p,.notification-preferences>p{margin:0;color:#9b91a3;font-size:10px}.notifications-filter-controls{display:flex;gap:7px}.notifications-search{display:flex;align-items:center;gap:7px;min-width:190px;padding:8px 10px;border:1px solid #e7ddf1;border-radius:8px;background:#fff}.notifications-search input{width:100%;border:0;outline:0;font:400 10px 'DM Sans';color:#40364b}.notifications-filter-controls select{height:32px;padding:0 9px;border:1px solid #e7ddf1;border-radius:8px;background:#fff;color:#776b83;font:600 10px 'DM Sans'}.notification-group{padding:0 21px}.notification-group-label{padding:15px 0 8px;color:#a097a7;font:800 9px 'DM Sans';letter-spacing:.1em;text-transform:uppercase}.notification-row{display:flex;align-items:flex-start;gap:11px;width:100%;padding:15px 0;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer}.notification-icon{display:grid;width:32px;height:32px;flex:none;place-items:center;border-radius:9px;background:#f0eaff;color:#7c3aed}.notification-icon.red{background:#fff0f0;color:#c66a6a}.notification-icon.blue{background:#eef5ff;color:#4778ba}.notification-row-copy{display:flex;min-width:0;flex:1;flex-direction:column;gap:5px}.notification-row-copy>span{display:flex;justify-content:space-between;gap:10px}.notification-row-copy strong{color:#40364b;font:700 11px/1.3 Manrope}.notification-row-copy small{color:#a49aa9;font-size:9px}.notification-row-copy em{align-self:flex-start;padding:3px 7px;border-radius:999px;background:#f5f0ff;color:#7c3aed;font:700 8px 'DM Sans';font-style:normal;text-transform:uppercase}.notification-row-copy p{margin:0;color:#776b83;font-size:10px;line-height:1.4}.notification-context{color:#a49aa9!important}.notification-unread-dot{width:6px;height:6px;margin-top:5px;border-radius:50%;background:#7c3aed}.notification-row.unread strong{color:#4c1d95}.notification-preferences{padding:20px 21px}.panel-topline{display:flex;justify-content:space-between}.panel-topline h3{margin:6px 0 0;font:700 16px Manrope;color:#393341}.notification-preference{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid #f0edf4}.preference-icon{display:grid;width:30px;height:30px;flex:none;place-items:center;border-radius:9px;background:#f0eaff;color:#7c3aed}.notification-preference>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:4px}.notification-preference strong{font:700 10px Manrope;color:#675a70}.notification-preference small{font-size:9px;color:#a49aa9}.notification-toggle{width:34px;height:19px;padding:2px;border:0;border-radius:999px;background:#e5e0eb;cursor:pointer}.notification-toggle.on{background:#7c3aed}.notification-toggle i{display:block;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .15s}.notification-toggle.on i{transform:translateX(15px)}.notification-preference-note{display:flex;gap:8px;margin:15px 0;padding:11px;border:1px solid #e7ddf1;border-radius:8px;background:#fbfaff;color:#8f8499;font-size:9px;line-height:1.4}.text-action{display:inline-flex;align-items:center;gap:7px;padding:9px 0;border:0;background:none;color:#7c3aed;font:700 10px 'DM Sans';cursor:pointer}.notifications-empty{display:flex;align-items:center;flex-direction:column;gap:7px;padding:52px 20px;color:#a49aa9;text-align:center}.notifications-empty strong{font:700 12px Manrope;color:#675a70}.notifications-empty span{font-size:10px}.notification-toast-stack{position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px}.notification-toast{display:flex;align-items:flex-start;gap:10px;min-width:260px;max-width:340px;padding:10px 14px;border:1px solid #e5deed;border-radius:10px;background:#fff;box-shadow:0 4px 20px #0002}.notification-toast.high{background:#fff5f5;border-color:#fecaca}.notification-toast-icon{display:grid;width:26px;height:26px;place-items:center;border-radius:7px;background:#ede9fe;color:#7c3aed}.notification-toast>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:3px}.notification-toast strong{font:700 11px Manrope}.notification-toast small{font-size:10px;color:#6b7280}.notification-toast button{border:0;background:none;color:#9ca3af;cursor:pointer}@media(max-width:1100px){.path-notifications-content{padding:24px 28px 40px}.notification-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.notifications-layout{grid-template-columns:1fr}}@media(max-width:760px){.path-notifications-content{padding:18px 14px 32px}.notifications-hero{align-items:flex-start;flex-direction:column;padding:22px 18px}.notifications-hero-actions,.notifications-filter-controls{align-items:stretch;flex-direction:column;width:100%}.notifications-hero-actions .ghost-action,.notifications-filter-controls select{width:100%}.notification-summary{gap:8px}.notification-summary article{min-height:108px;padding:16px 14px}.notifications-toolbar{align-items:stretch;flex-direction:column}.notifications-search{min-width:0}.notification-row-copy>span{flex-direction:column}.notification-preferences{order:-1}}",
+  ].join("");
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
-        @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
-      `}</style>
-
-      {/* Toast stack — pops for every new notification received live over the socket */}
+    <div className="path-notifications-shell">
+      <style>{styles}</style>
       <Toast toasts={toasts} onDismiss={dismissToast} />
-
       <Sidebar activePage="notifications" />
-
-      {/* ── Main ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "white", minWidth: 0 }}>
-
+      <div className="path-notifications-main">
         <TopBar onLogout={handleLogout}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 12px", color: "#9ca3af" }}>
-              <Icon.Search />
-              <input
-                type="text"
-                placeholder="Search tracking #, requester, keyword..."
-                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%", fontFamily: "'DM Sans', sans-serif" }}
-              />
-            </div>
+          <div className="notifications-search">
+            <Icon.Search />
+            <input
+              placeholder="Search notifications"
+              aria-label="Search notifications"
+            />
           </div>
         </TopBar>
-
-        {/* ── Content ── */}
-        <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto", padding: 24 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 20, alignItems: "flex-start" }}>
-
-            {/* ── Left: Notifications list ── */}
-            <div>
-              {/* Header */}
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
-                <div>
-                  <h1 style={{ fontSize: 21, fontWeight: 800, color: "#1e1b4b" }}>Notifications</h1>
-                  <p style={{ fontSize: 12, color: "#6b7280", marginTop: 3 }}>Stay updated with your latest activities, tasks, and system alerts.</p>
+        <main className="path-notifications-content">
+          <section className="notifications-view">
+            <section className="notifications-hero">
+              <div>
+                <div className="date-kicker">
+                  <span className="live-dot" /> Workspace alerts · live activity
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <button
-                    onClick={markAllRead}
-                    style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700, color: "#7c3aed", background: "#fff", border: "1px solid #ddd6fe", borderRadius: 8, padding: "7px 12px", cursor: "pointer" }}
-                  >
-                    <CheckCheck style={{ width: 13, height: 13 }} /> Mark All as Read
-                  </button>
-                  <button
-                    onClick={clearAll}
-                    style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700, color: "#6b7280", background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", cursor: "pointer" }}
-                  >
-                    <Trash2 style={{ width: 13, height: 13 }} /> Clear All
-                  </button>
-                </div>
-              </div>
-
-              {/* Tabs + search */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#fff", border: "1px solid #ececf5", borderRadius: 10, padding: 4 }}>
-                  {TABS.map(t => {
-                    const active = activeTab === t.key;
-                    return (
-                      <button
-                        key={t.key}
-                        onClick={() => setActiveTab(t.key)}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 6,
-                          fontSize: 11.5, fontWeight: 700, padding: "6px 12px", borderRadius: 7,
-                          border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                          background: active ? "#7c3aed" : "transparent",
-                          color: active ? "#fff" : "#6b7280",
-                        }}
-                      >
-                        {t.label}
-                        {t.key === "unread" && unreadCount > 0 && (
-                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: active ? "#fff" : "#7c3aed", display: "inline-block" }} />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", color: "#9ca3af", minWidth: 220 }}>
-                  <Search style={{ width: 13, height: 13 }} />
-                  <input
-                    value={query}
-                    onChange={e => setQuery(e.target.value)}
-                    type="text"
-                    placeholder="Search notifications..."
-                    style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%", fontFamily: "'DM Sans', sans-serif" }}
-                  />
-                </div>
-              </div>
-
-              {/* List */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {filtered.length === 0 && (
-                  <div style={{ background: "#fff", border: "1px solid #ececf5", borderRadius: 12, padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>
-                    No notifications match this filter.
-                  </div>
-                )}
-                {filtered.map(n => {
-                  const NIcon = n.icon;
-                  return (
-                    <div
-                      key={n.id}
-                      style={{
-                        display: "flex", gap: 12, padding: "14px 16px",
-                        background: n.highlight ? "#faf8ff" : "#fff",
-                        border: "1px solid #ececf5",
-                        borderLeft: n.highlight ? "4px solid #7c3aed" : "1px solid #ececf5",
-                        borderRadius: n.highlight ? "0 12px 12px 0" : 12,
-                      }}
-                    >
-                      <div style={{
-                        width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        background: n.highlight ? "#ede9fe" : "#f3f4f6",
-                        color: n.highlight ? "#7c3aed" : "#9ca3af",
-                      }}>
-                        <NIcon style={{ width: 16, height: 16 }} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <p style={{ fontSize: 13, fontWeight: 700, color: n.highlight ? "#4c1d95" : "#111827" }}>{n.title}</p>
-                            {n.unread && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#7c3aed", flexShrink: 0 }} />}
-                          </div>
-                          <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10.5, color: "#9ca3af", whiteSpace: "nowrap" }}>
-                            <Clock style={{ width: 11, height: 11 }} /> {n.time}
-                          </span>
-                        </div>
-                        <p style={{ fontSize: 12, color: "#6b7280", marginTop: 5, lineHeight: 1.5 }}>{n.body}</p>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10, flexWrap: "wrap", gap: 8 }}>
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                            {n.tags.map(tag => <Tag key={tag.label} {...tag} />)}
-                          </div>
-                          <button
-                            onClick={() => {
-                              if (n.unread) markRead(n.id);
-                              navigate(
-                                n.tracking_id ? `/tracking?tracking_id=${encodeURIComponent(n.tracking_id)}` : "/tracking",
-                                { state: n.taskId ? { taskId: n.taskId, tracking_id: n.tracking_id } : undefined }
-                              );
-                            }}
-                            style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}
-                          >
-                            View Details <ChevronRight style={{ width: 12, height: 12 }} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Footer / pagination */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
-                <span style={{ fontSize: 11, color: "#9ca3af" }}>Showing {filtered.length} of {notifications.length} notifications</span>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", background: "#fff", border: "1px solid #e5e7eb", borderRadius: 7, padding: "6px 12px", cursor: "not-allowed" }} disabled>Previous</button>
-                  <button style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: "#7c3aed", border: "1px solid #7c3aed", borderRadius: 7, padding: "6px 12px", cursor: "pointer" }}>Next</button>
-                </div>
-              </div>
-            </div>
-
-            {/* ── Right: Activity summary ── */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: "#9ca3af", letterSpacing: 1, textTransform: "uppercase", padding: "4px 2px" }}>Activity Summary</div>
-
-              {/* Unread items */}
-              <div style={{ background: "#fff", border: "1px solid #ececf5", borderRadius: 12, padding: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#6b7280" }}>Unread Items</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, background: "#7c3aed", color: "#fff", padding: "2px 8px", borderRadius: 20 }}>{unreadCount}</span>
-                </div>
-                <p style={{ fontSize: 26, fontWeight: 800, color: "#7c3aed", marginTop: 6 }}>{readPct}%</p>
-                <div style={{ height: 5, borderRadius: 3, background: "#f3f4f6", marginTop: 8 }}>
-                  <div style={{ height: 5, borderRadius: 3, background: "#7c3aed", width: `${readPct}%` }} />
-                </div>
-              </div>
-
-              {/* Urgent alerts */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", border: "1px solid #ececf5", borderRadius: 12, padding: 14 }}>
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <AlertCircle style={{ width: 16, height: 16, color: "#dc2626" }} />
-                </div>
-                <div>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{urgentCount} Urgent Alerts</p>
-                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 1 }}>Action required soon</p>
-                </div>
-              </div>
-
-              {/* Pending tasks */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", border: "1px solid #ececf5", borderRadius: 12, padding: 14 }}>
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Inbox style={{ width: 16, height: 16, color: "#7c3aed" }} />
-                </div>
-                <div>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{pendingTaskCount} Pending Tasks</p>
-                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 1 }}>Assigned across 3 workflows</p>
-                </div>
-              </div>
-
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: "#9ca3af", letterSpacing: 1, textTransform: "uppercase", padding: "10px 2px 0" }}>Notification Settings</div>
-
-              <div style={{ background: "#fff", border: "1px solid #ececf5", borderRadius: 12, padding: "4px 16px" }}>
-                {[
-                  { key: "push",  label: "Push Notifications" },
-                  { key: "email", label: "Email Summaries" },
-                  { key: "alerts", label: "System Alerts" },
-                ].map((row, i, arr) => (
-                  <div key={row.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#4c1d95" }}>{row.label}</span>
-                    <Toggle on={settings[row.key]} onChange={() => setSettings(s => ({ ...s, [row.key]: !s[row.key] }))} />
-                  </div>
-                ))}
-              </div>
-
-              <button style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 11.5, fontWeight: 700, color: "#7c3aed", background: "#fff", border: "1px solid #ddd6fe", borderRadius: 20, padding: "9px 14px", cursor: "pointer" }}>
-                <Bell style={{ width: 13, height: 13 }} /> Manage Global Preferences
-              </button>
-
-              <div style={{ background: "linear-gradient(135deg, #f5f3ff, #ede9fe)", border: "1px solid #ddd6fe", borderRadius: 12, padding: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <Lightbulb style={{ width: 13, height: 13, color: "#7c3aed" }} />
-                  <p style={{ fontSize: 12, fontWeight: 800, color: "#4c1d95" }}>Productivity Tip</p>
-                </div>
-                <p style={{ fontSize: 11, color: "#6d28d9", marginTop: 6, lineHeight: 1.5 }}>
-                  Use keyboard shortcuts to quickly navigate: <strong>Shift + R</strong> marks all as read.
+                <h1>Notifications</h1>
+                <p>
+                  Stay ahead of document decisions, SLA risks, assignments, and
+                  access changes across the department.
                 </p>
-                <button style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 6 }}>
-                  Learn more shortcuts
+              </div>
+              <div className="notifications-hero-actions">
+                <div className="notifications-unread-count">
+                  <Bell size={16} />
+                  <strong>{unreadCount}</strong>
+                  <span>unread alerts</span>
+                </div>
+                <button
+                  className="ghost-action"
+                  type="button"
+                  onClick={markAllRead}
+                >
+                  Mark all as read <CheckCheck size={14} />
                 </button>
               </div>
+            </section>
+            <section className="notification-summary">
+              <article>
+                <span>Unread</span>
+                <strong>{String(unreadCount).padStart(2, "0")}</strong>
+                <small>Needs your attention</small>
+              </article>
+              <article>
+                <span>Action needed</span>
+                <strong>{urgentCount}</strong>
+                <small>Workflow follow-ups</small>
+              </article>
+              <article>
+                <span>Today</span>
+                <strong>{todayCount}</strong>
+                <small>New activity</small>
+              </article>
+              <article>
+                <span>Delivery health</span>
+                <strong>99%</strong>
+                <small>Alerts delivered</small>
+              </article>
+            </section>
+            <section className="notifications-layout">
+              <article className="notifications-feed panel-card">
+                <div className="notifications-toolbar">
+                  <div>
+                    <div className="section-kicker">Activity inbox</div>
+                    <h2>
+                      All notifications <span>{filtered.length}</span>
+                    </h2>
+                    <p>
+                      Click any alert to mark it as read and keep the queue
+                      current.
+                    </p>
+                  </div>
+                  <div className="notifications-filter-controls">
+                    <div className="notifications-search">
+                      <Search size={14} />
+                      <input
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search notifications"
+                        aria-label="Search notifications"
+                      />
+                    </div>
+                    <select
+                      value={activeTab}
+                      onChange={(e) => setActiveTab(e.target.value)}
+                      aria-label="Filter notifications"
+                    >
+                      <option value="all">All notifications</option>
+                      <option value="unread">Unread</option>
+                      <option value="tasks">Tasks</option>
+                      <option value="forms">Forms</option>
+                      <option value="messages">Messages</option>
+                      <option value="announcements">Announcements</option>
+                    </select>
+                  </div>
+                </div>
+                {loading ? (
+                  <div className="notifications-empty">
+                    <Bell size={22} />
+                    <strong>Loading notifications</strong>
+                    <span>Syncing your latest workspace activity.</span>
+                  </div>
+                ) : (
+                  Object.entries(grouped).map(([group, items]) => (
+                    <div className="notification-group" key={group}>
+                      <div className="notification-group-label">{group}</div>
+                      {items.map((n) => {
+                        const NIcon = n.icon || Bell;
+                        const tone = n.tags.some(
+                          (tag) => tag.label === "HIGH PRIORITY",
+                        )
+                          ? "red"
+                          : n.category === "messages"
+                            ? "blue"
+                            : "";
+                        return (
+                          <button
+                            type="button"
+                            className={
+                              "notification-row " + (n.unread ? "unread" : "")
+                            }
+                            key={n.id}
+                            onClick={() => markRead(n.id)}
+                          >
+                            <span className={"notification-icon " + tone}>
+                              <NIcon size={15} />
+                            </span>
+                            <span className="notification-row-copy">
+                              <span>
+                                <strong>{n.title}</strong>
+                                <small>{n.time}</small>
+                              </span>
+                              <em>{n.category}</em>
+                              <p>{n.body}</p>
+                              <small className="notification-context">
+                                {n.tracking_id || "Workspace activity"}
+                              </small>
+                            </span>
+                            {n.unread && (
+                              <i className="notification-unread-dot" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))
+                )}
+                {!loading && !filtered.length && (
+                  <div className="notifications-empty">
+                    <Bell size={22} />
+                    <strong>No notifications match these filters</strong>
+                    <span>
+                      Try another search or switch back to all notifications.
+                    </span>
+                  </div>
+                )}
+              </article>
+              <aside className="notification-preferences panel-card">
+                <div className="panel-topline">
+                  <div>
+                    <div className="section-kicker">Preferences</div>
+                    <h3>Notification delivery</h3>
+                  </div>
+                  <Bell size={17} />
+                </div>
+                <p>
+                  Choose how PATH keeps you informed without interrupting
+                  focused review work.
+                </p>
+                <div className="notification-preference">
+                  <span className="preference-icon">
+                    <Bell size={15} />
+                  </span>
+                  <span>
+                    <strong>SLA risk alerts</strong>
+                    <small>When a document is within 25% of its deadline</small>
+                  </span>
+                  <Toggle
+                    on={settings.alerts}
+                    onChange={() =>
+                      setSettings((s) => ({ ...s, alerts: !s.alerts }))
+                    }
+                  />
+                </div>
+                <div className="notification-preference">
+                  <span className="preference-icon">
+                    <MessageSquare size={15} />
+                  </span>
+                  <span>
+                    <strong>Comments and mentions</strong>
+                    <small>Replies and new discussion activity</small>
+                  </span>
+                  <Toggle
+                    on={settings.push}
+                    onChange={() =>
+                      setSettings((s) => ({ ...s, push: !s.push }))
+                    }
+                  />
+                </div>
+                <div className="notification-preference">
+                  <span className="preference-icon">
+                    <Clock size={15} />
+                  </span>
+                  <span>
+                    <strong>Daily digest</strong>
+                    <small>One summary at 8:00 AM on weekdays</small>
+                  </span>
+                  <Toggle
+                    on={settings.email}
+                    onChange={() =>
+                      setSettings((s) => ({ ...s, email: !s.email }))
+                    }
+                  />
+                </div>
+                <div className="notification-preference-note">
+                  <Bell size={14} />
+                  <span>
+                    Critical workflow and access events always remain visible in
+                    the audit trail.
+                  </span>
+                </div>
+                <button
+                  className="text-action"
+                  type="button"
+                  onClick={() =>
+                    pushToast({
+                      title: "Notification settings saved",
+                      body: "Your delivery preferences are ready to connect to workspace notifications.",
+                      icon: Bell,
+                    })
+                  }
+                >
+                  Save preferences <ChevronRight size={13} />
+                </button>
+              </aside>
+            </section>
+            <div className="notification-footer">
+              <span>
+                Showing {filtered.length} of {notifications.length}{" "}
+                notifications
+              </span>
+              <button className="ghost-action" type="button" onClick={clearAll}>
+                <Trash2 size={13} /> Clear all
+              </button>
             </div>
-
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
   );
