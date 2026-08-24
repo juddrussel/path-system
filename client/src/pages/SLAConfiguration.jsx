@@ -919,6 +919,24 @@ export default function SLAConfiguration() {
 @media (max-width:720px){.sla-side-panel{top:46px;right:0;bottom:0;width:min(100vw,430px);border-radius:16px 0 0 0}.sla-side-panel:before{position:fixed;z-index:-1;top:0;right:100%;bottom:0;width:100vw;background:rgba(33,18,49,.22);content:""}.sla-side-panel .panel-topline{padding-top:14px}.sla-side-panel .sla-config-preview-card{margin-bottom:12px}}
 
       @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+        /* Canonical PATH page composition: full-width canvas and catalog, compact editorial rhythm. */
+        .sla-config-view { width: 100%; max-width: 1380px !important; padding: 16px 18px 48px; margin: 0 auto; }
+        .sla-config-hero { min-height: 146px; margin-bottom: 22px !important; padding: 30px 24px 28px !important; border: 1px solid #e6ddf5 !important; border-left: 2px solid #c4b5fd !important; border-radius: 12px !important; background: linear-gradient(118deg,#fbf9ff,#f4edff) !important; }
+        .sla-config-hero h1 { margin: 9px 0 6px !important; font: 700 32px Manrope,sans-serif !important; color: #2c2537 !important; letter-spacing: -.045em !important; }
+        .sla-config-hero p { margin: 0 !important; color: #83778b !important; font: 13px "DM Sans",sans-serif !important; }
+        .sla-document-stats { grid-template-columns: repeat(4,minmax(0,1fr)) !important; gap: 12px !important; margin-bottom: 18px !important; }
+        .sla-document-stats article { min-height: 116px; padding: 18px 17px !important; }
+        .sla-document-layout { display: block !important; }
+        .sla-document-list { width: 100% !important; max-width: none !important; }
+        .sla-list-heading { min-height: 98px; padding: 21px 21px 17px !important; }
+        .sla-policy-table-head, .sla-policy-row { grid-template-columns: minmax(250px,1.8fr) minmax(170px,1.25fr) 70px 90px 100px minmax(135px,1.1fr) 82px 72px !important; }
+        .sla-policy-row { min-height: 72px; padding: 12px 18px !important; }
+        .sla-row-edit { min-width: 62px; }
+        .sla-list-footer { min-height: 58px; padding: 15px 18px !important; }
+        @media (max-width: 1200px) { .sla-document-stats { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } .sla-policy-table-head, .sla-policy-row { grid-template-columns: minmax(220px,1.6fr) minmax(150px,1fr) 62px 82px 88px minmax(110px,1fr) 72px 68px !important; } }
+        @media (max-width: 900px) { .sla-config-view { padding: 12px 12px 32px; } .sla-config-hero { min-height: 0; } .sla-document-stats { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } }
+        @media (max-width: 560px) { .sla-config-view { padding: 8px 8px 28px; } .sla-document-stats { grid-template-columns: 1fr 1fr !important; gap: 8px !important; } .sla-document-stats article { min-height: 96px; padding: 13px !important; } }
+
         /* Final reference alignment: match the PATH canvas and keep the action in the eighth desktop column instead of creating a second row. */
         .sla-config-view { max-width: 1380px !important; padding: 24px 0 48px; font-family: "DM Sans", sans-serif; }
         .sla-config-hero { min-height: 106px; margin-bottom: 22px !important; }
@@ -944,6 +962,20 @@ export default function SLAConfiguration() {
         @media (max-width: 900px) {
           .sla-policy-row .sla-row-edit { grid-column: 4; grid-row: 1 / span 2; justify-self: end; }
         }
+      /* Canonical PATH reference wins over all earlier legacy overrides. */
+        .sla-config-view { width: 100% !important; max-width: 1380px !important; padding: 16px 18px 48px !important; margin: 0 auto !important; }
+        .sla-config-hero { min-height: 146px !important; padding: 30px 24px 28px !important; margin-bottom: 22px !important; }
+        .sla-document-stats { grid-template-columns: repeat(4,minmax(0,1fr)) !important; gap: 12px !important; margin-bottom: 18px !important; }
+        .sla-document-stats article { min-height: 116px !important; padding: 18px 17px !important; }
+        .sla-document-layout { display: block !important; }
+        .sla-document-list { width: 100% !important; max-width: none !important; }
+        .sla-list-heading { min-height: 98px !important; padding: 21px 21px 17px !important; }
+        .sla-policy-table-head, .sla-policy-row { grid-template-columns: minmax(250px,1.8fr) minmax(170px,1.25fr) 70px 90px 100px minmax(135px,1.1fr) 82px 72px !important; }
+        .sla-policy-row { min-height: 72px !important; padding: 12px 18px !important; }
+        .sla-policy-row .sla-row-edit { grid-column: 8 !important; grid-row: 1 !important; justify-self: start !important; }
+        @media (max-width: 1200px) { .sla-document-stats { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } .sla-policy-table-head, .sla-policy-row { grid-template-columns: minmax(220px,1.6fr) minmax(150px,1fr) 62px 82px 88px minmax(110px,1fr) 72px 68px !important; } }
+        @media (max-width: 900px) { .sla-config-view { padding: 12px 12px 32px !important; } .sla-config-hero { min-height: 0 !important; } .sla-document-stats { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } .sla-policy-row .sla-row-edit { grid-column: 4 !important; grid-row: 1 / span 2 !important; justify-self: end !important; } }
+        @media (max-width: 560px) { .sla-config-view { padding: 8px 8px 28px !important; } .sla-document-stats { grid-template-columns: 1fr 1fr !important; gap: 8px !important; } .sla-document-stats article { min-height: 96px !important; padding: 13px !important; } }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
