@@ -1062,6 +1062,12 @@ export default function SLAConfiguration() {
         .sla-side-panel .sla-detail-setting > span:last-child { display:flex !important; flex-direction:column !important; gap:4px !important; min-width:0 !important; }
         .sla-side-panel .sla-detail-setting strong { color:#574568 !important; font:700 10px/1.2 Manrope,sans-serif !important; }
         .sla-side-panel .sla-detail-setting small { color:#9e94a4 !important; font:400 9px/1.3 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-reminder-setting { align-items:flex-start !important; }
+        .sla-side-panel .sla-reminder-editor { display:flex !important; flex:1 1 auto !important; min-width:0 !important; flex-direction:column !important; gap:5px !important; }
+        .sla-side-panel .sla-reminder-editor > div { margin-top:0 !important; gap:6px !important; }
+        .sla-side-panel .sla-reminder-editor > div button { font-size:10px !important; padding:5px 8px !important; }
+        .sla-side-panel .sla-reminder-editor > div span { font-size:10px !important; }
+        .sla-side-panel .sla-reminder-editor > small { margin-top:1px !important; }
         .sla-side-panel .sla-detail-facts { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:14px !important; margin:0 0 18px !important; }
         .sla-side-panel .sla-detail-facts > div { display:flex !important; flex-direction:column !important; gap:5px !important; }
         .sla-side-panel .sla-detail-facts span { color:#aaa0ae !important; font:800 8px/1 "DM Sans",sans-serif !important; letter-spacing:.08em !important; text-transform:uppercase !important; }
@@ -1187,7 +1193,7 @@ export default function SLAConfiguration() {
                   <div className="sla-selected-document"><span className="tracking-detail-avatar violet">{(ruleForm.docType || "SLA").split(/\s+/).map(word => word[0]).join("").slice(0, 2).toUpperCase()}</span><div><strong>{ruleForm.docType}</strong><small>{ruleForm.reviewerRole || "Program Chair"} · policy configuration</small></div></div>
                   <div className="sla-inheritance-banner"><Shield size={15} /><div><strong>Automatic inheritance</strong><small>New “{ruleForm.docType}” documents receive this policy at submission.</small></div></div>
                   <div className="sla-document-fields"><label className="sla-form-field"><span>Target window</span><div className="sla-input-with-unit"><input value={ruleForm.turnaroundHours} onChange={e => set("turnaroundHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label><label className="sla-form-field"><span>Escalate after</span><div className="sla-input-with-unit"><input value={ruleForm.escalationHours} onChange={e => set("escalationHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label></div>
-                  <div className="sla-detail-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span><strong>Reminder schedule</strong><small>{ruleForm.reminderStageDays ? `${ruleForm.reminderStageDays} hours before deadline` : "No reminder stages configured"}</small></span></div>
+                  <div className="sla-detail-setting sla-reminder-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span className="sla-reminder-editor"><strong>Reminder schedule</strong><HourChipsInput value={ruleForm.reminderStageDays} onChange={v => set("reminderStageDays", v)} placeholder="Add reminder" /><small>Edit the hours before the deadline when reminders are sent.</small></span></div>
                   <label className="sla-form-field sla-owner-select"><span>Assigned reviewer role</span><select value={ruleForm.reviewerRole || ""} onChange={e => set("reviewerRole", e.target.value)}>{REVIEWER_ROLES.map(role => <option key={role}>{role}</option>)}</select></label>
                   <div className="sla-detail-facts"><div><span>Status</span><strong>{ruleForm.status}</strong></div><div><span>Coverage</span><strong>{selectedRuleId ? docsActiveFor(rules.find(r => r.id === selectedRuleId) || {}) : 0} active records</strong></div></div>
                   <div className="sla-config-preview-card">{renderPreviewCard()}</div>
