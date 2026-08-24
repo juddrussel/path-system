@@ -1039,6 +1039,36 @@ export default function SLAConfiguration() {
         .sla-list-footer button { min-width:62px !important; height:30px !important; border:1px solid #eeeaf1 !important; border-radius:7px !important; background:#fff !important; color:#a69dab !important; font:500 10px/1 "DM Sans",sans-serif !important; }
         @media (max-width:900px) { .sla-list-heading { align-items:flex-start !important; gap:14px !important; } .sla-policy-row { min-height:78px !important; height:auto !important; } }
         @media (max-width:560px) { .sla-list-heading { flex-direction:column !important; align-items:stretch !important; } .sla-policy-table-head { display:none !important; } .sla-policy-row { grid-template-columns:minmax(0,1fr) 58px 58px !important; min-height:84px !important; padding:14px !important; } .sla-policy-row .sla-document-cell { grid-column:1 !important; grid-row:1 / span 2 !important; } .sla-policy-row .sla-category-cell { grid-column:2 / span 2 !important; grid-row:2 !important; } .sla-policy-row .sla-target-cell { grid-column:2 !important; grid-row:1 !important; } .sla-policy-row .sla-policy-reminder, .sla-policy-row .sla-policy-escalation, .sla-policy-row .sla-coverage-cell { display:none !important; } .sla-policy-row .sla-row-edit { grid-column:3 !important; grid-row:1 / span 2 !important; justify-self:end !important; } }
+      /* Final SLA editor repair: isolated header, reliable typography, and aligned fields. */
+        .sla-side-panel { display:flex !important; flex-direction:column !important; overflow:hidden !important; isolation:isolate !important; background:#fff !important; }
+        .sla-side-panel > .panel-topline { position:relative !important; top:auto !important; z-index:3 !important; flex:0 0 auto !important; overflow:hidden !important; background:#fff !important; border-bottom:1px solid #eee8f3 !important; box-shadow:0 2px 8px rgba(44,28,61,.04) !important; }
+        .sla-side-panel > .sla-panel-body { flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important; overflow-x:hidden !important; overscroll-behavior:contain !important; background:#fff !important; }
+        .sla-side-panel .sla-panel-body, .sla-side-panel .sla-panel-body * { font-family:"DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-panel-body strong, .sla-side-panel .sla-panel-body h2, .sla-side-panel .sla-panel-body h3 { font-family:Manrope,sans-serif !important; }
+        .sla-side-panel .sla-selected-document { display:flex !important; align-items:center !important; gap:10px !important; margin-bottom:16px !important; }
+        .sla-side-panel .sla-selected-document > div { min-width:0 !important; display:flex !important; flex-direction:column !important; gap:4px !important; }
+        .sla-side-panel .sla-selected-document strong { color:#40364b !important; font:700 12px/1.15 Manrope,sans-serif !important; }
+        .sla-side-panel .sla-selected-document small { color:#a198a8 !important; font:400 9px/1.2 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-inheritance-banner { display:flex !important; align-items:flex-start !important; gap:9px !important; margin-bottom:18px !important; padding:12px !important; border:1px solid #dfd5e8 !important; border-radius:9px !important; background:#fbf9ff !important; }
+        .sla-side-panel .sla-inheritance-banner strong { display:block !important; margin-bottom:4px !important; color:#574568 !important; font:700 10px/1.2 Manrope,sans-serif !important; }
+        .sla-side-panel .sla-inheritance-banner small { display:block !important; color:#9e94a4 !important; font:400 9px/1.4 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-document-fields { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:14px !important; margin-bottom:18px !important; }
+        .sla-side-panel .sla-form-field { display:block !important; min-width:0 !important; }
+        .sla-side-panel .sla-form-field > span { display:block !important; margin-bottom:6px !important; color:#5f536c !important; font:500 11px/1.2 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-input-with-unit { display:flex !important; align-items:center !important; gap:8px !important; }
+        .sla-side-panel .sla-input-with-unit input { width:100% !important; min-width:0 !important; height:36px !important; padding:0 10px !important; border:1px solid #ded5e8 !important; border-radius:7px !important; background:#fff !important; color:#33263f !important; font:600 12px/1 Manrope,sans-serif !important; }
+        .sla-side-panel .sla-input-with-unit span { flex:0 0 auto !important; color:#9c91a4 !important; font:400 10px/1 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-owner-select { margin-bottom:18px !important; }
+        .sla-side-panel .sla-owner-select select { width:100% !important; height:36px !important; padding:0 10px !important; border:1px solid #ded5e8 !important; border-radius:7px !important; background:#fff !important; color:#4d4059 !important; font:500 11px/1 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-detail-setting { display:flex !important; align-items:center !important; gap:9px !important; padding:14px 0 !important; margin:0 0 16px !important; border-top:1px solid #eee8f3 !important; border-bottom:1px solid #eee8f3 !important; }
+        .sla-side-panel .sla-detail-setting > span:last-child { display:flex !important; flex-direction:column !important; gap:4px !important; min-width:0 !important; }
+        .sla-side-panel .sla-detail-setting strong { color:#574568 !important; font:700 10px/1.2 Manrope,sans-serif !important; }
+        .sla-side-panel .sla-detail-setting small { color:#9e94a4 !important; font:400 9px/1.3 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-detail-facts { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:14px !important; margin:0 0 18px !important; }
+        .sla-side-panel .sla-detail-facts > div { display:flex !important; flex-direction:column !important; gap:5px !important; }
+        .sla-side-panel .sla-detail-facts span { color:#aaa0ae !important; font:800 8px/1 "DM Sans",sans-serif !important; letter-spacing:.08em !important; text-transform:uppercase !important; }
+        .sla-side-panel .sla-detail-facts strong { color:#51435d !important; font:600 11px/1.2 Manrope,sans-serif !important; }
+        @media (max-width:560px) { .sla-side-panel > .panel-topline { padding:14px 18px !important; } .sla-side-panel > .sla-panel-body { padding:14px 20px 28px !important; } .sla-side-panel .sla-document-fields { gap:14px !important; } .sla-side-panel .sla-input-with-unit input { height:34px !important; } }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
