@@ -80,14 +80,14 @@ function Avatar({ firstName, lastName, pictureUrl }) {
       <img
         src={src}
         alt={`${firstName} ${lastName}`}
-        className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0 mr-2 object-cover"
+        className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0 object-cover"
         onError={() => setImgFailed(true)}
       />
     );
   }
   return (
     <span
-      className="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0 mr-2"
+      className="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0"
       style={{ background: bg, color: text }}
     >
       {initials(firstName, lastName)}
@@ -1614,9 +1614,10 @@ export default function UserManagement() {
         .path-um-person-row:hover { background:#fbf9ff; box-shadow:inset 2px 0 #a78bfa; }
         .path-um-person, .path-um-role, .path-um-access, .path-um-assignment { display:flex; min-width:0; align-items:center; gap:8px; }
         .path-um-person > div, .path-um-role, .path-um-access, .path-um-assignment { flex-direction:column; align-items:flex-start; gap:4px; }
-        .path-um-person > span { flex:0 0 auto; margin-right:0 !important; }
-        .path-um-person strong { overflow:hidden; color:#40344b; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
-        .path-um-person span, .path-um-role > span, .path-um-access small, .path-um-assignment span { overflow:hidden; color:#a095a5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+        .path-um-person > div { display:flex; min-width:0; justify-content:center; }
+        .path-um-person > span, .path-um-person > img { flex:0 0 28px; width:28px; height:28px; margin:0 !important; }
+        .path-um-person strong { display:block; overflow:hidden; width:100%; color:#40344b; font-family:'Manrope',sans-serif; font-size:10px; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
+        .path-um-person span, .path-um-role > span, .path-um-access small, .path-um-assignment span { display:block; overflow:hidden; max-width:100%; color:#a095a5; font-size:8px; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }
         .path-um-role strong { color:#55475c; font-family:'Manrope',sans-serif; font-size:9px; }.path-um-role > span { margin-top:2px; }.path-um-access strong { display:flex; align-items:center; gap:5px; color:#564b5b; font-size:9px; }.path-um-access strong i { width:6px; height:6px; border-radius:50%; background:#37303d; }.path-um-access.inactive strong i { background:#b18720; }.path-um-assignment strong { color:#6844af; font-family:'Manrope',sans-serif; font-size:16px; line-height:1; }
         .path-um-row-actions { position:relative; display:flex; align-items:center; justify-content:flex-end; gap:4px; }.path-um-row-actions button { display:grid; width:26px; height:26px; place-items:center; border-radius:6px; color:#897e90; }.path-um-row-actions button:hover { background:#f0e9fc; color:#6d3ec5; }.path-um-row-actions button.danger:hover { background:#fff0f0; color:#b65d61; }.path-um-row-actions button:not(:first-child) { position:absolute; right:28px; opacity:0; pointer-events:none; transition:opacity .16s ease; }.path-um-person-row:hover .path-um-row-actions button:not(:first-child) { opacity:1; pointer-events:auto; }.path-um-row-actions button:nth-child(3) { right:54px; }.path-um-self { color:#a095a5; font-size:8px; font-weight:800; }
         .path-um-list-foot { padding:12px 22px; background:#fcfbfe; color:#9c92a3; font-size:9px; }
