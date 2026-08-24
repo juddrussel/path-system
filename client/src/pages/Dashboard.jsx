@@ -664,6 +664,17 @@ function TableEmptyState({ icon: Icon, message, colSpan }) {
   );
 }
 
+function ListEmptyState({ icon: Icon, message }) {
+  return (
+    <div style={{ padding: "36px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+      <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "grid", placeItems: "center" }}>
+        <Icon size={16} color="#a89cdb" />
+      </div>
+      <p style={{ margin: 0, fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>{message}</p>
+    </div>
+  );
+}
+
 // ── Table row with a subtle hover state (inline styles need JS for :hover) ──
 function HoverRow({ children, style }) {
   return (
@@ -1532,9 +1543,9 @@ export default function Dashboard() {
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
                 <h1 style={{ fontSize: 32, fontWeight: 700, color: "#191b24", lineHeight: 1.2, letterSpacing: "-0.02em", marginBottom: 4 }}>
-                  Good morning, {displayName}
+                  Good morning, {displayName}.
                 </h1>
-                <p style={{ fontSize: 14, color: "#484555" }}>{displayRole} — Bachelor of Science in Information Systems, College of Information Technology</p>
+                <p style={{ fontSize: 14, color: "#484555" }}>Here’s what needs your attention across the department.</p>
                 <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 12px", borderRadius: 20, background: "#e6deff", color: "#1c0062" }}>
                   <ShieldAlert style={{ width: 13, height: 13 }} />
                   <span style={{ fontSize: 11, fontWeight: 600 }}>PATH Administrator</span>
@@ -1566,19 +1577,26 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* KPI strip — rounded-xl cards with a top icon chip, matching the mockup's stat-card style */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginTop: 20 }}>
-              {kpis.map(k => (
-                <div key={k.label} style={{ background: "#ffffff", border: "1px solid #c9c4d7", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px rgba(25,27,36,0.05)", display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ width: 30, height: 30, borderRadius: 8, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <k.icon style={{ width: 15, height: 15, color: k.color }} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#484555", textTransform: "uppercase", letterSpacing: "0.05em" }}>{k.label}</p>
-                    <p style={{ fontSize: 24, fontWeight: 700, color: k.color, lineHeight: 1.3, marginTop: 2 }}>{kpisLoading ? "—" : k.value}</p>
-                  </div>
-                </div>
-              ))}
+            {/* PATH Overview stat strip */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginTop: 24 }}>
+              {[
+                { label: "Open submissions", value: trackedItems.length, change: "Live queue", detail: "across the department", color: "#7c3aed", icon: FileText },
+                { label: "Awaiting review", value: pendingApprovalsCount, change: "Needs attention", detail: "awaiting a decision", color: "#d97706", icon: Clock },
+                { label: "On-time completion", value: `${onTimeCompletionRate}%`, change: onTimeCompletionRate >= 90 ? "Healthy" : "Needs attention", detail: "across active workflows", color: "#059669", icon: CheckCircle2 },
+                { label: "Active faculty", value: activeFacultyCount, change: "Live directory", detail: "across the department", color: "#0284c7", icon: Users },
+              ].map((stat) => {
+                const StatIcon = stat.icon;
+                return (
+                  <article key={stat.label} style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 14, padding: "17px 18px", boxShadow: "0 8px 22px rgba(76,29,149,.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                      <span style={{ color: "#776b83", fontSize: 10, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>{stat.label}</span>
+                      <span style={{ width: 30, height: 30, borderRadius: 9, background: stat.color + "18", color: stat.color, display: "grid", placeItems: "center" }}><StatIcon size={15} /></span>
+                    </div>
+                    <strong style={{ display: "block", marginTop: 13, color: stat.color, fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 27, lineHeight: 1 }}>{kpisLoading ? "—" : stat.value}</strong>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 10, color: "#8d8196", fontSize: 11 }}><span style={{ color: stat.color, fontWeight: 800 }}>{stat.change}</span><span>{stat.detail}</span></div>
+                  </article>
+                );
+              })}
             </div>
           </div>
 
@@ -1619,52 +1637,53 @@ export default function Dashboard() {
 
           {/* ── PATH Overview layout ── */}
           <div className="path-overview-content" style={{ padding: "28px 48px 42px", display: "flex", flexDirection: "column", gap: 22 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.55fr) minmax(300px, .75fr)", gap: 22, alignItems: "stretch" }}>
-              <SectionCard title="Priority queue" subtitle="Items that need your attention across the department" icon={Flag} noPad action={<button onClick={() => navigate("/tracking")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Review all items <ArrowUpRight size={13} /></button>}>
-                {itemsLoading ? <p style={{ padding: 28, color: "#776b83", textAlign: "center" }}>Loading priority queue…</p> : trackedPageItems.slice(0, 4).map((row, index) => <div key={row.id} style={{ display: "grid", gridTemplateColumns: "28px 34px minmax(0,1fr) auto", gap: 12, alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #f0eaf5" }}><span style={{ color: "#8b5cf6", fontSize: 11, fontWeight: 800 }}>{String(index + 1).padStart(2, "0")}</span><span style={{ width: 32, height: 32, borderRadius: 10, background: "#f1ebff", color: "#7c3aed", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 800 }}>{(row.person || "--").split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span><div style={{ minWidth: 0 }}><strong style={{ display: "block", color: "#27213a", fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.title}</strong><small style={{ color: "#8d8196", fontSize: 11 }}>{row.person} · {row.sourceType}</small></div><div style={{ textAlign: "right" }}><PriorityPill p={row.priority} /><small style={{ display: "block", color: "#9a8fa3", fontSize: 10, marginTop: 5 }}>{row.date}</small></div></div>)}
-                {!itemsLoading && trackedPageItems.length === 0 && <TableEmptyState icon={Inbox} message="No priority items right now." colSpan={1} />}
-                <div style={{ padding: "11px 20px", color: "#8d8196", fontSize: 11 }}>SLA health is monitored automatically across active workflows.</div>
-                {!itemsLoading && trackedItems.length > TRACKED_PAGE_SIZE && (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 20px", borderTop: "1px solid #f0eaf5" }}>
-                    <small style={{ color: "#8d8196", fontSize: 11 }}>
-                      Showing {(trackedPage - 1) * TRACKED_PAGE_SIZE + 1}–{Math.min(trackedPage * TRACKED_PAGE_SIZE, trackedItems.length)} of {trackedItems.length}
-                    </small>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      <button type="button" onClick={() => setTrackedPage((page) => Math.max(1, page - 1))} disabled={trackedPage === 1} style={{ border: "1px solid #e9e1f2", borderRadius: 8, padding: "6px 9px", background: trackedPage === 1 ? "#faf8ff" : "#fff", color: trackedPage === 1 ? "#c7bdce" : "#6d4bb0", fontSize: 11, cursor: trackedPage === 1 ? "not-allowed" : "pointer" }}>Previous</button>
-                      <span style={{ color: "#6d4bb0", fontSize: 11, fontWeight: 800 }}>Page {trackedPage} of {trackedTotalPages}</span>
-                      <button type="button" onClick={() => setTrackedPage((page) => Math.min(trackedTotalPages, page + 1))} disabled={trackedPage === trackedTotalPages} style={{ border: "1px solid #e9e1f2", borderRadius: 8, padding: "6px 9px", background: trackedPage === trackedTotalPages ? "#faf8ff" : "#fff", color: trackedPage === trackedTotalPages ? "#c7bdce" : "#6d4bb0", fontSize: 11, cursor: trackedPage === trackedTotalPages ? "not-allowed" : "pointer" }}>Next</button>
-                    </div>
-                  </div>
-                )}
-              </SectionCard>
-
-              <div style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>SLA monitoring</div><h2 style={{ color: "#27213a", fontSize: 20, margin: "7px 0 0" }}>Workflow health</h2></div><button onClick={() => navigate("/sla")} style={{ border: "none", background: "#f1ebff", color: "#7c3aed", borderRadius: 8, padding: 8, cursor: "pointer" }}><ArrowUpRight size={15} /></button></div>
-                <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0 20px" }}><div style={{ width: 92, height: 92, borderRadius: "50%", background: `conic-gradient(#7c3aed ${Math.min(100, Math.max(0, onTimeCompletionRate))}%, #eee7f4 0)`, display: "grid", placeItems: "center" }}><div style={{ width: 70, height: 70, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center", color: "#5b21b6", fontSize: 18, fontWeight: 800 }}>{kpisLoading ? "—" : `${onTimeCompletionRate}%`}</div></div><div><strong style={{ display: "block", fontSize: 16, color: "#27213a" }}>{onTimeCompletionRate >= 90 ? "Healthy" : "Needs attention"}</strong><span style={{ color: "#8d8196", fontSize: 11 }}>Across active workflows</span></div></div>
-                <div style={{ height: 7, background: "#eee7f4", borderRadius: 20, overflow: "hidden" }}><div style={{ width: `${Math.min(100, Math.max(0, onTimeCompletionRate))}%`, height: "100%", background: "linear-gradient(90deg,#7c3aed,#a78bfa)", borderRadius: 20 }} /></div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 22 }}><div style={{ padding: 12, background: "#faf8ff", borderRadius: 10 }}><span style={{ color: "#9a8fa3", fontSize: 10 }}>AVG. TURNAROUND</span><strong style={{ display: "block", color: "#27213a", fontSize: 18, marginTop: 4 }}>{avgApprovalDays.toFixed(1)} days</strong></div><div style={{ padding: 12, background: "#fff8f4", borderRadius: 10 }}><span style={{ color: "#9a8fa3", fontSize: 10 }}>AT RISK</span><strong style={{ display: "block", color: "#b45309", fontSize: 18, marginTop: 4 }}>{BOTTLENECK_ALERTS.length}</strong></div></div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+              <div>
+                <div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>Needs your attention</div>
+                <h2 style={{ margin: "7px 0 0", color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 22, letterSpacing: "-.025em" }}>Priority queue <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginLeft: 6, minWidth: 27, height: 22, padding: "0 7px", borderRadius: 7, background: "#eee7ff", color: "#7c3aed", fontSize: 11, verticalAlign: "middle" }}>{String(Math.min(99, trackedItems.length)).padStart(2, "0")}</span></h2>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <button type="button" onClick={() => navigate("/tracking")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Review all items <ArrowUpRight size={13} /></button>
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, .85fr)", gap: 22 }}>
-              <SectionCard title="Recent activity" subtitle="What’s moving across PATH" icon={Activity} noPad action={<button onClick={() => navigate("/audit")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Open audit trail <ArrowUpRight size={13} /></button>}>
-                {recentActivityData.slice(0, 5).map((activity) => { const ActivityIcon = activity.icon || Activity; return <div key={activity.id || activity.key || activity.title} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: "1px solid #f0eaf5" }}><div style={{ width: 30, height: 30, borderRadius: 9, background: activity.bg || "#f1ebff", color: activity.color || "#7c3aed", display: "grid", placeItems: "center", flexShrink: 0 }}><ActivityIcon size={14} /></div><div style={{ minWidth: 0, flex: 1 }}><strong style={{ display: "block", color: "#3b3045", fontSize: 12 }}>{activity.title || activity.text || "Workflow activity"}</strong><small style={{ color: "#94879c", fontSize: 11 }}>{activity.subtitle || activity.description || activity.time || "Recently"}</small></div><ChevronRight size={14} color="#b3a6bd" /></div>; })}
-                {recentActivityData.length === 0 && <TableEmptyState icon={Activity} message="No recent activity yet." colSpan={1} />}
-              </SectionCard>
+            <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.6fr) minmax(300px, .75fr)", gap: 22, alignItems: "stretch" }}>
+              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, boxShadow: "0 10px 26px rgba(76,29,149,.06)", overflow: "hidden" }}>
+                <div>
+                  {itemsLoading ? <p style={{ padding: 36, color: "#776b83", textAlign: "center" }}>Loading priority queue…</p> : trackedPageItems.slice(0, 4).map((row, index) => (
+                    <button key={row.id} type="button" onClick={() => navigate("/tracking")} style={{ width: "100%", display: "grid", gridTemplateColumns: "28px 34px minmax(0,1fr) auto 18px", gap: 12, alignItems: "center", padding: "16px 20px", border: "none", borderBottom: "1px solid #f0eaf5", background: "#fff", textAlign: "left", cursor: "pointer" }}>
+                      <span style={{ color: "#8b5cf6", fontSize: 11, fontWeight: 800 }}>{String(index + 1).padStart(2, "0")}</span>
+                      <span style={{ width: 32, height: 32, borderRadius: 10, background: "#f1ebff", color: "#7c3aed", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 800 }}>{(row.person || "--").split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span>
+                      <span style={{ minWidth: 0 }}><strong style={{ display: "block", color: "#3b3045", fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.title}</strong><small style={{ display: "block", color: "#94879c", fontSize: 11, marginTop: 3 }}>{row.person} <i style={{ fontStyle: "normal", margin: "0 4px" }}>•</i> {row.sourceType}</small></span>
+                      <span style={{ textAlign: "right" }}><PriorityPill p={row.priority} /><small style={{ display: "block", color: "#9a8fa3", fontSize: 10, marginTop: 5 }}>{row.date}</small></span>
+                      <ArrowUpRight size={15} color="#b3a6bd" />
+                    </button>
+                  ))}
+                  {!itemsLoading && trackedPageItems.length === 0 && <ListEmptyState icon={Inbox} message="No matching documents" />}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 20px", borderTop: "1px solid #f0eaf5", color: "#8d8196", fontSize: 11 }}><span><ShieldCheck size={14} style={{ verticalAlign: "middle", marginRight: 6, color: "#8b5cf6" }} />SLA health is monitored automatically</span><button type="button" onClick={() => navigate("/sla")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 11, cursor: "pointer" }}>See SLA details <ArrowUpRight size={13} /></button></div>
+              </article>
 
-              <SectionCard title="Document flow" subtitle="Current distribution across workflow stages" icon={BarChart3}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>{trackingOverviewData.map((item) => { const pct = trackingOverviewTotal ? Math.round((item.value / trackingOverviewTotal) * 100) : 0; return <div key={item.name}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}><span style={{ color: "#554961", fontSize: 12, fontWeight: 700 }}>{item.name}</span><strong style={{ color: "#27213a", fontSize: 12 }}>{item.value}</strong></div><div style={{ height: 8, borderRadius: 20, background: "#eee7f4", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", borderRadius: 20, background: item.color || "#8b5cf6" }} /></div></div>; })}</div>
-                <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #eee8f1", display: "flex", justifyContent: "space-between" }}><span style={{ color: "#8d8196", fontSize: 11 }}>Total tracked</span><strong style={{ color: "#5b21b6", fontSize: 18 }}>{trackingOverviewTotal}</strong></div>
-              </SectionCard>
-            </div>
+              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>SLA monitoring</div><h3 style={{ color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 19, margin: "7px 0 0" }}>Workflow health</h3></div><button type="button" onClick={() => navigate("/sla")} aria-label="Open SLA configuration" style={{ border: "none", background: "#f1ebff", color: "#7c3aed", borderRadius: 8, padding: 8, cursor: "pointer" }}><MoreHorizontal size={15} /></button></div>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0 20px" }}><div style={{ width: 92, height: 92, borderRadius: "50%", background: `conic-gradient(#7c3aed ${Math.min(100, Math.max(0, onTimeCompletionRate))}%, #eee7f4 0)`, display: "grid", placeItems: "center" }}><div style={{ width: 70, height: 70, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center", color: "#5b21b6", fontSize: 18, fontWeight: 800 }}>{kpisLoading ? "—" : <><strong style={{ fontSize: 23 }}>{onTimeCompletionRate}</strong><span style={{ fontSize: 14 }}>%</span></>}</div></div><div><strong style={{ display: "block", fontSize: 16, color: "#27213a" }}>{onTimeCompletionRate >= 90 ? "Healthy" : "Needs attention"}</strong><span style={{ color: "#8d8196", fontSize: 11 }}>Across all active workflows</span></div></div>
+                <div style={{ height: 7, background: "#eee7f4", borderRadius: 20, overflow: "hidden" }}><div style={{ width: `${Math.min(100, Math.max(0, onTimeCompletionRate))}%`, height: "100%", background: "linear-gradient(90deg,#7c3aed,#a78bfa)", borderRadius: 20 }} /></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 7, color: "#aaa0b2", fontSize: 10 }}><span>0%</span><span>100%</span></div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 22, paddingTop: 18, borderTop: "1px solid #eee8f1" }}><div><span style={{ color: "#9a8fa3", fontSize: 10, display: "block", textTransform: "uppercase", letterSpacing: ".08em" }}>Avg. turnaround</span><strong style={{ display: "block", color: "#27213a", fontSize: 18, marginTop: 5 }}>{avgApprovalDays.toFixed(1)} days</strong><small style={{ color: "#059669", fontSize: 10 }}><ArrowUpRight size={11} /> 18% faster</small></div><div><span style={{ color: "#9a8fa3", fontSize: 10, display: "block", textTransform: "uppercase", letterSpacing: ".08em" }}>At risk</span><strong style={{ display: "block", color: "#27213a", fontSize: 18, marginTop: 5 }}>{BOTTLENECK_ALERTS.length.toString().padStart(2, "0")}</strong><small style={{ color: "#b45309", fontSize: 10 }}><Clock size={11} /> needs action</small></div></div>
+              </article>
+            </section>
 
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) minmax(300px, .6fr)", gap: 22 }}>
-              <SectionCard title="Faculty performance" subtitle="Activity and completion rates across department faculty" icon={Users} noPad action={facultyPerformance.length > 0 && <button onClick={() => setFacultyModalOpen(true)} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>View all <ArrowUpRight size={13} /></button>}>
-                {facultyPerformance.slice(0, 4).map((faculty, idx) => <FacultyPerformanceRow key={faculty.id || faculty.full_name} f={faculty} idx={idx} delayedDocs={delayedDocs} onClick={setSelectedFaculty} />)}
-                {facultyPerformance.length === 0 && <TableEmptyState icon={Users} message="No faculty performance data yet." colSpan={1} />}
-              </SectionCard>
-              <QuickActionsPanel navigate={navigate} actions={canViewAdminNav ? ADMIN_QUICK_ACTIONS : FACULTY_QUICK_ACTIONS} />
-            </div>
+            <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.25fr) minmax(320px, .75fr)", gap: 22 }}>
+              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>Recent activity</div><h3 style={{ color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 19, margin: "7px 0 0" }}>What’s moving</h3></div><button type="button" onClick={() => navigate("/audit")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Open audit trail <ArrowUpRight size={13} /></button></div>
+                <div style={{ marginTop: 18 }}>{recentActivityData.slice(0, 5).map((activity) => { const ActivityIcon = activity.icon || Activity; return <div key={activity.id || activity.key || activity.title} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 0", borderBottom: "1px solid #f0eaf5" }}><div style={{ width: 30, height: 30, borderRadius: 9, background: activity.bg || "#f1ebff", color: activity.color || "#7c3aed", display: "grid", placeItems: "center", flexShrink: 0 }}><ActivityIcon size={14} /></div><div style={{ minWidth: 0, flex: 1 }}><strong style={{ display: "block", color: "#3b3045", fontSize: 12 }}>{activity.title || activity.text || "Workflow activity"}</strong><small style={{ color: "#94879c", fontSize: 11 }}>{activity.subtitle || activity.description || activity.time || "Recently"}</small></div><MoreHorizontal size={15} color="#b3a6bd" /></div>; })}{recentActivityData.length === 0 && <ListEmptyState icon={Activity} message="No recent activity yet." />}</div>
+              </article>
+
+              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>This semester</div><h3 style={{ color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 19, margin: "7px 0 0" }}>Document flow</h3></div><button type="button" onClick={() => navigate("/tracking")} aria-label="More document flow options" style={{ border: "none", background: "#f1ebff", color: "#7c3aed", borderRadius: 8, padding: 8, cursor: "pointer" }}><MoreHorizontal size={15} /></button></div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "20px 0 16px" }}><strong style={{ color: "#27213a", fontSize: 30 }}> {trackingOverviewTotal}</strong><span style={{ color: "#8d8196", fontSize: 11 }}>documents tracked</span></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>{trackingOverviewData.map((item) => { const pct = trackingOverviewTotal ? Math.round((item.value / trackingOverviewTotal) * 100) : 0; return <div key={item.name}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><span style={{ color: "#554961", fontSize: 12, fontWeight: 700 }}>{item.name}</span><strong style={{ color: "#27213a", fontSize: 12 }}>{item.value}</strong></div><div style={{ height: 8, borderRadius: 20, background: "#eee7f4", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", borderRadius: 20, background: item.color || "#8b5cf6" }} /></div></div>; })}</div>
+              </article>
+            </section>
           </div>
 
           <FacultyPerformanceModal
