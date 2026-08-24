@@ -1243,56 +1243,6 @@ function PathRequestList({
   );
 }
 
-function PathResolvedRequestList({ resolved, fmtDate }) {
-  return (
-    <div className="path-um-resolved-list">
-      {resolved.length === 0 ? (
-        <div className="path-um-empty">
-          <CheckIcon />
-          <strong>No resolved requests yet</strong>
-          <span>Approved and declined account decisions will appear here.</span>
-        </div>
-      ) : (
-        resolved.map((request, index) => (
-          <article
-            className="path-um-resolved-row"
-            key={`${request.id}-${index}`}
-          >
-            <Avatar
-              firstName={request.first_name}
-              lastName={request.last_name}
-              pictureUrl={request.avatar_url}
-            />
-            <div className="path-um-request-person">
-              <strong>
-                {request.first_name} {request.last_name}
-              </strong>
-              <span>{request.email || "No email provided"}</span>
-              <small>@{request.username}</small>
-            </div>
-            <div className="path-um-request-role">
-              <span>Role</span>
-              <RoleBadge role={request.role} variant="audit" />
-            </div>
-            <div className="path-um-resolution">
-              <span
-                className={
-                  request.decision === "approved" ? "approved" : "rejected"
-                }
-              >
-                {request.decision === "approved" ? "Approved" : "Rejected"}
-              </span>
-              <small>
-                {fmtDate(request.resolved_on)} · {request.resolved_by || "—"}
-              </small>
-            </div>
-          </article>
-        ))
-      )}
-    </div>
-  );
-}
-
 function PathAccessManagement({ users, onManageRoles }) {
   const roleCount = (role) => users.filter((user) => user.role === role).length;
   return (
@@ -1354,7 +1304,6 @@ export default function UserManagement() {
   const [tab, setTab] = useState("users");
   const [users, setUsers] = useState([]);
   const [pending, setPending] = useState([]);
-  const [resolved, setResolved] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -1393,16 +1342,13 @@ export default function UserManagement() {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [usersData, pendingData, resolvedData, statsData] =
-        await Promise.all([
-          apiFetch("/users"),
-          apiFetch("/users/pending"),
-          apiFetch("/users/resolved"),
-          apiFetch("/users/stats"),
-        ]);
+      const [usersData, pendingData, statsData] = await Promise.all([
+        apiFetch("/users"),
+        apiFetch("/users/pending"),
+        apiFetch("/users/stats"),
+      ]);
       setUsers(usersData);
       setPending(pendingData);
-      setResolved(resolvedData);
       setStats(statsData);
       if (pendingData.length > 0) setTab("permissions");
     } catch (err) {
@@ -1496,15 +1442,6 @@ export default function UserManagement() {
       setPending((p) => p.filter((u) => u.id !== userId));
       if (approved) {
         setUsers((u) => [...u, { ...approved, is_active: true }]);
-        setResolved((r) => [
-          {
-            ...approved,
-            decision: "approved",
-            resolved_on: new Date().toISOString(),
-            resolved_by: "You",
-          },
-          ...r,
-        ]);
       }
       setStats((s) => ({
         ...s,
@@ -1526,17 +1463,6 @@ export default function UserManagement() {
         `Admin rejected account request: ${name} (@${rejected?.username}, ID: ${userId})`,
       );
       setPending((p) => p.filter((u) => u.id !== userId));
-      if (rejected) {
-        setResolved((r) => [
-          {
-            ...rejected,
-            decision: "rejected",
-            resolved_on: new Date().toISOString(),
-            resolved_by: "You",
-          },
-          ...r,
-        ]);
-      }
       setStats((s) => ({
         ...s,
         rejected_this_month: (s.rejected_this_month ?? 0) + 1,
@@ -1559,19 +1485,9 @@ export default function UserManagement() {
         "USER_APPROVE_ALL",
         `Admin bulk-approved ${pending.length} pending account(s): ${pending.map((u) => u.username).join(", ")}`,
       );
-      const now = new Date().toISOString();
       setUsers((u) => [
         ...u,
         ...pending.map((p) => ({ ...p, is_active: true })),
-      ]);
-      setResolved((r) => [
-        ...pending.map((p) => ({
-          ...p,
-          decision: "approved",
-          resolved_on: now,
-          resolved_by: "You",
-        })),
-        ...r,
       ]);
       setStats((s) => ({
         ...s,
@@ -1708,6 +1624,10 @@ export default function UserManagement() {
         .path-um-directory .path-um-person .path-um-avatar-fallback{display:flex!important;width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;flex:0 0 28px!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important;line-height:0!important;transform:none!important}.path-um-directory .path-um-person .path-um-avatar-fallback svg{display:block!important;width:12px!important;height:12px!important;margin:0!important;transform:none!important}.path-um-directory .path-um-person{align-items:center!important;gap:10px!important}.path-um-directory .path-um-person>div{display:flex!important;min-width:0;flex-direction:column!important;justify-content:center!important}
       `}</style>
 
+      <style>{`
+        .path-um-tab-nav{padding:18px 0 0;background:#f8f7ff}.path-um-tab-rail{display:flex;min-height:40px;align-items:center;gap:3px;padding:3px 6px;border:1px solid #e3ddea;border-radius:9px;background:#fff;box-shadow:0 1px 2px rgba(55,35,83,.025)}.path-um-tab-button{display:inline-flex;height:32px;align-items:center;gap:6px;border-radius:6px;padding:0 11px;color:#7d7486;font:800 9px/1 'DM Sans',sans-serif;transition:background .16s ease,color .16s ease,transform .16s ease}.path-um-tab-button:hover{background:#faf8fd;color:#51455b}.path-um-tab-button:active{transform:scale(.97)}.path-um-tab-button.is-active{background:#f0e9ff;color:#6939cb}.path-um-tab-button svg{width:12px;height:12px;flex:0 0 auto}.path-um-tab-count{display:inline-grid;min-width:15px;height:15px;place-items:center;border-radius:4px;background:#f4f1f8;color:#877d90;font:800 7px/1 'DM Sans',sans-serif}.path-um-tab-button.is-active .path-um-tab-count{background:#e5d8ff;color:#6833c8}@media(max-width:620px){.path-um-tab-nav{padding-top:12px}.path-um-tab-rail{overflow-x:auto}.path-um-tab-button{white-space:nowrap}}
+      `}</style>
+
       <Sidebar activePage="users" />
 
       {/* ── MAIN ── */}
@@ -1728,28 +1648,27 @@ export default function UserManagement() {
         </TopBar>
 
         {/* Tab Nav */}
-        <div className="bg-white border-b border-[#e6e0ee]">
-          <div className="path-um-tabs flex items-center gap-3">
-            <button
-              onClick={() => setTab("users")}
-              className={`flex items-center gap-1.5 py-3 px-3 my-2 text-[10px] font-bold rounded-md transition-colors ${tab === "users" ? "text-[#6b38d4] bg-[#f1ebff]" : "text-[#7b7486] hover:text-[#181445] hover:bg-[#faf8fd]"}`}
-            >
-              System Users
-            </button>
-            <button
-              onClick={() => setTab("permissions")}
-              className={`flex items-center gap-1.5 py-3 px-3 my-2 text-[10px] font-bold rounded-md transition-colors ${tab === "permissions" ? "text-[#6b38d4] bg-[#f1ebff]" : "text-[#7b7486] hover:text-[#181445] hover:bg-[#faf8fd]"}`}
-            >
-              Account Requests
-              {pending.length > 0 && (
-                <span
-                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${tab === "permissions" ? "bg-[#e9ddff] text-[#5a00c6]" : "bg-amber-100 text-amber-700"}`}
-                >
-                  {pending.length}
-                </span>
-              )}
-            </button>
-          </div>
+        <div className="path-um-tab-nav">
+          <nav className="path-um-tabs" aria-label="User management navigation">
+            <div className="path-um-tab-rail">
+              <button
+                onClick={() => setTab("users")}
+                className={`path-um-tab-button ${tab === "users" ? "is-active" : ""}`}
+              >
+                <UsersIcon />
+                System Users
+                <span className="path-um-tab-count">{users.length}</span>
+              </button>
+              <button
+                onClick={() => setTab("permissions")}
+                className={`path-um-tab-button ${tab === "permissions" ? "is-active" : ""}`}
+              >
+                <ShieldIcon />
+                Account Requests
+                <span className="path-um-tab-count">{pending.length}</span>
+              </button>
+            </div>
+          </nav>
         </div>
 
         <div className="path-um-content py-6 md:py-8 flex flex-col gap-6 flex-1 overflow-y-auto">
@@ -1939,22 +1858,6 @@ export default function UserManagement() {
                     onApproveAll={handleApproveAll}
                     fmtDate={fmtDate}
                   />
-
-                  {/* Recently Resolved — always show, even if empty */}
-                  <div className="path-um-panel bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden mt-6">
-                    <div className="px-6 py-4 border-b border-[#cbc3d7] bg-[#fcf8ff]">
-                      <h2 className="text-sm font-bold text-[#181445]">
-                        Recently Resolved
-                      </h2>
-                      <p className="text-xs text-[#7b7486] mt-0.5">
-                        Accounts approved or rejected in the last 30 days
-                      </p>
-                    </div>
-                    <PathResolvedRequestList
-                      resolved={resolved}
-                      fmtDate={fmtDate}
-                    />
-                  </div>
                 </div>
               )}
             </>
