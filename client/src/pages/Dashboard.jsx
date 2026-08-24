@@ -1507,7 +1507,12 @@ export default function Dashboard() {
 .path-overview-shell table tbody tr{border-bottom-color:#f0eaf5!important}
 .path-overview-shell table th{color:#8b7c96!important;font-weight:700!important;font-size:10px!important;letter-spacing:.08em!important}
 .path-overview-shell table td{color:#51465e!important}
-@media(max-width:900px){.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child{padding:28px 20px 22px!important}.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child h1{font-size:29px!important}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3){padding:20px 16px!important;overflow-x:hidden}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}}
+.path-hero{background:linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)!important}
+.path-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.path-stat-card strong{letter-spacing:-.04em}
+.path-content-area{max-width:1180px;width:100%;margin:0 auto}
+@media(max-width:1100px){.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.path-content-area{max-width:none}}
+@media(max-width:900px){.path-hero{padding:28px 20px 22px!important}.path-hero h1{font-size:29px!important}.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.path-stat-card{padding:15px!important}.path-stat-card strong{font-size:24px!important}.path-content-area{padding:20px 16px 30px!important;overflow-x:hidden}.path-content-area>section{grid-template-columns:1fr!important}.path-overview-heading{align-items:flex-start!important}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}}
 `}</style>
 
       <Sidebar activePage="dashboard" />
@@ -1539,14 +1544,14 @@ export default function Dashboard() {
         <div style={{ minHeight: "calc(100vh - 56px)", background: "#faf8ff", overflowY: "auto" }}>
 
           {/* ── Welcome Header ── */}
-          <div style={{ background: "#faf8ff", borderBottom: "1px solid #c9c4d7", padding: "24px 32px" }}>
+            <div className="path-hero" style={{ background: "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)", borderBottom: "1px solid #ebe4f4", padding: "42px 48px 30px" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
-                <h1 style={{ fontSize: 32, fontWeight: 700, color: "#191b24", lineHeight: 1.2, letterSpacing: "-0.02em", marginBottom: 4 }}>
+                <h1 style={{ fontSize: 36, fontWeight: 800, color: "#27213a", lineHeight: 1.12, letterSpacing: "-0.035em", marginBottom: 7, fontFamily: "Manrope, 'DM Sans', sans-serif" }}>
                   Good morning, {displayName}.
                 </h1>
                 <p style={{ fontSize: 14, color: "#484555" }}>Here’s what needs your attention across the department.</p>
-                <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 12px", borderRadius: 20, background: "#e6deff", color: "#1c0062" }}>
+                <div style={{ display: "none" }}>
                   <ShieldAlert style={{ width: 13, height: 13 }} />
                   <span style={{ fontSize: 11, fontWeight: 600 }}>PATH Administrator</span>
                 </div>
@@ -1578,7 +1583,7 @@ export default function Dashboard() {
             </div>
 
             {/* PATH Overview stat strip */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginTop: 24 }}>
+            <div className="path-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 14, marginTop: 26 }}>
               {[
                 { label: "Open submissions", value: trackedItems.length, change: "Live queue", detail: "across the department", color: "#7c3aed", icon: FileText },
                 { label: "Awaiting review", value: pendingApprovalsCount, change: "Needs attention", detail: "awaiting a decision", color: "#d97706", icon: Clock },
@@ -1587,7 +1592,7 @@ export default function Dashboard() {
               ].map((stat) => {
                 const StatIcon = stat.icon;
                 return (
-                  <article key={stat.label} style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 14, padding: "17px 18px", boxShadow: "0 8px 22px rgba(76,29,149,.05)" }}>
+                  <article className="path-stat-card" key={stat.label} style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: "18px 18px 17px", boxShadow: "0 8px 22px rgba(76,29,149,.06)" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
                       <span style={{ color: "#776b83", fontSize: 10, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>{stat.label}</span>
                       <span style={{ width: 30, height: 30, borderRadius: 9, background: stat.color + "18", color: stat.color, display: "grid", placeItems: "center" }}><StatIcon size={15} /></span>
@@ -1636,8 +1641,8 @@ export default function Dashboard() {
           )}
 
           {/* ── PATH Overview layout ── */}
-          <div className="path-overview-content" style={{ padding: "28px 48px 42px", display: "flex", flexDirection: "column", gap: 22 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <div className="path-overview-content path-content-area" style={{ padding: "28px 48px 42px", display: "flex", flexDirection: "column", gap: 22 }}>
+                <div className="path-overview-heading" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
                 <div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>Needs your attention</div>
                 <h2 style={{ margin: "7px 0 0", color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 22, letterSpacing: "-.025em" }}>Priority queue <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginLeft: 6, minWidth: 27, height: 22, padding: "0 7px", borderRadius: 7, background: "#eee7ff", color: "#7c3aed", fontSize: 11, verticalAlign: "middle" }}>{String(Math.min(99, trackedItems.length)).padStart(2, "0")}</span></h2>
