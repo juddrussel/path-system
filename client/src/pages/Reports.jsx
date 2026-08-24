@@ -20,11 +20,74 @@ const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 const API = import.meta.env.VITE_API_URL || "";
 const AUDIT_PREVIEW_LIMIT = 8; // rows shown on the Reports "Audit Trail" tab before linking to /audit
 
+const PATH_REPORTS_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+  .path-reports-shell { background:#f8f7ff !important; color:#4c3e56 !important; }
+  .path-reports-main { background:#f8f7ff !important; }
+  .path-reports-content { width:min(1480px,100%); margin:0 auto; padding:28px 30px 42px !important; gap:18px !important; }
+  .path-reports-hero { min-height:148px; padding:28px 24px !important; border:1px solid #e4dbf2; border-left:2px solid #c4b5fd; border-radius:12px; background:linear-gradient(112deg,#fcfaff 0%,#f5efff 100%); }
+  .path-reports-hero h1 { margin:9px 0 7px !important; color:#302638 !important; font-family:'Manrope',sans-serif !important; font-size:clamp(30px,4vw,43px) !important; letter-spacing:-.06em; }
+  .path-reports-hero p { color:#91859d !important; font-size:12px !important; }
+  .path-reports-filter { padding:15px 18px !important; border:1px solid #e6e0ec !important; border-radius:10px !important; box-shadow:0 7px 20px rgba(67,44,89,.035) !important; }
+  .path-report-tabs { gap:26px !important; overflow-x:auto; padding:0 0 10px !important; border-bottom:1px solid #e3ddec !important; scrollbar-width:none; }
+  .path-report-tabs button { position:relative; padding:0 0 9px !important; color:#8d8297 !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; font-weight:800 !important; }
+  .path-report-tabs button::after { position:absolute; right:0; bottom:-11px; left:0; height:2px; border-radius:2px; background:transparent; content:''; }
+  .path-report-tabs button:hover,.path-report-tabs button.path-tab-active { color:#6d28d9 !important; border-bottom-color:transparent !important; }
+  .path-report-tabs button.path-tab-active::after { background:#7c3aed; }
+  .path-report-card { border:1px solid #e6e0eb !important; border-radius:10px 10px 18px 10px !important; box-shadow:0 7px 20px rgba(67,44,89,.035) !important; }
+  .path-report-card-head { padding:15px 17px !important; border-bottom-color:#f0edf4 !important; }
+  .path-report-card-head p { color:#46384f !important; font-family:'Manrope',sans-serif !important; font-size:13px !important; letter-spacing:-.025em; }
+  .path-report-card-head p + p { margin-top:3px !important; color:#9b91a3 !important; font-family:'DM Sans',sans-serif !important; font-size:8px !important; }
+  .path-report-card-body { padding:16px 17px !important; }
+  .path-report-card-foot { padding:10px 17px !important; border-top-color:#f0edf4 !important; }
+  .path-kpi-card { border:1px solid #e6e0eb !important; border-radius:10px 10px 18px 10px !important; box-shadow:0 7px 20px rgba(67,44,89,.035) !important; }
+  .path-kpi-card p { color:#43344e !important; font-family:'Manrope',sans-serif !important; font-size:26px !important; letter-spacing:-.055em; }
+  .path-kpi-card p + p { color:#9e95a5 !important; font-family:'DM Sans',sans-serif !important; font-size:9px !important; letter-spacing:0 !important; }
+  .path-filter-label { color:#9b91a3 !important; font-family:'DM Sans',sans-serif !important; font-size:8px !important; font-weight:800 !important; letter-spacing:.08em; text-transform:uppercase; }
+  .path-filter-select { height:38px; border-color:#e4dced !important; border-radius:8px !important; color:#645970 !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; font-weight:700 !important; }
+  .path-export-buttons button { border-radius:8px !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; }
+  .path-reports-content table thead tr { background:#faf8fd !important; border-bottom-color:#eeeaf3 !important; }
+  .path-reports-content table th { color:#a098a6 !important; font-family:'DM Sans',sans-serif !important; font-size:8px !important; letter-spacing:.08em !important; }
+  .path-reports-content table td { color:#62536b; font-family:'DM Sans',sans-serif; }
+  @media (max-width:760px) { .path-reports-content { padding:20px 15px 32px !important; }.path-reports-hero { padding:22px 18px !important; }.path-reports-filter { overflow-x:auto; }.path-report-tabs { gap:18px !important; }.path-report-tabs button { font-size:9px !important; }.path-report-card-head { align-items:flex-start !important; }.path-export-buttons { width:100%; }.path-export-buttons button { flex:1; justify-content:center; } }
+`;
+
+const PATH_REPORTS_EXACT_CSS = `
+  .path-kpi-grid { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
+  .path-transactions-kpi-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; }
+  .path-kpi-card { min-height:116px !important; padding:17px 18px !important; }
+  .path-kpi-card > div:first-child { margin-bottom:12px !important; }
+  .path-kpi-card > div:first-child > div:first-child { width:25px !important; height:25px !important; border-radius:7px !important; }
+  .path-kpi-card > div:first-child > span { font-family:'DM Sans',sans-serif !important; font-size:8px !important; font-weight:800 !important; letter-spacing:.1em !important; text-transform:uppercase !important; }
+  .path-overview-chart-grid { display:grid !important; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr) !important; gap:14px !important; }
+  .path-overview-chart-grid > :last-child { grid-column:1 / -1; }
+  .path-overview-detail-grid { display:grid !important; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr) !important; gap:14px !important; }
+  .path-processing-summary-grid { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:14px !important; }
+  .path-processing-summary-grid .path-report-card { min-height:121px; }
+  .path-transactions-visuals { display:grid !important; grid-template-columns:minmax(220px,.82fr) minmax(280px,.95fr) minmax(340px,1.35fr) !important; gap:14px !important; }
+  .path-transactions-visuals .path-report-card { min-width:0; min-height:330px; }
+  .path-transactions-visuals .path-report-card-head { padding-bottom:14px !important; }
+  .path-transactions-visuals .path-report-card-body { padding-top:17px !important; }
+  .path-bottleneck-grid,.path-returned-chart-grid { display:grid !important; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr) !important; gap:14px !important; }
+  .path-returned-summary-grid { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
+  .path-returned-summary-grid .path-kpi-card { min-height:102px !important; }
+  .path-report-card-body-no-pad { padding:0 !important; }
+  .path-reports-content .path-report-card-body-no-pad table { min-width:760px; }
+  .path-reports-content .path-report-card-body-no-pad { overflow-x:auto; }
+  .path-reports-content .path-report-card-body:not(.path-report-card-body-no-pad) .recharts-wrapper { margin-top:4px; }
+  .path-reports-content .recharts-cartesian-grid-horizontal line,.path-reports-content .recharts-cartesian-grid-vertical line { stroke:#f0edf4 !important; }
+  .path-reports-content .recharts-text { fill:#a097a7 !important; font-family:'DM Sans',sans-serif !important; font-size:9px !important; }
+  .path-reports-content .recharts-legend-item-text { color:#82758b !important; font-family:'DM Sans',sans-serif !important; font-size:9px !important; }
+  .path-reports-content .recharts-tooltip-wrapper { font-family:'DM Sans',sans-serif; font-size:10px; }
+  @media (max-width:1100px) { .path-overview-chart-grid,.path-overview-detail-grid { grid-template-columns:1fr !important; }.path-overview-chart-grid > :last-child { grid-column:auto; }.path-transactions-visuals { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }.path-transactions-visuals > :last-child { grid-column:1 / -1; }.path-returned-chart-grid { grid-template-columns:1fr !important; } }
+  @media (max-width:760px) { .path-kpi-grid,.path-transactions-kpi-grid,.path-processing-summary-grid,.path-returned-summary-grid { grid-template-columns:1fr !important; gap:8px !important; }.path-kpi-card { min-height:96px !important; padding:14px !important; }.path-transactions-visuals { grid-template-columns:1fr !important; }.path-transactions-visuals > :last-child { grid-column:auto; }.path-transactions-visuals .path-report-card { min-height:305px; }.path-bottleneck-grid { grid-template-columns:1fr !important; }.path-returned-chart-grid { grid-template-columns:1fr !important; }.path-reports-content .path-report-card-body-no-pad table { min-width:640px; } }
+`;
+
 
 function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, footer }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, flexWrap: "wrap", gap: 8 }}>
+    <div className="path-report-card" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column" }}>
+      <div className="path-report-card-head" style={{ padding: "13px 18px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, flexWrap: "wrap", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <div style={{ width: 29, height: 29, borderRadius: 7, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <IconCmp style={{ width: 14, height: 14, color: "#7c3aed" }} />
@@ -36,8 +99,8 @@ function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, 
         </div>
         {action}
       </div>
-      <div style={{ padding: noPad ? 0 : "14px 18px", flex: 1 }}>{children}</div>
-      {footer && <div style={{ padding: "10px 18px", borderTop: "1px solid rgba(0,0,0,0.07)", flexShrink: 0 }}>{footer}</div>}
+      <div className={`path-report-card-body ${noPad ? "path-report-card-body-no-pad" : ""}`} style={{ padding: noPad ? 0 : "14px 18px", flex: 1 }}>{children}</div>
+      {footer && <div className="path-report-card-foot" style={{ padding: "10px 18px", borderTop: "1px solid rgba(0,0,0,0.07)", flexShrink: 0 }}>{footer}</div>}
     </div>
   );
 }
@@ -224,8 +287,9 @@ function TableFoot({ count, total, label }) {
 function FilterSelect({ label, value, onChange, options }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <label style={{ fontSize: 10, fontWeight: 600, color: "#6b7280" }}>{label}</label>
+      <label className="path-filter-label" style={{ fontSize: 10, fontWeight: 600, color: "#6b7280" }}>{label}</label>
       <select
+        className="path-filter-select"
         value={value}
         onChange={onChange}
         style={{ fontSize: 12, padding: "7px 10px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#111827", cursor: "pointer", minWidth: 140 }}
@@ -238,7 +302,7 @@ function FilterSelect({ label, value, onChange, options }) {
 
 function KpiCard({ label, value, icon: IconCmp, color, delta, up }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "14px 16px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
+    <div className="path-kpi-card" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "14px 16px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
         <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <IconCmp style={{ width: 15, height: 15, color }} />
@@ -288,7 +352,7 @@ function ExportButtons({ onExport, size = "normal" }) {
   const fs = size === "small" ? 10 : 11;
   const iconSize = size === "small" ? 13 : 15;
   return (
-    <div style={{ display: "flex", gap: 6 }}>
+    <div className="path-export-buttons" style={{ display: "flex", gap: 6 }}>
       <button
         onClick={() => onExport("PDF")}
         style={{ display: "flex", alignItems: "center", gap: 6, padding: pad, borderRadius: 8, background: "#7c3aed", color: "#fff", border: "none", fontSize: fs, fontWeight: 700, cursor: "pointer" }}
@@ -1117,8 +1181,6 @@ export default function Reports() {
     "Faculty Workload",
     "Bottleneck",
     "Returned / Rejected",
-    "Audit Trail",
-    "Quick Reports",
   ];
 
   // ── Export engine ──────────────────────────────────────────────────
@@ -1324,8 +1386,8 @@ export default function Reports() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');`}</style>
+    <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}`}</style>
 
       {/* ── Sidebar ── */}
       <Sidebar activePage="reports" />
@@ -1335,18 +1397,19 @@ export default function Reports() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#9ca3af" }}>PATH</span>
             <ChevronRight style={{ width: 12, height: 12, color: "#d1d5db" }} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Reports &amp; Analytics</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Reports</span>
           </div>
         </TopBar>
 
-        <div style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto" }}>
-          <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="path-reports-main" style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto" }}>
+          <div className="path-reports-content" style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
 
             {/* ── 1. Header: title + export (no card) ── */}
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
+            <div className="path-reports-hero" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
               <div>
-                <h1 style={{ fontSize: 19, fontWeight: 800, color: "#111827" }}>Reports &amp; Analytics</h1>
-                <p style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>Transaction performance, workload, and bottleneck insights across the department</p>
+                <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b5cf6" }}>Decision support · reporting workspace</div>
+                <h1 style={{ fontSize: 19, fontWeight: 800, color: "#111827" }}>Reports</h1>
+                <p style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>Turn document activity into a clear view of throughput, service levels, and department performance.</p>
               </div>
               <ExportButtons onExport={(fmt) => handleExport("Full Analytics Report", fmt)} />
             </div>
@@ -1363,7 +1426,7 @@ export default function Reports() {
             )}
 
             {/* ── 2. Filters card ── */}
-            <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
+            <div className="path-reports-filter" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
               <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                 <FilterSelect label="Date Range" value={dateRange} onChange={e => setDateRange(e.target.value)}
                   options={["Last 7 Days", "Last 30 Days", "This Semester", "This Year", "Custom Range"]} />
@@ -1377,7 +1440,7 @@ export default function Reports() {
             </div>
 
             {/* ── Tab Bar ── */}
-            <div style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4 }}>
+            <div className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4 }}>
               {TABS.map(t => (
                 <button
                   key={t}
@@ -1393,6 +1456,7 @@ export default function Reports() {
                     borderBottom: activeTab === t ? "2px solid #7c3aed" : "2px solid transparent",
                     whiteSpace: "nowrap",
                   }}
+                  className={activeTab === t ? "path-tab-active" : ""}
                 >
                   {t}
                 </button>
@@ -1403,12 +1467,12 @@ export default function Reports() {
             {activeTab === "Overview" && (
               <>
             {/* ── KPI Summary Cards ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
+            <div className="path-kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
               {OVERVIEW_KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
             </div>
 
             {/* ── Transaction Status Overview · Most Requested Transaction Types · Monthly Transaction Trend ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
+            <div className="path-overview-chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
               <SectionCard title="Transaction Status Overview" subtitle="Live distribution across the workflow" icon={PieIcon}>
                 <ResponsiveContainer width="100%" height={190}>
                   <RPie>
@@ -1463,7 +1527,7 @@ export default function Reports() {
             </div>
 
             {/* ── Faculty Workload Snapshot · Bottleneck Snapshot ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, alignItems: "start" }}>
+            <div className="path-overview-detail-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, alignItems: "start" }}>
               <SectionCard title="Faculty Workload Snapshot" subtitle="Top faculty by assigned transaction volume" icon={Users} noPad
                 footer={
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -1574,10 +1638,10 @@ export default function Reports() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 12, color: "#9ca3af" }}>Showing {RECENT_ACTIVITY.length} of {AUDIT_TRAIL.length} log entries</span>
                   <button
-                    onClick={() => setActiveTab("Audit Trail")}
+                    onClick={() => navigate("/audit")}
                     style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
                   >
-                    View Full Activity Log <ChevronRight style={{ width: 12, height: 12 }} />
+                    Open Audit Trail <ChevronRight style={{ width: 12, height: 12 }} />
                   </button>
                 </div>
               }>
@@ -1604,12 +1668,12 @@ export default function Reports() {
             {activeTab === "Transactions" && (
               <>
             {/* ── KPI Cards ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
+            <div className="path-kpi-grid path-transactions-kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
               {KPI_DATA.map(k => <KpiCard key={k.label} {...k} />)}
             </div>
 
             {/* ── Transaction Overview ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
+            <div className="path-transactions-visuals" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
               <SectionCard title="By Status" icon={PieIcon}>
                 <ResponsiveContainer width="100%" height={190}>
                   <RPie>
@@ -1702,7 +1766,7 @@ export default function Reports() {
             {activeTab === "Processing Time" && (
               <>
             {/* ── Processing Time Summary ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+            <div className="path-processing-summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
               <SectionCard title="Average Processing Time" icon={Activity}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>
                   {PROCESSING_TIME_DATA.length ? (PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length).toFixed(1) : "0.0"} days
@@ -1823,7 +1887,7 @@ export default function Reports() {
             {activeTab === "Bottleneck" && (
               <>
             {/* ── Bottleneck & Alerts + Documents Waiting by Stage (side by side) ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 18, alignItems: "stretch" }}>
+            <div className="path-bottleneck-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 18, alignItems: "stretch" }}>
             <SectionCard title="Bottleneck & Alerts" subtitle="Items requiring immediate attention" icon={Shield} noPad>
               {BOTTLENECK_ALERTS.length === 0 ? (
                 <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 18px" }}>No active alerts — everything is moving smoothly.</p>
@@ -1946,7 +2010,7 @@ export default function Reports() {
             {activeTab === "Returned / Rejected" && (
               <>
             {/* ── KPI Summary Cards ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
+            <div className="path-returned-summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
               <KpiCard label="Total Returned"   value={RR_KPI.totalReturned}          icon={RotateCcw}   color="#c2410c" />
               <KpiCard label="Total Rejected"   value={RR_KPI.totalRejected}           icon={XCircle}     color="#dc2626" />
               <KpiCard label="Return Rate"      value={`${RR_KPI.returnRate}%`}        icon={Percent}     color="#d97706" />
@@ -1997,7 +2061,7 @@ export default function Reports() {
             </SectionCard>
 
             {/* ── Common Reasons Analysis ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 16 }}>
+            <div className="path-returned-chart-grid" style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 16 }}>
               <SectionCard title="Common Reasons Analysis" subtitle="Distribution of return/rejection causes" icon={BarChart3}>
                 <ResponsiveContainer width="100%" height={230}>
                   <BarChart data={RR_REASON_BREAKDOWN} layout="vertical" margin={{ left: 10 }}>
@@ -2032,7 +2096,7 @@ export default function Reports() {
             </div>
 
             {/* ── Trends & Analytics ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="path-returned-chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <SectionCard title="Returned vs Rejected per Month" icon={Activity}>
                 <ResponsiveContainer width="100%" height={210}>
                   <BarChart data={RR_MONTHLY_TREND} barSize={18}>
