@@ -862,9 +862,9 @@ export default function SLAConfiguration() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", fontSize: 14, color: COLORS.textPrimary, background: COLORS.surface }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary, background: COLORS.surface }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+
         .sla-row { transition: background-color 0.15s; }
         .sla-row:hover { background-color: rgba(246,242,255,0.6); }
 
@@ -918,7 +918,6 @@ export default function SLAConfiguration() {
 .sla-document-layout{position:relative}.sla-side-panel{position:fixed;z-index:40;top:72px;right:18px;bottom:18px;width:min(430px,calc(100vw - 36px));overflow-y:auto;box-shadow:0 24px 70px rgba(48,26,81,.22);animation:sla-panel-in .22s cubic-bezier(.23,1,.32,1)}.sla-side-panel .panel-topline{position:sticky;top:-1px;z-index:2;padding-bottom:12px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px)}.sla-panel-close{margin-left:auto;margin-right:8px}.sla-side-panel .panel-topline .sla-state{margin-left:0}@keyframes sla-panel-in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 @media (max-width:720px){.sla-side-panel{top:46px;right:0;bottom:0;width:min(100vw,430px);border-radius:16px 0 0 0}.sla-side-panel:before{position:fixed;z-index:-1;top:0;right:100%;bottom:0;width:100vw;background:rgba(33,18,49,.22);content:""}.sla-side-panel .panel-topline{padding-top:14px}.sla-side-panel .sla-config-preview-card{margin-bottom:12px}}
 
-      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
         /* Canonical PATH page composition: full-width canvas and catalog, compact editorial rhythm. */
         .sla-config-view { width: 100%; max-width: 1380px !important; padding: 16px 18px 48px; margin: 0 auto; }
         .sla-config-hero { min-height: 146px; margin-bottom: 22px !important; padding: 30px 24px 28px !important; border: 1px solid #e6ddf5 !important; border-left: 2px solid #c4b5fd !important; border-radius: 12px !important; background: linear-gradient(118deg,#fbf9ff,#f4edff) !important; }
@@ -1319,7 +1318,7 @@ export default function SLAConfiguration() {
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
-                <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'Inter', sans-serif" }} />
+                <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
               </div>
 
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
@@ -1349,7 +1348,7 @@ export default function SLAConfiguration() {
 const inpStyle = {
   width: "100%", marginTop: 5, padding: "9px 11px", borderRadius: 6,
   border: "1px solid #cbc3d7", background: "#fcf8ff", fontSize: 13,
-  fontFamily: "'Inter', sans-serif", color: "#181445", outline: "none", boxSizing: "border-box",
+  fontFamily: "'DM Sans', sans-serif", color: "#181445", outline: "none", boxSizing: "border-box",
 };
 
 const selStyle = { ...inpStyle, cursor: "pointer" };
