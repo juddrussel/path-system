@@ -8,6 +8,7 @@ import {
   BookOpen,
   Check,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   Eye,
   FileText,
@@ -38,6 +39,7 @@ const FIELD_TYPES = [
   "Checkbox",
   "File Upload",
 ];
+const LIBRARY_PAGE_SIZE = 5;
 let nextFieldId = 100;
 
 async function apiFetch(path, options = {}) {
@@ -477,6 +479,7 @@ export default function DocumentCategories() {
   const [stats, setStats] = useState({ usedThisMonth: 0 });
   const [selectedId, setSelectedId] = useState(null);
   const [query, setQuery] = useState("");
+  const [libraryPage, setLibraryPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [actionError, setActionError] = useState(null);
@@ -534,6 +537,28 @@ export default function DocumentCategories() {
       ),
     [categories, query],
   );
+  const libraryPageCount = Math.max(
+    1,
+    Math.ceil(visibleCategories.length / LIBRARY_PAGE_SIZE),
+  );
+  const paginatedCategories = visibleCategories.slice(
+    (libraryPage - 1) * LIBRARY_PAGE_SIZE,
+    libraryPage * LIBRARY_PAGE_SIZE,
+  );
+  const libraryRangeStart = visibleCategories.length
+    ? (libraryPage - 1) * LIBRARY_PAGE_SIZE + 1
+    : 0;
+  const libraryRangeEnd = Math.min(
+    libraryPage * LIBRARY_PAGE_SIZE,
+    visibleCategories.length,
+  );
+
+  useEffect(() => {
+    setLibraryPage(1);
+  }, [query]);
+  useEffect(() => {
+    if (libraryPage > libraryPageCount) setLibraryPage(libraryPageCount);
+  }, [libraryPage, libraryPageCount]);
   const total = categories.length;
   const active = categories.filter(
     (category) => category.status === "Active",
@@ -636,7 +661,7 @@ export default function DocumentCategories() {
 
   return (
     <div className="path-cat-app">
-      <style>{`${PATH_CATEGORY_CSS}${PATH_CATEGORY_SPACING_CSS}${PATH_CATEGORY_TYPOGRAPHY_CSS}${PATH_CATEGORY_TYPE_SCALE_CSS}`}</style>
+      <style>{`${PATH_CATEGORY_CSS}${PATH_CATEGORY_SPACING_CSS}${PATH_CATEGORY_TYPOGRAPHY_CSS}${PATH_CATEGORY_TYPE_SCALE_CSS}${PATH_CATEGORY_PAGINATION_CSS}`}</style>
       <Sidebar activePage="document-categories" />
       <main className="path-cat-main">
         <TopBar onLogout={logout} />
@@ -722,7 +747,10 @@ export default function DocumentCategories() {
                 <Search size={14} />
                 <input
                   value={query}
-                  onChange={(event) => setQuery(event.target.value)}
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                    setLibraryPage(1);
+                  }}
                   placeholder="Search definitions"
                   aria-label="Search definitions"
                 />
@@ -734,7 +762,7 @@ export default function DocumentCategories() {
                   </div>
                 )}
                 {!loading &&
-                  visibleCategories.map((category) => (
+                  paginatedCategories.map((category) => (
                     <button
                       type="button"
                       key={category.id}
@@ -759,6 +787,56 @@ export default function DocumentCategories() {
                   </div>
                 )}
               </div>
+              {!loading && visibleCategories.length > LIBRARY_PAGE_SIZE && (
+                <nav
+                  className="path-cat-pagination"
+                  aria-label="Definition library pagination"
+                >
+                  <span>
+                    {libraryRangeStart}–{libraryRangeEnd} of{" "}
+                    {visibleCategories.length}
+                  </span>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLibraryPage((page) => Math.max(1, page - 1))
+                      }
+                      disabled={libraryPage === 1}
+                      aria-label="Previous definition page"
+                    >
+                      <ChevronLeft size={13} />
+                    </button>
+                    {Array.from(
+                      { length: libraryPageCount },
+                      (_, index) => index + 1,
+                    ).map((page) => (
+                      <button
+                        type="button"
+                        key={page}
+                        className={page === libraryPage ? "active" : ""}
+                        onClick={() => setLibraryPage(page)}
+                        aria-label={`Definition library page ${page}`}
+                        aria-current={page === libraryPage ? "page" : undefined}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLibraryPage((page) =>
+                          Math.min(libraryPageCount, page + 1),
+                        )
+                      }
+                      disabled={libraryPage === libraryPageCount}
+                      aria-label="Next definition page"
+                    >
+                      <ChevronRight size={13} />
+                    </button>
+                  </div>
+                </nav>
+              )}
             </aside>
             <article className="path-cat-detail">
               {selected ? (
@@ -926,6 +1004,10 @@ const PATH_CATEGORY_TYPOGRAPHY_CSS = `
 const PATH_CATEGORY_TYPE_SCALE_CSS = `
 .path-cat-live,.path-cat-kicker{font-size:9px!important;font-weight:800!important;letter-spacing:.05em!important}.path-cat-hero h1{font-size:28px!important;font-weight:800!important;letter-spacing:-.04em!important}.path-cat-hero p{font-size:13px!important;line-height:1.55!important}.path-cat-primary{font-size:11px!important;font-weight:800!important}.path-cat-metric>span:not(.path-cat-metric-icon){font-size:9px!important;font-weight:400!important}.path-cat-metric strong{font-size:25px!important;font-weight:800!important}.path-cat-metric small{font-size:9px!important}.path-cat-library h2,.path-cat-detail h2{font-size:16px!important;font-weight:800!important}.path-cat-library-heading b{font-size:10px!important;font-weight:800!important}.path-cat-search input{font-size:10px!important}.path-cat-list-item strong{font-size:10px!important;font-weight:700!important}.path-cat-list-item small,.path-cat-list-state{font-size:9px!important}.path-cat-detail-header p{font-size:10px!important;line-height:1.45!important}.path-cat-code{font-size:9px!important;font-weight:800!important;letter-spacing:.04em!important}.path-cat-ghost,.path-cat-inline-action,.path-cat-inline-danger{font-size:10px!important;font-weight:700!important}.path-cat-detail-stats span{font-size:9px!important;font-weight:800!important;letter-spacing:.04em!important}.path-cat-detail-stats strong{font-size:17px!important;font-weight:800!important}.path-cat-section-heading strong{font-size:12px!important;font-weight:700!important}.path-cat-field-chips>span{font-size:12px!important;font-weight:700!important}.path-cat-empty-fields{font-size:10px!important}.path-cat-connected strong{font-size:10px!important;font-weight:700!important}.path-cat-connected p{font-size:9px!important;line-height:1.4!important}.path-cat-modal h2{font-size:25px!important;font-weight:800!important;letter-spacing:-.04em!important}.path-cat-modal-header p{font-size:12px!important}.path-cat-editor-grid label>span,.path-cat-editor-wide>span,.path-cat-editor-grid legend{font-size:11px!important;font-weight:700!important}.path-cat-editor-grid input,.path-cat-editor-wide textarea,.path-cat-field-row input,.path-cat-field-row select,.path-cat-choice-row input{font-size:11px!important}.path-cat-editor-grid small{font-size:9px!important}.path-cat-segmented button{font-size:11px!important;font-weight:700!important}.path-cat-order{font-size:9px!important;font-weight:800!important}.path-cat-required{font-size:10px!important}.path-cat-choice-header{font-size:9px!important}.path-cat-select-mode,.path-cat-choice-add{font-size:9px!important;font-weight:800!important}.path-cat-document-note strong{font-size:10px!important}.path-cat-document-note p{font-size:9px!important;line-height:1.4!important}.path-cat-error{font-size:10px!important}
 @media(max-width:640px){.path-cat-hero h1{font-size:23px!important}.path-cat-metric strong{font-size:21px!important}.path-cat-modal h2{font-size:21px!important}}
+`;
+
+const PATH_CATEGORY_PAGINATION_CSS = `
+.path-cat-library{display:flex;flex-direction:column}.path-cat-list{flex:1}.path-cat-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 13px 13px;padding-top:10px;border-top:1px solid #eeeaf3;color:#9b92a4;font:9px 'DM Sans',sans-serif}.path-cat-pagination>div{display:flex;align-items:center;gap:4px}.path-cat-pagination button{display:grid;width:24px;height:24px;place-items:center;border:1px solid #e5dff0;border-radius:6px;background:#fff;color:#847a91;font:700 9px 'DM Sans',sans-serif;cursor:pointer}.path-cat-pagination button:hover:not(:disabled){border-color:#a78bfa;background:#f7f4ff;color:#6d35b9}.path-cat-pagination button.active{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 4px 9px rgba(124,58,237,.16)}.path-cat-pagination button:disabled{cursor:not-allowed;opacity:.42}@media(max-width:640px){.path-cat-pagination{margin:10px 12px 12px}.path-cat-pagination button{width:23px;height:23px}}
 `;
 
 const PATH_CATEGORY_CSS = `
