@@ -1008,20 +1008,20 @@ export default function SLAConfiguration() {
               <div>
                 <div className="date-kicker"><span className="live-dot" /> Document-type policies · inheritance rules</div>
                 <h1>SLA configuration</h1>
-                <p>Define the service level once per document type, then apply it automatically to every matching submission.</p>
+                <p>Set the service level once per document type and apply it automatically to every matching submission.</p>
               </div>
               <div className="sla-policy-status">
                 <span className="sla-status-icon"><Shield size={17} /></span>
-                <span><strong>{rules.length} type policies</strong><small>Applied automatically to new documents</small></span>
+                <span><strong>{rules.length} {rules.length === 1 ? "type policy" : "type policies"}</strong><small>Applied to matching submissions</small></span>
               </div>
             </section>
 
             <section className="sla-document-stats">
               {[
-                ["Document types", rules.length, "Configured policy rows"],
-                ["Documents covered", rules.reduce((total, r) => total + Number(docsActiveFor(r) || 0), 0), "Across active submissions"],
-                ["Reminder coverage", rules.length ? `${Math.round((rules.filter(r => !!r.reminder_stage_hours).length / rules.length) * 100)}%` : "0%", "Policies send reminders"],
-                ["Default fallback", String(rules.filter(r => r.status === "Fallback").length || 1).padStart(2, "0"), "For uncategorized uploads"],
+                ["Document types", rules.length, "Configured policies"],
+                ["Documents covered", rules.reduce((total, r) => total + Number(docsActiveFor(r) || 0), 0), "Across active records"],
+                ["Reminder coverage", rules.length ? `${Math.round((rules.filter(r => !!r.reminder_stage_hours).length / rules.length) * 100)}%` : "0%", "Policies with reminders"],
+                ["Default fallback", String(rules.filter(r => r.status === "Fallback").length || 1).padStart(2, "0"), "For uncategorized documents"],
               ].map(([label, value, sub]) => (
                 <article key={label}><span>{label}</span><strong>{value}</strong><small>{sub}</small></article>
               ))}
@@ -1033,7 +1033,7 @@ export default function SLAConfiguration() {
                   <div>
                     <div className="section-kicker">Policy catalog</div>
                     <h2>SLA by document type <span>{filteredRules.length}</span></h2>
-                    <p>Every matching document inherits the target, reminder, escalation, and owner below.</p>
+                    <p>Matching documents inherit the target, reminders, escalation, and owner shown below.</p>
                   </div>
                   <select value={activeOnlyFilter === "All Rules" ? "All categories" : activeOnlyFilter} onChange={e => { setActiveOnlyFilter(e.target.value === "All categories" ? "All Rules" : e.target.value); setCurrentPage(1); }} aria-label="Filter SLA policies">
                     <option>Active Only</option><option>Paused Only</option><option>All Rules</option>
@@ -1045,7 +1045,7 @@ export default function SLAConfiguration() {
                     const reminder = String(r.reminder_stage_hours || "").split(",").filter(Boolean).length > 0;
                     const initials = (r.document_type || "SLA").split(/\s+/).map(word => word[0]).join("").slice(0, 2).toUpperCase();
                     return <div key={r.id} className={`sla-policy-row ${showEditModal && r.id === selectedRuleId ? "selected" : ""}`}>
-                      <div className="sla-document-cell"><span className="task-avatar violet">{initials}</span><span><strong>{r.document_type}</strong><small>{r.remarks || "Document workflow policy"} · {ruleCode(r, i)}</small></span></div>
+                      <div className="sla-document-cell"><span className="task-avatar violet">{initials}</span><span><strong>{r.document_type}</strong><small>{r.remarks || "Workflow policy"} · {ruleCode(r, i)}</small></span></div>
                       <span className="sla-category-cell">{r.category || "Document workflow"}</span>
                       <strong className="sla-target-cell">{r.turnaround_hours}h</strong>
                       <span className={`sla-policy-reminder ${reminder ? "enabled" : "disabled"}`}>{reminder ? "On" : "Off"}</span>
@@ -1055,7 +1055,7 @@ export default function SLAConfiguration() {
                       <button type="button" className="sla-row-edit" onClick={() => { selectRule(r.id); setShowEditModal(true); }} aria-label={`Edit ${r.document_type} SLA policy`}><Pencil size={13} /> Edit</button>
                     </div>;
                   })}
-                  {!pagedRules.length && <div className="people-empty"><SlidersHorizontal size={22} /><strong>No SLA policies match your filters</strong><span>Adjust the filters to view more policies.</span></div>}
+                  {!pagedRules.length && <div className="people-empty"><SlidersHorizontal size={22} /><strong>No policies match the selected filters</strong><span>Try changing the filters to view available policies.</span></div>}
                 </div>
                 <div className="sla-list-footer"><span>Showing {pagedRules.length} of {filteredRules.length} SLA policies</span><div><button type="button" disabled={safePage <= 1} onClick={() => setCurrentPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" disabled={safePage >= totalPages} onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}>Next</button></div></div>
               </section>
@@ -1066,12 +1066,12 @@ export default function SLAConfiguration() {
                   <div className="sla-selected-document"><span className="tracking-detail-avatar violet">{(ruleForm.docType || "SLA").split(/\s+/).map(word => word[0]).join("").slice(0, 2).toUpperCase()}</span><div><strong>{ruleForm.docType}</strong><small>{ruleForm.reviewerRole || "Program Chair"} · policy configuration</small></div></div>
                   <div className="sla-inheritance-banner"><Shield size={15} /><div><strong>Automatic inheritance</strong><small>New “{ruleForm.docType}” documents receive this policy at submission.</small></div></div>
                   <div className="sla-document-fields"><label className="sla-form-field"><span>Target window</span><div className="sla-input-with-unit"><input value={ruleForm.turnaroundHours} onChange={e => set("turnaroundHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label><label className="sla-form-field"><span>Escalate after</span><div className="sla-input-with-unit"><input value={ruleForm.escalationHours} onChange={e => set("escalationHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label></div>
-                  <div className="sla-detail-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span><strong>Reminder schedule</strong><small>{ruleForm.reminderStageDays || "No reminder stages"} hours before deadline</small></span></div>
+                  <div className="sla-detail-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span><strong>Reminder schedule</strong><small>{ruleForm.reminderStageDays ? `${ruleForm.reminderStageDays} hours before deadline` : "No reminder stages configured"}</small></span></div>
                   <label className="sla-form-field sla-owner-select"><span>Assigned reviewer role</span><select value={ruleForm.reviewerRole || ""} onChange={e => set("reviewerRole", e.target.value)}>{REVIEWER_ROLES.map(role => <option key={role}>{role}</option>)}</select></label>
                   <div className="sla-detail-facts"><div><span>Status</span><strong>{ruleForm.status}</strong></div><div><span>Coverage</span><strong>{selectedRuleId ? docsActiveFor(rules.find(r => r.id === selectedRuleId) || {}) : 0} active records</strong></div></div>
                   <div className="sla-config-preview-card">{renderPreviewCard()}</div>
-                  <button type="button" className="primary-action sla-save-document" onClick={handleUpdateRule} disabled={saving}>{saving ? "Saving…" : "Save type policy"} <CheckCircle2 size={14} /></button>
-                  <div className="sla-preview-callout"><Shield size={15} /><div><strong>Inherited on the document record</strong><p>Reviewers see this policy’s target and escalation on every matching document and task.</p></div></div>
+                  <button type="button" className="primary-action sla-save-document" onClick={handleUpdateRule} disabled={saving}>{saving ? "Saving…" : "Save policy"} <CheckCircle2 size={14} /></button>
+                  <div className="sla-preview-callout"><Shield size={15} /><div><strong>Applied to matching documents</strong><p>Reviewers see this policy’s target and escalation on every matching document.</p></div></div>
                 </div>
               </aside> : null}
             </div>
