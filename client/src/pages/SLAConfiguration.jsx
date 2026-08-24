@@ -731,12 +731,12 @@ export default function SLAConfiguration() {
       escalation?.notify_sms && "SMS",
     ].filter(Boolean);
     return (
-      <div style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: BOX_RADIUS, padding: 16, position: "relative", overflow: "hidden" }}>
+      <div className="sla-preview-surface" style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: BOX_RADIUS, padding: 16, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: 0, left: 0, width: 4, height: "100%", background: "#7c3aed" }} />
         <h3 style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 12 }}>
           Configuration Preview
         </h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+        <div className="sla-preview-facts" style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span style={{ fontSize: 11, color: "#6b7280" }}>Document</span>
             <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.docType}</span>
@@ -750,7 +750,7 @@ export default function SLAConfiguration() {
             <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.reviewerRole || "—"}</span>
           </div>
         </div>
-        <div style={{ borderTop: "1px solid rgba(124,58,237,0.15)", paddingTop: 12 }}>
+          <div className="sla-preview-timeline" style={{ borderTop: "1px solid rgba(124,58,237,0.15)", paddingTop: 12 }}>
           <h4 style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, marginBottom: 8 }}>Escalation Timeline</h4>
           <div style={{ position: "relative", borderLeft: "2px solid #ddd6fe", marginLeft: 6, display: "flex", flexDirection: "column", gap: 10 }}>
             {(ruleForm.reminderStageDays || "")
@@ -759,7 +759,7 @@ export default function SLAConfiguration() {
               .filter(n => Number.isInteger(n) && n > 0)
               .sort((a, b) => b - a)
               .map(hours => (
-                <div key={hours} style={{ position: "relative", paddingLeft: 14 }}>
+                <div key={hours} className="sla-preview-timeline-item" style={{ position: "relative", paddingLeft: 14 }}>
                   <div style={{ position: "absolute", width: 10, height: 10, background: "#faf5ff", border: "2px solid #a78bfa", borderRadius: "50%", left: -7, top: 2 }} />
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>
                     {hours} Hour{hours === 1 ? "" : "s"} Before Deadline
@@ -767,12 +767,12 @@ export default function SLAConfiguration() {
                   <span style={{ fontSize: 10.5, color: "#9ca3af" }}>Reminder to faculty + reviewer</span>
                 </div>
               ))}
-            <div style={{ position: "relative", paddingLeft: 14 }}>
+            <div className="sla-preview-timeline-item due" style={{ position: "relative", paddingLeft: 14 }}>
               <div style={{ position: "absolute", width: 10, height: 10, background: "#f5f3ff", border: "2px solid #7c3aed", borderRadius: "50%", left: -7, top: 2 }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>Due in {ruleForm.turnaroundHours} Hours</span>
               <span style={{ fontSize: 10.5, color: "#9ca3af" }}>Turnaround deadline</span>
             </div>
-            <div style={{ position: "relative", paddingLeft: 14 }}>
+            <div className="sla-preview-timeline-item overdue" style={{ position: "relative", paddingLeft: 14 }}>
               <div style={{ position: "absolute", width: 10, height: 10, background: "#fef2f2", border: "2px solid #ef4444", borderRadius: "50%", left: -7, top: 2 }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: "#ef4444", display: "block" }}>Overdue (+{ruleForm.escalationHours}h)</span>
               <span style={{ fontSize: 10.5, color: "#9ca3af" }}>
@@ -1076,6 +1076,33 @@ export default function SLAConfiguration() {
         .sla-side-panel .sla-detail-facts span { color:#aaa0ae !important; font:800 8px/1 "DM Sans",sans-serif !important; letter-spacing:.08em !important; text-transform:uppercase !important; }
         .sla-side-panel .sla-detail-facts strong { color:#51435d !important; font:600 11px/1.2 Manrope,sans-serif !important; }
         @media (max-width:560px) { .sla-side-panel > .panel-topline { padding:14px 18px !important; } .sla-side-panel > .sla-panel-body { padding:14px 20px 28px !important; } .sla-side-panel .sla-document-fields { gap:14px !important; } .sla-side-panel .sla-input-with-unit input { height:34px !important; } }
+        .sla-preview-slot { margin:0 !important; }
+        .sla-preview-surface { border:1px solid #e4daf5 !important; border-radius:14px !important; padding:18px 17px 17px !important; background:linear-gradient(145deg,#fcfaff 0%,#f4edff 100%) !important; box-shadow:0 10px 24px rgba(91,49,145,.06) !important; }
+        .sla-preview-surface:before { width:4px !important; background:linear-gradient(180deg,#a78bfa,#7c3aed) !important; border-radius:0 4px 4px 0 !important; }
+        .sla-preview-surface h3 { margin-bottom:16px !important; color:#7543c4 !important; font:800 9px/1 "DM Sans",sans-serif !important; letter-spacing:.12em !important; }
+        .sla-preview-facts { gap:9px !important; margin-bottom:17px !important; }
+        .sla-preview-facts > div { align-items:center !important; min-height:18px !important; }
+        .sla-preview-facts > div > span:first-child { color:#897d96 !important; font:500 10px/1.2 "DM Sans",sans-serif !important; }
+        .sla-preview-facts > div > span:last-child { max-width:62% !important; overflow:hidden !important; color:#352b42 !important; font:700 11px/1.2 Manrope,sans-serif !important; text-align:right !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
+        .sla-preview-timeline { padding-top:15px !important; border-top-color:#ddd1ee !important; }
+        .sla-preview-timeline h4 { margin-bottom:13px !important; color:#73667d !important; font:700 10px/1.2 "DM Sans",sans-serif !important; }
+        .sla-preview-timeline > div { gap:11px !important; }
+        .sla-preview-timeline-item { min-height:43px !important; padding-left:16px !important; }
+        .sla-preview-timeline-item > div:first-child { width:9px !important; height:9px !important; left:-6px !important; top:3px !important; background:#fff !important; border-color:#a78bfa !important; box-shadow:0 0 0 3px rgba(167,139,250,.12) !important; }
+        .sla-preview-timeline-item > span:first-of-type { color:#7543c4 !important; font:700 10px/1.25 Manrope,sans-serif !important; }
+        .sla-preview-timeline-item > span:last-of-type { display:block !important; margin-top:3px !important; color:#a198a8 !important; font:400 9px/1.35 "DM Sans",sans-serif !important; }
+        .sla-preview-timeline-item.due > div:first-child { border-color:#7c3aed !important; box-shadow:0 0 0 3px rgba(124,58,237,.12) !important; }
+        .sla-preview-timeline-item.due > span:first-of-type { color:#6d35b9 !important; }
+        .sla-preview-timeline-item.overdue > div:first-child { border-color:#e05a5a !important; background:#fff7f7 !important; box-shadow:0 0 0 3px rgba(224,90,90,.11) !important; }
+        .sla-preview-timeline-item.overdue > span:first-of-type { color:#d25757 !important; }
+        .sla-side-panel .sla-preview-callout { display:flex !important; align-items:flex-start !important; gap:10px !important; margin-top:14px !important; padding:13px 12px !important; border:1px solid #e4daf5 !important; border-radius:11px !important; background:linear-gradient(135deg,#fff,#faf7ff) !important; box-shadow:0 6px 18px rgba(91,49,145,.045) !important; }
+        .sla-side-panel .sla-preview-callout-icon { display:grid !important; flex:none !important; width:28px !important; height:28px !important; place-items:center !important; border-radius:9px !important; background:#eee7fd !important; color:#7c3aed !important; }
+        .sla-side-panel .sla-preview-callout-icon svg { color:#7c3aed !important; }
+        .sla-side-panel .sla-preview-callout > div { min-width:0 !important; flex:1 1 auto !important; }
+        .sla-side-panel .sla-preview-callout strong { display:block !important; margin-bottom:4px !important; color:#44334f !important; font:700 10px/1.2 Manrope,sans-serif !important; }
+        .sla-side-panel .sla-preview-callout p { margin:0 !important; color:#978d9f !important; font:400 9px/1.45 "DM Sans",sans-serif !important; }
+        .sla-side-panel .sla-preview-callout-arrow { flex:none !important; margin-top:7px !important; color:#b49adf !important; }
+        @media (max-width:560px) { .sla-preview-surface { padding:16px 15px 15px !important; } .sla-preview-facts > div > span:last-child { max-width:58% !important; } .sla-side-panel .sla-preview-callout { padding:12px 11px !important; } }
         .sla-list-heading-actions { display:flex !important; align-items:center !important; gap:10px !important; flex:0 0 auto !important; }
         .sla-add-policy { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:36px !important; padding:0 14px !important; border:0 !important; border-radius:8px !important; background:#7c3aed !important; color:#fff !important; box-shadow:0 8px 18px rgba(124,58,237,.16) !important; font:700 11px/1 "DM Sans",sans-serif !important; cursor:pointer !important; transition:background .16s ease,transform .16s ease !important; }
         .sla-add-policy:hover { background:#6d28d9 !important; }
@@ -1199,9 +1226,9 @@ export default function SLAConfiguration() {
                   <div className="sla-detail-setting sla-reminder-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span className="sla-reminder-editor"><strong>Reminder schedule</strong><HourChipsInput value={ruleForm.reminderStageDays} onChange={v => set("reminderStageDays", v)} placeholder="Add reminder" /><small>Edit the hours before the deadline when reminders are sent.</small></span></div>
                   <label className="sla-form-field sla-owner-select"><span>Assigned reviewer role</span><select value={ruleForm.reviewerRole || ""} onChange={e => set("reviewerRole", e.target.value)}>{REVIEWER_ROLES.map(role => <option key={role}>{role}</option>)}</select></label>
                   <div className="sla-detail-facts"><div><span>Status</span><strong>{ruleForm.status}</strong></div><div><span>Coverage</span><strong>{selectedRuleId ? docsActiveFor(rules.find(r => r.id === selectedRuleId) || {}) : 0} active records</strong></div></div>
-                  <div className="sla-config-preview-card">{renderPreviewCard()}</div>
+                  <div className="sla-preview-slot">{renderPreviewCard()}</div>
                   <button type="button" className="primary-action sla-save-document" onClick={handleUpdateRule} disabled={saving}>{saving ? "Saving…" : "Save policy"} <CheckCircle2 size={14} /></button>
-                  <div className="sla-preview-callout"><Shield size={15} /><div><strong>Applied to matching documents</strong><p>Reviewers see this policy’s target and escalation on every matching document.</p></div></div>
+                  <div className="sla-preview-callout"><span className="sla-preview-callout-icon"><Shield size={15} /></span><div><strong>Applied to matching documents</strong><p>Reviewers see this policy’s target and escalation on every matching document.</p></div><ChevronRight size={14} className="sla-preview-callout-arrow" /></div>
                 </div>
               </aside> : null}
             </div>
