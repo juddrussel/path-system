@@ -1,28 +1,48 @@
-import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import {
-  Plus, Eye, Pencil, Archive, Trash2, Search, ChevronDown,
-  Layers, CheckCircle2, Inbox as InboxIcon, BarChart3,
-  X, GripVertical, Check,
+  Archive,
+  BarChart3,
+  BookOpen,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  Eye,
+  FileText,
+  Layers,
+  Pencil,
+  Plus,
+  Search,
+  ShieldCheck,
+  Trash2,
+  X,
 } from "lucide-react";
 
-// ── Role-based nav visibility (matches Dashboard.jsx) ──────────────────────
-const ADMIN_NAV_ROLES = ["admin", "program_chair"];
-
-// ── API base URL ────────────────────────────────────────────────────────────
-// Points at your Render backend. Set VITE_API_URL (Vite) or
-// REACT_APP_API_URL (CRA) in Vercel's project env vars to your Render URL,
-// e.g. https://path-backend.onrender.com — falls back to same-origin "/api"
-// if neither is set, which only works if you're proxying through Vercel.
 const API_BASE_URL =
-  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
-  (typeof process !== "undefined" && process.env && process.env.REACT_APP_API_URL) ||
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_URL) ||
+  (typeof process !== "undefined" &&
+    process.env &&
+    process.env.REACT_APP_API_URL) ||
   "";
 
+const FIELD_TYPES = [
+  "Text Input",
+  "Text Area",
+  "Date",
+  "Dropdown",
+  "Number",
+  "Checkbox",
+  "File Upload",
+];
+let nextFieldId = 100;
+
 async function apiFetch(path, options = {}) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
@@ -31,133 +51,30 @@ async function apiFetch(path, options = {}) {
       ...(options.headers || {}),
     },
   });
-
   let body = null;
-  try { body = await res.json(); } catch { /* no JSON body */ }
-
-  if (!res.ok) {
-    throw new Error(body?.message || `Request failed (${res.status})`);
+  try {
+    body = await res.json();
+  } catch {
+    /* empty response */
   }
+  if (!res.ok)
+    throw new Error(body?.message || `Request failed (${res.status})`);
   return body;
 }
 
-// ── Sidebar SVG Icons (kept identical to Dashboard.jsx) ─────────────────────
-const Icon = {
-  Grid: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <rect x="1" y="1" width="6" height="6" rx="1" />
-      <rect x="9" y="1" width="6" height="6" rx="1" />
-      <rect x="1" y="9" width="6" height="6" rx="1" />
-      <rect x="9" y="9" width="6" height="6" rx="1" />
-    </svg>
-  ),
-  Inbox: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" />
-    </svg>
-  ),
-  Plus: ({ color = "currentColor", size = 14 }) => (
-    <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" width={size} height={size}>
-      <path d="M8 1v14M1 8h14" />
-    </svg>
-  ),
-  Tasks: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" />
-    </svg>
-  ),
-  Workflow: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <circle cx="8" cy="8" r="3" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  ),
-  Reports: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" />
-    </svg>
-  ),
-  Forms: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" />
-    </svg>
-  ),
-  Categories: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" />
-      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" />
-    </svg>
-  ),
-  Users: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <circle cx="6" cy="5" r="3" />
-      <path d="M1 14c0-3 2-5 5-5s5 2 5 5" />
-      <path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" />
-    </svg>
-  ),
-  Shield: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" />
-    </svg>
-  ),
-  Settings: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <circle cx="8" cy="8" r="2" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  ),
-  Help: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="7" />
-      <path d="M8 7v4M8 5v1" />
-    </svg>
-  ),
-  Logout: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
-    </svg>
-  ),
-  Search: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
-      <circle cx="6.5" cy="6.5" r="4.5" />
-      <path d="M10.5 10.5L14 14" strokeLinecap="round" />
-    </svg>
-  ),
-  AssignTask: () => (
-    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
-      <path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" />
-      <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  ),
-  Tracking: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>
-  ),
-  SLA: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
-      <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-};
-
-// ── Sample category data (mirrors the reference screenshot) ────────────────
-const FIELD_TYPES = ["Text Input", "Text Area", "Date", "Dropdown", "Number", "Checkbox", "File Upload"];
-
-let nextFieldId = 100;
-const mkField = (name, fieldType, required) => ({ id: nextFieldId++, name, fieldType, required });
-
-// ── Auto-generate a category code from the name (e.g. "Student Request Form" → SRF-006) ──
 function generateCategoryCode(name, existingCodes) {
   const words = name.trim().split(/\s+/).filter(Boolean);
-  let letters = words.map(w => w[0]).join("").toUpperCase().replace(/[^A-Z]/g, "");
-  if (letters.length < 2) letters = (name.replace(/[^a-zA-Z]/g, "").toUpperCase() + "XXX").slice(0, 3);
+  let letters = words
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+  if (letters.length < 2)
+    letters = (name.replace(/[^a-zA-Z]/g, "").toUpperCase() + "XXX").slice(
+      0,
+      3,
+    );
   letters = letters.slice(0, 4) || "CAT";
-
   let n = 1;
   let candidate;
   do {
@@ -167,1004 +84,404 @@ function generateCategoryCode(name, existingCodes) {
   return candidate;
 }
 
+const statusTone = (status) =>
+  ({
+    Active: "active",
+    Inactive: "inactive",
+    Archived: "archived",
+  })[status] || "inactive";
 
-const TYPE_CFG = {
-  Document: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe" },
-  Form: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
-};
-
-const STATUS_CFG = {
-  Active: { bg: "#ecfdf5", color: "#059669", dot: "#10b981" },
-  Inactive: { bg: "#f3f4f6", color: "#6b7280", dot: "#9ca3af" },
-  Archived: { bg: "#fffbeb", color: "#d97706", dot: "#f59e0b" },
-};
-
-const STATUS_FILTERS = ["All", "Active", "Inactive", "Archived"];
-
-// ── PATH admin palette (matches the Document Categories reference layout) ───
-const PAGE = {
-  primary: "#6b38d4",
-  primaryHover: "#5c2fb8",
-  onBackground: "#181445",
-  onSurfaceVariant: "#494454",
-  outline: "#7b7486",
-  outlineVariant: "#cbc3d7",
-  surface: "#fcf8ff",
-  surfaceContainerLow: "#f6f2ff",
-  surfaceContainerLowest: "#ffffff",
-  background: "#f8f6ff",
-  borderSoft: "rgba(107,56,212,0.16)",
-  shadow: "0 4px 12px rgba(139,92,246,0.05)",
-};
-
-function ActionBtn({ children, title, onClick, danger }) {
-  return (
-    <button
-      title={title}
-      onClick={onClick}
-      style={{
-        width: 26, height: 26, borderRadius: 6, border: "1px solid transparent",
-        background: "transparent", color: danger ? "#9ca3af" : "#6b7280",
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        cursor: "pointer",
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.background = danger ? "#fef2f2" : "#f3f4f6";
-        e.currentTarget.style.color = danger ? "#dc2626" : "#374151";
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.background = "transparent";
-        e.currentTarget.style.color = danger ? "#9ca3af" : "#6b7280";
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-// ── Toggle switch (used for Required flag) ──────────────────────────────────
-function Toggle({ checked, onChange }) {
-  return (
-    <button
-      type="button"
-      onClick={onChange}
-      style={{
-        width: 34, height: 19, borderRadius: 20, border: "none", cursor: "pointer",
-        background: checked ? "#7c3aed" : "#e2e2e7", position: "relative", flexShrink: 0,
-        transition: "background 0.15s",
-      }}
-    >
-      <span style={{
-        position: "absolute", top: 2, left: checked ? 17 : 2,
-        width: 15, height: 15, borderRadius: "50%", background: "white",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.25)", transition: "left 0.15s",
-      }} />
-    </button>
-  );
-}
-
-// ── Segmented pill toggle (Transaction Type / Status) ───────────────────────
-function SegButton({ label, active, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        flex: 1, padding: "10px 0", borderRadius: 9, fontSize: 13, fontWeight: 700,
-        cursor: "pointer", border: active ? "1px solid #7c3aed" : "1px solid #e5e7eb",
-        background: active ? "#7c3aed" : "white", color: active ? "white" : "#374151",
-      }}
-    >
-      {label}
-    </button>
-  );
-}
-
-// ── Multi-select / Single-select segmented toggle (Checkbox fields only) ────
-// Lets the program chair / admin decide whether respondents can tick more
-// than one choice (classic checkbox group) or only one at a time (radio-style).
-function MultiSelectToggle({ value, onChange }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-      <span style={{ fontSize: 10.5, fontWeight: 700, color: "#7c3aed", letterSpacing: 0.4, textTransform: "uppercase", flexShrink: 0 }}>
-        Selection Mode
-      </span>
-      <div style={{ display: "flex", gap: 4, background: "white", border: "1px solid #ddd6fe", borderRadius: 7, padding: 2 }}>
-        {[
-          { key: true, label: "Multiple" },
-          { key: false, label: "Single" },
-        ].map(opt => (
-          <button
-            key={String(opt.key)}
-            type="button"
-            onClick={() => onChange(opt.key)}
-            style={{
-              padding: "4px 10px", borderRadius: 5, border: "none", cursor: "pointer",
-              fontSize: 11, fontWeight: 700,
-              background: value === opt.key ? "#7c3aed" : "transparent",
-              color: value === opt.key ? "white" : "#7c3aed",
-              transition: "background 0.15s",
-            }}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-      <span style={{ fontSize: 10.5, color: "#a78bfa" }}>
-        {value ? "Respondents can check more than one" : "Respondents can check only one"}
-      </span>
-    </div>
-  );
-}
-
-// ── Choices Editor (lets faculty define the options for a Dropdown or
-//    Checkbox field). `children`, if provided, renders above the choice
-//    list — used by Checkbox fields to show the Multi/Single select toggle. ──
-function ChoicesEditor({ options = [], onChange, title = "Choices", children }) {
-  const [draft, setDraft] = useState("");
-
-  const addOption = () => {
-    const val = draft.trim();
-    if (!val) return;
-    if (options.some(o => o.toLowerCase() === val.toLowerCase())) { setDraft(""); return; }
-    onChange([...options, val]);
-    setDraft("");
+function FormFieldBuilder({ fields, setFields }) {
+  const updateField = (id, patch) =>
+    setFields((current) =>
+      current.map((field) =>
+        field.id === id ? { ...field, ...patch } : field,
+      ),
+    );
+  const addField = () => {
+    nextFieldId += 1;
+    setFields((current) => [
+      ...current,
+      {
+        id: nextFieldId,
+        name: `New field ${current.length + 1}`,
+        fieldType: "Text Input",
+        required: false,
+      },
+    ]);
   };
-
-  const updateOption = (idx, val) => onChange(options.map((o, i) => (i === idx ? val : o)));
-  const removeOption = (idx) => onChange(options.filter((_, i) => i !== idx));
+  const addChoice = (field) =>
+    updateField(field.id, {
+      options: [
+        ...(field.options || []),
+        `Option ${(field.options || []).length + 1}`,
+      ],
+    });
+  const changeChoice = (field, choiceIndex, value) =>
+    updateField(field.id, {
+      options: (field.options || []).map((choice, index) =>
+        index === choiceIndex ? value : choice,
+      ),
+    });
+  const removeChoice = (field, choiceIndex) =>
+    updateField(field.id, {
+      options: (field.options || []).filter(
+        (_, index) => index !== choiceIndex,
+      ),
+    });
 
   return (
-    <div style={{
-      marginLeft: 30, padding: "12px 14px", borderRadius: 9,
-      background: "#f5f3ff", border: "1px solid #ddd6fe",
-    }}>
-      <p style={{ fontSize: 10.5, fontWeight: 700, color: "#7c3aed", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 8 }}>
-        {title}
-      </p>
-
-      {children}
-
-      {options.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
-          {options.map((opt, idx) => (
-            <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 14, fontSize: 10.5, color: "#a78bfa", flexShrink: 0 }}>{idx + 1}.</span>
-              <input
-                value={opt}
-                onChange={e => updateOption(idx, e.target.value)}
-                style={{
-                  flex: 1, minWidth: 0, padding: "6px 9px", borderRadius: 7,
-                  border: "1px solid #e5e7eb", fontSize: 12, color: "#111827",
-                  outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif",
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => removeOption(idx)}
-                style={{ background: "transparent", border: "none", color: "#c4b5fd", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
-                onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
-                onMouseLeave={e => e.currentTarget.style.color = "#c4b5fd"}
-              >
-                <X style={{ width: 12, height: 12 }} />
-              </button>
-            </div>
-          ))}
+    <section className="path-cat-form-fields">
+      <div className="path-cat-section-heading">
+        <div>
+          <span className="path-cat-kicker">Form fields</span>
+          <strong>Fields available when users submit this definition</strong>
         </div>
-      )}
-
-      {options.length === 0 && (
-        <p style={{ fontSize: 11.5, color: "#a78bfa", fontStyle: "italic", marginBottom: 8 }}>
-          No choices yet — add the options faculty will pick from below.
-        </p>
-      )}
-
-      <div style={{ display: "flex", gap: 6 }}>
-        <input
-          value={draft}
-          onChange={e => setDraft(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addOption(); } }}
-          placeholder="Add a choice…"
-          style={{
-            flex: 1, minWidth: 0, padding: "6px 9px", borderRadius: 7,
-            border: "1px solid #e5e7eb", fontSize: 12, color: "#111827",
-            outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif",
-          }}
-        />
-        <button
-          type="button"
-          onClick={addOption}
-          style={{
-            display: "flex", alignItems: "center", gap: 4, padding: "6px 11px",
-            borderRadius: 7, border: "1px solid #7c3aed", background: "#7c3aed",
-            color: "white", fontSize: 11.5, fontWeight: 700, cursor: "pointer", flexShrink: 0,
-          }}
-        >
-          <Plus style={{ width: 11, height: 11 }} /> Add Choice
+        <button type="button" className="path-cat-ghost" onClick={addField}>
+          <Plus size={14} /> Add field
         </button>
       </div>
-    </div>
-  );
-}
-
-// ── Edit Category Modal ──────────────────────────────────────────────────────
-function EditCategoryModal({ category, onClose, onSave, error }) {
-  const [name, setName] = useState(category.name);
-  const code = category.code;
-  const [description, setDescription] = useState(category.description);
-  const [type, setType] = useState(category.type);
-  const [status, setStatus] = useState(category.status === "Archived" ? "Active" : category.status);
-  const [fields, setFields] = useState(category.formFields || []);
-
-  const updateField = (id, patch) => {
-    setFields(prev => prev.map(f => f.id === id ? { ...f, ...patch } : f));
-  };
-  const removeField = (id) => setFields(prev => prev.filter(f => f.id !== id));
-  const addField = () => {
-    nextFieldId += 1;
-    setFields(prev => [...prev, { id: nextFieldId, name: "", fieldType: "Text Input", required: false }]);
-  };
-
-  const handleSave = () => {
-    const savedFields = type === "Document" ? [] : fields;
-    onSave({ ...category, name, code, description, type, status, formFields: savedFields, fields: savedFields.length });
-  };
-
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2000,
-        display: "flex", alignItems: "flex-start", justifyContent: "center",
-        padding: "40px 20px", overflowY: "auto",
-      }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: "white", borderRadius: 16, width: "100%", maxWidth: 620,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column",
-          maxHeight: "calc(100vh - 80px)",
-        }}
-      >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid #eee", flexShrink: 0 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>Edit Category</h2>
-          <button
-            onClick={onClose}
-            style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-            onMouseEnter={e => e.currentTarget.style.background = "#f3f4f6"}
-            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-          >
-            <X style={{ width: 16, height: 16 }} />
-          </button>
+      {fields.length === 0 && (
+        <div className="path-cat-empty-fields">
+          No fields yet. Add a field to tailor this submission definition.
         </div>
-
-        {/* Body */}
-        <div style={{ padding: "20px 24px", overflowY: "auto" }}>
-
-          {/* Name / Code */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
-                Category Name <span style={{ color: "#ef4444" }}>*</span>
-              </label>
+      )}
+      <div className="path-cat-builder-list">
+        {fields.map((field, index) => (
+          <div className="path-cat-builder-item" key={field.id}>
+            <div className="path-cat-field-row">
+              <span className="path-cat-order">{index + 1}</span>
               <input
-                value={name}
-                onChange={e => setName(e.target.value)}
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+                value={field.name}
+                onChange={(event) =>
+                  updateField(field.id, { name: event.target.value })
+                }
+                aria-label={`Field ${index + 1} label`}
               />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
-                Category Code <span style={{ color: "#ef4444" }}>*</span>
+              <select
+                value={field.fieldType}
+                onChange={(event) =>
+                  updateField(field.id, {
+                    fieldType: event.target.value,
+                    ...(event.target.value === "Dropdown" && !field.options
+                      ? { options: [] }
+                      : {}),
+                    ...(event.target.value === "Checkbox" && !field.options
+                      ? { options: [], multiSelect: true }
+                      : {}),
+                  })
+                }
+                aria-label={`Field ${index + 1} type`}
+              >
+                {FIELD_TYPES.map((type) => (
+                  <option key={type}>{type}</option>
+                ))}
+              </select>
+              <label className="path-cat-required">
+                <input
+                  type="checkbox"
+                  checked={Boolean(field.required)}
+                  onChange={(event) =>
+                    updateField(field.id, { required: event.target.checked })
+                  }
+                />
+                <span>Required</span>
               </label>
-              <input
-                value={code}
-                readOnly
-                style={{
-                  width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb",
-                  fontSize: 13, color: "#6b7280", outline: "none", background: "#f3f4f6",
-                  fontFamily: "'DM Sans', sans-serif", cursor: "not-allowed",
-                }}
-              />
-              <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 5 }}>Can't be changed after creation</p>
+              <button
+                type="button"
+                className="path-cat-icon-btn path-cat-delete-field"
+                onClick={() =>
+                  setFields((current) =>
+                    current.filter((item) => item.id !== field.id),
+                  )
+                }
+                aria-label={`Remove ${field.name || `field ${index + 1}`} `}
+              >
+                <X size={14} />
+              </button>
             </div>
-          </div>
-
-          {/* Description */}
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Description</label>
-            <textarea
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              rows={2}
-              style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", resize: "vertical", fontFamily: "'DM Sans', sans-serif" }}
-            />
-          </div>
-
-          {/* Transaction Type / Status */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
-                Transaction Type <span style={{ color: "#ef4444" }}>*</span>
-              </label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <SegButton label="Form" active={type === "Form"} onClick={() => setType("Form")} />
-                <SegButton label="Document" active={type === "Document"} onClick={() => setType("Document")} />
-              </div>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Status</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <SegButton label="Active" active={status === "Active"} onClick={() => setStatus("Active")} />
-                <SegButton label="Inactive" active={status === "Inactive"} onClick={() => setStatus("Inactive")} />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid #eee", margin: "0 0 18px" }} />
-
-          {/* Form Fields — only applicable when Transaction Type is "Form" */}
-          {type === "Document" ? (
-            <div style={{
-              padding: "16px 18px", borderRadius: 10, background: "#f9fafb",
-              border: "1px dashed #e5e7eb", textAlign: "center",
-            }}>
-              <p style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>
-                Document categories don't use custom form fields — only the description above is required for this category.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827" }}>Form Fields</h3>
-                <button
-                  onClick={addField}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
-                    borderRadius: 8, border: "1px solid #ddd6fe", background: "#f5f3ff",
-                    color: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                  }}
-                >
-                  <Plus style={{ width: 13, height: 13 }} /> Add Field
-                </button>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {fields.map((f, idx) => (
-                  <div key={f.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{
-                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                      border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
-                    }}>
-                      <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
-                      <span style={{
-                        width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
-                        fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                      }}>
-                        {idx + 1}
-                      </span>
-                      <input
-                        value={f.name}
-                        onChange={e => updateField(f.id, { name: e.target.value })}
-                        placeholder="Field label"
-                        style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
-                      />
-                      <select
-                        value={f.fieldType}
-                        onChange={e => updateField(f.id, {
-                          fieldType: e.target.value,
-                          ...(e.target.value === "Dropdown" && !f.options ? { options: [] } : {}),
-                          ...(e.target.value === "Checkbox" && !f.options ? { options: [], multiSelect: true } : {}),
-                        })}
-                        style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
-                      >
-                        {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
-                      </select>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                        <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
-                        <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
-                      </div>
-                      <button
-                        onClick={() => removeField(f.id)}
-                        style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
-                        onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
-                        onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
-                      >
-                        <X style={{ width: 14, height: 14 }} />
-                      </button>
-                    </div>
-                    {(f.fieldType === "Dropdown" || f.fieldType === "Checkbox") && (
-                      <ChoicesEditor
-                        title={f.fieldType === "Dropdown" ? "Dropdown Choices" : "Checkbox Choices"}
-                        options={f.options || []}
-                        onChange={(opts) => updateField(f.id, { options: opts })}
-                      >
-                        {f.fieldType === "Checkbox" && (
-                          <MultiSelectToggle
-                            value={f.multiSelect !== false}
-                            onChange={(val) => updateField(f.id, { multiSelect: val })}
-                          />
-                        )}
-                      </ChoicesEditor>
-                    )}
+            {(field.fieldType === "Dropdown" ||
+              field.fieldType === "Checkbox") && (
+              <div className="path-cat-choice-editor">
+                <div className="path-cat-choice-header">
+                  <span>
+                    {field.fieldType === "Dropdown"
+                      ? "Dropdown choices"
+                      : "Checkbox choices"}
+                  </span>
+                  {field.fieldType === "Checkbox" && (
+                    <button
+                      type="button"
+                      className="path-cat-select-mode"
+                      onClick={() =>
+                        updateField(field.id, {
+                          multiSelect: field.multiSelect === false,
+                        })
+                      }
+                    >
+                      {field.multiSelect === false
+                        ? "Single selection"
+                        : "Multiple selection"}
+                    </button>
+                  )}
+                </div>
+                {(field.options || []).map((option, choiceIndex) => (
+                  <div
+                    className="path-cat-choice-row"
+                    key={`${field.id}-${choiceIndex}`}
+                  >
+                    <input
+                      value={option}
+                      onChange={(event) =>
+                        changeChoice(field, choiceIndex, event.target.value)
+                      }
+                      aria-label={`Choice ${choiceIndex + 1}`}
+                    />
+                    <button
+                      type="button"
+                      className="path-cat-icon-btn"
+                      onClick={() => removeChoice(field, choiceIndex)}
+                      aria-label={`Remove choice ${choiceIndex + 1}`}
+                    >
+                      <X size={13} />
+                    </button>
                   </div>
                 ))}
-                {fields.length === 0 && (
-                  <p style={{ fontSize: 12.5, color: "#9ca3af", textAlign: "center", padding: "16px 0" }}>No fields yet — click "Add Field" to create one.</p>
-                )}
+                <button
+                  type="button"
+                  className="path-cat-choice-add"
+                  onClick={() => addChoice(field)}
+                >
+                  <Plus size={12} /> Add choice
+                </button>
               </div>
-            </>
-          )}
-        </div>
-
-        {error && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8,
-            background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
-            borderRadius: 9, padding: "10px 14px", fontSize: 12.5,
-            margin: "0 24px 14px",
-          }}>
-            {error}
+            )}
           </div>
-        )}
-
-        {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
-          <button
-            onClick={onClose}
-            style={{ padding: "9px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "white", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 9, border: "none", background: "#2563eb", color: "white", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-            onMouseEnter={e => e.currentTarget.style.background = "#1d4ed8"}
-            onMouseLeave={e => e.currentTarget.style.background = "#2563eb"}
-          >
-            <Check style={{ width: 14, height: 14 }} /> Save Changes
-          </button>
-        </div>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }
-// ── Add Category Modal ───────────────────────────────────────────────────────
-function AddCategoryModal({ onClose, onCreate, existingCodes = [], error }) {
-  const [name, setName] = useState("");
-  const [code, setCode] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("Form");
-  const [status, setStatus] = useState("Active");
-  const [fields, setFields] = useState([]);
 
-  // Code is derived automatically from the name and can't be hand-edited.
+function DefinitionEditorModal({
+  category,
+  existingCodes,
+  error,
+  onClose,
+  onSave,
+}) {
+  const isCreate = !category;
+  const [name, setName] = useState(category?.name || "");
+  const [description, setDescription] = useState(category?.description || "");
+  const [type, setType] = useState(category?.type || "Document");
+  const [status, setStatus] = useState(
+    category?.status === "Archived" ? "Active" : category?.status || "Active",
+  );
+  const [fields, setFields] = useState(category?.formFields || []);
+  const code =
+    category?.code ||
+    (name.trim() ? generateCategoryCode(name, existingCodes) : "");
+
   useEffect(() => {
-    setCode(name.trim() ? generateCategoryCode(name, existingCodes) : "");
-  }, [name, existingCodes]);
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
 
-  const updateField = (id, patch) => {
-    setFields(prev => prev.map(f => f.id === id ? { ...f, ...patch } : f));
-  };
-  const removeField = (id) => setFields(prev => prev.filter(f => f.id !== id));
-  const addField = () => {
-    nextFieldId += 1;
-    setFields(prev => [...prev, { id: nextFieldId, name: "", fieldType: "Text Input", required: false }]);
-  };
-
-  const canCreate = name.trim().length > 0 && code.trim().length > 0;
-
-  const handleCreate = () => {
-    if (!canCreate) return;
-    const savedFields = type === "Document" ? [] : fields;
-    onCreate({
-      id: Date.now(),
+  const save = () => {
+    if (!name.trim()) return;
+    const formFields = type === "Document" ? [] : fields;
+    onSave({
+      ...category,
+      id: category?.id || Date.now(),
       name: name.trim(),
-      code: code.trim(),
+      code,
       description: description.trim(),
       type,
       status,
-      formFields: savedFields,
-      fields: savedFields.length,
-      dateCreated: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      formFields,
+      fields: formFields.length,
+      dateCreated:
+        category?.dateCreated ||
+        new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
     });
   };
 
   return (
     <div
+      className="path-cat-modal-backdrop"
       onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2000,
-        display: "flex", alignItems: "flex-start", justifyContent: "center",
-        padding: "40px 20px", overflowY: "auto",
-      }}
+      role="presentation"
     >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: "white", borderRadius: 16, width: "100%", maxWidth: 620,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column",
-          maxHeight: "calc(100vh - 80px)",
-        }}
+      <section
+        className="path-cat-modal"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="definition-editor-title"
       >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid #eee", flexShrink: 0 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>Add New Category</h2>
+        <header className="path-cat-modal-header">
+          <div>
+            <span className="path-cat-kicker">Document definitions</span>
+            <h2 id="definition-editor-title">
+              {isCreate
+                ? "Create document definition"
+                : "Edit document definition"}
+            </h2>
+            <p>
+              Configure how this definition appears in submissions and workflow
+              configuration.
+            </p>
+          </div>
           <button
+            type="button"
+            className="path-cat-icon-btn"
             onClick={onClose}
-            style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-            onMouseEnter={e => e.currentTarget.style.background = "#f3f4f6"}
-            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            aria-label="Close editor"
           >
-            <X style={{ width: 16, height: 16 }} />
+            <X size={18} />
           </button>
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: "20px 24px", overflowY: "auto" }}>
-
-          {/* Name / Code */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
-                Category Name <span style={{ color: "#ef4444" }}>*</span>
-              </label>
+        </header>
+        <div className="path-cat-modal-body">
+          <div className="path-cat-editor-grid">
+            <label>
+              <span>
+                Document name <b>*</b>
+              </span>
               <input
                 value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="e.g. Student Request Form"
-                style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", fontFamily: "'DM Sans', sans-serif" }}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="e.g. Student Dropping Form"
+                autoFocus
               />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
-                Category Code
-              </label>
+            </label>
+            <label>
+              <span>
+                Document code <b>*</b>
+              </span>
               <input
                 value={code}
                 readOnly
-                placeholder="Auto-generated from name"
-                style={{
-                  width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb",
-                  fontSize: 13, color: "#6b7280", outline: "none", background: "#f3f4f6",
-                  fontFamily: "'DM Sans', sans-serif", cursor: "not-allowed",
-                }}
+                disabled
+                placeholder="Generated automatically"
               />
-              <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 5 }}>Auto-generated, can't be edited</p>
-            </div>
+              <small>Generated automatically and remains immutable.</small>
+            </label>
           </div>
-
-          {/* Description */}
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Description</label>
+          <label className="path-cat-editor-wide">
+            <span>Description</span>
             <textarea
               value={description}
-              onChange={e => setDescription(e.target.value)}
-              rows={2}
-              placeholder="Describe the purpose of this category..."
-              style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 13, color: "#111827", outline: "none", resize: "vertical", fontFamily: "'DM Sans', sans-serif" }}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Describe this document definition."
             />
-          </div>
-
-          {/* Transaction Type / Status */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
-                Transaction Type <span style={{ color: "#ef4444" }}>*</span>
-              </label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <SegButton label="Form" active={type === "Form"} onClick={() => setType("Form")} />
-                <SegButton label="Document" active={type === "Document"} onClick={() => setType("Document")} />
-              </div>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Status</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <SegButton label="Active" active={status === "Active"} onClick={() => setStatus("Active")} />
-                <SegButton label="Inactive" active={status === "Inactive"} onClick={() => setStatus("Inactive")} />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid #eee", margin: "0 0 18px" }} />
-
-          {/* Form Fields — only applicable when Transaction Type is "Form" */}
-          {type === "Document" ? (
-            <div style={{
-              padding: "16px 18px", borderRadius: 10, background: "#f9fafb",
-              border: "1px dashed #e5e7eb", textAlign: "center",
-            }}>
-              <p style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>
-                Document categories don't use custom form fields — only the description above is required for this category.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827" }}>Form Fields</h3>
+          </label>
+          <div className="path-cat-editor-grid">
+            <fieldset>
+              <legend>
+                Transaction type <b>*</b>
+              </legend>
+              <div className="path-cat-segmented">
                 <button
-                  onClick={addField}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
-                    borderRadius: 8, border: "1px solid #ddd6fe", background: "#f5f3ff",
-                    color: "#7c3aed", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                  }}
+                  type="button"
+                  className={type === "Form" ? "active" : ""}
+                  onClick={() => setType("Form")}
                 >
-                  <Plus style={{ width: 13, height: 13 }} /> Add Field
+                  Form
+                </button>
+                <button
+                  type="button"
+                  className={type === "Document" ? "active" : ""}
+                  onClick={() => setType("Document")}
+                >
+                  Document
                 </button>
               </div>
-
-              {fields.length === 0 ? (
-                <div style={{
-                  padding: "28px 18px", borderRadius: 10, background: "#fafafa",
-                  border: "1px dashed #e5e7eb", textAlign: "center",
-                }}>
-                  <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
-                    No fields added yet. Click "Add Field" to start building your form.
-                  </p>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {fields.map((f, idx) => (
-                    <div key={f.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div style={{
-                        display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                        border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
-                      }}>
-                        <GripVertical style={{ width: 14, height: 14, color: "#c4c4c4", cursor: "grab", flexShrink: 0 }} />
-                        <span style={{
-                          width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
-                          fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                        }}>
-                          {idx + 1}
-                        </span>
-                        <input
-                          value={f.name}
-                          onChange={e => updateField(f.id, { name: e.target.value })}
-                          placeholder="Field label"
-                          style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#111827", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif" }}
-                        />
-                        <select
-                          value={f.fieldType}
-                          onChange={e => updateField(f.id, {
-                            fieldType: e.target.value,
-                            ...(e.target.value === "Dropdown" && !f.options ? { options: [] } : {}),
-                            ...(e.target.value === "Checkbox" && !f.options ? { options: [], multiSelect: true } : {}),
-                          })}
-                          style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12.5, color: "#374151", outline: "none", background: "white", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
-                        >
-                          {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{ft}</option>)}
-                        </select>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                          <Toggle checked={f.required} onChange={() => updateField(f.id, { required: !f.required })} />
-                          <span style={{ fontSize: 11.5, color: "#6b7280", fontWeight: 600 }}>Req.</span>
-                        </div>
-                        <button
-                          onClick={() => removeField(f.id)}
-                          style={{ background: "transparent", border: "none", color: "#c4c4c4", cursor: "pointer", padding: 2, flexShrink: 0, display: "flex" }}
-                          onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
-                          onMouseLeave={e => e.currentTarget.style.color = "#c4c4c4"}
-                        >
-                          <X style={{ width: 14, height: 14 }} />
-                        </button>
-                      </div>
-                      {(f.fieldType === "Dropdown" || f.fieldType === "Checkbox") && (
-                        <ChoicesEditor
-                          title={f.fieldType === "Dropdown" ? "Dropdown Choices" : "Checkbox Choices"}
-                          options={f.options || []}
-                          onChange={(opts) => updateField(f.id, { options: opts })}
-                        >
-                          {f.fieldType === "Checkbox" && (
-                            <MultiSelectToggle
-                              value={f.multiSelect !== false}
-                              onChange={(val) => updateField(f.id, { multiSelect: val })}
-                            />
-                          )}
-                        </ChoicesEditor>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {error && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8,
-            background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
-            borderRadius: 9, padding: "10px 14px", fontSize: 12.5,
-            margin: "0 24px 14px",
-          }}>
-            {error}
+            </fieldset>
+            <fieldset>
+              <legend>Status</legend>
+              <div className="path-cat-segmented">
+                <button
+                  type="button"
+                  className={status === "Active" ? "active" : ""}
+                  onClick={() => setStatus("Active")}
+                >
+                  Active
+                </button>
+                <button
+                  type="button"
+                  className={status === "Inactive" ? "active" : ""}
+                  onClick={() => setStatus("Inactive")}
+                >
+                  Inactive
+                </button>
+              </div>
+            </fieldset>
           </div>
-        )}
-
-        {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
-          <button
-            onClick={onClose}
-            style={{ padding: "9px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "white", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-          >
+          {type === "Form" ? (
+            <FormFieldBuilder fields={fields} setFields={setFields} />
+          ) : (
+            <div className="path-cat-document-note">
+              <FileText size={17} />
+              <div>
+                <strong>Document submission definition</strong>
+                <p>
+                  This definition captures the document as a file. Custom form
+                  fields are available when the transaction type is set to Form.
+                </p>
+              </div>
+            </div>
+          )}
+          {error && <div className="path-cat-error">{error}</div>}
+        </div>
+        <footer className="path-cat-modal-actions">
+          <button type="button" className="path-cat-ghost" onClick={onClose}>
             Cancel
           </button>
           <button
-            onClick={handleCreate}
-            disabled={!canCreate}
-            style={{
-              display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 9, border: "none",
-              background: canCreate ? "#2563eb" : "#93c5fd", color: "white", fontSize: 12.5, fontWeight: 700,
-              cursor: canCreate ? "pointer" : "not-allowed",
-            }}
-            onMouseEnter={e => { if (canCreate) e.currentTarget.style.background = "#1d4ed8"; }}
-            onMouseLeave={e => { if (canCreate) e.currentTarget.style.background = "#2563eb"; }}
+            type="button"
+            className="path-cat-primary"
+            onClick={save}
+            disabled={!name.trim()}
           >
-            <Check style={{ width: 14, height: 14 }} /> Create Category
+            {isCreate ? "Create definition" : "Save changes"}{" "}
+            <CheckCircle2 size={15} />
           </button>
-        </div>
-      </div>
+        </footer>
+      </section>
     </div>
   );
 }
 
-// ── View Category Modal (read-only) ──────────────────────────────────────────
-function ViewCategoryModal({ category, onClose, onEdit }) {
-  const tCfg = TYPE_CFG[category.type];
-  const sCfg = STATUS_CFG[category.status] || STATUS_CFG.Active;
-
+function Metric({ label, value, sub, icon }) {
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2000,
-        display: "flex", alignItems: "flex-start", justifyContent: "center",
-        padding: "40px 20px", overflowY: "auto",
-      }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: "white", borderRadius: 16, width: "100%", maxWidth: 620,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column",
-          maxHeight: "calc(100vh - 80px)",
-        }}
-      >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid #eee", flexShrink: 0 }}>
-          <div>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>{category.name}</h2>
-            <span style={{
-              fontSize: 11, fontWeight: 700, color: "#6b7280", background: "#f3f4f6",
-              border: "1px solid #e5e7eb", borderRadius: 6, padding: "2px 7px", marginTop: 4, display: "inline-block",
-            }}>
-              {category.code}
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: "#9ca3af", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
-            onMouseEnter={e => e.currentTarget.style.background = "#f3f4f6"}
-            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-          >
-            <X style={{ width: 16, height: 16 }} />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: "20px 24px", overflowY: "auto" }}>
-
-          {/* Type / Status badges */}
-          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
-            <span style={{
-              fontSize: 11.5, fontWeight: 700, padding: "4px 12px", borderRadius: 6,
-              background: tCfg.bg, color: tCfg.color, border: `1px solid ${tCfg.border}`,
-            }}>
-              {category.type}
-            </span>
-            <span style={{
-              display: "inline-flex", alignItems: "center", gap: 5,
-              fontSize: 11.5, fontWeight: 700, padding: "4px 12px", borderRadius: 20,
-              background: sCfg.bg, color: sCfg.color,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: sCfg.dot, display: "inline-block" }} />
-              {category.status}
-            </span>
-          </div>
-
-          {/* Description */}
-          <div style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Description</p>
-            <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
-              {category.description || "No description provided."}
-            </p>
-          </div>
-
-          {/* Meta */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Date Created</p>
-              <p style={{ fontSize: 13, color: "#111827", fontWeight: 600 }}>{category.dateCreated}</p>
-            </div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Fields</p>
-              <p style={{ fontSize: 13, color: "#111827", fontWeight: 600 }}>{category.fields}</p>
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid #eee", margin: "0 0 18px" }} />
-
-          {/* Form Fields (read-only) */}
-          {category.type === "Document" ? (
-            <div style={{
-              padding: "16px 18px", borderRadius: 10, background: "#f9fafb",
-              border: "1px dashed #e5e7eb", textAlign: "center",
-            }}>
-              <p style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>
-                Document categories don't use custom form fields.
-              </p>
-            </div>
-          ) : (
-            <>
-              <h3 style={{ fontSize: 14, fontWeight: 800, color: "#111827", marginBottom: 12 }}>Form Fields</h3>
-              {(!category.formFields || category.formFields.length === 0) ? (
-                <div style={{
-                  padding: "28px 18px", borderRadius: 10, background: "#fafafa",
-                  border: "1px dashed #e5e7eb", textAlign: "center",
-                }}>
-                  <p style={{ fontSize: 12.5, color: "#9ca3af" }}>No fields defined for this category.</p>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {category.formFields.map((f, idx) => (
-                    <div key={f.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <div style={{
-                        display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                        border: "1px solid #eee", borderRadius: 10, background: "#fafafa",
-                      }}>
-                        <span style={{
-                          width: 20, height: 20, borderRadius: 6, background: "#e5e7eb", color: "#6b7280",
-                          fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                        }}>
-                          {idx + 1}
-                        </span>
-                        <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: "#111827", fontWeight: 600 }}>
-                          {f.name || "Untitled field"}
-                        </span>
-                        <span style={{
-                          fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6,
-                          background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", flexShrink: 0,
-                        }}>
-                          {f.fieldType}
-                        </span>
-                        <span style={{
-                          fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 6, flexShrink: 0,
-                          background: f.required ? "#fef2f2" : "#f3f4f6",
-                          color: f.required ? "#dc2626" : "#9ca3af",
-                        }}>
-                          {f.required ? "Required" : "Optional"}
-                        </span>
-                      </div>
-                      {(f.fieldType === "Dropdown" || f.fieldType === "Checkbox") && (
-                        <div style={{ marginLeft: 30, display: "flex", flexDirection: "column", gap: 6 }}>
-                          {f.fieldType === "Checkbox" && (
-                            <span style={{
-                              alignSelf: "flex-start", fontSize: 10.5, fontWeight: 700, padding: "3px 9px",
-                              borderRadius: 20, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe",
-                            }}>
-                              {f.multiSelect !== false ? "Multiple selection" : "Single selection"}
-                            </span>
-                          )}
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                            {(f.options && f.options.length > 0) ? (
-                              f.options.map((opt, oi) => (
-                                <span key={oi} style={{
-                                  fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20,
-                                  background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe",
-                                }}>
-                                  {opt}
-                                </span>
-                              ))
-                            ) : (
-                              <span style={{ fontSize: 11.5, color: "#c4c4c4", fontStyle: "italic" }}>No choices defined yet</span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 24px", borderTop: "1px solid #eee", flexShrink: 0 }}>
-          <button
-            onClick={onClose}
-            style={{ padding: "9px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "white", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-          >
-            Close
-          </button>
-          <button
-            onClick={onEdit}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 9, border: "none", background: "#2563eb", color: "white", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-            onMouseEnter={e => e.currentTarget.style.background = "#1d4ed8"}
-            onMouseLeave={e => e.currentTarget.style.background = "#2563eb"}
-          >
-            <Pencil style={{ width: 13, height: 13 }} /> Edit Category
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ label, value, sub, icon, iconBg, iconColor }) {
-  return (
-    <div
-      style={{
-        flex: 1, background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.outlineVariant}`,
-        borderRadius: 16, padding: 24, boxShadow: PAGE.shadow,
-        transition: "box-shadow 0.2s",
-      }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = "0 12px 24px rgba(139,92,246,0.10)"}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = PAGE.shadow}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 8, background: iconBg, color: iconColor,
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        }}>
-          {icon}
-        </div>
-        <span style={{ fontSize: 11, fontWeight: 500, color: PAGE.onSurfaceVariant, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
-      </div>
-      <p style={{ fontSize: 36, fontWeight: 700, color: PAGE.onBackground, lineHeight: 1.2, letterSpacing: "-0.02em" }}>{value}</p>
-      {sub && <p style={{ fontSize: 12, color: PAGE.outline, marginTop: 8 }}>{sub}</p>}
-    </div>
+    <article className="path-cat-metric">
+      <span className="path-cat-metric-icon">{icon}</span>
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{sub}</small>
+    </article>
   );
 }
 
 export default function DocumentCategories() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [sortBy, setSortBy] = useState("Date Created");
   const [categories, setCategories] = useState([]);
-  const [stats, setStats] = useState({ total: 0, active: 0, archived: 0, usedThisMonth: 0 });
+  const [stats, setStats] = useState({ usedThisMonth: 0 });
+  const [selectedId, setSelectedId] = useState(null);
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [viewingCategory, setViewingCategory] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [actionError, setActionError] = useState(null);
-
-  // Auto-open "Add New Category" when navigated here from Forms → "Add Form Type"
-  useEffect(() => {
-    if (location.state?.openAddModal) {
-      setShowAddModal(true);
-      // Clear the nav state so refreshing or navigating back doesn't reopen it
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.state]);
-
-  // Auto-open "Edit Category" for a specific template when navigated here from
-  // Forms → "Edit" on a form template card. Waits until categories have loaded
-  // so the target record can actually be found.
-  useEffect(() => {
-    if (location.state?.editCategoryId != null && categories.length > 0) {
-      const target = categories.find(
-        c => c.id === location.state.editCategoryId || c.name === location.state.editCategoryName
-      );
-      if (target) setEditingCategory(target);
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.state, categories]);
+  const [editorCategory, setEditorCategory] = useState(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const loadCategories = async () => {
     setLoading(true);
@@ -1172,10 +489,9 @@ export default function DocumentCategories() {
     try {
       const data = await apiFetch("/api/categories");
       setCategories(data.categories || []);
-      setStats(data.stats || { total: 0, active: 0, archived: 0, usedThisMonth: 0 });
-    } catch (err) {
-      console.error("Failed to load categories:", err);
-      setLoadError(err.message || "Failed to load categories.");
+      setStats(data.stats || { usedThisMonth: 0 });
+    } catch (error) {
+      setLoadError(error.message || "Failed to load document definitions.");
     } finally {
       setLoading(false);
     }
@@ -1183,10 +499,52 @@ export default function DocumentCategories() {
 
   useEffect(() => {
     loadCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    if (
+      categories.length &&
+      !categories.some((category) => category.id === selectedId)
+    )
+      setSelectedId(categories[0].id);
+  }, [categories, selectedId]);
+  useEffect(() => {
+    if (location.state?.openAddModal) {
+      setIsCreateOpen(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+    if (location.state?.editCategoryId != null && categories.length) {
+      const target = categories.find(
+        (category) =>
+          category.id === location.state.editCategoryId ||
+          category.name === location.state.editCategoryName,
+      );
+      if (target) setEditorCategory(target);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, categories, navigate, location.pathname]);
 
-  const handleSaveCategory = async (updated) => {
+  const selected =
+    categories.find((category) => category.id === selectedId) || null;
+  const visibleCategories = useMemo(
+    () =>
+      categories.filter((category) =>
+        `${category.name} ${category.code} ${category.description || ""}`
+          .toLowerCase()
+          .includes(query.trim().toLowerCase()),
+      ),
+    [categories, query],
+  );
+  const total = categories.length;
+  const active = categories.filter(
+    (category) => category.status === "Active",
+  ).length;
+  const configuredFields = categories.reduce(
+    (sum, category) =>
+      sum + (category.formFields?.length ?? category.fields ?? 0),
+    0,
+  );
+
+  const saveExisting = async (updated) => {
     setActionError(null);
     try {
       const saved = await apiFetch(`/api/categories/${updated.id}`, {
@@ -1199,396 +557,364 @@ export default function DocumentCategories() {
           formFields: updated.formFields,
         }),
       });
-      setCategories(prev => prev.map(c => c.id === saved.id ? saved : c));
-      setEditingCategory(null);
-    } catch (err) {
-      console.error("Failed to save category:", err);
-      setActionError(err.message || "Failed to save category.");
+      setCategories((current) =>
+        current.map((category) =>
+          category.id === saved.id ? saved : category,
+        ),
+      );
+      setEditorCategory(null);
+    } catch (error) {
+      setActionError(
+        error.message || "Unable to save this document definition.",
+      );
     }
   };
-
-  const handleCreateCategory = async (newCategory) => {
+  const createCategory = async (created) => {
     setActionError(null);
     try {
-      const created = await apiFetch("/api/categories", {
+      const saved = await apiFetch("/api/categories", {
         method: "POST",
         body: JSON.stringify({
-          name: newCategory.name,
-          description: newCategory.description,
-          type: newCategory.type,
-          status: newCategory.status,
-          formFields: newCategory.formFields,
+          name: created.name,
+          description: created.description,
+          type: created.type,
+          status: created.status,
+          formFields: created.formFields,
         }),
       });
-      setCategories(prev => [created, ...prev]);
-      setStats(prev => ({ ...prev, total: prev.total + 1, active: created.status === "Active" ? prev.active + 1 : prev.active }));
-      setShowAddModal(false);
-    } catch (err) {
-      console.error("Failed to create category:", err);
-      setActionError(err.message || "Failed to create category.");
+      setCategories((current) => [saved, ...current]);
+      setSelectedId(saved.id);
+      setIsCreateOpen(false);
+    } catch (error) {
+      setActionError(
+        error.message || "Unable to create this document definition.",
+      );
     }
   };
-
-  const handleArchiveCategory = async (category) => {
+  const archiveCategory = async (category) => {
     setActionError(null);
     try {
       await apiFetch(`/api/categories/${category.id}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status: "Archived" }),
       });
-      setCategories(prev => prev.map(c => c.id === category.id ? { ...c, status: "Archived" } : c));
-    } catch (err) {
-      console.error("Failed to archive category:", err);
-      setActionError(err.message || "Failed to archive category.");
+      setCategories((current) =>
+        current.map((item) =>
+          item.id === category.id ? { ...item, status: "Archived" } : item,
+        ),
+      );
+    } catch (error) {
+      setActionError(
+        error.message || "Unable to archive this document definition.",
+      );
     }
   };
-
-  const handleDeleteCategory = async (category) => {
-    if (!window.confirm(`Delete "${category.name}"? This can't be undone.`)) return;
+  const deleteCategory = async (category) => {
+    if (!window.confirm(`Delete "${category.name}"? This cannot be undone.`))
+      return;
     setActionError(null);
     try {
       await apiFetch(`/api/categories/${category.id}`, { method: "DELETE" });
-      setCategories(prev => prev.filter(c => c.id !== category.id));
-    } catch (err) {
-      console.error("Failed to delete category:", err);
-      setActionError(err.message || "Failed to delete category.");
+      setCategories((current) =>
+        current.filter((item) => item.id !== category.id),
+      );
+    } catch (error) {
+      setActionError(
+        error.message || "Unable to delete this document definition.",
+      );
     }
   };
-
-  const role = (typeof window !== "undefined" && localStorage.getItem("role")) || "admin";
-  const canViewAdminNav = ADMIN_NAV_ROLES.includes(role);
-  const displayName = (typeof window !== "undefined" && localStorage.getItem("name")) || "PATH Administrator";
-
-  const handleLogout = () => {
+  const closeEditor = () => {
+    setEditorCategory(null);
+    setIsCreateOpen(false);
+    setActionError(null);
+  };
+  const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  const totalCategories = categories.length;
-  const activeCategories = categories.filter(c => c.status === "Active").length;
-  const archivedCategories = categories.filter(c => c.status === "Archived").length;
-  const usedThisMonth = stats.usedThisMonth ?? 0;
-
-  const filtered = useMemo(() => {
-    return categories.filter(c => {
-      const matchesStatus = statusFilter === "All" ? true : c.status === statusFilter;
-      const q = search.trim().toLowerCase();
-      const matchesSearch = !q
-        || c.name.toLowerCase().includes(q)
-        || c.code.toLowerCase().includes(q)
-        || c.description.toLowerCase().includes(q);
-      return matchesStatus && matchesSearch;
-    });
-  }, [search, statusFilter, categories]);
-
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", fontSize: 13, color: PAGE.onBackground, background: PAGE.background }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
-
+    <div className="path-cat-app">
+      <style>{PATH_CATEGORY_CSS}</style>
       <Sidebar activePage="document-categories" />
-
-      {/* ── Main ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: PAGE.surfaceContainerLowest, minWidth: 0 }}>
-
-        {/* Topbar */}
-        <TopBar onLogout={handleLogout} />
-
-        {/* ── Content ── */}
-        <div style={{ minHeight: "calc(100vh - 56px)", background: PAGE.background, overflowY: "auto", padding: "28px 32px" }}>
-
-          {/* Header */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+      <main className="path-cat-main">
+        <TopBar onLogout={logout} />
+        <div className="path-cat-content">
+          <section className="path-cat-hero">
             <div>
-              <h1 style={{ fontSize: 32, lineHeight: "40px", fontWeight: 600, color: PAGE.onBackground, marginBottom: 0, letterSpacing: "-0.02em" }}>Document Categories</h1>
-              <p style={{ fontSize: 14, color: PAGE.onSurfaceVariant, marginTop: 8 }}>Manage document types available within the PATH System.</p>
+              <span className="path-cat-live">
+                <i /> WORKSPACE TAXONOMY · DYNAMIC CONFIGURATION
+              </span>
+              <h1>Document definitions</h1>
+              <p>
+                Manage each document category and document type as one
+                definition used across PATH.
+              </p>
             </div>
             <button
-              onClick={() => setShowAddModal(true)}
-              style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "10px 20px",
-                borderRadius: 9, border: "none", background: PAGE.primary, color: "white",
-                fontSize: 12.5, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
-                boxShadow: "0 2px 6px rgba(107,56,212,0.25)",
+              type="button"
+              className="path-cat-primary"
+              onClick={() => {
+                setActionError(null);
+                setIsCreateOpen(true);
               }}
-              onMouseEnter={e => e.currentTarget.style.background = PAGE.primaryHover}
-              onMouseLeave={e => e.currentTarget.style.background = PAGE.primary}
             >
-              <Icon.Plus size={14} color="white" /> Add Category
+              <Plus size={16} /> New definition
             </button>
-          </div>
-
-          {/* Stat cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
-            <StatCard
-              label="Total Categories"
-              value={totalCategories}
-              sub={`${totalCategories - archivedCategories} non-archived`}
-              icon={<Layers style={{ width: 17, height: 17 }} />}
-              iconBg="rgba(107,56,212,0.10)"
-              iconColor={PAGE.primary}
+          </section>
+          <section className="path-cat-metrics">
+            <Metric
+              label="Definitions"
+              value={total}
+              sub="Dynamic submission records"
+              icon={<Layers size={18} />}
             />
-            <StatCard
-              label="Active"
-              value={activeCategories}
-              sub="Visible to users"
-              icon={<CheckCircle2 style={{ width: 17, height: 17 }} />}
-              iconBg="#d1fae5"
-              iconColor="#059669"
+            <Metric
+              label="Active definitions"
+              value={active}
+              sub="Ready for workflow use"
+              icon={<CheckCircle2 size={18} />}
             />
-            <StatCard
-              label="Archived"
-              value={archivedCategories}
-              sub="Hidden from users"
-              icon={<InboxIcon style={{ width: 17, height: 17 }} />}
-              iconBg="#ffe4e6"
-              iconColor="#e11d48"
+            <Metric
+              label="Configured fields"
+              value={configuredFields}
+              sub="Across all definitions"
+              icon={<FileText size={18} />}
             />
-            <StatCard
-              label="Used This Month"
-              value={usedThisMonth}
-              sub="Total submissions"
-              icon={<BarChart3 style={{ width: 17, height: 17 }} />}
-              iconBg="rgba(138,76,252,0.12)"
-              iconColor="#8a4cfc"
+            <Metric
+              label="Documents covered"
+              value={stats.usedThisMonth || 0}
+              sub="Submitted this month"
+              icon={<BarChart3 size={18} />}
             />
-          </div>
-
-          {/* Search + filters */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 14, marginBottom: 20, flexWrap: "wrap",
-            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.outlineVariant}`,
-            borderRadius: 8, padding: 16, boxShadow: PAGE.shadow,
-          }}>
-            <div style={{
-              flex: "1 1 320px", display: "flex", alignItems: "center", gap: 8,
-              background: PAGE.surfaceContainerLow, border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 9,
-              padding: "10px 14px", color: PAGE.outline,
-            }}>
-              <Search style={{ width: 15, height: 15 }} />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search category name, code, or description..."
-                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12.5, color: PAGE.onBackground, width: "100%", fontFamily: "'DM Sans', sans-serif" }}
-              />
-            </div>
-
-            <div style={{
-              display: "flex", alignItems: "center", gap: 2, background: PAGE.surfaceContainerLow,
-              border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 9, padding: 3,
-            }}>
-              {STATUS_FILTERS.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  style={{
-                    padding: "6px 14px", borderRadius: 7, fontSize: 12, fontWeight: 600,
-                    cursor: "pointer", whiteSpace: "nowrap", border: "none",
-                    background: statusFilter === s ? PAGE.surfaceContainerLowest : "transparent",
-                    color: statusFilter === s ? PAGE.primary : PAGE.onSurfaceVariant,
-                    boxShadow: statusFilter === s ? "0 1px 3px rgba(107,56,212,0.15)" : "none",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "9px 14px",
-                border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 9, background: PAGE.surfaceContainerLowest,
-                fontSize: 12, color: PAGE.onSurfaceVariant, fontWeight: 600, cursor: "pointer",
-              }}>
-                {sortBy} <ChevronDown style={{ width: 13, height: 13, color: PAGE.outline }} />
-              </div>
-            </div>
-          </div>
-
-          {actionError && !editingCategory && !showAddModal && (
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
-              borderRadius: 9, padding: "10px 14px", fontSize: 12.5, marginBottom: 12,
-            }}>
+          </section>
+          {actionError && !editorCategory && !isCreateOpen && (
+            <div className="path-cat-error">
               <span>{actionError}</span>
-              <button onClick={() => setActionError(null)} style={{ background: "transparent", border: "none", color: "#dc2626", cursor: "pointer", fontWeight: 700 }}>
-                <X style={{ width: 14, height: 14 }} />
+              <button type="button" onClick={() => setActionError(null)}>
+                <X size={14} />
               </button>
             </div>
           )}
-
-          <p style={{ fontSize: 12, color: PAGE.outline, marginBottom: 10 }}>
-            {loading ? "Loading categories…" : `${filtered.length} categories found`}
-          </p>
-
-          {loadError && !loading && (
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626",
-              borderRadius: 9, padding: "12px 14px", fontSize: 12.5, marginBottom: 12,
-            }}>
-              <span>Couldn't load categories: {loadError}</span>
+          {loadError && (
+            <div className="path-cat-error">
+              <span>Could not load definitions: {loadError}</span>
               <button
+                type="button"
+                className="path-cat-retry"
                 onClick={loadCategories}
-                style={{ background: "white", border: "1px solid #fecaca", color: "#dc2626", borderRadius: 7, padding: "5px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
               >
                 Retry
               </button>
             </div>
           )}
-
-          {/* Table */}
-          <div style={{
-            background: PAGE.surfaceContainerLowest, border: `1px solid ${PAGE.outlineVariant}`,
-            borderRadius: 16, overflow: "hidden", boxShadow: PAGE.shadow,
-          }}>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: PAGE.surfaceContainerLow, borderBottom: `1px solid ${PAGE.outlineVariant}` }}>
-                    {["Category Name", "Code", "Description", "Type", "Fields", "Status", "Date Created", "Actions"].map((h, i) => (
-                      <th key={h} style={{
-                        textAlign: i === 7 ? "right" : "left", padding: "16px 24px",
-                        fontSize: 11, fontWeight: 500, color: PAGE.onSurfaceVariant,
-                        letterSpacing: 0.5, textTransform: "uppercase", whiteSpace: "nowrap",
-                      }}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading && (
-                    <tr>
-                      <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: PAGE.outline, fontSize: 13 }}>
-                        Loading categories…
-                      </td>
-                    </tr>
-                  )}
-                  {!loading && filtered.map((c, idx) => {
-                    const tCfg = TYPE_CFG[c.type];
-                    const sCfg = STATUS_CFG[c.status];
-                    return (
-                      <tr
-                        key={c.id}
-                        className="table-row-hover"
-                        style={{
-                          borderBottom: idx === filtered.length - 1 ? "none" : `1px solid #e3dfff`,
-                          transition: "background-color 0.15s",
+          <section className="path-cat-layout">
+            <aside className="path-cat-library">
+              <div className="path-cat-library-heading">
+                <div>
+                  <span className="path-cat-kicker">Document definitions</span>
+                  <h2>Definition library</h2>
+                </div>
+                <b>{visibleCategories.length}</b>
+              </div>
+              <div className="path-cat-search">
+                <Search size={14} />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search definitions"
+                  aria-label="Search definitions"
+                />
+              </div>
+              <div className="path-cat-list">
+                {loading && (
+                  <div className="path-cat-list-state">
+                    Loading definitions…
+                  </div>
+                )}
+                {!loading &&
+                  visibleCategories.map((category) => (
+                    <button
+                      type="button"
+                      key={category.id}
+                      className={`path-cat-list-item ${selected?.id === category.id ? "active" : ""}`}
+                      onClick={() => setSelectedId(category.id)}
+                    >
+                      <span className="path-cat-list-icon">
+                        <BookOpen size={15} />
+                      </span>
+                      <span>
+                        <strong>{category.name}</strong>
+                        <small>
+                          {category.code} · {category.type} · {category.status}
+                        </small>
+                      </span>
+                      <ChevronRight size={15} />
+                    </button>
+                  ))}
+                {!loading && !visibleCategories.length && (
+                  <div className="path-cat-list-state">
+                    No definitions match your search.
+                  </div>
+                )}
+              </div>
+            </aside>
+            <article className="path-cat-detail">
+              {selected ? (
+                <>
+                  <header className="path-cat-detail-header">
+                    <div>
+                      <span className="path-cat-kicker">
+                        Selected document definition
+                      </span>
+                      <h2>{selected.name}</h2>
+                      <p>
+                        {selected.description ||
+                          "No description has been added yet."}
+                      </p>
+                      <span className="path-cat-code">
+                        {selected.code} · {selected.type} ·{" "}
+                        <em className={statusTone(selected.status)}>
+                          {selected.status}
+                        </em>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="path-cat-ghost"
+                      onClick={() => {
+                        setActionError(null);
+                        setEditorCategory(selected);
+                      }}
+                    >
+                      <Pencil size={13} /> Edit definition
+                    </button>
+                  </header>
+                  <div className="path-cat-detail-stats">
+                    <div>
+                      <span>Documents covered</span>
+                      <strong>
+                        {selected.usedCount ?? selected.submissions ?? 0}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Workflow state</span>
+                      <strong>{selected.status}</strong>
+                    </div>
+                    <div>
+                      <span>Submission mode</span>
+                      <strong>{selected.type}</strong>
+                    </div>
+                  </div>
+                  <section className="path-cat-preview-fields">
+                    <div className="path-cat-section-heading">
+                      <div>
+                        <span className="path-cat-kicker">
+                          Configured fields
+                        </span>
+                        <strong>Fields available for this definition</strong>
+                      </div>
+                      <button
+                        type="button"
+                        className="path-cat-ghost"
+                        onClick={() => {
+                          setActionError(null);
+                          setEditorCategory(selected);
                         }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = PAGE.surfaceContainerLow}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                       >
-                        <td style={{ padding: "16px 24px", fontSize: 14, fontWeight: 500, color: PAGE.onBackground, maxWidth: 160 }}>{c.name}</td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <span style={{
-                            fontSize: 11, fontWeight: 600, color: PAGE.onSurfaceVariant, background: PAGE.surfaceContainerLow,
-                            border: `1px solid ${PAGE.outlineVariant}`, borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap",
-                          }}>
-                            {c.code}
-                          </span>
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: 13, color: PAGE.onSurfaceVariant, maxWidth: 280 }}>{c.description}</td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <span style={{
-                            fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 6,
-                            background: tCfg.bg, color: tCfg.color, border: `1px solid ${tCfg.border}`,
-                          }}>
-                            {c.type}
-                          </span>
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: 14, color: PAGE.onSurfaceVariant, fontWeight: 500 }}>{c.fields}</td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <span style={{
-                            display: "inline-flex", alignItems: "center", gap: 5,
-                            fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
-                            background: sCfg.bg, color: sCfg.color, border: `1px solid ${sCfg.dot}33`,
-                          }}>
-                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: sCfg.dot, display: "inline-block" }} />
-                            {c.status}
-                          </span>
-                        </td>
-                        <td style={{ padding: "16px 24px", fontSize: 13, color: PAGE.onSurfaceVariant, whiteSpace: "nowrap" }}>{c.dateCreated}</td>
-                        <td style={{ padding: "16px 24px" }}>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
-                            <ActionBtn title="View" onClick={() => setViewingCategory(c)}><Eye style={{ width: 14, height: 14 }} /></ActionBtn>
-                            <ActionBtn title="Edit" onClick={() => setEditingCategory(c)}><Pencil style={{ width: 14, height: 14 }} /></ActionBtn>
-                            {c.status !== "Archived" && (
-                              <ActionBtn title="Archive" onClick={() => handleArchiveCategory(c)}><Archive style={{ width: 14, height: 14 }} /></ActionBtn>
-                            )}
-                            <ActionBtn title="Delete" danger onClick={() => handleDeleteCategory(c)}><Trash2 style={{ width: 14, height: 14 }} /></ActionBtn>
+                        <Pencil size={13} /> Edit fields
+                      </button>
+                    </div>
+                    {selected.type === "Document" ? (
+                      <div className="path-cat-empty-fields">
+                        This document definition accepts a file submission
+                        without custom form fields.
+                      </div>
+                    ) : (
+                      <div className="path-cat-field-chips">
+                        {(selected.formFields || []).length ? (
+                          selected.formFields.map((field) => (
+                            <span key={field.id}>
+                              <CheckCircle2 size={13} />{" "}
+                              {field.name || "Untitled field"}
+                              {field.required ? " · Required" : ""}
+                            </span>
+                          ))
+                        ) : (
+                          <div className="path-cat-empty-fields">
+                            No form fields have been configured yet.
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {!loading && filtered.length === 0 && (
-                    <tr>
-                      <td colSpan={8} style={{ padding: "40px 16px", textAlign: "center", color: PAGE.outline, fontSize: 13 }}>
-                        No categories match your search.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            <div style={{
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "16px 24px", borderTop: `1px solid ${PAGE.outlineVariant}`, background: PAGE.surfaceContainerLowest,
-            }}>
-              <span style={{ fontSize: 14, color: PAGE.onSurfaceVariant }}>
-                Showing {filtered.length} of {totalCategories} categories
-              </span>
-              <span style={{ fontSize: 11, color: PAGE.outline }}>PATH v2.4 · Document Categories Module</span>
-            </div>
-          </div>
-
+                        )}
+                      </div>
+                    )}
+                  </section>
+                  <div className="path-cat-connected">
+                    <ShieldCheck size={17} />
+                    <div>
+                      <strong>One definition, connected everywhere</strong>
+                      <p>
+                        This definition is reused by submissions, SLA policies,
+                        filters, reporting, and audit history.
+                      </p>
+                    </div>
+                  </div>
+                  <footer className="path-cat-detail-actions">
+                    <button
+                      type="button"
+                      className="path-cat-inline-action"
+                      onClick={() => setSelectedId(selected.id)}
+                    >
+                      <Eye size={14} /> Viewing definition
+                    </button>
+                    {selected.status !== "Archived" && (
+                      <button
+                        type="button"
+                        className="path-cat-inline-action"
+                        onClick={() => archiveCategory(selected)}
+                      >
+                        <Archive size={14} /> Archive
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="path-cat-inline-danger"
+                      onClick={() => deleteCategory(selected)}
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </footer>
+                </>
+              ) : (
+                <div className="path-cat-detail-empty">
+                  <BookOpen size={24} />
+                  <strong>Select a definition</strong>
+                  <p>
+                    Choose a document definition from the library to review its
+                    configuration.
+                  </p>
+                </div>
+              )}
+            </article>
+          </section>
         </div>
-
-        {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderTop: "0.5px solid #e5e7eb", fontSize: 10, color: "#aaa", background: "white" }}>
-          <span>© 2026 PATH Document Management System. All rights reserved.</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
-              System Operational
-            </span>
-            <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Privacy Policy</a>
-            <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Terms of Service</a>
-          </div>
-        </div>
-
-      </div>
-
-      {viewingCategory && (
-        <ViewCategoryModal
-          category={viewingCategory}
-          onClose={() => setViewingCategory(null)}
-          onEdit={() => { setEditingCategory(viewingCategory); setViewingCategory(null); }}
-        />
-      )}
-
-      {editingCategory && (
-        <EditCategoryModal
-          category={editingCategory}
-          onClose={() => { setEditingCategory(null); setActionError(null); }}
-          onSave={handleSaveCategory}
+      </main>
+      {(editorCategory || isCreateOpen) && (
+        <DefinitionEditorModal
+          category={editorCategory}
+          existingCodes={categories.map((category) => category.code)}
           error={actionError}
-        />
-      )}
-
-      {showAddModal && (
-        <AddCategoryModal
-          onClose={() => { setShowAddModal(false); setActionError(null); }}
-          onCreate={handleCreateCategory}
-          existingCodes={categories.map(c => c.code)}
-          error={actionError}
+          onClose={closeEditor}
+          onSave={editorCategory ? saveExisting : createCategory}
         />
       )}
     </div>
   );
 }
+
+const PATH_CATEGORY_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+.path-cat-app{display:flex;min-height:100vh;background:#f8f7ff;color:#2d2840;font-family:'DM Sans',sans-serif;font-size:14px}.path-cat-main{min-width:0;flex:1;display:flex;flex-direction:column;background:#f8f7ff}.path-cat-content{min-height:calc(100vh - 56px);padding:32px;overflow:auto;background:radial-gradient(circle at 94% 0,rgba(196,181,253,.22),transparent 28rem),#f8f7ff}.path-cat-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:8px 0 25px;padding-left:18px;border-left:2px solid #c4b5fd}.path-cat-live,.path-cat-kicker{display:block;color:#8b82a0;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}.path-cat-live{margin-bottom:11px}.path-cat-live i{display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #ede9fe}.path-cat-hero h1,.path-cat-detail h2,.path-cat-library h2,.path-cat-modal h2{margin:0;color:#2e2942;font-family:'Manrope',sans-serif;letter-spacing:-.045em}.path-cat-hero h1{font-size:31px;line-height:1.12}.path-cat-hero p{margin:9px 0 0;color:#777187;font-size:14px}.path-cat-primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:10px;padding:11px 16px;background:#7c3aed;color:#fff;font:700 13px 'DM Sans',sans-serif;box-shadow:0 8px 20px rgba(124,58,237,.22);cursor:pointer;transition:transform .16s ease,background .16s ease}.path-cat-primary:hover{background:#6d28d9;transform:translateY(-1px)}.path-cat-primary:active{transform:scale(.97)}.path-cat-primary:disabled{cursor:not-allowed;background:#c4b5fd;box-shadow:none}.path-cat-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.path-cat-metric,.path-cat-library,.path-cat-detail{border:1px solid #e6e1ee;background:rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(75,52,105,.045)}.path-cat-metric{position:relative;min-height:123px;padding:18px;border-radius:14px;overflow:hidden}.path-cat-metric:after{position:absolute;right:0;bottom:0;width:62px;height:3px;background:#c4b5fd;content:''}.path-cat-metric-icon{display:grid;width:31px;height:31px;margin-bottom:13px;border-radius:9px;place-items:center;background:#f0ebff;color:#7c3aed}.path-cat-metric>span:not(.path-cat-metric-icon){display:block;color:#827b91;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}.path-cat-metric strong{display:block;margin-top:4px;font-family:'Manrope',sans-serif;font-size:25px;letter-spacing:-.04em}.path-cat-metric small{display:block;margin-top:4px;color:#9b95a7;font-size:11px}.path-cat-layout{display:grid;grid-template-columns:minmax(260px,.82fr) minmax(0,1.8fr);gap:19px}.path-cat-library,.path-cat-detail{min-height:535px;border-radius:15px}.path-cat-library{overflow:hidden}.path-cat-library-heading{display:flex;align-items:flex-start;justify-content:space-between;padding:19px 19px 14px;border-bottom:1px solid #eeeaf3}.path-cat-library h2{margin-top:4px;font-size:18px}.path-cat-library-heading b{display:grid;min-width:28px;height:28px;border-radius:9px;place-items:center;background:#f0ebff;color:#7c3aed;font-size:12px}.path-cat-search{display:flex;align-items:center;gap:8px;margin:13px;border:1px solid #e6e0ee;border-radius:9px;padding:9px 10px;background:#faf9fd;color:#9189a2}.path-cat-search input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#393348;font:13px 'DM Sans',sans-serif}.path-cat-list{padding:0 7px 10px}.path-cat-list-item{display:grid;width:100%;grid-template-columns:31px minmax(0,1fr) 16px;align-items:center;gap:9px;border:0;border-radius:10px;padding:10px;background:transparent;color:#8b8498;text-align:left;cursor:pointer;transition:background .16s,color .16s}.path-cat-list-item:hover{background:#faf8ff;color:#6d5a8c}.path-cat-list-item.active{background:linear-gradient(90deg,#ede9fe,#f7f4ff);color:#6d28d9}.path-cat-list-item.active .path-cat-list-icon{background:#7c3aed;color:#fff}.path-cat-list-icon{display:grid;width:29px;height:29px;border-radius:8px;place-items:center;background:#f0ecf8;color:#8b5cf6}.path-cat-list-item strong{display:block;overflow:hidden;color:#40394e;font-size:13px;text-overflow:ellipsis;white-space:nowrap}.path-cat-list-item small{display:block;margin-top:3px;overflow:hidden;color:#938b9f;font-size:10.5px;text-overflow:ellipsis;white-space:nowrap}.path-cat-list-state{padding:30px 16px;color:#8d859b;font-size:12px;text-align:center}.path-cat-detail{padding:25px}.path-cat-detail-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.path-cat-detail h2{margin-top:6px;font-size:24px;line-height:1.2}.path-cat-detail-header p{max-width:610px;margin:8px 0;color:#777186;font-size:13px;line-height:1.55}.path-cat-code{color:#7f778d;font-size:11.5px;font-weight:600}.path-cat-code em{font-style:normal}.path-cat-code em.active{color:#059669}.path-cat-code em.inactive{color:#8a8394}.path-cat-code em.archived{color:#d97706}.path-cat-ghost,.path-cat-inline-action,.path-cat-inline-danger{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #ded7e8;border-radius:8px;padding:8px 11px;background:#fff;color:#6746a5;font:700 12px 'DM Sans',sans-serif;white-space:nowrap;cursor:pointer;transition:background .16s,border .16s}.path-cat-ghost:hover,.path-cat-inline-action:hover{border-color:#c4b5fd;background:#f7f4ff}.path-cat-detail-stats{display:grid;grid-template-columns:repeat(3,1fr);margin:24px 0;border:1px solid #eeeaf3;border-radius:11px;overflow:hidden}.path-cat-detail-stats>div{padding:14px 16px;border-right:1px solid #eeeaf3}.path-cat-detail-stats>div:last-child{border-right:0}.path-cat-detail-stats span{display:block;color:#91899b;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}.path-cat-detail-stats strong{display:block;margin-top:5px;color:#40384d;font-family:'Manrope',sans-serif;font-size:16px}.path-cat-preview-fields{padding:17px;border:1px solid #ece7f2;border-radius:12px;background:#fcfbfe}.path-cat-section-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.path-cat-section-heading strong{display:block;margin-top:4px;color:#494153;font-size:13px}.path-cat-field-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}.path-cat-field-chips>span{display:inline-flex;align-items:center;gap:5px;border:1px solid #ddd5f2;border-radius:20px;padding:6px 9px;background:#f5f2fe;color:#6347a5;font-size:11.5px;font-weight:600}.path-cat-empty-fields{margin-top:14px;border:1px dashed #ded8e6;border-radius:9px;padding:15px;background:#fff;color:#898193;font-size:12px;text-align:center}.path-cat-connected{display:flex;gap:10px;margin-top:18px;border-left:3px solid #a78bfa;border-radius:7px;padding:11px 13px;background:#f7f4ff}.path-cat-connected svg{margin-top:2px;flex:none;color:#7c3aed}.path-cat-connected strong{color:#514165;font-size:12px}.path-cat-connected p{margin:4px 0 0;color:#827a8f;font-size:11.5px;line-height:1.45}.path-cat-detail-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.path-cat-inline-danger{border-color:#fde1e1;color:#b91c1c}.path-cat-inline-danger:hover{background:#fff6f6}.path-cat-detail-empty{display:grid;min-height:480px;place-content:center;justify-items:center;color:#91899e;text-align:center}.path-cat-detail-empty svg{margin-bottom:10px;color:#a78bfa}.path-cat-detail-empty strong{color:#645b70}.path-cat-detail-empty p{margin:4px 0;font-size:12px}.path-cat-error{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;background:#fff6f6;color:#b91c1c;font-size:12px}.path-cat-error button{border:0;background:transparent;color:inherit;cursor:pointer}.path-cat-retry{border:1px solid #f0b9b9!important;border-radius:6px!important;padding:5px 8px!important;background:#fff!important;font-size:11px!important;font-weight:700}.path-cat-modal-backdrop{position:fixed;z-index:2000;inset:0;display:flex;align-items:center;justify-content:center;padding:25px;background:rgba(46,34,64,.38);backdrop-filter:blur(5px)}.path-cat-modal{display:flex;width:min(900px,100%);max-height:calc(100vh - 50px);flex-direction:column;overflow:hidden;border:1px solid #e2ddec;border-radius:16px;background:#fff;box-shadow:0 26px 70px rgba(42,26,62,.25)}.path-cat-modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:21px 24px 17px;border-bottom:1px solid #eeeaf3}.path-cat-modal h2{margin-top:5px;font-size:23px}.path-cat-modal-header p{margin:5px 0 0;color:#827a8e;font-size:12.5px}.path-cat-icon-btn{display:inline-grid;width:30px;height:30px;flex:none;border:0;border-radius:8px;place-items:center;background:transparent;color:#90889a;cursor:pointer}.path-cat-icon-btn:hover{background:#f3f0f8;color:#5c486f}.path-cat-modal-body{overflow:auto;padding:21px 24px 24px}.path-cat-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-bottom:17px}.path-cat-editor-grid label,.path-cat-editor-wide{display:block}.path-cat-editor-grid label>span,.path-cat-editor-wide>span,.path-cat-editor-grid legend{display:block;margin-bottom:6px;color:#594f62;font-size:12px;font-weight:700}.path-cat-editor-grid b{color:#7c3aed}.path-cat-editor-grid input,.path-cat-editor-wide textarea,.path-cat-field-row input,.path-cat-field-row select,.path-cat-choice-row input{box-sizing:border-box;width:100%;border:1px solid #dfd9e8;border-radius:8px;padding:9px 10px;outline:0;background:#fff;color:#393243;font:13px 'DM Sans',sans-serif;transition:border .16s,box-shadow .16s}.path-cat-editor-grid input:focus,.path-cat-editor-wide textarea:focus,.path-cat-field-row input:focus,.path-cat-field-row select:focus,.path-cat-choice-row input:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,.18)}.path-cat-editor-grid input:disabled{background:#f6f4f8;color:#91899b}.path-cat-editor-grid small{display:block;margin-top:5px;color:#9991a2;font-size:10.5px}.path-cat-editor-wide textarea{min-height:76px;resize:vertical}.path-cat-editor-grid fieldset{min-width:0;border:0;padding:0;margin:0}.path-cat-segmented{display:flex;gap:4px;border:1px solid #dfd9e8;border-radius:9px;padding:3px;background:#faf9fc}.path-cat-segmented button{min-width:0;flex:1;border:0;border-radius:6px;padding:7px 8px;background:transparent;color:#847b90;font:700 12px 'DM Sans',sans-serif;cursor:pointer}.path-cat-segmented button.active{background:#7c3aed;color:#fff;box-shadow:0 2px 5px rgba(124,58,237,.2)}.path-cat-form-fields{margin-top:20px;border-top:1px solid #eeeaf3;padding-top:18px}.path-cat-builder-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}.path-cat-builder-item{border:1px solid #e8e3ee;border-radius:10px;padding:9px;background:#fbfaff}.path-cat-field-row{display:grid;grid-template-columns:30px minmax(0,1fr) 154px 92px 30px;align-items:center;gap:8px}.path-cat-order{display:grid;width:25px;height:25px;border-radius:7px;place-items:center;background:#ece8f3;color:#786e86;font-size:11px;font-weight:700}.path-cat-required{display:flex;align-items:center;gap:6px;white-space:nowrap;color:#71687b;font-size:11.5px;font-weight:700}.path-cat-required input{accent-color:#7c3aed}.path-cat-delete-field{color:#b5acbe}.path-cat-choice-editor{margin:9px 0 0 33px;border:1px solid #ded6f1;border-radius:8px;padding:10px;background:#f7f4ff}.path-cat-choice-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;color:#6c50a6;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.path-cat-select-mode,.path-cat-choice-add{display:inline-flex;align-items:center;gap:4px;border:1px solid #cfc3eb;border-radius:6px;padding:4px 7px;background:#fff;color:#6d4dab;font:700 10.5px 'DM Sans',sans-serif;cursor:pointer}.path-cat-choice-row{display:flex;align-items:center;gap:5px;margin-top:5px}.path-cat-choice-row input{padding:6px 8px;font-size:11.5px}.path-cat-choice-add{margin-top:7px}.path-cat-document-note{display:flex;gap:11px;margin-top:20px;border:1px solid #dfd5f1;border-radius:10px;padding:14px;background:#f7f4ff}.path-cat-document-note svg{flex:none;color:#7c3aed}.path-cat-document-note strong{color:#59446e;font-size:12px}.path-cat-document-note p{margin:4px 0 0;color:#82788c;font-size:11.5px;line-height:1.45}.path-cat-modal-actions{display:flex;justify-content:flex-end;gap:9px;border-top:1px solid #eeeaf3;padding:14px 24px;background:rgba(255,255,255,.96)}
+@media(max-width:900px){.path-cat-content{padding:24px}.path-cat-metrics{grid-template-columns:repeat(2,1fr)}.path-cat-layout{grid-template-columns:1fr}.path-cat-library{min-height:0}.path-cat-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.path-cat-detail{min-height:0}}
+@media(max-width:640px){.path-cat-content{padding:18px 14px}.path-cat-hero{align-items:flex-start;flex-direction:column;margin-top:3px;padding-left:13px}.path-cat-hero h1{font-size:26px}.path-cat-hero p{font-size:12.5px}.path-cat-primary{width:100%}.path-cat-metrics{grid-template-columns:1fr 1fr;gap:9px}.path-cat-metric{min-height:107px;padding:14px}.path-cat-metric strong{font-size:21px}.path-cat-metric small{font-size:10px}.path-cat-list{grid-template-columns:1fr}.path-cat-detail{padding:18px}.path-cat-detail-header{flex-direction:column}.path-cat-ghost{width:100%}.path-cat-detail-stats{grid-template-columns:1fr}.path-cat-detail-stats>div{border-right:0;border-bottom:1px solid #eeeaf3}.path-cat-detail-stats>div:last-child{border-bottom:0}.path-cat-section-heading{align-items:flex-start;flex-direction:column}.path-cat-section-heading .path-cat-ghost{width:auto}.path-cat-detail-actions{flex-wrap:wrap;justify-content:stretch}.path-cat-detail-actions button{flex:1}.path-cat-modal-backdrop{align-items:flex-start;padding:10px}.path-cat-modal{max-height:calc(100vh - 20px);border-radius:13px}.path-cat-modal-header,.path-cat-modal-body{padding-right:16px;padding-left:16px}.path-cat-modal h2{font-size:20px}.path-cat-editor-grid{grid-template-columns:1fr;gap:13px}.path-cat-field-row{grid-template-columns:27px minmax(0,1fr) 28px}.path-cat-field-row select{grid-column:2/4}.path-cat-required{grid-column:1/3}.path-cat-delete-field{grid-column:3;grid-row:1}.path-cat-choice-editor{margin-left:0}.path-cat-modal-actions{padding:12px 16px}.path-cat-modal-actions .path-cat-ghost,.path-cat-modal-actions .path-cat-primary{width:auto;flex:1}}
+`;
