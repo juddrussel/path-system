@@ -1508,10 +1508,14 @@ export default function Dashboard() {
 .path-overview-shell table th{color:#8b7c96!important;font-weight:700!important;font-size:10px!important;letter-spacing:.08em!important}
 .path-overview-shell table td{color:#51465e!important}
 .path-hero{background:linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)!important}
-.path-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.path-stat-grid{grid-template-columns:1.18fr .92fr 1.08fr .92fr!important}
 .path-stat-card strong{letter-spacing:-.04em}
-.path-content-area{max-width:1180px;width:100%;margin:0 auto}
-@media(max-width:1100px){.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.path-content-area{max-width:none}}
+.path-content-area{max-width:1500px;width:100%;margin:0 auto;box-sizing:border-box}
+.path-main-grid{grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr)!important;gap:14px!important}
+.path-main-grid>article:first-child{border-top:2px solid #7c3aed!important}
+.path-lower-grid{grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr)!important;gap:14px!important}
+.path-lower-grid>article{border-radius:10px 10px 26px 10px!important}
+@media(max-width:1100px){.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.path-content-area{max-width:none}.path-main-grid,.path-lower-grid{grid-template-columns:1fr!important}}
 @media(max-width:900px){.path-hero{padding:28px 20px 22px!important}.path-hero h1{font-size:29px!important}.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.path-stat-card{padding:15px!important}.path-stat-card strong{font-size:24px!important}.path-content-area{padding:20px 16px 30px!important;overflow-x:hidden}.path-content-area>section{grid-template-columns:1fr!important}.path-overview-heading{align-items:flex-start!important}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}}
 `}</style>
 
@@ -1583,7 +1587,7 @@ export default function Dashboard() {
             </div>
 
             {/* PATH Overview stat strip */}
-            <div className="path-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 14, marginTop: 26 }}>
+            <div className="path-stat-grid" style={{ display: "grid", gridTemplateColumns: "1.18fr .92fr 1.08fr .92fr", gap: 14, marginTop: 26 }}>
               {[
                 { label: "Open submissions", value: trackedItems.length, change: "Live queue", detail: "across the department", color: "#7c3aed", icon: FileText },
                 { label: "Awaiting review", value: pendingApprovalsCount, change: "Needs attention", detail: "awaiting a decision", color: "#d97706", icon: Clock },
@@ -1652,7 +1656,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.6fr) minmax(300px, .75fr)", gap: 22, alignItems: "stretch" }}>
+            <section className="path-main-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.65fr) minmax(310px, .8fr)", gap: 14, alignItems: "stretch" }}>
               <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, boxShadow: "0 10px 26px rgba(76,29,149,.06)", overflow: "hidden" }}>
                 <div>
                   {itemsLoading ? <p style={{ padding: 36, color: "#776b83", textAlign: "center" }}>Loading priority queue…</p> : trackedPageItems.slice(0, 4).map((row, index) => (
@@ -1677,7 +1681,7 @@ export default function Dashboard() {
               </article>
             </section>
 
-            <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.25fr) minmax(320px, .75fr)", gap: 22 }}>
+            <section className="path-lower-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.65fr) minmax(310px, .8fr)", gap: 14 }}>
               <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>Recent activity</div><h3 style={{ color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 19, margin: "7px 0 0" }}>What’s moving</h3></div><button type="button" onClick={() => navigate("/audit")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Open audit trail <ArrowUpRight size={13} /></button></div>
                 <div style={{ marginTop: 18 }}>{recentActivityData.slice(0, 5).map((activity) => { const ActivityIcon = activity.icon || Activity; return <div key={activity.id || activity.key || activity.title} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 0", borderBottom: "1px solid #f0eaf5" }}><div style={{ width: 30, height: 30, borderRadius: 9, background: activity.bg || "#f1ebff", color: activity.color || "#7c3aed", display: "grid", placeItems: "center", flexShrink: 0 }}><ActivityIcon size={14} /></div><div style={{ minWidth: 0, flex: 1 }}><strong style={{ display: "block", color: "#3b3045", fontSize: 12 }}>{activity.title || activity.text || "Workflow activity"}</strong><small style={{ color: "#94879c", fontSize: 11 }}>{activity.subtitle || activity.description || activity.time || "Recently"}</small></div><MoreHorizontal size={15} color="#b3a6bd" /></div>; })}{recentActivityData.length === 0 && <ListEmptyState icon={Activity} message="No recent activity yet." />}</div>
