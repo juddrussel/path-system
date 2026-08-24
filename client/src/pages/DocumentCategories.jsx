@@ -636,7 +636,7 @@ export default function DocumentCategories() {
 
   return (
     <div className="path-cat-app">
-      <style>{`${PATH_CATEGORY_CSS}${PATH_CATEGORY_SPACING_CSS}${PATH_CATEGORY_TYPOGRAPHY_CSS}`}</style>
+      <style>{`${PATH_CATEGORY_CSS}${PATH_CATEGORY_SPACING_CSS}${PATH_CATEGORY_TYPOGRAPHY_CSS}${PATH_CATEGORY_TYPE_SCALE_CSS}`}</style>
       <Sidebar activePage="document-categories" />
       <main className="path-cat-main">
         <TopBar onLogout={logout} />
@@ -921,6 +921,11 @@ const PATH_CATEGORY_SPACING_CSS = `
 const PATH_CATEGORY_TYPOGRAPHY_CSS = `
 .path-cat-app,.path-cat-app button,.path-cat-app input,.path-cat-app textarea,.path-cat-app select{font-family:'DM Sans',sans-serif!important}
 .path-cat-app h1,.path-cat-app h2,.path-cat-app h3,.path-cat-app h4,.path-cat-app .path-cat-metric strong,.path-cat-app .path-cat-list-item strong,.path-cat-app .path-cat-detail-stats strong,.path-cat-app .path-cat-detail-empty strong{font-family:'Manrope','DM Sans',sans-serif!important;letter-spacing:-.035em}
+`;
+
+const PATH_CATEGORY_TYPE_SCALE_CSS = `
+.path-cat-live,.path-cat-kicker{font-size:9px!important;font-weight:800!important;letter-spacing:.05em!important}.path-cat-hero h1{font-size:28px!important;font-weight:800!important;letter-spacing:-.04em!important}.path-cat-hero p{font-size:13px!important;line-height:1.55!important}.path-cat-primary{font-size:11px!important;font-weight:800!important}.path-cat-metric>span:not(.path-cat-metric-icon){font-size:9px!important;font-weight:400!important}.path-cat-metric strong{font-size:25px!important;font-weight:800!important}.path-cat-metric small{font-size:9px!important}.path-cat-library h2,.path-cat-detail h2{font-size:16px!important;font-weight:800!important}.path-cat-library-heading b{font-size:10px!important;font-weight:800!important}.path-cat-search input{font-size:10px!important}.path-cat-list-item strong{font-size:10px!important;font-weight:700!important}.path-cat-list-item small,.path-cat-list-state{font-size:9px!important}.path-cat-detail-header p{font-size:10px!important;line-height:1.45!important}.path-cat-code{font-size:9px!important;font-weight:800!important;letter-spacing:.04em!important}.path-cat-ghost,.path-cat-inline-action,.path-cat-inline-danger{font-size:10px!important;font-weight:700!important}.path-cat-detail-stats span{font-size:9px!important;font-weight:800!important;letter-spacing:.04em!important}.path-cat-detail-stats strong{font-size:17px!important;font-weight:800!important}.path-cat-section-heading strong{font-size:12px!important;font-weight:700!important}.path-cat-field-chips>span{font-size:12px!important;font-weight:700!important}.path-cat-empty-fields{font-size:10px!important}.path-cat-connected strong{font-size:10px!important;font-weight:700!important}.path-cat-connected p{font-size:9px!important;line-height:1.4!important}.path-cat-modal h2{font-size:25px!important;font-weight:800!important;letter-spacing:-.04em!important}.path-cat-modal-header p{font-size:12px!important}.path-cat-editor-grid label>span,.path-cat-editor-wide>span,.path-cat-editor-grid legend{font-size:11px!important;font-weight:700!important}.path-cat-editor-grid input,.path-cat-editor-wide textarea,.path-cat-field-row input,.path-cat-field-row select,.path-cat-choice-row input{font-size:11px!important}.path-cat-editor-grid small{font-size:9px!important}.path-cat-segmented button{font-size:11px!important;font-weight:700!important}.path-cat-order{font-size:9px!important;font-weight:800!important}.path-cat-required{font-size:10px!important}.path-cat-choice-header{font-size:9px!important}.path-cat-select-mode,.path-cat-choice-add{font-size:9px!important;font-weight:800!important}.path-cat-document-note strong{font-size:10px!important}.path-cat-document-note p{font-size:9px!important;line-height:1.4!important}.path-cat-error{font-size:10px!important}
+@media(max-width:640px){.path-cat-hero h1{font-size:23px!important}.path-cat-metric strong{font-size:21px!important}.path-cat-modal h2{font-size:21px!important}}
 `;
 
 const PATH_CATEGORY_CSS = `
