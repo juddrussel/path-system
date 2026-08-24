@@ -918,6 +918,17 @@ export default function SLAConfiguration() {
 .sla-document-layout{position:relative}.sla-side-panel{position:fixed;z-index:40;top:72px;right:18px;bottom:18px;width:min(430px,calc(100vw - 36px));overflow-y:auto;box-shadow:0 24px 70px rgba(48,26,81,.22);animation:sla-panel-in .22s cubic-bezier(.23,1,.32,1)}.sla-side-panel .panel-topline{position:sticky;top:-1px;z-index:2;padding-bottom:12px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px)}.sla-panel-close{margin-left:auto;margin-right:8px}.sla-side-panel .panel-topline .sla-state{margin-left:0}@keyframes sla-panel-in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 @media (max-width:720px){.sla-side-panel{top:46px;right:0;bottom:0;width:min(100vw,430px);border-radius:16px 0 0 0}.sla-side-panel:before{position:fixed;z-index:-1;top:0;right:100%;bottom:0;width:100vw;background:rgba(33,18,49,.22);content:""}.sla-side-panel .panel-topline{padding-top:14px}.sla-side-panel .sla-config-preview-card{margin-bottom:12px}}
 
+      /* Final reference alignment: keep the action in the eighth desktop column instead of creating a second row. */
+        @media (min-width: 901px) {
+          .sla-policy-table-head, .sla-policy-row {
+            grid-template-columns: minmax(210px, 1.55fr) minmax(120px, 1fr) 52px 64px 72px minmax(90px, .9fr) 70px 72px !important;
+          }
+          .sla-policy-row .sla-row-edit { grid-column: 8; grid-row: 1; justify-self: start; }
+          .sla-policy-table-head span:last-child { text-align: left; }
+        }
+        @media (max-width: 900px) {
+          .sla-policy-row .sla-row-edit { grid-column: 4; grid-row: 1 / span 2; justify-self: end; }
+        }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
