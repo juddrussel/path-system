@@ -1700,6 +1700,10 @@ export default function UserManagement() {
         @media(max-width:620px){.path-um-request-review .path-um-request-row{grid-template-columns:minmax(0,1fr)!important}.path-um-request-review .path-um-request-actions{grid-column:auto;grid-row:auto}.path-um-request-review .path-um-request-row>p{grid-column:auto}}
       `}</style>
 
+      <style>{`
+        .path-um-request-review .path-um-request-row{align-items:center!important}.path-um-request-review .path-um-request-person{flex-direction:row!important;align-items:center!important;justify-self:start}.path-um-request-review .path-um-request-person>div{justify-content:center}.path-um-request-review .path-um-request-role,.path-um-request-review .path-um-request-row>p,.path-um-request-review .path-um-request-actions{align-self:center}.path-um-request-review .path-um-request-actions{justify-self:end}.path-um-request-review .path-um-avatar-fallback{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+      `}</style>
+
       <Sidebar activePage="users" />
 
       {/* ── MAIN ── */}
