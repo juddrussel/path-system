@@ -230,6 +230,7 @@ function HourChipsInput({ value, onChange, placeholder = "Add hours…" }) {
           <button
             type="button"
             onClick={() => removeAt(h)}
+            className="sla-chip-remove"
             aria-label={`Remove ${h} hours`}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -1067,6 +1068,8 @@ export default function SLAConfiguration() {
         .sla-side-panel .sla-reminder-editor > div { margin-top:0 !important; gap:6px !important; }
         .sla-side-panel .sla-reminder-editor > div button { font-size:10px !important; padding:5px 8px !important; }
         .sla-side-panel .sla-reminder-editor > div span { font-size:10px !important; }
+        .sla-side-panel .sla-reminder-editor .sla-chip-remove { display:grid !important; flex:none !important; width:17px !important; min-width:17px !important; height:17px !important; min-height:17px !important; place-items:center !important; padding:0 !important; box-sizing:border-box !important; border:0 !important; border-radius:50% !important; background:rgba(255,255,255,.26) !important; color:#fff !important; line-height:0 !important; opacity:1 !important; }
+        .sla-side-panel .sla-reminder-editor .sla-chip-remove svg { display:block !important; width:10px !important; height:10px !important; color:#fff !important; stroke:#fff !important; opacity:1 !important; }
         .sla-side-panel .sla-reminder-editor > small { margin-top:1px !important; }
         .sla-side-panel .sla-detail-facts { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:14px !important; margin:0 0 18px !important; }
         .sla-side-panel .sla-detail-facts > div { display:flex !important; flex-direction:column !important; gap:5px !important; }
