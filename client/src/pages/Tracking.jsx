@@ -706,7 +706,7 @@ export default function Tracking() {
   const [statusFilter,setStatusFilter]= useState("All");
   const [selected,    setSelected]    = useState(null);
   const [page,        setPage]        = useState(1);
-  const PER_PAGE = 8;
+  const PER_PAGE = 5;
 
   const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
 
