@@ -9,11 +9,6 @@ import {
   Activity, Gauge, ListTodo, ChevronRight, AlertCircle,
   X, Percent, Paperclip, History, MessageSquare, Search,
 } from "lucide-react";
-import {
-  BarChart, Bar, LineChart, Line, AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart as RPie, Pie, Cell,
-} from "recharts";
 import { exportReportToPDF, exportReportToExcel } from "./reportExport";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
@@ -81,6 +76,16 @@ const PATH_REPORTS_EXACT_CSS = `
   .path-reports-content .recharts-tooltip-wrapper { font-family:'DM Sans',sans-serif; font-size:10px; }
   @media (max-width:1100px) { .path-overview-chart-grid,.path-overview-detail-grid { grid-template-columns:1fr !important; }.path-overview-chart-grid > :last-child { grid-column:auto; }.path-transactions-visuals { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }.path-transactions-visuals > :last-child { grid-column:1 / -1; }.path-returned-chart-grid { grid-template-columns:1fr !important; } }
   @media (max-width:760px) { .path-kpi-grid,.path-transactions-kpi-grid,.path-processing-summary-grid,.path-returned-summary-grid { grid-template-columns:1fr !important; gap:8px !important; }.path-kpi-card { min-height:96px !important; padding:14px !important; }.path-transactions-visuals { grid-template-columns:1fr !important; }.path-transactions-visuals > :last-child { grid-column:auto; }.path-transactions-visuals .path-report-card { min-height:305px; }.path-bottleneck-grid { grid-template-columns:1fr !important; }.path-returned-chart-grid { grid-template-columns:1fr !important; }.path-reports-content .path-report-card-body-no-pad table { min-width:640px; } }
+`;
+
+const PATH_REPORTS_LIVE_CSS = `
+  .path-chart-empty { display:grid; min-height:176px; place-items:center; margin:0; color:#9e94a5; font-family:'DM Sans',sans-serif; font-size:10px; text-align:center; }
+  .path-status-ledger { display:flex; flex-direction:column; gap:17px; padding-top:5px; }.path-status-total { display:flex; align-items:baseline; gap:9px; padding:13px 14px; border-left:3px solid #8b5cf6; border-radius:0 10px 10px 0; background:#f6f1ff; }.path-status-total strong { color:#4a3566; font-family:'Manrope',sans-serif; font-size:30px; letter-spacing:-.07em; }.path-status-total span { color:#968aa0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-status-ledger-rows { display:flex; flex-direction:column; gap:10px; }.path-status-ledger-row > div { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; color:#73657d; font-family:'DM Sans',sans-serif; font-size:8px; }.path-status-ledger-row > div strong { color:#524160; font-size:9px; }.path-status-ledger-row > i { display:block; overflow:hidden; height:7px; border-radius:999px; background:#f0ecf5; }.path-status-ledger-row > i b { display:block; min-width:4px; height:100%; border-radius:inherit; }
+  .path-rank-bars { display:flex; flex-direction:column; gap:14px; padding-top:8px; }.path-rank-row > div { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }.path-rank-row span { overflow:hidden; color:#71647b; font-family:'DM Sans',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-rank-row strong { color:#554361; font-family:'Manrope',sans-serif; font-size:10px; }.path-rank-row > i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f2eef7; }.path-rank-row > i b { display:block; min-width:4px; height:100%; border-radius:inherit; }
+  .path-trend { position:relative; min-height:220px; padding:6px 0 0 26px; }.path-trend-scale { position:absolute; top:9px; bottom:38px; left:0; display:flex; flex-direction:column; justify-content:space-between; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-trend-plot { height:174px; border-bottom:1px solid #eeeaf3; background:repeating-linear-gradient(to bottom,transparent 0,transparent 32.5%,#f0edf4 33%,transparent 33.5%); }.path-trend-plot svg { width:100%; height:100%; overflow:visible; filter:drop-shadow(0 3px 3px rgba(124,58,237,.08)); }.path-trend-labels { display:flex; justify-content:space-between; padding-top:7px; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-chart-legend { display:flex; flex-wrap:wrap; justify-content:center; gap:11px; padding-top:12px; }.path-chart-legend span { display:inline-flex; align-items:center; gap:5px; color:#82758b; font-family:'DM Sans',sans-serif; font-size:8px; }.path-chart-legend i { display:inline-block; width:6px; height:6px; border-radius:50%; }
+  .path-processing-ranges { display:flex; flex-direction:column; gap:14px; padding-top:9px; }.path-range-scale { display:flex; justify-content:space-between; margin-left:174px; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-range-row { display:grid; grid-template-columns:158px minmax(0,1fr); gap:16px; align-items:center; min-height:43px; }.path-range-row > strong { overflow:hidden; color:#4b3b55; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-range-row > div { position:relative; height:14px; border-radius:999px; background:repeating-linear-gradient(to right,#f2eef7 0,#f2eef7 calc(25% - 1px),#e7e0ef 25%); }.path-range-row > div > i { position:absolute; top:4px; height:6px; border-radius:999px; background:linear-gradient(90deg,#c4b5fd,#8b5cf6); }.path-range-row > div > b { position:absolute; top:1px; width:12px; height:12px; transform:translateX(-50%); border:2px solid #fff; border-radius:50%; box-shadow:0 2px 6px rgba(67,44,89,.18); }.path-range-fast { background:#159d77; }.path-range-average { z-index:2; background:#7c3aed; }.path-range-slow { background:#d64550; }.path-range-row > div > span { position:absolute; top:-18px; transform:translateX(-50%); color:#6b3fc2; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }
+  .path-faculty-pulse { display:flex; flex-direction:column; gap:16px; padding-top:7px; }.path-faculty-pulse-row { display:grid; grid-template-columns:180px minmax(0,1fr) 30px; gap:14px; align-items:center; }.path-faculty-pulse-row > div { display:flex; min-width:0; align-items:center; gap:8px; }.path-faculty-pulse-row > div strong { overflow:hidden; color:#51415b; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-faculty-pulse-row section { display:flex; flex-direction:column; gap:5px; }.path-faculty-pulse-row section > i { display:flex; overflow:hidden; height:10px; border-radius:999px; background:#f1edf6; }.path-faculty-pulse-row section b,.path-faculty-pulse-row section em { display:block; height:100%; min-width:0; }.path-faculty-pulse-row section b { background:#159d77; }.path-faculty-pulse-row section em { background:#d58a00; }.path-faculty-pulse-row section small { color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:8px; }.path-faculty-pulse-row > span { color:#76687e; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; text-align:right; }
+  @media (max-width:760px) { .path-trend { min-height:205px; }.path-range-scale { margin-left:121px; }.path-range-row { grid-template-columns:108px minmax(0,1fr); gap:10px; }.path-range-row > strong { font-size:8px; white-space:normal; }.path-faculty-pulse-row { grid-template-columns:112px minmax(110px,1fr) 23px; gap:8px; }.path-faculty-pulse-row > div strong { font-size:8px; white-space:normal; }.path-faculty-pulse-row section small { font-size:7px; } }
 `;
 
 
@@ -317,6 +322,37 @@ function KpiCard({ label, value, icon: IconCmp, color, delta, up }) {
       <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{label}</p>
     </div>
   );
+}
+
+function PathStatusLedger({ data, total }) {
+  const denominator = Math.max(1, total || data.reduce((sum, item) => sum + (item.value || 0), 0));
+  return <div className="path-status-ledger"><div className="path-status-total"><strong>{total || 0}</strong><span>documents in workflow</span></div><div className="path-status-ledger-rows">{data.map((item) => <div className="path-status-ledger-row" key={item.name}><div><span>{item.name}</span><strong>{item.value}</strong></div><i><b style={{ width: `${((item.value || 0) / denominator) * 100}%`, background: item.color }} /></i></div>)}</div></div>;
+}
+
+function PathRankBars({ data, labelKey = "type", valueKey = "count", color = "#7c3aed", emptyText = "No report data available." }) {
+  const max = Math.max(1, ...data.map((item) => Number(item[valueKey]) || 0));
+  if (!data.length) return <p className="path-chart-empty">{emptyText}</p>;
+  return <div className="path-rank-bars">{data.map((item) => <div className="path-rank-row" key={item[labelKey]}><div><span>{item[labelKey]}</span><strong>{item[valueKey]}</strong></div><i><b style={{ width: `${((Number(item[valueKey]) || 0) / max) * 100}%`, background: color }} /></i></div>)}</div>;
+}
+
+function PathTrendChart({ data, series, xKey = "month", emptyText = "No monthly activity available." }) {
+  if (data.length < 2) return <p className="path-chart-empty">{emptyText}</p>;
+  const values = data.flatMap((item) => series.map((line) => Number(item[line.key]) || 0));
+  const max = Math.max(1, ...values);
+  const toPoints = (key) => data.map((item, index) => `${18 + (index * 484) / Math.max(1, data.length - 1)},${184 - ((Number(item[key]) || 0) / max) * 154}`).join(" ");
+  return <div className="path-trend"><div className="path-trend-scale"><span>{max}</span><span>{Math.round(max / 2)}</span><span>0</span></div><div className="path-trend-plot"><svg viewBox="0 0 520 205" preserveAspectRatio="none" role="img" aria-label="Live report trend">{series.map((line) => <polyline key={line.key} points={toPoints(line.key)} fill="none" stroke={line.color} strokeWidth={line.dashed ? "2" : "3"} strokeDasharray={line.dashed ? "5 4" : undefined} strokeLinecap="round" strokeLinejoin="round" />)}{series.slice(0, 2).flatMap((line) => data.map((item, index) => { const x = 18 + (index * 484) / Math.max(1, data.length - 1); const y = 184 - ((Number(item[line.key]) || 0) / max) * 154; return <circle key={`${line.key}-${index}`} cx={x} cy={y} r="3.5" fill="#fff" stroke={line.color} strokeWidth="2" />; }))}</svg></div><div className="path-trend-labels">{data.map((item) => <span key={item[xKey]}>{item[xKey]}</span>)}</div><div className="path-chart-legend">{series.map((line) => <span key={line.key}><i style={{ background: line.color }} />{line.label}</span>)}</div></div>;
+}
+
+function PathProcessingRanges({ data }) {
+  const max = Math.max(1, ...data.flatMap((item) => [item.fastest, item.avg, item.slowest]).map(Number));
+  if (!data.length) return <p className="path-chart-empty">No completed documents are available for processing-time analysis.</p>;
+  return <div className="path-processing-ranges"><div className="path-range-scale"><span>0d</span><span>{Math.round(max / 2)}d</span><span>{max}d</span></div>{data.map((item) => <div className="path-range-row" key={item.type}><strong>{item.type}</strong><div><i style={{ left: `${(item.fastest / max) * 100}%`, width: `${Math.max(1, ((item.slowest - item.fastest) / max) * 100)}%` }} /><b className="path-range-fast" style={{ left: `${(item.fastest / max) * 100}%` }} /><b className="path-range-average" style={{ left: `${(item.avg / max) * 100}%` }} /><b className="path-range-slow" style={{ left: `${(item.slowest / max) * 100}%` }} /><span style={{ left: `${(item.avg / max) * 100}%` }}>{item.avg.toFixed(1)}d</span></div></div>)}</div>;
+}
+
+function PathFacultyPulse({ data }) {
+  const max = Math.max(1, ...data.map((item) => item.assigned || 0));
+  if (!data.length) return <p className="path-chart-empty">No faculty workload data available.</p>;
+  return <div className="path-faculty-pulse">{data.map((item) => <div className="path-faculty-pulse-row" key={item.name}><div><Avatar name={item.name} size={25} /><strong>{item.name}</strong></div><section><i><b style={{ width: `${((item.completed || 0) / max) * 100}%` }} /><em style={{ width: `${((item.pending || 0) / max) * 100}%` }} /></i><small>{item.completed} complete · {(item.pending || 0) + (item.delayed || 0)} open</small></section><span>{item.assigned}</span></div>)}</div>;
 }
 
 function PdfFileIcon({ size = 14, color }) {
@@ -1387,7 +1423,7 @@ export default function Reports() {
 
   return (
     <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}`}</style>
+      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}`}</style>
 
       {/* ── Sidebar ── */}
       <Sidebar activePage="reports" />
@@ -1474,33 +1510,11 @@ export default function Reports() {
             {/* ── Transaction Status Overview · Most Requested Transaction Types · Monthly Transaction Trend ── */}
             <div className="path-overview-chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
               <SectionCard title="Transaction Status Overview" subtitle="Live distribution across the workflow" icon={PieIcon}>
-                <ResponsiveContainer width="100%" height={190}>
-                  <RPie>
-                    <Pie data={OVERVIEW_STATUS_DONUT} dataKey="value" nameKey="name" innerRadius={45} outerRadius={72} paddingAngle={2}>
-                      {OVERVIEW_STATUS_DONUT.map(s => <Cell key={s.name} fill={s.color} />)}
-                    </Pie>
-                    <Tooltip />
-                  </RPie>
-                </ResponsiveContainer>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 6 }}>
-                  {OVERVIEW_STATUS_DONUT.map(s => (
-                    <span key={s.name} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#6b7280" }}>
-                      <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.color }} />{s.name}
-                    </span>
-                  ))}
-                </div>
+                <PathStatusLedger data={OVERVIEW_STATUS_DONUT} total={items.length} />
               </SectionCard>
 
               <SectionCard title="Most Requested Transaction Types" subtitle="Document/form type by volume" icon={BarChart3}>
-                <ResponsiveContainer width="100%" height={230}>
-                  <BarChart data={DOC_TYPE_BAR} barSize={22}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip formatter={(v) => [v, "Requests"]} />
-                    <Bar dataKey="count" name="Requests" fill="#7c3aed" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <PathRankBars data={DOC_TYPE_BAR.slice(0, 6)} emptyText="No requested transaction types are available." />
               </SectionCard>
 
               <SectionCard
@@ -1514,15 +1528,7 @@ export default function Reports() {
                   </span>
                 )}
               >
-                <ResponsiveContainer width="100%" height={230}>
-                  <LineChart data={MONTHLY_TREND}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip formatter={(v) => [v, "Total Transactions"]} />
-                    <Line type="monotone" dataKey="submitted" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} name="Total Transactions" />
-                  </LineChart>
-                </ResponsiveContainer>
+                <PathTrendChart data={MONTHLY_TREND} series={[{ key: "submitted", label: "Submitted", color: "#7c3aed" }]} />
               </SectionCard>
             </div>
 
@@ -1675,48 +1681,15 @@ export default function Reports() {
             {/* ── Transaction Overview ── */}
             <div className="path-transactions-visuals" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16 }}>
               <SectionCard title="By Status" icon={PieIcon}>
-                <ResponsiveContainer width="100%" height={190}>
-                  <RPie>
-                    <Pie data={STATUS_PIE} dataKey="value" nameKey="name" innerRadius={45} outerRadius={72} paddingAngle={2}>
-                      {STATUS_PIE.map(s => <Cell key={s.name} fill={s.color} />)}
-                    </Pie>
-                    <Tooltip />
-                  </RPie>
-                </ResponsiveContainer>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 6 }}>
-                  {STATUS_PIE.map(s => (
-                    <span key={s.name} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#6b7280" }}>
-                      <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.color }} />{s.name}
-                    </span>
-                  ))}
-                </div>
+                <PathStatusLedger data={STATUS_PIE} total={items.length} />
               </SectionCard>
 
               <SectionCard title="By Document Type" icon={BarChart3}>
-                <ResponsiveContainer width="100%" height={230}>
-                  <BarChart data={DOC_TYPE_BAR} barSize={22}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <PathRankBars data={DOC_TYPE_BAR.slice(0, 6)} emptyText="No document-type data matches these filters." />
               </SectionCard>
 
               <SectionCard title="Monthly Transaction Trend" subtitle="AY 2023–2024" icon={TrendingUp}>
-                <ResponsiveContainer width="100%" height={230}>
-                  <LineChart data={MONTHLY_TREND}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Line type="monotone" dataKey="submitted" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} name="Submitted" />
-                    <Line type="monotone" dataKey="completed" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="Completed" />
-                    <Line type="monotone" dataKey="delayed" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 2" name="Delayed" />
-                  </LineChart>
-                </ResponsiveContainer>
+                <PathTrendChart data={MONTHLY_TREND} series={[{ key: "submitted", label: "Submitted", color: "#7c3aed" }, { key: "completed", label: "Completed", color: "#159d77" }, { key: "delayed", label: "Delayed", color: "#d64550", dashed: true }]} />
               </SectionCard>
             </div>
 
@@ -1788,18 +1761,7 @@ export default function Reports() {
             </div>
 
             <SectionCard title="Processing Time per Document Type" subtitle="Fastest, average, and slowest turnaround in days" icon={Gauge}>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={PROCESSING_TIME_DATA} barSize={16}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} unit="d" />
-                  <Tooltip formatter={(v) => [`${v} days`]} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="fastest" fill="#059669" radius={[3, 3, 0, 0]} name="Fastest" />
-                  <Bar dataKey="avg" fill="#7c3aed" radius={[3, 3, 0, 0]} name="Average" />
-                  <Bar dataKey="slowest" fill="#dc2626" radius={[3, 3, 0, 0]} name="Slowest" />
-                </BarChart>
-              </ResponsiveContainer>
+              <PathProcessingRanges data={PROCESSING_TIME_DATA} />
             </SectionCard>
 
             {/* ── Processing Time Breakdown Table ── */}
@@ -1834,17 +1796,7 @@ export default function Reports() {
               <>
             {/* ── Workload Comparison ── */}
             <SectionCard title="Workload Comparison" subtitle="Completed vs. pending transactions per faculty member" icon={Users}>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={FACULTY_WORKLOAD} layout="vertical" barSize={14}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                  <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={120} axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="completed" fill="#059669" radius={[0, 3, 3, 0]} name="Completed" stackId="a" />
-                  <Bar dataKey="pending" fill="#d97706" radius={[0, 3, 3, 0]} name="Pending" stackId="a" />
-                </BarChart>
-              </ResponsiveContainer>
+              <PathFacultyPulse data={FACULTY_WORKLOAD} />
             </SectionCard>
 
             {/* ── Faculty Performance Table ── */}
@@ -2063,75 +2015,24 @@ export default function Reports() {
             {/* ── Common Reasons Analysis ── */}
             <div className="path-returned-chart-grid" style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 16 }}>
               <SectionCard title="Common Reasons Analysis" subtitle="Distribution of return/rejection causes" icon={BarChart3}>
-                <ResponsiveContainer width="100%" height={230}>
-                  <BarChart data={RR_REASON_BREAKDOWN} layout="vertical" margin={{ left: 10 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                    <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                    <YAxis type="category" dataKey="name" width={170} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Occurrences">
-                      {RR_REASON_BREAKDOWN.map((c, i) => <Cell key={i} fill={c.color} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <PathRankBars data={RR_REASON_BREAKDOWN} labelKey="name" valueKey="value" color="#d64550" emptyText="No return or rejection reasons are available." />
               </SectionCard>
               <SectionCard title="Reason Share" subtitle="Proportion of total cases" icon={PieIcon}>
-                <ResponsiveContainer width="100%" height={230}>
-                  <RPie>
-                    <Pie data={RR_REASON_BREAKDOWN} dataKey="value" nameKey="name" innerRadius={45} outerRadius={80} paddingAngle={2}>
-                      {RR_REASON_BREAKDOWN.map((c, i) => <Cell key={i} fill={c.color} />)}
-                    </Pie>
-                    <Tooltip />
-                  </RPie>
-                </ResponsiveContainer>
-                <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 6 }}>
-                  {RR_REASON_BREAKDOWN.map(c => (
-                    <div key={c.name} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, color: "#374151" }}>
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: c.color, flexShrink: 0 }} />
-                      {c.name}<span style={{ marginLeft: "auto", fontWeight: 700, color: "#111827" }}>{c.value}</span>
-                    </div>
-                  ))}
-                </div>
+                <PathStatusLedger data={RR_REASON_BREAKDOWN} total={RR_ALL.length} />
               </SectionCard>
             </div>
 
             {/* ── Trends & Analytics ── */}
             <div className="path-returned-chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <SectionCard title="Returned vs Rejected per Month" icon={Activity}>
-                <ResponsiveContainer width="100%" height={210}>
-                  <BarChart data={RR_MONTHLY_TREND} barSize={18}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Bar dataKey="returned" fill="#c2410c" radius={[3, 3, 0, 0]} name="Returned" />
-                    <Bar dataKey="rejected" fill="#dc2626" radius={[3, 3, 0, 0]} name="Rejected" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <PathTrendChart data={RR_MONTHLY_TREND} series={[{ key: "returned", label: "Returned", color: "#d97706" }, { key: "rejected", label: "Rejected", color: "#d64550", dashed: true }]} emptyText="No returned or rejected monthly activity is available." />
               </SectionCard>
               <SectionCard title="Return / Rejection Rate Trend" icon={TrendingUp}>
-                <ResponsiveContainer width="100%" height={210}>
-                  <LineChart data={RR_MONTHLY_TREND}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} unit="%" />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="rate" stroke="#7c3aed" strokeWidth={2.5} dot={{ r: 3 }} name="Combined Rate" />
-                  </LineChart>
-                </ResponsiveContainer>
+                <PathTrendChart data={RR_MONTHLY_TREND} series={[{ key: "rate", label: "Combined rate", color: "#7c3aed" }]} emptyText="No rate history is available." />
               </SectionCard>
             </div>
             <SectionCard title="Most Affected Document Types" icon={FileText}>
-              <ResponsiveContainer width="100%" height={210}>
-                <BarChart data={RR_DOC_TYPE_AFFECTED} barSize={26}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="type" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} name="Returned + Rejected" />
-                </BarChart>
-              </ResponsiveContainer>
+              <PathRankBars data={RR_DOC_TYPE_AFFECTED} emptyText="No affected document types are available." />
             </SectionCard>
 
               </>
