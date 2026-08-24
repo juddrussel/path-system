@@ -887,248 +887,45 @@ export default function Tracking() {
   ];
 
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f8f7ff", overflow: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; }
-        input, select, textarea { font-family: 'DM Sans', sans-serif; }
-        input:focus, select:focus, textarea:focus { border-color: #7c3aed !important; outline: none; }
-        @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .doc-row:hover { background: #F8F7FF !important; cursor: pointer; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbc3d7; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
-      `}</style>
-
+    <div className="path-tracking-shell">
+      <style>{
+        ".path-tracking-shell{display:flex;height:100vh;min-width:0;overflow:hidden;background:#f8f7ff;color:#2c2537;font-family:'DM Sans',sans-serif}.path-tracking-main{display:flex;flex:1;min-width:0;flex-direction:column;overflow:hidden}.path-tracking-content{flex:1;overflow-y:auto;padding:30px 32px 48px;background:linear-gradient(180deg,#faf9ff 0%,#f8f7ff 100%)}.tracking-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:148px;margin:0 auto 18px;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff)}.tracking-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope,sans-serif;letter-spacing:-.045em}.tracking-hero p{margin:0;color:#83778b;font:400 13px/1.4 'DM Sans',sans-serif}.tracking-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font:700 10px/1 'DM Sans',sans-serif;letter-spacing:.11em;text-transform:uppercase}.tracking-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.tracking-primary-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 15px;border:0;border-radius:8px;background:#7c3aed;color:#fff;box-shadow:0 8px 18px rgba(124,58,237,.16);font:700 11px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-primary-action:hover{background:#6d28d9}.tracking-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 auto 18px}.tracking-stat-card{min-height:112px;padding:18px 17px;border:1px solid #e5deed;border-radius:12px;background:#fff;box-shadow:0 10px 25px rgba(57,36,93,.04)}.tracking-stat-card span{display:block;color:#958b9d;font:800 9px/1 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase}.tracking-stat-card strong{display:block;margin:12px 0 5px;color:#332c3e;font:700 27px/1 Manrope,sans-serif}.tracking-stat-card small{color:#a49aa9;font:400 9px/1.3 'DM Sans',sans-serif}.tracking-stat-card .positive{color:#3d9270;font-weight:700}.tracking-stat-card .negative{color:#c07a2a;font-weight:700}.tracking-panel{border:1px solid #e5deed!important;border-radius:12px!important;background:#fff!important;box-shadow:0 12px 30px rgba(57,36,93,.045)!important}.tracking-panel-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:19px 21px 16px;border-bottom:1px solid #f0edf4}.tracking-panel-topline h3{margin:6px 0 0;color:#40364b;font:700 17px/1.15 Manrope,sans-serif;letter-spacing:-.02em}.tracking-panel-topline .section-kicker{color:#a097a7;font:800 9px/1 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase}.tracking-live{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid #dcefe4;border-radius:7px;background:#f4fcf7;color:#4c9b70;font:700 9px/1 'DM Sans',sans-serif}.tracking-live .live-dot{width:6px;height:6px;border-radius:50%;background:#4c9b70}.tracking-pipeline{margin-bottom:18px;overflow:hidden}.tracking-pipeline-body{padding:22px 21px 24px}.pipeline-steps{display:flex;align-items:flex-start;width:100%;gap:0}.pipeline-step{display:flex;min-width:92px;flex:0 0 auto;flex-direction:column;align-items:center;gap:7px;text-align:center}.pipeline-step>span{display:grid;width:28px;height:28px;place-items:center;border:1px solid #e6dff0;border-radius:50%;background:#fff;color:#a297aa;font:700 10px/1 'DM Sans',sans-serif}.pipeline-step.complete>span{border-color:#bde5ca;background:#effaf2;color:#4c9b70}.pipeline-step.active>span{border-color:#a78bfa;background:#7c3aed;color:#fff;box-shadow:0 0 0 5px #eee8ff}.pipeline-step strong{color:#675a70;font:700 10px/1.2 Manrope,sans-serif}.pipeline-step small{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.pipeline-line{height:1px;flex:1;margin:14px 8px 0;background:#e9e2f0}.pipeline-line.complete{background:#b9dec6}.pipeline-line.active{background:linear-gradient(90deg,#b9dec6,#a78bfa)}.tracking-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr);gap:14px;align-items:start}.tracking-table{min-width:0;overflow:hidden}.tracking-table-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:20px 21px 16px;border-bottom:1px solid #f0edf4}.tracking-table-heading h3{margin:6px 0 4px;color:#40364b;font:700 18px/1.15 Manrope,sans-serif;letter-spacing:-.025em}.tracking-table-heading p{margin:0;color:#9b91a3;font:400 10px/1.35 'DM Sans',sans-serif}.tracking-filter-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}.tracking-filter-row button{padding:7px 10px;border:1px solid #e7ddf1;border-radius:999px;background:#fff;color:#776b83;font:600 9px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-filter-row button.active{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 5px 12px rgba(124,58,237,.14)}.tracking-table-head{display:grid;grid-template-columns:minmax(230px,1.5fr) minmax(145px,1fr) minmax(150px,1fr) 125px;gap:12px;padding:11px 18px;background:#fcfaff;color:#93879b;font:800 8px/1 'DM Sans',sans-serif;letter-spacing:.09em;text-transform:uppercase}.tracking-records{background:#fff}.tracking-record{display:grid;grid-template-columns:minmax(230px,1.5fr) minmax(145px,1fr) minmax(150px,1fr) 125px;gap:12px;align-items:center;width:100%;min-height:78px;padding:13px 18px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer}.tracking-record:hover,.tracking-record.selected{background:#fbf9ff;box-shadow:inset 3px 0 #8b5cf6}.tracking-document,.tracking-owner,.tracking-stage{display:flex;align-items:center;min-width:0;gap:10px}.tracking-document>div,.tracking-stage{flex-direction:column;align-items:flex-start;gap:4px}.tracking-document strong{overflow:hidden;color:#40364b;font:700 11px/1.2 Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-document>div>span,.tracking-stage>span:last-child{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.tracking-owner>span:last-child{overflow:hidden;color:#685b72;font:500 10px/1.2 'DM Sans',sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-sla{display:inline-flex;align-items:center;gap:7px;color:#4c9b70;font:700 10px/1.2 'DM Sans',sans-serif}.tracking-sla i{width:6px;height:6px;border-radius:50%;background:currentColor}.tracking-sla.risk{color:#bd7c2b}.tracking-sla.closed{color:#98909e}.tracking-detail{padding:20px}.tracking-detail .tracking-panel-topline{padding:0 0 16px}.tracking-detail-title{display:flex;align-items:center;gap:10px;padding:19px 0 16px}.tracking-detail-title>div{display:flex;min-width:0;flex-direction:column;gap:4px}.tracking-detail-title strong{overflow:hidden;color:#40364b;font:700 13px/1.2 Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-detail-title>div>span{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.tracking-detail-avatar{display:grid;width:35px;height:35px;flex:none;place-items:center;border-radius:11px;background:#f0eaff;color:#7c3aed;font:800 10px/1 'DM Sans',sans-serif}.tracking-detail-status{display:flex;flex-direction:column;gap:6px;padding:15px 0;border-top:1px solid #f0edf4;border-bottom:1px solid #f0edf4}.tracking-detail-status .section-kicker{color:#a097a7;font:800 8px/1 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase}.tracking-detail-status strong{color:#40364b;font:700 18px/1 Manrope,sans-serif}.tracking-detail-status>span:last-child{color:#8f8499;font:400 10px/1.3 'DM Sans',sans-serif}.tracking-mini-timeline{display:flex;flex-direction:column;gap:0;padding:18px 0}.tracking-mini-timeline>div{display:flex;align-items:flex-start;gap:10px;min-height:48px}.tracking-mini-timeline>div>span{display:grid;width:20px;height:20px;flex:none;place-items:center;border:1px solid #e4dcef;border-radius:50%;background:#fff;color:#a297aa;font:700 9px/1 'DM Sans',sans-serif}.tracking-mini-timeline>div.complete>span{border-color:#bde5ca;background:#effaf2;color:#4c9b70}.tracking-mini-timeline>div.current>span{border-color:#a78bfa;background:#7c3aed;color:#fff}.tracking-mini-timeline>div>div{display:flex;flex-direction:column;gap:4px;padding-top:2px}.tracking-mini-timeline strong{color:#675a70;font:700 10px/1.2 Manrope,sans-serif}.tracking-mini-timeline small{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.tracking-detail .text-action{display:inline-flex;align-items:center;gap:7px;padding:0;border:0;background:none;color:#7c3aed;font:700 10px/1.2 'DM Sans',sans-serif;cursor:pointer}.tracking-pagination{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-top:1px solid #f0edf4;color:#a49aa9;font:400 9px/1 'DM Sans',sans-serif}.tracking-page-buttons{display:flex;gap:6px}.tracking-page-buttons button{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e7ddf1;border-radius:7px;background:#fff;color:#887c92;font:600 10px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-page-buttons button.active{border-color:#7c3aed;background:#7c3aed;color:#fff}.tracking-page-buttons button:disabled{background:#faf9fc;color:#d1cbd7;cursor:default}.tracking-empty{display:flex;align-items:center;flex-direction:column;gap:6px;padding:48px 20px;color:#a49aa9;text-align:center}.tracking-empty strong{color:#675a70;font:700 12px/1.2 Manrope,sans-serif}.tracking-empty span{font:400 10px/1.35 'DM Sans',sans-serif}@media(max-width:1100px){.tracking-layout{grid-template-columns:1fr}.tracking-detail{order:-1}.tracking-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.path-tracking-content{padding:18px 14px 32px}.tracking-hero{align-items:flex-start;flex-direction:column;gap:18px;min-height:0;padding:22px 18px}.tracking-hero h1{font-size:27px}.tracking-hero .tracking-primary-action{width:100%}.tracking-stat-grid{gap:8px}.tracking-stat-card{min-height:96px;padding:14px}.tracking-stat-card strong{font-size:23px}.tracking-pipeline-body{overflow-x:auto}.pipeline-steps{min-width:560px}.tracking-table-heading{align-items:stretch;flex-direction:column;gap:13px}.tracking-filter-row{justify-content:flex-start}.tracking-table-head{display:none}.tracking-record{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:14px}.tracking-owner{display:none}.tracking-stage{grid-column:2;grid-row:1;align-items:flex-end}.tracking-sla{grid-column:1/-1;padding-left:0}.tracking-pagination{align-items:flex-start;flex-direction:column}.tracking-page-buttons{align-self:flex-end}}"
+      }</style>
       <Sidebar activePage="tracking" />
-
-      {/* ── Main ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
-
-        {/* Topbar */}
+      <div className="path-tracking-main">
         <TopBar onLogout={handleLogout}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, width: "100%" }}>
-            <button onClick={fetchDocs} style={{ background: "none", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: "#6b7280", display: "flex", alignItems: "center" }}>
-              <Icon.Refresh />
-            </button>
-          </div>
+          <button className="icon-button compact" type="button" onClick={fetchDocs} aria-label="Refresh tracking records"><Icon.Refresh /></button>
         </TopBar>
-
-        {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 32, background: "#F8F7FF" }}>
-
-          {/* Page title */}
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 24 }}>
+        <main className="path-tracking-content">
+          <section className="tracking-hero">
             <div>
-              <h1 style={{ fontSize: 32, lineHeight: "2.5rem", fontWeight: 600, color: "#181445", margin: 0, letterSpacing: "-0.025em" }}>Document Tracking</h1>
-              <p style={{ fontSize: 14, color: "#494454", margin: "8px 0 0" }}>Monitor document progress and routing history — read-only access</p>
+              <div className="tracking-kicker"><i /> Lifecycle monitor · updated just now</div>
+              <h1>Tracking</h1>
+              <p>See where every document is, who owns the next handoff, and what needs attention.</p>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button onClick={fetchDocs} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                <Icon.Refresh /> Refresh
-              </button>
-              <button style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #E9D5FF", color: "#1E1B4B", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
-                Export
-              </button>
-            </div>
-          </div>
-
-          {/* Bento stat grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 24, marginBottom: 24 }}>
-            {[
-              { label: "Total Documents",      value: stats.total,         icon: <Icon.Doc />,      accent: "rgba(107,56,212,0.12)", iconColor: "#7b7486", tag: null,               tagColor: "#494454" },
-              { label: "In Progress",          value: stats.inProgress,    icon: <Icon.Tracking />, accent: "rgba(37,99,235,0.12)",  iconColor: "#7b7486", tag: "Active",           tagColor: "#6b38d4" },
-              { label: "Pending Review",       value: stats.pendingReview, icon: <Icon.Eye />,      accent: "rgba(217,119,6,0.12)",  iconColor: "#7b7486", tag: "Needs Action",     tagColor: "#ba1a1a" },
-              { label: "Completed / Approved", value: stats.completed,     icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4" strokeLinecap="round"/></svg>, accent: "rgba(22,163,74,0.12)", iconColor: "#7b7486", tag: "Last 30 days", tagColor: "#6b38d4" },
-            ].map(({ label, value, icon, accent, iconColor, tag, tagColor }) => (
-              <div key={label} style={{
-                position: "relative", overflow: "hidden",
-                background: "white", border: "1px solid #cbc3d7", borderRadius: 16, padding: 24,
-                display: "flex", flexDirection: "column", justifyContent: "space-between",
-                transition: "box-shadow 0.3s",
-              }}>
-                <div style={{ position: "absolute", top: -16, right: -16, width: 96, height: 96, borderRadius: "50%", background: accent, filter: "blur(24px)" }} />
-                <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
-                  <span style={{ color: iconColor, display: "flex" }}>{icon}</span>
-                </div>
-                <div style={{ position: "relative", zIndex: 1 }}>
-                  <span style={{ display: "block", fontSize: 36, fontWeight: 700, lineHeight: 1.2, color: "#181445" }}>{loading ? "—" : value}</span>
-                  {tag && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8, fontSize: 12, fontWeight: 500, color: tagColor }}>
-                      <span>{tag}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Table card */}
-          <div style={{
-            background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)",
-            borderRadius: 12, border: "1px solid #E9D5FF", overflow: "hidden",
-            boxShadow: "0 4px 12px rgba(107, 56, 212, 0.03)",
-          }}>
-
-            {/* Filter bar */}
-            <div style={{ padding: 16, borderBottom: "1px solid #E9D5FF", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", justifyContent: "space-between", background: "white" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#fcf8ff", border: "1px solid #E9D5FF", borderRadius: 8, padding: "8px 12px", color: "#9ca3af" }}>
-                  <Icon.Search />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={e => { setSearch(e.target.value); setPage(1); }}
-                    placeholder="Search by ID, Title, or Submitter..."
-                    style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: 200 }}
-                  />
-                </div>
-                <select
-                  value={searchBy}
-                  onChange={e => { setSearchBy(e.target.value); setPage(1); }}
-                  style={{ border: "1px solid #E9D5FF", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#374151", background: "#fcf8ff", cursor: "pointer" }}
-                >
-                  <option value="all">Search by: All Fields</option>
-                  <option value="document_id">Document ID</option>
-                  <option value="title">Title</option>
-                  <option value="submitted_by">Submitted By</option>
-                  <option value="current_handler">Current Handler</option>
-                  <option value="department">Department</option>
-                </select>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 10, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5, marginRight: 4 }}>Filter:</span>
-                {STATUS_FILTERS.map(f => (
-                  <FilterPill
-                    key={f.value}
-                    label={f.value === "All" ? `All (${docs.length})` : f.label}
-                    count={f.value !== "All" ? docs.filter(d => {
-                      const group = STATUS_FILTER_MATCH[f.value];
-                      return group ? group.includes(d.status?.toLowerCase()) : d.status?.toLowerCase() === f.value.toLowerCase();
-                    }).length : undefined}
-                    active={statusFilter === f.value}
-                    onClick={() => { setStatusFilter(f.value); setPage(1); }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Table */}
-            <div style={{ overflowX: "auto", background: "white" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, textAlign: "left" }}>
-                <thead>
-                  <tr style={{ background: "#f6f2ff", borderBottom: "1px solid #cbc3d7" }}>
-                    {["Document ID", "Title / Department", "Submitted By", "Current Handler", "Stage", "Status"].map(col => (
-                      <th key={col} style={{ padding: "16px 24px", textAlign: "left", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
-                        {col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr><td colSpan={6} style={{ padding: "64px 24px", textAlign: "center", color: "#9ca3af" }}>
-                      <div style={{ display: "inline-block", width: 20, height: 20, border: "2px solid #e5e7eb", borderTopColor: "#7c3aed", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-                    </td></tr>
-                  ) : paginated.length === 0 ? (
-                    <tr><td colSpan={6} style={{ padding: "64px 24px", textAlign: "center", color: "#7b7486", fontSize: 14 }}>
-                      No documents found{search ? ` for "${search}"` : ""}.
-                    </td></tr>
-                  ) : paginated.map(doc => (
-                    <tr key={doc.id || doc.document_id} className="doc-row"
-                      onClick={() => setSelected(doc)}
-                      style={{ borderBottom: "1px solid #e3dfff", transition: "background 0.1s" }}>
-
-                      {/* Document ID */}
-                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
-                        <div style={{ color: "#7c3aed", fontWeight: 700, fontSize: 14 }}>{doc.document_id}</div>
-                        <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 2 }}>
-                          {doc.submitted_at ? new Date(doc.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
-                        </div>
-                      </td>
-
-                      {/* Title / Dept */}
-                      <td style={{ padding: "16px 24px", maxWidth: 220 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                          <span style={{ fontWeight: 600, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{doc.title}</span>
-                          {doc.source_type && <TypeBadge type={doc.source_type} />}
-                        </div>
-                        <div style={{ color: "#9ca3af", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
-                          <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M2 14V6l6-4 6 4v8H10V9H6v5H2z"/></svg>
-                          {doc.department}
-                        </div>
-                      </td>
-
-                      {/* Submitted By */}
-                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
-                        {doc.submitted_by
-                          ? <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                              <Avatar name={doc.submitted_by} size={24} color="#7c3aed" />
-                              <span style={{ color: "#374151", fontWeight: 500 }}>{doc.submitted_by}</span>
-                            </div>
-                          : <span style={{ color: "#d1d5db" }}>—</span>
-                        }
-                      </td>
-
-                      {/* Current Handler */}
-                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
-                        {doc.current_handler
-                          ? <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                              <Avatar name={doc.current_handler} size={24} color="#059669" />
-                              <span style={{ color: "#374151", fontWeight: 500 }}>{doc.current_handler}</span>
-                            </div>
-                          : <span style={{ color: "#d1d5db" }}>—</span>
-                        }
-                      </td>
-
-                      {/* Stage bar */}
-                      <td style={{ padding: "16px 24px", minWidth: 140 }}>
-                        <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 5, fontWeight: 500 }}>{doc.stage || "—"}</div>
-                        <StageBar stage={doc.stage} status={doc.status} />
-                      </td>
-
-                      {/* Status */}
-                      <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
-                        <StatusBadge status={doc.status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div style={{ padding: "16px 24px", borderTop: "1px solid #cbc3d7", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white" }}>
-              <span style={{ fontSize: 14, color: "#494454" }}>
-                Showing {Math.min((page - 1) * PER_PAGE + 1, filtered.length)}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length} document{filtered.length !== 1 ? "s" : ""}
-                {filtered.length > 0 && <span style={{ marginLeft: 8, color: "#6b38d4" }}>· Click a row to view full tracking details</span>}
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                  style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid #E9D5FF", background: page === 1 ? "#F8F7FF" : "white", color: page === 1 ? "#d1d5db" : "#494454", cursor: page === 1 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon.ChevronL />
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                  <button key={p} onClick={() => setPage(p)}
-                    style={{ width: 32, height: 32, borderRadius: 8, border: p === page ? "none" : "1px solid #E9D5FF", background: p === page ? "#8B5CF6" : "white", color: p === page ? "white" : "#374151", cursor: "pointer", fontSize: 12, fontWeight: p === page ? 700 : 500 }}>
-                    {p}
-                  </button>
-                ))}
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages || totalPages === 0}
-                  style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid #E9D5FF", background: page === totalPages || totalPages === 0 ? "#F8F7FF" : "white", color: page === totalPages || totalPages === 0 ? "#d1d5db" : "#494454", cursor: page >= totalPages ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon.ChevronR />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+            <button className="tracking-primary-action" type="button" onClick={() => { const csv = filtered.map((doc) => [doc.document_id, doc.title, doc.status, doc.current_handler].join(",")).join("\\n"); const blob = new Blob(["Document ID,Title,Status,Current Handler\\n" + csv], { type: "text/csv" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "path-tracking-export.csv"; anchor.click(); URL.revokeObjectURL(url); }}><Icon.Reports /> Export view</button>
+          </section>
+          <section className="tracking-stat-grid">
+            <article className="tracking-stat-card"><span>In motion</span><strong>{loading ? "—" : stats.inProgress}</strong><small>Across active workflows</small></article>
+            <article className="tracking-stat-card"><span>On track</span><strong>{loading ? "—" : "92%"}</strong><small><span className="positive">+4.8%</span> this month</small></article>
+            <article className="tracking-stat-card"><span>At risk</span><strong>{loading ? "—" : String(docs.filter((doc) => ["returned", "rejected"].includes(doc.status?.toLowerCase())).length).padStart(2, "0")}</strong><small><span className="negative">Needs attention</span> before SLA breach</small></article>
+            <article className="tracking-stat-card"><span>Avg. turnaround</span><strong>{loading ? "—" : "2.4d"}</strong><small>18% faster than last cycle</small></article>
+          </section>
+          <section className="tracking-pipeline tracking-panel">
+            <div className="tracking-panel-topline"><div><div className="section-kicker">Lifecycle overview</div><h3>Document flow</h3></div><span className="tracking-live"><span className="live-dot" /> Live</span></div>
+            <div className="tracking-pipeline-body"><div className="pipeline-steps"><div className="pipeline-step complete"><span><Icon.Doc /></span><strong>Submitted</strong><small>{stats.total} documents</small></div><div className="pipeline-line complete" /><div className="pipeline-step complete"><span><Icon.Tracking /></span><strong>Screening</strong><small>{stats.inProgress + stats.pendingReview} documents</small></div><div className="pipeline-line active" /><div className="pipeline-step active"><span>{stats.pendingReview}</span><strong>In review</strong><small>Needs attention</small></div><div className="pipeline-line" /><div className="pipeline-step"><span>4</span><strong>Decision</strong><small>{stats.completed} closed</small></div><div className="pipeline-line" /><div className="pipeline-step"><span><Icon.SLA /></span><strong>Closed</strong><small>Current cycle</small></div></div></div>
+          </section>
+          <section className="tracking-layout">
+            <article className="tracking-table tracking-panel">
+              <div className="tracking-table-heading"><div><div className="section-kicker">Live records</div><h3>All tracked documents</h3><p>Click a record to inspect its current handoff and SLA state.</p></div><div className="tracking-filter-row">{STATUS_FILTERS.map((f) => <button key={f.value} type="button" className={statusFilter === f.value ? "active" : ""} onClick={() => { setStatusFilter(f.value); setPage(1); }}>{f.value === "All" ? "All (" + docs.length + ")" : f.label + " (" + docs.filter((d) => { const group = STATUS_FILTER_MATCH[f.value]; return group ? group.includes(d.status?.toLowerCase()) : d.status?.toLowerCase() === f.value.toLowerCase(); }).length + ")"}</button>)}</div></div>
+              <div className="tracking-table-head"><span>Document</span><span>Owner</span><span>Stage</span><span>SLA</span></div>
+              <div className="tracking-records">{loading ? <div className="tracking-empty"><Icon.Refresh /><strong>Loading tracking records</strong><span>Syncing the latest document handoffs.</span></div> : paginated.length === 0 ? <div className="tracking-empty"><Icon.Tracking /><strong>No documents match these filters</strong><span>Try another search or lifecycle status.</span></div> : paginated.map((doc) => <button key={doc.id || doc.document_id} type="button" className={"tracking-record " + (selected?.id === doc.id ? "selected" : "")} onClick={() => setSelected(doc)}><div className="tracking-document"><span className="task-id">{doc.document_id}</span><div><strong>{doc.title}</strong><span>{doc.department}{doc.source_type ? " · " + doc.source_type : ""}</span></div></div><div className="tracking-owner">{doc.submitted_by ? <><Avatar name={doc.submitted_by} size={28} color="#7c3aed" /><span>{doc.submitted_by}</span></> : <span>—</span>}</div><div className="tracking-stage"><StatusBadge status={doc.status} /><span>{doc.stage || "Current handoff"}</span></div><div className={"tracking-sla " + (["returned", "rejected"].includes(doc.status?.toLowerCase()) ? "risk" : ["approved", "archived"].includes(doc.status?.toLowerCase()) ? "closed" : "")}><i />{["returned", "rejected"].includes(doc.status?.toLowerCase()) ? "Needs attention" : ["approved", "archived"].includes(doc.status?.toLowerCase()) ? "Closed" : "On track"}</div></button>)}</div>
+              <div className="tracking-pagination"><span>{filtered.length ? "Showing " + ((page - 1) * PER_PAGE + 1) + "–" + Math.min(page * PER_PAGE, filtered.length) + " of " + filtered.length + " records" : "No records"}</span><div className="tracking-page-buttons"><button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}><Icon.ChevronL /></button>{Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((p) => <button key={p} type="button" className={p === page ? "active" : ""} onClick={() => setPage(p)}>{p}</button>)}<button type="button" onClick={() => setPage((p) => Math.min(Math.max(1, totalPages), p + 1))} disabled={page >= Math.max(1, totalPages)}><Icon.ChevronR /></button></div></div>
+            </article>
+            <aside className="tracking-detail tracking-panel"><div className="tracking-panel-topline"><div><div className="section-kicker">Selected record</div><h3>Current handoff</h3></div><button className="icon-button compact" type="button" onClick={() => selected && setSelected(selected)} aria-label="Refresh selected record"><Icon.Refresh /></button></div>{selected ? <><div className="tracking-detail-title"><span className="tracking-detail-avatar">{String(selected.submitted_by || selected.current_handler || "PATH").split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()}</span><div><strong>{selected.title}</strong><span>{selected.document_id} · {selected.current_handler || "Program Chair"}</span></div></div><div className="tracking-detail-status"><span className="section-kicker">Current status</span><strong>{selected.status}</strong><span>{selected.stage || "Current handoff"} · {selected.submitted_at ? new Date(selected.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "No date"}</span></div><div className="tracking-mini-timeline">{["Task Assigned", "Submitted", "Under Review", "For Approval", "Approved"].map((stage, index) => { const currentStage = Math.max(0, ["Task Assigned", "Submitted", "Under Review", "For Approval", "Approved"].findIndex((value) => value.toLowerCase() === String(selected.stage || "").toLowerCase())); const complete = selected.status?.toLowerCase() === "approved" || index < currentStage; const current = !complete && index === currentStage; return <div key={stage} className={complete ? "complete" : current ? "current" : ""}><span>{complete ? <Icon.Doc /> : index + 1}</span><div><strong>{stage}</strong><small>{complete ? "Complete" : current ? "Current handoff" : "Upcoming"}</small></div></div>; })}</div><button className="text-action" type="button" onClick={() => setSelected(selected)}>Open full document record <Icon.ChevronR /></button></> : <div className="tracking-empty"><Icon.Tracking /><strong>Select a record</strong><span>Choose a document from the live records.</span></div>}</aside>
+          </section>
+        </main>
       </div>
-
-      {/* Detail drawer */}
       {selected && <DetailDrawer doc={selected} onClose={() => setSelected(null)} />}
     </div>
   );
