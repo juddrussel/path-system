@@ -918,7 +918,22 @@ export default function SLAConfiguration() {
 .sla-document-layout{position:relative}.sla-side-panel{position:fixed;z-index:40;top:72px;right:18px;bottom:18px;width:min(430px,calc(100vw - 36px));overflow-y:auto;box-shadow:0 24px 70px rgba(48,26,81,.22);animation:sla-panel-in .22s cubic-bezier(.23,1,.32,1)}.sla-side-panel .panel-topline{position:sticky;top:-1px;z-index:2;padding-bottom:12px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px)}.sla-panel-close{margin-left:auto;margin-right:8px}.sla-side-panel .panel-topline .sla-state{margin-left:0}@keyframes sla-panel-in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 @media (max-width:720px){.sla-side-panel{top:46px;right:0;bottom:0;width:min(100vw,430px);border-radius:16px 0 0 0}.sla-side-panel:before{position:fixed;z-index:-1;top:0;right:100%;bottom:0;width:100vw;background:rgba(33,18,49,.22);content:""}.sla-side-panel .panel-topline{padding-top:14px}.sla-side-panel .sla-config-preview-card{margin-bottom:12px}}
 
-      /* Final reference alignment: keep the action in the eighth desktop column instead of creating a second row. */
+      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+        /* Final reference alignment: match the PATH canvas and keep the action in the eighth desktop column instead of creating a second row. */
+        .sla-config-view { max-width: 1380px !important; padding: 24px 0 48px; font-family: "DM Sans", sans-serif; }
+        .sla-config-hero { min-height: 106px; margin-bottom: 22px !important; }
+        .sla-document-stats article { min-height: 104px; }
+        .sla-document-layout { grid-template-columns: minmax(0, 912px) minmax(0, 1fr) !important; }
+        .sla-document-list { width: 100%; max-width: 912px; }
+        .sla-list-heading { min-height: 89px; }
+        .sla-policy-row { min-height: 72px; }
+        .sla-list-footer { min-height: 57px; }
+        .sla-policy-table-head span, .sla-policy-row > span, .sla-policy-row strong { font-family: "DM Sans", sans-serif; }
+        .sla-policy-table-head span { white-space: nowrap; }
+        @media (max-width: 1200px) { .sla-document-layout { grid-template-columns: minmax(0, 1fr) !important; } .sla-document-list { max-width: none; } }
+        @media (max-width: 560px) { .sla-config-view { padding: 18px 0 32px; } .sla-config-hero { min-height: 0; } }
+
+        /* Final reference alignment: keep the action in the eighth desktop column instead of creating a second row. */
         @media (min-width: 901px) {
           .sla-policy-table-head, .sla-policy-row {
             grid-template-columns: minmax(210px, 1.55fr) minmax(120px, 1fr) 52px 64px 72px minmax(90px, .9fr) 70px 72px !important;
