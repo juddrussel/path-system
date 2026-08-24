@@ -894,238 +894,79 @@ export default function SLAConfiguration() {
             </div>
           )}
 
-          {/* Page header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-            <div>
-              <h1 style={{ fontSize: 32, lineHeight: "40px", fontWeight: 600, color: "#181445", letterSpacing: "-0.01em" }}>SLA Configuration</h1>
-              <p style={{ fontSize: 14, color: "#494454", marginTop: 8 }}>
-                Define and manage document processing timelines and compliance rules.
-              </p>
-            </div>
-            <button
-              onClick={openCreateModal}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: RADIUS, fontSize: 14, fontWeight: 500, border: "none", background: COLORS.primary, color: "#fff", cursor: "pointer" }}
-            >
-              <Icon.Plus color="#fff" size={14} /> Add New SLA Rule
-            </button>
-          </div>
+          <section className="sla-config-view">
+            <section className="sla-config-hero">
+              <div>
+                <div className="date-kicker"><span className="live-dot" /> Document-type policies · inheritance rules</div>
+                <h1>SLA configuration</h1>
+                <p>Define the service level once per document type, then apply it automatically to every matching submission.</p>
+              </div>
+              <div className="sla-policy-status">
+                <span className="sla-status-icon"><Shield size={17} /></span>
+                <span><strong>{rules.length} type policies</strong><small>Applied automatically to new documents</small></span>
+              </div>
+            </section>
 
-          {/* Stat cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
-            {statCards.map(s => {
-              const accent = statAccent[s.label] || COLORS.primary;
-              return (
-                <div key={s.label} style={{ background: COLORS.surfaceContainer, padding: 24, borderRadius: BOX_RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <p style={{ fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: 0.6 }}>{s.label}</p>
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${accent}1a`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <s.icon style={{ width: 15, height: 15, color: accent }} />
-                    </div>
-                  </div>
+            <section className="sla-document-stats">
+              {[
+                ["Document types", rules.length, "Configured policy rows"],
+                ["Documents covered", rules.reduce((total, r) => total + Number(docsActiveFor(r) || 0), 0), "Across active submissions"],
+                ["Reminder coverage", rules.length ? `${Math.round((rules.filter(r => !!r.reminder_stage_hours).length / rules.length) * 100)}%` : "0%", "Policies send reminders"],
+                ["Default fallback", String(rules.filter(r => r.status === "Fallback").length || 1).padStart(2, "0"), "For uncategorized uploads"],
+              ].map(([label, value, sub]) => (
+                <article key={label}><span>{label}</span><strong>{value}</strong><small>{sub}</small></article>
+              ))}
+            </section>
+
+            <div className="sla-document-layout">
+              <section className="sla-document-list panel-card">
+                <div className="sla-list-heading">
                   <div>
-                    <p style={{ fontSize: 36, fontWeight: 700, color: COLORS.textPrimary, lineHeight: 1.2 }}>{s.value}</p>
-                    <p style={{ fontSize: 12, color: COLORS.textTertiary, marginTop: 4 }}>{s.sub}</p>
+                    <div className="section-kicker">Policy catalog</div>
+                    <h2>SLA by document type <span>{filteredRules.length}</span></h2>
+                    <p>Every matching document inherits the target, reminder, escalation, and owner below.</p>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Row: Active rules + right column */}
-          <div style={{ display: "flex", gap: 24, alignItems: "flex-start", flexWrap: "wrap" }}>
-
-            {/* Main column: filter bar + table */}
-            <div style={{ flex: "1 1 560px", display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
-
-              {/* Filter Bar */}
-              <div style={{ background: COLORS.surfaceContainer, padding: 12, borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                <div style={{ position: "relative", flex: "1 1 200px", minWidth: 200 }}>
-                  <Search style={{ width: 13, height: 13, color: COLORS.textTertiary, position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
-                  <input
-                    value={searchQuery}
-                    onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                    placeholder="Search document type or rule ID."
-                    style={{ width: "100%", boxSizing: "border-box", padding: "8px 12px 8px 34px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: "rgba(252,248,255,0.5)", fontSize: 13.5, outline: "none", color: COLORS.textPrimary }}
-                  />
-                </div>
-                <div style={{ position: "relative" }}>
-                  <select
-                    value={priorityFilter}
-                    onChange={e => { setPriorityFilter(e.target.value); setCurrentPage(1); }}
-                    style={{ appearance: "none", padding: "8px 30px 8px 12px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, fontSize: 13.5, color: COLORS.textSecondary, cursor: "pointer", outline: "none" }}
-                  >
-                    <option>All Priorities</option>
-                    <option>High</option>
-                    <option>Medium</option>
-                    <option>Low</option>
+                  <select value={activeOnlyFilter === "All Rules" ? "All categories" : activeOnlyFilter} onChange={e => { setActiveOnlyFilter(e.target.value === "All categories" ? "All Rules" : e.target.value); setCurrentPage(1); }} aria-label="Filter SLA policies">
+                    <option>Active Only</option><option>Paused Only</option><option>All Rules</option>
                   </select>
-                  <ChevronDown style={{ width: 12, height: 12, color: COLORS.textTertiary, position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
                 </div>
-                <div style={{ position: "relative" }}>
-                  <select
-                    value={activeOnlyFilter}
-                    onChange={e => { setActiveOnlyFilter(e.target.value); setCurrentPage(1); }}
-                    style={{ appearance: "none", padding: "8px 30px 8px 12px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, fontSize: 13.5, color: COLORS.textSecondary, cursor: "pointer", outline: "none" }}
-                  >
-                    <option>Active Only</option>
-                    <option>Paused Only</option>
-                    <option>All Rules</option>
-                  </select>
-                  <ChevronDown style={{ width: 12, height: 12, color: COLORS.textTertiary, position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                <div className="sla-policy-table-head"><span>Document type</span><span>Category</span><span>Target</span><span>Reminder</span><span>Escalation</span><span>Owner</span><span>Coverage</span><span>Action</span></div>
+                <div className="sla-policy-rows">
+                  {pagedRules.map((r, i) => {
+                    const reminder = String(r.reminder_stage_hours || "").split(",").filter(Boolean).length > 0;
+                    const initials = (r.document_type || "SLA").split(/\s+/).map(word => word[0]).join("").slice(0, 2).toUpperCase();
+                    return <div key={r.id} className={`sla-policy-row ${showEditModal && r.id === selectedRuleId ? "selected" : ""}`}>
+                      <div className="sla-document-cell"><span className="task-avatar violet">{initials}</span><span><strong>{r.document_type}</strong><small>{r.remarks || "Document workflow policy"} · {ruleCode(r, i)}</small></span></div>
+                      <span className="sla-category-cell">{r.category || "Document workflow"}</span>
+                      <strong className="sla-target-cell">{r.turnaround_hours}h</strong>
+                      <span className={`sla-policy-reminder ${reminder ? "enabled" : "disabled"}`}>{reminder ? "On" : "Off"}</span>
+                      <span className="sla-policy-escalation">{r.escalation_hours}h</span>
+                      <span className="sla-owner-cell">{r.reviewer_role || "Program Chair"}</span>
+                      <span className="sla-coverage-cell"><strong>{docsActiveFor(r)}</strong><small>documents</small></span>
+                      <button type="button" className="sla-row-edit" onClick={() => { selectRule(r.id); setShowEditModal(true); }} aria-label={`Edit ${r.document_type} SLA policy`}><Pencil size={13} /> Edit</button>
+                    </div>;
+                  })}
+                  {!pagedRules.length && <div className="people-empty"><SlidersHorizontal size={22} /><strong>No SLA policies match your filters</strong><span>Adjust the filters to view more policies.</span></div>}
                 </div>
-                <button
-                  onClick={() => setSortAsc(s => !s)}
-                  title="Sort by turnaround"
-                  style={{ width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, color: COLORS.textSecondary, cursor: "pointer" }}
-                >
-                  <ArrowUpDown style={{ width: 14, height: 14 }} />
-                </button>
-                <button
-                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: RADIUS, border: `1px solid ${COLORS.border}`, background: COLORS.surfaceContainer, color: COLORS.textSecondary, fontSize: 13.5, fontWeight: 500, cursor: "pointer" }}
-                >
-                  <Filter style={{ width: 13, height: 13 }} /> Filters
-                </button>
-              </div>
+                <div className="sla-list-footer"><span>Showing {pagedRules.length} of {filteredRules.length} SLA policies</span><div><button type="button" disabled={safePage <= 1} onClick={() => setCurrentPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" disabled={safePage >= totalPages} onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}>Next</button></div></div>
+              </section>
 
-              {/* Data Table */}
-              <div style={{ background: COLORS.surfaceContainer, borderRadius: BOX_RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, overflow: "hidden" }}>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 14, whiteSpace: "nowrap" }}>
-                    <thead>
-                      <tr style={{ background: "#f6f2ff", borderBottom: `1px solid ${COLORS.border}` }}>
-                        {["Document Type", "Turnaround (Hours)", "Escalation", "Docs Active", "Status", "Actions"].map((h, hi) => (
-                          <th key={h} style={{ textAlign: hi === 5 ? "center" : "left", padding: "16px 24px", fontSize: 11, fontWeight: 500, color: "#494454", textTransform: "uppercase", letterSpacing: 0.6 }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pagedRules.map((r, i) => (
-                        <tr
-                          key={r.id}
-                          onClick={() => selectRule(r.id)}
-                          className="sla-row"
-                          style={{
-                            borderTop: i === 0 ? "none" : "1px solid #e3dfff",
-                            cursor: "pointer",
-                            ...(r.id === selectedRuleId ? { background: "rgba(139,92,246,0.08)" } : {}),
-                          }}
-                        >
-                          <td style={{ padding: "16px 24px" }}>
-                            <p style={{ fontWeight: 500, color: "#181445" }}>{r.document_type}</p>
-                            <p style={{ fontSize: 12, color: COLORS.textTertiary, fontFamily: "monospace", marginTop: 2 }}>{ruleCode(r, i)}</p>
-                          </td>
-                          <td style={{ padding: "16px 24px", color: "#494454" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                              <Clock style={{ width: 12, height: 12 }} /> {r.turnaround_hours} Hours
-                            </span>
-                          </td>
-                          <td style={{ padding: "16px 24px", color: "#494454" }}>{r.escalation_hours} hours after</td>
-                          <td style={{ padding: "16px 24px", fontWeight: 600, color: COLORS.primary }}>{docsActiveFor(r)}</td>
-                          <td style={{ padding: "16px 24px" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#494454" }}>
-                              <span style={{ width: 8, height: 8, borderRadius: "50%", background: r.status === "Active" ? COLORS.success : "#9ca3af" }} />
-                              {r.status}
-                            </span>
-                          </td>
-                          <td style={{ padding: "16px 24px", textAlign: "center" }}>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); selectRule(r.id); setShowEditModal(true); }}
-                              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5, border: `1px solid ${COLORS.border}`, background: COLORS.surface, color: COLORS.primary, borderRadius: 8, cursor: "pointer", padding: "7px 11px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}
-                            >
-                              <><Pencil style={{ width: 14, height: 14 }} /> <span>Edit</span></>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                      {!pagedRules.length && (
-                        <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: COLORS.textTertiary, fontSize: 13.5 }}>No SLA rules match your filters.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
+              {showEditModal && ruleForm ? <aside className="sla-document-detail sla-side-panel panel-card">
+                <div className="panel-topline"><div><div className="section-kicker">Selected policy</div><h3>Configure inheritance</h3></div><button type="button" className="icon-button compact sla-panel-close" onClick={() => setShowEditModal(false)} aria-label="Close SLA policy editor"><X size={15} /></button><span className={`sla-state ${ruleForm.status === "Active" ? "healthy" : "closed"}`}><i />{ruleForm.status}</span></div>
+                <div className="sla-panel-body">
+                  <div className="sla-selected-document"><span className="tracking-detail-avatar violet">{(ruleForm.docType || "SLA").split(/\s+/).map(word => word[0]).join("").slice(0, 2).toUpperCase()}</span><div><strong>{ruleForm.docType}</strong><small>{ruleForm.reviewerRole || "Program Chair"} · policy configuration</small></div></div>
+                  <div className="sla-inheritance-banner"><Shield size={15} /><div><strong>Automatic inheritance</strong><small>New “{ruleForm.docType}” documents receive this policy at submission.</small></div></div>
+                  <div className="sla-document-fields"><label className="sla-form-field"><span>Target window</span><div className="sla-input-with-unit"><input value={ruleForm.turnaroundHours} onChange={e => set("turnaroundHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label><label className="sla-form-field"><span>Escalate after</span><div className="sla-input-with-unit"><input value={ruleForm.escalationHours} onChange={e => set("escalationHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label></div>
+                  <div className="sla-detail-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span><strong>Reminder schedule</strong><small>{ruleForm.reminderStageDays || "No reminder stages"} hours before deadline</small></span></div>
+                  <label className="sla-form-field sla-owner-select"><span>Assigned reviewer role</span><select value={ruleForm.reviewerRole || ""} onChange={e => set("reviewerRole", e.target.value)}>{REVIEWER_ROLES.map(role => <option key={role}>{role}</option>)}</select></label>
+                  <div className="sla-detail-facts"><div><span>Status</span><strong>{ruleForm.status}</strong></div><div><span>Coverage</span><strong>{selectedRuleId ? docsActiveFor(rules.find(r => r.id === selectedRuleId) || {}) : 0} active records</strong></div></div>
+                  <div className="sla-config-preview-card">{renderPreviewCard()}</div>
+                  <button type="button" className="primary-action sla-save-document" onClick={handleUpdateRule} disabled={saving}>{saving ? "Saving…" : "Save type policy"} <CheckCircle2 size={14} /></button>
+                  <div className="sla-preview-callout"><Shield size={15} /><div><strong>Inherited on the document record</strong><p>Reviewers see this policy’s target and escalation on every matching document and task.</p></div></div>
                 </div>
-
-                {/* Pagination */}
-                <div style={{ padding: "16px 24px", borderTop: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: COLORS.surfaceContainer }}>
-                  <p style={{ fontSize: 12, color: COLORS.textTertiary }}>
-                    Showing {pagedRules.length} of {filteredRules.length} SLA rules
-                  </p>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      disabled={safePage <= 1}
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      style={{ padding: "6px 12px", fontSize: 12, fontWeight: 500, color: COLORS.textTertiary, border: `1px solid ${COLORS.border}`, borderRadius: RADIUS, background: COLORS.surfaceContainer, cursor: safePage <= 1 ? "default" : "pointer" }}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      disabled={safePage >= totalPages}
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      style={{ padding: "6px 12px", fontSize: 12, fontWeight: 500, color: COLORS.textSecondary, border: `1px solid ${COLORS.border}`, borderRadius: RADIUS, background: COLORS.surface, cursor: safePage >= totalPages ? "default" : "pointer" }}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              </div>
+              </aside> : null}
             </div>
-
-            {/* Right column */}
-            <div style={{ flex: "0 1 320px", width: 320, display: "flex", flexDirection: "column", gap: 16 }}>
-
-              {/* SLA Performance Insights */}
-              <div style={{ background: COLORS.surfaceContainer, padding: 20, borderRadius: BOX_RADIUS, border: `1px solid ${COLORS.border}`, boxShadow: cardShadow, display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <p style={{ fontSize: 18, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 4 }}>SLA Performance Insights</p>
-                  <p style={{ fontSize: 12, color: COLORS.textTertiary }}>Real-time analytics for current processing cycle.</p>
-                </div>
-
-                <div style={{ width: "100%", height: 160, background: "#f3f4f6", borderRadius: RADIUS, overflow: "hidden" }}>
-                  <img
-                    src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&q=80"
-                    alt="Analytics"
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {[
-                    { label: "Avg. Processing Time", value: "4.2 Days", delta: "+0.5", up: false, icon: Clock },
-                    { label: "SLA Compliance Rate", value: "94.8%", delta: "+2.1%", up: true, icon: CheckCircle2 },
-                    { label: "At Risk Documents", value: "12", delta: "-3", up: true, icon: AlertTriangle },
-                  ].map(m => (
-                    <div key={m.label} style={{ padding: 12, border: `1px solid ${COLORS.border}`, borderRadius: RADIUS, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(139,92,246,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <m.icon style={{ width: 15, height: 15, color: COLORS.primary }} />
-                        </div>
-                        <div>
-                          <p style={{ fontSize: 12, color: COLORS.textTertiary }}>{m.label}</p>
-                          <p style={{ fontSize: 13.5, fontWeight: 600, color: COLORS.textPrimary }}>{m.value}</p>
-                        </div>
-                      </div>
-                      <span style={{
-                        fontSize: 10, fontWeight: 500, padding: "2px 6px", borderRadius: 4,
-                        color: m.up ? COLORS.success : COLORS.danger, background: m.up ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
-                      }}>
-                        {m.delta}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  style={{
-                    width: "100%", marginTop: 8, padding: "10px", borderRadius: RADIUS, border: "none",
-                    background: COLORS.primary, color: "#fff", fontSize: 14, fontWeight: 500,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  }}
-                >
-                  <ArrowUpRight style={{ width: 14, height: 14 }} /> View Detailed Report
-                </button>
-              </div>
-            </div>
-          </div>
-
+          </section>
         </div>
       </div>
 
@@ -1264,81 +1105,6 @@ export default function SLAConfiguration() {
         </div>
       )}
 
-      {/* ── Edit SLA Rule drawer ── */}
-      {showEditModal && (
-        <div
-          onClick={() => setShowEditModal(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(24,20,69,0.4)", backdropFilter: "blur(2px)", zIndex: 50, animation: "slaDrawerBackdropIn 0.25s ease-out" }}
-        >
-          <style>{`
-            @keyframes slaDrawerBackdropIn { from { opacity: 0; } to { opacity: 1; } }
-            @keyframes slaDrawerSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-          `}</style>
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{ position: "fixed", top: 0, right: 0, height: "100%", width: 600, maxWidth: "95vw", background: "#fff", boxShadow: "-8px 0 30px rgba(17,24,39,0.18)", display: "flex", flexDirection: "column", overflow: "hidden", isolation: "isolate", borderLeft: "1px solid #e5e0f5", animation: "slaDrawerSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) backwards" }}
-          >
-            {/* Header */}
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #e5e0f5", flexShrink: 0, position: "relative", zIndex: 2, background: "#fff", boxShadow: "0 4px 12px rgba(57,36,93,0.05)" }}>
-              <div>
-                <p style={{ fontSize: 18, fontWeight: 700, color: "#181445", lineHeight: 1.2 }}>Edit SLA Configuration</p>
-                <p style={{ fontSize: 12.5, color: "#6b7280", marginTop: 4 }}>
-                  Update turnaround deadlines and escalation settings.
-                </p>
-              </div>
-              <X
-                onClick={() => setShowEditModal(false)}
-                style={{ width: 18, height: 18, color: "#9ca3af", cursor: "pointer", flexShrink: 0 }}
-              />
-            </div>
-
-            {/* Body */}
-            <div style={{ minHeight: 0, overflowY: "auto", overflowX: "hidden", padding: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, flex: 1, background: "#fff", overscrollBehavior: "contain" }}>
-              {/* Left: form fields */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {renderIdentityCard()}
-                {renderTurnaroundCard()}
-                {renderEscalationTriggerCard()}
-                {renderReminderScheduleCard()}
-                {renderRemarksCard()}
-              </div>
-              {/* Right: status, escalation settings, preview */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {renderStatusCard()}
-                {renderEscalationSettingsCard()}
-                {renderPreviewCard()}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderTop: "1px solid #e5e0f5", background: "#fff", flexShrink: 0 }}>
-              <button
-                disabled={saving}
-                onClick={handleDeleteRule}
-                style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600, color: "#ef4444", background: "none", border: "none", cursor: saving ? "default" : "pointer", padding: "8px 10px", borderRadius: 8 }}
-              >
-                <AlertTriangle style={{ width: 14, height: 14 }} />
-                Delete Rule
-              </button>
-              <div style={{ display: "flex", gap: 10 }}>
-                <button
-                  onClick={discardChanges}
-                  style={{ padding: "10px 18px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  disabled={saving}
-                  onClick={handleUpdateRule}
-                  style={{ padding: "10px 18px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12.5, fontWeight: 700, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
-                >
-                  {saving ? "Saving…" : "Save Changes"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Create SLA Rule modal ── */}
       {showCreateModal && createForm && (
