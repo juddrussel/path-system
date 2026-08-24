@@ -362,7 +362,7 @@ export default function AuditTrail() {
 
   return (
     <div className="path-audit-app">
-      <style>{PATH_AUDIT_CSS}</style>
+      <style>{`${PATH_AUDIT_CSS}${PATH_AUDIT_COMPACT_DETAIL_CSS}`}</style>
       <Sidebar activePage="audit" />
       <main className="path-audit-main">
         <TopBar onLogout={handleLogout} />
@@ -799,6 +799,10 @@ export default function AuditTrail() {
     </div>
   );
 }
+
+const PATH_AUDIT_COMPACT_DETAIL_CSS = `
+.path-audit-layout{align-items:start}.path-audit-detail{align-self:start;height:max-content}
+`;
 
 const PATH_AUDIT_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
