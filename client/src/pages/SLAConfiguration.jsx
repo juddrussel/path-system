@@ -1137,7 +1137,7 @@ export default function SLAConfiguration() {
                     <select value={activeOnlyFilter === "All Rules" ? "All categories" : activeOnlyFilter} onChange={e => { setActiveOnlyFilter(e.target.value === "All categories" ? "All Rules" : e.target.value); setCurrentPage(1); }} aria-label="Filter SLA policies">
                       <option>Active Only</option><option>Paused Only</option><option>All Rules</option>
                     </select>
-                    <button type="button" className="sla-add-policy" onClick={() => setShowCreateModal(true)} aria-label="Add SLA policy"><Plus size={14} /> Add SLA policy</button>
+                    <button type="button" className="sla-add-policy" onClick={openCreateModal} aria-label="Add SLA policy"><Plus size={14} /> Add SLA policy</button>
                   </div>
                 </div>
                 <div className="sla-policy-table-head"><span>Document type</span><span>Category</span><span>Target</span><span>Reminder</span><span>Escalation</span><span>Owner</span><span>Coverage</span><span>Action</span></div>
