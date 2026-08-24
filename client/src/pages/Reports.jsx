@@ -97,6 +97,12 @@ const PATH_OVERVIEW_CSS = `
   @media (max-width:1100px) { .path-overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }.path-overview-main-grid,.path-overview-bottom-grid { grid-template-columns:1fr; } }.path-overview-metrics + .path-overview-main-grid { margin-top:0; } @media (max-width:760px) { .path-overview-metrics { gap:8px; }.path-overview-metric { min-height:106px; padding:15px 14px; }.path-overview-metric strong { font-size:23px; }.path-overview-main-grid,.path-overview-bottom-grid { gap:10px; }.path-overview-panel { padding:17px 15px; }.path-health-main { align-items:flex-start; flex-direction:column; }.path-category-head,.path-category-row { grid-template-columns:minmax(0,1fr) 55px 55px; }.path-category-head span:last-child,.path-category-row em { display:none; }.path-library-list > button { grid-template-columns:30px minmax(0,1fr) 14px; }.path-library-list em { display:none; } }
 `;
 
+const PATH_TRANSACTION_REGISTER_CSS = `
+  .path-transactions-kpi-grid { grid-template-columns:repeat(7,minmax(0,1fr)) !important; }.path-transactions-kpi-grid .path-kpi-card { min-width:0; min-height:108px !important; padding:15px 14px !important; }.path-transactions-kpi-grid .path-kpi-card p { font-size:23px !important; }.path-transactions-kpi-grid .path-kpi-card p + p { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .path-delay-register { overflow:hidden; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-delay-register > header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:18px 18px 15px; border-bottom:1px solid #eeeaf3; }.path-delay-register > header > div:first-child > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-delay-register h2 { margin:7px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:15px; letter-spacing:-.035em; }.path-delay-register p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; }.path-delay-header-actions { display:flex; align-items:flex-start; gap:9px; }.path-delay-header-actions > aside { display:flex; min-width:68px; align-items:flex-end; flex-direction:column; padding:7px 9px; border-radius:8px; background:#fff4e7; }.path-delay-header-actions > aside strong { color:#bd7020; font-family:'Manrope',sans-serif; font-size:16px; }.path-delay-header-actions > aside small { color:#a47c54; font-family:'DM Sans',sans-serif; font-size:8px; white-space:nowrap; }.path-delay-table-wrap { overflow-x:auto; }.path-delay-table { display:grid; grid-template-columns:minmax(100px,.75fr) minmax(220px,1.7fr) minmax(180px,1.45fr) minmax(120px,.9fr) minmax(155px,1.15fr) minmax(90px,.65fr); gap:14px; align-items:center; min-width:930px; }.path-delay-head { min-height:34px; padding:0 18px; color:#a098a6; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }.path-delay-row { min-height:58px; padding:0 18px; border-top:1px solid #f0edf4; }.path-delay-row > strong { color:#6740a4; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-delay-title { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-delay-title b { overflow:hidden; color:#493950; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-title small { color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:8px; }.path-delay-faculty { display:flex; min-width:0; align-items:center; gap:8px; overflow:hidden; color:#5e5068; font-family:'DM Sans',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-status { justify-self:start; padding:6px 8px; border-radius:7px; background:#f2eff6; color:#665a70; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-delay-status.delayed { background:#fff5df; color:#b67829; }.path-delay-status.overdue { background:#fff0ef; color:#c33e43; }.path-delay-stage { overflow:hidden; color:#74677d; font-family:'DM Sans',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-days { display:flex; align-items:center; gap:7px; color:#bd7020; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; }.path-delay-days i { width:7px; height:7px; border:1px solid currentColor; border-radius:50%; }.path-delay-days.overdue { color:#c9343b; }.path-delay-days.overdue i { background:#c9343b; box-shadow:0 0 0 3px #ffe1e1; }.path-delay-empty { display:grid; min-height:105px; place-items:center; margin:0; color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:10px; text-align:center; }.path-delay-register > footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 18px; border-top:1px solid #f0edf4; color:#a097a7; font-family:'DM Sans',sans-serif; font-size:8px; }.path-delay-pagination { display:flex; align-items:center; gap:5px; }.path-delay-pagination button { display:grid; width:27px; height:27px; place-items:center; border:1px solid #e6dfef; border-radius:7px; background:#fff; color:#796b84; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-delay-pagination button svg { width:13px; height:13px; }.path-delay-pagination button.active { border-color:#7c3aed; background:#7c3aed; color:#fff; }.path-delay-pagination button:disabled { cursor:not-allowed; opacity:.42; }
+  @media (max-width:1320px) { .path-transactions-kpi-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; } } @media (max-width:760px) { .path-transactions-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }.path-delay-register > header { align-items:stretch; flex-direction:column; }.path-delay-header-actions { align-items:stretch; justify-content:space-between; }.path-delay-header-actions .path-export-buttons { width:auto; }.path-delay-table { min-width:830px; }.path-delay-register > footer { align-items:flex-start; flex-direction:column; }.path-delay-pagination { align-self:flex-end; } }
+`;
+
 
 function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, footer }) {
   return (
@@ -503,6 +509,7 @@ export default function Reports() {
   const [facultyFilter, setFacultyFilter] = useState("All Faculty");
   const [exportToast, setExportToast] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
+  const [delayedPage, setDelayedPage] = useState(1);
 
   // ── Returned / Rejected report — detail-view modal state ──
   const [rrSelected, setRrSelected] = useState(null);
@@ -872,6 +879,12 @@ export default function Reports() {
 
     return [...fromEndpoint, ...fromItems];
   }, [delayedDocs, items]);
+
+  const DELAYED_PAGE_SIZE = 2;
+  const delayedPageCount = Math.max(1, Math.ceil(DELAYED_TRANSACTIONS.length / DELAYED_PAGE_SIZE));
+  const safeDelayedPage = Math.min(delayedPage, delayedPageCount);
+  const delayedStart = (safeDelayedPage - 1) * DELAYED_PAGE_SIZE;
+  const pagedDelayedTransactions = DELAYED_TRANSACTIONS.slice(delayedStart, delayedStart + DELAYED_PAGE_SIZE);
 
   // Purely cosmetic: some tracking_id values come back from the backend as
   // plain numbers (e.g. from /api/faculty/delayed-documents) while others
@@ -1475,7 +1488,7 @@ export default function Reports() {
 
   return (
     <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
-      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}${PATH_OVERVIEW_CSS}`}</style>
+      <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}${PATH_OVERVIEW_CSS}${PATH_TRANSACTION_REGISTER_CSS}`}</style>
 
       {/* ── Sidebar ── */}
       <Sidebar activePage="reports" />
@@ -1758,44 +1771,28 @@ export default function Reports() {
             </div>
 
             {/* ── Delayed Transactions Table ── */}
-            <SectionCard title="Delayed Transactions" subtitle={`${DELAYED_TRANSACTIONS.length} records currently past their expected processing time`} icon={Clock} noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} />}
-              footer={<TableFoot count={DELAYED_TRANSACTIONS.length} total={DELAYED_TRANSACTIONS.length} label="delayed transactions" />}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#f8f8fb", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-                    {["Transaction ID", "Title / Department", "Assigned Faculty", "Status", "Current Stage", "Days Waiting"].map(h => (
-                      <th key={h} style={{ ...TH_STYLE, textAlign: h === "Days Waiting" ? "center" : "left" }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {DELAYED_TRANSACTIONS.map((d, i) => (
-                    <tr key={d.id} style={{ borderBottom: i < DELAYED_TRANSACTIONS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11 }}>{formatTxnId(d.id)}</td>
-                      <td style={{ ...TD_STYLE, maxWidth: 260 }}>
-                        <div style={{ marginBottom: 3 }}>
-                          <span style={{ fontWeight: 600, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title || d.docType}</span>
-                        </div>
-                        {d.sourceType && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <TypeBadge type={d.sourceType} />
-                          </div>
-                        )}
-                      </td>
-                      <td style={TD_STYLE}><NameCell name={d.faculty} /></td>
-                      <td style={TD_STYLE}><StatusBadge s={d.status} /></td>
-                      <td style={{ ...TD_STYLE, color: "#6b7280" }}>{d.stage}</td>
-                      <td style={{ ...TD_STYLE, textAlign: "center" }}>
-                        <span style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 700, color: d.overdue ? "#dc2626" : "#d97706" }}>
-                          {d.days}d{d.overdue && <AlertCircle style={{ width: 11, height: 11, marginLeft: 3, verticalAlign: "-2px" }} />}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </SectionCard>
+            <section className="path-delay-register">
+              <header>
+                <div><span>Needs attention</span><h2>Delayed and overdue documents</h2><p>Records waiting beyond their expected workflow window.</p></div>
+                <div className="path-delay-header-actions"><ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} /><aside><strong>{DELAYED_TRANSACTIONS.length}</strong><small>open exceptions</small></aside></div>
+              </header>
+              <div className="path-delay-table-wrap">
+                <div className="path-delay-table path-delay-head"><span>Transaction ID</span><span>Title / Department</span><span>Assigned faculty</span><span>Status</span><span>Current stage</span><span>Days waiting</span></div>
+                {pagedDelayedTransactions.map((d) => <div className="path-delay-table path-delay-row" key={d.id}>
+                  <strong>{formatTxnId(d.id)}</strong>
+                  <span className="path-delay-title"><b>{d.title || d.docType}</b><small>{d.department || d.docType}</small></span>
+                  <span className="path-delay-faculty"><Avatar name={d.faculty} size={25} />{d.faculty}</span>
+                  <span className={`path-delay-status ${d.overdue ? "overdue" : "delayed"}`}>{d.status}</span>
+                  <span className="path-delay-stage">{d.stage}</span>
+                  <span className={`path-delay-days ${d.overdue ? "overdue" : ""}`}><i />{d.days}d</span>
+                </div>)}
+                {!pagedDelayedTransactions.length && <p className="path-delay-empty">No delayed or overdue documents match the current filters.</p>}
+              </div>
+              <footer>
+                <span>{DELAYED_TRANSACTIONS.length ? `Showing ${delayedStart + 1}–${Math.min(delayedStart + DELAYED_PAGE_SIZE, DELAYED_TRANSACTIONS.length)} of ${DELAYED_TRANSACTIONS.length} exceptions` : "No open exceptions"}</span>
+                <div className="path-delay-pagination"><button onClick={() => setDelayedPage(Math.max(1, safeDelayedPage - 1))} disabled={safeDelayedPage === 1} aria-label="Previous page"><ChevronRight style={{ transform: "rotate(180deg)" }} /></button>{Array.from({ length: delayedPageCount }, (_, index) => index + 1).map((page) => <button key={page} className={page === safeDelayedPage ? "active" : ""} onClick={() => setDelayedPage(page)}>{page}</button>)}<button onClick={() => setDelayedPage(Math.min(delayedPageCount, safeDelayedPage + 1))} disabled={safeDelayedPage === delayedPageCount} aria-label="Next page"><ChevronRight /></button></div>
+              </footer>
+            </section>
               </>
             )}
 
