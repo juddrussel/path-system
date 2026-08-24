@@ -982,6 +982,12 @@ function StatCard({ label, value, sub, iconBg, icon, badge, variant }) {
 function PathDirectoryList({
   users,
   total,
+  search,
+  setSearch,
+  roleFilter,
+  setRoleFilter,
+  statusFilter,
+  setStatusFilter,
   canEdit,
   currentUserId,
   onView,
@@ -989,7 +995,46 @@ function PathDirectoryList({
   onDelete,
 }) {
   return (
-    <div className="path-um-list">
+    <div className="path-um-directory">
+      <header className="path-um-directory-head">
+        <div>
+          <div className="path-um-kicker">Workspace directory</div>
+          <h2>
+            All people <span>{total}</span>
+          </h2>
+          <p>Roles, access, and workload at a glance.</p>
+        </div>
+        <div className="path-um-directory-controls">
+          <label className="path-um-directory-search">
+            <SearchIcon />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search people"
+              aria-label="Search people"
+            />
+          </label>
+          <select
+            value={roleFilter}
+            onChange={(event) => setRoleFilter(event.target.value)}
+            aria-label="Filter by role"
+          >
+            <option value="all">All roles</option>
+            <option value="admin">Admin</option>
+            <option value="program_chair">Program Chair</option>
+            <option value="faculty">Faculty</option>
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+            aria-label="Filter by status"
+          >
+            <option value="all">All status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </header>
       <div className="path-um-list-head">
         <span>Person</span>
         <span>Role &amp; department</span>
@@ -1020,20 +1065,42 @@ function PathDirectoryList({
               </div>
             </div>
             <div className="path-um-role">
-              <RoleBadge role={u.role} variant="audit" />
+              <strong>
+                {u.role
+                  ? u.role
+                      .replace(/_/g, " ")
+                      .replace(/\b\w/g, (letter) => letter.toUpperCase())
+                  : "Unassigned"}
+              </strong>
               <span>{u.department || "Workspace member"}</span>
             </div>
-            <div className="path-um-access">
-              <StatusBadge active={u.is_active} variant="audit" />
-              <small>USR-{String(u.id).padStart(4, "0")}</small>
+            <div
+              className={`path-um-access ${u.is_active ? "active" : "inactive"}`}
+            >
+              <strong>
+                <i />
+                {u.is_active ? "Active" : "Inactive"}
+              </strong>
+              <small>
+                {u.last_active ||
+                  u.last_login ||
+                  (u.is_active ? "Active now" : "Access paused")}
+              </small>
             </div>
             <div className="path-um-assignment">
-              <strong>—</strong>
-              <span>assignments</span>
+              <strong>
+                {u.assignments ?? u.assignment_count ?? u.task_count ?? 0}
+              </strong>
+              <span>
+                {(u.assignments ?? u.assignment_count ?? u.task_count ?? 0) ===
+                1
+                  ? "assignment"
+                  : "assignments"}
+              </span>
             </div>
             <div className="path-um-row-actions">
-              <button onClick={() => onView(u)} title="View details">
-                <EyeIcon />
+              <button onClick={() => onView(u)} title="View user details">
+                <MoreIcon />
               </button>
               {canEdit && (
                 <button onClick={() => onEdit(u)} title="Edit user">
@@ -1540,24 +1607,25 @@ export default function UserManagement() {
         .path-um-directory-layout { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(290px,.72fr); gap:18px; align-items:start; }
         .path-um-access-card { padding:21px; border:1px solid #e5deed; border-radius:12px; background:#fff; box-shadow:0 12px 30px rgba(57,36,93,.045); }
         .path-um-access-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }.path-um-access-card-head h3 { margin:3px 0 0; color:#4d3f55; font-family:'Manrope',sans-serif; font-size:15px; letter-spacing:-.035em; }.path-um-access-card-head > svg { color:#a398aa; }.path-um-access-card > p { margin:17px 0 11px; padding:12px 13px; border-radius:8px; background:#faf8ff; color:#8c8197; font-size:9px; line-height:1.55; }.path-um-role-summary { display:flex; align-items:center; gap:10px; padding:13px 0; border-bottom:1px solid #f0edf4; }.path-um-role-summary > div { display:flex; min-width:0; flex:1; flex-direction:column; gap:4px; }.path-um-role-summary strong { color:#65586d; font-family:'Manrope',sans-serif; font-size:9px; }.path-um-role-summary div span { color:#9d92a4; font-size:8px; }.path-um-role-summary b { color:#5d4d66; font-family:'Manrope',sans-serif; font-size:15px; }.path-um-role-icon { display:grid; width:28px; height:28px; place-items:center; border-radius:8px; }.path-um-role-icon.violet { background:#eee7fd; color:#7044c5; }.path-um-role-icon.blue { background:#e8f1fc; color:#5e86ae; }.path-um-role-icon.amber { background:#fcf0d6; color:#a27a1d; }.path-um-role-action { margin-top:16px; color:#7543c7; font-size:9px; font-weight:800; }
-        .path-um-list-head, .path-um-person-row { display:grid; grid-template-columns:minmax(230px,1.55fr) minmax(145px,.9fr) minmax(125px,.75fr) 82px 100px; gap:14px; align-items:center; }
-        .path-um-list-head { padding:10px 22px; border-bottom:1px solid #f0edf4; background:#faf8fd; color:#a198a7; font-size:8px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+        .path-um-directory { background:#fff; }.path-um-directory-head { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; padding:20px 22px 16px; border-bottom:1px solid #f1edf5; background:linear-gradient(180deg,#fff,#fdfbff); }.path-um-directory-head h2 { margin:3px 0 0; color:#40344b; font-family:'Manrope',sans-serif; font-size:18px; letter-spacing:-.04em; }.path-um-directory-head h2 span { display:inline-grid; min-width:19px; height:17px; margin-left:5px; place-items:center; border-radius:5px; background:#f0e9fc; color:#7543c7; font-family:'DM Sans',sans-serif; font-size:8px; vertical-align:middle; }.path-um-directory-head p { margin:5px 0 0; color:#a098a7; font-size:9px; }.path-um-directory-controls { display:flex; align-items:center; gap:10px; }.path-um-directory-search { display:flex; width:174px; align-items:center; gap:7px; padding:0 3px; color:#6e6475; }.path-um-directory-search input { width:100%; border:0; outline:0; background:transparent; color:#5c5164; font-size:9px; }.path-um-directory-search input::placeholder { color:#aaa0ad; }.path-um-directory-controls select { min-width:94px; padding:4px 22px 4px 3px; border:0; outline:0; background:#fff; color:#64596c; font-size:9px; cursor:pointer; }
+        .path-um-list-head, .path-um-person-row { display:grid; grid-template-columns:minmax(230px,1.55fr) minmax(145px,.9fr) minmax(125px,.75fr) 82px 32px; gap:14px; align-items:center; }
+        .path-um-list-head { padding:10px 22px; border-bottom:1px solid #f0edf4; background:#fbf9fd; color:#8f8597; font-size:8px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
         .path-um-person-row { min-height:74px; padding:13px 22px; border-bottom:1px solid #f0edf4; background:#fff; transition:background .16s ease,box-shadow .16s ease; }
         .path-um-person-row:hover { background:#fbf9ff; box-shadow:inset 2px 0 #a78bfa; }
         .path-um-person, .path-um-role, .path-um-access, .path-um-assignment { display:flex; min-width:0; align-items:center; gap:8px; }
         .path-um-person > div, .path-um-role, .path-um-access, .path-um-assignment { flex-direction:column; align-items:flex-start; gap:4px; }
         .path-um-person > span { flex:0 0 auto; margin-right:0 !important; }
-        .path-um-person strong { overflow:hidden; color:#56465f; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+        .path-um-person strong { overflow:hidden; color:#40344b; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
         .path-um-person span, .path-um-role > span, .path-um-access small, .path-um-assignment span { overflow:hidden; color:#a095a5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
-        .path-um-role > span { margin-top:2px; }.path-um-assignment strong { color:#60449b; font-family:'Manrope',sans-serif; font-size:16px; line-height:1; }
-        .path-um-row-actions { display:flex; align-items:center; justify-content:flex-end; gap:4px; }.path-um-row-actions button { display:grid; width:28px; height:28px; place-items:center; border-radius:6px; color:#897e90; }.path-um-row-actions button:hover { background:#f0e9fc; color:#6d3ec5; }.path-um-row-actions button.danger:hover { background:#fff0f0; color:#b65d61; }.path-um-self { color:#a095a5; font-size:8px; font-weight:800; }
+        .path-um-role strong { color:#55475c; font-family:'Manrope',sans-serif; font-size:9px; }.path-um-role > span { margin-top:2px; }.path-um-access strong { display:flex; align-items:center; gap:5px; color:#564b5b; font-size:9px; }.path-um-access strong i { width:6px; height:6px; border-radius:50%; background:#37303d; }.path-um-access.inactive strong i { background:#b18720; }.path-um-assignment strong { color:#6844af; font-family:'Manrope',sans-serif; font-size:16px; line-height:1; }
+        .path-um-row-actions { position:relative; display:flex; align-items:center; justify-content:flex-end; gap:4px; }.path-um-row-actions button { display:grid; width:26px; height:26px; place-items:center; border-radius:6px; color:#897e90; }.path-um-row-actions button:hover { background:#f0e9fc; color:#6d3ec5; }.path-um-row-actions button.danger:hover { background:#fff0f0; color:#b65d61; }.path-um-row-actions button:not(:first-child) { position:absolute; right:28px; opacity:0; pointer-events:none; transition:opacity .16s ease; }.path-um-person-row:hover .path-um-row-actions button:not(:first-child) { opacity:1; pointer-events:auto; }.path-um-row-actions button:nth-child(3) { right:54px; }.path-um-self { color:#a095a5; font-size:8px; font-weight:800; }
         .path-um-list-foot { padding:12px 22px; background:#fcfbfe; color:#9c92a3; font-size:9px; }
         .path-um-request-list { display:flex; flex-direction:column; }.path-um-request-row { display:grid; grid-template-columns:32px minmax(185px,1.1fr) 132px minmax(160px,1fr) auto; gap:14px; align-items:center; min-height:88px; padding:15px 22px; border-bottom:1px solid #f0edf4; background:#fff; }.path-um-request-row:last-child { border-bottom:0; }.path-um-request-row > span { margin-right:0 !important; }.path-um-request-person, .path-um-request-role { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-um-request-person strong { overflow:hidden; color:#56465f; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-um-request-person span, .path-um-request-person small, .path-um-request-role > span { overflow:hidden; color:#a095a5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.path-um-request-role > span { font-weight:800; letter-spacing:.07em; text-transform:uppercase; }.path-um-request-row > p { margin:0; color:#847889; font-size:9px; line-height:1.45; }.path-um-request-actions { display:flex; align-items:center; justify-content:flex-end; gap:7px; }.path-um-request-actions button { display:inline-flex; min-height:31px; align-items:center; gap:5px; border-radius:6px; padding:0 9px; font-size:8px; font-weight:800; }.path-um-decline { border:1px solid #f0d9da; background:#fff; color:#a26061; }.path-um-approve { background:#7c3aed; color:#fff; box-shadow:0 5px 12px rgba(124,58,237,.16); }
         .path-um-resolved-list { display:flex; flex-direction:column; }.path-um-resolved-row { display:grid; grid-template-columns:32px minmax(190px,1fr) 132px minmax(145px,.8fr); gap:14px; align-items:center; min-height:78px; padding:14px 22px; border-bottom:1px solid #f0edf4; background:#fff; }.path-um-resolved-row:last-child { border-bottom:0; }.path-um-resolved-row > span { margin-right:0 !important; }.path-um-resolution { display:flex; min-width:0; flex-direction:column; align-items:flex-start; gap:5px; }.path-um-resolution > span { padding:4px 7px; border-radius:99px; font-size:7px; font-weight:900; }.path-um-resolution > span.approved { background:#e6f5ed; color:#3b8c68; }.path-um-resolution > span.rejected { background:#fff0ef; color:#b45f59; }.path-um-resolution small { overflow:hidden; color:#a095a5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
         .path-um-empty { display:flex; min-height:230px; align-items:center; flex-direction:column; justify-content:center; gap:7px; padding:28px; color:#a095a5; text-align:center; }.path-um-empty strong { color:#5d5067; font-family:'Manrope',sans-serif; font-size:12px; }.path-um-empty span { font-size:9px; }
         @media (max-width:1180px) { .path-um-tabs, .path-um-content { padding-left:30px; padding-right:30px; }.path-um-hero { align-items:flex-start; flex-direction:column; }.path-um-hero-actions { width:100%; justify-content:space-between; }.path-um-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.path-um-directory-layout { grid-template-columns:1fr; } }
-        @media (max-width:900px) { .path-um-list-head { display:none; }.path-um-person-row { grid-template-columns:minmax(0,1fr) minmax(110px,.7fr) auto; }.path-um-access { grid-column:2; }.path-um-assignment { display:none; }.path-um-row-actions { grid-column:3; grid-row:1 / span 2; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr) auto; gap:10px; }.path-um-request-role { grid-column:2; }.path-um-request-row > p { grid-column:2 / -1; }.path-um-request-actions { grid-column:3; grid-row:1 / span 2; align-self:center; } }
-        @media (max-width:620px) { .path-um-tabs, .path-um-content { padding-left:15px; padding-right:15px; }.path-um-hero { min-height:0; padding:20px 17px 22px; }.path-um-hero h1 { font-size:36px; }.path-um-hero-actions { align-items:stretch; flex-direction:column; }.path-um-insight, .path-um-primary { width:100%; }.path-um-stat-grid { grid-template-columns:1fr; gap:10px; }.path-um-stat-card { min-height:105px; padding:16px; }.path-um-stat-card span { font-size:9px; }.path-um-stat-card strong { font-size:29px; }.path-um-stat-card small { font-size:9px; }.path-um-person-row { grid-template-columns:minmax(0,1fr) auto; padding:14px 16px; }.path-um-role, .path-um-access { grid-column:1; }.path-um-row-actions { grid-column:2; grid-row:1 / span 3; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr); padding:15px 16px; }.path-um-request-role, .path-um-request-row > p { grid-column:2; }.path-um-request-actions { grid-column:1 / -1; grid-row:auto; justify-content:stretch; }.path-um-request-actions button { flex:1; justify-content:center; }.path-um-resolved-row { grid-template-columns:32px minmax(0,1fr); padding:14px 16px; }.path-um-resolved-row .path-um-request-role, .path-um-resolution { grid-column:2; } }
+        @media (max-width:900px) { .path-um-directory-head { align-items:flex-start; flex-direction:column; }.path-um-directory-controls { width:100%; }.path-um-directory-search { flex:1; width:auto; }.path-um-list-head { display:none; }.path-um-person-row { grid-template-columns:minmax(0,1fr) minmax(110px,.7fr) auto; }.path-um-access { grid-column:2; }.path-um-assignment { display:none; }.path-um-row-actions { grid-column:3; grid-row:1 / span 2; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr) auto; gap:10px; }.path-um-request-role { grid-column:2; }.path-um-request-row > p { grid-column:2 / -1; }.path-um-request-actions { grid-column:3; grid-row:1 / span 2; align-self:center; } }
+        @media (max-width:620px) { .path-um-tabs, .path-um-content { padding-left:15px; padding-right:15px; }.path-um-hero { min-height:0; padding:20px 17px 22px; }.path-um-hero h1 { font-size:36px; }.path-um-hero-actions { align-items:stretch; flex-direction:column; }.path-um-insight, .path-um-primary { width:100%; }.path-um-stat-grid { grid-template-columns:1fr; gap:10px; }.path-um-stat-card { min-height:105px; padding:16px; }.path-um-stat-card span { font-size:9px; }.path-um-stat-card strong { font-size:29px; }.path-um-stat-card small { font-size:9px; }.path-um-directory-head { padding:18px 16px 14px; }.path-um-directory-controls { align-items:stretch; flex-wrap:wrap; gap:7px; }.path-um-directory-search { flex-basis:100%; padding:5px 2px; }.path-um-directory-controls select { flex:1; min-width:0; padding-left:0; }.path-um-person-row { grid-template-columns:minmax(0,1fr) auto; padding:14px 16px; }.path-um-role, .path-um-access { grid-column:1; }.path-um-row-actions { grid-column:2; grid-row:1 / span 3; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr); padding:15px 16px; }.path-um-request-role, .path-um-request-row > p { grid-column:2; }.path-um-request-actions { grid-column:1 / -1; grid-row:auto; justify-content:stretch; }.path-um-request-actions button { flex:1; justify-content:center; }.path-um-resolved-row { grid-template-columns:32px minmax(0,1fr); padding:14px 16px; }.path-um-resolved-row .path-um-request-role, .path-um-resolution { grid-column:2; } }
       `}</style>
 
       <Sidebar activePage="users" />
@@ -1685,44 +1753,15 @@ export default function UserManagement() {
 
                   <div className="path-um-directory-layout mt-6">
                     <section className="path-um-panel bg-white border border-[#cbc3d7] rounded-2xl shadow-sm overflow-hidden flex flex-col">
-                      {/* Filter Toolbar */}
-                      <div className="p-4 border-b border-[#cbc3d7] bg-[#fcf8ff] flex flex-col lg:flex-row gap-3 items-center justify-between">
-                        <div className="relative w-full lg:w-72">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7b7486]">
-                            <SearchIcon />
-                          </span>
-                          <input
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search by name, email, or username…"
-                            className="w-full bg-white border border-[#cbc3d7] rounded-md pl-9 pr-4 py-2 text-sm text-[#181445] outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] transition-colors h-[40px]"
-                          />
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                          <select
-                            value={roleFilter}
-                            onChange={(e) => setRoleFilter(e.target.value)}
-                            className="bg-[#fcf8ff] border border-[#cbc3d7] rounded-md px-3 py-2 text-sm text-[#181445] outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] cursor-pointer min-w-[120px] h-[40px]"
-                          >
-                            <option value="all">All Roles</option>
-                            <option value="admin">Admin</option>
-                            <option value="program_chair">Program Chair</option>
-                            <option value="faculty">Faculty</option>
-                          </select>
-                          <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="bg-[#fcf8ff] border border-[#cbc3d7] rounded-md px-3 py-2 text-sm text-[#181445] outline-none focus:border-[#6b38d4] focus:ring-1 focus:ring-[#6b38d4] cursor-pointer min-w-[120px] h-[40px]"
-                          >
-                            <option value="all">All Statuses</option>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                          </select>
-                        </div>
-                      </div>
                       <PathDirectoryList
                         users={filteredUsers}
                         total={users.length}
+                        search={search}
+                        setSearch={setSearch}
+                        roleFilter={roleFilter}
+                        setRoleFilter={setRoleFilter}
+                        statusFilter={statusFilter}
+                        setStatusFilter={setStatusFilter}
                         canEdit={canEdit}
                         currentUserId={currentUserId}
                         onView={setSelectedUser}
