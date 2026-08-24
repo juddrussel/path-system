@@ -979,6 +979,199 @@ function StatCard({ label, value, sub, iconBg, icon, badge, variant }) {
   );
 }
 
+function PathDirectoryList({
+  users,
+  total,
+  canEdit,
+  currentUserId,
+  onView,
+  onEdit,
+  onDelete,
+}) {
+  return (
+    <div className="path-um-list">
+      <div className="path-um-list-head">
+        <span>Person</span>
+        <span>Role &amp; department</span>
+        <span>Access</span>
+        <span>Assignments</span>
+        <span />
+      </div>
+      {users.length === 0 ? (
+        <div className="path-um-empty">
+          <UsersIcon />
+          <strong>No users match these filters</strong>
+          <span>Try a different role, status, or search term.</span>
+        </div>
+      ) : (
+        users.map((u) => (
+          <div className="path-um-person-row" key={u.id}>
+            <div className="path-um-person">
+              <Avatar
+                firstName={u.first_name}
+                lastName={u.last_name}
+                pictureUrl={u.avatar_url}
+              />
+              <div>
+                <strong>
+                  {u.first_name} {u.last_name}
+                </strong>
+                <span>{u.email || `@${u.username}`}</span>
+              </div>
+            </div>
+            <div className="path-um-role">
+              <RoleBadge role={u.role} variant="audit" />
+              <span>{u.department || "Workspace member"}</span>
+            </div>
+            <div className="path-um-access">
+              <StatusBadge active={u.is_active} variant="audit" />
+              <small>USR-{String(u.id).padStart(4, "0")}</small>
+            </div>
+            <div className="path-um-assignment">
+              <strong>—</strong>
+              <span>assignments</span>
+            </div>
+            <div className="path-um-row-actions">
+              <button onClick={() => onView(u)} title="View details">
+                <EyeIcon />
+              </button>
+              {canEdit && (
+                <button onClick={() => onEdit(u)} title="Edit user">
+                  <EditIcon />
+                </button>
+              )}
+              {u.id !== currentUserId ? (
+                <button
+                  onClick={() =>
+                    onDelete({
+                      id: u.id,
+                      name: `${u.first_name} ${u.last_name}`,
+                    })
+                  }
+                  title="Remove user"
+                  className="danger"
+                >
+                  <TrashIcon />
+                </button>
+              ) : (
+                <span className="path-um-self">you</span>
+              )}
+            </div>
+          </div>
+        ))
+      )}
+      <div className="path-um-list-foot">
+        Showing {users.length} of {total} user{total !== 1 ? "s" : ""}
+      </div>
+    </div>
+  );
+}
+
+function PathRequestList({ pending, onApprove, onReject, fmtDate }) {
+  return (
+    <div className="path-um-request-list">
+      {pending.length === 0 ? (
+        <div className="path-um-empty">
+          <ShieldIcon />
+          <strong>All clear</strong>
+          <span>There are no pending account requests to review.</span>
+        </div>
+      ) : (
+        pending.map((u) => (
+          <article className="path-um-request-row" key={u.id}>
+            <Avatar
+              firstName={u.first_name}
+              lastName={u.last_name}
+              pictureUrl={u.avatar_url}
+            />
+            <div className="path-um-request-person">
+              <strong>
+                {u.first_name} {u.last_name}
+              </strong>
+              <span>{u.email || "No email provided"}</span>
+              <small>
+                @{u.username} · Requested{" "}
+                {fmtDate(u.date_joined || u.created_at)}
+              </small>
+            </div>
+            <div className="path-um-request-role">
+              <span>Requested role</span>
+              <RoleBadge role={u.role} variant="audit" />
+            </div>
+            <p>
+              {u.department || "New workspace access request awaiting review."}
+            </p>
+            <div className="path-um-request-actions">
+              <button
+                onClick={() => onReject(u.id, `${u.first_name} ${u.last_name}`)}
+                className="path-um-decline"
+              >
+                <RejectIcon /> Decline
+              </button>
+              <button
+                onClick={() => onApprove(u.id)}
+                className="path-um-approve"
+              >
+                <ApproveIcon /> Approve
+              </button>
+            </div>
+          </article>
+        ))
+      )}
+    </div>
+  );
+}
+
+function PathResolvedRequestList({ resolved, fmtDate }) {
+  return (
+    <div className="path-um-resolved-list">
+      {resolved.length === 0 ? (
+        <div className="path-um-empty">
+          <CheckIcon />
+          <strong>No resolved requests yet</strong>
+          <span>Approved and declined account decisions will appear here.</span>
+        </div>
+      ) : (
+        resolved.map((request, index) => (
+          <article
+            className="path-um-resolved-row"
+            key={`${request.id}-${index}`}
+          >
+            <Avatar
+              firstName={request.first_name}
+              lastName={request.last_name}
+              pictureUrl={request.avatar_url}
+            />
+            <div className="path-um-request-person">
+              <strong>
+                {request.first_name} {request.last_name}
+              </strong>
+              <span>{request.email || "No email provided"}</span>
+              <small>@{request.username}</small>
+            </div>
+            <div className="path-um-request-role">
+              <span>Role</span>
+              <RoleBadge role={request.role} variant="audit" />
+            </div>
+            <div className="path-um-resolution">
+              <span
+                className={
+                  request.decision === "approved" ? "approved" : "rejected"
+                }
+              >
+                {request.decision === "approved" ? "Approved" : "Rejected"}
+              </span>
+              <small>
+                {fmtDate(request.resolved_on)} · {request.resolved_by || "—"}
+              </small>
+            </div>
+          </article>
+        ))
+      )}
+    </div>
+  );
+}
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function UserManagement() {
   const [tab, setTab] = useState("users");
@@ -1288,8 +1481,24 @@ export default function UserManagement() {
         .path-um-stat-card small { display:block; margin-top:5px; color:#9c92a3; font-size:10px; }
         .path-um-panel { border-color:#e5deed !important; border-radius:12px !important; box-shadow:0 12px 30px rgba(57,36,93,.045) !important; }
         .path-um-panel h2, .path-um-panel h3 { font-family:'Manrope',sans-serif; letter-spacing:-.04em; }
+        .path-um-list-head, .path-um-person-row { display:grid; grid-template-columns:minmax(230px,1.55fr) minmax(145px,.9fr) minmax(125px,.75fr) 82px 100px; gap:14px; align-items:center; }
+        .path-um-list-head { padding:10px 22px; border-bottom:1px solid #f0edf4; background:#faf8fd; color:#a198a7; font-size:8px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+        .path-um-person-row { min-height:74px; padding:13px 22px; border-bottom:1px solid #f0edf4; background:#fff; transition:background .16s ease,box-shadow .16s ease; }
+        .path-um-person-row:hover { background:#fbf9ff; box-shadow:inset 2px 0 #a78bfa; }
+        .path-um-person, .path-um-role, .path-um-access, .path-um-assignment { display:flex; min-width:0; align-items:center; gap:8px; }
+        .path-um-person > div, .path-um-role, .path-um-access, .path-um-assignment { flex-direction:column; align-items:flex-start; gap:4px; }
+        .path-um-person > span { flex:0 0 auto; margin-right:0 !important; }
+        .path-um-person strong { overflow:hidden; color:#56465f; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+        .path-um-person span, .path-um-role > span, .path-um-access small, .path-um-assignment span { overflow:hidden; color:#a095a5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+        .path-um-role > span { margin-top:2px; }.path-um-assignment strong { color:#60449b; font-family:'Manrope',sans-serif; font-size:16px; line-height:1; }
+        .path-um-row-actions { display:flex; align-items:center; justify-content:flex-end; gap:4px; }.path-um-row-actions button { display:grid; width:28px; height:28px; place-items:center; border-radius:6px; color:#897e90; }.path-um-row-actions button:hover { background:#f0e9fc; color:#6d3ec5; }.path-um-row-actions button.danger:hover { background:#fff0f0; color:#b65d61; }.path-um-self { color:#a095a5; font-size:8px; font-weight:800; }
+        .path-um-list-foot { padding:12px 22px; background:#fcfbfe; color:#9c92a3; font-size:9px; }
+        .path-um-request-list { display:flex; flex-direction:column; }.path-um-request-row { display:grid; grid-template-columns:32px minmax(185px,1.1fr) 132px minmax(160px,1fr) auto; gap:14px; align-items:center; min-height:88px; padding:15px 22px; border-bottom:1px solid #f0edf4; background:#fff; }.path-um-request-row:last-child { border-bottom:0; }.path-um-request-row > span { margin-right:0 !important; }.path-um-request-person, .path-um-request-role { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-um-request-person strong { overflow:hidden; color:#56465f; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-um-request-person span, .path-um-request-person small, .path-um-request-role > span { overflow:hidden; color:#a095a5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.path-um-request-role > span { font-weight:800; letter-spacing:.07em; text-transform:uppercase; }.path-um-request-row > p { margin:0; color:#847889; font-size:9px; line-height:1.45; }.path-um-request-actions { display:flex; align-items:center; justify-content:flex-end; gap:7px; }.path-um-request-actions button { display:inline-flex; min-height:31px; align-items:center; gap:5px; border-radius:6px; padding:0 9px; font-size:8px; font-weight:800; }.path-um-decline { border:1px solid #f0d9da; background:#fff; color:#a26061; }.path-um-approve { background:#7c3aed; color:#fff; box-shadow:0 5px 12px rgba(124,58,237,.16); }
+        .path-um-resolved-list { display:flex; flex-direction:column; }.path-um-resolved-row { display:grid; grid-template-columns:32px minmax(190px,1fr) 132px minmax(145px,.8fr); gap:14px; align-items:center; min-height:78px; padding:14px 22px; border-bottom:1px solid #f0edf4; background:#fff; }.path-um-resolved-row:last-child { border-bottom:0; }.path-um-resolved-row > span { margin-right:0 !important; }.path-um-resolution { display:flex; min-width:0; flex-direction:column; align-items:flex-start; gap:5px; }.path-um-resolution > span { padding:4px 7px; border-radius:99px; font-size:7px; font-weight:900; }.path-um-resolution > span.approved { background:#e6f5ed; color:#3b8c68; }.path-um-resolution > span.rejected { background:#fff0ef; color:#b45f59; }.path-um-resolution small { overflow:hidden; color:#a095a5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+        .path-um-empty { display:flex; min-height:230px; align-items:center; flex-direction:column; justify-content:center; gap:7px; padding:28px; color:#a095a5; text-align:center; }.path-um-empty strong { color:#5d5067; font-family:'Manrope',sans-serif; font-size:12px; }.path-um-empty span { font-size:9px; }
         @media (max-width:1180px) { .path-um-tabs, .path-um-content { padding-left:30px; padding-right:30px; }.path-um-hero { align-items:flex-start; flex-direction:column; }.path-um-hero-actions { width:100%; justify-content:space-between; }.path-um-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-        @media (max-width:620px) { .path-um-tabs, .path-um-content { padding-left:15px; padding-right:15px; }.path-um-hero { min-height:0; padding:20px 17px 22px; }.path-um-hero h1 { font-size:36px; }.path-um-hero-actions { align-items:stretch; flex-direction:column; }.path-um-insight, .path-um-primary { width:100%; }.path-um-stat-grid { grid-template-columns:1fr; gap:10px; }.path-um-stat-card { min-height:105px; padding:16px; }.path-um-stat-card span { font-size:9px; }.path-um-stat-card strong { font-size:29px; }.path-um-stat-card small { font-size:9px; } }
+        @media (max-width:900px) { .path-um-list-head { display:none; }.path-um-person-row { grid-template-columns:minmax(0,1fr) minmax(110px,.7fr) auto; }.path-um-access { grid-column:2; }.path-um-assignment { display:none; }.path-um-row-actions { grid-column:3; grid-row:1 / span 2; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr) auto; gap:10px; }.path-um-request-role { grid-column:2; }.path-um-request-row > p { grid-column:2 / -1; }.path-um-request-actions { grid-column:3; grid-row:1 / span 2; align-self:center; } }
+        @media (max-width:620px) { .path-um-tabs, .path-um-content { padding-left:15px; padding-right:15px; }.path-um-hero { min-height:0; padding:20px 17px 22px; }.path-um-hero h1 { font-size:36px; }.path-um-hero-actions { align-items:stretch; flex-direction:column; }.path-um-insight, .path-um-primary { width:100%; }.path-um-stat-grid { grid-template-columns:1fr; gap:10px; }.path-um-stat-card { min-height:105px; padding:16px; }.path-um-stat-card span { font-size:9px; }.path-um-stat-card strong { font-size:29px; }.path-um-stat-card small { font-size:9px; }.path-um-person-row { grid-template-columns:minmax(0,1fr) auto; padding:14px 16px; }.path-um-role, .path-um-access { grid-column:1; }.path-um-row-actions { grid-column:2; grid-row:1 / span 3; }.path-um-request-row { grid-template-columns:32px minmax(0,1fr); padding:15px 16px; }.path-um-request-role, .path-um-request-row > p { grid-column:2; }.path-um-request-actions { grid-column:1 / -1; grid-row:auto; justify-content:stretch; }.path-um-request-actions button { flex:1; justify-content:center; }.path-um-resolved-row { grid-template-columns:32px minmax(0,1fr); padding:14px 16px; }.path-um-resolved-row .path-um-request-role, .path-um-resolution { grid-column:2; } }
       `}</style>
 
       <Sidebar activePage="users" />
@@ -1451,121 +1660,15 @@ export default function UserManagement() {
                         </select>
                       </div>
                     </div>
-                    <table className="w-full border-collapse text-left">
-                      <thead>
-                        <tr className="bg-[#f6f2ff] border-b border-[#cbc3d7]">
-                          {[
-                            "User",
-                            "User ID",
-                            "Role",
-                            "Department",
-                            "Status",
-                            "Actions",
-                          ].map((h, i) => (
-                            <th
-                              key={h}
-                              className={`text-[11px] text-[#494454] uppercase tracking-wider font-medium px-6 py-4 text-left ${i === 5 ? "text-right" : ""}`}
-                            >
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#e3dfff] text-sm text-[#181445]">
-                        {filteredUsers.length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan={6}
-                              className="text-center py-10 text-gray-400"
-                            >
-                              No users found.
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredUsers.map((u) => (
-                            <tr
-                              key={u.id}
-                              className="hover:bg-[#f6f2ff]/60 transition-colors group"
-                            >
-                              <td className="py-4 px-6">
-                                <div className="flex items-center gap-3">
-                                  <Avatar
-                                    firstName={u.first_name}
-                                    lastName={u.last_name}
-                                    pictureUrl={u.avatar_url}
-                                  />
-                                  <div>
-                                    <p className="font-medium text-[#181445]">
-                                      {u.first_name} {u.last_name}
-                                    </p>
-                                    <p className="text-[#494454] text-[11px] mt-0.5">
-                                      {u.email || `@${u.username}`}
-                                    </p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="py-4 px-6 text-[#494454]">
-                                USR-{String(u.id).padStart(4, "0")}
-                              </td>
-                              <td className="py-4 px-6">
-                                <RoleBadge role={u.role} variant="audit" />
-                              </td>
-                              <td className="py-4 px-6 text-[#494454]">
-                                {u.department || "—"}
-                              </td>
-                              <td className="py-4 px-6">
-                                <StatusBadge
-                                  active={u.is_active}
-                                  variant="audit"
-                                />
-                              </td>
-                              <td className="py-4 px-6 text-right">
-                                <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button
-                                    onClick={() => setSelectedUser(u)}
-                                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-[#6b38d4]/10 hover:text-[#6b38d4] transition-colors"
-                                    title="View details"
-                                  >
-                                    <EyeIcon />
-                                  </button>
-                                  {canEdit && (
-                                    <button
-                                      onClick={() => setEditUser(u)}
-                                      className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-[#6b38d4]/10 hover:text-[#6b38d4] transition-colors"
-                                      title="Edit user"
-                                    >
-                                      <EditIcon />
-                                    </button>
-                                  )}
-                                  {u.id !== currentUserId ? (
-                                    <button
-                                      onClick={() =>
-                                        setDeleteTarget({
-                                          id: u.id,
-                                          name: `${u.first_name} ${u.last_name}`,
-                                        })
-                                      }
-                                      className="w-7 h-7 rounded-md flex items-center justify-center text-[#7b7486] hover:bg-[#ba1a1a]/10 hover:text-[#ba1a1a] transition-colors"
-                                      title="Remove user"
-                                    >
-                                      <TrashIcon />
-                                    </button>
-                                  ) : (
-                                    <span className="text-[10px] text-[#7b7486] leading-7">
-                                      (you)
-                                    </span>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                    <div className="px-6 py-4 text-sm text-[#494454] border-t border-[#cbc3d7] bg-white">
-                      Showing {filteredUsers.length} of {users.length} user
-                      {users.length !== 1 ? "s" : ""}
-                    </div>
+                    <PathDirectoryList
+                      users={filteredUsers}
+                      total={users.length}
+                      canEdit={canEdit}
+                      currentUserId={currentUserId}
+                      onView={setSelectedUser}
+                      onEdit={setEditUser}
+                      onDelete={setDeleteTarget}
+                    />
                   </div>
                 </div>
               )}
@@ -1660,122 +1763,12 @@ export default function UserManagement() {
                         </button>
                       )}
                     </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse text-left">
-                        <thead>
-                          <tr className="bg-[#f6f2ff] border-b border-[#cbc3d7]">
-                            {[
-                              "Applicant",
-                              "Email / Username",
-                              "Requested Role",
-                              "Requested On",
-                              "Status",
-                              "Actions",
-                            ].map((h, i) => (
-                              <th
-                                key={h}
-                                className={`text-[11px] text-[#494454] uppercase tracking-wider font-medium px-6 py-4 text-left ${i === 5 ? "text-right" : ""}`}
-                              >
-                                {h}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#e3dfff] text-sm text-[#181445]">
-                          {pending.length === 0 ? (
-                            <tr>
-                              <td colSpan={6}>
-                                <div className="text-center py-10">
-                                  <svg
-                                    viewBox="0 0 40 40"
-                                    fill="none"
-                                    stroke="#cbc3d7"
-                                    strokeWidth="1.5"
-                                    width="40"
-                                    height="40"
-                                    className="mx-auto mb-2"
-                                  >
-                                    <circle cx="20" cy="20" r="17" />
-                                    <path
-                                      d="M13 20l5 5 9-9"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                  <p className="text-[#7b7486] text-sm">
-                                    All clear — no pending account requests.
-                                  </p>
-                                </div>
-                              </td>
-                            </tr>
-                          ) : (
-                            pending.map((u) => (
-                              <tr
-                                key={u.id}
-                                className="hover:bg-[#f6f2ff]/60 transition-colors group"
-                              >
-                                <td className="px-6 py-4">
-                                  <div className="flex items-center">
-                                    <Avatar
-                                      firstName={u.first_name}
-                                      lastName={u.last_name}
-                                      pictureUrl={u.avatar_url}
-                                    />
-                                    <span className="text-[#181445] font-medium">
-                                      {u.first_name} {u.last_name}
-                                    </span>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <div className="text-[#494454]">
-                                    {u.email || "—"}
-                                  </div>
-                                  <div className="text-[11px] text-[#7b7486] mt-0.5">
-                                    @{u.username}
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <RoleBadge role={u.role} variant="audit" />
-                                </td>
-                                <td className="px-6 py-4 text-[#494454]">
-                                  {fmtDate(u.date_joined || u.created_at)}
-                                </td>
-                                <td className="px-6 py-4">
-                                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-                                    Pending
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <div className="flex gap-1.5 justify-end">
-                                    <button
-                                      onClick={() => handleApprove(u.id)}
-                                      className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
-                                    >
-                                      <ApproveIcon /> Approve
-                                    </button>
-                                    <button
-                                      onClick={() =>
-                                        handleReject(
-                                          u.id,
-                                          `${u.first_name} ${u.last_name}`,
-                                        )
-                                      }
-                                      className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border border-[#ba1a1a]/30 bg-[#ba1a1a]/5 text-[#ba1a1a] hover:bg-[#ba1a1a]/10 transition-colors"
-                                    >
-                                      <RejectIcon /> Reject
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                    <div className="px-6 py-4 text-sm text-[#494454] border-t border-[#cbc3d7] bg-white">
-                      Showing {pending.length} pending request
-                      {pending.length !== 1 ? "s" : ""}
-                    </div>
+                    <PathRequestList
+                      pending={pending}
+                      onApprove={handleApprove}
+                      onReject={handleReject}
+                      fmtDate={fmtDate}
+                    />
                   </div>
 
                   {/* Recently Resolved — always show, even if empty */}
@@ -1788,89 +1781,10 @@ export default function UserManagement() {
                         Accounts approved or rejected in the last 30 days
                       </p>
                     </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse text-left">
-                        <thead>
-                          <tr className="bg-[#f6f2ff] border-b border-[#cbc3d7]">
-                            {[
-                              "User",
-                              "Email / Username",
-                              "Role",
-                              "Resolved On",
-                              "Decision",
-                              "Resolved By",
-                            ].map((h) => (
-                              <th
-                                key={h}
-                                className="text-[11px] text-[#494454] uppercase tracking-wider font-medium px-6 py-4 text-left"
-                              >
-                                {h}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#e3dfff] text-sm text-[#181445]">
-                          {resolved.length === 0 ? (
-                            <tr>
-                              <td
-                                colSpan={6}
-                                className="text-center py-10 text-[#7b7486] text-sm"
-                              >
-                                No resolved requests yet.
-                              </td>
-                            </tr>
-                          ) : (
-                            resolved.map((r, i) => (
-                              <tr
-                                key={i}
-                                className="hover:bg-[#f6f2ff]/60 transition-colors group"
-                              >
-                                <td className="px-6 py-4">
-                                  <div className="flex items-center">
-                                    <Avatar
-                                      firstName={r.first_name}
-                                      lastName={r.last_name}
-                                      pictureUrl={r.avatar_url}
-                                    />
-                                    <span className="text-[#181445] font-medium">
-                                      {r.first_name} {r.last_name}
-                                    </span>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <div className="text-[#494454]">
-                                    {r.email || "—"}
-                                  </div>
-                                  <div className="text-[11px] text-[#7b7486] mt-0.5">
-                                    @{r.username}
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <RoleBadge role={r.role} variant="audit" />
-                                </td>
-                                <td className="px-6 py-4 text-[#494454]">
-                                  {fmtDate(r.resolved_on)}
-                                </td>
-                                <td className="px-6 py-4">
-                                  {r.decision === "approved" ? (
-                                    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-                                      Approved
-                                    </span>
-                                  ) : (
-                                    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-[#ffdad6] text-[#93000a]">
-                                      Rejected
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 text-[#494454]">
-                                  {r.resolved_by || "—"}
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
+                    <PathResolvedRequestList
+                      resolved={resolved}
+                      fmtDate={fmtDate}
+                    />
                   </div>
                 </div>
               )}
