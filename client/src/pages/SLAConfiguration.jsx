@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import {
-  Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown,
+  Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown, Pencil,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
   AlertTriangle, CheckCircle2, Zap, UserCheck, Building2, FileText, AlertCircle,
   Layers, Gauge, X, Mail, Smartphone, MonitorSmartphone, ArrowUpDown, MoreVertical, ArrowUpRight,
@@ -1030,9 +1030,9 @@ export default function SLAConfiguration() {
                           <td style={{ padding: "16px 24px", textAlign: "center" }}>
                             <button
                               onClick={(e) => { e.stopPropagation(); selectRule(r.id); setShowEditModal(true); }}
-                              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", background: "transparent", color: COLORS.textTertiary, cursor: "pointer", padding: "0 8px" }}
+                              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5, border: `1px solid ${COLORS.border}`, background: COLORS.surface, color: COLORS.primary, borderRadius: 8, cursor: "pointer", padding: "7px 11px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}
                             >
-                              <MoreVertical style={{ width: 15, height: 15 }} />
+                              <><Pencil style={{ width: 14, height: 14 }} /> <span>Edit</span></>
                             </button>
                           </td>
                         </tr>
@@ -1276,10 +1276,10 @@ export default function SLAConfiguration() {
           `}</style>
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ position: "fixed", top: 0, right: 0, height: "100%", width: 600, maxWidth: "95vw", background: "#fcf8ff", boxShadow: "-8px 0 30px rgba(17,24,39,0.18)", display: "flex", flexDirection: "column", borderLeft: "1px solid #e5e0f5", animation: "slaDrawerSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) backwards" }}
+            style={{ position: "fixed", top: 0, right: 0, height: "100%", width: 600, maxWidth: "95vw", background: "#fff", boxShadow: "-8px 0 30px rgba(17,24,39,0.18)", display: "flex", flexDirection: "column", overflow: "hidden", isolation: "isolate", borderLeft: "1px solid #e5e0f5", animation: "slaDrawerSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) backwards" }}
           >
             {/* Header */}
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #e5e0f5", flexShrink: 0, background: "#fff" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #e5e0f5", flexShrink: 0, position: "relative", zIndex: 2, background: "#fff", boxShadow: "0 4px 12px rgba(57,36,93,0.05)" }}>
               <div>
                 <p style={{ fontSize: 18, fontWeight: 700, color: "#181445", lineHeight: 1.2 }}>Edit SLA Configuration</p>
                 <p style={{ fontSize: 12.5, color: "#6b7280", marginTop: 4 }}>
@@ -1293,7 +1293,7 @@ export default function SLAConfiguration() {
             </div>
 
             {/* Body */}
-            <div style={{ overflowY: "auto", padding: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, flex: 1 }}>
+            <div style={{ minHeight: 0, overflowY: "auto", overflowX: "hidden", padding: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, flex: 1, background: "#fff", overscrollBehavior: "contain" }}>
               {/* Left: form fields */}
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {renderIdentityCard()}
