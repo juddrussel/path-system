@@ -39,7 +39,7 @@ const FIELD_TYPES = [
   "Checkbox",
   "File Upload",
 ];
-const LIBRARY_PAGE_SIZE = 5;
+const LIBRARY_PAGE_SIZE = 6;
 let nextFieldId = 100;
 
 async function apiFetch(path, options = {}) {
