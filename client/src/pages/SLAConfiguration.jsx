@@ -328,7 +328,6 @@ export default function SLAConfiguration() {
 
   const emptyCreateForm = () => ({
     docType: "",
-    priority: "Medium",
     reviewerRole: "",
     turnaroundHours: 48,
     escalationHours: 24,
@@ -354,7 +353,6 @@ export default function SLAConfiguration() {
         method: "POST",
         body: JSON.stringify({
           documentType: createForm.docType,
-          priority: createForm.priority,
           reviewerRole: createForm.reviewerRole,
           turnaroundHours: Number(createForm.turnaroundHours),
           escalationHours: Number(createForm.escalationHours),
@@ -1074,6 +1072,28 @@ export default function SLAConfiguration() {
         .sla-add-policy:hover { background:#6d28d9 !important; }
         .sla-add-policy:active { transform:scale(.98) !important; }
         @media (max-width:700px) { .sla-list-heading-actions { width:100% !important; flex-wrap:wrap !important; } .sla-list-heading-actions select { flex:1 1 150px !important; } .sla-add-policy { flex:1 1 150px !important; } }
+        .sla-create-modal { display:flex !important; flex-direction:column !important; }
+        .sla-create-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; padding:23px 24px 18px; border-bottom:1px solid #eee8f3; background:linear-gradient(135deg,#fcfaff,#f6f0ff); }
+        .sla-create-kicker { display:block; margin-bottom:7px; color:#8b5cf6; font:800 9px/1 "DM Sans",sans-serif; letter-spacing:.11em; text-transform:uppercase; }
+        .sla-create-title { margin:0; color:#2f2639; font:700 21px/1.12 Manrope,sans-serif; letter-spacing:-.035em; }
+        .sla-create-subtitle { max-width:340px; margin:7px 0 0; color:#8f8499; font:400 11px/1.45 "DM Sans",sans-serif; }
+        .sla-create-close { display:grid; flex:none; width:30px; height:30px; place-items:center; padding:0; border:1px solid #e7ddf1; border-radius:8px; background:rgba(255,255,255,.75); color:#988da2; cursor:pointer; }
+        .sla-create-body { min-height:0; overflow-y:auto; padding:20px 24px 22px; overscroll-behavior:contain; }
+        .sla-create-section-label { margin-bottom:12px; color:#71647d; font:800 9px/1 "DM Sans",sans-serif; letter-spacing:.09em; text-transform:uppercase; }
+        .sla-create-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px 14px; }
+        .sla-create-fields > div:first-child, .sla-create-fields > div:nth-child(2), .sla-create-fields > div:nth-child(5), .sla-create-fields > div:last-child { grid-column:1 / -1; }
+        .sla-create-fields label { display:block !important; margin-bottom:6px; color:#63566f !important; font:600 10px/1.2 "DM Sans",sans-serif !important; letter-spacing:.01em; }
+        .sla-create-fields input, .sla-create-fields select, .sla-create-fields textarea { margin-top:0 !important; min-height:38px; border-color:#ded5e8 !important; border-radius:8px !important; background:#fff !important; box-shadow:0 1px 2px rgba(64,42,89,.03); }
+        .sla-create-fields textarea { min-height:86px; }
+        .sla-create-fields > div:nth-child(3), .sla-create-fields > div:nth-child(4), .sla-create-fields > div:nth-child(6) { padding:12px; border:1px solid #eee8f3; border-radius:10px; background:#fdfbff; }
+        .sla-create-fields > div:nth-child(5) { grid-column:1 / -1; padding-top:2px; }
+        .sla-create-fields > div:nth-child(6) p { margin-bottom:0 !important; line-height:1.45 !important; }
+        .sla-create-actions { display:flex; gap:10px; padding:14px 24px 20px; border-top:1px solid #eee8f3; background:#fff; }
+        .sla-create-primary, .sla-create-secondary { transition:transform .16s ease, box-shadow .16s ease, background .16s ease; }
+        .sla-create-primary:hover { background:#6d28d9 !important; box-shadow:0 8px 18px rgba(124,58,237,.18); }
+        .sla-create-secondary:hover { background:#faf8fd !important; }
+        .sla-create-primary:active, .sla-create-secondary:active, .sla-create-close:active { transform:scale(.98); }
+        @media (max-width:560px) { .sla-create-header { padding:19px 18px 16px; } .sla-create-title { font-size:19px; } .sla-create-subtitle { font-size:10.5px; } .sla-create-body { padding:17px 18px 19px; } .sla-create-fields { grid-template-columns:1fr; gap:14px; } .sla-create-fields > div { grid-column:1 / -1 !important; } .sla-create-actions { padding:12px 18px 16px; } }
       `}</style>
 
       <Sidebar activePage="sla-configuration" />
@@ -1324,17 +1344,21 @@ export default function SLAConfiguration() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 16, padding: 22, width: 420, maxWidth: "90vw", maxHeight: "85vh", overflowY: "auto", border: "1px solid #cbc3d7" }}
+            className="sla-create-modal"
+            style={{ background: "#fff", borderRadius: 18, padding: 0, width: 470, maxWidth: "calc(100vw - 24px)", maxHeight: "min(760px, calc(100vh - 24px))", overflow: "hidden", border: "1px solid #e6ddf5", boxShadow: "0 24px 70px rgba(48,26,81,.22)" }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827" }}>Create SLA Rule</p>
-              <X
-                onClick={() => !creating && setShowCreateModal(false)}
-                style={{ width: 16, height: 16, color: "#9ca3af", cursor: "pointer" }}
-              />
+            <div className="sla-create-header">
+              <div>
+                <span className="sla-create-kicker">Policy catalog</span>
+                <p className="sla-create-title">Create SLA policy</p>
+                <p className="sla-create-subtitle">Set the review owner, turnaround window, reminders, and escalation rules.</p>
+              </div>
+              <button type="button" className="sla-create-close" onClick={() => !creating && setShowCreateModal(false)} aria-label="Close create SLA policy form"><X size={17} /></button>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="sla-create-body">
+              <div className="sla-create-section-label">Policy details</div>
+              <div className="sla-create-fields">
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
                 <select
@@ -1360,14 +1384,6 @@ export default function SLAConfiguration() {
                     No active document types found. Add one in Document Categories first.
                   </p>
                 )}
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Rule Priority</label>
-                <select value={createForm.priority} onChange={e => setCreate("priority", e.target.value)} style={selStyle}>
-                  <option>High</option>
-                  <option>Medium</option>
-                  <option>Low</option>
-                </select>
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
@@ -1415,18 +1431,21 @@ export default function SLAConfiguration() {
                 <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
               </div>
 
-              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              </div>
+              <div className="sla-create-actions">
                 <button
                   disabled={creating}
                   onClick={handleCreateRule}
-                  style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: creating ? "default" : "pointer", opacity: creating ? 0.7 : 1 }}
+                  className="sla-create-primary"
+                  style={{ flex: 1, padding: "11px 14px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: creating ? "default" : "pointer", opacity: creating ? 0.7 : 1 }}
                 >
                   {creating ? "Creating…" : "Create Rule"}
                 </button>
                 <button
                   disabled={creating}
                   onClick={() => setShowCreateModal(false)}
-                  style={{ flex: 1, padding: "10px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  className="sla-create-secondary"
+                  style={{ flex: 1, padding: "11px 14px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                 >
                   Cancel
                 </button>
