@@ -636,7 +636,7 @@ export default function DocumentCategories() {
 
   return (
     <div className="path-cat-app">
-      <style>{`${PATH_CATEGORY_CSS}${PATH_CATEGORY_SPACING_CSS}`}</style>
+      <style>{`${PATH_CATEGORY_CSS}${PATH_CATEGORY_SPACING_CSS}${PATH_CATEGORY_TYPOGRAPHY_CSS}`}</style>
       <Sidebar activePage="document-categories" />
       <main className="path-cat-main">
         <TopBar onLogout={logout} />
@@ -916,6 +916,11 @@ const PATH_CATEGORY_SPACING_CSS = `
 .path-cat-content{box-sizing:border-box;width:100%;max-width:1540px;margin:0 auto;padding:38px clamp(34px,4vw,56px) 50px}
 @media(max-width:900px){.path-cat-content{padding:30px 30px 42px}}
 @media(max-width:640px){.path-cat-content{padding:20px 16px 34px}}
+`;
+
+const PATH_CATEGORY_TYPOGRAPHY_CSS = `
+.path-cat-app,.path-cat-app button,.path-cat-app input,.path-cat-app textarea,.path-cat-app select{font-family:'DM Sans',sans-serif!important}
+.path-cat-app h1,.path-cat-app h2,.path-cat-app h3,.path-cat-app h4,.path-cat-app .path-cat-metric strong,.path-cat-app .path-cat-list-item strong,.path-cat-app .path-cat-detail-stats strong,.path-cat-app .path-cat-detail-empty strong{font-family:'Manrope','DM Sans',sans-serif!important;letter-spacing:-.035em}
 `;
 
 const PATH_CATEGORY_CSS = `
