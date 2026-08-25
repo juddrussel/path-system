@@ -8,54 +8,349 @@ const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const Icon = {
-  Grid: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1" y="1" width="6" height="6" rx="1" /><rect x="9" y="1" width="6" height="6" rx="1" /><rect x="1" y="9" width="6" height="6" rx="1" /><rect x="9" y="9" width="6" height="6" rx="1" /></svg>,
-  Inbox: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" /></svg>,
-  Plus: ({ color = "currentColor", size = 14 }) => <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" width={size} height={size}><path d="M8 1v14M1 8h14" /></svg>,
-  Tasks: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" /></svg>,
-  Workflow: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="3" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" /></svg>,
-  Reports: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" /></svg>,
-  Forms: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" /></svg>,
-  Users: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-5 5-5s5 2 5 5" /><path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" /></svg>,
-  Shield: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" /></svg>,
-  Settings: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="2" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" /></svg>,
-  Help: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="7" /><path d="M8 7v4M8 5v1" /></svg>,
-  Logout: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" /></svg>,
-  Search: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6.5" cy="6.5" r="4.5" /><path d="M10.5 10.5L14 14" strokeLinecap="round" /></svg>,
-  Filter: () => <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z" /></svg>,
-  Check: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>,
-  Clock: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l2 2" strokeLinecap="round" /></svg>,
-  Alert: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>,
-  Eye: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" /><circle cx="8" cy="8" r="2" /></svg>,
-  Close: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M12 4L4 12M4 4l8 8" strokeLinecap="round" /></svg>,
-  Share: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="12" cy="3" r="2" /><circle cx="4" cy="8" r="2" /><circle cx="12" cy="13" r="2" /><path d="M6 7l4-3M6 9l4 3" strokeLinecap="round" /></svg>,
-  More: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="4" cy="8" r="1.5" /><circle cx="8" cy="8" r="1.5" /><circle cx="12" cy="8" r="1.5" /></svg>,
-  Return: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M12 4H6a4 4 0 000 8h2M9 11l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" /></svg>,
-  Reassign: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-5 5-5M11 8l3 3-3 3M14 11H9" strokeLinecap="round" /></svg>,
-  Download: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" strokeLinecap="round" /></svg>,
-  Attach: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="13" height="13"><path d="M13 7l-5 5a4 4 0 01-5.7-5.7l5-5a2.5 2.5 0 013.5 3.5l-5 5a1 1 0 01-1.4-1.4l4-4" strokeLinecap="round" /></svg>,
-  AssignTask: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" /><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /><circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" /><path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>,
-  Tracking: () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>,
-  Categories: () => <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" /><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" /><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" /><rect x="9" y="9" width="5.5" height="5.5" rx="1.2" /></svg>,
-  SLA: () => 
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+  Grid: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <rect x="1" y="1" width="6" height="6" rx="1" />
+      <rect x="9" y="1" width="6" height="6" rx="1" />
+      <rect x="1" y="9" width="6" height="6" rx="1" />
+      <rect x="9" y="9" width="6" height="6" rx="1" />
+    </svg>
+  ),
+  Inbox: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M2 3h12v1.5L8 9 2 4.5V3zm0 3.5l6 4 6-4V13H2V6.5z" />
+    </svg>
+  ),
+  Plus: ({ color = "currentColor", size = 14 }) => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      width={size}
+      height={size}
+    >
+      <path d="M8 1v14M1 8h14" />
+    </svg>
+  ),
+  Tasks: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" />
+    </svg>
+  ),
+  Workflow: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="8" cy="8" r="3" />
+      <path
+        d="M8 1v2M8 13v2M1 8h2M13 8h2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </svg>
+  ),
+  Reports: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M2 12h2V7H2zm4 0h2V4H6zm4 0h2V9h-2z" />
+    </svg>
+  ),
+  Forms: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3h8v1H4zm0 3h8v1H4zm0 3h5v1H4z" />
+    </svg>
+  ),
+  Users: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="6" cy="5" r="3" />
+      <path d="M1 14c0-3 2-5 5-5s5 2 5 5" />
+      <path d="M11 3c1.7 0 3 1.3 3 3s-1.3 3-3 3M13 12c1 .5 2 1.5 2 3" />
+    </svg>
+  ),
+  Shield: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z" />
+    </svg>
+  ),
+  Settings: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="8" cy="8" r="2" />
+      <path
+        d="M8 1v2M8 13v2M1 8h2M13 8h2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </svg>
+  ),
+  Help: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
+      <circle cx="8" cy="8" r="7" />
+      <path d="M8 7v4M8 5v1" />
+    </svg>
+  ),
+  Logout: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
+    </svg>
+  ),
+  Search: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <circle cx="6.5" cy="6.5" r="4.5" />
+      <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+    </svg>
+  ),
+  Filter: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+      <path d="M2 4h12v1.5L9 9v5l-2-1V9L2 5.5V4z" />
+    </svg>
+  ),
+  Check: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      width="12"
+      height="12"
+    >
+      <path d="M13 5l-7 7-3-3" strokeLinecap="round" />
+    </svg>
+  ),
+  Clock: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 4v4l2 2" strokeLinecap="round" />
+    </svg>
+  ),
+  Alert: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 5v3M8 10v1" strokeLinecap="round" />
+    </svg>
+  ),
+  Eye: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+      <circle cx="8" cy="8" r="2" />
+    </svg>
+  ),
+  Close: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <path d="M12 4L4 12M4 4l8 8" strokeLinecap="round" />
+    </svg>
+  ),
+  Share: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
+      <circle cx="12" cy="3" r="2" />
+      <circle cx="4" cy="8" r="2" />
+      <circle cx="12" cy="13" r="2" />
+      <path d="M6 7l4-3M6 9l4 3" strokeLinecap="round" />
+    </svg>
+  ),
+  More: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <circle cx="4" cy="8" r="1.5" />
+      <circle cx="8" cy="8" r="1.5" />
+      <circle cx="12" cy="8" r="1.5" />
+    </svg>
+  ),
+  Return: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <path
+        d="M12 4H6a4 4 0 000 8h2M9 11l3 3 3-3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  Reassign: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <circle cx="6" cy="5" r="3" />
+      <path d="M1 14c0-3 2-5 5-5M11 8l3 3-3 3M14 11H9" strokeLinecap="round" />
+    </svg>
+  ),
+  Download: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
+      <path d="M8 1v9M4 7l4 4 4-4M2 13h12" strokeLinecap="round" />
+    </svg>
+  ),
+  Attach: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="13"
+      height="13"
+    >
+      <path
+        d="M13 7l-5 5a4 4 0 01-5.7-5.7l5-5a2.5 2.5 0 013.5 3.5l-5 5a1 1 0 01-1.4-1.4l4-4"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  AssignTask: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <path
+        d="M2 2h8l3 3v9H2V2z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M5 7h6M5 9.5h4"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <circle cx="12.5" cy="12.5" r="3" fill="#7c3aed" />
+      <path
+        d="M11.5 12.5l.8.8 1.4-1.4"
+        stroke="white"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  ),
+  Tracking: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 4v4l3 2" strokeLinecap="round" />
+      <circle cx="8" cy="8" r="1" fill="currentColor" />
+    </svg>
+  ),
+  Categories: () => (
+    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" />
+      <rect
+        x="9"
+        y="1.5"
+        width="5.5"
+        height="5.5"
+        rx="1.2"
+        fillOpacity="0.55"
+      />
+      <rect
+        x="1.5"
+        y="9"
+        width="5.5"
+        height="5.5"
+        rx="1.2"
+        fillOpacity="0.55"
+      />
+      <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" />
+    </svg>
+  ),
+  SLA: () => (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
       <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>,
+      <path
+        d="M8 4.5v3.8l2.6 1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
 };
 
 // ── Badge ─────────────────────────────────────────────────────────────────────
 const BADGE = {
   "pending approval": { bg: "#fef3c7", color: "#92400e" },
   "in progress": { bg: "#ede9fe", color: "#5b21b6" },
-  "done": { bg: "#d1fae5", color: "#065f46" },
-  "overdue": { bg: "#fee2e2", color: "#991b1b" },
-  "financial": { bg: "#dbeafe", color: "#1e40af" },
-  "legal": { bg: "#fce7f3", color: "#9d174d" },
-  "sales": { bg: "#d1fae5", color: "#065f46" },
-  "high": { bg: "#fee2e2", color: "#991b1b" },
-  "medium": { bg: "#fef3c7", color: "#92400e" },
-  "low": { bg: "#d1fae5", color: "#065f46" },
-  "received": { bg: "#d1fae5", color: "#065f46" },
+  done: { bg: "#d1fae5", color: "#065f46" },
+  overdue: { bg: "#fee2e2", color: "#991b1b" },
+  financial: { bg: "#dbeafe", color: "#1e40af" },
+  legal: { bg: "#fce7f3", color: "#9d174d" },
+  sales: { bg: "#d1fae5", color: "#065f46" },
+  high: { bg: "#fee2e2", color: "#991b1b" },
+  medium: { bg: "#fef3c7", color: "#92400e" },
+  low: { bg: "#d1fae5", color: "#065f46" },
+  received: { bg: "#d1fae5", color: "#065f46" },
 };
 
 // Statuses that mean the task is complete/approved — shown in green with
@@ -65,9 +360,20 @@ const APPROVED_STATUSES = ["received"];
 function Badge({ label }) {
   const key = label?.toLowerCase();
   const isApproved = APPROVED_STATUSES.includes(key);
-  const s = isApproved ? BADGE["received"] : (BADGE[key] || { bg: "#f3f4f6", color: "#374151" });
+  const s = isApproved
+    ? BADGE["received"]
+    : BADGE[key] || { bg: "#f3f4f6", color: "#374151" };
   return (
-    <span style={{ ...s, display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: "bold" }}>
+    <span
+      style={{
+        ...s,
+        display: "inline-block",
+        padding: "2px 8px",
+        borderRadius: 20,
+        fontSize: 10,
+        fontWeight: "bold",
+      }}
+    >
       {isApproved ? "Approved" : label}
     </span>
   );
@@ -76,15 +382,52 @@ function Badge({ label }) {
 // ── Timeline Item ─────────────────────────────────────────────────────────────
 function TimelineItem({ label, value, sub, dot = "#7c3aed", isLast }) {
   return (
-    <div style={{ display: "flex", gap: 10, paddingBottom: isLast ? 0 : 16, position: "relative" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: dot, flexShrink: 0, marginTop: 3 }} />
-        {!isLast && <div style={{ width: 1, flex: 1, background: "#e5e7eb", marginTop: 4 }} />}
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        paddingBottom: isLast ? 0 : 16,
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: dot,
+            flexShrink: 0,
+            marginTop: 3,
+          }}
+        />
+        {!isLast && (
+          <div
+            style={{ width: 1, flex: 1, background: "#e5e7eb", marginTop: 4 }}
+          />
+        )}
       </div>
       <div>
         <div style={{ fontSize: 11, color: "#888" }}>{label}</div>
-        <div style={{ fontSize: 12, fontWeight: "bold", color: "#111", marginTop: 1 }}>{value}</div>
-        {sub && <div style={{ fontSize: 10, color: "#aaa", marginTop: 1 }}>{sub}</div>}
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: "bold",
+            color: "#111",
+            marginTop: 1,
+          }}
+        >
+          {value}
+        </div>
+        {sub && (
+          <div style={{ fontSize: 10, color: "#aaa", marginTop: 1 }}>{sub}</div>
+        )}
       </div>
     </div>
   );
@@ -93,12 +436,45 @@ function TimelineItem({ label, value, sub, dot = "#7c3aed", isLast }) {
 // ── File Attachment Card ──────────────────────────────────────────────────────
 function AttachCard({ name, size }) {
   return (
-    <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, background: "#fafafa", flex: "1 1 160px" }}>
-      <div style={{ width: 32, height: 32, background: "#ede9fe", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <div
+      style={{
+        border: "1px solid #e5e7eb",
+        borderRadius: 8,
+        padding: "8px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        background: "#fafafa",
+        flex: "1 1 160px",
+      }}
+    >
+      <div
+        style={{
+          width: 32,
+          height: 32,
+          background: "#ede9fe",
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
         <Icon.Attach />
       </div>
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: "bold", color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: "bold",
+            color: "#111",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {name}
+        </div>
         <div style={{ fontSize: 10, color: "#aaa" }}>{size}</div>
       </div>
     </div>
@@ -107,29 +483,798 @@ function AttachCard({ name, size }) {
 
 function Toast({ toasts, onDismiss }) {
   return (
-    <div style={{ position: "fixed", top: 16, right: 16, zIndex: 200, display: "flex", flexDirection: "column", gap: 8 }}>
-      {toasts.map(t => (
-        <div key={t.id} style={{
-          background: t.type === "error" ? "#fef2f2" : "white",
-          color: t.type === "error" ? "#dc2626" : "#111",
-          border: `1px solid ${t.type === "error" ? "#fecaca" : "#e5e7eb"}`,
-          borderRadius: 10, padding: "10px 14px", fontSize: 12, fontWeight: 600,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.12)", minWidth: 260, maxWidth: 340,
-          display: "flex", alignItems: "flex-start", gap: 10,
-          animation: "slideIn 0.2s ease",
-        }}>
+    <div
+      style={{
+        position: "fixed",
+        top: 16,
+        right: 16,
+        zIndex: 200,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      {toasts.map((t) => (
+        <div
+          key={t.id}
+          style={{
+            background: t.type === "error" ? "#fef2f2" : "white",
+            color: t.type === "error" ? "#dc2626" : "#111",
+            border: `1px solid ${t.type === "error" ? "#fecaca" : "#e5e7eb"}`,
+            borderRadius: 10,
+            padding: "10px 14px",
+            fontSize: 12,
+            fontWeight: 600,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+            minWidth: 260,
+            maxWidth: 340,
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 10,
+            animation: "slideIn 0.2s ease",
+          }}
+        >
           <span style={{ fontSize: 16, flexShrink: 0 }}>
             {t.type === "error" ? "⚠️" : "🗓️"}
           </span>
           <div style={{ flex: 1 }}>
             <div style={{ marginBottom: 1 }}>{t.title}</div>
-            {t.body && <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400 }}>{t.body}</div>}
+            {t.body && (
+              <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400 }}>
+                {t.body}
+              </div>
+            )}
           </div>
-          <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", cursor: "pointer", opacity: 0.5, padding: 0, color: "inherit" }}>
+          <button
+            onClick={() => onDismiss(t.id)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              opacity: 0.5,
+              padding: 0,
+              color: "inherit",
+            }}
+          >
             <Icon.Close />
           </button>
         </div>
       ))}
+    </div>
+  );
+}
+
+function PathTasksWorkspace({
+  user,
+  canViewAdminNav,
+  tasks,
+  stats,
+  loading,
+  search,
+  setSearch,
+  statusFilter,
+  setStatusFilter,
+  priorityFilter,
+  setPriorityFilter,
+  docTypeFilter,
+  setDocTypeFilter,
+  dateRange,
+  setDateRange,
+  selected,
+  setSelected,
+  detailLoading,
+  fetchSelectedTask,
+  pagedTasks,
+  filteredTasks,
+  taskPage,
+  setTaskPage,
+  totalTaskPages,
+  checkedIds,
+  toggleCheck,
+  selectAll,
+  setSelectAll,
+  setCheckedIds,
+  handleArchive,
+  handleApprove,
+  handleReturn,
+  handleSubmitTask,
+  submitNote,
+  setSubmitNote,
+  submitFiles,
+  setSubmitFiles,
+  submitting,
+  comment,
+  handleCommentChange,
+  handlePostComment,
+  commentFiles,
+  commentFileInputRef,
+  setCommentFiles,
+  setCommentFilePreviews,
+  commentFilePreviews,
+  setFileViewer,
+  resolveFileUrl,
+  fmtDate,
+  fmtDeadline,
+  fmtDateTime,
+  onLogout,
+}) {
+  const isFaculty = !canViewAdminNav;
+  const isComplete = (task) =>
+    ["received", "done", "approved", "completed"].includes(
+      (task.status || "").toLowerCase(),
+    );
+  const isRevision = (task) =>
+    ["returned", "needs revision", "revision requested"].includes(
+      (task.status || "").toLowerCase(),
+    );
+  const isInReview = (task) =>
+    ["for approval", "pending approval", "in review"].includes(
+      (task.status || "").toLowerCase(),
+    );
+  const riskTask = (task) =>
+    task.priority?.toLowerCase() === "high" ||
+    (task.status || "").toLowerCase() === "overdue";
+  const orderedTasks = [...tasks].sort(
+    (a, b) => Number(riskTask(b)) - Number(riskTask(a)),
+  );
+  const primaryTask =
+    orderedTasks.find((task) => !isComplete(task)) || orderedTasks[0];
+  const supportingTasks = orderedTasks
+    .filter((task) => task.id !== primaryTask?.id && !isComplete(task))
+    .slice(0, 2);
+  const activeCount = tasks.filter((task) => !isComplete(task)).length;
+  const revisionCount = tasks.filter(isRevision).length;
+  const reviewCount = tasks.filter(isInReview).length;
+  const completedCount = tasks.filter(isComplete).length;
+  const statusClass = (task) => {
+    const status = (task.status || "").toLowerCase();
+    if (isComplete(task)) return "complete";
+    if (status === "overdue" || isRevision(task)) return "revision";
+    if (isInReview(task)) return "review";
+    return "todo";
+  };
+  const priorityClass = (task) => (task.priority || "medium").toLowerCase();
+  const openFile = (attachment) => {
+    const name = attachment.file_name || attachment.name || "file";
+    const ext = name.split(".").pop()?.toLowerCase();
+    setFileViewer({
+      name,
+      url: resolveFileUrl(attachment.file_url || attachment.url),
+      isPdf: ext === "pdf",
+      isImg: ["jpg", "jpeg", "png", "gif", "webp"].includes(ext),
+    });
+  };
+
+  return (
+    <div className="path-task-shell">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+        .path-task-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#40334a;font-family:'DM Sans',sans-serif}
+        .path-task-shell *{box-sizing:border-box}.path-task-shell button,.path-task-shell input,.path-task-shell select,.path-task-shell textarea{font:inherit}
+        .path-task-canvas{display:flex;flex:1;min-width:0;height:100vh;flex-direction:column;overflow:hidden;background:#f8f7ff}
+        .path-task-body{flex:1;overflow:auto;padding:28px 46px 30px}.path-task-inner{max-width:1280px;margin:0 auto}
+        .path-task-hero{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:24px 26px;border-radius:15px;background:linear-gradient(112deg,#31205e 0%,#482576 55%,#7044b4 100%);color:white;box-shadow:0 14px 30px rgba(72,37,118,.16)}
+        .path-task-kicker{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#d8c8ff}.path-task-kicker i{display:block;width:6px;height:6px;border-radius:50%;background:#c4b5fd}
+        .path-task-hero h1{max-width:620px;margin:8px 0 5px;font-family:'Manrope',sans-serif;font-size:28px;letter-spacing:-.06em;line-height:1.12}.path-task-hero p{margin:0;color:#ddd4ee;font-size:11px;line-height:1.55}
+        .path-task-hero-card{display:grid;gap:5px;min-width:190px;padding:13px 15px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.08);text-align:left;color:inherit;cursor:pointer}.path-task-hero-card small{font-size:8px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#d8c8ff}.path-task-hero-card strong{font-size:11px}.path-task-hero-card span{justify-self:end;margin-top:-20px;color:#e7dcff}
+        .path-task-role{display:flex;align-items:center;justify-content:space-between;margin:22px 0 14px}.path-task-role span{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#91819b}.path-task-role-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #e2d9ed;border-radius:8px;background:#fff;color:#6c4e93;font-size:9px;font-weight:800}
+        .path-task-stats{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:14px;overflow:hidden;border:1px solid #e5deed;border-radius:13px;background:#fff}.path-task-stat{display:flex;align-items:flex-start;justify-content:space-between;min-height:94px;padding:16px 17px;border-right:1px solid #ebe5f0}.path-task-stat:last-child{border-right:0}.path-task-stat small{display:block;color:#93869e;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-stat strong{display:block;margin-top:7px;color:#40334a;font-family:'Manrope',sans-serif;font-size:25px;letter-spacing:-.06em}.path-task-stat em{display:block;margin-top:5px;color:#a195aa;font-size:8px;font-style:normal}.path-task-stat i{display:grid;width:27px;height:27px;place-items:center;border-radius:8px;background:#f1ebfb;color:#713cce;font-style:normal}.path-task-stat.alert i{background:#fff3e6;color:#bd6a4e}.path-task-stat.success i{background:#eaf7f1;color:#4b9479}
+        .path-task-focus{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.75fr);overflow:hidden;border:1px solid #e1d9e9;border-radius:13px;background:#fff}.path-task-next,.path-task-health{padding:18px 20px}.path-task-next{background:#fcfbff}.path-task-health{border-left:1px solid #ece5f0}.path-task-section-label{display:flex;align-items:center;gap:6px;color:#9b8ca6;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.path-task-section-label i{width:5px;height:5px;border-radius:50%;background:#c4b5fd}.path-task-next-title{display:flex;align-items:center;gap:10px;margin:13px 0}.path-task-file{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;flex:0 0 auto}.path-task-file.high{background:#fff0ed;color:#c76c58}.path-task-file.low{background:#e8f5ef;color:#4d937b}.path-task-next h2,.path-task-health h2{margin:0;color:#4a3b56;font-family:'Manrope',sans-serif;font-size:15px;letter-spacing:-.04em}.path-task-next p,.path-task-health p{margin:4px 0 0;color:#988b9f;font-size:9px;line-height:1.55}.path-task-note{margin:9px 0;padding:10px 11px;border:1px solid #eee3bd;border-radius:7px;background:#fffcf4;color:#927f60;font-size:9px}.path-task-primary{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:37px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 7px 13px rgba(124,58,237,.18)}.path-task-primary:hover{background:#6d28d9}.path-task-health h2{margin-top:12px}.path-task-health-row{display:flex;justify-content:space-between;gap:8px;margin-top:17px;padding-top:12px;border-top:1px solid #eee8f0;color:#766984;font-size:8px}.path-task-health-row strong{color:#5c4e69}.path-task-health-row span:last-child{color:#b77567}
+        .path-task-support{margin:12px 0;border:1px solid #e5deeb;border-radius:12px;background:#fff;overflow:hidden}.path-task-support-head{display:flex;align-items:flex-end;justify-content:space-between;padding:13px 17px;border-bottom:1px solid #eee8f1}.path-task-support-head h2{margin:5px 0 0;font-family:'Manrope',sans-serif;font-size:14px;letter-spacing:-.04em}.path-task-text-btn{display:inline-flex;align-items:center;gap:5px;border:0;background:none;color:#713dca;font-size:9px;font-weight:800;cursor:pointer}.path-task-support-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto 13px;align-items:center;gap:9px;width:100%;min-height:50px;padding:0 17px;border:0;border-top:1px solid #f1edf4;background:transparent;text-align:left;cursor:pointer}.path-task-support-row:hover{background:#fcfbff}.path-task-copy{min-width:0}.path-task-copy strong,.path-task-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-copy strong{color:#574863;font-size:10px;font-weight:800}.path-task-copy small{margin-top:3px;color:#9b8e9f;font-size:8px}.path-task-badge{padding:4px 7px;border-radius:5px;background:#f1edf5;color:#796a85;font-size:8px;font-weight:800;white-space:nowrap}.path-task-badge.revision{background:#fff2cf;color:#97680d}.path-task-badge.review{background:#eee7fc;color:#7447bc}.path-task-badge.complete{background:#e7f6ef;color:#47836d}.path-task-sla{color:#6e9980;font-size:8px;font-weight:800;white-space:nowrap}.path-task-sla.risk{color:#bb7164}
+        .path-task-register{margin-top:18px}.path-task-register-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px}.path-task-register-head h2{margin:5px 0 0;color:#44354e;font-family:'Manrope',sans-serif;font-size:20px;letter-spacing:-.05em}.path-task-register-head h2 b{display:inline-grid;min-width:20px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;font-size:9px;vertical-align:middle}.path-task-register-head > span{color:#91859e;font-size:9px}
+        .path-task-controls{display:flex;align-items:center;gap:8px;margin-bottom:10px}.path-task-search{display:flex;flex:1;align-items:center;gap:8px;min-width:180px;padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-task-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size:10px}.path-task-controls select,.path-task-date{height:34px;max-width:145px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#6d5f77;font-size:9px;outline:0}.path-task-table{overflow:hidden;border:1px solid #e3dce9;border-radius:12px;background:#fff}.path-task-table-head,.path-task-table-row{display:grid;grid-template-columns:minmax(240px,1.45fr) minmax(100px,.6fr) minmax(126px,.66fr) minmax(110px,.55fr) 34px;align-items:center;gap:14px}.path-task-table-head{padding:10px 17px;background:#faf8fc;color:#9b8fa4;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-table-row{min-height:66px;padding:0 17px;border-top:1px solid #f0ecf3;cursor:pointer}.path-task-table-row:hover,.path-task-table-row.active{background:#fdfbff}.path-task-table-row.active{box-shadow:inset 3px 0 #7c3aed}.path-task-row-main{display:grid;grid-template-columns:27px minmax(0,1fr) 13px;align-items:center;gap:8px;min-width:0}.path-task-row-main strong,.path-task-row-main small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-row-main strong{color:#50415c;font-size:10px;font-weight:800}.path-task-row-main small{margin-top:3px;color:#968a9d;font-size:8px}.path-task-deadline strong,.path-task-deadline small{display:block}.path-task-deadline strong{color:#6a5b76;font-size:9px}.path-task-deadline small{margin-top:3px;color:#6e9b80;font-size:8px;font-weight:800}.path-task-deadline small.late{color:#b96e62}.path-task-check{display:grid;width:23px;height:23px;place-items:center;border:1px solid #dfd6e8;border-radius:7px;background:#fff;cursor:pointer;color:#806e8f}.path-task-check input{accent-color:#7c3aed}.path-task-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 3px;color:#93879d;font-size:9px}.path-task-page-btn{display:inline-grid;width:25px;height:25px;place-items:center;border:1px solid #e2d9eb;border-radius:6px;background:#fff;color:#725c87;cursor:pointer}.path-task-page-btn:disabled{cursor:not-allowed;opacity:.4}
+        .path-task-detail{position:fixed;z-index:55;top:0;right:0;display:flex;width:min(485px,94vw);height:100vh;flex-direction:column;border-left:1px solid #e3dbea;background:#fff;box-shadow:-18px 0 45px rgba(48,30,75,.17)}.path-task-detail-head{display:flex;align-items:flex-start;justify-content:space-between;padding:21px 22px 16px;border-bottom:1px solid #eee9f1}.path-task-detail-head small{color:#8067a5;font-size:9px;font-weight:800}.path-task-detail-head h2{margin:7px 0 0;color:#44354f;font-family:'Manrope',sans-serif;font-size:19px;letter-spacing:-.05em}.path-task-icon-btn{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e5deec;border-radius:7px;background:#fff;color:#7f6e8d;cursor:pointer}.path-task-detail-scroll{flex:1;overflow:auto;padding:18px 22px}.path-task-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}.path-task-detail-grid div{padding:10px;border:1px solid #eee8f2;border-radius:8px;background:#fcfbfd}.path-task-detail-grid small,.path-task-detail-grid strong{display:block}.path-task-detail-grid small{color:#9b8fa2;font-size:8px;font-weight:800;text-transform:uppercase}.path-task-detail-grid strong{margin-top:5px;color:#594967;font-size:10px}.path-task-detail-section{margin-top:18px}.path-task-detail-section h3{margin:0 0 9px;color:#8b7e96;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-task-detail-note{margin:0;color:#685a74;font-size:10px;line-height:1.6}.path-task-attachment{display:flex;align-items:center;gap:9px;width:100%;margin-top:7px;padding:9px;border:1px solid #e8e2ed;border-radius:8px;background:#fff;text-align:left;cursor:pointer}.path-task-attachment strong,.path-task-attachment small{display:block}.path-task-attachment strong{color:#584a64;font-size:10px}.path-task-attachment small{margin-top:3px;color:#927e9a;font-size:8px}.path-task-comment{padding:9px 0;border-bottom:1px solid #f1edf4}.path-task-comment strong{color:#5a4b65;font-size:9px}.path-task-comment p{margin:4px 0 0;color:#7c6e86;font-size:9px;line-height:1.5}.path-task-composer{margin-top:11px;border:1px solid #e3dbe9;border-radius:8px;overflow:hidden}.path-task-composer textarea{display:block;width:100%;min-height:54px;padding:9px;border:0;outline:0;resize:vertical;color:#55445f;font-size:10px}.path-task-composer-actions{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-top:1px solid #eee9f1;background:#faf8fc}.path-task-composer-actions button{border:0;background:transparent;color:#713dcc;font-size:9px;font-weight:800;cursor:pointer}.path-task-detail-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:13px 22px;border-top:1px solid #eee9f1}.path-task-detail-actions button{min-height:34px;border:1px solid #dfd5e8;border-radius:8px;background:#fff;color:#6a5877;font-size:9px;font-weight:800;cursor:pointer}.path-task-detail-actions .main{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-task-detail-actions .danger{border-color:#f0c9c4;color:#b65b52}
+        @media(max-width:900px){.path-task-body{padding:20px}.path-task-hero{align-items:flex-start;flex-direction:column}.path-task-hero-card{width:100%}.path-task-stats{grid-template-columns:repeat(2,1fr)}.path-task-stat:nth-child(2){border-right:0}.path-task-stat:nth-child(-n+2){border-bottom:1px solid #ebe5f0}.path-task-focus{grid-template-columns:1fr}.path-task-health{border-top:1px solid #ece5f0;border-left:0}.path-task-table-head{display:none}.path-task-table-row{grid-template-columns:minmax(0,1fr) auto 30px;gap:8px;padding:10px 12px}.path-task-table-row .path-task-deadline{display:none}.path-task-table-row .path-task-badge{grid-column:1;grid-row:2;width:max-content}.path-task-table-row .path-task-check{grid-column:3;grid-row:1 / 3}.path-task-support-row{grid-template-columns:30px minmax(0,1fr) auto 12px;padding:0 13px}.path-task-support-row .path-task-sla{display:none}.path-task-controls{flex-wrap:wrap}.path-task-search{min-width:100%}.path-task-controls select,.path-task-date{flex:1;max-width:none}}
+        @media(max-width:620px){.path-task-body{padding:18px 16px}.path-task-hero{padding:20px}.path-task-hero h1{font-size:25px}.path-task-role{align-items:flex-start;flex-direction:column;gap:9px}.path-task-register-head{align-items:flex-start;flex-direction:column}.path-task-support-head{align-items:flex-start}.path-task-detail{width:100vw}.path-task-detail-grid{grid-template-columns:1fr}.path-task-controls select{min-width:0}.path-task-footer{gap:9px}.path-task-footer > span{max-width:190px}.path-task-stats{margin-bottom:12px}.path-task-stat{min-height:82px;padding:13px}.path-task-stat strong{font-size:22px}}
+      `}</style>
+      <Sidebar activePage="tasks" />
+      <main className="path-task-canvas">
+        <TopBar onLogout={onLogout}>
+          <div className="path-task-search" style={{ maxWidth: 410 }}>
+            <Icon.Search />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search task, document, or tracking #…"
+            />
+          </div>
+        </TopBar>
+        <div className="path-task-body">
+          <div className="path-task-inner">
+            <section className="path-task-hero">
+              <div>
+                <div className="path-task-kicker">
+                  <i /> {isFaculty ? "Personal task desk" : "Task command desk"}
+                </div>
+                <h1>
+                  {isFaculty
+                    ? "Finish the work in front of you."
+                    : "Keep every assigned handoff moving."}
+                </h1>
+                <p>
+                  {isFaculty
+                    ? "Review requests, document follow-ups, and clear next steps—kept in one focused place."
+                    : "Monitor your assigned review work, protect service windows, and keep decisions accountable."}
+                </p>
+              </div>
+              {primaryTask && (
+                <button
+                  className="path-task-hero-card"
+                  type="button"
+                  onClick={() => fetchSelectedTask(primaryTask.id)}
+                >
+                  <small>Continue working</small>
+                  <strong>{primaryTask.title || "Open next task"}</strong>
+                  <span>↗</span>
+                </button>
+              )}
+            </section>
+            <div className="path-task-role">
+              <span>Viewing tasks as</span>
+              <div className="path-task-role-pill">
+                <Icon.Users /> {isFaculty ? "Faculty" : "Program Chair / Admin"}
+              </div>
+            </div>
+            <section className="path-task-stats">
+              {[
+                {
+                  label: isFaculty ? "My active tasks" : "Active assigned",
+                  value: activeCount,
+                  note: "Across your work",
+                  icon: <Icon.Tasks />,
+                },
+                {
+                  label: "Needs revision",
+                  value: revisionCount,
+                  note: revisionCount
+                    ? "Response requested"
+                    : "No revisions pending",
+                  icon: <Icon.Return />,
+                  tone: "alert",
+                },
+                {
+                  label: "In review",
+                  value: reviewCount,
+                  note: "With the review team",
+                  icon: <Icon.Clock />,
+                  tone: "alert",
+                },
+                {
+                  label: "Completed",
+                  value: completedCount,
+                  note: "Closed this cycle",
+                  icon: <Icon.Check />,
+                  tone: "success",
+                },
+              ].map((metric) => (
+                <article
+                  key={metric.label}
+                  className={`path-task-stat ${metric.tone || ""}`}
+                >
+                  <div>
+                    <small>{metric.label}</small>
+                    <strong>
+                      {loading ? "—" : String(metric.value).padStart(2, "0")}
+                    </strong>
+                    <em>{metric.note}</em>
+                  </div>
+                  <i>{metric.icon}</i>
+                </article>
+              ))}
+            </section>
+            <section className="path-task-focus">
+              <article className="path-task-next">
+                <div className="path-task-section-label">
+                  <i /> Next action
+                </div>
+                {primaryTask ? (
+                  <>
+                    <div className="path-task-next-title">
+                      <span
+                        className={`path-task-file ${priorityClass(primaryTask)}`}
+                      >
+                        <Icon.Forms />
+                      </span>
+                      <div>
+                        <h2>{primaryTask.title || "Untitled task"}</h2>
+                        <p>
+                          {primaryTask.tracking_id || "Task"} ·{" "}
+                          {primaryTask.doc_type || "Workflow task"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="path-task-note">
+                      This handoff carries the strongest deadline signal in your
+                      current task list.
+                    </div>
+                    <button
+                      type="button"
+                      className="path-task-primary"
+                      onClick={() => fetchSelectedTask(primaryTask.id)}
+                    >
+                      Open task details ↗
+                    </button>
+                  </>
+                ) : (
+                  <p className="path-task-note">
+                    Your personal task list is clear right now.
+                  </p>
+                )}
+              </article>
+              <article className="path-task-health">
+                <div className="path-task-section-label">
+                  <i /> Your workflow health
+                </div>
+                <h2>Every handoff is visible</h2>
+                <p>
+                  Task ownership, review notes, and document status stay
+                  connected throughout the workflow.
+                </p>
+                <div className="path-task-health-row">
+                  <strong>◈ {activeCount} active handoffs</strong>
+                  <span>
+                    {stats.overdue
+                      ? `${stats.overdue} needs follow-up`
+                      : "All within SLA"}
+                  </span>
+                </div>
+              </article>
+            </section>
+            {supportingTasks.length > 0 && (
+              <section className="path-task-support">
+                <div className="path-task-support-head">
+                  <div>
+                    <div className="path-task-section-label">
+                      <i /> Keep moving
+                    </div>
+                    <h2>More handoffs in your queue</h2>
+                  </div>
+                  <button
+                    className="path-task-text-btn"
+                    type="button"
+                    onClick={() =>
+                      document
+                        .getElementById("path-task-register")
+                        ?.scrollIntoView({ behavior: "smooth" })
+                    }
+                  >
+                    View all ↗
+                  </button>
+                </div>
+                {supportingTasks.map((task) => (
+                  <button
+                    key={task.id}
+                    className="path-task-support-row"
+                    type="button"
+                    onClick={() => fetchSelectedTask(task.id)}
+                  >
+                    <span className={`path-task-file ${priorityClass(task)}`}>
+                      <Icon.Forms />
+                    </span>
+                    <span className="path-task-copy">
+                      <strong>{task.title || "Untitled task"}</strong>
+                      <small>
+                        {task.tracking_id || "Task"} ·{" "}
+                        {task.doc_type || "Workflow task"}
+                      </small>
+                    </span>
+                    <span className={`path-task-badge ${statusClass(task)}`}>
+                      {task.status || "To do"}
+                    </span>
+                    <span
+                      className={`path-task-sla ${riskTask(task) ? "risk" : ""}`}
+                    >
+                      {task.deadline ? fmtDate(task.deadline) : "No due date"}
+                    </span>
+                    <span>↗</span>
+                  </button>
+                ))}
+              </section>
+            )}
+            <section className="path-task-register" id="path-task-register">
+              <header className="path-task-register-head">
+                <div>
+                  <div className="path-task-section-label">
+                    <i /> My work list
+                  </div>
+                  <h2>
+                    {isFaculty
+                      ? "Continue where you left off"
+                      : "Assigned work register"}{" "}
+                    <b>{String(filteredTasks.length).padStart(2, "0")}</b>
+                  </h2>
+                </div>
+                <span>{completedCount} completed</span>
+              </header>
+              <div className="path-task-controls">
+                <label className="path-task-search">
+                  <Icon.Search />
+                  <input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search task, document, or tracking #…"
+                  />
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value)}
+                >
+                  {[
+                    "All",
+                    "Pending Approval",
+                    "In Progress",
+                    "Done",
+                    "Overdue",
+                  ].map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+                <select
+                  value={priorityFilter}
+                  onChange={(event) => setPriorityFilter(event.target.value)}
+                >
+                  {["All", "High", "Medium", "Low"].map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+                <select
+                  value={docTypeFilter}
+                  onChange={(event) => setDocTypeFilter(event.target.value)}
+                >
+                  {[
+                    "All",
+                    "Financial",
+                    "Legal",
+                    "Sales",
+                    "HR",
+                    "Operations",
+                  ].map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+                <input
+                  className="path-task-date"
+                  type="date"
+                  value={dateRange}
+                  onChange={(event) => setDateRange(event.target.value)}
+                />
+              </div>
+              <div className="path-task-table">
+                <div className="path-task-table-head">
+                  <span>Task</span>
+                  <span>Status</span>
+                  <span>Deadline</span>
+                  <span>Priority</span>
+                  <span />
+                </div>
+                {loading ? (
+                  <div
+                    style={{
+                      padding: 34,
+                      textAlign: "center",
+                      color: "#9b8fa4",
+                      fontSize: 10,
+                    }}
+                  >
+                    Loading assigned work…
+                  </div>
+                ) : pagedTasks.length === 0 ? (
+                  <div
+                    style={{
+                      padding: 34,
+                      textAlign: "center",
+                      color: "#9b8fa4",
+                      fontSize: 10,
+                    }}
+                  >
+                    No tasks match the current filters.
+                  </div>
+                ) : (
+                  pagedTasks.map((task) => (
+                    <article
+                      key={task.id}
+                      className={`path-task-table-row ${selected?.id === task.id ? "active" : ""}`}
+                      onClick={() => fetchSelectedTask(task.id)}
+                    >
+                      <div className="path-task-row-main">
+                        <span
+                          className={`path-task-file ${priorityClass(task)}`}
+                        >
+                          <Icon.Forms />
+                        </span>
+                        <span>
+                          <strong>{task.title || "Untitled task"}</strong>
+                          <small>
+                            {task.tracking_id || "Task"} ·{" "}
+                            {task.doc_type || "Workflow task"}
+                          </small>
+                        </span>
+                        <span>↗</span>
+                      </div>
+                      <span className={`path-task-badge ${statusClass(task)}`}>
+                        {task.status || "To do"}
+                      </span>
+                      <span className="path-task-deadline">
+                        <strong>
+                          {task.deadline
+                            ? fmtDate(task.deadline)
+                            : "No due date"}
+                        </strong>
+                        <small className={riskTask(task) ? "late" : ""}>
+                          {riskTask(task) ? "Needs follow-up" : "Within SLA"}
+                        </small>
+                      </span>
+                      <span
+                        className={`path-task-badge ${priorityClass(task)}`}
+                      >
+                        {task.priority || "Medium"}
+                      </span>
+                      <label
+                        className="path-task-check"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checkedIds.includes(task.id)}
+                          onChange={() => toggleCheck(task.id)}
+                          aria-label={`Select ${task.title || "task"}`}
+                        />
+                      </label>
+                    </article>
+                  ))
+                )}
+              </div>
+              <footer className="path-task-footer">
+                <span>
+                  {filteredTasks.length
+                    ? `Showing ${Math.min((taskPage - 1) * 5 + 1, filteredTasks.length)}–${Math.min(taskPage * 5, filteredTasks.length)} of ${filteredTasks.length} tasks`
+                    : "No tasks to show"}
+                </span>
+                <span>
+                  <button
+                    className="path-task-text-btn"
+                    type="button"
+                    onClick={() => {
+                      setSelectAll(!selectAll);
+                      setCheckedIds(
+                        !selectAll ? filteredTasks.map((task) => task.id) : [],
+                      );
+                    }}
+                  >
+                    {selectAll ? "Clear selection" : "Select all"}
+                  </button>
+                  {checkedIds.length > 0 && (
+                    <button
+                      className="path-task-text-btn"
+                      type="button"
+                      style={{ marginLeft: 10 }}
+                      onClick={handleArchive}
+                    >
+                      Archive {checkedIds.length}
+                    </button>
+                  )}
+                </span>
+                <span>
+                  <button
+                    className="path-task-page-btn"
+                    type="button"
+                    disabled={taskPage === 1}
+                    onClick={() => setTaskPage((page) => Math.max(1, page - 1))}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    className="path-task-page-btn"
+                    type="button"
+                    style={{ marginLeft: 4 }}
+                    disabled={taskPage === totalTaskPages}
+                    onClick={() =>
+                      setTaskPage((page) => Math.min(totalTaskPages, page + 1))
+                    }
+                  >
+                    ›
+                  </button>
+                </span>
+              </footer>
+            </section>
+          </div>
+        </div>
+      </main>
+      {selected && (
+        <aside className="path-task-detail">
+          <header className="path-task-detail-head">
+            <div>
+              <small>{selected.tracking_id || "TASK"}</small>
+              <h2>{selected.title || "Untitled task"}</h2>
+            </div>
+            <button
+              className="path-task-icon-btn"
+              type="button"
+              onClick={() => setSelected(null)}
+            >
+              <Icon.Close />
+            </button>
+          </header>
+          {detailLoading ? (
+            <div
+              style={{
+                padding: 36,
+                textAlign: "center",
+                color: "#978b9f",
+                fontSize: 11,
+              }}
+            >
+              Loading task details…
+            </div>
+          ) : (
+            <>
+              <div className="path-task-detail-scroll">
+                <div className="path-task-detail-grid">
+                  <div>
+                    <small>Assigned to</small>
+                    <strong>
+                      {selected.assigned_to_name || user.full_name || "—"}
+                    </strong>
+                  </div>
+                  <div>
+                    <small>Assigned by</small>
+                    <strong>{selected.assigned_by_name || "—"}</strong>
+                  </div>
+                  <div>
+                    <small>Document type</small>
+                    <strong>{selected.doc_type || "—"}</strong>
+                  </div>
+                  <div>
+                    <small>Due date</small>
+                    <strong>{fmtDeadline(selected.deadline)}</strong>
+                  </div>
+                </div>
+                {selected.notes && (
+                  <section className="path-task-detail-section">
+                    <h3>Task brief</h3>
+                    <p className="path-task-detail-note">{selected.notes}</p>
+                  </section>
+                )}
+                {selected.attachments?.length > 0 && (
+                  <section className="path-task-detail-section">
+                    <h3>Supporting files</h3>
+                    {selected.attachments.map((attachment, index) => (
+                      <button
+                        type="button"
+                        key={attachment.id || index}
+                        className="path-task-attachment"
+                        onClick={() => openFile(attachment)}
+                      >
+                        <span className="path-task-file">
+                          <Icon.Attach />
+                        </span>
+                        <span>
+                          <strong>
+                            {attachment.file_name ||
+                              attachment.name ||
+                              "Attachment"}
+                          </strong>
+                          <small>Open preview</small>
+                        </span>
+                      </button>
+                    ))}
+                  </section>
+                )}
+                <section className="path-task-detail-section">
+                  <h3>Discussion</h3>
+                  {(selected.comments || []).slice(-4).map((item, index) => (
+                    <article
+                      className="path-task-comment"
+                      key={item.id || index}
+                    >
+                      <strong>{item.sender_name || "Workflow"}</strong>
+                      <p>{item.content}</p>
+                    </article>
+                  ))}
+                  <div className="path-task-composer">
+                    <textarea
+                      value={comment}
+                      onChange={handleCommentChange}
+                      placeholder="Write a comment…"
+                    />
+                    <div className="path-task-composer-actions">
+                      <input
+                        ref={commentFileInputRef}
+                        type="file"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={(event) => {
+                          const files = Array.from(event.target.files || []);
+                          setCommentFiles((prev) => [...prev, ...files]);
+                          setCommentFilePreviews((prev) => [
+                            ...prev,
+                            ...files.map((file) => URL.createObjectURL(file)),
+                          ]);
+                          event.target.value = "";
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => commentFileInputRef.current?.click()}
+                      >
+                        Attach{" "}
+                        {commentFiles.length ? `(${commentFiles.length})` : ""}
+                      </button>
+                      <button type="button" onClick={handlePostComment}>
+                        Post comment
+                      </button>
+                    </div>
+                  </div>
+                </section>
+                {isFaculty && (
+                  <section className="path-task-detail-section">
+                    <h3>Submit completed work</h3>
+                    <textarea
+                      className="path-task-detail-note"
+                      value={submitNote}
+                      onChange={(event) => setSubmitNote(event.target.value)}
+                      placeholder="Add a submission note…"
+                      style={{
+                        width: "100%",
+                        minHeight: 58,
+                        padding: 9,
+                        border: "1px solid #e3dbe9",
+                        borderRadius: 8,
+                        resize: "vertical",
+                      }}
+                    />
+                    <input
+                      type="file"
+                      multiple
+                      onChange={(event) =>
+                        setSubmitFiles(Array.from(event.target.files || []))
+                      }
+                      style={{ marginTop: 8, maxWidth: "100%", fontSize: 9 }}
+                    />
+                    {submitFiles.length > 0 && (
+                      <p style={{ fontSize: 8, color: "#795e95" }}>
+                        {submitFiles.length} supporting file(s) ready
+                      </p>
+                    )}
+                  </section>
+                )}
+              </div>
+              <footer className="path-task-detail-actions">
+                {isFaculty ? (
+                  <button
+                    className="main"
+                    type="button"
+                    disabled={submitting}
+                    onClick={() => handleSubmitTask(selected.id)}
+                  >
+                    {submitting ? "Submitting…" : "Submit for approval"}
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      className="main"
+                      type="button"
+                      onClick={() => handleApprove(selected.id)}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="danger"
+                      type="button"
+                      onClick={() => handleReturn(selected.id)}
+                    >
+                      Return task
+                    </button>
+                  </>
+                )}
+                <button type="button" onClick={() => setSelected(null)}>
+                  Close
+                </button>
+              </footer>
+            </>
+          )}
+        </aside>
+      )}
     </div>
   );
 }
@@ -139,14 +1284,21 @@ export default function MyTasks() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const token = localStorage.getItem("token");
-  const user = (() => { try { return JSON.parse(atob(token.split(".")[1])); } catch { return {}; } })();
+  const user = (() => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch {
+      return {};
+    }
+  })();
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
   const API = import.meta.env.VITE_API_URL;
   // R2 attachment URLs are already full https:// URLs — only prepend API
   // for legacy relative paths (e.g. "/uploads/..."). Without this, every
   // R2 file URL gets mangled into "${API}https://..." and fails to load.
-  const resolveFileUrl = (u) => (!u ? "" : /^https?:\/\//i.test(u) ? u : `${API}${u}`);
+  const resolveFileUrl = (u) =>
+    !u ? "" : /^https?:\/\//i.test(u) ? u : `${API}${u}`;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -154,7 +1306,12 @@ export default function MyTasks() {
   const [docTypeFilter, setDocTypeFilter] = useState("All");
   const [dateRange, setDateRange] = useState("");
   const [tasks, setTasks] = useState([]);
-  const [stats, setStats] = useState({ total: 0, dueToday: 0, overdue: 0, pendingApproval: 0 });
+  const [stats, setStats] = useState({
+    total: 0,
+    dueToday: 0,
+    overdue: 0,
+    pendingApproval: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -178,29 +1335,56 @@ export default function MyTasks() {
 
   const pushToast = useCallback((title, body, type = "info") => {
     const id = Date.now() + Math.random();
-    setToasts(prev => [...prev.slice(-4), { id, title, body, type }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000);
+    setToasts((prev) => [...prev.slice(-4), { id, title, body, type }]);
+    setTimeout(
+      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+      6000,
+    );
   }, []);
-  const dismissToast = useCallback(id => setToasts(prev => prev.filter(t => t.id !== id)), []);
-  useEffect(() => { selectedRef.current = selected; }, [selected]);
+  const dismissToast = useCallback(
+    (id) => setToasts((prev) => prev.filter((t) => t.id !== id)),
+    [],
+  );
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
 
-  const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   useEffect(() => {
-    if (!token) { navigate("/login"); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     fetchTasks();
   }, [search, statusFilter, priorityFilter, docTypeFilter, dateRange]);
 
   const fetchTasks = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ q: search, status: statusFilter === "All" ? "" : statusFilter, priority: priorityFilter === "All" ? "" : priorityFilter, doc_type: docTypeFilter === "All" ? "" : docTypeFilter, date: dateRange }).toString();
-      const res = await fetch(`${API}/api/tasks/my?${params}`, { headers: { Authorization: `Bearer ${token}` } });
-      if (res.status === 401) { navigate("/login"); return; }
+      const params = new URLSearchParams({
+        q: search,
+        status: statusFilter === "All" ? "" : statusFilter,
+        priority: priorityFilter === "All" ? "" : priorityFilter,
+        doc_type: docTypeFilter === "All" ? "" : docTypeFilter,
+        date: dateRange,
+      }).toString();
+      const res = await fetch(`${API}/api/tasks/my?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        navigate("/login");
+        return;
+      }
       const data = await res.json();
       const newTasks = Array.isArray(data.tasks) ? data.tasks : [];
       setTasks(newTasks);
-      setStats(data.stats || { total: 0, dueToday: 0, overdue: 0, pendingApproval: 0 });
+      setStats(
+        data.stats || { total: 0, dueToday: 0, overdue: 0, pendingApproval: 0 },
+      );
       // If a task is open in the detail panel, refresh it fully via the detail endpoint
       if (selectedRef.current) {
         fetchSelectedTask(selectedRef.current.id);
@@ -213,23 +1397,29 @@ export default function MyTasks() {
   }, [search, statusFilter, priorityFilter, docTypeFilter, dateRange]);
 
   // ── Fetch full task detail (fixes blank panel) ────────────────────────────
-  const fetchSelectedTask = useCallback(async (taskId) => {
-    setDetailLoading(true);
-    try {
-      const res = await fetch(`${API}/api/tasks/${taskId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.status === 401) { navigate("/login"); return; }
-      if (!res.ok) return;
-      const data = await res.json();
-      // Support both { task: {...} } and bare object responses
-      setSelected(data.task || data);
-    } catch (err) {
-      console.error("Failed to load task detail:", err);
-    } finally {
-      setDetailLoading(false);
-    }
-  }, [API, token]);
+  const fetchSelectedTask = useCallback(
+    async (taskId) => {
+      setDetailLoading(true);
+      try {
+        const res = await fetch(`${API}/api/tasks/${taskId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 401) {
+          navigate("/login");
+          return;
+        }
+        if (!res.ok) return;
+        const data = await res.json();
+        // Support both { task: {...} } and bare object responses
+        setSelected(data.task || data);
+      } catch (err) {
+        console.error("Failed to load task detail:", err);
+      } finally {
+        setDetailLoading(false);
+      }
+    },
+    [API, token],
+  );
 
   // ── Deep-link support: /tasks?taskId=35 opens that task's detail panel
   // automatically (used by SLA email links). Runs once the page has a token,
@@ -247,28 +1437,41 @@ export default function MyTasks() {
 
   const handleApprove = async (taskId) => {
     try {
-      await fetch(`${API}/api/tasks/${taskId}/approve`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } });
+      await fetch(`${API}/api/tasks/${taskId}/approve`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       fetchTasks();
       fetchSelectedTask(taskId); // refresh detail in place instead of clearing
-    } catch { }
+    } catch {}
   };
 
   const handleReturn = async (taskId) => {
     try {
-      await fetch(`${API}/api/tasks/${taskId}/return`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } });
+      await fetch(`${API}/api/tasks/${taskId}/return`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       fetchTasks();
       fetchSelectedTask(taskId); // refresh detail in place instead of clearing
-    } catch { }
+    } catch {}
   };
 
   const handleArchive = async () => {
     if (checkedIds.length === 0) return;
     try {
-      await Promise.all(checkedIds.map(id => fetch(`${API}/api/tasks/${id}/archive`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } })));
+      await Promise.all(
+        checkedIds.map((id) =>
+          fetch(`${API}/api/tasks/${id}/archive`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ),
+      );
       setCheckedIds([]);
       setSelectAll(false);
       fetchTasks();
-    } catch { }
+    } catch {}
   };
 
   const handlePostComment = async () => {
@@ -277,14 +1480,22 @@ export default function MyTasks() {
     const content = comment.trim();
     setComment("");
     const filesToSend = [...commentFiles];
-    commentFilePreviews.forEach(url => URL.revokeObjectURL(url));
+    commentFilePreviews.forEach((url) => URL.revokeObjectURL(url));
     setCommentFiles([]);
     setCommentFilePreviews([]);
 
     // Optimistic append for text
     if (content) {
-      const optimistic = { content, sender_name: user.full_name || user.username || "You", created_at: new Date().toISOString(), _pending: true };
-      setSelected(prev => ({ ...prev, comments: [...(prev.comments || []), optimistic] }));
+      const optimistic = {
+        content,
+        sender_name: user.full_name || user.username || "You",
+        created_at: new Date().toISOString(),
+        _pending: true,
+      };
+      setSelected((prev) => ({
+        ...prev,
+        comments: [...(prev.comments || []), optimistic],
+      }));
     }
 
     try {
@@ -292,7 +1503,10 @@ export default function MyTasks() {
       if (content) {
         await fetch(`${API}/api/tasks/${selected.id}/comments`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ content }),
         });
       }
@@ -301,11 +1515,14 @@ export default function MyTasks() {
         const fd = new FormData();
         fd.append("files", file);
         try {
-          const uploadRes = await fetch(`${API}/api/tasks/${selected.id}/comment-upload`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: fd,
-          });
+          const uploadRes = await fetch(
+            `${API}/api/tasks/${selected.id}/comment-upload`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` },
+              body: fd,
+            },
+          );
           if (uploadRes.ok) {
             const uploadData = await uploadRes.json();
             const saved = uploadData.files?.[0];
@@ -321,12 +1538,22 @@ export default function MyTasks() {
               created_at: new Date().toISOString(),
               _pending: true,
             };
-            setSelected(prev => prev ? { ...prev, comments: [...(prev.comments || []), optimisticAttach] } : prev);
+            setSelected((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    comments: [...(prev.comments || []), optimisticAttach],
+                  }
+                : prev,
+            );
 
             // Post a comment that marks it as a comment attachment so it renders inline
             await fetch(`${API}/api/tasks/${selected.id}/comments`, {
               method: "POST",
-              headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({ content: attachContent }),
             });
           } else {
@@ -338,7 +1565,7 @@ export default function MyTasks() {
       }
       // Single fetchTasks after all files are done to sync state cleanly
       if (filesToSend.length > 0) fetchTasks();
-    } catch { }
+    } catch {}
   };
 
   // ── Socket.IO — real-time comments ──────────────────────────────────────────
@@ -362,58 +1589,83 @@ export default function MyTasks() {
 
     // New comment — append in real-time without a page refresh
     socket.on("task:comment_added", ({ taskId, comment: incoming }) => {
-      setSelected(prev => {
+      setSelected((prev) => {
         if (!prev || prev.id !== taskId) return prev;
         // Replace a matching pending entry (sent by us) or append if from the other side
-        const hasPending = prev.comments.some(c => c._pending && c.content === incoming.content);
+        const hasPending = prev.comments.some(
+          (c) => c._pending && c.content === incoming.content,
+        );
         if (hasPending) {
           return {
             ...prev,
-            comments: prev.comments.map(c =>
-              c._pending && c.content === incoming.content ? incoming : c
+            comments: prev.comments.map((c) =>
+              c._pending && c.content === incoming.content ? incoming : c,
             ),
           };
         }
         // Avoid duplicates if the fetch already confirmed this comment
-        const alreadyExists = prev.comments.some(c => c.id && c.id === incoming.id);
+        const alreadyExists = prev.comments.some(
+          (c) => c.id && c.id === incoming.id,
+        );
         if (alreadyExists) return prev;
         return { ...prev, comments: [...prev.comments, incoming] };
       });
-      setTasks(prev => prev.map(t => {
-        if (t.id !== taskId) return t;
-        const alreadyExists = (t.comments || []).some(c => c.id && c.id === incoming.id);
-        if (alreadyExists) return t;
-        return { ...t, comments: [...(t.comments || []), incoming] };
-      }));
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.id !== taskId) return t;
+          const alreadyExists = (t.comments || []).some(
+            (c) => c.id && c.id === incoming.id,
+          );
+          if (alreadyExists) return t;
+          return { ...t, comments: [...(t.comments || []), incoming] };
+        }),
+      );
     });
 
     // Typing indicators
     socket.on("task:user_typing", ({ taskId, userId, name }) => {
       if (!selectedRef.current || selectedRef.current.id !== taskId) return;
       if (userId === user.id) return;
-      setTypingUsers(prev => prev.some(u => u.userId === userId) ? prev : [...prev, { userId, name }]);
+      setTypingUsers((prev) =>
+        prev.some((u) => u.userId === userId)
+          ? prev
+          : [...prev, { userId, name }],
+      );
     });
 
     socket.on("task:user_stop_typing", ({ taskId, userId }) => {
       if (!selectedRef.current || selectedRef.current.id !== taskId) return;
-      setTypingUsers(prev => prev.filter(u => u.userId !== userId));
+      setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
     });
 
     // Task status changed (e.g. admin approved/returned)
     socket.on("task:status_changed", ({ taskId, newStatus }) => {
-      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
-      setSelected(prev => prev?.id === taskId ? { ...prev, status: newStatus } : prev);
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+      );
+      setSelected((prev) =>
+        prev?.id === taskId ? { ...prev, status: newStatus } : prev,
+      );
     });
 
     // Deadline changed by admin/program chair
-    socket.on("task:deadline_changed", ({ taskId, taskTitle, newDeadline, changedBy }) => {
-      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, deadline: newDeadline } : t));
-      setSelected(prev => prev?.id === taskId ? { ...prev, deadline: newDeadline } : prev);
-      pushToast(
-        "Deadline updated",
-        `${changedBy || "The assigning officer"} moved the due date for "${taskTitle || "your task"}" to ${fmtDate(newDeadline)}.`
-      );
-    });
+    socket.on(
+      "task:deadline_changed",
+      ({ taskId, taskTitle, newDeadline, changedBy }) => {
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.id === taskId ? { ...t, deadline: newDeadline } : t,
+          ),
+        );
+        setSelected((prev) =>
+          prev?.id === taskId ? { ...prev, deadline: newDeadline } : prev,
+        );
+        pushToast(
+          "Deadline updated",
+          `${changedBy || "The assigning officer"} moved the due date for "${taskTitle || "your task"}" to ${fmtDate(newDeadline)}.`,
+        );
+      },
+    );
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -430,26 +1682,32 @@ export default function MyTasks() {
     try {
       await fetch(`${API}/api/tasks/${taskId}/status`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ status: "For Approval" }),
       });
       if (submitNote.trim()) {
         await fetch(`${API}/api/tasks/${taskId}/comments`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ content: `📤 Task submitted: ${submitNote}` }),
         });
       }
       if (submitFiles.length > 0) {
         const fd = new FormData();
-        submitFiles.forEach(f => fd.append("files", f));
+        submitFiles.forEach((f) => fd.append("files", f));
         // Use the dedicated /submit endpoint so files are saved to the submissions
         // table — NOT the task_attachments table that holds the original brief files.
         fd.append("submission_group_id", submissionGroupId);
         if (submitNote.trim()) fd.append("note", submitNote.trim());
 
         // Optimistically show a new submission post immediately
-        const optimisticAttachments = submitFiles.map(f => ({
+        const optimisticAttachments = submitFiles.map((f) => ({
           file_name: f.name,
           name: f.name,
           file_url: "",
@@ -460,9 +1718,17 @@ export default function MyTasks() {
           submission_group_id: submissionGroupId,
           _pending: true,
         }));
-        setSelected(prev => prev
-          ? { ...prev, status: "For Approval", submissions: [...(prev.submissions || []), ...optimisticAttachments] }
-          : prev
+        setSelected((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: "For Approval",
+                submissions: [
+                  ...(prev.submissions || []),
+                  ...optimisticAttachments,
+                ],
+              }
+            : prev,
         );
 
         const uploadRes = await fetch(`${API}/api/tasks/${taskId}/submit`, {
@@ -475,9 +1741,9 @@ export default function MyTasks() {
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json().catch(() => null);
           if (uploadData?.files?.length) {
-            setSelected(prev => {
+            setSelected((prev) => {
               if (!prev) return prev;
-              const realFiles = uploadData.files.map(f => ({
+              const realFiles = uploadData.files.map((f) => ({
                 file_name: f.originalname || f.name,
                 name: f.originalname || f.name,
                 file_url: f.url || f.path || "",
@@ -487,27 +1753,39 @@ export default function MyTasks() {
                 submitted_at: f.submitted_at || submittedAt,
                 submission_group_id: f.submission_group_id || submissionGroupId,
               }));
-              const withoutPending = (prev.submissions || []).filter(a => !a._pending);
-              return { ...prev, submissions: [...withoutPending, ...realFiles] };
+              const withoutPending = (prev.submissions || []).filter(
+                (a) => !a._pending,
+              );
+              return {
+                ...prev,
+                submissions: [...withoutPending, ...realFiles],
+              };
             });
           }
         }
       } else {
         // No files — show a note-only submission post as a new separate post
-        const noteOnlyEntry = [{
-          file_name: null,
-          name: null,
-          file_url: null,
-          url: null,
-          size: 0,
-          note: submitNote.trim() || null,
-          submitted_at: submittedAt,
-          submission_group_id: submissionGroupId,
-          _noteOnly: true,
-        }];
-        setSelected(prev => prev
-          ? { ...prev, status: "For Approval", submissions: [...(prev.submissions || []), ...noteOnlyEntry] }
-          : prev
+        const noteOnlyEntry = [
+          {
+            file_name: null,
+            name: null,
+            file_url: null,
+            url: null,
+            size: 0,
+            note: submitNote.trim() || null,
+            submitted_at: submittedAt,
+            submission_group_id: submissionGroupId,
+            _noteOnly: true,
+          },
+        ];
+        setSelected((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: "For Approval",
+                submissions: [...(prev.submissions || []), ...noteOnlyEntry],
+              }
+            : prev,
         );
       }
 
@@ -527,17 +1805,22 @@ export default function MyTasks() {
     if (!socket) return;
     if (selected?.id) socket.emit("join_task", { taskId: selected.id });
     setTypingUsers([]);
-    return () => { if (selected?.id) socket.emit("leave_task", { taskId: selected.id }); };
+    return () => {
+      if (selected?.id) socket.emit("leave_task", { taskId: selected.id });
+    };
   }, [selected?.id]);
 
-  const emitTyping = useCallback((isTyping) => {
-    const socket = socketRef.current;
-    if (!socket || !selected) return;
-    socket.emit(isTyping ? "typing" : "stop_typing", {
-      taskId: selected.id,
-      name: user.full_name || user.username || "Someone",
-    });
-  }, [selected, user]);
+  const emitTyping = useCallback(
+    (isTyping) => {
+      const socket = socketRef.current;
+      if (!socket || !selected) return;
+      socket.emit(isTyping ? "typing" : "stop_typing", {
+        taskId: selected.id,
+        name: user.full_name || user.username || "Someone",
+      });
+    },
+    [selected, user],
+  );
 
   const handleCommentChange = (e) => {
     setComment(e.target.value);
@@ -546,26 +1829,125 @@ export default function MyTasks() {
     typingTimeoutRef.current = setTimeout(() => emitTyping(false), 2500);
   };
 
-  const toggleCheck = (id) => setCheckedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleCheck = (id) =>
+    setCheckedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
 
-  const filteredTasks = tasks.filter(t => {
+  const filteredTasks = tasks.filter((t) => {
     const q = search.toLowerCase();
-    return !q || `${t.tracking_id} ${t.title} ${t.assigned_by_name}`.toLowerCase().includes(q);
+    return (
+      !q ||
+      `${t.tracking_id} ${t.title} ${t.assigned_by_name}`
+        .toLowerCase()
+        .includes(q)
+    );
   });
 
-  const fmtDate = d => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
-  const fmtDateTime = d => d ? new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
+  const fmtDate = (d) =>
+    d
+      ? new Date(d).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : "—";
+  const fmtDateTime = (d) =>
+    d
+      ? new Date(d).toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        })
+      : "—";
   // Deadlines are stored in UTC; show date + time in Manila local time (PHT) so it matches the SLA emails.
-  const fmtDeadline = d => d ? `${new Date(d).toLocaleString("en-US", { timeZone: "Asia/Manila", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} PHT` : "—";
+  const fmtDeadline = (d) =>
+    d
+      ? `${new Date(d).toLocaleString("en-US", { timeZone: "Asia/Manila", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} PHT`
+      : "—";
 
   // page state for task feed pagination
   const [taskPage, setTaskPage] = useState(1);
   const PER_PAGE = 5;
-  const pagedTasks = filteredTasks.slice((taskPage - 1) * PER_PAGE, taskPage * PER_PAGE);
-  const totalTaskPages = Math.max(1, Math.ceil(filteredTasks.length / PER_PAGE));
+  const pagedTasks = filteredTasks.slice(
+    (taskPage - 1) * PER_PAGE,
+    taskPage * PER_PAGE,
+  );
+  const totalTaskPages = Math.max(
+    1,
+    Math.ceil(filteredTasks.length / PER_PAGE),
+  );
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+    <PathTasksWorkspace
+      user={user}
+      canViewAdminNav={canViewAdminNav}
+      tasks={tasks}
+      stats={stats}
+      loading={loading}
+      search={search}
+      setSearch={setSearch}
+      statusFilter={statusFilter}
+      setStatusFilter={setStatusFilter}
+      priorityFilter={priorityFilter}
+      setPriorityFilter={setPriorityFilter}
+      docTypeFilter={docTypeFilter}
+      setDocTypeFilter={setDocTypeFilter}
+      dateRange={dateRange}
+      setDateRange={setDateRange}
+      selected={selected}
+      setSelected={setSelected}
+      detailLoading={detailLoading}
+      fetchSelectedTask={fetchSelectedTask}
+      pagedTasks={pagedTasks}
+      filteredTasks={filteredTasks}
+      taskPage={taskPage}
+      setTaskPage={setTaskPage}
+      totalTaskPages={totalTaskPages}
+      checkedIds={checkedIds}
+      toggleCheck={toggleCheck}
+      selectAll={selectAll}
+      setSelectAll={setSelectAll}
+      setCheckedIds={setCheckedIds}
+      handleArchive={handleArchive}
+      handleApprove={handleApprove}
+      handleReturn={handleReturn}
+      handleSubmitTask={handleSubmitTask}
+      submitNote={submitNote}
+      setSubmitNote={setSubmitNote}
+      submitFiles={submitFiles}
+      setSubmitFiles={setSubmitFiles}
+      submitting={submitting}
+      comment={comment}
+      handleCommentChange={handleCommentChange}
+      handlePostComment={handlePostComment}
+      commentFiles={commentFiles}
+      commentFileInputRef={commentFileInputRef}
+      setCommentFiles={setCommentFiles}
+      setCommentFilePreviews={setCommentFilePreviews}
+      commentFilePreviews={commentFilePreviews}
+      setFileViewer={setFileViewer}
+      resolveFileUrl={resolveFileUrl}
+      fmtDate={fmtDate}
+      fmtDeadline={fmtDeadline}
+      fmtDateTime={fmtDateTime}
+      onLogout={handleLogout}
+    />
+  );
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        overflow: "hidden",
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13,
+        color: "#111",
+        background: "#f4f4f8",
+      }}
+    >
       <Toast toasts={toasts} onDismiss={dismissToast} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
@@ -584,80 +1966,412 @@ export default function MyTasks() {
       <Sidebar activePage="tasks" />
 
       {/* MAIN */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "white", overflow: "hidden", height: "100vh" }}>
-
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 0,
+          background: "white",
+          overflow: "hidden",
+          height: "100vh",
+        }}
+      >
         {/* Topbar */}
         <TopBar onLogout={handleLogout}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 12px", color: "#9ca3af" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                background: "#f9fafb",
+                border: "1px solid #e5e7eb",
+                borderRadius: 8,
+                padding: "6px 12px",
+                color: "#9ca3af",
+              }}
+            >
               <Icon.Search />
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by tracking #, keyword..."
-                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%" }} />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by tracking #, keyword..."
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  outline: "none",
+                  fontSize: 12,
+                  color: "#374151",
+                  width: "100%",
+                }}
+              />
             </div>
           </div>
         </TopBar>
 
         {/* PAGE BODY */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
           {/* TOP: header + stats + filters */}
-          <div style={{ padding: "20px 24px 0", background: "white", borderBottom: "1px solid #f3f4f6" }}>
-
+          <div
+            style={{
+              padding: "20px 24px 0",
+              background: "white",
+              borderBottom: "1px solid #f3f4f6",
+            }}
+          >
             {/* Page Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 18,
+              }}
+            >
               <div>
-                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: "0 0 3px" }}>My Tasks</h1>
-                <p style={{ fontSize: 12, color: "#888", margin: 0 }}>Manage and approve tasks assigned specifically to you.</p>
+                <h1
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    color: "#111",
+                    margin: "0 0 3px",
+                  }}
+                >
+                  My Tasks
+                </h1>
+                <p style={{ fontSize: 12, color: "#888", margin: 0 }}>
+                  Manage and approve tasks assigned specifically to you.
+                </p>
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#374151" }}>
+                <button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "7px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #e5e7eb",
+                    background: "white",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    color: "#374151",
+                  }}
+                >
                   <Icon.Download /> Export CSV
                 </button>
-                <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "1px solid #7c3aed", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#7c3aed" }}>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="12" height="12"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M10 2v4h4" /></svg> Export PDF
+                <button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "7px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #7c3aed",
+                    background: "white",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    color: "#7c3aed",
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="#7c3aed"
+                    strokeWidth="1.5"
+                    width="12"
+                    height="12"
+                  >
+                    <path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" />
+                    <path d="M10 2v4h4" />
+                  </svg>{" "}
+                  Export PDF
                 </button>
               </div>
             </div>
 
             {/* Stat Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 18 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4,1fr)",
+                gap: 12,
+                marginBottom: 18,
+              }}
+            >
               {[
-                { label: "Total Assigned", value: stats.total ?? 24, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="16" height="16"><path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" /></svg>, bg: "#ede9fe" },
-                { label: "Due Today", value: stats.dueToday ?? 4, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#374151" strokeWidth="1.5" width="16" height="16"><rect x="2" y="3" width="12" height="11" rx="1" /><path d="M5 1v3M11 1v3M2 7h12" /></svg>, bg: "#f3f4f6" },
-                { label: "Overdue", value: stats.overdue ?? 2, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>, bg: "#fee2e2" },
-                { label: "Pending Approval", value: stats.pendingApproval ?? 12, icon: <svg viewBox="0 0 16 16" fill="none" stroke="#374151" strokeWidth="1.5" width="16" height="16"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l2 2" strokeLinecap="round" /></svg>, bg: "#f3f4f6" },
+                {
+                  label: "Total Assigned",
+                  value: stats.total ?? 24,
+                  icon: (
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="#7c3aed"
+                      strokeWidth="1.5"
+                      width="16"
+                      height="16"
+                    >
+                      <path d="M3 3h10v2H3zm0 4h10v2H3zm0 4h6v2H3z" />
+                    </svg>
+                  ),
+                  bg: "#ede9fe",
+                },
+                {
+                  label: "Due Today",
+                  value: stats.dueToday ?? 4,
+                  icon: (
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="#374151"
+                      strokeWidth="1.5"
+                      width="16"
+                      height="16"
+                    >
+                      <rect x="2" y="3" width="12" height="11" rx="1" />
+                      <path d="M5 1v3M11 1v3M2 7h12" />
+                    </svg>
+                  ),
+                  bg: "#f3f4f6",
+                },
+                {
+                  label: "Overdue",
+                  value: stats.overdue ?? 2,
+                  icon: (
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="#dc2626"
+                      strokeWidth="1.5"
+                      width="16"
+                      height="16"
+                    >
+                      <circle cx="8" cy="8" r="6" />
+                      <path d="M8 5v3M8 10v1" strokeLinecap="round" />
+                    </svg>
+                  ),
+                  bg: "#fee2e2",
+                },
+                {
+                  label: "Pending Approval",
+                  value: stats.pendingApproval ?? 12,
+                  icon: (
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="#374151"
+                      strokeWidth="1.5"
+                      width="16"
+                      height="16"
+                    >
+                      <circle cx="8" cy="8" r="6" />
+                      <path d="M8 4v4l2 2" strokeLinecap="round" />
+                    </svg>
+                  ),
+                  bg: "#f3f4f6",
+                },
               ].map(({ label, value, icon, bg }) => (
-                <div key={label} style={{ background: "white", border: "1px solid #f0f0f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div
+                  key={label}
+                  style={{
+                    background: "white",
+                    border: "1px solid #f0f0f0",
+                    borderRadius: 12,
+                    padding: "14px 16px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
                   <div>
-                    <div style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#111" }}>{loading ? "—" : value}</div>
+                    <div
+                      style={{ fontSize: 11, color: "#999", marginBottom: 4 }}
+                    >
+                      {label}
+                    </div>
+                    <div
+                      style={{ fontSize: 24, fontWeight: 800, color: "#111" }}
+                    >
+                      {loading ? "—" : value}
+                    </div>
                   </div>
-                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: bg, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      background: bg,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {icon}
+                  </div>
                 </div>
               ))}
             </div>
 
             {/* Search + Filter pills */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 16 }}>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "7px 12px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                paddingBottom: 16,
+              }}
+            >
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: "#f9fafb",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 8,
+                  padding: "7px 12px",
+                }}
+              >
                 <Icon.Search />
-                <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by tracking #, keyword..."
-                  style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%" }} />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search by tracking #, keyword..."
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    outline: "none",
+                    fontSize: 12,
+                    color: "#374151",
+                    width: "100%",
+                  }}
+                />
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12, color: "#374151" }}>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><rect x="2" y="3" width="12" height="11" rx="1" /><path d="M5 1v3M11 1v3M2 7h12" /></svg>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "7px 12px",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 8,
+                  background: "white",
+                  fontSize: 12,
+                  color: "#374151",
+                }}
+              >
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  width="12"
+                  height="12"
+                >
+                  <rect x="2" y="3" width="12" height="11" rx="1" />
+                  <path d="M5 1v3M11 1v3M2 7h12" />
+                </svg>
                 <span style={{ color: "#888" }}>Date Range</span>
-                <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: "none", background: "transparent", fontSize: 12, outline: "none", cursor: "pointer", color: "#374151" }} />
+                <input
+                  type="date"
+                  value={dateRange}
+                  onChange={(e) => setDateRange(e.target.value)}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    fontSize: 12,
+                    outline: "none",
+                    cursor: "pointer",
+                    color: "#374151",
+                  }}
+                />
               </div>
               {[
-                { label: "Priority", value: priorityFilter, set: setPriorityFilter, opts: ["All", "High", "Medium", "Low"] },
-                { label: "Status", value: statusFilter, set: setStatusFilter, opts: ["All", "Pending Approval", "In Progress", "Done", "Overdue"] },
-                { label: "Doc Type", value: docTypeFilter, set: setDocTypeFilter, opts: ["All", "Financial", "Legal", "Sales", "HR", "Operations"] },
+                {
+                  label: "Priority",
+                  value: priorityFilter,
+                  set: setPriorityFilter,
+                  opts: ["All", "High", "Medium", "Low"],
+                },
+                {
+                  label: "Status",
+                  value: statusFilter,
+                  set: setStatusFilter,
+                  opts: [
+                    "All",
+                    "Pending Approval",
+                    "In Progress",
+                    "Done",
+                    "Overdue",
+                  ],
+                },
+                {
+                  label: "Doc Type",
+                  value: docTypeFilter,
+                  set: setDocTypeFilter,
+                  opts: [
+                    "All",
+                    "Financial",
+                    "Legal",
+                    "Sales",
+                    "HR",
+                    "Operations",
+                  ],
+                },
               ].map(({ label, value, set, opts }) => (
-                <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", border: "1px solid #e5e7eb", borderRadius: 8, background: "white", fontSize: 12 }}>
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "7px 12px",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 8,
+                    background: "white",
+                    fontSize: 12,
+                  }}
+                >
                   <Icon.Filter />
-                  <select value={value} onChange={e => set(e.target.value)} style={{ border: "none", background: "transparent", fontSize: 12, outline: "none", cursor: "pointer", color: "#374151" }}>
-                    {opts.map(o => <option key={o} value={o}>{o === "All" ? label : o}</option>)}
+                  <select
+                    value={value}
+                    onChange={(e) => set(e.target.value)}
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                      fontSize: 12,
+                      outline: "none",
+                      cursor: "pointer",
+                      color: "#374151",
+                    }}
+                  >
+                    {opts.map((o) => (
+                      <option key={o} value={o}>
+                        {o === "All" ? label : o}
+                      </option>
+                    ))}
                   </select>
                 </div>
               ))}
@@ -666,269 +2380,1027 @@ export default function MyTasks() {
 
           {/* BOTTOM: task feed + detail panel */}
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-
             {/* LEFT: Task Feed */}
-            <div style={{ width: 340, flexShrink: 0, borderRight: "1px solid #f0f0f0", display: "flex", flexDirection: "column", overflowY: "auto" }}>
-
+            <div
+              style={{
+                width: 340,
+                flexShrink: 0,
+                borderRight: "1px solid #f0f0f0",
+                display: "flex",
+                flexDirection: "column",
+                overflowY: "auto",
+              }}
+            >
               {/* Feed header */}
-              <div style={{ padding: "14px 16px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f5f5f5" }}>
+              <div
+                style={{
+                  padding: "14px 16px 10px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: "1px solid #f5f5f5",
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>Task Feed</span>
-                  <span style={{ background: "#7c3aed", color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 20 }}>{filteredTasks.length}</span>
+                  <span
+                    style={{ fontSize: 14, fontWeight: 700, color: "#111" }}
+                  >
+                    Task Feed
+                  </span>
+                  <span
+                    style={{
+                      background: "#7c3aed",
+                      color: "white",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      padding: "1px 7px",
+                      borderRadius: 20,
+                    }}
+                  >
+                    {filteredTasks.length}
+                  </span>
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <button style={{ width: 26, height: 26, border: "1px solid #e5e7eb", borderRadius: 6, background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon.Filter /></button>
-                  <button style={{ width: 26, height: 26, border: "1px solid #e5e7eb", borderRadius: 6, background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><rect x="1" y="1" width="6" height="6" rx="1" /><rect x="9" y="1" width="6" height="6" rx="1" /><rect x="1" y="9" width="6" height="6" rx="1" /><rect x="9" y="9" width="6" height="6" rx="1" /></svg>
+                  <button
+                    style={{
+                      width: 26,
+                      height: 26,
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 6,
+                      background: "white",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Icon.Filter />
+                  </button>
+                  <button
+                    style={{
+                      width: 26,
+                      height: 26,
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 6,
+                      background: "white",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      width="12"
+                      height="12"
+                    >
+                      <rect x="1" y="1" width="6" height="6" rx="1" />
+                      <rect x="9" y="1" width="6" height="6" rx="1" />
+                      <rect x="1" y="9" width="6" height="6" rx="1" />
+                      <rect x="9" y="9" width="6" height="6" rx="1" />
+                    </svg>
                   </button>
                 </div>
               </div>
 
               {/* Bulk actions */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: "1px solid #f5f5f5", background: "#fafafa" }}>
-                <input type="checkbox" checked={selectAll} onChange={e => { setSelectAll(e.target.checked); setCheckedIds(e.target.checked ? filteredTasks.map(t => t.id) : []); }} style={{ accentColor: "#7c3aed" }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#888", letterSpacing: 0.5 }}>SELECT ALL</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 16px",
+                  borderBottom: "1px solid #f5f5f5",
+                  background: "#fafafa",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={(e) => {
+                    setSelectAll(e.target.checked);
+                    setCheckedIds(
+                      e.target.checked ? filteredTasks.map((t) => t.id) : [],
+                    );
+                  }}
+                  style={{ accentColor: "#7c3aed" }}
+                />
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#888",
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  SELECT ALL
+                </span>
                 <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-                  <button onClick={handleArchive} disabled={checkedIds.length === 0}
-                    style={{ fontSize: 11, fontWeight: 700, color: checkedIds.length > 0 ? "#374151" : "#bbb", background: "none", border: "none", cursor: checkedIds.length > 0 ? "pointer" : "default" }}>Archive</button>
+                  <button
+                    onClick={handleArchive}
+                    disabled={checkedIds.length === 0}
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: checkedIds.length > 0 ? "#374151" : "#bbb",
+                      background: "none",
+                      border: "none",
+                      cursor: checkedIds.length > 0 ? "pointer" : "default",
+                    }}
+                  >
+                    Archive
+                  </button>
                 </div>
               </div>
 
               {/* Task rows */}
               <div style={{ flex: 1, overflowY: "auto" }}>
                 {loading ? (
-                  <div style={{ padding: 32, textAlign: "center", color: "#aaa", fontSize: 12 }}>Loading tasks...</div>
-                ) : pagedTasks.length === 0 ? (
-                  <div style={{ padding: 40, textAlign: "center", color: "#aaa", fontSize: 12 }}>No tasks assigned to you yet.</div>
-                ) : pagedTasks.map(task => (
-                  <div key={task.id} onClick={() => fetchSelectedTask(task.id)}
-                    style={{ padding: "12px 16px", borderBottom: "1px solid #f5f5f5", cursor: "pointer", background: selected?.id === task.id ? "#faf5ff" : "white", borderLeft: selected?.id === task.id ? "3px solid #7c3aed" : "3px solid transparent", transition: "all 0.1s" }}
-                    onMouseEnter={e => { if (selected?.id !== task.id) e.currentTarget.style.background = "#fafafa"; }}
-                    onMouseLeave={e => { if (selected?.id !== task.id) e.currentTarget.style.background = "white"; }}
+                  <div
+                    style={{
+                      padding: 32,
+                      textAlign: "center",
+                      color: "#aaa",
+                      fontSize: 12,
+                    }}
                   >
-                    <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                      <div onClick={e => { e.stopPropagation(); toggleCheck(task.id); }} style={{ paddingTop: 2 }}>
-                        <input type="checkbox" checked={checkedIds.includes(task.id)} onChange={() => toggleCheck(task.id)} style={{ accentColor: "#7c3aed" }} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                          <span style={{ fontSize: 10, color: "#7c3aed", fontWeight: 700 }}>{task.tracking_id}</span>
-                          <span style={{ fontSize: 10, color: "#aaa" }}>{fmtDate(task.deadline || task.created_at)}</span>
+                    Loading tasks...
+                  </div>
+                ) : pagedTasks.length === 0 ? (
+                  <div
+                    style={{
+                      padding: 40,
+                      textAlign: "center",
+                      color: "#aaa",
+                      fontSize: 12,
+                    }}
+                  >
+                    No tasks assigned to you yet.
+                  </div>
+                ) : (
+                  pagedTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      onClick={() => fetchSelectedTask(task.id)}
+                      style={{
+                        padding: "12px 16px",
+                        borderBottom: "1px solid #f5f5f5",
+                        cursor: "pointer",
+                        background:
+                          selected?.id === task.id ? "#faf5ff" : "white",
+                        borderLeft:
+                          selected?.id === task.id
+                            ? "3px solid #7c3aed"
+                            : "3px solid transparent",
+                        transition: "all 0.1s",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selected?.id !== task.id)
+                          e.currentTarget.style.background = "#fafafa";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selected?.id !== task.id)
+                          e.currentTarget.style.background = "white";
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 10,
+                        }}
+                      >
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleCheck(task.id);
+                          }}
+                          style={{ paddingTop: 2 }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checkedIds.includes(task.id)}
+                            onChange={() => toggleCheck(task.id)}
+                            style={{ accentColor: "#7c3aed" }}
+                          />
                         </div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#111", marginBottom: 6, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {task.title || "(No title)"}
-                        </div>
-                        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                          {task.doc_type && <Badge label={task.doc_type} />}
-                          {task.priority && <Badge label={task.priority} />}
-                          {task.status && <Badge label={task.status} />}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              marginBottom: 3,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 10,
+                                color: "#7c3aed",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {task.tracking_id}
+                            </span>
+                            <span style={{ fontSize: 10, color: "#aaa" }}>
+                              {fmtDate(task.deadline || task.created_at)}
+                            </span>
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: "#111",
+                              marginBottom: 6,
+                              lineHeight: 1.3,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {task.title || "(No title)"}
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 4,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            {task.doc_type && <Badge label={task.doc_type} />}
+                            {task.priority && <Badge label={task.priority} />}
+                            {task.status && <Badge label={task.status} />}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               {/* Pagination */}
-              <div style={{ padding: "10px 16px", borderTop: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11, color: "#888" }}>Showing {Math.min((taskPage - 1) * PER_PAGE + 1, filteredTasks.length)}-{Math.min(taskPage * PER_PAGE, filteredTasks.length)} of {filteredTasks.length} tasks</span>
+              <div
+                style={{
+                  padding: "10px 16px",
+                  borderTop: "1px solid #f0f0f0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span style={{ fontSize: 11, color: "#888" }}>
+                  Showing{" "}
+                  {Math.min(
+                    (taskPage - 1) * PER_PAGE + 1,
+                    filteredTasks.length,
+                  )}
+                  -{Math.min(taskPage * PER_PAGE, filteredTasks.length)} of{" "}
+                  {filteredTasks.length} tasks
+                </span>
                 <div style={{ display: "flex", gap: 4 }}>
-                  <button onClick={() => setTaskPage(p => Math.max(1, p - 1))} disabled={taskPage === 1}
-                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage === 1 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: taskPage === 1 ? 0.4 : 1 }}>
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M10 12L6 8l4-4" /></svg>
+                  <button
+                    onClick={() => setTaskPage((p) => Math.max(1, p - 1))}
+                    disabled={taskPage === 1}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 5,
+                      background: "white",
+                      cursor: taskPage === 1 ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: taskPage === 1 ? 0.4 : 1,
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      width="10"
+                      height="10"
+                    >
+                      <path d="M10 12L6 8l4-4" />
+                    </svg>
                   </button>
-                  <button onClick={() => setTaskPage(p => Math.min(totalTaskPages, p + 1))} disabled={taskPage === totalTaskPages}
-                    style={{ width: 24, height: 24, border: "1px solid #e5e7eb", borderRadius: 5, background: "white", cursor: taskPage === totalTaskPages ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: taskPage === totalTaskPages ? 0.4 : 1 }}>
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><path d="M6 12l4-4-4-4" /></svg>
+                  <button
+                    onClick={() =>
+                      setTaskPage((p) => Math.min(totalTaskPages, p + 1))
+                    }
+                    disabled={taskPage === totalTaskPages}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 5,
+                      background: "white",
+                      cursor:
+                        taskPage === totalTaskPages ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: taskPage === totalTaskPages ? 0.4 : 1,
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      width="10"
+                      height="10"
+                    >
+                      <path d="M6 12l4-4-4-4" />
+                    </svg>
                   </button>
                 </div>
               </div>
             </div>
 
             {/* RIGHT: Task Detail Panel */}
-            <div style={{ flex: 1, overflow: "hidden", background: "white", display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                flex: 1,
+                overflow: "hidden",
+                background: "white",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               {!selected ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 10 }}>
-                  <svg viewBox="0 0 40 40" fill="none" stroke="#e5e7eb" strokeWidth="1.5" width="48" height="48"><path d="M5 8h30v20H5zM5 28l7 6v-6" /></svg>
-                  <div style={{ fontSize: 14, color: "#aaa", fontWeight: 600 }}>Select a task to view details</div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                    gap: 10,
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 40 40"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    strokeWidth="1.5"
+                    width="48"
+                    height="48"
+                  >
+                    <path d="M5 8h30v20H5zM5 28l7 6v-6" />
+                  </svg>
+                  <div style={{ fontSize: 14, color: "#aaa", fontWeight: 600 }}>
+                    Select a task to view details
+                  </div>
                 </div>
               ) : detailLoading ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 10 }}>
-                  <div style={{ width: 28, height: 28, border: "3px solid #ede9fe", borderTop: "3px solid #7c3aed", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-                  <div style={{ fontSize: 12, color: "#aaa" }}>Loading task details...</div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                    gap: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      border: "3px solid #ede9fe",
+                      borderTop: "3px solid #7c3aed",
+                      borderRadius: "50%",
+                      animation: "spin 0.7s linear infinite",
+                    }}
+                  />
+                  <div style={{ fontSize: 12, color: "#aaa" }}>
+                    Loading task details...
+                  </div>
                   <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    overflow: "hidden",
+                  }}
+                >
                   {/* Detail top bar */}
-                  <div style={{ padding: "14px 24px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 11, background: "#ede9fe", color: "#7c3aed", padding: "3px 10px", borderRadius: 20, fontWeight: 700 }}>{selected.tracking_id}</span>
-                      <span style={{ fontSize: 11, color: "#aaa" }}>Created on {fmtDate(selected.created_at)}</span>
+                  <div
+                    style={{
+                      padding: "14px 24px",
+                      borderBottom: "1px solid #f0f0f0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 11,
+                          background: "#ede9fe",
+                          color: "#7c3aed",
+                          padding: "3px 10px",
+                          borderRadius: 20,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {selected.tracking_id}
+                      </span>
+                      <span style={{ fontSize: 11, color: "#aaa" }}>
+                        Created on {fmtDate(selected.created_at)}
+                      </span>
                     </div>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button style={{ width: 28, height: 28, borderRadius: 7, border: "1px solid #e5e7eb", background: "white", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icon.Share /></button>
-                      <button style={{ width: 28, height: 28, borderRadius: 7, border: "1px solid #e5e7eb", background: "white", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icon.More /></button>
+                      <button
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 7,
+                          border: "1px solid #e5e7eb",
+                          background: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Icon.Share />
+                      </button>
+                      <button
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 7,
+                          border: "1px solid #e5e7eb",
+                          background: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Icon.More />
+                      </button>
                     </div>
                   </div>
 
                   <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
                     {/* Center content */}
-                    <div style={{ flex: 1, padding: "20px 24px", minWidth: 0, borderRight: "1px solid #f0f0f0", overflowY: "auto", height: "100%" }}>
-                      <h2 style={{ fontSize: 19, fontWeight: 800, color: "#111", margin: "0 0 18px", lineHeight: 1.35 }}>{selected.title || "(No title)"}</h2>
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: "20px 24px",
+                        minWidth: 0,
+                        borderRight: "1px solid #f0f0f0",
+                        overflowY: "auto",
+                        height: "100%",
+                      }}
+                    >
+                      <h2
+                        style={{
+                          fontSize: 19,
+                          fontWeight: 800,
+                          color: "#111",
+                          margin: "0 0 18px",
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        {selected.title || "(No title)"}
+                      </h2>
 
                       {/* TASK INFORMATION */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Task Information</div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginBottom: 24, padding: "0 0 24px", borderBottom: "1px solid #f0f0f0" }}>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: 1,
+                          color: "#aaa",
+                          textTransform: "uppercase",
+                          marginBottom: 14,
+                        }}
+                      >
+                        Task Information
+                      </div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: 18,
+                          marginBottom: 24,
+                          padding: "0 0 24px",
+                          borderBottom: "1px solid #f0f0f0",
+                        }}
+                      >
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Assigned To</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
-                              {((selected.assigned_to_name || user.full_name || "?")?.[0] || "?").toUpperCase()}
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#aaa",
+                              marginBottom: 5,
+                            }}
+                          >
+                            Assigned To
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: "50%",
+                                background: "#ede9fe",
+                                color: "#5b21b6",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 9,
+                                fontWeight: 700,
+                                flexShrink: 0,
+                              }}
+                            >
+                              {(
+                                (selected.assigned_to_name ||
+                                  user.full_name ||
+                                  "?")?.[0] || "?"
+                              ).toUpperCase()}
                             </div>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>
-                              {selected.assigned_to_name || user.full_name || "—"}
+                            <span
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: "#111",
+                              }}
+                            >
+                              {selected.assigned_to_name ||
+                                user.full_name ||
+                                "—"}
                             </span>
                           </div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Document Type</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{selected.doc_type || "—"}</div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#aaa",
+                              marginBottom: 5,
+                            }}
+                          >
+                            Document Type
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: "#111",
+                            }}
+                          >
+                            {selected.doc_type || "—"}
+                          </div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Priority Level</div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#aaa",
+                              marginBottom: 5,
+                            }}
+                          >
+                            Priority Level
+                          </div>
                           <Badge label={selected.priority || "—"} />
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Status</div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#aaa",
+                              marginBottom: 5,
+                            }}
+                          >
+                            Status
+                          </div>
                           <Badge label={selected.status || "—"} />
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Due Date</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{fmtDeadline(selected.deadline)}</div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#aaa",
+                              marginBottom: 5,
+                            }}
+                          >
+                            Due Date
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: "#111",
+                            }}
+                          >
+                            {fmtDeadline(selected.deadline)}
+                          </div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 5 }}>Project Category</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{selected.category || "—"}</div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#aaa",
+                              marginBottom: 5,
+                            }}
+                          >
+                            Project Category
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: "#111",
+                            }}
+                          >
+                            {selected.category || "—"}
+                          </div>
                         </div>
                       </div>
 
                       {/* ACTIVITY — task brief post card (matches TaskAssigned layout) */}
-                      {selected.attachments?.length > 0 && (() => {
-                        const assignerName = selected.assigned_by_name || "Admin";
-                        const assignerInitial = (assignerName[0] || "?").toUpperCase();
-                        const assignedAt = selected.created_at;
-                        const docType = selected.doc_type || null;
-                        const assignerRole = selected.assigned_by_role || "admin";
-                        const roleBadgeLabel = assignerRole === "program_chair" ? "Program Chair" : "Admin";
-                        return (
-                          <>
-                            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Activity</div>
-                            <div style={{
-                              border: "1px solid #e5e7eb",
-                              borderRadius: 12,
-                              background: "white",
-                              marginBottom: 20,
-                              overflow: "hidden",
-                              boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                            }}>
-                              {/* Post header */}
-                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px 10px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <div style={{
-                                    width: 36, height: 36, borderRadius: "50%",
-                                    background: "#1e1b2e", color: "white",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    fontSize: 13, fontWeight: 700, flexShrink: 0,
-                                    border: "2px solid #ede9fe",
-                                  }}>
-                                    {assignerInitial}
-                                  </div>
-                                  <div>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                      <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{assignerName}</span>
-                                      <span style={{ fontSize: 10, background: "#1e1b2e", color: "white", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>
-                                        {roleBadgeLabel}
-                                      </span>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-                                      <span style={{ fontSize: 10, color: "#888" }}>
-                                        {assignedAt ? fmtDateTime(assignedAt) : "Just now"}
-                                      </span>
-                                      <span style={{ fontSize: 9, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>
-                                        Version 1.0
-                                      </span>
-                                      <span style={{ fontSize: 9, background: "#dbeafe", color: "#1e40af", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>
-                                        Status: Pending
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <button style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", padding: 4, display: "flex", alignItems: "center" }}>
-                                  <Icon.More />
-                                </button>
+                      {selected.attachments?.length > 0 &&
+                        (() => {
+                          const assignerName =
+                            selected.assigned_by_name || "Admin";
+                          const assignerInitial = (
+                            assignerName[0] || "?"
+                          ).toUpperCase();
+                          const assignedAt = selected.created_at;
+                          const docType = selected.doc_type || null;
+                          const assignerRole =
+                            selected.assigned_by_role || "admin";
+                          const roleBadgeLabel =
+                            assignerRole === "program_chair"
+                              ? "Program Chair"
+                              : "Admin";
+                          return (
+                            <>
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  letterSpacing: 1,
+                                  color: "#aaa",
+                                  textTransform: "uppercase",
+                                  marginBottom: 14,
+                                }}
+                              >
+                                Activity
                               </div>
-
-                              {/* Divider */}
-                              <div style={{ height: 1, background: "#f3f4f6", margin: "0 16px" }} />
-
-                              {/* Message body */}
-                              {(selected.notes || docType) && (
-                                <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#374151", lineHeight: 1.65, whiteSpace: selected.notes ? "pre-wrap" : "normal" }}>
-                                  {selected.notes ? selected.notes : (
-                                    <>Task brief attached for <strong>{docType}</strong>. Please review and submit your completed document by the due date.</>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* File chips */}
-                              <div style={{ padding: "12px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
-                                {selected.attachments.map((a, i) => {
-                                  const url = resolveFileUrl(a.file_url || a.url);
-                                  const name = a.file_name || a.name || "file";
-                                  const ext = name.split(".").pop().toLowerCase();
-                                  const isPdf = ext === "pdf";
-                                  const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
-                                  const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-                                  const sizeBytes = a.size || a.file_size || 0;
-                                  const sizeLabel = sizeBytes >= 1_048_576
-                                    ? `${(sizeBytes / 1_048_576).toFixed(1)} MB`
-                                    : sizeBytes > 0 ? `${(sizeBytes / 1024).toFixed(0)} KB` : null;
-                                  return (
-                                    <button key={i} onClick={() => setFileViewer({ url, name, isPdf, isImg })}
-                                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "1px solid #e5e7eb", borderRadius: 10, background: "#fafafa", cursor: "pointer", textAlign: "left", minWidth: 180, transition: "border-color 0.15s" }}
-                                      onMouseEnter={e => e.currentTarget.style.borderColor = "#7c3aed"}
-                                      onMouseLeave={e => e.currentTarget.style.borderColor = "#e5e7eb"}
+                              <div
+                                style={{
+                                  border: "1px solid #e5e7eb",
+                                  borderRadius: 12,
+                                  background: "white",
+                                  marginBottom: 20,
+                                  overflow: "hidden",
+                                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                }}
+                              >
+                                {/* Post header */}
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    padding: "12px 16px 10px",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 10,
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        width: 36,
+                                        height: 36,
+                                        borderRadius: "50%",
+                                        background: "#1e1b2e",
+                                        color: "white",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: 13,
+                                        fontWeight: 700,
+                                        flexShrink: 0,
+                                        border: "2px solid #ede9fe",
+                                      }}
                                     >
-                                      <div style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                        <span style={{ fontSize: 14 }}>{isPdf ? "📄" : isXlsx ? "📊" : isImg ? "🖼️" : "📎"}</span>
+                                      {assignerInitial}
+                                    </div>
+                                    <div>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 7,
+                                        }}
+                                      >
+                                        <span
+                                          style={{
+                                            fontSize: 13,
+                                            fontWeight: 700,
+                                            color: "#111",
+                                          }}
+                                        >
+                                          {assignerName}
+                                        </span>
+                                        <span
+                                          style={{
+                                            fontSize: 10,
+                                            background: "#1e1b2e",
+                                            color: "white",
+                                            padding: "2px 8px",
+                                            borderRadius: 20,
+                                            fontWeight: 700,
+                                          }}
+                                        >
+                                          {roleBadgeLabel}
+                                        </span>
                                       </div>
-                                      <div style={{ minWidth: 0 }}>
-                                        <div style={{ fontSize: 12, fontWeight: 700, color: "#111", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
-                                        <div style={{ fontSize: 10, color: "#7c3aed", marginTop: 2, fontWeight: 600 }}>{sizeLabel || "Click to preview"}</div>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 6,
+                                          marginTop: 3,
+                                        }}
+                                      >
+                                        <span
+                                          style={{
+                                            fontSize: 10,
+                                            color: "#888",
+                                          }}
+                                        >
+                                          {assignedAt
+                                            ? fmtDateTime(assignedAt)
+                                            : "Just now"}
+                                        </span>
+                                        <span
+                                          style={{
+                                            fontSize: 9,
+                                            background: "#fef3c7",
+                                            color: "#92400e",
+                                            padding: "1px 6px",
+                                            borderRadius: 20,
+                                            fontWeight: 700,
+                                          }}
+                                        >
+                                          Version 1.0
+                                        </span>
+                                        <span
+                                          style={{
+                                            fontSize: 9,
+                                            background: "#dbeafe",
+                                            color: "#1e40af",
+                                            padding: "1px 6px",
+                                            borderRadius: 20,
+                                            fontWeight: 700,
+                                          }}
+                                        >
+                                          Status: Pending
+                                        </span>
                                       </div>
-                                    </button>
-                                  );
-                                })}
+                                    </div>
+                                  </div>
+                                  <button
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      color: "#aaa",
+                                      padding: 4,
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Icon.More />
+                                  </button>
+                                </div>
+
+                                {/* Divider */}
+                                <div
+                                  style={{
+                                    height: 1,
+                                    background: "#f3f4f6",
+                                    margin: "0 16px",
+                                  }}
+                                />
+
+                                {/* Message body */}
+                                {(selected.notes || docType) && (
+                                  <div
+                                    style={{
+                                      padding: "10px 16px 2px",
+                                      fontSize: 13,
+                                      color: "#374151",
+                                      lineHeight: 1.65,
+                                      whiteSpace: selected.notes
+                                        ? "pre-wrap"
+                                        : "normal",
+                                    }}
+                                  >
+                                    {selected.notes ? (
+                                      selected.notes
+                                    ) : (
+                                      <>
+                                        Task brief attached for{" "}
+                                        <strong>{docType}</strong>. Please
+                                        review and submit your completed
+                                        document by the due date.
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* File chips */}
+                                <div
+                                  style={{
+                                    padding: "12px 16px 14px",
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 10,
+                                  }}
+                                >
+                                  {selected.attachments.map((a, i) => {
+                                    const url = resolveFileUrl(
+                                      a.file_url || a.url,
+                                    );
+                                    const name =
+                                      a.file_name || a.name || "file";
+                                    const ext = name
+                                      .split(".")
+                                      .pop()
+                                      .toLowerCase();
+                                    const isPdf = ext === "pdf";
+                                    const isXlsx = [
+                                      "xlsx",
+                                      "xls",
+                                      "csv",
+                                    ].includes(ext);
+                                    const isImg = [
+                                      "jpg",
+                                      "jpeg",
+                                      "png",
+                                      "gif",
+                                      "webp",
+                                    ].includes(ext);
+                                    const sizeBytes =
+                                      a.size || a.file_size || 0;
+                                    const sizeLabel =
+                                      sizeBytes >= 1_048_576
+                                        ? `${(sizeBytes / 1_048_576).toFixed(1)} MB`
+                                        : sizeBytes > 0
+                                          ? `${(sizeBytes / 1024).toFixed(0)} KB`
+                                          : null;
+                                    return (
+                                      <button
+                                        key={i}
+                                        onClick={() =>
+                                          setFileViewer({
+                                            url,
+                                            name,
+                                            isPdf,
+                                            isImg,
+                                          })
+                                        }
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 10,
+                                          padding: "10px 14px",
+                                          border: "1px solid #e5e7eb",
+                                          borderRadius: 10,
+                                          background: "#fafafa",
+                                          cursor: "pointer",
+                                          textAlign: "left",
+                                          minWidth: 180,
+                                          transition: "border-color 0.15s",
+                                        }}
+                                        onMouseEnter={(e) =>
+                                          (e.currentTarget.style.borderColor =
+                                            "#7c3aed")
+                                        }
+                                        onMouseLeave={(e) =>
+                                          (e.currentTarget.style.borderColor =
+                                            "#e5e7eb")
+                                        }
+                                      >
+                                        <div
+                                          style={{
+                                            width: 34,
+                                            height: 34,
+                                            borderRadius: 8,
+                                            flexShrink: 0,
+                                            background: isPdf
+                                              ? "#fee2e2"
+                                              : isXlsx
+                                                ? "#d1fae5"
+                                                : isImg
+                                                  ? "#dbeafe"
+                                                  : "#ede9fe",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                          }}
+                                        >
+                                          <span style={{ fontSize: 14 }}>
+                                            {isPdf
+                                              ? "📄"
+                                              : isXlsx
+                                                ? "📊"
+                                                : isImg
+                                                  ? "🖼️"
+                                                  : "📎"}
+                                          </span>
+                                        </div>
+                                        <div style={{ minWidth: 0 }}>
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              fontWeight: 700,
+                                              color: "#111",
+                                              maxWidth: 160,
+                                              overflow: "hidden",
+                                              textOverflow: "ellipsis",
+                                              whiteSpace: "nowrap",
+                                            }}
+                                          >
+                                            {name}
+                                          </div>
+                                          <div
+                                            style={{
+                                              fontSize: 10,
+                                              color: "#7c3aed",
+                                              marginTop: 2,
+                                              fontWeight: 600,
+                                            }}
+                                          >
+                                            {sizeLabel || "Click to preview"}
+                                          </div>
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
                               </div>
-                            </div>
-                          </>
-                        );
-                      })()}
+                            </>
+                          );
+                        })()}
 
                       {/* POSTS 2+ — Submissions & revision requests interleaved chronologically */}
                       {(() => {
                         const submissions = selected.submissions || [];
-                        const revisionComments = (selected.comments || []).filter(c => c.content?.startsWith("__revision__"));
+                        const revisionComments = (
+                          selected.comments || []
+                        ).filter((c) => c.content?.startsWith("__revision__"));
                         // Note-only submissions (no files) are persisted only as "📤 Task submitted:" comments
-                        const submissionNoteComments = (selected.comments || []).filter(c => c.content?.startsWith("📤 Task submitted:"));
+                        const submissionNoteComments = (
+                          selected.comments || []
+                        ).filter((c) =>
+                          c.content?.startsWith("📤 Task submitted:"),
+                        );
 
-                        if (submissions.length === 0 && revisionComments.length === 0 && submissionNoteComments.length === 0) return null;
+                        if (
+                          submissions.length === 0 &&
+                          revisionComments.length === 0 &&
+                          submissionNoteComments.length === 0
+                        )
+                          return null;
 
                         // Group file-based submissions by submission_group_id or minute-level timestamp
                         const subGroups = submissions.reduce((acc, s) => {
-                          const key = s.submission_group_id
-                            || (s.submitted_at ? new Date(s.submitted_at).toISOString().slice(0, 16) : "initial");
+                          const key =
+                            s.submission_group_id ||
+                            (s.submitted_at
+                              ? new Date(s.submitted_at)
+                                  .toISOString()
+                                  .slice(0, 16)
+                              : "initial");
                           if (!acc[key]) acc[key] = [];
                           acc[key].push(s);
                           return acc;
@@ -936,20 +3408,31 @@ export default function MyTasks() {
 
                         // Determine which submission-note comments already have a matching file group
                         // (so we don't double-post the note both as its own card AND inside a file post)
-                        const groupKeysWithFiles = new Set(Object.keys(subGroups));
+                        const groupKeysWithFiles = new Set(
+                          Object.keys(subGroups),
+                        );
                         const usedCommentIds = new Set();
-                        Object.values(subGroups).forEach(files => {
+                        Object.values(subGroups).forEach((files) => {
                           const firstFile = files[0];
-                          const groupTs = firstFile?.submitted_at ? new Date(firstFile.submitted_at).getTime() : null;
+                          const groupTs = firstFile?.submitted_at
+                            ? new Date(firstFile.submitted_at).getTime()
+                            : null;
                           if (groupTs == null) return;
                           // Match the closest unused submission comment within a short window to use as its note
                           let best = null;
-                          submissionNoteComments.forEach(c => {
+                          submissionNoteComments.forEach((c) => {
                             if (usedCommentIds.has(c.id)) return;
-                            const cts = c.created_at ? new Date(c.created_at).getTime() : null;
+                            const cts = c.created_at
+                              ? new Date(c.created_at).getTime()
+                              : null;
                             if (cts == null) return;
                             if (Math.abs(cts - groupTs) <= 60000) {
-                              if (!best || Math.abs(cts - groupTs) < Math.abs(best.cts - groupTs)) best = { c, cts };
+                              if (
+                                !best ||
+                                Math.abs(cts - groupTs) <
+                                  Math.abs(best.cts - groupTs)
+                              )
+                                best = { c, cts };
                             }
                           });
                           if (best) usedCommentIds.add(best.c.id);
@@ -958,32 +3441,57 @@ export default function MyTasks() {
                         // Build a unified chronological event list
                         const events = [];
 
-                        Object.entries(subGroups).forEach(([groupKey, files]) => {
-                          const firstFile = files[0];
-                          const ts = firstFile?.submitted_at ? new Date(firstFile.submitted_at).getTime() : 0;
-                          events.push({ type: "submission", groupKey, files, ts });
-                        });
+                        Object.entries(subGroups).forEach(
+                          ([groupKey, files]) => {
+                            const firstFile = files[0];
+                            const ts = firstFile?.submitted_at
+                              ? new Date(firstFile.submitted_at).getTime()
+                              : 0;
+                            events.push({
+                              type: "submission",
+                              groupKey,
+                              files,
+                              ts,
+                            });
+                          },
+                        );
 
                         // Remaining submission-note comments (no associated file group) become note-only posts
                         submissionNoteComments.forEach((c, ci) => {
                           if (usedCommentIds.has(c.id)) return;
-                          const ts = c._pending ? Date.now() : (c.created_at ? new Date(c.created_at).getTime() : 0);
-                          const note = c.content.replace("📤 Task submitted:", "").trim();
+                          const ts = c._pending
+                            ? Date.now()
+                            : c.created_at
+                              ? new Date(c.created_at).getTime()
+                              : 0;
+                          const note = c.content
+                            .replace("📤 Task submitted:", "")
+                            .trim();
                           events.push({
                             type: "submission",
                             groupKey: `note_${c.id || ci}`,
-                            files: [{
-                              file_name: null, name: null, file_url: null, url: null, size: 0,
-                              note: note || null,
-                              submitted_at: c.created_at,
-                              _noteOnly: true,
-                            }],
+                            files: [
+                              {
+                                file_name: null,
+                                name: null,
+                                file_url: null,
+                                url: null,
+                                size: 0,
+                                note: note || null,
+                                submitted_at: c.created_at,
+                                _noteOnly: true,
+                              },
+                            ],
                             ts,
                           });
                         });
 
                         revisionComments.forEach((c, i) => {
-                          const ts = c._pending ? Date.now() : (c.created_at ? new Date(c.created_at).getTime() : 0);
+                          const ts = c._pending
+                            ? Date.now()
+                            : c.created_at
+                              ? new Date(c.created_at).getTime()
+                              : 0;
                           events.push({ type: "revision", comment: c, i, ts });
                         });
 
@@ -993,89 +3501,371 @@ export default function MyTasks() {
                         let subVersionCounter = 0;
 
                         return (
-                          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 12,
+                              marginBottom: 24,
+                            }}
+                          >
                             {events.map((event, eventIdx) => {
                               if (event.type === "revision") {
                                 const c = event.comment;
                                 let revisionMeta = null;
-                                try { revisionMeta = JSON.parse(c.content.replace("__revision__", "")); } catch { }
+                                try {
+                                  revisionMeta = JSON.parse(
+                                    c.content.replace("__revision__", ""),
+                                  );
+                                } catch {}
                                 if (!revisionMeta) return null;
-                                const senderInitial = (c.sender_name?.[0] || "?").toUpperCase();
+                                const senderInitial = (
+                                  c.sender_name?.[0] || "?"
+                                ).toUpperCase();
                                 return (
-                                  <div key={`rev-${event.i}`} style={{
-                                    border: "2px solid #fecaca",
-                                    borderRadius: 12,
-                                    background: "#fff8f8",
-                                    overflow: "hidden",
-                                    boxShadow: "0 2px 8px rgba(220,38,38,0.08)",
-                                  }}>
+                                  <div
+                                    key={`rev-${event.i}`}
+                                    style={{
+                                      border: "2px solid #fecaca",
+                                      borderRadius: 12,
+                                      background: "#fff8f8",
+                                      overflow: "hidden",
+                                      boxShadow:
+                                        "0 2px 8px rgba(220,38,38,0.08)",
+                                    }}
+                                  >
                                     {/* Card header */}
-                                    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px 10px" }}>
-                                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, border: "2px solid #fecaca" }}>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 10,
+                                        padding: "12px 16px 10px",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          width: 36,
+                                          height: 36,
+                                          borderRadius: "50%",
+                                          background: "#fee2e2",
+                                          color: "#dc2626",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          fontSize: 13,
+                                          fontWeight: 700,
+                                          flexShrink: 0,
+                                          border: "2px solid #fecaca",
+                                        }}
+                                      >
                                         {senderInitial}
                                       </div>
                                       <div>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                          <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{c.sender_name}</span>
-                                          <span style={{ fontSize: 10, background: "#dc2626", color: "white", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>Program Chair</span>
-                                          <span style={{ fontSize: 10, background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>↺ Revision Request</span>
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 7,
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: 13,
+                                              fontWeight: 700,
+                                              color: "#111",
+                                            }}
+                                          >
+                                            {c.sender_name}
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: 10,
+                                              background: "#dc2626",
+                                              color: "white",
+                                              padding: "2px 8px",
+                                              borderRadius: 20,
+                                              fontWeight: 700,
+                                            }}
+                                          >
+                                            Program Chair
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: 10,
+                                              background: "#fee2e2",
+                                              color: "#dc2626",
+                                              padding: "2px 8px",
+                                              borderRadius: 20,
+                                              fontWeight: 700,
+                                            }}
+                                          >
+                                            ↺ Revision Request
+                                          </span>
                                         </div>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-                                          <span style={{ fontSize: 10, color: "#888" }}>{fmtDateTime(c.created_at)}</span>
-                                          <span style={{ fontSize: 9, background: "#fee2e2", color: "#991b1b", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>Status: Returned</span>
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 6,
+                                            marginTop: 3,
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: 10,
+                                              color: "#888",
+                                            }}
+                                          >
+                                            {fmtDateTime(c.created_at)}
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: 9,
+                                              background: "#fee2e2",
+                                              color: "#991b1b",
+                                              padding: "1px 6px",
+                                              borderRadius: 20,
+                                              fontWeight: 700,
+                                            }}
+                                          >
+                                            Status: Returned
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
                                     {/* Divider */}
-                                    <div style={{ height: 1, background: "#fecaca", margin: "0 16px" }} />
+                                    <div
+                                      style={{
+                                        height: 1,
+                                        background: "#fecaca",
+                                        margin: "0 16px",
+                                      }}
+                                    />
                                     {/* Action banner */}
-                                    <div style={{ margin: "10px 16px 4px", padding: "8px 12px", background: "#fff1f2", border: "1px solid #fecaca", borderRadius: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                                      <svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 10v1" strokeLinecap="round" /></svg>
-                                      <span style={{ fontSize: 12, color: "#dc2626", fontWeight: 600 }}>Action required — please revise and resubmit your document.</span>
+                                    <div
+                                      style={{
+                                        margin: "10px 16px 4px",
+                                        padding: "8px 12px",
+                                        background: "#fff1f2",
+                                        border: "1px solid #fecaca",
+                                        borderRadius: 8,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 8,
+                                      }}
+                                    >
+                                      <svg
+                                        viewBox="0 0 16 16"
+                                        fill="none"
+                                        stroke="#dc2626"
+                                        strokeWidth="1.5"
+                                        width="14"
+                                        height="14"
+                                      >
+                                        <circle cx="8" cy="8" r="6" />
+                                        <path
+                                          d="M8 5v3M8 10v1"
+                                          strokeLinecap="round"
+                                        />
+                                      </svg>
+                                      <span
+                                        style={{
+                                          fontSize: 12,
+                                          color: "#dc2626",
+                                          fontWeight: 600,
+                                        }}
+                                      >
+                                        Action required — please revise and
+                                        resubmit your document.
+                                      </span>
                                     </div>
                                     {/* Note body */}
                                     {revisionMeta.note && (
-                                      <div style={{ padding: "8px 16px", fontSize: 13, color: "#374151", lineHeight: 1.65 }}>
+                                      <div
+                                        style={{
+                                          padding: "8px 16px",
+                                          fontSize: 13,
+                                          color: "#374151",
+                                          lineHeight: 1.65,
+                                        }}
+                                      >
                                         {revisionMeta.note}
                                       </div>
                                     )}
                                     {/* Attached reference files */}
                                     {revisionMeta.files?.length > 0 && (
-                                      <div style={{ padding: "8px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
-                                        <div style={{ width: "100%", fontSize: 11, fontWeight: 700, color: "#dc2626", letterSpacing: 0.5, marginBottom: 4 }}>REFERENCE FILES</div>
+                                      <div
+                                        style={{
+                                          padding: "8px 16px 14px",
+                                          display: "flex",
+                                          flexWrap: "wrap",
+                                          gap: 10,
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            width: "100%",
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            color: "#dc2626",
+                                            letterSpacing: 0.5,
+                                            marginBottom: 4,
+                                          }}
+                                        >
+                                          REFERENCE FILES
+                                        </div>
                                         {revisionMeta.files.map((f, fi) => {
                                           const url = resolveFileUrl(f.url);
-                                          const ext = f.name?.split(".").pop().toLowerCase();
+                                          const ext = f.name
+                                            ?.split(".")
+                                            .pop()
+                                            .toLowerCase();
                                           const isPdf = ext === "pdf";
-                                          const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
-                                          const isImg = f.isImg || ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-                                          const sizeLabel = f.size >= 1_048_576 ? `${(f.size / 1_048_576).toFixed(1)} MB` : f.size > 0 ? `${(f.size / 1024).toFixed(0)} KB` : null;
+                                          const isXlsx = [
+                                            "xlsx",
+                                            "xls",
+                                            "csv",
+                                          ].includes(ext);
+                                          const isImg =
+                                            f.isImg ||
+                                            [
+                                              "jpg",
+                                              "jpeg",
+                                              "png",
+                                              "gif",
+                                              "webp",
+                                            ].includes(ext);
+                                          const sizeLabel =
+                                            f.size >= 1_048_576
+                                              ? `${(f.size / 1_048_576).toFixed(1)} MB`
+                                              : f.size > 0
+                                                ? `${(f.size / 1024).toFixed(0)} KB`
+                                                : null;
                                           return isImg ? (
-                                            <img key={fi} src={url} alt={f.name}
-                                              style={{ maxWidth: 160, maxHeight: 120, borderRadius: 8, border: "1px solid #fecaca", cursor: "pointer", objectFit: "cover" }}
-                                              onClick={() => setFileViewer({ url, name: f.name, isPdf: false, isImg: true })} />
+                                            <img
+                                              key={fi}
+                                              src={url}
+                                              alt={f.name}
+                                              style={{
+                                                maxWidth: 160,
+                                                maxHeight: 120,
+                                                borderRadius: 8,
+                                                border: "1px solid #fecaca",
+                                                cursor: "pointer",
+                                                objectFit: "cover",
+                                              }}
+                                              onClick={() =>
+                                                setFileViewer({
+                                                  url,
+                                                  name: f.name,
+                                                  isPdf: false,
+                                                  isImg: true,
+                                                })
+                                              }
+                                            />
                                           ) : (
-                                            <button key={fi}
-                                              onClick={() => setFileViewer({ url, name: f.name, isPdf, isImg: false })}
-                                              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "1px solid #fecaca", borderRadius: 10, background: "white", cursor: "pointer", textAlign: "left", minWidth: 176, transition: "border-color 0.15s" }}
-                                              onMouseEnter={e => e.currentTarget.style.borderColor = "#dc2626"}
-                                              onMouseLeave={e => e.currentTarget.style.borderColor = "#fecaca"}
+                                            <button
+                                              key={fi}
+                                              onClick={() =>
+                                                setFileViewer({
+                                                  url,
+                                                  name: f.name,
+                                                  isPdf,
+                                                  isImg: false,
+                                                })
+                                              }
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 10,
+                                                padding: "10px 14px",
+                                                border: "1px solid #fecaca",
+                                                borderRadius: 10,
+                                                background: "white",
+                                                cursor: "pointer",
+                                                textAlign: "left",
+                                                minWidth: 176,
+                                                transition:
+                                                  "border-color 0.15s",
+                                              }}
+                                              onMouseEnter={(e) =>
+                                                (e.currentTarget.style.borderColor =
+                                                  "#dc2626")
+                                              }
+                                              onMouseLeave={(e) =>
+                                                (e.currentTarget.style.borderColor =
+                                                  "#fecaca")
+                                              }
                                             >
-                                              <div style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                                <span style={{ fontSize: 14 }}>{isPdf ? "📄" : isXlsx ? "📊" : "📎"}</span>
+                                              <div
+                                                style={{
+                                                  width: 34,
+                                                  height: 34,
+                                                  borderRadius: 8,
+                                                  flexShrink: 0,
+                                                  background: isPdf
+                                                    ? "#fee2e2"
+                                                    : isXlsx
+                                                      ? "#d1fae5"
+                                                      : "#ede9fe",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  justifyContent: "center",
+                                                }}
+                                              >
+                                                <span style={{ fontSize: 14 }}>
+                                                  {isPdf
+                                                    ? "📄"
+                                                    : isXlsx
+                                                      ? "📊"
+                                                      : "📎"}
+                                                </span>
                                               </div>
                                               <div style={{ minWidth: 0 }}>
-                                                <div style={{ fontSize: 12, fontWeight: 700, color: "#111", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
-                                                <div style={{ fontSize: 10, color: "#dc2626", marginTop: 2, fontWeight: 600 }}>{sizeLabel || "Click to preview"}</div>
+                                                <div
+                                                  style={{
+                                                    fontSize: 12,
+                                                    fontWeight: 700,
+                                                    color: "#111",
+                                                    maxWidth: 150,
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    whiteSpace: "nowrap",
+                                                  }}
+                                                >
+                                                  {f.name}
+                                                </div>
+                                                <div
+                                                  style={{
+                                                    fontSize: 10,
+                                                    color: "#dc2626",
+                                                    marginTop: 2,
+                                                    fontWeight: 600,
+                                                  }}
+                                                >
+                                                  {sizeLabel ||
+                                                    "Click to preview"}
+                                                </div>
                                               </div>
                                             </button>
                                           );
                                         })}
                                       </div>
                                     )}
-                                    {!revisionMeta.note && !revisionMeta.files?.length && (
-                                      <div style={{ padding: "10px 16px 14px", fontSize: 12, color: "#aaa", fontStyle: "italic" }}>No additional notes provided.</div>
-                                    )}
+                                    {!revisionMeta.note &&
+                                      !revisionMeta.files?.length && (
+                                        <div
+                                          style={{
+                                            padding: "10px 16px 14px",
+                                            fontSize: 12,
+                                            color: "#aaa",
+                                            fontStyle: "italic",
+                                          }}
+                                        >
+                                          No additional notes provided.
+                                        </div>
+                                      )}
                                   </div>
                                 );
                               }
@@ -1086,94 +3876,328 @@ export default function MyTasks() {
                               const versionNum = subVersionCounter;
                               const firstFile = files[0];
                               const submittedAt = firstFile?.submitted_at;
-                              const note = firstFile?.note || selected.submit_note || null;
-                              const isLatest = eventIdx === events.length - 1 && event.type === "submission";
+                              const note =
+                                firstFile?.note || selected.submit_note || null;
+                              const isLatest =
+                                eventIdx === events.length - 1 &&
+                                event.type === "submission";
                               const isNoteOnly = firstFile?._noteOnly;
                               return (
-                                <div key={groupKey} style={{
-                                  border: `1px solid ${isLatest ? "#d8b4fe" : "#e9d5ff"}`,
-                                  borderRadius: 12,
-                                  background: isLatest ? "#fdf9ff" : "white",
-                                  overflow: "hidden",
-                                  boxShadow: isLatest ? "0 0 0 3px rgba(124,58,237,0.06)" : "0 1px 4px rgba(124,58,237,0.04)",
-                                }}>
+                                <div
+                                  key={groupKey}
+                                  style={{
+                                    border: `1px solid ${isLatest ? "#d8b4fe" : "#e9d5ff"}`,
+                                    borderRadius: 12,
+                                    background: isLatest ? "#fdf9ff" : "white",
+                                    overflow: "hidden",
+                                    boxShadow: isLatest
+                                      ? "0 0 0 3px rgba(124,58,237,0.06)"
+                                      : "0 1px 4px rgba(124,58,237,0.04)",
+                                  }}
+                                >
                                   {/* Post header */}
-                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px 10px" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                      <div style={{
-                                        width: 36, height: 36, borderRadius: "50%",
-                                        background: "#ede9fe", color: "#5b21b6",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        fontSize: 13, fontWeight: 700, flexShrink: 0,
-                                        border: "2px solid #f3f0ff",
-                                      }}>
-                                        {(user.full_name?.[0] || user.username?.[0] || "?").toUpperCase()}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                      padding: "12px 16px 10px",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 10,
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          width: 36,
+                                          height: 36,
+                                          borderRadius: "50%",
+                                          background: "#ede9fe",
+                                          color: "#5b21b6",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          fontSize: 13,
+                                          fontWeight: 700,
+                                          flexShrink: 0,
+                                          border: "2px solid #f3f0ff",
+                                        }}
+                                      >
+                                        {(
+                                          user.full_name?.[0] ||
+                                          user.username?.[0] ||
+                                          "?"
+                                        ).toUpperCase()}
                                       </div>
                                       <div>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                          <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{user.full_name || user.username || "You"}</span>
-                                          <span style={{ fontSize: 10, background: "#ede9fe", color: "#5b21b6", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>Faculty</span>
-                                        </div>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-                                          <span style={{ fontSize: 10, color: "#888" }}>
-                                            {submittedAt ? fmtDateTime(submittedAt) : "Just now"}
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 7,
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: 13,
+                                              fontWeight: 700,
+                                              color: "#111",
+                                            }}
+                                          >
+                                            {user.full_name ||
+                                              user.username ||
+                                              "You"}
                                           </span>
-                                          <span style={{ fontSize: 9, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>
+                                          <span
+                                            style={{
+                                              fontSize: 10,
+                                              background: "#ede9fe",
+                                              color: "#5b21b6",
+                                              padding: "2px 8px",
+                                              borderRadius: 20,
+                                              fontWeight: 700,
+                                            }}
+                                          >
+                                            Faculty
+                                          </span>
+                                        </div>
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 6,
+                                            marginTop: 3,
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: 10,
+                                              color: "#888",
+                                            }}
+                                          >
+                                            {submittedAt
+                                              ? fmtDateTime(submittedAt)
+                                              : "Just now"}
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: 9,
+                                              background: "#fef3c7",
+                                              color: "#92400e",
+                                              padding: "1px 6px",
+                                              borderRadius: 20,
+                                              fontWeight: 700,
+                                            }}
+                                          >
                                             Version {versionNum}.0
                                           </span>
-                                          <span style={{ fontSize: 9, background: "#d1fae5", color: "#065f46", padding: "1px 6px", borderRadius: 20, fontWeight: 700 }}>
-                                            Status: {firstFile?._pending ? "Uploading…" : (selected.status || "Pending")}
+                                          <span
+                                            style={{
+                                              fontSize: 9,
+                                              background: "#d1fae5",
+                                              color: "#065f46",
+                                              padding: "1px 6px",
+                                              borderRadius: 20,
+                                              fontWeight: 700,
+                                            }}
+                                          >
+                                            Status:{" "}
+                                            {firstFile?._pending
+                                              ? "Uploading…"
+                                              : selected.status || "Pending"}
                                           </span>
                                         </div>
                                       </div>
                                     </div>
-                                    <button style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", display: "flex", alignItems: "center", justifyContent: "center", padding: 4 }}>
+                                    <button
+                                      style={{
+                                        background: "none",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        color: "#aaa",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        padding: 4,
+                                      }}
+                                    >
                                       <Icon.More />
                                     </button>
                                   </div>
 
                                   {/* Divider */}
-                                  <div style={{ height: 1, background: "#f3f0ff", margin: "0 16px" }} />
+                                  <div
+                                    style={{
+                                      height: 1,
+                                      background: "#f3f0ff",
+                                      margin: "0 16px",
+                                    }}
+                                  />
 
                                   {/* Submission body */}
-                                  <div style={{ padding: "10px 16px 2px", fontSize: 13, color: "#374151", lineHeight: 1.65 }}>
+                                  <div
+                                    style={{
+                                      padding: "10px 16px 2px",
+                                      fontSize: 13,
+                                      color: "#374151",
+                                      lineHeight: 1.65,
+                                    }}
+                                  >
                                     {note || (
-                                      <span>Submitted completed document{files.filter(f => !f._noteOnly).length > 1 ? "s" : ""} for review.</span>
+                                      <span>
+                                        Submitted completed document
+                                        {files.filter((f) => !f._noteOnly)
+                                          .length > 1
+                                          ? "s"
+                                          : ""}{" "}
+                                        for review.
+                                      </span>
                                     )}
                                   </div>
 
                                   {/* File chips — hidden for note-only entries */}
                                   {!isNoteOnly && (
-                                    <div style={{ padding: "12px 16px 14px", display: "flex", flexWrap: "wrap", gap: 10 }}>
+                                    <div
+                                      style={{
+                                        padding: "12px 16px 14px",
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 10,
+                                      }}
+                                    >
                                       {files.map((a, i) => {
-                                        const url = a._pending ? null : resolveFileUrl(a.file_url || a.url);
-                                        const name = a.file_name || a.name || "file";
-                                        const ext = name.split(".").pop().toLowerCase();
+                                        const url = a._pending
+                                          ? null
+                                          : resolveFileUrl(a.file_url || a.url);
+                                        const name =
+                                          a.file_name || a.name || "file";
+                                        const ext = name
+                                          .split(".")
+                                          .pop()
+                                          .toLowerCase();
                                         const isPdf = ext === "pdf";
-                                        const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
-                                        const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-                                        const sizeBytes = a.size || a.file_size || 0;
-                                        const sizeLabel = sizeBytes >= 1_048_576
-                                          ? `${(sizeBytes / 1_048_576).toFixed(1)} MB`
-                                          : sizeBytes > 0 ? `${(sizeBytes / 1024).toFixed(0)} KB` : null;
+                                        const isXlsx = [
+                                          "xlsx",
+                                          "xls",
+                                          "csv",
+                                        ].includes(ext);
+                                        const isImg = [
+                                          "jpg",
+                                          "jpeg",
+                                          "png",
+                                          "gif",
+                                          "webp",
+                                        ].includes(ext);
+                                        const sizeBytes =
+                                          a.size || a.file_size || 0;
+                                        const sizeLabel =
+                                          sizeBytes >= 1_048_576
+                                            ? `${(sizeBytes / 1_048_576).toFixed(1)} MB`
+                                            : sizeBytes > 0
+                                              ? `${(sizeBytes / 1024).toFixed(0)} KB`
+                                              : null;
                                         return (
-                                          <button key={i}
-                                            onClick={() => !a._pending && url && setFileViewer({ url, name, isPdf, isImg })}
-                                            style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: `1px solid ${a._pending ? "#e9d5ff" : "#e5e7eb"}`, borderRadius: 10, background: a._pending ? "#faf5ff" : "#fafafa", cursor: a._pending ? "default" : "pointer", textAlign: "left", minWidth: 176, opacity: a._pending ? 0.7 : 1, transition: "border-color 0.15s" }}
-                                            onMouseEnter={e => { if (!a._pending) e.currentTarget.style.borderColor = "#7c3aed"; }}
-                                            onMouseLeave={e => { if (!a._pending) e.currentTarget.style.borderColor = "#e5e7eb"; }}
+                                          <button
+                                            key={i}
+                                            onClick={() =>
+                                              !a._pending &&
+                                              url &&
+                                              setFileViewer({
+                                                url,
+                                                name,
+                                                isPdf,
+                                                isImg,
+                                              })
+                                            }
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: 10,
+                                              padding: "10px 14px",
+                                              border: `1px solid ${a._pending ? "#e9d5ff" : "#e5e7eb"}`,
+                                              borderRadius: 10,
+                                              background: a._pending
+                                                ? "#faf5ff"
+                                                : "#fafafa",
+                                              cursor: a._pending
+                                                ? "default"
+                                                : "pointer",
+                                              textAlign: "left",
+                                              minWidth: 176,
+                                              opacity: a._pending ? 0.7 : 1,
+                                              transition: "border-color 0.15s",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                              if (!a._pending)
+                                                e.currentTarget.style.borderColor =
+                                                  "#7c3aed";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                              if (!a._pending)
+                                                e.currentTarget.style.borderColor =
+                                                  "#e5e7eb";
+                                            }}
                                           >
-                                            <div style={{
-                                              width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                                              background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#ede9fe",
-                                              display: "flex", alignItems: "center", justifyContent: "center",
-                                            }}>
-                                              <span style={{ fontSize: 14 }}>{isPdf ? "📄" : isXlsx ? "📊" : isImg ? "🖼️" : "📎"}</span>
+                                            <div
+                                              style={{
+                                                width: 34,
+                                                height: 34,
+                                                borderRadius: 8,
+                                                flexShrink: 0,
+                                                background: isPdf
+                                                  ? "#fee2e2"
+                                                  : isXlsx
+                                                    ? "#d1fae5"
+                                                    : isImg
+                                                      ? "#dbeafe"
+                                                      : "#ede9fe",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                              }}
+                                            >
+                                              <span style={{ fontSize: 14 }}>
+                                                {isPdf
+                                                  ? "📄"
+                                                  : isXlsx
+                                                    ? "📊"
+                                                    : isImg
+                                                      ? "🖼️"
+                                                      : "📎"}
+                                              </span>
                                             </div>
                                             <div style={{ minWidth: 0 }}>
-                                              <div style={{ fontSize: 12, fontWeight: 700, color: "#111", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
-                                              <div style={{ fontSize: 10, color: a._pending ? "#a78bfa" : "#7c3aed", marginTop: 2, fontWeight: 600 }}>
-                                                {a._pending ? "Uploading…" : (sizeLabel || "Click to preview")}
+                                              <div
+                                                style={{
+                                                  fontSize: 12,
+                                                  fontWeight: 700,
+                                                  color: "#111",
+                                                  maxWidth: 150,
+                                                  overflow: "hidden",
+                                                  textOverflow: "ellipsis",
+                                                  whiteSpace: "nowrap",
+                                                }}
+                                              >
+                                                {name}
+                                              </div>
+                                              <div
+                                                style={{
+                                                  fontSize: 10,
+                                                  color: a._pending
+                                                    ? "#a78bfa"
+                                                    : "#7c3aed",
+                                                  marginTop: 2,
+                                                  fontWeight: 600,
+                                                }}
+                                              >
+                                                {a._pending
+                                                  ? "Uploading…"
+                                                  : sizeLabel ||
+                                                    "Click to preview"}
                                               </div>
                                             </div>
                                           </button>
@@ -1183,7 +4207,9 @@ export default function MyTasks() {
                                   )}
 
                                   {/* Pad bottom if note-only */}
-                                  {isNoteOnly && <div style={{ paddingBottom: 4 }} />}
+                                  {isNoteOnly && (
+                                    <div style={{ paddingBottom: 4 }} />
+                                  )}
                                 </div>
                               );
                             })}
@@ -1193,24 +4219,101 @@ export default function MyTasks() {
 
                       {/* SUBMIT TASK */}
                       {(() => {
-                        const alreadySubmitted = ["for approval", "approved", "done"].includes(selected.status?.toLowerCase());
+                        const alreadySubmitted = [
+                          "for approval",
+                          "approved",
+                          "done",
+                        ].includes(selected.status?.toLowerCase());
                         return (
-                          <div style={{ marginBottom: 24, padding: "16px", background: alreadySubmitted ? "#f0fdf4" : "#f8f5ff", border: `1px solid ${alreadySubmitted ? "#bbf7d0" : "#e9d5ff"}`, borderRadius: 12 }}>
-                            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: alreadySubmitted ? "#059669" : "#7c3aed", textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                          <div
+                            style={{
+                              marginBottom: 24,
+                              padding: "16px",
+                              background: alreadySubmitted
+                                ? "#f0fdf4"
+                                : "#f8f5ff",
+                              border: `1px solid ${alreadySubmitted ? "#bbf7d0" : "#e9d5ff"}`,
+                              borderRadius: 12,
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                letterSpacing: 1,
+                                color: alreadySubmitted ? "#059669" : "#7c3aed",
+                                textTransform: "uppercase",
+                                marginBottom: 10,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                              }}
+                            >
                               {alreadySubmitted ? (
                                 <>
-                                  <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="2" width="12" height="12"><path d="M13 5l-7 7-3-3" strokeLinecap="round" /></svg>
+                                  <svg
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    stroke="#059669"
+                                    strokeWidth="2"
+                                    width="12"
+                                    height="12"
+                                  >
+                                    <path
+                                      d="M13 5l-7 7-3-3"
+                                      strokeLinecap="round"
+                                    />
+                                  </svg>
                                   Task Submitted
                                 </>
-                              ) : "Submit Task"}
+                              ) : (
+                                "Submit Task"
+                              )}
                             </div>
 
                             {alreadySubmitted ? (
-                              <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#dcfce7", border: "1px solid #bbf7d0", borderRadius: 8, marginBottom: submitFiles.length ? 10 : 0 }}>
-                                  <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M5 8l2.5 2.5L11 5.5" strokeLinecap="round" /></svg>
-                                  <span style={{ fontSize: 12, color: "#065f46", fontWeight: 600 }}>
-                                    Submitted — awaiting review by the assigning officer.
+                              <div
+                                style={{
+                                  fontSize: 12,
+                                  color: "#374151",
+                                  lineHeight: 1.6,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    padding: "8px 10px",
+                                    background: "#dcfce7",
+                                    border: "1px solid #bbf7d0",
+                                    borderRadius: 8,
+                                    marginBottom: submitFiles.length ? 10 : 0,
+                                  }}
+                                >
+                                  <svg
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    stroke="#059669"
+                                    strokeWidth="1.5"
+                                    width="14"
+                                    height="14"
+                                  >
+                                    <circle cx="8" cy="8" r="6" />
+                                    <path
+                                      d="M5 8l2.5 2.5L11 5.5"
+                                      strokeLinecap="round"
+                                    />
+                                  </svg>
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      color: "#065f46",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    Submitted — awaiting review by the assigning
+                                    officer.
                                   </span>
                                 </div>
                               </div>
@@ -1218,28 +4321,58 @@ export default function MyTasks() {
                               <>
                                 <textarea
                                   value={submitNote}
-                                  onChange={e => setSubmitNote(e.target.value)}
+                                  onChange={(e) =>
+                                    setSubmitNote(e.target.value)
+                                  }
                                   rows={3}
                                   placeholder="Add a note about your submission (optional)..."
-                                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #e9d5ff", borderRadius: 8, fontSize: 13, color: "#111", resize: "vertical", fontFamily: "inherit", lineHeight: 1.5, background: "white", boxSizing: "border-box", outline: "none", marginBottom: 10 }}
+                                  style={{
+                                    width: "100%",
+                                    padding: "10px 12px",
+                                    border: "1px solid #e9d5ff",
+                                    borderRadius: 8,
+                                    fontSize: 13,
+                                    color: "#111",
+                                    resize: "vertical",
+                                    fontFamily: "inherit",
+                                    lineHeight: 1.5,
+                                    background: "white",
+                                    boxSizing: "border-box",
+                                    outline: "none",
+                                    marginBottom: 10,
+                                  }}
                                 />
 
                                 {/* File attachment drop zone */}
                                 <div
-                                  onDragOver={e => { e.preventDefault(); setSubmitDragOver(true); }}
+                                  onDragOver={(e) => {
+                                    e.preventDefault();
+                                    setSubmitDragOver(true);
+                                  }}
                                   onDragLeave={() => setSubmitDragOver(false)}
-                                  onDrop={e => {
+                                  onDrop={(e) => {
                                     e.preventDefault();
                                     setSubmitDragOver(false);
-                                    const dropped = Array.from(e.dataTransfer.files);
-                                    setSubmitFiles(prev => [...prev, ...dropped]);
+                                    const dropped = Array.from(
+                                      e.dataTransfer.files,
+                                    );
+                                    setSubmitFiles((prev) => [
+                                      ...prev,
+                                      ...dropped,
+                                    ]);
                                   }}
-                                  onClick={() => document.getElementById("submit-file-input").click()}
+                                  onClick={() =>
+                                    document
+                                      .getElementById("submit-file-input")
+                                      .click()
+                                  }
                                   style={{
                                     border: `2px dashed ${submitDragOver ? "#7c3aed" : "#d8b4fe"}`,
                                     borderRadius: 8,
                                     padding: "14px 12px",
-                                    background: submitDragOver ? "#f5f0ff" : "white",
+                                    background: submitDragOver
+                                      ? "#f5f0ff"
+                                      : "white",
                                     cursor: "pointer",
                                     textAlign: "center",
                                     marginBottom: 10,
@@ -1251,44 +4384,164 @@ export default function MyTasks() {
                                     type="file"
                                     multiple
                                     style={{ display: "none" }}
-                                    onChange={e => {
+                                    onChange={(e) => {
                                       const picked = Array.from(e.target.files);
-                                      setSubmitFiles(prev => [...prev, ...picked]);
+                                      setSubmitFiles((prev) => [
+                                        ...prev,
+                                        ...picked,
+                                      ]);
                                       e.target.value = "";
                                     }}
                                   />
-                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, color: "#7c3aed" }}>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 7,
+                                      color: "#7c3aed",
+                                    }}
+                                  >
                                     <Icon.Attach />
-                                    <span style={{ fontSize: 12, fontWeight: 600, color: "#7c3aed" }}>Attach files</span>
-                                    <span style={{ fontSize: 11, color: "#a78bfa" }}>or drag & drop here</span>
+                                    <span
+                                      style={{
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        color: "#7c3aed",
+                                      }}
+                                    >
+                                      Attach files
+                                    </span>
+                                    <span
+                                      style={{ fontSize: 11, color: "#a78bfa" }}
+                                    >
+                                      or drag & drop here
+                                    </span>
                                   </div>
-                                  <div style={{ fontSize: 10, color: "#c4b5fd", marginTop: 4 }}>PDF, Word, images and more — up to 20 MB each</div>
+                                  <div
+                                    style={{
+                                      fontSize: 10,
+                                      color: "#c4b5fd",
+                                      marginTop: 4,
+                                    }}
+                                  >
+                                    PDF, Word, images and more — up to 20 MB
+                                    each
+                                  </div>
                                 </div>
 
                                 {/* Staged file chips */}
                                 {submitFiles.length > 0 && (
-                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexWrap: "wrap",
+                                      gap: 8,
+                                      marginBottom: 10,
+                                    }}
+                                  >
                                     {submitFiles.map((f, i) => {
-                                      const ext = f.name.split(".").pop().toLowerCase();
+                                      const ext = f.name
+                                        .split(".")
+                                        .pop()
+                                        .toLowerCase();
                                       const isPdf = ext === "pdf";
-                                      const isXlsx = ["xlsx", "xls", "csv"].includes(ext);
-                                      const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+                                      const isXlsx = [
+                                        "xlsx",
+                                        "xls",
+                                        "csv",
+                                      ].includes(ext);
+                                      const isImg = [
+                                        "jpg",
+                                        "jpeg",
+                                        "png",
+                                        "gif",
+                                        "webp",
+                                      ].includes(ext);
                                       return (
-                                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, background: "white", border: "1px solid #e9d5ff", borderRadius: 10, padding: "8px 12px 8px 10px", minWidth: 160 }}>
-                                          <div style={{
-                                            width: 32, height: 32, borderRadius: 6, flexShrink: 0,
-                                            background: isPdf ? "#fee2e2" : isXlsx ? "#d1fae5" : isImg ? "#dbeafe" : "#ede9fe",
-                                            display: "flex", alignItems: "center", justifyContent: "center",
-                                          }}>
-                                            <span style={{ fontSize: 13 }}>{isPdf ? "📄" : isXlsx ? "📊" : isImg ? "🖼️" : "📎"}</span>
+                                        <div
+                                          key={i}
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 8,
+                                            background: "white",
+                                            border: "1px solid #e9d5ff",
+                                            borderRadius: 10,
+                                            padding: "8px 12px 8px 10px",
+                                            minWidth: 160,
+                                          }}
+                                        >
+                                          <div
+                                            style={{
+                                              width: 32,
+                                              height: 32,
+                                              borderRadius: 6,
+                                              flexShrink: 0,
+                                              background: isPdf
+                                                ? "#fee2e2"
+                                                : isXlsx
+                                                  ? "#d1fae5"
+                                                  : isImg
+                                                    ? "#dbeafe"
+                                                    : "#ede9fe",
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center",
+                                            }}
+                                          >
+                                            <span style={{ fontSize: 13 }}>
+                                              {isPdf
+                                                ? "📄"
+                                                : isXlsx
+                                                  ? "📊"
+                                                  : isImg
+                                                    ? "🖼️"
+                                                    : "📎"}
+                                            </span>
                                           </div>
                                           <div style={{ minWidth: 0, flex: 1 }}>
-                                            <div style={{ fontSize: 11, fontWeight: 700, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 130 }}>{f.name}</div>
-                                            <div style={{ fontSize: 10, color: "#a78bfa" }}>{(f.size / 1024).toFixed(0)} KB</div>
+                                            <div
+                                              style={{
+                                                fontSize: 11,
+                                                fontWeight: 700,
+                                                color: "#111",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap",
+                                                maxWidth: 130,
+                                              }}
+                                            >
+                                              {f.name}
+                                            </div>
+                                            <div
+                                              style={{
+                                                fontSize: 10,
+                                                color: "#a78bfa",
+                                              }}
+                                            >
+                                              {(f.size / 1024).toFixed(0)} KB
+                                            </div>
                                           </div>
                                           <button
-                                            onClick={e => { e.stopPropagation(); setSubmitFiles(prev => prev.filter((_, idx) => idx !== i)); }}
-                                            style={{ background: "none", border: "none", cursor: "pointer", color: "#a78bfa", padding: 0, display: "flex", alignItems: "center", flexShrink: 0 }}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSubmitFiles((prev) =>
+                                                prev.filter(
+                                                  (_, idx) => idx !== i,
+                                                ),
+                                              );
+                                            }}
+                                            style={{
+                                              background: "none",
+                                              border: "none",
+                                              cursor: "pointer",
+                                              color: "#a78bfa",
+                                              padding: 0,
+                                              display: "flex",
+                                              alignItems: "center",
+                                              flexShrink: 0,
+                                            }}
                                           >
                                             <Icon.Close />
                                           </button>
@@ -1301,11 +4554,48 @@ export default function MyTasks() {
                                 <button
                                   onClick={() => handleSubmitTask(selected.id)}
                                   disabled={submitting}
-                                  style={{ width: "100%", padding: "10px", borderRadius: 8, border: "none", background: "#7c3aed", color: "white", fontSize: 13, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                                  onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = "#6d28d9"; }}
-                                  onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = "#7c3aed"; }}
+                                  style={{
+                                    width: "100%",
+                                    padding: "10px",
+                                    borderRadius: 8,
+                                    border: "none",
+                                    background: "#7c3aed",
+                                    color: "white",
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    cursor: submitting
+                                      ? "not-allowed"
+                                      : "pointer",
+                                    opacity: submitting ? 0.7 : 1,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: 6,
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!submitting)
+                                      e.currentTarget.style.background =
+                                        "#6d28d9";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!submitting)
+                                      e.currentTarget.style.background =
+                                        "#7c3aed";
+                                  }}
                                 >
-                                  <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2" width="13" height="13"><path d="M8 1v10M4 7l4 4 4-4M2 14h12" strokeLinecap="round" /></svg>
+                                  <svg
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    stroke="white"
+                                    strokeWidth="2"
+                                    width="13"
+                                    height="13"
+                                  >
+                                    <path
+                                      d="M8 1v10M4 7l4 4 4-4M2 14h12"
+                                      strokeLinecap="round"
+                                    />
+                                  </svg>
                                   {submitting ? "Submitting..." : "Submit Task"}
                                 </button>
                               </>
@@ -1315,100 +4605,318 @@ export default function MyTasks() {
                       })()}
 
                       {/* DISCUSSION */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Discussion</div>
-                      <div ref={el => { if (el) el.scrollTop = el.scrollHeight; }} style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 16, maxHeight: 320, overflowY: "auto" }}>
-                        {(selected.comments || []).length === 0
-                          ? <div style={{ fontSize: 12, color: "#ccc", fontStyle: "italic" }}>No comments yet.</div>
-                          : (selected.comments || []).map((c, i) => {
-                            const isAttachment = c.content?.startsWith("__attachment__");
-                            const isRevision = c.content?.startsWith("__revision__");
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: 1,
+                          color: "#aaa",
+                          textTransform: "uppercase",
+                          marginBottom: 14,
+                        }}
+                      >
+                        Discussion
+                      </div>
+                      <div
+                        ref={(el) => {
+                          if (el) el.scrollTop = el.scrollHeight;
+                        }}
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 14,
+                          marginBottom: 16,
+                          maxHeight: 320,
+                          overflowY: "auto",
+                        }}
+                      >
+                        {(selected.comments || []).length === 0 ? (
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: "#ccc",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            No comments yet.
+                          </div>
+                        ) : (
+                          (selected.comments || []).map((c, i) => {
+                            const isAttachment =
+                              c.content?.startsWith("__attachment__");
+                            const isRevision =
+                              c.content?.startsWith("__revision__");
                             // Revision posts are shown in the Activity feed above — skip in Discussion
                             if (isRevision) return null;
                             let attachMeta = null;
                             if (isAttachment) {
-                              try { attachMeta = JSON.parse(c.content.replace("__attachment__", "")); } catch { }
+                              try {
+                                attachMeta = JSON.parse(
+                                  c.content.replace("__attachment__", ""),
+                                );
+                              } catch {}
                               // Recompute isImg from the filename rather than trusting the stored flag —
                               // older/backend-echoed comments may omit or lose this field.
-                              if (attachMeta) attachMeta.isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(attachMeta.name || "");
+                              if (attachMeta)
+                                attachMeta.isImg =
+                                  /\.(jpg|jpeg|png|gif|webp)$/i.test(
+                                    attachMeta.name || "",
+                                  );
                             }
 
-                            const isSubmission = c.content?.startsWith("📤 Task submitted:");
+                            const isSubmission =
+                              c.content?.startsWith("📤 Task submitted:");
 
                             // If this submission was later returned for revision, show a "Returned" indicator
                             let wasReturned = false;
                             if (isSubmission && c.created_at) {
                               const cts = new Date(c.created_at).getTime();
-                              wasReturned = (selected.comments || []).some(rc => {
-                                if (!rc.content?.startsWith("__revision__") || !rc.created_at) return false;
-                                return new Date(rc.created_at).getTime() > cts;
-                              });
+                              wasReturned = (selected.comments || []).some(
+                                (rc) => {
+                                  if (
+                                    !rc.content?.startsWith("__revision__") ||
+                                    !rc.created_at
+                                  )
+                                    return false;
+                                  return (
+                                    new Date(rc.created_at).getTime() > cts
+                                  );
+                                },
+                              );
                             }
 
                             return (
-                              <div key={i} style={{ display: "flex", gap: 10, opacity: c._pending ? 0.55 : 1, transition: "opacity 0.3s" }}>
-                                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                              <div
+                                key={i}
+                                style={{
+                                  display: "flex",
+                                  gap: 10,
+                                  opacity: c._pending ? 0.55 : 1,
+                                  transition: "opacity 0.3s",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: "50%",
+                                    background: "#ede9fe",
+                                    color: "#5b21b6",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    flexShrink: 0,
+                                  }}
+                                >
                                   {(c.sender_name?.[0] || "?").toUpperCase()}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 5 }}>
-                                    <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{c.sender_name}</span>
-                                    <span style={{ fontSize: 11, color: "#aaa" }}>{c._pending ? "Sending..." : fmtDateTime(c.created_at)}</span>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      gap: 8,
+                                      alignItems: "center",
+                                      marginBottom: 5,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontSize: 13,
+                                        fontWeight: 700,
+                                        color: "#111",
+                                      }}
+                                    >
+                                      {c.sender_name}
+                                    </span>
+                                    <span
+                                      style={{ fontSize: 11, color: "#aaa" }}
+                                    >
+                                      {c._pending
+                                        ? "Sending..."
+                                        : fmtDateTime(c.created_at)}
+                                    </span>
                                   </div>
                                   {isAttachment && attachMeta ? (
                                     attachMeta.isImg ? (
                                       <img
                                         src={resolveFileUrl(attachMeta.url)}
                                         alt={attachMeta.name}
-                                        style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, border: "1px solid #e5e7eb", display: "block", cursor: "pointer" }}
-                                        onClick={() => setFileViewer({ url: resolveFileUrl(attachMeta.url), name: attachMeta.name, isPdf: false, isImg: true })}
+                                        style={{
+                                          maxWidth: "100%",
+                                          maxHeight: 220,
+                                          borderRadius: 8,
+                                          border: "1px solid #e5e7eb",
+                                          display: "block",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() =>
+                                          setFileViewer({
+                                            url: resolveFileUrl(attachMeta.url),
+                                            name: attachMeta.name,
+                                            isPdf: false,
+                                            isImg: true,
+                                          })
+                                        }
                                       />
                                     ) : (
                                       <div
-                                        onClick={() => setFileViewer({ url: resolveFileUrl(attachMeta.url), name: attachMeta.name, isPdf: attachMeta.name?.toLowerCase().endsWith(".pdf"), isImg: false })}
-                                        style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f5f3ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "8px 12px", cursor: "pointer", maxWidth: 280 }}
+                                        onClick={() =>
+                                          setFileViewer({
+                                            url: resolveFileUrl(attachMeta.url),
+                                            name: attachMeta.name,
+                                            isPdf: attachMeta.name
+                                              ?.toLowerCase()
+                                              .endsWith(".pdf"),
+                                            isImg: false,
+                                          })
+                                        }
+                                        style={{
+                                          display: "inline-flex",
+                                          alignItems: "center",
+                                          gap: 8,
+                                          background: "#f5f3ff",
+                                          border: "1px solid #e9d5ff",
+                                          borderRadius: 8,
+                                          padding: "8px 12px",
+                                          cursor: "pointer",
+                                          maxWidth: 280,
+                                        }}
                                       >
-                                        <div style={{ width: 30, height: 30, background: "#ede9fe", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                        <div
+                                          style={{
+                                            width: 30,
+                                            height: 30,
+                                            background: "#ede9fe",
+                                            borderRadius: 6,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            flexShrink: 0,
+                                          }}
+                                        >
                                           <Icon.Attach />
                                         </div>
                                         <div style={{ minWidth: 0 }}>
-                                          <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{attachMeta.name}</div>
-                                          <div style={{ fontSize: 10, color: "#7c3aed", fontWeight: 600 }}>Click to preview</div>
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              fontWeight: 700,
+                                              color: "#374151",
+                                              whiteSpace: "nowrap",
+                                              overflow: "hidden",
+                                              textOverflow: "ellipsis",
+                                              maxWidth: 200,
+                                            }}
+                                          >
+                                            {attachMeta.name}
+                                          </div>
+                                          <div
+                                            style={{
+                                              fontSize: 10,
+                                              color: "#7c3aed",
+                                              fontWeight: 600,
+                                            }}
+                                          >
+                                            Click to preview
+                                          </div>
                                         </div>
                                       </div>
                                     )
                                   ) : isSubmission ? (
-                                    <div style={{
-                                      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-                                      fontSize: 13, color: "#374151", lineHeight: 1.6,
-                                      background: wasReturned ? "#fff8f8" : "#f0fdf4",
-                                      border: `1px solid ${wasReturned ? "#fecaca" : "#bbf7d0"}`,
-                                      borderRadius: 8, padding: "8px 12px",
-                                    }}>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        gap: 10,
+                                        fontSize: 13,
+                                        color: "#374151",
+                                        lineHeight: 1.6,
+                                        background: wasReturned
+                                          ? "#fff8f8"
+                                          : "#f0fdf4",
+                                        border: `1px solid ${wasReturned ? "#fecaca" : "#bbf7d0"}`,
+                                        borderRadius: 8,
+                                        padding: "8px 12px",
+                                      }}
+                                    >
                                       <span>{c.content}</span>
                                       {wasReturned && (
-                                        <span style={{ flexShrink: 0, fontSize: 9, background: "#fee2e2", color: "#991b1b", padding: "2px 8px", borderRadius: 20, fontWeight: 700, whiteSpace: "nowrap" }}>
+                                        <span
+                                          style={{
+                                            flexShrink: 0,
+                                            fontSize: 9,
+                                            background: "#fee2e2",
+                                            color: "#991b1b",
+                                            padding: "2px 8px",
+                                            borderRadius: 20,
+                                            fontWeight: 700,
+                                            whiteSpace: "nowrap",
+                                          }}
+                                        >
                                           ↺ Returned
                                         </span>
                                       )}
                                     </div>
                                   ) : (
-                                    <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>{c.content}</div>
+                                    <div
+                                      style={{
+                                        fontSize: 13,
+                                        color: "#374151",
+                                        lineHeight: 1.6,
+                                      }}
+                                    >
+                                      {c.content}
+                                    </div>
                                   )}
                                 </div>
                               </div>
                             );
-                          })}
+                          })
+                        )}
                       </div>
 
                       {/* Typing indicator */}
                       {typingUsers.length > 0 && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                          <div style={{ display: "flex", gap: 3, alignItems: "center" }}>
-                            {[0, 1, 2].map(i => (
-                              <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: "#7c3aed", animation: "typingBounce 1.2s infinite ease-in-out", animationDelay: `${i * 0.2}s` }} />
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            marginBottom: 10,
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 3,
+                              alignItems: "center",
+                            }}
+                          >
+                            {[0, 1, 2].map((i) => (
+                              <div
+                                key={i}
+                                style={{
+                                  width: 5,
+                                  height: 5,
+                                  borderRadius: "50%",
+                                  background: "#7c3aed",
+                                  animation:
+                                    "typingBounce 1.2s infinite ease-in-out",
+                                  animationDelay: `${i * 0.2}s`,
+                                }}
+                              />
                             ))}
                           </div>
-                          <span style={{ fontSize: 11, color: "#7c3aed", fontStyle: "italic" }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: "#7c3aed",
+                              fontStyle: "italic",
+                            }}
+                          >
                             {typingUsers.length === 1
                               ? `${typingUsers[0].name} is typing…`
                               : typingUsers.length === 2
@@ -1419,39 +4927,167 @@ export default function MyTasks() {
                       )}
 
                       {/* Comment input */}
-                      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
-                          {(user.full_name?.[0] || user.username?.[0] || "?").toUpperCase()}
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 10,
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: "50%",
+                            background: "#ede9fe",
+                            color: "#5b21b6",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            flexShrink: 0,
+                            marginTop: 2,
+                          }}
+                        >
+                          {(
+                            user.full_name?.[0] ||
+                            user.username?.[0] ||
+                            "?"
+                          ).toUpperCase()}
                         </div>
-                        <div style={{ flex: 1, border: "1px solid #e5e7eb", borderRadius: 10, background: "white" }}>
-                          <input type="text" value={comment} onChange={handleCommentChange}
-                            onKeyDown={e => { if (e.key === "Enter") { emitTyping(false); if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current); handlePostComment(); } }}
+                        <div
+                          style={{
+                            flex: 1,
+                            border: "1px solid #e5e7eb",
+                            borderRadius: 10,
+                            background: "white",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            value={comment}
+                            onChange={handleCommentChange}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                emitTyping(false);
+                                if (typingTimeoutRef.current)
+                                  clearTimeout(typingTimeoutRef.current);
+                                handlePostComment();
+                              }
+                            }}
                             placeholder="Write a comment..."
-                            style={{ width: "100%", padding: "10px 14px", border: "none", outline: "none", fontSize: 13, background: "transparent", borderRadius: "10px 10px 0 0" }} />
+                            style={{
+                              width: "100%",
+                              padding: "10px 14px",
+                              border: "none",
+                              outline: "none",
+                              fontSize: 13,
+                              background: "transparent",
+                              borderRadius: "10px 10px 0 0",
+                            }}
+                          />
 
                           {/* Staged file previews */}
                           {commentFiles.length > 0 && (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "8px 10px", borderTop: "1px solid #f0f0f0", background: "#fafafa" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 8,
+                                padding: "8px 10px",
+                                borderTop: "1px solid #f0f0f0",
+                                background: "#fafafa",
+                              }}
+                            >
                               {commentFiles.map((f, i) => {
-                                const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name);
+                                const isImg =
+                                  /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name);
                                 const objUrl = commentFilePreviews[i];
                                 return (
-                                  <div key={i} style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 6, background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 8, padding: "4px 8px 4px 6px", fontSize: 11, maxWidth: 180 }}>
+                                  <div
+                                    key={i}
+                                    style={{
+                                      position: "relative",
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 6,
+                                      background: "#f5f3ff",
+                                      border: "1px solid #ddd6fe",
+                                      borderRadius: 8,
+                                      padding: "4px 8px 4px 6px",
+                                      fontSize: 11,
+                                      maxWidth: 180,
+                                    }}
+                                  >
                                     {isImg ? (
-                                      <img src={objUrl} alt={f.name} style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 6, display: "block", flexShrink: 0 }} />
+                                      <img
+                                        src={objUrl}
+                                        alt={f.name}
+                                        style={{
+                                          width: 52,
+                                          height: 52,
+                                          objectFit: "cover",
+                                          borderRadius: 6,
+                                          display: "block",
+                                          flexShrink: 0,
+                                        }}
+                                      />
                                     ) : (
                                       <>
-                                        <span style={{ fontSize: 18, flexShrink: 0 }}>📄</span>
-                                        <span style={{ maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#374151", fontWeight: 600, fontSize: 11 }}>{f.name}</span>
+                                        <span
+                                          style={{
+                                            fontSize: 18,
+                                            flexShrink: 0,
+                                          }}
+                                        >
+                                          📄
+                                        </span>
+                                        <span
+                                          style={{
+                                            maxWidth: 110,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            color: "#374151",
+                                            fontWeight: 600,
+                                            fontSize: 11,
+                                          }}
+                                        >
+                                          {f.name}
+                                        </span>
                                       </>
                                     )}
                                     <button
                                       onClick={() => {
-                                        URL.revokeObjectURL(commentFilePreviews[i]);
-                                        setCommentFiles(prev => prev.filter((_, idx) => idx !== i));
-                                        setCommentFilePreviews(prev => prev.filter((_, idx) => idx !== i));
+                                        URL.revokeObjectURL(
+                                          commentFilePreviews[i],
+                                        );
+                                        setCommentFiles((prev) =>
+                                          prev.filter((_, idx) => idx !== i),
+                                        );
+                                        setCommentFilePreviews((prev) =>
+                                          prev.filter((_, idx) => idx !== i),
+                                        );
                                       }}
-                                      style={{ position: "absolute", top: -6, right: -6, background: "#fff", border: "1px solid #e5e7eb", borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0, flexShrink: 0, boxShadow: "0 1px 3px rgba(0,0,0,0.15)", zIndex: 1 }}
+                                      style={{
+                                        position: "absolute",
+                                        top: -6,
+                                        right: -6,
+                                        background: "#fff",
+                                        border: "1px solid #e5e7eb",
+                                        borderRadius: "50%",
+                                        width: 18,
+                                        height: 18,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        cursor: "pointer",
+                                        padding: 0,
+                                        flexShrink: 0,
+                                        boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                                        zIndex: 1,
+                                      }}
                                     >
                                       <Icon.Close />
                                     </button>
@@ -1461,30 +5097,92 @@ export default function MyTasks() {
                             </div>
                           )}
 
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", borderTop: "1px solid #f0f0f0", background: "#fafafa", borderRadius: "0 0 10px 10px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "6px 10px",
+                              borderTop: "1px solid #f0f0f0",
+                              background: "#fafafa",
+                              borderRadius: "0 0 10px 10px",
+                            }}
+                          >
                             <input
                               ref={commentFileInputRef}
                               type="file"
                               multiple
                               style={{ display: "none" }}
-                              onChange={e => {
+                              onChange={(e) => {
                                 const newFiles = Array.from(e.target.files);
-                                const newUrls = newFiles.map(f => URL.createObjectURL(f));
-                                setCommentFiles(prev => [...prev, ...newFiles]);
-                                setCommentFilePreviews(prev => [...prev, ...newUrls]);
+                                const newUrls = newFiles.map((f) =>
+                                  URL.createObjectURL(f),
+                                );
+                                setCommentFiles((prev) => [
+                                  ...prev,
+                                  ...newFiles,
+                                ]);
+                                setCommentFilePreviews((prev) => [
+                                  ...prev,
+                                  ...newUrls,
+                                ]);
                                 e.target.value = "";
                               }}
                             />
                             <button
-                              onClick={() => commentFileInputRef.current?.click()}
+                              onClick={() =>
+                                commentFileInputRef.current?.click()
+                              }
                               title="Attach image or file"
-                              style={{ background: "none", border: "none", cursor: "pointer", color: commentFiles.length > 0 ? "#7c3aed" : "#888", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600 }}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                color:
+                                  commentFiles.length > 0 ? "#7c3aed" : "#888",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 4,
+                                fontSize: 11,
+                                fontWeight: 600,
+                              }}
                             >
                               <Icon.Attach />
-                              {commentFiles.length > 0 && <span style={{ fontSize: 10, background: "#7c3aed", color: "white", borderRadius: 10, padding: "1px 5px" }}>{commentFiles.length}</span>}
+                              {commentFiles.length > 0 && (
+                                <span
+                                  style={{
+                                    fontSize: 10,
+                                    background: "#7c3aed",
+                                    color: "white",
+                                    borderRadius: 10,
+                                    padding: "1px 5px",
+                                  }}
+                                >
+                                  {commentFiles.length}
+                                </span>
+                              )}
                             </button>
-                            <button onClick={() => { emitTyping(false); if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current); handlePostComment(); }}
-                              style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 16px", borderRadius: 7, border: "none", background: "#7c3aed", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                            <button
+                              onClick={() => {
+                                emitTyping(false);
+                                if (typingTimeoutRef.current)
+                                  clearTimeout(typingTimeoutRef.current);
+                                handlePostComment();
+                              }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 5,
+                                padding: "5px 16px",
+                                borderRadius: 7,
+                                border: "none",
+                                background: "#7c3aed",
+                                color: "white",
+                                fontSize: 12,
+                                fontWeight: 700,
+                                cursor: "pointer",
+                              }}
+                            >
                               ↑ Post
                             </button>
                           </div>
@@ -1493,39 +5191,215 @@ export default function MyTasks() {
                     </div>
 
                     {/* Right sidebar — matches TaskAssigned layout */}
-                    <div style={{ width: 260, flexShrink: 0, padding: "20px", overflowY: "auto", position: "sticky", top: 0, alignSelf: "flex-start", maxHeight: "100vh", borderLeft: "1px solid #f0f0f0" }}>
-
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginBottom: 14 }}>Task Timeline</div>
-                      <TimelineItem label="Task Created" value={`by ${selected.assigned_by_name || "—"}`} sub={fmtDate(selected.created_at)} dot="#7c3aed" />
-                      <TimelineItem label="Assigned to You" value={selected.assigned_by_name || "—"} sub={fmtDate(selected.assigned_at || selected.created_at)} dot="#7c3aed" />
-                      {selected.submitted_at && <TimelineItem label="Submitted" value="by You" sub={fmtDateTime(selected.submitted_at)} dot="#059669" />}
-                      {selected.approved_at && <TimelineItem label="Approved" value={`by ${selected.approved_by_name || "—"}`} sub={fmtDateTime(selected.approved_at)} dot="#059669" />}
-                      {selected.returned_at && <TimelineItem label="Returned" value={`by ${selected.returned_by_name || "—"}`} sub={fmtDateTime(selected.returned_at)} dot="#dc2626" />}
-                      <TimelineItem label="Current Status" value={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) ? "Approved" : (selected.status || "—")} dot={APPROVED_STATUSES.includes(selected.status?.toLowerCase()) || selected.status?.toLowerCase() === "done" ? "#059669" : selected.status?.toLowerCase() === "overdue" || selected.status?.toLowerCase() === "returned" ? "#dc2626" : "#d1d5db"} isLast />
+                    <div
+                      style={{
+                        width: 260,
+                        flexShrink: 0,
+                        padding: "20px",
+                        overflowY: "auto",
+                        position: "sticky",
+                        top: 0,
+                        alignSelf: "flex-start",
+                        maxHeight: "100vh",
+                        borderLeft: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: 1,
+                          color: "#aaa",
+                          textTransform: "uppercase",
+                          marginBottom: 14,
+                        }}
+                      >
+                        Task Timeline
+                      </div>
+                      <TimelineItem
+                        label="Task Created"
+                        value={`by ${selected.assigned_by_name || "—"}`}
+                        sub={fmtDate(selected.created_at)}
+                        dot="#7c3aed"
+                      />
+                      <TimelineItem
+                        label="Assigned to You"
+                        value={selected.assigned_by_name || "—"}
+                        sub={fmtDate(
+                          selected.assigned_at || selected.created_at,
+                        )}
+                        dot="#7c3aed"
+                      />
+                      {selected.submitted_at && (
+                        <TimelineItem
+                          label="Submitted"
+                          value="by You"
+                          sub={fmtDateTime(selected.submitted_at)}
+                          dot="#059669"
+                        />
+                      )}
+                      {selected.approved_at && (
+                        <TimelineItem
+                          label="Approved"
+                          value={`by ${selected.approved_by_name || "—"}`}
+                          sub={fmtDateTime(selected.approved_at)}
+                          dot="#059669"
+                        />
+                      )}
+                      {selected.returned_at && (
+                        <TimelineItem
+                          label="Returned"
+                          value={`by ${selected.returned_by_name || "—"}`}
+                          sub={fmtDateTime(selected.returned_at)}
+                          dot="#dc2626"
+                        />
+                      )}
+                      <TimelineItem
+                        label="Current Status"
+                        value={
+                          APPROVED_STATUSES.includes(
+                            selected.status?.toLowerCase(),
+                          )
+                            ? "Approved"
+                            : selected.status || "—"
+                        }
+                        dot={
+                          APPROVED_STATUSES.includes(
+                            selected.status?.toLowerCase(),
+                          ) || selected.status?.toLowerCase() === "done"
+                            ? "#059669"
+                            : selected.status?.toLowerCase() === "overdue" ||
+                                selected.status?.toLowerCase() === "returned"
+                              ? "#dc2626"
+                              : "#d1d5db"
+                        }
+                        isLast
+                      />
 
                       {/* Assigned-by card */}
-                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#aaa", textTransform: "uppercase", marginTop: 24, marginBottom: 10 }}>Assigned By</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#f9fafb", borderRadius: 10, border: "1px solid #f0f0f0", marginBottom: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ede9fe", color: "#5b21b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
-                          {(selected.assigned_by_name?.[0] || "?").toUpperCase()}
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: 1,
+                          color: "#aaa",
+                          textTransform: "uppercase",
+                          marginTop: 24,
+                          marginBottom: 10,
+                        }}
+                      >
+                        Assigned By
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: "10px 12px",
+                          background: "#f9fafb",
+                          borderRadius: 10,
+                          border: "1px solid #f0f0f0",
+                          marginBottom: 10,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: "50%",
+                            background: "#ede9fe",
+                            color: "#5b21b6",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 13,
+                            fontWeight: 700,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {(
+                            selected.assigned_by_name?.[0] || "?"
+                          ).toUpperCase()}
                         </div>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{selected.assigned_by_name || "—"}</div>
-                          <div style={{ fontSize: 10, color: "#aaa" }}>{selected.assigned_by_email || "evelyn.samson@gmail.com"}</div>
+                          <div
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: "#111",
+                            }}
+                          >
+                            {selected.assigned_by_name || "—"}
+                          </div>
+                          <div style={{ fontSize: 10, color: "#aaa" }}>
+                            {selected.assigned_by_email ||
+                              "evelyn.samson@gmail.com"}
+                          </div>
                         </div>
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 16 }}>
-                        <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
-                          <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Documents</div>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.attachments?.length || 0}</div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: 6,
+                          marginBottom: 16,
+                        }}
+                      >
+                        <div
+                          style={{
+                            padding: "8px 10px",
+                            background: "#f9fafb",
+                            borderRadius: 8,
+                            border: "1px solid #f0f0f0",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: "#aaa",
+                              marginBottom: 2,
+                            }}
+                          >
+                            Documents
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 16,
+                              fontWeight: 800,
+                              color: "#7c3aed",
+                            }}
+                          >
+                            {selected.attachments?.length || 0}
+                          </div>
                         </div>
-                        <div style={{ padding: "8px 10px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f0f0f0" }}>
-                          <div style={{ fontSize: 10, color: "#aaa", marginBottom: 2 }}>Comments</div>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: "#7c3aed" }}>{selected.comments?.length || 0}</div>
+                        <div
+                          style={{
+                            padding: "8px 10px",
+                            background: "#f9fafb",
+                            borderRadius: 8,
+                            border: "1px solid #f0f0f0",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: "#aaa",
+                              marginBottom: 2,
+                            }}
+                          >
+                            Comments
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 16,
+                              fontWeight: 800,
+                              color: "#7c3aed",
+                            }}
+                          >
+                            {selected.comments?.length || 0}
+                          </div>
                         </div>
                       </div>
-
-
                     </div>
                   </div>
                 </div>
@@ -1535,15 +5409,49 @@ export default function MyTasks() {
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 24px", borderTop: "1px solid #f0f0f0", fontSize: 11, color: "#aaa", background: "white" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "9px 24px",
+            borderTop: "1px solid #f0f0f0",
+            fontSize: 11,
+            color: "#aaa",
+            background: "white",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <svg viewBox="0 0 16 16" fill="none" stroke="#aaa" strokeWidth="1.2" width="12" height="12"><path d="M8 1L1 4v5c0 4 3 6 7 7 4-1 7-3 7-7V4L8 1z" /></svg>
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="#aaa"
+              strokeWidth="1.2"
+              width="12"
+              height="12"
+            >
+              <path d="M8 1L1 4v5c0 4 3 6 7 7 4-1 7-3 7-7V4L8 1z" />
+            </svg>
             © 2024 TaskFlow Enterprise. All rights reserved.
           </div>
           <div style={{ display: "flex", gap: 18 }}>
-            {["HELP CENTER", "API STATUS", "PRIVACY POLICY", "TERMS"].map(l => (
-              <a key={l} href="#" style={{ color: "#aaa", textDecoration: "none", fontSize: 10, fontWeight: 600, letterSpacing: 0.5 }}>{l}</a>
-            ))}
+            {["HELP CENTER", "API STATUS", "PRIVACY POLICY", "TERMS"].map(
+              (l) => (
+                <a
+                  key={l}
+                  href="#"
+                  style={{
+                    color: "#aaa",
+                    textDecoration: "none",
+                    fontSize: 10,
+                    fontWeight: 600,
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {l}
+                </a>
+              ),
+            )}
           </div>
         </div>
       </div>
@@ -1551,37 +5459,113 @@ export default function MyTasks() {
       {/* ── File Viewer Modal ── */}
       {fileViewer && (
         <>
-          <div onClick={() => setFileViewer(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 60, backdropFilter: "blur(3px)" }} />
-          <div style={{
-            position: "fixed", top: "50%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "min(1000px, 94vw)", height: "min(680px, 92vh)",
-            background: "white", zIndex: 70,
-            display: "flex", flexDirection: "column",
-            borderRadius: 14, overflow: "hidden",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
-          }}>
+          <div
+            onClick={() => setFileViewer(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.55)",
+              zIndex: 60,
+              backdropFilter: "blur(3px)",
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "min(1000px, 94vw)",
+              height: "min(680px, 92vh)",
+              background: "white",
+              zIndex: 70,
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 14,
+              overflow: "hidden",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
+            }}
+          >
             {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 18px", background: "#1e1b2e", flexShrink: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 18px",
+                background: "#1e1b2e",
+                flexShrink: 0,
+              }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 16 }}>{fileViewer.isPdf ? "📄" : fileViewer.isImg ? "🖼️" : "📎"}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{fileViewer.name}</span>
+                <span style={{ fontSize: 16 }}>
+                  {fileViewer.isPdf ? "📄" : fileViewer.isImg ? "🖼️" : "📎"}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
+                  {fileViewer.name}
+                </span>
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <a href={fileViewer.url} target="_blank" rel="noreferrer"
-                  style={{ padding: "6px 14px", background: "#7c3aed", color: "white", borderRadius: 7, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+                <a
+                  href={fileViewer.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    padding: "6px 14px",
+                    background: "#7c3aed",
+                    color: "white",
+                    borderRadius: 7,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                  }}
+                >
                   ↗ Open in new tab
                 </a>
-                <a href={fileViewer.url} download={fileViewer.name}
-                  style={{ padding: "6px 14px", background: "#ede9fe", color: "#7c3aed", borderRadius: 7, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+                <a
+                  href={fileViewer.url}
+                  download={fileViewer.name}
+                  style={{
+                    padding: "6px 14px",
+                    background: "#ede9fe",
+                    color: "#7c3aed",
+                    borderRadius: 7,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                  }}
+                >
                   ↓ Download
                 </a>
-                <button onClick={() => setFileViewer(null)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 7, color: "white", cursor: "pointer", padding: "6px 10px", fontSize: 16, lineHeight: 1 }}>×</button>
+                <button
+                  onClick={() => setFileViewer(null)}
+                  style={{
+                    background: "rgba(255,255,255,0.1)",
+                    border: "none",
+                    borderRadius: 7,
+                    color: "white",
+                    cursor: "pointer",
+                    padding: "6px 10px",
+                    fontSize: 16,
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
               </div>
             </div>
 
             {/* Content */}
-            <div style={{ flex: 1, overflow: "hidden", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div
+              style={{
+                flex: 1,
+                overflow: "hidden",
+                background: "#1a1a2e",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               {fileViewer.isPdf ? (
                 <iframe
                   src={fileViewer.url}
@@ -1592,15 +5576,44 @@ export default function MyTasks() {
                 <img
                   src={fileViewer.url}
                   alt={fileViewer.name}
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", padding: 20 }}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                    padding: 20,
+                  }}
                 />
               ) : (
                 <div style={{ textAlign: "center", color: "#aaa" }}>
                   <div style={{ fontSize: 48, marginBottom: 16 }}>📎</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "white", marginBottom: 8 }}>{fileViewer.name}</div>
-                  <div style={{ fontSize: 12, color: "#888", marginBottom: 20 }}>Preview not available for this file type.</div>
-                  <a href={fileViewer.url} download={fileViewer.name}
-                    style={{ padding: "10px 24px", background: "#7c3aed", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: "white",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {fileViewer.name}
+                  </div>
+                  <div
+                    style={{ fontSize: 12, color: "#888", marginBottom: 20 }}
+                  >
+                    Preview not available for this file type.
+                  </div>
+                  <a
+                    href={fileViewer.url}
+                    download={fileViewer.name}
+                    style={{
+                      padding: "10px 24px",
+                      background: "#7c3aed",
+                      color: "white",
+                      borderRadius: 8,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      textDecoration: "none",
+                    }}
+                  >
                     ↓ Download File
                   </a>
                 </div>
