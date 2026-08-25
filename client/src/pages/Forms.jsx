@@ -2133,6 +2133,8 @@ export default function Forms() {
         .path-forms-queue-active .path-review-ledger,.path-forms-queue-active .path-review-detail{border-radius:10px}
         .path-forms-queue-active .path-review-row{min-height:78px;padding:12px 18px}
         .path-forms-queue-active .path-review-detail{padding:18px}
+        /* Preserve the generous quiet margin from the supplied reference on wide review workspaces. */
+        @media(min-width:1100px){.path-forms-queue-active .path-forms-page{padding-left:clamp(48px,5vw,84px)!important;padding-right:clamp(48px,5vw,84px)!important}}
         @media(max-width:760px){.path-forms-page{padding:17px 14px 28px!important;gap:14px!important}.path-forms-queue-active .path-forms-hero{min-height:auto;padding:21px 17px}.path-forms-queue-active .path-forms-hero h1{font-size:33px}.path-forms-queue-active .path-review-stats{gap:10px}.path-forms-queue-active .path-review-toolbar{padding:15px}.path-forms-queue-active .path-review-row{padding:12px 14px}}
       `}</style>
 
