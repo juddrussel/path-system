@@ -1337,7 +1337,7 @@ export default function Forms() {
 
   const [activeNav, setActiveNav] = useState("forms");
   const [activeTab, setActiveTab] = useState(
-    isProgramChair ? "review" : "history",
+    isProgramChair ? "review" : "submit",
   );
   const [search, setSearch] = useState("");
 
@@ -2488,39 +2488,6 @@ export default function Forms() {
       String(form.priority || "").toLowerCase() === "urgent",
   ).length;
 
-  if (!isProgramChair && activeTab === "history") {
-    return (
-      <FacultySubmissionsWorkspace
-        forms={forms}
-        stats={stats}
-        loading={loading}
-        search={search}
-        onSearch={(value) => {
-          setSearch(value);
-          setPage(1);
-        }}
-        onStartSubmission={() => setActiveTab("submit")}
-        onResubmit={(row) => {
-          setResubmitForm(row);
-          setResubmitFile(null);
-          setResubmitModal(true);
-        }}
-        onActivity={(row) =>
-          addToast(
-            `${row.file_name || row.title || row.tracking_id || `Submission #${row.id}`} was last updated ${row.updated_at || row.filing_date || "recently"}.`,
-            "info",
-          )
-        }
-        page={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onLogout={handleLogout}
-        toasts={toasts}
-        onDismissToast={dismissToast}
-      />
-    );
-  }
-
   return (
     <div
       className={`path-forms-shell ${isProgramChair && activeTab === "review" ? "path-forms-queue-active" : ""} ${!isProgramChair && activeTab === "submit" ? "path-forms-start-active" : ""}`}
@@ -2570,7 +2537,14 @@ export default function Forms() {
       <style>{`
         .path-forms-start-active .path-forms-default-stats{display:none!important}
         .path-forms-start-active .path-forms-page{gap:16px!important}
-        .path-forms-start-active .path-forms-default-header{padding:6px 4px 2px}
+        .path-forms-start-active .path-forms-default-header{min-height:134px;padding:21px 13px 24px!important;border-bottom:1px solid #e6dfee;align-items:flex-end!important}
+        .path-forms-start-active .path-forms-default-header>div:first-child{padding-left:13px;border-left:2px solid #bca5ef}
+        .path-forms-start-active .path-forms-default-header h1{margin:8px 0 7px!important;color:#34283d!important;font-family:'Manrope',sans-serif!important;font-size:clamp(31px,3vw,42px)!important;font-weight:800!important;letter-spacing:-.06em!important;line-height:1!important}
+        .path-forms-start-active .path-forms-default-header p{max-width:610px;margin:0!important;color:#8f8398!important;font-size:11px!important;line-height:1.6!important}
+        .path-forms-start-active .path-start-breadcrumb{gap:8px!important;margin:0!important;color:#988da0!important;font-size:9px!important;font-weight:800!important;letter-spacing:.12em;text-transform:uppercase}
+        .path-forms-start-active .path-start-breadcrumb span:nth-child(even){display:none}
+        .path-forms-start-active .path-start-breadcrumb span:last-child{color:#988da0!important;font-weight:800!important}
+        .path-forms-start-active .path-forms-default-header>div:last-child{padding:3px;border:1px solid #e8e0f0!important;background:#fff!important;box-shadow:0 6px 18px rgba(57,36,93,.04)}
         .path-faculty-start-shell{width:100%}
         .path-faculty-start-shell>div{gap:18px!important}
         .path-faculty-start-shell h2{font-family:'Manrope',sans-serif!important;letter-spacing:-.04em}
@@ -2741,6 +2715,7 @@ export default function Forms() {
             <div>
               {activeTab === "submit" && !isProgramChair && (
                 <div
+                  className="path-start-breadcrumb"
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -2751,12 +2726,10 @@ export default function Forms() {
                     marginBottom: 6,
                   }}
                 >
-                  <span>Dashboard</span>
-                  <span style={{ fontSize: 13 }}>›</span>
-                  <span>Forms</span>
+                  <span>Faculty intake</span>
                   <span style={{ fontSize: 13 }}>›</span>
                   <span style={{ color: "#7c3aed", fontWeight: 700 }}>
-                    Submit Form
+                    Guided submission
                   </span>
                 </div>
               )}
