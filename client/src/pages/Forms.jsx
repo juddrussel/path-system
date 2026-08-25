@@ -1358,6 +1358,7 @@ export default function Forms() {
     full_name: "",
     semester: "1st Semester",
     academic_year: ACADEMIC_YEARS[1],
+    priority: "Standard",
     remarks: "",
   });
   const [wizardSubmitting, setWizardSubmitting] = useState(false);
@@ -1417,13 +1418,15 @@ export default function Forms() {
     categories.find((c) => c.name === wizardFormType) || null;
   const selectedFields = selectedCategory?.formFields || [];
   const isFileField = (f) => f.fieldType === "File Upload";
-  // Required file-upload fields get pulled into their own "Required Attachments"
-  // panel; everything else (including any optional file fields) stays in Form Fields.
+  // File-upload fields live together in the attachment step, where their
+  // required/optional state remains visible on each individual attachment row.
   const requiredFileFields = selectedFields.filter(
     (f) => isFileField(f) && f.required,
   );
-  const otherFields = selectedFields.filter(
-    (f) => !(isFileField(f) && f.required),
+  const attachmentFields = selectedFields.filter((f) => isFileField(f));
+  const otherFields = selectedFields.filter((f) => !isFileField(f));
+  const nextAttachmentField = attachmentFields.find(
+    (field) => !wizardDocs[field.id],
   );
   // A Checkbox field only becomes a choice group (checkboxes or radios) once
   // the reviewer has defined choices for it in Document Categories; otherwise
@@ -1678,6 +1681,7 @@ export default function Forms() {
     fd.append("full_name", wizardInfo.full_name);
     fd.append("semester", wizardInfo.semester);
     fd.append("academic_year", wizardInfo.academic_year);
+    fd.append("priority", wizardInfo.priority);
     fd.append("remarks", wizardInfo.remarks);
     fd.append("filing_date", new Date().toISOString().split("T")[0]);
     if (status) fd.append("status", status);
@@ -1730,6 +1734,7 @@ export default function Forms() {
       full_name: "",
       semester: "1st Semester",
       academic_year: ACADEMIC_YEARS[1],
+      priority: "Standard",
       remarks: "",
     });
   };
@@ -1838,6 +1843,7 @@ export default function Forms() {
       Object.keys(wizardDocs).length > 0 ||
       Object.keys(wizardFieldValues).length > 0 ||
       wizardFormType ||
+      wizardInfo.priority !== "Standard" ||
       wizardInfo.remarks
     ) {
       if (
@@ -1949,6 +1955,7 @@ export default function Forms() {
     return (
       <div
         key={f.id}
+        className={`path-faculty-dynamic-field ${isFile ? "is-file" : ""} ${f.required ? "is-required" : ""} ${isChoiceCheckbox ? "is-choice" : ""} ${isTextArea ? "is-textarea" : ""}`}
         style={{
           border: `1px solid ${isDragOver ? "#7c3aed" : "#e5e7eb"}`,
           borderRadius: 10,
@@ -1995,7 +2002,7 @@ export default function Forms() {
                   flexShrink: 0,
                 }}
               >
-                {idx + 1}
+                {isFile ? <Icon.AttachFile size={12} /> : idx + 1}
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>
                 {f.name}
@@ -2206,6 +2213,7 @@ export default function Forms() {
               ) : (
                 // ── Empty dropzone (matches mockup's "Drag & drop files here" style) ──
                 <div
+                  className="path-faculty-file-attach-trigger"
                   onClick={() => wizardFileRefs.current[f.id]?.click()}
                   style={{
                     display: "flex",
@@ -2231,7 +2239,7 @@ export default function Forms() {
                 >
                   <Icon.CloudUpload size={20} />
                   <span style={{ fontSize: 11, color: "#6b7280", flex: 1 }}>
-                    Drag &amp; drop or click to browse
+                    Attach a file
                   </span>
                   <button
                     onClick={(e) => {
@@ -2250,7 +2258,7 @@ export default function Forms() {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    Browse
+                    Attach
                   </button>
                 </div>
               )}
@@ -2536,7 +2544,7 @@ export default function Forms() {
 
       <style>{`
         .path-forms-start-active .path-forms-default-stats{display:none!important}
-        .path-forms-start-active .path-forms-page{gap:16px!important}
+        .path-forms-start-active .path-forms-page{gap:16px!important;padding:29px clamp(28px,5vw,84px) 50px!important}
         .path-forms-start-active .path-forms-default-header{min-height:134px;padding:21px 13px 24px!important;border-bottom:1px solid #e6dfee;align-items:flex-end!important}
         .path-forms-start-active .path-forms-default-header>div:first-child{padding-left:13px;border-left:2px solid #bca5ef}
         .path-forms-start-active .path-forms-default-header h1{margin:8px 0 7px!important;color:#34283d!important;font-family:'Manrope',sans-serif!important;font-size:clamp(31px,3vw,42px)!important;font-weight:800!important;letter-spacing:-.06em!important;line-height:1!important}
@@ -2572,6 +2580,45 @@ export default function Forms() {
         .path-faculty-intake-step [style*="border: 1px dashed"]{display:flex!important;min-height:72px;align-items:center!important;justify-content:center!important;background:#fdfcff!important;border-color:#e5ddea!important;border-radius:8px!important}
         .path-faculty-intake-step [style*="border: 1px dashed"] p{display:flex;align-items:center;justify-content:center;gap:9px;margin:0!important;color:#a094a8!important;font-size:10px!important}
         .path-faculty-intake-step [style*="border: 1px dashed"] svg{width:17px;color:#a982e9}
+        .path-faculty-details-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+        .path-faculty-dynamic-field:not(.is-file){padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child{display:block!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child{min-width:0!important;margin:0 0 6px!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child{gap:5px!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:first-child{display:none!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:nth-child(2){color:#66576f!important;font-size:9px!important;font-weight:800!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:last-child{padding:0!important;border-radius:0!important;background:transparent!important;color:#b56a68!important;font-size:7px!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:last-child{display:none!important}
+        .path-faculty-dynamic-field:not(.is-file) input:not([type=checkbox]):not([type=radio]),.path-faculty-dynamic-field:not(.is-file) select,.path-faculty-dynamic-field:not(.is-file) textarea{width:100%!important;min-height:34px!important;border-color:#dfd8e6!important;border-radius:7px!important;background:#fff!important;color:#5f5069!important;font-size:9px!important;box-shadow:none!important}
+        .path-faculty-dynamic-field.is-choice{grid-column:1/-1!important;padding:0!important;border:0!important;background:transparent!important}
+        .path-faculty-dynamic-field.is-choice>div:first-child{display:block!important}
+        .path-faculty-dynamic-field.is-choice>div:first-child>div:first-child{min-width:0!important;margin:0 0 7px!important}
+        .path-faculty-dynamic-field.is-choice>div:first-child>div:first-child>div:first-child>span:first-child{display:none!important}
+        .path-faculty-dynamic-field.is-choice>div:first-child>div:first-child>div:last-child{display:none!important}
+        .path-faculty-priority-picker{margin-top:16px;padding-top:14px;border-top:1px solid #eee8f3}
+        .path-faculty-priority-label{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:#66576f;font-size:9px;font-weight:800}
+        .path-faculty-priority-label small{color:#b56a68;font-size:7px;text-transform:uppercase}
+        .path-faculty-priority-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+        .path-faculty-priority-options button{display:flex;align-items:flex-start;gap:7px;min-height:52px;padding:10px;border:1px solid #e1dbe8;border-radius:8px;background:#fff;color:#65566f;text-align:left;cursor:pointer;transition:border-color .16s,background .16s,box-shadow .16s}
+        .path-faculty-priority-options button i{width:10px;height:10px;flex:0 0 auto;margin-top:2px;border:1.5px solid #c9bfda;border-radius:50%}
+        .path-faculty-priority-options button span{display:flex;flex-direction:column;gap:3px}
+        .path-faculty-priority-options button strong{font-size:9px}.path-faculty-priority-options button small{color:#998e9e;font-size:7px;line-height:1.35}
+        .path-faculty-priority-options button.active{border-color:#a779e4;background:#fcfaff;box-shadow:0 0 0 2px rgba(167,121,228,.12)}
+        .path-faculty-priority-options button.active i{border:3px solid #7c3aed}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file{min-height:51px;padding:8px 11px!important;border:1px solid #e5dfea!important;border-radius:8px!important;background:#fff!important;box-shadow:none!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file.is-required{border-color:#e7ddb6!important;background:#fffefa!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child{align-items:center!important;gap:12px!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child{min-width:0!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:first-child{width:25px!important;height:25px!important;border-radius:7px!important;background:#f1ebff!important;color:#8656d3!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:nth-child(2){color:#5f5069!important;font-size:9px!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:last-child{padding:0!important;border-radius:0!important;background:transparent!important;color:#b56a68!important;font-size:7px!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:last-child{margin:2px 0 0 33px!important;color:#998e9e!important;font-size:7px!important}
+        .path-faculty-step-03 .path-faculty-file-attach-trigger{min-width:auto!important;flex:0 0 auto!important;padding:7px 10px!important;border:1px solid #e0d9e8!important;border-radius:6px!important;background:#fff!important;color:#7346c4!important}
+        .path-faculty-step-03 .path-faculty-file-attach-trigger svg{width:15px!important;color:#8757d4!important}
+        .path-faculty-step-03 .path-faculty-file-attach-trigger>span{color:#7346c4!important;font-size:8px!important;font-weight:800!important}
+        .path-faculty-step-03 .path-faculty-file-attach-trigger button{display:none!important}
+        .path-faculty-support-dropzone{display:flex;min-height:88px;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:14px;border:1px dashed #cfc4db;border-radius:8px;background:#fdfcff;color:#7f648f;text-align:center;cursor:pointer}
+        .path-faculty-support-dropzone svg{color:#8a5bd7}.path-faculty-support-dropzone strong{font-size:9px}.path-faculty-support-dropzone span{color:#9c91a1;font-size:7px}.path-faculty-support-dropzone b{color:#7747c7;font-size:8px}.path-faculty-support-dropzone.is-complete{cursor:default;opacity:.72}
         .path-faculty-summary-aside{align-self:start!important}
         .path-faculty-summary-card{border-color:#e6dfee!important;border-radius:12px!important;box-shadow:0 10px 26px rgba(54,36,87,.04)!important}
         .path-faculty-summary-kicker{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px;color:#978c9e;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
@@ -2590,7 +2637,8 @@ export default function Forms() {
         .path-faculty-summary-aside>div:last-child>svg{width:15px!important;height:15px!important;padding:3px!important;border-radius:50%;background:#f3edff!important;color:#8555d4!important}
         .path-faculty-summary-aside>div:last-child div:first-child{color:#6c5e75!important;font-size:9px!important;letter-spacing:0!important;text-transform:none!important}
         .path-faculty-summary-aside>div:last-child div:last-child{color:#9b90a2!important;font-size:8px!important;cursor:default!important}
-        @media(max-width:900px){.path-faculty-start-shell{grid-template-columns:1fr!important}.path-faculty-summary-aside{position:static!important}.path-faculty-intake-step{padding:17px!important}}
+        @media(max-width:900px){.path-faculty-start-shell{grid-template-columns:1fr!important}.path-faculty-summary-aside{position:static!important}.path-faculty-intake-step{padding:17px!important}.path-faculty-details-grid,.path-faculty-priority-options{grid-template-columns:1fr 1fr!important}}
+        @media(max-width:620px){.path-forms-start-active .path-forms-page{padding:20px 14px 32px!important}.path-faculty-details-grid,.path-faculty-priority-options{grid-template-columns:1fr!important}.path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child{align-items:flex-start!important;flex-direction:column!important}.path-faculty-step-03 .path-faculty-file-attach-trigger{width:100%;justify-content:center!important}}
       `}</style>
 
       {/* Toast container */}
@@ -3302,6 +3350,7 @@ export default function Forms() {
 
                       {selectedCategory && otherFields.length > 0 && (
                         <div
+                          className="path-faculty-details-grid"
                           style={{
                             display: "flex",
                             flexDirection: "column",
@@ -3309,6 +3358,53 @@ export default function Forms() {
                           }}
                         >
                           {otherFields.map((f, idx) => renderFieldRow(f, idx))}
+                        </div>
+                      )}
+
+                      {selectedCategory && (
+                        <div className="path-faculty-priority-picker">
+                          <div className="path-faculty-priority-label">
+                            <span>Processing priority</span>
+                            <small>Optional</small>
+                          </div>
+                          <div className="path-faculty-priority-options">
+                            {[
+                              {
+                                value: "Standard",
+                                note: "Normal workflow target",
+                              },
+                              {
+                                value: "High",
+                                note: "Needs review within 3 business days",
+                              },
+                              {
+                                value: "Urgent",
+                                note: "Time-sensitive academic requirement",
+                              },
+                            ].map((choice) => (
+                              <button
+                                key={choice.value}
+                                type="button"
+                                className={
+                                  wizardInfo.priority === choice.value
+                                    ? "active"
+                                    : ""
+                                }
+                                onClick={() =>
+                                  setWizardInfo((previous) => ({
+                                    ...previous,
+                                    priority: choice.value,
+                                  }))
+                                }
+                              >
+                                <i />
+                                <span>
+                                  <strong>{choice.value}</strong>
+                                  <small>{choice.note}</small>
+                                </span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       )}
 
@@ -3450,7 +3546,7 @@ export default function Forms() {
                         </div>
                       )}
 
-                      {selectedCategory && requiredFileFields.length === 0 && (
+                      {selectedCategory && attachmentFields.length === 0 && (
                         <div
                           style={{
                             padding: "24px 18px",
@@ -3466,7 +3562,7 @@ export default function Forms() {
                         </div>
                       )}
 
-                      {selectedCategory && requiredFileFields.length > 0 && (
+                      {selectedCategory && attachmentFields.length > 0 && (
                         <div
                           style={{
                             display: "flex",
@@ -3474,9 +3570,38 @@ export default function Forms() {
                             gap: 12,
                           }}
                         >
-                          {requiredFileFields.map((f, idx) =>
+                          {attachmentFields.map((f, idx) =>
                             renderFieldRow(f, idx),
                           )}
+                          <div
+                            className={`path-faculty-support-dropzone ${nextAttachmentField ? "" : "is-complete"}`}
+                            onDragOver={(event) => {
+                              if (nextAttachmentField) event.preventDefault();
+                            }}
+                            onDrop={(event) => {
+                              if (!nextAttachmentField) return;
+                              handleWizardDrop(nextAttachmentField.id, event);
+                            }}
+                            onClick={() =>
+                              nextAttachmentField &&
+                              wizardFileRefs.current[
+                                nextAttachmentField.id
+                              ]?.click()
+                            }
+                          >
+                            <Icon.CloudUpload size={20} />
+                            <strong>
+                              {nextAttachmentField
+                                ? "Drop an additional supporting file"
+                                : "All attachment slots are complete"}
+                            </strong>
+                            <span>
+                              {nextAttachmentField
+                                ? "or browse your computer · PDF, JPG, or PNG · max 5 MB"
+                                : "Remove or replace a listed file to make changes."}
+                            </span>
+                            {nextAttachmentField && <b>Browse files</b>}
+                          </div>
                         </div>
                       )}
                     </div>
