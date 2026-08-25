@@ -3,14 +3,52 @@ import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import {
-  FileText, Clock, AlertTriangle, CheckCircle2, XCircle, Users,
-  ChevronRight, TrendingUp, TrendingDown, Activity, Zap, Building2,
-  Bell, Flag, Eye, BarChart3, AlertCircle, Calendar, Layers,
-  TriangleAlert, ShieldAlert, Plus, Send, RotateCcw, UserCheck,
-  ClipboardList, Inbox, MessageSquare, Megaphone, RefreshCw,
-  Filter, Search, CircleCheck, Timer, ArrowUpRight, BookOpen,
-  GraduationCap, Star, MoreHorizontal, ChevronDown, Sparkles,
-  ListTodo, PieChart, X, Tag, ShieldCheck,
+  FileText,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Users,
+  ChevronRight,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  Zap,
+  Building2,
+  Bell,
+  Flag,
+  Eye,
+  BarChart3,
+  AlertCircle,
+  Calendar,
+  Layers,
+  TriangleAlert,
+  ShieldAlert,
+  Plus,
+  Send,
+  RotateCcw,
+  UserCheck,
+  ClipboardList,
+  Inbox,
+  MessageSquare,
+  Megaphone,
+  RefreshCw,
+  Filter,
+  Search,
+  CircleCheck,
+  Timer,
+  ArrowUpRight,
+  BookOpen,
+  GraduationCap,
+  Star,
+  MoreHorizontal,
+  ChevronDown,
+  Sparkles,
+  ListTodo,
+  PieChart,
+  X,
+  Tag,
+  ShieldCheck,
 } from "lucide-react";
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
@@ -33,7 +71,15 @@ const Icon = {
     </svg>
   ),
   Plus: ({ color = "currentColor", size = 14 }) => (
-    <svg viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" width={size} height={size}>
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      width={size}
+      height={size}
+    >
       <path d="M8 1v14M1 8h14" />
     </svg>
   ),
@@ -45,7 +91,11 @@ const Icon = {
   Workflow: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
       <circle cx="8" cy="8" r="3" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M8 1v2M8 13v2M1 8h2M13 8h2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </svg>
   ),
   Reports: () => (
@@ -73,11 +123,22 @@ const Icon = {
   Settings: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
       <circle cx="8" cy="8" r="2" />
-      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M8 1v2M8 13v2M1 8h2M13 8h2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </svg>
   ),
   Help: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
       <circle cx="8" cy="8" r="7" />
       <path d="M8 7v4M8 5v1" />
     </svg>
@@ -88,40 +149,113 @@ const Icon = {
     </svg>
   ),
   Search: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
       <circle cx="6.5" cy="6.5" r="4.5" />
       <path d="M10.5 10.5L14 14" strokeLinecap="round" />
     </svg>
   ),
   Download: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="1.5" width="12" height="12">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="white"
+      strokeWidth="1.5"
+      width="12"
+      height="12"
+    >
       <path d="M8 1v9M4 7l4 4 4-4M2 13h12" />
     </svg>
   ),
   AssignTask: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-      <path d="M2 2h8l3 3v9H2V2z" fillOpacity=".15" stroke="currentColor" strokeWidth="1" fill="none" />
-      <path d="M2 2h8l3 3v9H2V2z" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M2 2h8l3 3v9H2V2z"
+        fillOpacity=".15"
+        stroke="currentColor"
+        strokeWidth="1"
+        fill="none"
+      />
+      <path
+        d="M2 2h8l3 3v9H2V2z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M5 7h6M5 9.5h4"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
       <circle cx="12.5" cy="12.5" r="3" fill="#5e3bdb" />
-      <path d="M11.5 12.5l.8.8 1.4-1.4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path
+        d="M11.5 12.5l.8.8 1.4-1.4"
+        stroke="white"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   ),
   Tracking: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6" /><path d="M8 4v4l3 2" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /></svg>
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 4v4l3 2" strokeLinecap="round" />
+      <circle cx="8" cy="8" r="1" fill="currentColor" />
+    </svg>
   ),
   Categories: () => (
     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
       <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" />
-      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
-      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fillOpacity="0.55" />
+      <rect
+        x="9"
+        y="1.5"
+        width="5.5"
+        height="5.5"
+        rx="1.2"
+        fillOpacity="0.55"
+      />
+      <rect
+        x="1.5"
+        y="9"
+        width="5.5"
+        height="5.5"
+        rx="1.2"
+        fillOpacity="0.55"
+      />
       <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" />
     </svg>
   ),
   SLA: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      width="14"
+      height="14"
+    >
       <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5v3.8l2.6 1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M8 4.5v3.8l2.6 1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   ),
   Bell: () => (
@@ -145,103 +279,212 @@ const Icon = {
 
 // Maps raw backend status values to the display labels used by StatusBadge
 const REAL_STATUS_DISPLAY = {
-  "pending":        "Pending",
-  "in review":      "Under Review",
-  "for approval":   "For Approval",
-  "returned":       "Returned",
-  "revision":       "Returned",
-  "received":       "Approved",
-  "approved":       "Approved",
-  "rejected":       "Rejected",
-  "archived":       "Archived",
-  "registered":     "Approved",
-  "draft":          "Pending",
+  pending: "Pending",
+  "in review": "Under Review",
+  "for approval": "For Approval",
+  returned: "Returned",
+  revision: "Returned",
+  received: "Approved",
+  approved: "Approved",
+  rejected: "Rejected",
+  archived: "Archived",
+  registered: "Approved",
+  draft: "Pending",
 };
 
 const NOTIFICATIONS = [
-  { id: 1,  type: "submission",   text: "New form submitted by Juan Reyes",          sub: "Thesis Defense Schedule — FRM-2026-041", time: "5m ago",  read: false },
-  { id: 2,  type: "completed",    text: "Task completed by Dr. Luisa Fernandez",     sub: "Finalize Elective Subjects List",         time: "22m ago", read: false },
-  { id: 3,  type: "revision",     text: "Revision requested by Records Office",      sub: "FRM-2026-028 — Leave Application",        time: "1h ago",  read: false },
-  { id: 4,  type: "announcement", text: "System Announcement",                       sub: "PATH Maintenance scheduled Jun 15, 10 PM",time: "2h ago",  read: true  },
-  { id: 5,  type: "submission",   text: "New form submitted by Prof. Mendoza",       sub: "Overload Request — FRM-2026-037",         time: "3h ago",  read: true  },
-  { id: 6,  type: "completed",    text: "Approval completed",                        sub: "FRM-2026-029 approved by Dean's Office",  time: "4h ago",  read: true  },
+  {
+    id: 1,
+    type: "submission",
+    text: "New form submitted by Juan Reyes",
+    sub: "Thesis Defense Schedule — FRM-2026-041",
+    time: "5m ago",
+    read: false,
+  },
+  {
+    id: 2,
+    type: "completed",
+    text: "Task completed by Dr. Luisa Fernandez",
+    sub: "Finalize Elective Subjects List",
+    time: "22m ago",
+    read: false,
+  },
+  {
+    id: 3,
+    type: "revision",
+    text: "Revision requested by Records Office",
+    sub: "FRM-2026-028 — Leave Application",
+    time: "1h ago",
+    read: false,
+  },
+  {
+    id: 4,
+    type: "announcement",
+    text: "System Announcement",
+    sub: "PATH Maintenance scheduled Jun 15, 10 PM",
+    time: "2h ago",
+    read: true,
+  },
+  {
+    id: 5,
+    type: "submission",
+    text: "New form submitted by Prof. Mendoza",
+    sub: "Overload Request — FRM-2026-037",
+    time: "3h ago",
+    read: true,
+  },
+  {
+    id: 6,
+    type: "completed",
+    text: "Approval completed",
+    sub: "FRM-2026-029 approved by Dean's Office",
+    time: "4h ago",
+    read: true,
+  },
 ];
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const PRIORITY_CFG = {
   Urgent: { color: "#dc2626", bg: "#fef2f2", dot: "#ef4444" },
-  High:   { color: "#d97706", bg: "#fffbeb", dot: "#f59e0b" },
+  High: { color: "#d97706", bg: "#fffbeb", dot: "#f59e0b" },
   Normal: { color: "#0284c7", bg: "#e0f2fe", dot: "#38bdf8" },
-  Low:    { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
+  Low: { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
 };
 
 // Dot-style status palette — mirrors Tracking.jsx's STATUS_STYLES, extended
 // with the extra statuses used across forms, tasks, and documents here.
 const STATUS_CFG = {
-  "pending":        { color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
+  pending: { color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
   "pending review": { color: "#481bc6", bg: "#e6deff", dot: "#5e3bdb" },
-  "under review":   { color: "#0369a1", bg: "#f0f9ff", dot: "#38bdf8" },
-  "for approval":   { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
-  "in progress":    { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
-  "not started":    { color: "#6b7280", bg: "#f9fafb", dot: "#9ca3af" },
-  "overdue":        { color: "#991b1b", bg: "#fef2f2", dot: "#ef4444" },
-  "completed":      { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  "approved":       { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  "received":       { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  "rejected":       { color: "#991b1b", bg: "#fee2e2", dot: "#ef4444" },
-  "returned":       { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
-  "archived":       { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
+  "under review": { color: "#0369a1", bg: "#f0f9ff", dot: "#38bdf8" },
+  "for approval": { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
+  "in progress": { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
+  "not started": { color: "#6b7280", bg: "#f9fafb", dot: "#9ca3af" },
+  overdue: { color: "#991b1b", bg: "#fef2f2", dot: "#ef4444" },
+  completed: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
+  approved: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
+  received: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
+  rejected: { color: "#991b1b", bg: "#fee2e2", dot: "#ef4444" },
+  returned: { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
+  archived: { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
 };
 
 // Type badge — same Task/Form pattern as Tracking.jsx, extended with Document
 const TYPE_CFG = {
-  task:     { label: "Task",     bg: "#e6deff", color: "#5e3bdb" },
-  form:     { label: "Form",     bg: "#dbeafe", color: "#1e40af" },
+  task: { label: "Task", bg: "#e6deff", color: "#5e3bdb" },
+  form: { label: "Form", bg: "#dbeafe", color: "#1e40af" },
   document: { label: "Document", bg: "#d1fae5", color: "#065f46" },
 };
 
 const ACTIVITY_CFG = {
-  approved:  { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2  },
-  submitted: { color: "#5e3bdb", bg: "#f3f2ff", icon: FileText      },
-  completed: { color: "#059669", bg: "#ecfdf5", icon: CircleCheck   },
-  assigned:  { color: "#0284c7", bg: "#e0f2fe", icon: UserCheck     },
-  revision:  { color: "#d97706", bg: "#fffbeb", icon: RotateCcw     },
-  workflow:  { color: "#5e3bdb", bg: "#e6deff", icon: Layers        },
-  overdue:   { color: "#dc2626", bg: "#fef2f2", icon: AlertTriangle },
+  approved: { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2 },
+  submitted: { color: "#5e3bdb", bg: "#f3f2ff", icon: FileText },
+  completed: { color: "#059669", bg: "#ecfdf5", icon: CircleCheck },
+  assigned: { color: "#0284c7", bg: "#e0f2fe", icon: UserCheck },
+  revision: { color: "#d97706", bg: "#fffbeb", icon: RotateCcw },
+  workflow: { color: "#5e3bdb", bg: "#e6deff", icon: Layers },
+  overdue: { color: "#dc2626", bg: "#fef2f2", icon: AlertTriangle },
 };
 
 const NOTIF_CFG = {
-  submission:   { color: "#5e3bdb", bg: "#f3f2ff", icon: Inbox        },
-  completed:    { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2 },
-  revision:     { color: "#d97706", bg: "#fffbeb", icon: RotateCcw    },
-  announcement: { color: "#0284c7", bg: "#e0f2fe", icon: Megaphone    },
+  submission: { color: "#5e3bdb", bg: "#f3f2ff", icon: Inbox },
+  completed: { color: "#059669", bg: "#ecfdf5", icon: CheckCircle2 },
+  revision: { color: "#d97706", bg: "#fffbeb", icon: RotateCcw },
+  announcement: { color: "#0284c7", bg: "#e0f2fe", icon: Megaphone },
 };
 
 // Bottleneck & Alerts tier styling — mirrors Reports.jsx's ALERT_TIER_CFG so
 // this widget's live alerts render consistently with the full report.
 const ALERT_TIER_CFG = {
-  critical: { color: "#dc2626", bg: "#fef2f2", border: "#fecaca", iconBg: "#fee2e2", iconColor: "#dc2626", label: "Critical", showPill: true },
-  warning:  { color: "#d97706", bg: "#fffbeb", border: "#fde68a", iconBg: "#fef3c7", iconColor: "#d97706", label: "Warning",  showPill: false },
-  info:     { color: "#5e3bdb", bg: "#f3f2ff", border: "#cabeff", iconBg: "#e6deff", iconColor: "#5e3bdb", label: "Info",     showPill: false },
+  critical: {
+    color: "#dc2626",
+    bg: "#fef2f2",
+    border: "#fecaca",
+    iconBg: "#fee2e2",
+    iconColor: "#dc2626",
+    label: "Critical",
+    showPill: true,
+  },
+  warning: {
+    color: "#d97706",
+    bg: "#fffbeb",
+    border: "#fde68a",
+    iconBg: "#fef3c7",
+    iconColor: "#d97706",
+    label: "Warning",
+    showPill: false,
+  },
+  info: {
+    color: "#5e3bdb",
+    bg: "#f3f2ff",
+    border: "#cabeff",
+    iconBg: "#e6deff",
+    iconColor: "#5e3bdb",
+    label: "Info",
+    showPill: false,
+  },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function StatusBadge({ s }) {
-  const cfg = STATUS_CFG[s?.toLowerCase()] ?? { color: "#374151", bg: "#f3f4f6", dot: "#9ca3af" };
+  const cfg = STATUS_CFG[s?.toLowerCase()] ?? {
+    color: "#374151",
+    bg: "#f3f4f6",
+    dot: "#9ca3af",
+  };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, flexShrink: 0 }} />
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        fontSize: 10,
+        fontWeight: 700,
+        padding: "3px 9px",
+        borderRadius: 20,
+        background: cfg.bg,
+        color: cfg.color,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: cfg.dot,
+          flexShrink: 0,
+        }}
+      />
       {s}
     </span>
   );
 }
 
 function TypeBadge({ type }) {
-  const cfg = TYPE_CFG[type] ?? { label: type, bg: "#f3f4f6", color: "#374151" };
+  const cfg = TYPE_CFG[type] ?? {
+    label: type,
+    bg: "#f3f4f6",
+    color: "#374151",
+  };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: cfg.bg, color: cfg.color, textTransform: "uppercase", letterSpacing: 0.4, whiteSpace: "nowrap" }}>
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        fontSize: 9,
+        fontWeight: 700,
+        padding: "2px 6px",
+        borderRadius: 4,
+        background: cfg.bg,
+        color: cfg.color,
+        textTransform: "uppercase",
+        letterSpacing: 0.4,
+        whiteSpace: "nowrap",
+      }}
+    >
       {cfg.label}
     </span>
   );
@@ -250,8 +493,29 @@ function TypeBadge({ type }) {
 function PriorityPill({ p }) {
   const cfg = PRIORITY_CFG[p] ?? PRIORITY_CFG.Normal;
   return (
-    <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: cfg.bg, color: cfg.color, display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, flexShrink: 0 }} />
+    <span
+      style={{
+        fontSize: 11,
+        fontWeight: 700,
+        padding: "2px 8px",
+        borderRadius: 4,
+        background: cfg.bg,
+        color: cfg.color,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: cfg.dot,
+          flexShrink: 0,
+        }}
+      />
       {p}
     </span>
   );
@@ -264,11 +528,11 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map(w => w[0])
+    .map((w) => w[0])
     .join("")
     .toUpperCase();
   const delayedCount = Array.isArray(delayedDocs)
-    ? delayedDocs.filter(d => d.faculty_name === f.full_name).length
+    ? delayedDocs.filter((d) => d.faculty_name === f.full_name).length
     : 0;
   return (
     <div
@@ -277,36 +541,127 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
         e.stopPropagation();
         onClick(f);
       }}
-      style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 12px", borderRadius: 9, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)", cursor: onClick ? "pointer" : "default", transition: "background 0.15s, box-shadow 0.15s" }}
-      onMouseEnter={e => { if (onClick) { e.currentTarget.style.background = "#f3f0ff"; e.currentTarget.style.boxShadow = "0 1px 6px rgba(124,58,237,0.12)"; } }}
-      onMouseLeave={e => { if (onClick) { e.currentTarget.style.background = "#fafafa"; e.currentTarget.style.boxShadow = "none"; } }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "9px 12px",
+        borderRadius: 9,
+        background: "#fafafa",
+        border: "1px solid rgba(0,0,0,0.06)",
+        cursor: onClick ? "pointer" : "default",
+        transition: "background 0.15s, box-shadow 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        if (onClick) {
+          e.currentTarget.style.background = "#f3f0ff";
+          e.currentTarget.style.boxShadow = "0 1px 6px rgba(124,58,237,0.12)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (onClick) {
+          e.currentTarget.style.background = "#fafafa";
+          e.currentTarget.style.boxShadow = "none";
+        }
+      }}
     >
       {/* Rank */}
-      <span style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? "#f59e0b" : "#9ca3af", width: 16, flexShrink: 0 }}>
+      <span
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          color: idx === 0 ? "#f59e0b" : "#9ca3af",
+          width: 16,
+          flexShrink: 0,
+        }}
+      >
         {idx === 0 ? "★" : `#${idx + 1}`}
       </span>
       {/* Avatar */}
-      <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${idx * 55 + 250}, 60%, 92%)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `2px solid hsl(${idx * 55 + 250}, 50%, 75%)` }}>
-        <span style={{ fontSize: 11, fontWeight: 800, color: `hsl(${idx * 55 + 250}, 50%, 35%)` }}>{initials}</span>
+      <div
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: "50%",
+          background: `hsl(${idx * 55 + 250}, 60%, 92%)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          border: `2px solid hsl(${idx * 55 + 250}, 50%, 75%)`,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 800,
+            color: `hsl(${idx * 55 + 250}, 50%, 35%)`,
+          }}
+        >
+          {initials}
+        </span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>{f.full_name}</p>
-        <div style={{ display: "flex", gap: 10, marginTop: 2, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>Active: <strong style={{ color: "#374151" }}>{f.active_count}</strong></span>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>Done: <strong style={{ color: "#059669" }}>{f.completed_count}</strong></span>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>Pending: <strong style={{ color: "#d97706" }}>{f.pending_count}</strong></span>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>Delayed: <strong style={{ color: delayedCount > 0 ? "#dc2626" : "#374151" }}>{delayedCount}</strong></span>
+        <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>
+          {f.full_name}
+        </p>
+        <div
+          style={{ display: "flex", gap: 10, marginTop: 2, flexWrap: "wrap" }}
+        >
+          <span style={{ fontSize: 10, color: "#6b7280" }}>
+            Active:{" "}
+            <strong style={{ color: "#374151" }}>{f.active_count}</strong>
+          </span>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>
+            Done:{" "}
+            <strong style={{ color: "#059669" }}>{f.completed_count}</strong>
+          </span>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>
+            Pending:{" "}
+            <strong style={{ color: "#d97706" }}>{f.pending_count}</strong>
+          </span>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>
+            Delayed:{" "}
+            <strong style={{ color: delayedCount > 0 ? "#dc2626" : "#374151" }}>
+              {delayedCount}
+            </strong>
+          </span>
         </div>
       </div>
       {/* Completion rate */}
       <div style={{ width: 80, textAlign: "right" }}>
-        <p style={{ fontSize: 14, fontWeight: 800, color: rateColor, lineHeight: 1 }}>{rate}%</p>
-        <div style={{ height: 4, borderRadius: 2, background: "#f3f4f6", marginTop: 4 }}>
-          <div style={{ height: 4, borderRadius: 2, background: rateColor, width: `${rate}%` }} />
+        <p
+          style={{
+            fontSize: 14,
+            fontWeight: 800,
+            color: rateColor,
+            lineHeight: 1,
+          }}
+        >
+          {rate}%
+        </p>
+        <div
+          style={{
+            height: 4,
+            borderRadius: 2,
+            background: "#f3f4f6",
+            marginTop: 4,
+          }}
+        >
+          <div
+            style={{
+              height: 4,
+              borderRadius: 2,
+              background: rateColor,
+              width: `${rate}%`,
+            }}
+          />
         </div>
       </div>
       {onClick && (
-        <ChevronRight style={{ width: 14, height: 14, color: "#c4c4d4", flexShrink: 0 }} />
+        <ChevronRight
+          style={{ width: 14, height: 14, color: "#c4c4d4", flexShrink: 0 }}
+        />
       )}
     </div>
   );
@@ -322,52 +677,136 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick }) {
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map(w => w[0])
+    .map((w) => w[0])
     .join("")
     .toUpperCase();
   const delayedCount = Array.isArray(delayedDocs)
-    ? delayedDocs.filter(d => d.faculty_name === f.full_name).length
+    ? delayedDocs.filter((d) => d.faculty_name === f.full_name).length
     : 0;
 
   return (
     <tr
       onClick={() => onClick && onClick(f)}
-      style={{ cursor: onClick ? "pointer" : "default", borderBottom: "1px solid #e3dfff", transition: "background-color 0.15s" }}
-      onMouseEnter={e => { if (onClick) e.currentTarget.style.background = "rgba(246,242,255,0.6)"; }}
-      onMouseLeave={e => { if (onClick) e.currentTarget.style.background = "transparent"; }}
+      style={{
+        cursor: onClick ? "pointer" : "default",
+        borderBottom: "1px solid #e3dfff",
+        transition: "background-color 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        if (onClick) e.currentTarget.style.background = "rgba(246,242,255,0.6)";
+      }}
+      onMouseLeave={(e) => {
+        if (onClick) e.currentTarget.style.background = "transparent";
+      }}
     >
       <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div
             style={{
-              width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              flexShrink: 0,
               background: `hsl(${idx * 55 + 250}, 60%, 92%)`,
               border: `2px solid hsl(${idx * 55 + 250}, 50%, 78%)`,
-              display: "flex", alignItems: "center", justifyContent: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <span style={{ fontSize: 12, fontWeight: 700, color: `hsl(${idx * 55 + 250}, 55%, 35%)` }}>{initials}</span>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: `hsl(${idx * 55 + 250}, 55%, 35%)`,
+              }}
+            >
+              {initials}
+            </span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-            <span style={{ fontSize: 14, fontWeight: 500, color: "#181445", lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.full_name}</span>
-            <span style={{ fontSize: 11, color: "#7b7486" }}>{idx === 0 ? "Top performer" : "Faculty member"}</span>
+          <div
+            style={{ display: "flex", flexDirection: "column", minWidth: 0 }}
+          >
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 500,
+                color: "#181445",
+                lineHeight: 1.3,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {f.full_name}
+            </span>
+            <span style={{ fontSize: 11, color: "#7b7486" }}>
+              {idx === 0 ? "Top performer" : "Faculty member"}
+            </span>
           </div>
         </div>
       </td>
-      <td style={{ padding: "16px 24px", textAlign: "center", fontSize: 14, fontWeight: 600, color: "#181445" }}>
+      <td
+        style={{
+          padding: "16px 24px",
+          textAlign: "center",
+          fontSize: 14,
+          fontWeight: 600,
+          color: "#181445",
+        }}
+      >
         {f.completed_count ?? 0}
       </td>
-      <td style={{ padding: "16px 24px", textAlign: "center", fontSize: 14, fontWeight: 600, color: "#6b38d4" }}>
+      <td
+        style={{
+          padding: "16px 24px",
+          textAlign: "center",
+          fontSize: 14,
+          fontWeight: 600,
+          color: "#6b38d4",
+        }}
+      >
         {f.active_count ?? 0}
       </td>
-      <td style={{ padding: "16px 24px", textAlign: "center", fontSize: 14, fontWeight: 600, color: delayedCount > 0 ? "#ba1a1a" : "#181445" }}>
+      <td
+        style={{
+          padding: "16px 24px",
+          textAlign: "center",
+          fontSize: 14,
+          fontWeight: 600,
+          color: delayedCount > 0 ? "#ba1a1a" : "#181445",
+        }}
+      >
         {f.pending_count ?? 0}
       </td>
       <td style={{ padding: "16px 24px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 5, width: 110 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: rateColor }}>{rate}%</span>
-          <div style={{ width: "100%", background: "#e3dfff", borderRadius: 999, height: 6 }}>
-            <div style={{ width: `${Math.min(rate, 100)}%`, background: rateColor, height: 6, borderRadius: 999 }} />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 5,
+            width: 110,
+          }}
+        >
+          <span style={{ fontSize: 13, fontWeight: 600, color: rateColor }}>
+            {rate}%
+          </span>
+          <div
+            style={{
+              width: "100%",
+              background: "#e3dfff",
+              borderRadius: 999,
+              height: 6,
+            }}
+          >
+            <div
+              style={{
+                width: `${Math.min(rate, 100)}%`,
+                background: rateColor,
+                height: 6,
+                borderRadius: 999,
+              }}
+            />
           </div>
         </div>
       </td>
@@ -383,7 +822,14 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick }) {
 // ── Faculty Performance — individual detail panel ───────────────────────────
 const DONE_STATUSES = ["Approved", "Completed", "Archived"];
 
-function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, trackedItems }) {
+function FacultyDetailPanel({
+  open,
+  onClose,
+  onBack,
+  faculty,
+  delayedDocs,
+  trackedItems,
+}) {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Reset the expanded category whenever a different faculty member is opened
@@ -399,83 +845,204 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, track
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map(w => w[0])
+    .map((w) => w[0])
     .join("")
     .toUpperCase();
 
   // Items (documents/tasks/forms) belonging to this faculty member, pulled
   // from the same merged list that powers the tracking table.
   const facultyItems = Array.isArray(trackedItems)
-    ? trackedItems.filter(t => t.person === faculty.full_name)
+    ? trackedItems.filter((t) => t.person === faculty.full_name)
     : [];
 
   const facultyDelayedDocs = Array.isArray(delayedDocs)
-    ? delayedDocs.filter(d => d.faculty_name === faculty.full_name)
+    ? delayedDocs.filter((d) => d.faculty_name === faculty.full_name)
     : [];
 
-  const doneItems    = facultyItems.filter(t => DONE_STATUSES.includes(t.status));
-  const pendingItems = facultyItems.filter(t => t.status === "Pending");
-  const delayedItems = facultyItems.filter(t => t.status === "Overdue");
+  const doneItems = facultyItems.filter((t) =>
+    DONE_STATUSES.includes(t.status),
+  );
+  const pendingItems = facultyItems.filter((t) => t.status === "Pending");
+  const delayedItems = facultyItems.filter((t) => t.status === "Overdue");
   // "Active" = everything still moving that isn't done, pending, or overdue
   // (e.g. Under Review, For Approval, Returned).
   const activeItems = facultyItems.filter(
-    t => !DONE_STATUSES.includes(t.status) && t.status !== "Pending" && t.status !== "Overdue"
+    (t) =>
+      !DONE_STATUSES.includes(t.status) &&
+      t.status !== "Pending" &&
+      t.status !== "Overdue",
   );
 
   const delayedCount = facultyDelayedDocs.length || delayedItems.length;
 
   const stats = [
-    { label: "Active",  value: faculty.active_count ?? activeItems.length,    icon: Layers,       color: "#5e3bdb", items: activeItems  },
-    { label: "Done",    value: faculty.completed_count ?? doneItems.length,   icon: CheckCircle2, color: "#059669", items: doneItems    },
-    { label: "Pending", value: faculty.pending_count ?? pendingItems.length,  icon: Clock,        color: "#d97706", items: pendingItems },
-    { label: "Delayed", value: delayedCount,                                  icon: AlertCircle,  color: "#dc2626", items: delayedItems },
+    {
+      label: "Active",
+      value: faculty.active_count ?? activeItems.length,
+      icon: Layers,
+      color: "#5e3bdb",
+      items: activeItems,
+    },
+    {
+      label: "Done",
+      value: faculty.completed_count ?? doneItems.length,
+      icon: CheckCircle2,
+      color: "#059669",
+      items: doneItems,
+    },
+    {
+      label: "Pending",
+      value: faculty.pending_count ?? pendingItems.length,
+      icon: Clock,
+      color: "#d97706",
+      items: pendingItems,
+    },
+    {
+      label: "Delayed",
+      value: delayedCount,
+      icon: AlertCircle,
+      color: "#dc2626",
+      items: delayedItems,
+    },
   ];
 
-  const activeStat = stats.find(s => s.label === selectedCategory);
+  const activeStat = stats.find((s) => s.label === selectedCategory);
   // Fall back to the faculty's delayed-documents list (richer info) when a
   // faculty member has delayed docs but no matching "Overdue" tracked item.
   const listToShow = activeStat
-    ? (activeStat.label === "Delayed" && activeStat.items.length === 0 && facultyDelayedDocs.length > 0
-        ? facultyDelayedDocs.map(d => ({
-            id: d.tracking_id || d.document_id || d.id,
-            title: d.title || d.document_type || "Delayed document",
-            status: "Overdue",
-            date: d.deadline || d.due_date || d.submitted_at || null,
-          }))
-        : activeStat.items)
+    ? activeStat.label === "Delayed" &&
+      activeStat.items.length === 0 &&
+      facultyDelayedDocs.length > 0
+      ? facultyDelayedDocs.map((d) => ({
+          id: d.tracking_id || d.document_id || d.id,
+          title: d.title || d.document_type || "Delayed document",
+          status: "Overdue",
+          date: d.deadline || d.due_date || d.submitted_at || null,
+        }))
+      : activeStat.items
     : [];
 
   return (
     <div
       onClick={onClose}
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: 20 }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1100,
+        padding: 20,
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 440, maxHeight: "85vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
+        style={{
+          background: "#fff",
+          borderRadius: 14,
+          width: "100%",
+          maxWidth: 440,
+          maxHeight: "85vh",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+        }}
       >
         {/* Header */}
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+        <div
+          style={{
+            padding: "16px 20px",
+            borderBottom: "1px solid rgba(0,0,0,0.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexShrink: 0,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              minWidth: 0,
+            }}
+          >
             {onBack && (
               <button
                 onClick={onBack}
-                style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+                style={{
+                  background: "#f3f4f6",
+                  border: "none",
+                  borderRadius: 8,
+                  width: 28,
+                  height: 28,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                }}
               >
-                <ChevronRight style={{ width: 14, height: 14, color: "#374151", transform: "rotate(180deg)" }} />
+                <ChevronRight
+                  style={{
+                    width: 14,
+                    height: 14,
+                    color: "#374151",
+                    transform: "rotate(180deg)",
+                  }}
+                />
               </button>
             )}
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e6deff", border: "2px solid #cabeff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#481bc6" }}>{initials}</span>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                background: "#e6deff",
+                border: "2px solid #cabeff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#481bc6" }}>
+                {initials}
+              </span>
             </div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{faculty.full_name}</p>
-              <p style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>Performance breakdown</p>
+              <p
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#111827",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {faculty.full_name}
+              </p>
+              <p style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>
+                Performance breakdown
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+            style={{
+              background: "#f3f4f6",
+              border: "none",
+              borderRadius: 8,
+              width: 28,
+              height: 28,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
           >
             <X style={{ width: 15, height: 15, color: "#374151" }} />
           </button>
@@ -483,13 +1050,22 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, track
 
         <div style={{ padding: 20, overflowY: "auto" }}>
           {/* Stat boxes */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 18 }}>
-            {stats.map(s => {
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 8,
+              marginBottom: 18,
+            }}
+          >
+            {stats.map((s) => {
               const isSelected = selectedCategory === s.label;
               return (
                 <div
                   key={s.label}
-                  onClick={() => setSelectedCategory(isSelected ? null : s.label)}
+                  onClick={() =>
+                    setSelectedCategory(isSelected ? null : s.label)
+                  }
                   style={{
                     padding: "12px 8px",
                     borderRadius: 10,
@@ -500,11 +1076,33 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, track
                     transition: "background 0.15s, border-color 0.15s",
                   }}
                 >
-                  <div style={{ width: 26, height: 26, borderRadius: 7, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 7px" }}>
+                  <div
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: 7,
+                      background: `${s.color}18`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      margin: "0 auto 7px",
+                    }}
+                  >
                     <s.icon style={{ width: 13, height: 13, color: s.color }} />
                   </div>
-                  <p style={{ fontSize: 18, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
-                  <p style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>{s.label}</p>
+                  <p
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: s.color,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {s.value}
+                  </p>
+                  <p style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>
+                    {s.label}
+                  </p>
                 </div>
               );
             })}
@@ -512,50 +1110,136 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, track
 
           {/* Completion rate */}
           <div style={{ marginBottom: selectedCategory ? 16 : 0 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-              <span style={{ fontSize: 11, color: "#6b7280" }}>Completion Rate</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: rateColor }}>{rate}%</span>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 5,
+              }}
+            >
+              <span style={{ fontSize: 11, color: "#6b7280" }}>
+                Completion Rate
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: rateColor }}>
+                {rate}%
+              </span>
             </div>
             <div style={{ height: 6, borderRadius: 3, background: "#f3f4f6" }}>
-              <div style={{ height: 6, borderRadius: 3, background: rateColor, width: `${rate}%` }} />
+              <div
+                style={{
+                  height: 6,
+                  borderRadius: 3,
+                  background: rateColor,
+                  width: `${rate}%`,
+                }}
+              />
             </div>
           </div>
 
           {/* Expanded task list for the selected box */}
           {activeStat && (
-            <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div
+              style={{
+                borderTop: "1px solid rgba(0,0,0,0.08)",
+                paddingTop: 14,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 10,
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <activeStat.icon style={{ width: 13, height: 13, color: activeStat.color }} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{activeStat.label} tasks</span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>({listToShow.length})</span>
+                  <activeStat.icon
+                    style={{ width: 13, height: 13, color: activeStat.color }}
+                  />
+                  <span
+                    style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}
+                  >
+                    {activeStat.label} tasks
+                  </span>
+                  <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                    ({listToShow.length})
+                  </span>
                 </div>
                 <button
                   onClick={() => setSelectedCategory(null)}
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 11, padding: 2 }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#9ca3af",
+                    fontSize: 11,
+                    padding: 2,
+                  }}
                 >
                   <X style={{ width: 12, height: 12 }} />
                 </button>
               </div>
 
               {listToShow.length === 0 ? (
-                <p style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "14px 0" }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "#9ca3af",
+                    textAlign: "center",
+                    padding: "14px 0",
+                  }}
+                >
                   No {activeStat.label.toLowerCase()} items found.
                 </p>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 6 }}
+                >
                   {listToShow.map((item, i) => (
                     <div
                       key={item.id || i}
-                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: "#fafafa", border: "1px solid rgba(0,0,0,0.06)" }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "9px 10px",
+                        borderRadius: 8,
+                        background: "#fafafa",
+                        border: "1px solid rgba(0,0,0,0.06)",
+                      }}
                     >
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: activeStat.color, flexShrink: 0 }} />
+                      <div
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: activeStat.color,
+                          flexShrink: 0,
+                        }}
+                      />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 11.5, fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <p
+                          style={{
+                            fontSize: 11.5,
+                            fontWeight: 600,
+                            color: "#111827",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
                           {item.title || "Untitled item"}
                         </p>
                         {item.date && (
-                          <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>{item.date}</p>
+                          <p
+                            style={{
+                              fontSize: 10,
+                              color: "#9ca3af",
+                              marginTop: 1,
+                            }}
+                          >
+                            {item.date}
+                          </p>
                         )}
                       </div>
                       <span
@@ -584,41 +1268,113 @@ function FacultyDetailPanel({ open, onClose, onBack, faculty, delayedDocs, track
 }
 
 // ── Faculty Performance — full list modal ──────────────────────────────────
-function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs, onSelectFaculty }) {
+function FacultyPerformanceModal({
+  open,
+  onClose,
+  faculty,
+  delayedDocs,
+  onSelectFaculty,
+}) {
   if (!open) return null;
 
   return (
     <div
       onClick={onClose}
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: 20,
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 620, maxHeight: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}
+        style={{
+          background: "#fff",
+          borderRadius: 14,
+          width: "100%",
+          maxWidth: 620,
+          maxHeight: "80vh",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        }}
       >
-        <div style={{ padding: "16px 20px 0", borderBottom: "1px solid rgba(0,0,0,0.08)", flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 14 }}>
+        <div
+          style={{
+            padding: "16px 20px 0",
+            borderBottom: "1px solid rgba(0,0,0,0.08)",
+            flexShrink: 0,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingBottom: 14,
+            }}
+          >
             <div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Faculty Performance</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>
+                Faculty Performance
+              </p>
               <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
                 {`${faculty.length} faculty member${faculty.length === 1 ? "" : "s"}`}
               </p>
             </div>
             <button
               onClick={onClose}
-              style={{ background: "#f3f4f6", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{
+                background: "#f3f4f6",
+                border: "none",
+                borderRadius: 8,
+                width: 28,
+                height: 28,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
             >
               <X style={{ width: 15, height: 15, color: "#374151" }} />
             </button>
           </div>
         </div>
 
-        <div style={{ padding: 16, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div
+          style={{
+            padding: 16,
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
           {faculty.length === 0 ? (
-            <p style={{ padding: "16px 4px", textAlign: "center", color: "#9ca3af", fontSize: 12 }}>No faculty performance data yet.</p>
+            <p
+              style={{
+                padding: "16px 4px",
+                textAlign: "center",
+                color: "#9ca3af",
+                fontSize: 12,
+              }}
+            >
+              No faculty performance data yet.
+            </p>
           ) : (
             faculty.map((f, idx) => (
-              <FacultyPerformanceRow key={f.id} f={f} idx={idx} delayedDocs={delayedDocs} onClick={onSelectFaculty} />
+              <FacultyPerformanceRow
+                key={f.id}
+                f={f}
+                idx={idx}
+                delayedDocs={delayedDocs}
+                onClick={onSelectFaculty}
+              />
             ))
           )}
         </div>
@@ -627,23 +1383,92 @@ function FacultyPerformanceModal({ open, onClose, faculty, delayedDocs, onSelect
   );
 }
 
-function SectionCard({ id, title, subtitle, icon: Icon, children, action, noPad, accentColor, titleColor, footer }) {
+function SectionCard({
+  id,
+  title,
+  subtitle,
+  icon: Icon,
+  children,
+  action,
+  noPad,
+  accentColor,
+  titleColor,
+  footer,
+}) {
   return (
-    <div id={id} style={{ background: "#ffffff", border: "1px solid #c9c4d7", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(25,27,36,0.05)", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "16px 20px", borderBottom: "1px solid #c9c4d7", background: "#faf8ff", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+    <div
+      id={id}
+      style={{
+        background: "#ffffff",
+        border: "1px solid #c9c4d7",
+        borderRadius: 12,
+        overflow: "hidden",
+        boxShadow: "0 1px 3px rgba(25,27,36,0.05)",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div
+        style={{
+          padding: "16px 20px",
+          borderBottom: "1px solid #c9c4d7",
+          background: "#faf8ff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexShrink: 0,
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 30, height: 30, borderRadius: 8, background: accentColor ? `${accentColor}18` : "#e6deff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon style={{ width: 15, height: 15, color: accentColor || "#5e3bdb" }} />
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              background: accentColor ? `${accentColor}18` : "#e6deff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Icon
+              style={{ width: 15, height: 15, color: accentColor || "#5e3bdb" }}
+            />
           </div>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 600, color: titleColor || "#191b24", lineHeight: 1.3 }}>{title}</p>
-            {subtitle && <p style={{ fontSize: 12, color: "#484555", marginTop: 1 }}>{subtitle}</p>}
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: titleColor || "#191b24",
+                lineHeight: 1.3,
+              }}
+            >
+              {title}
+            </p>
+            {subtitle && (
+              <p style={{ fontSize: 12, color: "#484555", marginTop: 1 }}>
+                {subtitle}
+              </p>
+            )}
           </div>
         </div>
         {action}
       </div>
-      <div style={{ padding: noPad ? 0 : "16px 20px", flex: 1 }}>{children}</div>
-      {footer && <div style={{ padding: "12px 20px", borderTop: "1px solid #c9c4d7", flexShrink: 0 }}>{footer}</div>}
+      <div style={{ padding: noPad ? 0 : "16px 20px", flex: 1 }}>
+        {children}
+      </div>
+      {footer && (
+        <div
+          style={{
+            padding: "12px 20px",
+            borderTop: "1px solid #c9c4d7",
+            flexShrink: 0,
+          }}
+        >
+          {footer}
+        </div>
+      )}
     </div>
   );
 }
@@ -653,11 +1478,31 @@ function TableEmptyState({ icon: Icon, message, colSpan }) {
   return (
     <tr>
       <td colSpan={colSpan} style={{ padding: "36px 20px" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 9,
+              background: "#f3f2ff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Icon style={{ width: 16, height: 16, color: "#a89cdb" }} />
           </div>
-          <p style={{ fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>{message}</p>
+          <p style={{ fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>
+            {message}
+          </p>
         </div>
       </td>
     </tr>
@@ -666,11 +1511,33 @@ function TableEmptyState({ icon: Icon, message, colSpan }) {
 
 function ListEmptyState({ icon: Icon, message }) {
   return (
-    <div style={{ padding: "36px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-      <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "grid", placeItems: "center" }}>
+    <div
+      style={{
+        padding: "36px 20px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+      }}
+    >
+      <div
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: 9,
+          background: "#f3f2ff",
+          display: "grid",
+          placeItems: "center",
+        }}
+      >
         <Icon size={16} color="#a89cdb" />
       </div>
-      <p style={{ margin: 0, fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>{message}</p>
+      <p
+        style={{ margin: 0, fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}
+      >
+        {message}
+      </p>
     </div>
   );
 }
@@ -679,9 +1546,18 @@ function ListEmptyState({ icon: Icon, message }) {
 function HoverRow({ children, style }) {
   return (
     <tr
-      style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", verticalAlign: "top", transition: "background-color 0.12s", ...style }}
-      onMouseEnter={e => { e.currentTarget.style.background = "#faf9ff"; }}
-      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+      style={{
+        borderBottom: "1px solid rgba(0,0,0,0.05)",
+        verticalAlign: "top",
+        transition: "background-color 0.12s",
+        ...style,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "#faf9ff";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+      }}
     >
       {children}
     </tr>
@@ -693,9 +1569,22 @@ function RowLinkButton({ onClick, children }) {
   return (
     <button
       onClick={onClick}
-      style={{ fontSize: 11, fontWeight: 700, color: "#5e3bdb", background: "none", border: "none", cursor: "pointer", padding: 0, textDecoration: "none" }}
-      onMouseEnter={e => { e.currentTarget.style.textDecoration = "underline"; }}
-      onMouseLeave={e => { e.currentTarget.style.textDecoration = "none"; }}
+      style={{
+        fontSize: 11,
+        fontWeight: 700,
+        color: "#5e3bdb",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: 0,
+        textDecoration: "none",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.textDecoration = "underline";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.textDecoration = "none";
+      }}
     >
       {children}
     </button>
@@ -703,15 +1592,37 @@ function RowLinkButton({ onClick, children }) {
 }
 
 // ── Pagination footer shared by the faculty-side dashboard tables ──────────
-function TablePagination({ page, totalPages, start, end, total, onPrev, onNext }) {
-  const btnStyle = disabled => ({
-    padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-    border: "1px solid #e5e7eb", background: disabled ? "#f9fafb" : "#fff",
-    color: disabled ? "#c1c5cb" : "#374151", cursor: disabled ? "not-allowed" : "pointer",
+function TablePagination({
+  page,
+  totalPages,
+  start,
+  end,
+  total,
+  onPrev,
+  onNext,
+}) {
+  const btnStyle = (disabled) => ({
+    padding: "5px 10px",
+    borderRadius: 6,
+    fontSize: 11,
+    fontWeight: 600,
+    border: "1px solid #e5e7eb",
+    background: disabled ? "#f9fafb" : "#fff",
+    color: disabled ? "#c1c5cb" : "#374151",
+    cursor: disabled ? "not-allowed" : "pointer",
     transition: "background-color 0.12s, border-color 0.12s",
   });
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderTop: "1px solid rgba(0,0,0,0.06)", background: "#fcfcfd" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "10px 14px",
+        borderTop: "1px solid rgba(0,0,0,0.06)",
+        background: "#fcfcfd",
+      }}
+    >
       <span style={{ fontSize: 11, color: "#6b7280" }}>
         Showing {start}–{end} of {total}
       </span>
@@ -720,20 +1631,37 @@ function TablePagination({ page, totalPages, start, end, total, onPrev, onNext }
           onClick={onPrev}
           disabled={page === 1}
           style={btnStyle(page === 1)}
-          onMouseEnter={e => { if (page !== 1) e.currentTarget.style.borderColor = "#ddd6fe"; }}
-          onMouseLeave={e => { if (page !== 1) e.currentTarget.style.borderColor = "#e5e7eb"; }}
+          onMouseEnter={(e) => {
+            if (page !== 1) e.currentTarget.style.borderColor = "#ddd6fe";
+          }}
+          onMouseLeave={(e) => {
+            if (page !== 1) e.currentTarget.style.borderColor = "#e5e7eb";
+          }}
         >
           Previous
         </button>
-        <span style={{ fontSize: 11, color: "#374151", fontWeight: 600, padding: "0 4px" }}>
+        <span
+          style={{
+            fontSize: 11,
+            color: "#374151",
+            fontWeight: 600,
+            padding: "0 4px",
+          }}
+        >
           Page {page} of {totalPages}
         </span>
         <button
           onClick={onNext}
           disabled={page === totalPages}
           style={btnStyle(page === totalPages)}
-          onMouseEnter={e => { if (page !== totalPages) e.currentTarget.style.borderColor = "#ddd6fe"; }}
-          onMouseLeave={e => { if (page !== totalPages) e.currentTarget.style.borderColor = "#e5e7eb"; }}
+          onMouseEnter={(e) => {
+            if (page !== totalPages)
+              e.currentTarget.style.borderColor = "#ddd6fe";
+          }}
+          onMouseLeave={(e) => {
+            if (page !== totalPages)
+              e.currentTarget.style.borderColor = "#e5e7eb";
+          }}
         >
           Next
         </button>
@@ -750,49 +1678,299 @@ function QuickActionRow({ icon: Icon, title, subtitle, onClick }) {
     <div
       onClick={onClick}
       style={{
-        display: "flex", alignItems: "center", gap: 12, padding: "12px 14px",
-        border: "1px solid #ededf9", borderRadius: 10, cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "12px 14px",
+        border: "1px solid #ededf9",
+        borderRadius: 10,
+        cursor: "pointer",
         transition: "background-color 0.15s, border-color 0.15s",
       }}
-      onMouseEnter={e => { e.currentTarget.style.background = "#faf8ff"; e.currentTarget.style.borderColor = "#ddd6fe"; }}
-      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "#ededf9"; }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "#faf8ff";
+        e.currentTarget.style.borderColor = "#ddd6fe";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.borderColor = "#ededf9";
+      }}
     >
-      <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f3f2ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <div
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: 9,
+          background: "#f3f2ff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
         <Icon style={{ width: 16, height: 16, color: "#5e3bdb" }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: "#191b24" }}>{title}</p>
-        <p style={{ fontSize: 11.5, color: "#5d5e64", marginTop: 1 }}>{subtitle}</p>
+        <p style={{ fontSize: 13, fontWeight: 600, color: "#191b24" }}>
+          {title}
+        </p>
+        <p style={{ fontSize: 11.5, color: "#5d5e64", marginTop: 1 }}>
+          {subtitle}
+        </p>
       </div>
-      <ChevronRight style={{ width: 15, height: 15, color: "#c1c5dc", flexShrink: 0 }} />
+      <ChevronRight
+        style={{ width: 15, height: 15, color: "#c1c5dc", flexShrink: 0 }}
+      />
     </div>
   );
 }
 
 const ADMIN_QUICK_ACTIONS = [
-  { icon: UserCheck, title: "Assign Task", subtitle: "Delegate work to faculty", to: "/tasks" },
-  { icon: PieChart, title: "View Tracking", subtitle: "Monitor submission progress", to: "/tracking" },
-  { icon: Tag, title: "Manage Categories", subtitle: "Organize form categories", to: "/categories" },
-  { icon: Users, title: "System Users", subtitle: "Manage accounts and roles", to: "/users" },
-  { icon: Timer, title: "SLA Configuration", subtitle: "Set response and resolution targets", to: "/sla-configuration" },
+  {
+    icon: UserCheck,
+    title: "Assign Task",
+    subtitle: "Delegate work to faculty",
+    to: "/tasks",
+  },
+  {
+    icon: PieChart,
+    title: "View Tracking",
+    subtitle: "Monitor submission progress",
+    to: "/tracking",
+  },
+  {
+    icon: Tag,
+    title: "Manage Categories",
+    subtitle: "Organize form categories",
+    to: "/categories",
+  },
+  {
+    icon: Users,
+    title: "System Users",
+    subtitle: "Manage accounts and roles",
+    to: "/users",
+  },
+  {
+    icon: Timer,
+    title: "SLA Configuration",
+    subtitle: "Set response and resolution targets",
+    to: "/sla-configuration",
+  },
 ];
 
 const FACULTY_QUICK_ACTIONS = [
-  { icon: ListTodo, title: "My Tasks", subtitle: "Review your current assignments", to: "/tasks" },
-  { icon: FileText, title: "Submit Forms", subtitle: "Start a new form submission", to: "/forms" },
-  { icon: Activity, title: "Tracking", subtitle: "Check the status of your items", to: "/tracking" },
-  { icon: MessageSquare, title: "Messages", subtitle: "View your inbox", to: "/inbox" },
+  {
+    icon: ListTodo,
+    title: "My Tasks",
+    subtitle: "Review your current assignments",
+    to: "/tasks",
+  },
+  {
+    icon: FileText,
+    title: "Submit Forms",
+    subtitle: "Start a new form submission",
+    to: "/forms",
+  },
+  {
+    icon: Activity,
+    title: "Tracking",
+    subtitle: "Check the status of your items",
+    to: "/tracking",
+  },
+  {
+    icon: MessageSquare,
+    title: "Messages",
+    subtitle: "View your inbox",
+    to: "/inbox",
+  },
 ];
 
 function QuickActionsPanel({ navigate, actions = ADMIN_QUICK_ACTIONS }) {
   return (
-    <SectionCard title="Quick Actions" subtitle="Shortcuts to common tasks" icon={Zap}>
+    <SectionCard
+      title="Quick Actions"
+      subtitle="Shortcuts to common tasks"
+      icon={Zap}
+    >
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {actions.map(a => (
-          <QuickActionRow key={a.title} icon={a.icon} title={a.title} subtitle={a.subtitle} onClick={() => navigate(a.to)} />
+        {actions.map((a) => (
+          <QuickActionRow
+            key={a.title}
+            icon={a.icon}
+            title={a.title}
+            subtitle={a.subtitle}
+            onClick={() => navigate(a.to)}
+          />
         ))}
       </div>
     </SectionCard>
+  );
+}
+
+function FacultyDashboardOverview({ displayName, forms, loading, navigate }) {
+  const statusOf = (row) => String(row.status || "").toLowerCase();
+  const inReview = forms.filter((row) => /review|pending/.test(statusOf(row)));
+  const returned = forms.filter((row) =>
+    /returned|revision/.test(statusOf(row)),
+  );
+  const drafts = forms.filter((row) => /draft/.test(statusOf(row)));
+  const approved = forms.filter((row) =>
+    /approved|received/.test(statusOf(row)),
+  );
+  const active = forms.filter(
+    (row) => !/approved|received|rejected|archived/.test(statusOf(row)),
+  );
+  const returnedForm = returned[0];
+  const cards = [
+    {
+      label: "Active submissions",
+      value: active.length,
+      detail: "Across your current work",
+      icon: FileText,
+      color: "#7c3aed",
+    },
+    {
+      label: "In review",
+      value: inReview.length,
+      detail: "With the review team",
+      icon: Clock,
+      color: "#b7791f",
+    },
+    {
+      label: "Needs revision",
+      value: returned.length,
+      detail: "A response is required",
+      icon: RotateCcw,
+      color: "#c26b4d",
+    },
+    {
+      label: "Completed",
+      value: approved.length,
+      detail: "Approved records",
+      icon: CheckCircle2,
+      color: "#27805d",
+    },
+  ];
+  return (
+    <>
+      <section className="faculty-dashboard-hero">
+        <div>
+          <span>Faculty workspace · your document flow</span>
+          <h1>Good morning, {displayName}.</h1>
+          <p>
+            Keep your submissions moving, respond to review requests, and see
+            each handoff in one place.
+          </p>
+        </div>
+        <button type="button" onClick={() => navigate("/forms?tab=submit")}>
+          <Plus size={16} /> Start a submission
+        </button>
+      </section>
+      <section className="faculty-dashboard-stats">
+        {cards.map((card) => {
+          const CardIcon = card.icon;
+          return (
+            <article key={card.label}>
+              <div>
+                <span>{card.label}</span>
+                <strong>{String(card.value).padStart(2, "0")}</strong>
+                <small>{card.detail}</small>
+              </div>
+              <i style={{ color: card.color, background: `${card.color}18` }}>
+                <CardIcon size={16} />
+              </i>
+            </article>
+          );
+        })}
+      </section>
+      <section className="faculty-dashboard-focus">
+        <article>
+          {returnedForm ? (
+            <>
+              <span className="faculty-kicker">Needs your attention</span>
+              <div className="faculty-return-title">
+                <i>
+                  <RotateCcw size={17} />
+                </i>
+                <div>
+                  <h2>{returnedForm.title}</h2>
+                  <p>Returned for revision · {returnedForm.date}</p>
+                </div>
+              </div>
+              <div className="faculty-return-note">
+                Review the requested updates, attach the revised file, and
+                resubmit it for the next handoff.
+              </div>
+              <button type="button" onClick={() => navigate("/forms")}>
+                Review request <ArrowUpRight size={14} />
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="faculty-kicker">Your workflow</span>
+              <h2>Everything is on track</h2>
+              <p className="faculty-empty-copy">
+                No submissions currently need a revision from you.
+              </p>
+            </>
+          )}
+        </article>
+        <article>
+          <span className="faculty-kicker">Your workflow health</span>
+          <h2>Every handoff is traceable</h2>
+          <p>
+            Your draft, file, reviewer notes, and status updates remain linked
+            through PATH.
+          </p>
+          <div className="faculty-health-meta">
+            <span>
+              <ShieldCheck size={14} /> {inReview.length} records in review
+            </span>
+            <span>Live data</span>
+          </div>
+        </article>
+      </section>
+      <section className="faculty-dashboard-list">
+        <header>
+          <div>
+            <span className="faculty-kicker">Your documents</span>
+            <h2>Continue where you left off</h2>
+          </div>
+          <button type="button" onClick={() => navigate("/forms")}>
+            Open My Submissions <ArrowUpRight size={14} />
+          </button>
+        </header>
+        {loading ? (
+          <p className="faculty-list-empty">Loading your submissions…</p>
+        ) : (
+          active.slice(0, 5).map((row) => (
+            <button
+              type="button"
+              className="faculty-document-row"
+              key={row.id}
+              onClick={() => navigate("/forms")}
+            >
+              <i>
+                <FileText size={15} />
+              </i>
+              <span>
+                <strong>{row.title}</strong>
+                <small>
+                  {row.id} · {row.date}
+                </small>
+              </span>
+              <StatusBadge s={row.status} />
+              <ArrowUpRight size={15} color="#b3a6bd" />
+            </button>
+          ))
+        )}
+        {!loading && active.length === 0 && (
+          <p className="faculty-list-empty">
+            You have no active submissions. Start a new document to begin.
+          </p>
+        )}
+      </section>
+    </>
   );
 }
 
@@ -800,11 +1978,18 @@ function QuickActionsPanel({ navigate, actions = ADMIN_QUICK_ACTIONS }) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const user = (() => { try { return JSON.parse(atob(token.split(".")[1])); } catch { return {}; } })();
+  const user = (() => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch {
+      return {};
+    }
+  })();
 
   const [activeNav, setActiveNav] = useState("dashboard");
   const [notifOpen, setNotifOpen] = useState(false);
   const [taskFilter, setTaskFilter] = useState("All");
+  const isFacultyDashboard = !ADMIN_NAV_ROLES.includes(user.role);
 
   // ── Live data for the "Document, Form & Task Tracking" table ────────────────
   const [trackedItems, setTrackedItems] = useState([]);
@@ -846,17 +2031,31 @@ export default function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         const forms = data.forms ?? data ?? [];
-        const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+        const fmtDate = (d) =>
+          d
+            ? new Date(d).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "—";
         setMyFormsData(
-          (Array.isArray(forms) ? forms : []).map(f => ({
+          (Array.isArray(forms) ? forms : []).map((f) => ({
             id: f.tracking_id || `FRM-${f.id}`,
             title: f.category ? `${f.category} Form` : "Form Submission",
             date: fmtDate(f.filing_date || f.created_at),
-            status: REAL_STATUS_DISPLAY[f.status?.toLowerCase()] || f.status || "Pending",
-          }))
+            status:
+              REAL_STATUS_DISPLAY[f.status?.toLowerCase()] ||
+              f.status ||
+              "Pending",
+          })),
         );
       } else {
-        console.error("My forms fetch failed:", res.status, await res.text().catch(() => ""));
+        console.error(
+          "My forms fetch failed:",
+          res.status,
+          await res.text().catch(() => ""),
+        );
       }
     } catch (err) {
       console.error("My forms fetch error:", err);
@@ -869,7 +2068,9 @@ export default function Dashboard() {
     setDelayedLoading(true);
     try {
       const authH = { Authorization: `Bearer ${token}` };
-      const res = await fetch(`${API}/api/faculty/delayed-documents`, { headers: authH });
+      const res = await fetch(`${API}/api/faculty/delayed-documents`, {
+        headers: authH,
+      });
       if (res.ok) {
         const data = await res.json();
         const rows = data.delayed ?? [];
@@ -889,7 +2090,9 @@ export default function Dashboard() {
     setFacultyLoading(true);
     try {
       const authH = { Authorization: `Bearer ${token}` };
-      const res = await fetch(`${API}/api/faculty/performance`, { headers: authH });
+      const res = await fetch(`${API}/api/faculty/performance`, {
+        headers: authH,
+      });
       if (res.ok) {
         const data = await res.json();
         const rows = data.faculty ?? data ?? [];
@@ -923,20 +2126,37 @@ export default function Dashboard() {
         if (res.ok) {
           const data = await res.json();
           const users = data.users ?? data ?? [];
-          (Array.isArray(users) ? users : []).forEach(u => {
+          (Array.isArray(users) ? users : []).forEach((u) => {
             const name = u.full_name || u.name || u.username || u.email;
             if (u.id != null && name) userMap[String(u.id)] = name;
           });
         } else {
-          console.error("Users fetch failed:", res.status, await res.text().catch(() => ""));
+          console.error(
+            "Users fetch failed:",
+            res.status,
+            await res.text().catch(() => ""),
+          );
         }
-      } catch (err) { console.error("Users fetch error:", err); }
-      const nameOf = (id) => (id != null && userMap[String(id)]) || (id ? `User #${id}` : "—");
+      } catch (err) {
+        console.error("Users fetch error:", err);
+      }
+      const nameOf = (id) =>
+        (id != null && userMap[String(id)]) || (id ? `User #${id}` : "—");
 
-      const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
-      const daysSince = (d) => d ? Math.max(0, Math.floor((now - new Date(d)) / 86400000)) : 0;
-      const displayStatus = (s) => REAL_STATUS_DISPLAY[s?.toLowerCase()] || s || "Pending";
-      const priorityFor = (days, done) => done ? "Low" : days >= 7 ? "Urgent" : days >= 4 ? "High" : "Normal";
+      const fmtDate = (d) =>
+        d
+          ? new Date(d).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "—";
+      const daysSince = (d) =>
+        d ? Math.max(0, Math.floor((now - new Date(d)) / 86400000)) : 0;
+      const displayStatus = (s) =>
+        REAL_STATUS_DISPLAY[s?.toLowerCase()] || s || "Pending";
+      const priorityFor = (days, done) =>
+        done ? "Low" : days >= 7 ? "Urgent" : days >= 4 ? "High" : "Normal";
 
       // ── Plain tracked documents ──────────────────────────────────────────
       try {
@@ -944,7 +2164,7 @@ export default function Dashboard() {
         if (res.ok) {
           const data = await res.json();
           const documents = data.documents || data || [];
-          (Array.isArray(documents) ? documents : []).forEach(d => {
+          (Array.isArray(documents) ? documents : []).forEach((d) => {
             const rawDate = d.submitted_at || d.created_at;
             const status = displayStatus(d.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
@@ -952,7 +2172,11 @@ export default function Dashboard() {
               id: d.tracking_id || d.document_id || `DOC-${d.id}`,
               sourceType: "document",
               title: d.title || d.document_type || "Document",
-              person: d.submitted_by_name || (d.submitted_by ? nameOf(d.submitted_by) : null) || d.department || "—",
+              person:
+                d.submitted_by_name ||
+                (d.submitted_by ? nameOf(d.submitted_by) : null) ||
+                d.department ||
+                "—",
               date: fmtDate(rawDate),
               dateObj: rawDate ? new Date(rawDate) : null,
               status,
@@ -961,7 +2185,9 @@ export default function Dashboard() {
             });
           });
         }
-      } catch (err) { console.error("Tracking fetch error:", err); }
+      } catch (err) {
+        console.error("Tracking fetch error:", err);
+      }
 
       // ── Tasks assigned ────────────────────────────────────────────────────
       try {
@@ -969,14 +2195,16 @@ export default function Dashboard() {
         if (res.ok) {
           const data = await res.json();
           const tasks = data.tasks ?? data ?? [];
-          (Array.isArray(tasks) ? tasks : []).forEach(t => {
+          (Array.isArray(tasks) ? tasks : []).forEach((t) => {
             const rawDate = t.created_at || t.deadline;
             const status = displayStatus(t.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
             const overdue = t.deadline && new Date(t.deadline) < now && !done;
             // For overdue tasks, "days" should reflect how long past the deadline
             // it is — not how long ago the task was created.
-            const taskDays = overdue ? daysSince(t.deadline) : daysSince(rawDate);
+            const taskDays = overdue
+              ? daysSince(t.deadline)
+              : daysSince(rawDate);
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
               sourceType: "task",
@@ -990,7 +2218,9 @@ export default function Dashboard() {
             });
           });
         }
-      } catch (err) { console.error("Tasks fetch error:", err); }
+      } catch (err) {
+        console.error("Tasks fetch error:", err);
+      }
 
       // ── Forms submitted by faculty ───────────────────────────────────────
       // /api/forms/all is reviewer-only (admin / program_chair) on the
@@ -999,12 +2229,14 @@ export default function Dashboard() {
       // every stat card derived from form data (Submitted Forms, Pending
       // Approvals, Approved This Month, Returned/Revisions) reads 0.
       try {
-        const formsEndpoint = ADMIN_NAV_ROLES.includes(user.role) ? "/api/forms/all" : "/api/forms/my";
+        const formsEndpoint = ADMIN_NAV_ROLES.includes(user.role)
+          ? "/api/forms/all"
+          : "/api/forms/my";
         const res = await fetch(`${API}${formsEndpoint}`, { headers: authH });
         if (res.ok) {
           const data = await res.json();
           const forms = data.forms ?? data ?? [];
-          (Array.isArray(forms) ? forms : []).forEach(f => {
+          (Array.isArray(forms) ? forms : []).forEach((f) => {
             const rawDate = f.filing_date || f.created_at;
             const status = displayStatus(f.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
@@ -1014,12 +2246,16 @@ export default function Dashboard() {
             // gets attributed to the student instead of the faculty member
             // who actually filed it.
             const facultySubmitter =
-              f.submitter_name || f.submitted_by_name ||
+              f.submitter_name ||
+              f.submitted_by_name ||
               (f.submitted_by ? nameOf(f.submitted_by) : null) ||
-              f.faculty_name || f.user_name || f.username ||
-              (f.user_id    ? nameOf(f.user_id)    : null) ||
+              f.faculty_name ||
+              f.user_name ||
+              f.username ||
+              (f.user_id ? nameOf(f.user_id) : null) ||
               (f.faculty_id ? nameOf(f.faculty_id) : null) ||
-              f.full_name || "—";
+              f.full_name ||
+              "—";
             merged.push({
               id: f.tracking_id || `FRM-${f.id}`,
               sourceType: "form",
@@ -1033,14 +2269,21 @@ export default function Dashboard() {
             });
           });
         } else {
-          console.error("Forms fetch failed:", res.status, await res.text().catch(() => ""));
+          console.error(
+            "Forms fetch failed:",
+            res.status,
+            await res.text().catch(() => ""),
+          );
         }
-      } catch (err) { console.error("Forms fetch error:", err); }
+      } catch (err) {
+        console.error("Forms fetch error:", err);
+      }
 
       // Most urgent items first (Urgent > High > Normal > Low), then longest-waiting as tiebreaker
       const PRIORITY_RANK = { Urgent: 0, High: 1, Normal: 2, Low: 3 };
       merged.sort((a, b) => {
-        const rankDiff = (PRIORITY_RANK[a.priority] ?? 4) - (PRIORITY_RANK[b.priority] ?? 4);
+        const rankDiff =
+          (PRIORITY_RANK[a.priority] ?? 4) - (PRIORITY_RANK[b.priority] ?? 4);
         if (rankDiff !== 0) return rankDiff;
         return b.days - a.days;
       });
@@ -1051,12 +2294,21 @@ export default function Dashboard() {
   }, [token]);
 
   useEffect(() => {
-    if (!token) { navigate("/login"); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     fetchTrackedItems();
     fetchFacultyPerformance();
     fetchDelayedDocuments();
     fetchMyForms();
-  }, [token, fetchTrackedItems, fetchFacultyPerformance, fetchDelayedDocuments, fetchMyForms]);
+  }, [
+    token,
+    fetchTrackedItems,
+    fetchFacultyPerformance,
+    fetchDelayedDocuments,
+    fetchMyForms,
+  ]);
 
   // Reset to page 1 whenever the tracked list is refreshed/changes size
   useEffect(() => {
@@ -1071,10 +2323,13 @@ export default function Dashboard() {
     setMyFormsPage(1);
   }, [myFormsData.length]);
 
-  const trackedTotalPages = Math.max(1, Math.ceil(trackedItems.length / TRACKED_PAGE_SIZE));
+  const trackedTotalPages = Math.max(
+    1,
+    Math.ceil(trackedItems.length / TRACKED_PAGE_SIZE),
+  );
   const trackedPageItems = trackedItems.slice(
     (trackedPage - 1) * TRACKED_PAGE_SIZE,
-    trackedPage * TRACKED_PAGE_SIZE
+    trackedPage * TRACKED_PAGE_SIZE,
   );
 
   const handleLogout = () => {
@@ -1082,19 +2337,29 @@ export default function Dashboard() {
     navigate("/login");
   };
 
-  const displayName = user.full_name || user.fullName || user.name || user.username || "User";
+  const displayName =
+    user.full_name || user.fullName || user.name || user.username || "User";
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
-  const displayRole = (user.role || "")
-    .split(/[_\s]+/)
-    .filter(Boolean)
-    .map(w => w[0].toUpperCase() + w.slice(1).toLowerCase())
-    .join(" ") || "User";
+  const displayRole =
+    (user.role || "")
+      .split(/[_\s]+/)
+      .filter(Boolean)
+      .map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ") || "User";
 
   const now = new Date();
-  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const dateStr = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const timeStr = now.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-  const unread = NOTIFICATIONS.filter(n => !n.read).length;
+  const unread = NOTIFICATIONS.filter((n) => !n.read).length;
 
   /* ════════════════════════════════════════════════════════════════════
      Bottleneck & Alerts — live, ported from Reports.jsx so this widget
@@ -1106,41 +2371,55 @@ export default function Dashboard() {
   const DONE_STATUSES = ["Approved", "Rejected", "Archived", "Completed"];
 
   const FACULTY_WORKLOAD = useMemo(() => {
-    return facultyPerformance.map(f => {
+    return facultyPerformance.map((f) => {
       const pending = f.pending_count ?? 0;
       const completed = f.completed_count ?? 0;
       const active = f.active_count ?? 0;
       const name = f.full_name || f.name || "—";
-      const delayedFromEndpoint = delayedDocs.filter(d => d.faculty_name === name).length;
-      const delayedFromItems = trackedItems.filter(i => i.person === name && i.status === "Overdue").length;
+      const delayedFromEndpoint = delayedDocs.filter(
+        (d) => d.faculty_name === name,
+      ).length;
+      const delayedFromItems = trackedItems.filter(
+        (i) => i.person === name && i.status === "Overdue",
+      ).length;
       return {
         name,
         assigned: active + pending + completed,
         pending,
         completed,
         delayed: delayedFromEndpoint || delayedFromItems,
-        rate: Math.round(f.performance_score ?? (active + pending + completed > 0 ? (completed / (active + pending + completed)) * 100 : 0)),
+        rate: Math.round(
+          f.performance_score ??
+            (active + pending + completed > 0
+              ? (completed / (active + pending + completed)) * 100
+              : 0),
+        ),
       };
     });
   }, [facultyPerformance, delayedDocs, trackedItems]);
 
   const ALERT_SLA = {
-    approvalWaitDays: 5,     // "For Approval" items waiting longer than this breach SLA
+    approvalWaitDays: 5, // "For Approval" items waiting longer than this breach SLA
     workflowStagnantDays: 5, // non-task items sitting untouched this long count as a workflow delay
-    pendingReviewDays: 5,    // forms pending longer than this get bundled into one alert
-    highWorkloadTasks: 6,    // active (not-yet-completed) tasks per faculty before flagging
+    pendingReviewDays: 5, // forms pending longer than this get bundled into one alert
+    highWorkloadTasks: 6, // active (not-yet-completed) tasks per faculty before flagging
     returnedStagnantDays: 3, // items sent back for revision that haven't been resubmitted
   };
 
   const BOTTLENECK_ALERTS = useMemo(() => {
     const alerts = [];
-    const active = trackedItems.filter(i => !DONE_STATUSES.includes(i.status));
+    const active = trackedItems.filter(
+      (i) => !DONE_STATUSES.includes(i.status),
+    );
 
     // 1) Overdue Approvals
     active
-      .filter(i => i.status === "For Approval" && i.days >= ALERT_SLA.approvalWaitDays)
+      .filter(
+        (i) =>
+          i.status === "For Approval" && i.days >= ALERT_SLA.approvalWaitDays,
+      )
       .sort((a, b) => b.days - a.days)
-      .forEach(i => {
+      .forEach((i) => {
         const over = i.days - ALERT_SLA.approvalWaitDays;
         alerts.push({
           key: `approval-${i.id}`,
@@ -1153,9 +2432,9 @@ export default function Dashboard() {
 
     // 2) Overdue Tasks
     active
-      .filter(i => i.sourceType === "task" && i.status === "Overdue")
+      .filter((i) => i.sourceType === "task" && i.status === "Overdue")
       .sort((a, b) => b.days - a.days)
-      .forEach(i => {
+      .forEach((i) => {
         alerts.push({
           key: `task-${i.id}`,
           tier: "critical",
@@ -1166,11 +2445,13 @@ export default function Dashboard() {
       });
 
     // 3) High Workload — faculty carrying more active tasks than the threshold
-    FACULTY_WORKLOAD
-      .map(f => ({ ...f, active: Math.max(0, f.assigned - f.completed) }))
-      .filter(f => f.active >= ALERT_SLA.highWorkloadTasks)
+    FACULTY_WORKLOAD.map((f) => ({
+      ...f,
+      active: Math.max(0, f.assigned - f.completed),
+    }))
+      .filter((f) => f.active >= ALERT_SLA.highWorkloadTasks)
       .sort((a, b) => b.active - a.active)
-      .forEach(f => {
+      .forEach((f) => {
         alerts.push({
           key: `workload-${f.name}`,
           tier: "warning",
@@ -1182,9 +2463,14 @@ export default function Dashboard() {
 
     // 4) Workflow Delay — non-task items stagnant in their current stage
     active
-      .filter(i => i.sourceType !== "task" && i.status !== "For Approval" && i.days >= ALERT_SLA.workflowStagnantDays)
+      .filter(
+        (i) =>
+          i.sourceType !== "task" &&
+          i.status !== "For Approval" &&
+          i.days >= ALERT_SLA.workflowStagnantDays,
+      )
       .sort((a, b) => b.days - a.days)
-      .forEach(i => {
+      .forEach((i) => {
         alerts.push({
           key: `workflow-${i.id}`,
           tier: "warning",
@@ -1195,7 +2481,9 @@ export default function Dashboard() {
       });
 
     // 5) Pending Review — bundled into a single alert
-    const pendingCount = active.filter(i => i.status === "Pending" && i.days >= ALERT_SLA.pendingReviewDays).length;
+    const pendingCount = active.filter(
+      (i) => i.status === "Pending" && i.days >= ALERT_SLA.pendingReviewDays,
+    ).length;
     if (pendingCount > 0) {
       alerts.push({
         key: "pending-review",
@@ -1208,9 +2496,12 @@ export default function Dashboard() {
 
     // 6) Returned for Revision — sent back to the submitter and left untouched
     active
-      .filter(i => i.status === "Returned" && i.days >= ALERT_SLA.returnedStagnantDays)
+      .filter(
+        (i) =>
+          i.status === "Returned" && i.days >= ALERT_SLA.returnedStagnantDays,
+      )
       .sort((a, b) => b.days - a.days)
-      .forEach(i => {
+      .forEach((i) => {
         alerts.push({
           key: `returned-${i.id}`,
           tier: "warning",
@@ -1228,11 +2519,17 @@ export default function Dashboard() {
   // merged trackedItems used by the Document, Form & Task Tracking table
   // (sourceType === "task"), instead of mock data.
   const taskItems = trackedItems
-    .filter(t => t.sourceType === "task")
-    .map(t => {
+    .filter((t) => t.sourceType === "task")
+    .map((t) => {
       const overdue = t.status === "Overdue";
       const done = ["Approved", "Completed", "Archived"].includes(t.status);
-      const progress = done ? 100 : overdue ? 20 : t.status === "Pending" ? 0 : 50;
+      const progress = done
+        ? 100
+        : overdue
+          ? 20
+          : t.status === "Pending"
+            ? 0
+            : 50;
       return {
         id: t.id,
         name: t.title,
@@ -1248,21 +2545,35 @@ export default function Dashboard() {
   // that are actively moving: waiting for approval, sent back for revisions,
   // or still being worked on by faculty. "Not Started" stays narrow and only
   // matches tasks that haven't been touched yet.
-  const IN_PROGRESS_STATUSES = ["In Progress", "Pending", "Under Review", "For Approval", "Returned"];
-  const isInProgress = t => !t.overdue && IN_PROGRESS_STATUSES.includes(t.status);
+  const IN_PROGRESS_STATUSES = [
+    "In Progress",
+    "Pending",
+    "Under Review",
+    "For Approval",
+    "Returned",
+  ];
+  const isInProgress = (t) =>
+    !t.overdue && IN_PROGRESS_STATUSES.includes(t.status);
 
-  const filteredTasks = taskItems.filter(t =>
-    taskFilter === "All" ? true :
-    taskFilter === "Overdue" ? t.overdue :
-    taskFilter === "In Progress" ? isInProgress(t) :
-    taskFilter === "Not Started" ? (!t.overdue && t.status === "Not Started") :
-    t.status === taskFilter
+  const filteredTasks = taskItems.filter((t) =>
+    taskFilter === "All"
+      ? true
+      : taskFilter === "Overdue"
+        ? t.overdue
+        : taskFilter === "In Progress"
+          ? isInProgress(t)
+          : taskFilter === "Not Started"
+            ? !t.overdue && t.status === "Not Started"
+            : t.status === taskFilter,
   );
 
-  const taskTotalPages = Math.max(1, Math.ceil(filteredTasks.length / TASK_PAGE_SIZE));
+  const taskTotalPages = Math.max(
+    1,
+    Math.ceil(filteredTasks.length / TASK_PAGE_SIZE),
+  );
   const taskPageItems = filteredTasks.slice(
     (taskPage - 1) * TASK_PAGE_SIZE,
-    taskPage * TASK_PAGE_SIZE
+    taskPage * TASK_PAGE_SIZE,
   );
 
   useEffect(() => {
@@ -1277,38 +2588,90 @@ export default function Dashboard() {
   // (status "Pending", i.e. assigned/drafted but not yet sent in) and while
   // it's actively awaiting a decision after submission ("Under Review" /
   // "For Approval") — not just the pre-submission state.
-  const pendingApprovalsCount = trackedItems.filter(
-    t => ["Pending", "Under Review", "For Approval"].includes(t.status)
+  const pendingApprovalsCount = trackedItems.filter((t) =>
+    ["Pending", "Under Review", "For Approval"].includes(t.status),
   ).length;
 
   const activeTasksCount = trackedItems.filter(
-    t => t.sourceType === "task" && !["Approved", "Completed", "Archived", "Rejected"].includes(t.status)
+    (t) =>
+      t.sourceType === "task" &&
+      !["Approved", "Completed", "Archived", "Rejected"].includes(t.status),
   ).length;
 
   const documentsUnderReviewCount = trackedItems.filter(
-    t => t.status === "Under Review" || t.status === "For Approval"
+    (t) => t.status === "Under Review" || t.status === "For Approval",
   ).length;
 
-  const overdueItemsCount = trackedItems.filter(t => t.status === "Overdue").length;
+  const overdueItemsCount = trackedItems.filter(
+    (t) => t.status === "Overdue",
+  ).length;
 
   const approvedThisMonthCount = trackedItems.filter(
-    t => t.status === "Approved" && t.dateObj && t.dateObj >= monthStart
+    (t) => t.status === "Approved" && t.dateObj && t.dateObj >= monthStart,
   ).length;
 
   const activeFacultyCount = facultyPerformance.length;
 
-  const assignedTasksCount = trackedItems.filter(t => t.sourceType === "task").length;
-  const submittedFormsCount = trackedItems.filter(t => t.sourceType === "form").length;
-  const returnedRevisionsCount = trackedItems.filter(t => t.status === "Returned").length;
+  const assignedTasksCount = trackedItems.filter(
+    (t) => t.sourceType === "task",
+  ).length;
+  const submittedFormsCount = trackedItems.filter(
+    (t) => t.sourceType === "form",
+  ).length;
+  const returnedRevisionsCount = trackedItems.filter(
+    (t) => t.status === "Returned",
+  ).length;
 
   const kpis = [
-    { label: "Pending Approvals",   value: String(pendingApprovalsCount),   color: "#5e3bdb", tint: "#cabeff", icon: ClipboardList },
-    { label: "Active Tasks",        value: String(activeTasksCount),        color: "#d97706", tint: "#fde68a", icon: ListTodo      },
-    { label: "Assigned Tasks",      value: String(assignedTasksCount),      color: "#0284c7", tint: "#7dd3fc", icon: Eye           },
-    { label: "Overdue Items",       value: String(overdueItemsCount),       color: "#dc2626", tint: "#fca5a5", icon: AlertTriangle },
-    { label: "Approved This Month", value: String(approvedThisMonthCount),  color: "#059669", tint: "#6ee7b7", icon: CheckCircle2  },
-    { label: "Submitted Forms",     value: String(submittedFormsCount),     color: "#481bc6", tint: "#cabeff", icon: FileText      },
-    { label: "Returned/Revisions",  value: String(returnedRevisionsCount),  color: "#ea580c", tint: "#fdba74", icon: RotateCcw     },
+    {
+      label: "Pending Approvals",
+      value: String(pendingApprovalsCount),
+      color: "#5e3bdb",
+      tint: "#cabeff",
+      icon: ClipboardList,
+    },
+    {
+      label: "Active Tasks",
+      value: String(activeTasksCount),
+      color: "#d97706",
+      tint: "#fde68a",
+      icon: ListTodo,
+    },
+    {
+      label: "Assigned Tasks",
+      value: String(assignedTasksCount),
+      color: "#0284c7",
+      tint: "#7dd3fc",
+      icon: Eye,
+    },
+    {
+      label: "Overdue Items",
+      value: String(overdueItemsCount),
+      color: "#dc2626",
+      tint: "#fca5a5",
+      icon: AlertTriangle,
+    },
+    {
+      label: "Approved This Month",
+      value: String(approvedThisMonthCount),
+      color: "#059669",
+      tint: "#6ee7b7",
+      icon: CheckCircle2,
+    },
+    {
+      label: "Submitted Forms",
+      value: String(submittedFormsCount),
+      color: "#481bc6",
+      tint: "#cabeff",
+      icon: FileText,
+    },
+    {
+      label: "Returned/Revisions",
+      value: String(returnedRevisionsCount),
+      color: "#ea580c",
+      tint: "#fdba74",
+      icon: RotateCcw,
+    },
   ];
 
   const kpisLoading = itemsLoading || facultyLoading;
@@ -1316,64 +2679,84 @@ export default function Dashboard() {
   // the same live tracked items used by the KPI strip so the new layout never
   // references an undefined render-time value.
   const onTimeCompletionRate = trackedItems.length
-    ? Math.round(((trackedItems.length - overdueItemsCount) / trackedItems.length) * 100)
+    ? Math.round(
+        ((trackedItems.length - overdueItemsCount) / trackedItems.length) * 100,
+      )
     : 0;
 
   /* ── Faculty-side dashboard data ──────────────────────────────────────
      Everything below is scoped to the logged-in faculty member (matched
      by display name against trackedItems' `person` field, same approach
      FacultyDetailPanel uses) and only rendered when !canViewAdminNav. */
-  const myItems = trackedItems.filter(t => t.person === displayName);
-  const myTasksFaculty = myItems.filter(t => t.sourceType === "task");
-  const myFormsFaculty = myItems.filter(t => t.sourceType === "form");
+  const myItems = trackedItems.filter((t) => t.person === displayName);
+  const myTasksFaculty = myItems.filter((t) => t.sourceType === "task");
+  const myFormsFaculty = myItems.filter((t) => t.sourceType === "form");
 
-  const myTasksTotalPages = Math.max(1, Math.ceil(myTasksFaculty.length / FACULTY_CARD_PAGE_SIZE));
+  const myTasksTotalPages = Math.max(
+    1,
+    Math.ceil(myTasksFaculty.length / FACULTY_CARD_PAGE_SIZE),
+  );
   const myTasksPageItems = myTasksFaculty.slice(
     (myTasksPage - 1) * FACULTY_CARD_PAGE_SIZE,
-    myTasksPage * FACULTY_CARD_PAGE_SIZE
+    myTasksPage * FACULTY_CARD_PAGE_SIZE,
   );
-  const myFormsTotalPages = Math.max(1, Math.ceil(myFormsData.length / FACULTY_CARD_PAGE_SIZE));
+  const myFormsTotalPages = Math.max(
+    1,
+    Math.ceil(myFormsData.length / FACULTY_CARD_PAGE_SIZE),
+  );
   const myFormsPageItems = myFormsData.slice(
     (myFormsPage - 1) * FACULTY_CARD_PAGE_SIZE,
-    myFormsPage * FACULTY_CARD_PAGE_SIZE
+    myFormsPage * FACULTY_CARD_PAGE_SIZE,
   );
 
   const trackingBucketOf = (status) => {
-    if (["Approved", "Completed", "Archived", "Received"].includes(status)) return "Approved";
+    if (["Approved", "Completed", "Archived", "Received"].includes(status))
+      return "Approved";
     if (status === "Rejected") return "Rejected";
     if (status === "Returned") return "Returned";
     return "Pending";
   };
   const trackingBuckets = { Approved: 0, Pending: 0, Returned: 0, Rejected: 0 };
-  myItems.forEach(t => { trackingBuckets[trackingBucketOf(t.status)]++; });
+  myItems.forEach((t) => {
+    trackingBuckets[trackingBucketOf(t.status)]++;
+  });
   const trackingOverviewData = [
     { name: "Approved", value: trackingBuckets.Approved, color: "#22c55e" },
-    { name: "Pending",  value: trackingBuckets.Pending,  color: "#f59e0b" },
+    { name: "Pending", value: trackingBuckets.Pending, color: "#f59e0b" },
     { name: "Returned", value: trackingBuckets.Returned, color: "#6366f1" },
     { name: "Rejected", value: trackingBuckets.Rejected, color: "#ef4444" },
   ];
-  const trackingOverviewTotal = trackingOverviewData.reduce((s, d) => s + d.value, 0);
+  const trackingOverviewTotal = trackingOverviewData.reduce(
+    (s, d) => s + d.value,
+    0,
+  );
 
   // Conic-gradient stops for the octagon "squircle" donut ring — each slice
   // gets a small gap on either side so segments read as distinct pieces.
   const TRACKING_RING_GAP_DEG = 5;
   let trackingRingAngle = 0;
   const trackingRingStops = [];
-  trackingOverviewData.forEach(d => {
+  trackingOverviewData.forEach((d) => {
     if (!d.value) return;
     const sweep = (d.value / (trackingOverviewTotal || 1)) * 360;
-    const start = trackingRingAngle + (sweep < TRACKING_RING_GAP_DEG * 2 ? 0 : TRACKING_RING_GAP_DEG / 2);
-    const end = trackingRingAngle + sweep - (sweep < TRACKING_RING_GAP_DEG * 2 ? 0 : TRACKING_RING_GAP_DEG / 2);
+    const start =
+      trackingRingAngle +
+      (sweep < TRACKING_RING_GAP_DEG * 2 ? 0 : TRACKING_RING_GAP_DEG / 2);
+    const end =
+      trackingRingAngle +
+      sweep -
+      (sweep < TRACKING_RING_GAP_DEG * 2 ? 0 : TRACKING_RING_GAP_DEG / 2);
     trackingRingStops.push(`${d.color} ${start}deg ${end}deg`);
     trackingRingAngle += sweep;
   });
   const trackingRingGradient = `conic-gradient(${trackingRingStops.join(", ")})`;
-  const OCTAGON_CLIP = "polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)";
+  const OCTAGON_CLIP =
+    "polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)";
 
   const DONE_FOR_DEADLINES = ["Approved", "Completed", "Archived", "Rejected"];
   const upcomingDeadlines = myItems
-    .filter(t => !DONE_FOR_DEADLINES.includes(t.status) && t.dateObj)
-    .map(t => ({ ...t, daysLeft: Math.ceil((t.dateObj - now) / 86400000) }))
+    .filter((t) => !DONE_FOR_DEADLINES.includes(t.status) && t.dateObj)
+    .map((t) => ({ ...t, daysLeft: Math.ceil((t.dateObj - now) / 86400000) }))
     .sort((a, b) => a.daysLeft - b.daysLeft)
     .slice(0, 5);
 
@@ -1395,22 +2778,64 @@ export default function Dashboard() {
          way a dedicated activity_log table + /api/activity endpoint
          could. ══════════════════════════════════════════════════════ */
   const DONE_ITEM_STATUSES = ["Approved", "Completed", "Archived"];
-  const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const MONTH_ABBR = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const last6Months = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    last6Months.push({ label: MONTH_ABBR[d.getMonth()], year: d.getFullYear(), month: d.getMonth() });
+    last6Months.push({
+      label: MONTH_ABBR[d.getMonth()],
+      year: d.getFullYear(),
+      month: d.getMonth(),
+    });
   }
 
   // Approval Rate donut — status breakdown for items submitted this month
   const monthStartForCharts = new Date(now.getFullYear(), now.getMonth(), 1);
-  const itemsThisMonth = trackedItems.filter(t => t.dateObj && t.dateObj >= monthStartForCharts);
+  const itemsThisMonth = trackedItems.filter(
+    (t) => t.dateObj && t.dateObj >= monthStartForCharts,
+  );
   const approvalRateData = [
-    { name: "Approved", value: itemsThisMonth.filter(t => t.status === "Approved" || t.status === "Completed").length, color: "#059669" },
-    { name: "Rejected", value: itemsThisMonth.filter(t => t.status === "Rejected").length, color: "#dc2626" },
-    { name: "Returned", value: itemsThisMonth.filter(t => t.status === "Returned").length, color: "#d97706" },
-    { name: "Pending",  value: itemsThisMonth.filter(t => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected" && t.status !== "Returned").length, color: "#5e3bdb" },
+    {
+      name: "Approved",
+      value: itemsThisMonth.filter(
+        (t) => t.status === "Approved" || t.status === "Completed",
+      ).length,
+      color: "#059669",
+    },
+    {
+      name: "Rejected",
+      value: itemsThisMonth.filter((t) => t.status === "Rejected").length,
+      color: "#dc2626",
+    },
+    {
+      name: "Returned",
+      value: itemsThisMonth.filter((t) => t.status === "Returned").length,
+      color: "#d97706",
+    },
+    {
+      name: "Pending",
+      value: itemsThisMonth.filter(
+        (t) =>
+          !DONE_ITEM_STATUSES.includes(t.status) &&
+          t.status !== "Rejected" &&
+          t.status !== "Returned",
+      ).length,
+      color: "#5e3bdb",
+    },
   ];
 
   // Task Completion — assigned vs completed tasks, last 6 calendar weeks
@@ -1423,35 +2848,49 @@ export default function Dashboard() {
     end.setDate(start.getDate() + 7);
     last6Weeks.push({ label: `W${6 - i}`, start, end });
   }
-  const allTaskItems = trackedItems.filter(t => t.sourceType === "task");
+  const allTaskItems = trackedItems.filter((t) => t.sourceType === "task");
   const taskCompletionData = last6Weeks.map(({ label, start, end }) => {
-    const inWeek = allTaskItems.filter(t => t.dateObj && t.dateObj >= start && t.dateObj < end);
+    const inWeek = allTaskItems.filter(
+      (t) => t.dateObj && t.dateObj >= start && t.dateObj < end,
+    );
     return {
       week: label,
       assigned: inWeek.length,
-      completed: inWeek.filter(t => DONE_ITEM_STATUSES.includes(t.status)).length,
+      completed: inWeek.filter((t) => DONE_ITEM_STATUSES.includes(t.status))
+        .length,
     };
   });
 
   // Recent Activity — most recently dated documents/forms/tasks, newest first
   const ACTIVITY_PRESET_BY_STATUS = {
-    "Approved":  { action: "Approved",              type: "approved"  },
-    "Completed": { action: "Completed task",         type: "completed" },
-    "Rejected":  { action: "Rejected",               type: "revision"  },
-    "Returned":  { action: "Returned for revision",  type: "revision"  },
-    "Overdue":   { action: "Overdue — no update",    type: "overdue"   },
+    Approved: { action: "Approved", type: "approved" },
+    Completed: { action: "Completed task", type: "completed" },
+    Rejected: { action: "Rejected", type: "revision" },
+    Returned: { action: "Returned for revision", type: "revision" },
+    Overdue: { action: "Overdue — no update", type: "overdue" },
   };
   const recentActivityData = [...trackedItems]
-    .filter(t => t.dateObj)
+    .filter((t) => t.dateObj)
     .sort((a, b) => b.dateObj - a.dateObj)
     .slice(0, 8)
-    .map(t => {
+    .map((t) => {
       const preset = ACTIVITY_PRESET_BY_STATUS[t.status];
-      const action = preset ? preset.action : t.sourceType === "task" ? "Assigned task" : "Submitted form";
-      const type = preset ? preset.type : t.sourceType === "task" ? "assigned" : "submitted";
+      const action = preset
+        ? preset.action
+        : t.sourceType === "task"
+          ? "Assigned task"
+          : "Submitted form";
+      const type = preset
+        ? preset.type
+        : t.sourceType === "task"
+          ? "assigned"
+          : "submitted";
       return {
         id: `${t.sourceType}-${t.id}`,
-        time: t.dateObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+        time: t.dateObj.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+        }),
         actor: t.person || "—",
         action,
         target: t.title ? `${t.title}${t.id ? ` — ${t.id}` : ""}` : t.id,
@@ -1460,35 +2899,71 @@ export default function Dashboard() {
     });
 
   // Still used by Department Overview's "Active Workflows" stat
-  const activeWorkflowItems = trackedItems.filter(t => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected");
+  const activeWorkflowItems = trackedItems.filter(
+    (t) => !DONE_ITEM_STATUSES.includes(t.status) && t.status !== "Rejected",
+  );
 
   // Department Overview — live faculty/workflow/form/task counts
-  const formsSubmittedThisMonth = itemsThisMonth.filter(t => t.sourceType === "form").length;
-  const tasksCompletedThisMonth = trackedItems.filter(t =>
-    t.sourceType === "task" && DONE_ITEM_STATUSES.includes(t.status) && t.dateObj && t.dateObj >= monthStartForCharts
+  const formsSubmittedThisMonth = itemsThisMonth.filter(
+    (t) => t.sourceType === "form",
   ).length;
-  const approvedItemsOnly = trackedItems.filter(t => t.status === "Approved");
-  const avgApprovalDays = approvedItemsOnly.length ? approvedItemsOnly.reduce((sum, t) => sum + t.days, 0) / approvedItemsOnly.length : 0;
+  const tasksCompletedThisMonth = trackedItems.filter(
+    (t) =>
+      t.sourceType === "task" &&
+      DONE_ITEM_STATUSES.includes(t.status) &&
+      t.dateObj &&
+      t.dateObj >= monthStartForCharts,
+  ).length;
+  const approvedItemsOnly = trackedItems.filter((t) => t.status === "Approved");
+  const avgApprovalDays = approvedItemsOnly.length
+    ? approvedItemsOnly.reduce((sum, t) => sum + t.days, 0) /
+      approvedItemsOnly.length
+    : 0;
 
   // Monthly Task Completion Trend — completed tasks per month, last 6 months,
   // powers the Department Overview mini bar chart (mirrors the DS PATH mockup).
-  const monthlyTaskCompletionData = last6Months.map(({ label, year, month }) => ({
-    month: label,
-    completed: allTaskItems.filter(t =>
-      DONE_ITEM_STATUSES.includes(t.status) && t.dateObj && t.dateObj.getFullYear() === year && t.dateObj.getMonth() === month
-    ).length,
-  }));
-  const maxMonthlyTaskCompletion = Math.max(1, ...monthlyTaskCompletionData.map(d => d.completed));
-  const prevMonthTaskCompletion = monthlyTaskCompletionData.length > 1
-    ? monthlyTaskCompletionData[monthlyTaskCompletionData.length - 2].completed
-    : 0;
-  const taskCompletionPctChange = prevMonthTaskCompletion > 0
-    ? Math.round(((tasksCompletedThisMonth - prevMonthTaskCompletion) / prevMonthTaskCompletion) * 1000) / 10
-    : null;
-
+  const monthlyTaskCompletionData = last6Months.map(
+    ({ label, year, month }) => ({
+      month: label,
+      completed: allTaskItems.filter(
+        (t) =>
+          DONE_ITEM_STATUSES.includes(t.status) &&
+          t.dateObj &&
+          t.dateObj.getFullYear() === year &&
+          t.dateObj.getMonth() === month,
+      ).length,
+    }),
+  );
+  const maxMonthlyTaskCompletion = Math.max(
+    1,
+    ...monthlyTaskCompletionData.map((d) => d.completed),
+  );
+  const prevMonthTaskCompletion =
+    monthlyTaskCompletionData.length > 1
+      ? monthlyTaskCompletionData[monthlyTaskCompletionData.length - 2]
+          .completed
+      : 0;
+  const taskCompletionPctChange =
+    prevMonthTaskCompletion > 0
+      ? Math.round(
+          ((tasksCompletedThisMonth - prevMonthTaskCompletion) /
+            prevMonthTaskCompletion) *
+            1000,
+        ) / 10
+      : null;
 
   return (
-    <div className="path-overview-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#27213a", background: "#f8f7ff" }}>
+    <div
+      className="path-overview-shell"
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13,
+        color: "#27213a",
+        background: "#f8f7ff",
+      }}
+    >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap');
 .path-overview-shell{--path-ink:#27213a;--path-muted:#776b83;--path-violet:#7c3aed;--path-violet-2:#8b5cf6;--path-lilac:#f1ebff;--path-paper:#f8f7ff;--path-border:#ebe4f4;background:var(--path-paper)!important;color:var(--path-ink)!important}
 .path-overview-shell h1,.path-overview-shell h2,.path-overview-shell h3{font-family:Manrope,'DM Sans',sans-serif!important;letter-spacing:-.025em}
@@ -1515,185 +2990,1228 @@ export default function Dashboard() {
 .path-main-grid>article:first-child{border-top:2px solid #7c3aed!important}
 .path-lower-grid{grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr)!important;gap:14px!important}
 .path-lower-grid>article{border-radius:10px 10px 26px 10px!important}
+.faculty-dashboard-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin:18px 48px 0;min-height:146px;padding:25px 22px;border-left:2px solid #bca5ef;border-bottom:1px solid #e6dfee;background:linear-gradient(105deg,#fbf9ff,#f4efff)}.faculty-dashboard-hero>div>span,.faculty-kicker{display:block;color:#978ca2;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.faculty-dashboard-hero h1,.faculty-dashboard-hero h2,.faculty-dashboard-focus h2,.faculty-dashboard-list h2{font-family:Manrope,'DM Sans',sans-serif}.faculty-dashboard-hero h1{margin:9px 0 7px;color:#34283d;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.06em}.faculty-dashboard-hero p{max-width:620px;margin:0;color:#8f8398;font-size:11px;line-height:1.6}.faculty-dashboard-hero>button,.faculty-dashboard-focus article>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;cursor:pointer}.faculty-dashboard-hero>button{min-height:36px;padding:0 14px;box-shadow:0 8px 16px rgba(124,58,237,.22)}.faculty-dashboard-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:16px 48px}.faculty-dashboard-stats article{display:flex;justify-content:space-between;min-height:105px;padding:15px;border:1px solid #e6dfee;border-radius:11px;background:#fff;box-shadow:0 9px 22px rgba(54,36,87,.04)}.faculty-dashboard-stats span,.faculty-dashboard-stats small{display:block;color:#988d9f;font-size:8px}.faculty-dashboard-stats span{font-weight:800;letter-spacing:.08em;text-transform:uppercase}.faculty-dashboard-stats strong{display:block;margin-top:14px;color:#3e3047;font-family:Manrope,'DM Sans',sans-serif;font-size:26px;letter-spacing:-.06em}.faculty-dashboard-stats i{display:grid;width:28px;height:28px;place-items:center;border-radius:8px}.faculty-dashboard-focus{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(280px,.82fr);gap:16px;margin:0 48px}.faculty-dashboard-focus article,.faculty-dashboard-list{border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.faculty-dashboard-focus article{padding:19px}.faculty-dashboard-focus h2{margin:8px 0 0;color:#44354d;font-size:17px;letter-spacing:-.04em}.faculty-return-title{display:flex;align-items:center;gap:10px;margin-top:15px}.faculty-return-title>i{display:grid;width:33px;height:33px;place-items:center;border-radius:9px;background:#fff2e8;color:#b86f5c}.faculty-return-title h2{margin:0;font-size:14px}.faculty-return-title p,.faculty-dashboard-focus article>p{margin:4px 0 0;color:#9c92a3;font-size:9px;line-height:1.5}.faculty-return-note{margin:15px 0;padding:10px;border:1px solid #efe0c7;border-radius:8px;background:#fffdf8;color:#81634b;font-size:9px;line-height:1.55}.faculty-dashboard-focus article>button{width:100%;min-height:33px}.faculty-health-meta{display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:13px;border-top:1px solid #eee9f1;color:#978c9e;font-size:8px}.faculty-health-meta span:first-child{display:flex;align-items:center;gap:5px;color:#6a5c73;font-weight:800}.faculty-dashboard-list{margin:16px 48px 28px;overflow:hidden}.faculty-dashboard-list header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 19px;border-bottom:1px solid #eee9f1}.faculty-dashboard-list h2{margin:5px 0 0;color:#44354d;font-size:17px;letter-spacing:-.04em}.faculty-dashboard-list header button{display:flex;align-items:center;gap:5px;border:0;background:transparent;color:#7543c7;font-size:9px;font-weight:800;cursor:pointer}.faculty-document-row{display:grid;grid-template-columns:32px minmax(0,1fr) 100px 18px;gap:10px;align-items:center;width:100%;min-height:67px;padding:11px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer}.faculty-document-row:hover{background:#fbf9ff}.faculty-document-row>i{display:grid;width:30px;height:30px;place-items:center;border-radius:8px;background:#eee8fb;color:#7750c4}.faculty-document-row>span{min-width:0}.faculty-document-row strong,.faculty-document-row small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.faculty-document-row strong{color:#51405a;font-family:Manrope,'DM Sans',sans-serif;font-size:10px}.faculty-document-row small{margin-top:4px;color:#a097a6;font-size:8px}.faculty-list-empty{padding:28px 19px;color:#978c9e;font-size:10px}
 @media(max-width:1100px){.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.path-content-area{max-width:none}.path-main-grid,.path-lower-grid{grid-template-columns:1fr!important}}
-@media(max-width:900px){.path-hero{padding:28px 20px 22px!important}.path-hero h1{font-size:29px!important}.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.path-stat-card{padding:15px!important}.path-stat-card strong{font-size:24px!important}.path-content-area{padding:20px 16px 30px!important;overflow-x:hidden}.path-content-area>section{grid-template-columns:1fr!important}.path-overview-heading{align-items:flex-start!important}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}}
+@media(max-width:900px){.path-hero{padding:28px 20px 22px!important}.path-hero h1{font-size:29px!important}.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.path-stat-card{padding:15px!important}.path-stat-card strong{font-size:24px!important}.path-content-area{padding:20px 16px 30px!important;overflow-x:hidden}.path-content-area>section{grid-template-columns:1fr!important}.path-overview-heading{align-items:flex-start!important}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}.faculty-dashboard-hero,.faculty-dashboard-stats,.faculty-dashboard-focus,.faculty-dashboard-list{margin-left:20px;margin-right:20px}.faculty-dashboard-hero{align-items:flex-start;flex-direction:column}.faculty-dashboard-stats{grid-template-columns:repeat(2,1fr);gap:10px}.faculty-dashboard-focus{grid-template-columns:1fr}.faculty-dashboard-list{margin-bottom:24px}}
 `}</style>
 
       <Sidebar activePage="dashboard" />
 
       {/* ── Main ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "white", minWidth: 0 }}>
-
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          background: "white",
+          minWidth: 0,
+        }}
+      >
         {/* Topbar */}
         <TopBar onLogout={handleLogout}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 12px", color: "#9ca3af" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                background: "#f9fafb",
+                border: "1px solid #e5e7eb",
+                borderRadius: 8,
+                padding: "6px 12px",
+                color: "#9ca3af",
+              }}
+            >
               <Icon.Search />
               <input
                 type="text"
                 placeholder="Search tracking #, requester, keyword..."
-                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#374151", width: "100%", fontFamily: "'DM Sans', sans-serif" }}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  outline: "none",
+                  fontSize: 12,
+                  color: "#374151",
+                  width: "100%",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
               />
             </div>
-            <button onClick={() => navigate("/documents/new")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 whitespace-nowrap" style={{ cursor: "pointer" }}>
+            <button
+              onClick={() => navigate("/documents/new")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 whitespace-nowrap"
+              style={{ cursor: "pointer" }}
+            >
               <Icon.Plus /> New Document
             </button>
-            <button onClick={() => navigate("/documents/new")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#5e3bdb] text-white hover:bg-[#481bc6] whitespace-nowrap" style={{ cursor: "pointer" }}>
+            <button
+              onClick={() => navigate("/documents/new")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#5e3bdb] text-white hover:bg-[#481bc6] whitespace-nowrap"
+              style={{ cursor: "pointer" }}
+            >
               <Icon.Download /> Intake Document
             </button>
           </div>
         </TopBar>
 
         {/* ── Content: Program Chair layout ── */}
-        <div style={{ minHeight: "calc(100vh - 56px)", background: "#faf8ff", overflowY: "auto" }}>
-
-          {/* ── Welcome Header ── */}
-            <div className="path-hero" style={{ background: "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)", borderBottom: "1px solid #ebe4f4", padding: "42px 48px 30px" }}>
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-              <div>
-                <h1 style={{ fontSize: 36, fontWeight: 800, color: "#27213a", lineHeight: 1.12, letterSpacing: "-0.035em", marginBottom: 7, fontFamily: "Manrope, 'DM Sans', sans-serif" }}>
-                  Good morning, {displayName}.
-                </h1>
-                <p style={{ fontSize: 14, color: "#484555" }}>Here’s what needs your attention across the department.</p>
-                <div style={{ display: "none" }}>
-                  <ShieldAlert style={{ width: 13, height: 13 }} />
-                  <span style={{ fontSize: 11, fontWeight: 600 }}>PATH Administrator</span>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                {/* Notification bell */}
-                <button
-                  onClick={() => setNotifOpen(v => !v)}
-                  style={{ position: "relative", width: 38, height: 38, borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#484555" }}
+        <div
+          style={{
+            minHeight: "calc(100vh - 56px)",
+            background: "#faf8ff",
+            overflowY: "auto",
+          }}
+        >
+          {isFacultyDashboard ? (
+            <FacultyDashboardOverview
+              displayName={displayName}
+              forms={myFormsData}
+              loading={myFormsDataLoading}
+              navigate={navigate}
+            />
+          ) : (
+            <>
+              {/* ── Welcome Header ── */}
+              <div
+                className="path-hero"
+                style={{
+                  background:
+                    "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)",
+                  borderBottom: "1px solid #ebe4f4",
+                  padding: "42px 48px 30px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    flexWrap: "wrap",
+                  }}
                 >
-                  <Bell style={{ width: 18, height: 18 }} />
-                  {unread > 0 && (
-                    <span style={{ position: "absolute", top: 6, right: 6, width: 8, height: 8, borderRadius: "50%", background: "#ba1a1a", border: "2px solid #faf8ff" }} />
-                  )}
-                </button>
-
-                {/* Quick refresh */}
-                <button style={{ width: 30, height: 30, borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#484555" }}>
-                  <RefreshCw style={{ width: 16, height: 16 }} />
-                </button>
-
-                {/* Date/time */}
-                <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "#191b24" }}>{dateStr}</p>
-                  <p style={{ fontSize: 11, color: "#484555" }}>{timeStr}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* PATH Overview stat strip */}
-            <div className="path-stat-grid" style={{ display: "grid", gridTemplateColumns: "1.18fr .92fr 1.08fr .92fr", gap: 14, marginTop: 26 }}>
-              {[
-                { label: "Open submissions", value: trackedItems.length, change: "Live queue", detail: "across the department", color: "#7c3aed", icon: FileText },
-                { label: "Awaiting review", value: pendingApprovalsCount, change: "Needs attention", detail: "awaiting a decision", color: "#d97706", icon: Clock },
-                { label: "On-time completion", value: `${onTimeCompletionRate}%`, change: onTimeCompletionRate >= 90 ? "Healthy" : "Needs attention", detail: "across active workflows", color: "#059669", icon: CheckCircle2 },
-                { label: "Active faculty", value: activeFacultyCount, change: "Live directory", detail: "across the department", color: "#0284c7", icon: Users },
-              ].map((stat) => {
-                const StatIcon = stat.icon;
-                return (
-                  <article className="path-stat-card" key={stat.label} style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: "18px 18px 17px", boxShadow: "0 8px 22px rgba(76,29,149,.06)" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                      <span style={{ color: "#776b83", fontSize: 10, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>{stat.label}</span>
-                      <span style={{ width: 30, height: 30, borderRadius: 9, background: stat.color + "18", color: stat.color, display: "grid", placeItems: "center" }}><StatIcon size={15} /></span>
+                  <div>
+                    <h1
+                      style={{
+                        fontSize: 36,
+                        fontWeight: 800,
+                        color: "#27213a",
+                        lineHeight: 1.12,
+                        letterSpacing: "-0.035em",
+                        marginBottom: 7,
+                        fontFamily: "Manrope, 'DM Sans', sans-serif",
+                      }}
+                    >
+                      Good morning, {displayName}.
+                    </h1>
+                    <p style={{ fontSize: 14, color: "#484555" }}>
+                      Here’s what needs your attention across the department.
+                    </p>
+                    <div style={{ display: "none" }}>
+                      <ShieldAlert style={{ width: 13, height: 13 }} />
+                      <span style={{ fontSize: 11, fontWeight: 600 }}>
+                        PATH Administrator
+                      </span>
                     </div>
-                    <strong style={{ display: "block", marginTop: 13, color: stat.color, fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 27, lineHeight: 1 }}>{kpisLoading ? "—" : stat.value}</strong>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 10, color: "#8d8196", fontSize: 11 }}><span style={{ color: stat.color, fontWeight: 800 }}>{stat.change}</span><span>{stat.detail}</span></div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Notification dropdown */}
-          {notifOpen && (
-            <div style={{ position: "fixed", top: 140, right: 32, width: 360, background: "#fff", borderRadius: 14, border: "1px solid rgba(0,0,0,0.1)", boxShadow: "0 12px 40px rgba(0,0,0,0.14)", zIndex: 200 }}>
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Notifications</span>
-                  {unread > 0 && <span style={{ fontSize: 11, fontWeight: 700, background: "#5e3bdb", color: "#fff", padding: "1px 7px", borderRadius: 20 }}>{unread} new</span>}
-                </div>
-                <button onClick={() => setNotifOpen(false)} style={{ width: 26, height: 26, borderRadius: 6, background: "#f3f4f6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <XCircle style={{ width: 13, height: 13, color: "#6b7280" }} />
-                </button>
-              </div>
-              {NOTIFICATIONS.map(n => {
-                const cfg = NOTIF_CFG[n.type];
-                const NIcon = cfg.icon;
-                return (
-                  <div key={n.id} style={{ display: "flex", gap: 10, padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)", background: n.read ? "#fff" : "#faf5ff" }}>
-                    <div style={{ width: 30, height: 30, borderRadius: 8, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <NIcon style={{ width: 13, height: 13, color: cfg.color }} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 12, fontWeight: n.read ? 400 : 600, color: "#111827" }}>{n.text}</p>
-                      <p style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>{n.sub}</p>
-                      <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{n.time}</p>
-                    </div>
-                    {!n.read && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#5e3bdb", marginTop: 4, flexShrink: 0 }} />}
                   </div>
-                );
-              })}
-              <div style={{ padding: "10px 16px", textAlign: "center" }}>
-                <button style={{ fontSize: 12, color: "#5e3bdb", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>View All Notifications</button>
-              </div>
-            </div>
-          )}
 
-          {/* ── PATH Overview layout ── */}
-          <div className="path-overview-content path-content-area" style={{ padding: "28px 48px 42px", display: "flex", flexDirection: "column", gap: 22 }}>
-                <div className="path-overview-heading" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-              <div>
-                <div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>Needs your attention</div>
-                <h2 style={{ margin: "7px 0 0", color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 22, letterSpacing: "-.025em" }}>Priority queue <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginLeft: 6, minWidth: 27, height: 22, padding: "0 7px", borderRadius: 7, background: "#eee7ff", color: "#7c3aed", fontSize: 11, verticalAlign: "middle" }}>{String(Math.min(99, trackedItems.length)).padStart(2, "0")}</span></h2>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <button type="button" onClick={() => navigate("/tracking")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Review all items <ArrowUpRight size={13} /></button>
-              </div>
-            </div>
-
-            <section className="path-main-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.65fr) minmax(310px, .8fr)", gap: 14, alignItems: "stretch" }}>
-              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, boxShadow: "0 10px 26px rgba(76,29,149,.06)", overflow: "hidden" }}>
-                <div>
-                  {itemsLoading ? <p style={{ padding: 36, color: "#776b83", textAlign: "center" }}>Loading priority queue…</p> : trackedPageItems.slice(0, 4).map((row, index) => (
-                    <button key={row.id} type="button" onClick={() => navigate("/tracking")} style={{ width: "100%", display: "grid", gridTemplateColumns: "28px 34px minmax(0,1fr) auto 18px", gap: 12, alignItems: "center", padding: "16px 20px", border: "none", borderBottom: "1px solid #f0eaf5", background: "#fff", textAlign: "left", cursor: "pointer" }}>
-                      <span style={{ color: "#8b5cf6", fontSize: 11, fontWeight: 800 }}>{String(index + 1).padStart(2, "0")}</span>
-                      <span style={{ width: 32, height: 32, borderRadius: 10, background: "#f1ebff", color: "#7c3aed", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 800 }}>{(row.person || "--").split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span>
-                      <span style={{ minWidth: 0 }}><strong style={{ display: "block", color: "#3b3045", fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.title}</strong><small style={{ display: "block", color: "#94879c", fontSize: 11, marginTop: 3 }}>{row.person} <i style={{ fontStyle: "normal", margin: "0 4px" }}>•</i> {row.sourceType}</small></span>
-                      <span style={{ textAlign: "right" }}><PriorityPill p={row.priority} /><small style={{ display: "block", color: "#9a8fa3", fontSize: 10, marginTop: 5 }}>{row.date}</small></span>
-                      <ArrowUpRight size={15} color="#b3a6bd" />
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 14 }}
+                  >
+                    {/* Notification bell */}
+                    <button
+                      onClick={() => setNotifOpen((v) => !v)}
+                      style={{
+                        position: "relative",
+                        width: 38,
+                        height: 38,
+                        borderRadius: "50%",
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#484555",
+                      }}
+                    >
+                      <Bell style={{ width: 18, height: 18 }} />
+                      {unread > 0 && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: 6,
+                            right: 6,
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: "#ba1a1a",
+                            border: "2px solid #faf8ff",
+                          }}
+                        />
+                      )}
                     </button>
-                  ))}
-                  {!itemsLoading && trackedPageItems.length === 0 && <ListEmptyState icon={Inbox} message="No matching documents" />}
+
+                    {/* Quick refresh */}
+                    <button
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: "50%",
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#484555",
+                      }}
+                    >
+                      <RefreshCw style={{ width: 16, height: 16 }} />
+                    </button>
+
+                    {/* Date/time */}
+                    <div style={{ textAlign: "right" }}>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: "#191b24",
+                        }}
+                      >
+                        {dateStr}
+                      </p>
+                      <p style={{ fontSize: 11, color: "#484555" }}>
+                        {timeStr}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 20px", borderTop: "1px solid #f0eaf5", color: "#8d8196", fontSize: 11 }}><span><ShieldCheck size={14} style={{ verticalAlign: "middle", marginRight: 6, color: "#8b5cf6" }} />SLA health is monitored automatically</span><button type="button" onClick={() => navigate("/sla")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 11, cursor: "pointer" }}>See SLA details <ArrowUpRight size={13} /></button></div>
-              </article>
 
-              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>SLA monitoring</div><h3 style={{ color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 19, margin: "7px 0 0" }}>Workflow health</h3></div><button type="button" onClick={() => navigate("/sla")} aria-label="Open SLA configuration" style={{ border: "none", background: "#f1ebff", color: "#7c3aed", borderRadius: 8, padding: 8, cursor: "pointer" }}><MoreHorizontal size={15} /></button></div>
-                <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0 20px" }}><div style={{ width: 92, height: 92, borderRadius: "50%", background: `conic-gradient(#7c3aed ${Math.min(100, Math.max(0, onTimeCompletionRate))}%, #eee7f4 0)`, display: "grid", placeItems: "center" }}><div style={{ width: 70, height: 70, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center", color: "#5b21b6", fontSize: 18, fontWeight: 800 }}>{kpisLoading ? "—" : <><strong style={{ fontSize: 23 }}>{onTimeCompletionRate}</strong><span style={{ fontSize: 14 }}>%</span></>}</div></div><div><strong style={{ display: "block", fontSize: 16, color: "#27213a" }}>{onTimeCompletionRate >= 90 ? "Healthy" : "Needs attention"}</strong><span style={{ color: "#8d8196", fontSize: 11 }}>Across all active workflows</span></div></div>
-                <div style={{ height: 7, background: "#eee7f4", borderRadius: 20, overflow: "hidden" }}><div style={{ width: `${Math.min(100, Math.max(0, onTimeCompletionRate))}%`, height: "100%", background: "linear-gradient(90deg,#7c3aed,#a78bfa)", borderRadius: 20 }} /></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 7, color: "#aaa0b2", fontSize: 10 }}><span>0%</span><span>100%</span></div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 22, paddingTop: 18, borderTop: "1px solid #eee8f1" }}><div><span style={{ color: "#9a8fa3", fontSize: 10, display: "block", textTransform: "uppercase", letterSpacing: ".08em" }}>Avg. turnaround</span><strong style={{ display: "block", color: "#27213a", fontSize: 18, marginTop: 5 }}>{avgApprovalDays.toFixed(1)} days</strong><small style={{ color: "#059669", fontSize: 10 }}><ArrowUpRight size={11} /> 18% faster</small></div><div><span style={{ color: "#9a8fa3", fontSize: 10, display: "block", textTransform: "uppercase", letterSpacing: ".08em" }}>At risk</span><strong style={{ display: "block", color: "#27213a", fontSize: 18, marginTop: 5 }}>{BOTTLENECK_ALERTS.length.toString().padStart(2, "0")}</strong><small style={{ color: "#b45309", fontSize: 10 }}><Clock size={11} /> needs action</small></div></div>
-              </article>
-            </section>
+                {/* PATH Overview stat strip */}
+                <div
+                  className="path-stat-grid"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1.18fr .92fr 1.08fr .92fr",
+                    gap: 14,
+                    marginTop: 26,
+                  }}
+                >
+                  {[
+                    {
+                      label: "Open submissions",
+                      value: trackedItems.length,
+                      change: "Live queue",
+                      detail: "across the department",
+                      color: "#7c3aed",
+                      icon: FileText,
+                    },
+                    {
+                      label: "Awaiting review",
+                      value: pendingApprovalsCount,
+                      change: "Needs attention",
+                      detail: "awaiting a decision",
+                      color: "#d97706",
+                      icon: Clock,
+                    },
+                    {
+                      label: "On-time completion",
+                      value: `${onTimeCompletionRate}%`,
+                      change:
+                        onTimeCompletionRate >= 90
+                          ? "Healthy"
+                          : "Needs attention",
+                      detail: "across active workflows",
+                      color: "#059669",
+                      icon: CheckCircle2,
+                    },
+                    {
+                      label: "Active faculty",
+                      value: activeFacultyCount,
+                      change: "Live directory",
+                      detail: "across the department",
+                      color: "#0284c7",
+                      icon: Users,
+                    },
+                  ].map((stat) => {
+                    const StatIcon = stat.icon;
+                    return (
+                      <article
+                        className="path-stat-card"
+                        key={stat.label}
+                        style={{
+                          background: "#fff",
+                          border: "1px solid #ebe4f4",
+                          borderRadius: 16,
+                          padding: "18px 18px 17px",
+                          boxShadow: "0 8px 22px rgba(76,29,149,.06)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 10,
+                          }}
+                        >
+                          <span
+                            style={{
+                              color: "#776b83",
+                              fontSize: 10,
+                              fontWeight: 800,
+                              letterSpacing: ".1em",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {stat.label}
+                          </span>
+                          <span
+                            style={{
+                              width: 30,
+                              height: 30,
+                              borderRadius: 9,
+                              background: stat.color + "18",
+                              color: stat.color,
+                              display: "grid",
+                              placeItems: "center",
+                            }}
+                          >
+                            <StatIcon size={15} />
+                          </span>
+                        </div>
+                        <strong
+                          style={{
+                            display: "block",
+                            marginTop: 13,
+                            color: stat.color,
+                            fontFamily: "Manrope, 'DM Sans', sans-serif",
+                            fontSize: 27,
+                            lineHeight: 1,
+                          }}
+                        >
+                          {kpisLoading ? "—" : stat.value}
+                        </strong>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 7,
+                            marginTop: 10,
+                            color: "#8d8196",
+                            fontSize: 11,
+                          }}
+                        >
+                          <span style={{ color: stat.color, fontWeight: 800 }}>
+                            {stat.change}
+                          </span>
+                          <span>{stat.detail}</span>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
 
-            <section className="path-lower-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.65fr) minmax(310px, .8fr)", gap: 14 }}>
-              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>Recent activity</div><h3 style={{ color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 19, margin: "7px 0 0" }}>What’s moving</h3></div><button type="button" onClick={() => navigate("/audit")} style={{ border: "none", background: "none", color: "#7c3aed", fontWeight: 800, fontSize: 12, cursor: "pointer" }}>Open audit trail <ArrowUpRight size={13} /></button></div>
-                <div style={{ marginTop: 18 }}>{recentActivityData.slice(0, 4).map((activity) => { const ActivityIcon = activity.icon || Activity; return <div key={activity.id || activity.key || activity.title} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 0", borderBottom: "1px solid #f0eaf5" }}><div style={{ width: 30, height: 30, borderRadius: 9, background: activity.bg || "#f1ebff", color: activity.color || "#7c3aed", display: "grid", placeItems: "center", flexShrink: 0 }}><ActivityIcon size={14} /></div><div style={{ minWidth: 0, flex: 1 }}><strong style={{ display: "block", color: "#3b3045", fontSize: 12 }}>{activity.title || activity.text || "Workflow activity"}</strong><small style={{ color: "#94879c", fontSize: 11 }}>{activity.subtitle || activity.description || activity.time || "Recently"}</small></div><MoreHorizontal size={15} color="#b3a6bd" /></div>; })}{recentActivityData.length === 0 && <ListEmptyState icon={Activity} message="No recent activity yet." />}</div>
-              </article>
+              {/* Notification dropdown */}
+              {notifOpen && (
+                <div
+                  style={{
+                    position: "fixed",
+                    top: 140,
+                    right: 32,
+                    width: 360,
+                    background: "#fff",
+                    borderRadius: 14,
+                    border: "1px solid rgba(0,0,0,0.1)",
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.14)",
+                    zIndex: 200,
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "12px 16px",
+                      borderBottom: "1px solid rgba(0,0,0,0.07)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 700,
+                          color: "#111827",
+                        }}
+                      >
+                        Notifications
+                      </span>
+                      {unread > 0 && (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            background: "#5e3bdb",
+                            color: "#fff",
+                            padding: "1px 7px",
+                            borderRadius: 20,
+                          }}
+                        >
+                          {unread} new
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setNotifOpen(false)}
+                      style={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: 6,
+                        background: "#f3f4f6",
+                        border: "none",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <XCircle
+                        style={{ width: 13, height: 13, color: "#6b7280" }}
+                      />
+                    </button>
+                  </div>
+                  {NOTIFICATIONS.map((n) => {
+                    const cfg = NOTIF_CFG[n.type];
+                    const NIcon = cfg.icon;
+                    return (
+                      <div
+                        key={n.id}
+                        style={{
+                          display: "flex",
+                          gap: 10,
+                          padding: "10px 16px",
+                          borderBottom: "1px solid rgba(0,0,0,0.05)",
+                          background: n.read ? "#fff" : "#faf5ff",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 8,
+                            background: cfg.bg,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <NIcon
+                            style={{ width: 13, height: 13, color: cfg.color }}
+                          />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p
+                            style={{
+                              fontSize: 12,
+                              fontWeight: n.read ? 400 : 600,
+                              color: "#111827",
+                            }}
+                          >
+                            {n.text}
+                          </p>
+                          <p
+                            style={{
+                              fontSize: 11,
+                              color: "#6b7280",
+                              marginTop: 1,
+                            }}
+                          >
+                            {n.sub}
+                          </p>
+                          <p
+                            style={{
+                              fontSize: 10,
+                              color: "#9ca3af",
+                              marginTop: 2,
+                            }}
+                          >
+                            {n.time}
+                          </p>
+                        </div>
+                        {!n.read && (
+                          <div
+                            style={{
+                              width: 7,
+                              height: 7,
+                              borderRadius: "50%",
+                              background: "#5e3bdb",
+                              marginTop: 4,
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div style={{ padding: "10px 16px", textAlign: "center" }}>
+                    <button
+                      style={{
+                        fontSize: 12,
+                        color: "#5e3bdb",
+                        fontWeight: 600,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      View All Notifications
+                    </button>
+                  </div>
+                </div>
+              )}
 
-              <article style={{ background: "#fff", border: "1px solid #ebe4f4", borderRadius: 16, padding: 22, boxShadow: "0 10px 26px rgba(76,29,149,.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div><div style={{ color: "#9a8fa3", fontSize: 10, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase" }}>This semester</div><h3 style={{ color: "#27213a", fontFamily: "Manrope, 'DM Sans', sans-serif", fontSize: 19, margin: "7px 0 0" }}>Document flow</h3></div><button type="button" onClick={() => navigate("/tracking")} aria-label="More document flow options" style={{ border: "none", background: "#f1ebff", color: "#7c3aed", borderRadius: 8, padding: 8, cursor: "pointer" }}><MoreHorizontal size={15} /></button></div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "20px 0 16px" }}><strong style={{ color: "#27213a", fontSize: 30 }}> {trackingOverviewTotal}</strong><span style={{ color: "#8d8196", fontSize: 11 }}>documents tracked</span></div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>{trackingOverviewData.map((item) => { const pct = trackingOverviewTotal ? Math.round((item.value / trackingOverviewTotal) * 100) : 0; return <div key={item.name}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><span style={{ color: "#554961", fontSize: 12, fontWeight: 700 }}>{item.name}</span><strong style={{ color: "#27213a", fontSize: 12 }}>{item.value}</strong></div><div style={{ height: 8, borderRadius: 20, background: "#eee7f4", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", borderRadius: 20, background: item.color || "#8b5cf6" }} /></div></div>; })}</div>
-              </article>
-            </section>
-          </div>
+              {/* ── PATH Overview layout ── */}
+              <div
+                className="path-overview-content path-content-area"
+                style={{
+                  padding: "28px 48px 42px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 22,
+                }}
+              >
+                <div
+                  className="path-overview-heading"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        color: "#9a8fa3",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        letterSpacing: ".12em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Needs your attention
+                    </div>
+                    <h2
+                      style={{
+                        margin: "7px 0 0",
+                        color: "#27213a",
+                        fontFamily: "Manrope, 'DM Sans', sans-serif",
+                        fontSize: 22,
+                        letterSpacing: "-.025em",
+                      }}
+                    >
+                      Priority queue{" "}
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginLeft: 6,
+                          minWidth: 27,
+                          height: 22,
+                          padding: "0 7px",
+                          borderRadius: 7,
+                          background: "#eee7ff",
+                          color: "#7c3aed",
+                          fontSize: 11,
+                          verticalAlign: "middle",
+                        }}
+                      >
+                        {String(Math.min(99, trackedItems.length)).padStart(
+                          2,
+                          "0",
+                        )}
+                      </span>
+                    </h2>
+                  </div>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 14 }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => navigate("/tracking")}
+                      style={{
+                        border: "none",
+                        background: "none",
+                        color: "#7c3aed",
+                        fontWeight: 800,
+                        fontSize: 12,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Review all items <ArrowUpRight size={13} />
+                    </button>
+                  </div>
+                </div>
+
+                <section
+                  className="path-main-grid"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "minmax(0, 1.65fr) minmax(310px, .8fr)",
+                    gap: 14,
+                    alignItems: "stretch",
+                  }}
+                >
+                  <article
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #ebe4f4",
+                      borderRadius: 16,
+                      boxShadow: "0 10px 26px rgba(76,29,149,.06)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div>
+                      {itemsLoading ? (
+                        <p
+                          style={{
+                            padding: 36,
+                            color: "#776b83",
+                            textAlign: "center",
+                          }}
+                        >
+                          Loading priority queue…
+                        </p>
+                      ) : (
+                        trackedPageItems.slice(0, 4).map((row, index) => (
+                          <button
+                            key={row.id}
+                            type="button"
+                            onClick={() => navigate("/tracking")}
+                            style={{
+                              width: "100%",
+                              display: "grid",
+                              gridTemplateColumns:
+                                "28px 34px minmax(0,1fr) auto 18px",
+                              gap: 12,
+                              alignItems: "center",
+                              padding: "16px 20px",
+                              border: "none",
+                              borderBottom: "1px solid #f0eaf5",
+                              background: "#fff",
+                              textAlign: "left",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: "#8b5cf6",
+                                fontSize: 11,
+                                fontWeight: 800,
+                              }}
+                            >
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <span
+                              style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: 10,
+                                background: "#f1ebff",
+                                color: "#7c3aed",
+                                display: "grid",
+                                placeItems: "center",
+                                fontSize: 11,
+                                fontWeight: 800,
+                              }}
+                            >
+                              {(row.person || "--")
+                                .split(" ")
+                                .map((part) => part[0])
+                                .join("")
+                                .slice(0, 2)
+                                .toUpperCase()}
+                            </span>
+                            <span style={{ minWidth: 0 }}>
+                              <strong
+                                style={{
+                                  display: "block",
+                                  color: "#3b3045",
+                                  fontSize: 13,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {row.title}
+                              </strong>
+                              <small
+                                style={{
+                                  display: "block",
+                                  color: "#94879c",
+                                  fontSize: 11,
+                                  marginTop: 3,
+                                }}
+                              >
+                                {row.person}{" "}
+                                <i
+                                  style={{
+                                    fontStyle: "normal",
+                                    margin: "0 4px",
+                                  }}
+                                >
+                                  •
+                                </i>{" "}
+                                {row.sourceType}
+                              </small>
+                            </span>
+                            <span style={{ textAlign: "right" }}>
+                              <PriorityPill p={row.priority} />
+                              <small
+                                style={{
+                                  display: "block",
+                                  color: "#9a8fa3",
+                                  fontSize: 10,
+                                  marginTop: 5,
+                                }}
+                              >
+                                {row.date}
+                              </small>
+                            </span>
+                            <ArrowUpRight size={15} color="#b3a6bd" />
+                          </button>
+                        ))
+                      )}
+                      {!itemsLoading && trackedPageItems.length === 0 && (
+                        <ListEmptyState
+                          icon={Inbox}
+                          message="No matching documents"
+                        />
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        padding: "12px 20px",
+                        borderTop: "1px solid #f0eaf5",
+                        color: "#8d8196",
+                        fontSize: 11,
+                      }}
+                    >
+                      <span>
+                        <ShieldCheck
+                          size={14}
+                          style={{
+                            verticalAlign: "middle",
+                            marginRight: 6,
+                            color: "#8b5cf6",
+                          }}
+                        />
+                        SLA health is monitored automatically
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/sla")}
+                        style={{
+                          border: "none",
+                          background: "none",
+                          color: "#7c3aed",
+                          fontWeight: 800,
+                          fontSize: 11,
+                          cursor: "pointer",
+                        }}
+                      >
+                        See SLA details <ArrowUpRight size={13} />
+                      </button>
+                    </div>
+                  </article>
+
+                  <article
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #ebe4f4",
+                      borderRadius: 16,
+                      padding: 22,
+                      boxShadow: "0 10px 26px rgba(76,29,149,.06)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <div
+                          style={{
+                            color: "#9a8fa3",
+                            fontSize: 10,
+                            fontWeight: 800,
+                            letterSpacing: ".12em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          SLA monitoring
+                        </div>
+                        <h3
+                          style={{
+                            color: "#27213a",
+                            fontFamily: "Manrope, 'DM Sans', sans-serif",
+                            fontSize: 19,
+                            margin: "7px 0 0",
+                          }}
+                        >
+                          Workflow health
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/sla")}
+                        aria-label="Open SLA configuration"
+                        style={{
+                          border: "none",
+                          background: "#f1ebff",
+                          color: "#7c3aed",
+                          borderRadius: 8,
+                          padding: 8,
+                          cursor: "pointer",
+                        }}
+                      >
+                        <MoreHorizontal size={15} />
+                      </button>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 16,
+                        margin: "24px 0 20px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 92,
+                          height: 92,
+                          borderRadius: "50%",
+                          background: `conic-gradient(#7c3aed ${Math.min(100, Math.max(0, onTimeCompletionRate))}%, #eee7f4 0)`,
+                          display: "grid",
+                          placeItems: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 70,
+                            height: 70,
+                            borderRadius: "50%",
+                            background: "#fff",
+                            display: "grid",
+                            placeItems: "center",
+                            color: "#5b21b6",
+                            fontSize: 18,
+                            fontWeight: 800,
+                          }}
+                        >
+                          {kpisLoading ? (
+                            "—"
+                          ) : (
+                            <>
+                              <strong style={{ fontSize: 23 }}>
+                                {onTimeCompletionRate}
+                              </strong>
+                              <span style={{ fontSize: 14 }}>%</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <strong
+                          style={{
+                            display: "block",
+                            fontSize: 16,
+                            color: "#27213a",
+                          }}
+                        >
+                          {onTimeCompletionRate >= 90
+                            ? "Healthy"
+                            : "Needs attention"}
+                        </strong>
+                        <span style={{ color: "#8d8196", fontSize: 11 }}>
+                          Across all active workflows
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        height: 7,
+                        background: "#eee7f4",
+                        borderRadius: 20,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${Math.min(100, Math.max(0, onTimeCompletionRate))}%`,
+                          height: "100%",
+                          background: "linear-gradient(90deg,#7c3aed,#a78bfa)",
+                          borderRadius: 20,
+                        }}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginTop: 7,
+                        color: "#aaa0b2",
+                        fontSize: 10,
+                      }}
+                    >
+                      <span>0%</span>
+                      <span>100%</span>
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 12,
+                        marginTop: 22,
+                        paddingTop: 18,
+                        borderTop: "1px solid #eee8f1",
+                      }}
+                    >
+                      <div>
+                        <span
+                          style={{
+                            color: "#9a8fa3",
+                            fontSize: 10,
+                            display: "block",
+                            textTransform: "uppercase",
+                            letterSpacing: ".08em",
+                          }}
+                        >
+                          Avg. turnaround
+                        </span>
+                        <strong
+                          style={{
+                            display: "block",
+                            color: "#27213a",
+                            fontSize: 18,
+                            marginTop: 5,
+                          }}
+                        >
+                          {avgApprovalDays.toFixed(1)} days
+                        </strong>
+                        <small style={{ color: "#059669", fontSize: 10 }}>
+                          <ArrowUpRight size={11} /> 18% faster
+                        </small>
+                      </div>
+                      <div>
+                        <span
+                          style={{
+                            color: "#9a8fa3",
+                            fontSize: 10,
+                            display: "block",
+                            textTransform: "uppercase",
+                            letterSpacing: ".08em",
+                          }}
+                        >
+                          At risk
+                        </span>
+                        <strong
+                          style={{
+                            display: "block",
+                            color: "#27213a",
+                            fontSize: 18,
+                            marginTop: 5,
+                          }}
+                        >
+                          {BOTTLENECK_ALERTS.length.toString().padStart(2, "0")}
+                        </strong>
+                        <small style={{ color: "#b45309", fontSize: 10 }}>
+                          <Clock size={11} /> needs action
+                        </small>
+                      </div>
+                    </div>
+                  </article>
+                </section>
+
+                <section
+                  className="path-lower-grid"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "minmax(0, 1.65fr) minmax(310px, .8fr)",
+                    gap: 14,
+                  }}
+                >
+                  <article
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #ebe4f4",
+                      borderRadius: 16,
+                      padding: 22,
+                      boxShadow: "0 10px 26px rgba(76,29,149,.06)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <div
+                          style={{
+                            color: "#9a8fa3",
+                            fontSize: 10,
+                            fontWeight: 800,
+                            letterSpacing: ".12em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Recent activity
+                        </div>
+                        <h3
+                          style={{
+                            color: "#27213a",
+                            fontFamily: "Manrope, 'DM Sans', sans-serif",
+                            fontSize: 19,
+                            margin: "7px 0 0",
+                          }}
+                        >
+                          What’s moving
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/audit")}
+                        style={{
+                          border: "none",
+                          background: "none",
+                          color: "#7c3aed",
+                          fontWeight: 800,
+                          fontSize: 12,
+                          cursor: "pointer",
+                        }}
+                      >
+                        Open audit trail <ArrowUpRight size={13} />
+                      </button>
+                    </div>
+                    <div style={{ marginTop: 18 }}>
+                      {recentActivityData.slice(0, 4).map((activity) => {
+                        const ActivityIcon = activity.icon || Activity;
+                        return (
+                          <div
+                            key={activity.id || activity.key || activity.title}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 12,
+                              padding: "13px 0",
+                              borderBottom: "1px solid #f0eaf5",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 30,
+                                height: 30,
+                                borderRadius: 9,
+                                background: activity.bg || "#f1ebff",
+                                color: activity.color || "#7c3aed",
+                                display: "grid",
+                                placeItems: "center",
+                                flexShrink: 0,
+                              }}
+                            >
+                              <ActivityIcon size={14} />
+                            </div>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <strong
+                                style={{
+                                  display: "block",
+                                  color: "#3b3045",
+                                  fontSize: 12,
+                                }}
+                              >
+                                {activity.title ||
+                                  activity.text ||
+                                  "Workflow activity"}
+                              </strong>
+                              <small style={{ color: "#94879c", fontSize: 11 }}>
+                                {activity.subtitle ||
+                                  activity.description ||
+                                  activity.time ||
+                                  "Recently"}
+                              </small>
+                            </div>
+                            <MoreHorizontal size={15} color="#b3a6bd" />
+                          </div>
+                        );
+                      })}
+                      {recentActivityData.length === 0 && (
+                        <ListEmptyState
+                          icon={Activity}
+                          message="No recent activity yet."
+                        />
+                      )}
+                    </div>
+                  </article>
+
+                  <article
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #ebe4f4",
+                      borderRadius: 16,
+                      padding: 22,
+                      boxShadow: "0 10px 26px rgba(76,29,149,.06)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <div
+                          style={{
+                            color: "#9a8fa3",
+                            fontSize: 10,
+                            fontWeight: 800,
+                            letterSpacing: ".12em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          This semester
+                        </div>
+                        <h3
+                          style={{
+                            color: "#27213a",
+                            fontFamily: "Manrope, 'DM Sans', sans-serif",
+                            fontSize: 19,
+                            margin: "7px 0 0",
+                          }}
+                        >
+                          Document flow
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/tracking")}
+                        aria-label="More document flow options"
+                        style={{
+                          border: "none",
+                          background: "#f1ebff",
+                          color: "#7c3aed",
+                          borderRadius: 8,
+                          padding: 8,
+                          cursor: "pointer",
+                        }}
+                      >
+                        <MoreHorizontal size={15} />
+                      </button>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "baseline",
+                        gap: 8,
+                        margin: "20px 0 16px",
+                      }}
+                    >
+                      <strong style={{ color: "#27213a", fontSize: 30 }}>
+                        {" "}
+                        {trackingOverviewTotal}
+                      </strong>
+                      <span style={{ color: "#8d8196", fontSize: 11 }}>
+                        documents tracked
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 14,
+                      }}
+                    >
+                      {trackingOverviewData.map((item) => {
+                        const pct = trackingOverviewTotal
+                          ? Math.round(
+                              (item.value / trackingOverviewTotal) * 100,
+                            )
+                          : 0;
+                        return (
+                          <div key={item.name}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                marginBottom: 6,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#554961",
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {item.name}
+                              </span>
+                              <strong
+                                style={{ color: "#27213a", fontSize: 12 }}
+                              >
+                                {item.value}
+                              </strong>
+                            </div>
+                            <div
+                              style={{
+                                height: 8,
+                                borderRadius: 20,
+                                background: "#eee7f4",
+                                overflow: "hidden",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: `${pct}%`,
+                                  height: "100%",
+                                  borderRadius: 20,
+                                  background: item.color || "#8b5cf6",
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </article>
+                </section>
+              </div>
+            </>
+          )}
 
           <FacultyPerformanceModal
             open={facultyModalOpen}
@@ -1715,47 +4233,168 @@ export default function Dashboard() {
           {alertsModalOpen && (
             <div
               onClick={() => setAlertsModalOpen(false)}
-              style={{ position: "fixed", inset: 0, background: "rgba(17,24,39,0.55)", zIndex: 2500, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 20px", overflowY: "auto" }}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(17,24,39,0.55)",
+                zIndex: 2500,
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "center",
+                padding: "40px 20px",
+                overflowY: "auto",
+              }}
             >
               <div
-                onClick={e => e.stopPropagation()}
-                style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 640, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden", display: "flex", flexDirection: "column" }}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: "#fff",
+                  borderRadius: 16,
+                  width: "100%",
+                  maxWidth: 640,
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
               >
-                <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+                <div
+                  style={{
+                    padding: "16px 22px",
+                    borderBottom: "1px solid rgba(0,0,0,0.07)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexShrink: 0,
+                  }}
+                >
                   <div>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: "#111827" }}>All Alerts</p>
-                    <p style={{ fontSize: 11.5, color: "#6b7280" }}>{BOTTLENECK_ALERTS.length} items requiring immediate attention</p>
+                    <p
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 800,
+                        color: "#111827",
+                      }}
+                    >
+                      All Alerts
+                    </p>
+                    <p style={{ fontSize: 11.5, color: "#6b7280" }}>
+                      {BOTTLENECK_ALERTS.length} items requiring immediate
+                      attention
+                    </p>
                   </div>
                   <button
                     onClick={() => setAlertsModalOpen(false)}
-                    style={{ width: 28, height: 28, borderRadius: 8, border: "none", background: "#f3f4f6", color: "#6b7280", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 8,
+                      border: "none",
+                      background: "#f3f4f6",
+                      color: "#6b7280",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
                   >
                     <X style={{ width: 14, height: 14 }} />
                   </button>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 22px", maxHeight: "70vh", overflowY: "auto" }}>
-                  {BOTTLENECK_ALERTS.map(a => {
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                    padding: "14px 22px",
+                    maxHeight: "70vh",
+                    overflowY: "auto",
+                  }}
+                >
+                  {BOTTLENECK_ALERTS.map((a) => {
                     const cfg = ALERT_TIER_CFG[a.tier];
                     const AlertIcon = a.icon;
                     return (
                       <div
                         key={a.key}
-                        style={{ display: "flex", alignItems: "flex-start", gap: 12, background: cfg.bg, borderLeft: `3px solid ${cfg.border}`, borderRadius: 10, padding: "12px 14px" }}
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 12,
+                          background: cfg.bg,
+                          borderLeft: `3px solid ${cfg.border}`,
+                          borderRadius: 10,
+                          padding: "12px 14px",
+                        }}
                       >
-                        <div style={{ width: 30, height: 30, borderRadius: 8, background: cfg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <AlertIcon style={{ width: 14, height: 14, color: cfg.iconColor }} />
+                        <div
+                          style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 8,
+                            background: cfg.iconBg,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <AlertIcon
+                            style={{
+                              width: 14,
+                              height: 14,
+                              color: cfg.iconColor,
+                            }}
+                          />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                            <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{a.title}</p>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <p
+                              style={{
+                                fontSize: 12.5,
+                                fontWeight: 700,
+                                color: "#111827",
+                              }}
+                            >
+                              {a.title}
+                            </p>
                             {cfg.showPill && (
-                              <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9.5, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
+                              <span
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  fontSize: 9.5,
+                                  fontWeight: 700,
+                                  padding: "2px 8px",
+                                  borderRadius: 5,
+                                  background: "#dc2626",
+                                  color: "#fff",
+                                  letterSpacing: 0.3,
+                                }}
+                              >
                                 CRITICAL
                               </span>
                             )}
                           </div>
-                          <p style={{ fontSize: 11.5, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                          <p
+                            style={{
+                              fontSize: 11.5,
+                              color: "#4b5563",
+                              marginTop: 3,
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            {a.message}
+                          </p>
                         </div>
                       </div>
                     );
@@ -1766,18 +4405,42 @@ export default function Dashboard() {
           )}
 
           {/* Footer */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderTop: "0.5px solid #e5e7eb", fontSize: 10, color: "#aaa", background: "white" }}>
-            <span>© 2026 PATH Document Management System. All rights reserved.</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "9px 20px",
+              borderTop: "0.5px solid #e5e7eb",
+              fontSize: 10,
+              color: "#aaa",
+              background: "white",
+            }}
+          >
+            <span>
+              © 2026 PATH Document Management System. All rights reserved.
+            </span>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "#22c55e",
+                    display: "inline-block",
+                  }}
+                />
                 System Operational
               </span>
-              <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Privacy Policy</a>
-              <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>Terms of Service</a>
+              <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>
+                Privacy Policy
+              </a>
+              <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>
+                Terms of Service
+              </a>
             </div>
           </div>
-
         </div>
       </div>
     </div>
