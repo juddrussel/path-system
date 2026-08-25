@@ -1362,7 +1362,7 @@ export default function Forms() {
 
   const [activeNav, setActiveNav] = useState("forms");
   const [activeTab, setActiveTab] = useState(
-    isProgramChair ? "review" : "submit",
+    isProgramChair ? "review" : "history",
   );
   const [search, setSearch] = useState("");
 
