@@ -2994,7 +2994,31 @@ export default function Dashboard() {
 @media(max-width:1100px){.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.path-content-area{max-width:none}.path-main-grid,.path-lower-grid{grid-template-columns:1fr!important}}
 @media(max-width:900px){.path-hero{padding:28px 20px 22px!important}.path-hero h1{font-size:29px!important}.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.path-stat-card{padding:15px!important}.path-stat-card strong{font-size:24px!important}.path-content-area{padding:20px 16px 30px!important;overflow-x:hidden}.path-content-area>section{grid-template-columns:1fr!important}.path-overview-heading{align-items:flex-start!important}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}.faculty-dashboard-hero,.faculty-dashboard-stats,.faculty-dashboard-focus,.faculty-dashboard-list{margin-left:20px;margin-right:20px}.faculty-dashboard-hero{align-items:flex-start;flex-direction:column}.faculty-dashboard-stats{grid-template-columns:repeat(2,1fr);gap:10px}.faculty-dashboard-focus{grid-template-columns:1fr}.faculty-dashboard-list{margin-bottom:24px}}
 `}</style>
-      <style>{`@media (max-width: 900px) { .path-overview-shell .path-hero { margin: 18px 20px 0 !important; border-radius: 12px !important; } }`}</style>
+      <style>{`
+        .path-overview-shell .dashboard-workspace-canvas .path-hero {
+          margin: 0 !important;
+          border-radius: 16px !important;
+        }
+        .path-overview-shell .dashboard-workspace-canvas .path-content-area {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+        .path-overview-shell .dashboard-workspace-canvas .faculty-dashboard-hero,
+        .path-overview-shell .dashboard-workspace-canvas .faculty-dashboard-stats,
+        .path-overview-shell .dashboard-workspace-canvas .faculty-dashboard-focus,
+        .path-overview-shell .dashboard-workspace-canvas .faculty-dashboard-list {
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+        }
+        @media (max-width: 900px) {
+          .path-overview-shell .dashboard-workspace-canvas {
+            padding: 18px 20px 30px !important;
+          }
+          .path-overview-shell .dashboard-workspace-canvas .path-hero {
+            border-radius: 12px !important;
+          }
+        }
+      `}</style>
 
       <Sidebar activePage="dashboard" />
 
@@ -3065,10 +3089,13 @@ export default function Dashboard() {
 
         {/* ── Content: Program Chair layout ── */}
         <div
+          className="dashboard-workspace-canvas"
           style={{
             minHeight: "calc(100vh - 56px)",
             background: "#faf8ff",
             overflowY: "auto",
+            padding: "18px 48px 36px",
+            boxSizing: "border-box",
           }}
         >
           {isFacultyDashboard ? (
