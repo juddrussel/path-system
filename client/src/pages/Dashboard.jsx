@@ -1821,6 +1821,11 @@ function FacultyDashboardOverview({ displayName, forms, loading, navigate }) {
     (row) => !/approved|received|rejected|archived/.test(statusOf(row)),
   );
   const returnedForm = returned[0];
+  const supportingAttentionItems = [
+    ...returned.slice(1),
+    ...inReview.filter((row) => row.id !== returnedForm?.id),
+    ...drafts.filter((row) => row.id !== returnedForm?.id),
+  ].slice(0, 3);
   const cards = [
     {
       label: "Active submissions",
@@ -1891,37 +1896,64 @@ function FacultyDashboardOverview({ displayName, forms, loading, navigate }) {
         })}
       </section>
       <section className="faculty-dashboard-focus">
-        <article>
-          {returnedForm ? (
-            <>
-              <span className="faculty-kicker">Needs your attention</span>
-              <div className="faculty-return-title">
-                <i>
-                  <RotateCcw size={17} />
-                </i>
-                <div>
-                  <h2>{returnedForm.title}</h2>
-                  <p>Returned for revision · {returnedForm.date}</p>
+        <div className="faculty-attention-stack">
+          <article>
+            {returnedForm ? (
+              <>
+                <span className="faculty-kicker">Needs your attention</span>
+                <div className="faculty-return-title">
+                  <i>
+                    <RotateCcw size={17} />
+                  </i>
+                  <div>
+                    <h2>{returnedForm.title}</h2>
+                    <p>Returned for revision · {returnedForm.date}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="faculty-return-note">
-                Review the requested updates, attach the revised file, and
-                resubmit it for the next handoff.
-              </div>
-              <button type="button" onClick={() => navigate("/forms")}>
-                Review request <ArrowUpRight size={14} />
-              </button>
-            </>
-          ) : (
-            <>
-              <span className="faculty-kicker">Your workflow</span>
-              <h2>Everything is on track</h2>
-              <p className="faculty-empty-copy">
-                No submissions currently need a revision from you.
-              </p>
-            </>
+                <div className="faculty-return-note">
+                  Review the requested updates, attach the revised file, and
+                  resubmit it for the next handoff.
+                </div>
+                <button type="button" onClick={() => navigate("/forms")}>
+                  Review request <ArrowUpRight size={14} />
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="faculty-kicker">Your workflow</span>
+                <h2>Everything is on track</h2>
+                <p className="faculty-empty-copy">
+                  No submissions currently need a revision from you.
+                </p>
+              </>
+            )}
+          </article>
+          {supportingAttentionItems.length > 0 && (
+            <div
+              className="faculty-attention-list"
+              aria-label="Additional submissions needing attention"
+            >
+              {supportingAttentionItems.map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => navigate("/forms")}
+                >
+                  <i>
+                    <FileText size={13} />
+                  </i>
+                  <span>
+                    <strong>{item.title}</strong>
+                    <small>
+                      {item.status} · {item.date}
+                    </small>
+                  </span>
+                  <ArrowUpRight size={13} />
+                </button>
+              ))}
+            </div>
           )}
-        </article>
+        </div>
         <article>
           <span className="faculty-kicker">Your workflow health</span>
           <h2>Every handoff is traceable</h2>
@@ -3028,6 +3060,16 @@ export default function Dashboard() {
           border-left: 0 !important;
           border-radius: 16px !important;
         }
+        .faculty-attention-stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+        .faculty-attention-list { display: flex; flex-direction: column; overflow: hidden; margin-top: 1px; padding-top: 8px; border-top: 1px solid #eee9f1; }
+        .faculty-attention-list button { display: grid; grid-template-columns: 25px minmax(0, 1fr) 14px; align-items: center; gap: 8px; width: 100%; min-height: 42px; padding: 6px 1px; border: 0; border-bottom: 1px solid #f3f0f5; background: transparent; color: #51405a; text-align: left; cursor: pointer; }
+        .faculty-attention-list button:last-child { border-bottom: 0; }
+        .faculty-attention-list button:hover { color: #7543c7; }
+        .faculty-attention-list button > i { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 7px; background: #f1ebff; color: #7951c7; }
+        .faculty-attention-list button > span { min-width: 0; }
+        .faculty-attention-list button strong, .faculty-attention-list button small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .faculty-attention-list button strong { font-family: Manrope, 'DM Sans', sans-serif; font-size: 9px; }
+        .faculty-attention-list button small { margin-top: 3px; color: #9d93a4; font-size: 8px; }
         @media (max-width: 900px) {
           .path-overview-shell .dashboard-workspace-canvas {
             padding: 18px 20px 30px !important;
