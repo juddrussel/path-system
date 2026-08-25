@@ -2523,7 +2523,7 @@ export default function Forms() {
 
   return (
     <div
-      className={`path-forms-shell ${isProgramChair && activeTab === "review" ? "path-forms-queue-active" : ""}`}
+      className={`path-forms-shell ${isProgramChair && activeTab === "review" ? "path-forms-queue-active" : ""} ${!isProgramChair && activeTab === "submit" ? "path-forms-start-active" : ""}`}
       style={{
         display: "flex",
         minHeight: "100vh",
@@ -2565,6 +2565,17 @@ export default function Forms() {
         /* Preserve the generous quiet margin from the supplied reference on wide review workspaces. */
         @media(min-width:1100px){.path-forms-queue-active .path-forms-page{padding-left:clamp(48px,5vw,84px)!important;padding-right:clamp(48px,5vw,84px)!important}}
         @media(max-width:760px){.path-forms-page{padding:17px 14px 28px!important;gap:14px!important}.path-forms-queue-active .path-forms-hero{min-height:auto;padding:21px 17px}.path-forms-queue-active .path-forms-hero h1{font-size:33px}.path-forms-queue-active .path-review-stats{gap:10px}.path-forms-queue-active .path-review-toolbar{padding:15px}.path-forms-queue-active .path-review-row{padding:12px 14px}}
+      `}</style>
+
+      <style>{`
+        .path-forms-start-active .path-forms-default-stats{display:none!important}
+        .path-forms-start-active .path-forms-page{gap:16px!important}
+        .path-forms-start-active .path-forms-default-header{padding:6px 4px 2px}
+        .path-faculty-start-shell{width:100%}
+        .path-faculty-start-shell>div{gap:18px!important}
+        .path-faculty-start-shell h2{font-family:'Manrope',sans-serif!important;letter-spacing:-.04em}
+        .path-faculty-start-shell [style*="grid-template-columns: minmax(0, 1fr) 300px"]{grid-template-columns:minmax(0,1.7fr) minmax(260px,.56fr)!important;gap:16px!important}
+        @media(max-width:900px){.path-faculty-start-shell [style*="grid-template-columns: minmax(0, 1fr) 300px"]{grid-template-columns:1fr!important}}
       `}</style>
 
       {/* Toast container */}
@@ -2760,12 +2771,12 @@ export default function Forms() {
                 }}
               >
                 {activeTab === "submit" && !isProgramChair
-                  ? "Submit Form"
+                  ? "Start a submission"
                   : "Forms Management"}
               </h1>
               <p style={{ fontSize: 14, color: "#494454", margin: "8px 0 0" }}>
                 {activeTab === "submit" && !isProgramChair
-                  ? "Complete the required information and submit your form for review."
+                  ? "Choose a form type, add the required files and context, then send the submission into review."
                   : isProgramChair
                     ? "Review, approve, and manage submitted student forms."
                     : "Upload and submit student forms for program chair review."}
@@ -2800,7 +2811,7 @@ export default function Forms() {
                         : "none",
                   }}
                 >
-                  Submit Form
+                  Start a submission
                 </button>
               )}
               <button
@@ -2968,6 +2979,7 @@ export default function Forms() {
           {/* ── FACULTY: SUBMIT TAB (Submit New Form wizard) ── */}
           {activeTab === "submit" && !isProgramChair && (
             <div
+              className="path-faculty-start-shell"
               style={{
                 width: "100%",
                 display: "grid",
@@ -2986,7 +2998,7 @@ export default function Forms() {
                       margin: "0 0 4px",
                     }}
                   >
-                    Submit New Form
+                    Start a submission
                   </h2>
                   <p style={{ fontSize: 12, color: "#888", margin: 0 }}>
                     Select a form type and upload the required documents to
