@@ -2548,8 +2548,49 @@ export default function Forms() {
         .path-faculty-start-shell{width:100%}
         .path-faculty-start-shell>div{gap:18px!important}
         .path-faculty-start-shell h2{font-family:'Manrope',sans-serif!important;letter-spacing:-.04em}
-        .path-faculty-start-shell [style*="grid-template-columns: minmax(0, 1fr) 300px"]{grid-template-columns:minmax(0,1.7fr) minmax(260px,.56fr)!important;gap:16px!important}
-        @media(max-width:900px){.path-faculty-start-shell [style*="grid-template-columns: minmax(0, 1fr) 300px"]{grid-template-columns:1fr!important}}
+        .path-faculty-start-shell{grid-template-columns:minmax(0,1.7fr) minmax(260px,.56fr)!important;gap:16px!important}
+        .path-faculty-intake-main{display:flex;flex-direction:column;gap:14px;min-width:0}
+        .path-faculty-intake-intro{display:none}
+        .path-faculty-intake-step{margin:0!important;padding:20px!important;border:1px solid #e6dfee!important;border-radius:12px!important;background:#fff!important;box-shadow:0 10px 26px rgba(54,36,87,.04)!important}
+        .path-faculty-intake-step.is-muted{background:#fdfcff!important}
+        .path-faculty-intake-step>div:first-child{display:flex!important;align-items:flex-start!important;gap:11px!important;margin:0 0 17px!important;padding:0!important;border:0!important}
+        .path-faculty-intake-step>div:first-child>svg{display:none!important}
+        .path-faculty-intake-step>div:first-child h3{display:flex!important;align-items:center!important;gap:11px!important;margin:0!important;color:#4a3a54!important;font-family:Manrope,sans-serif!important;font-size:15px!important;font-weight:800!important;letter-spacing:-.04em!important;line-height:25px!important}
+        .path-faculty-intake-step>div:first-child h3:before{display:grid;width:25px;height:25px;place-items:center;flex:0 0 auto;border-radius:50%;background:#7c3aed;color:#fff;font:800 9px Manrope,sans-serif;box-shadow:0 0 0 5px #f2ecff;content:"01"}
+        .path-faculty-intake-step>div:nth-child(2){display:block!important}
+        .path-faculty-intake-step>div:nth-child(2)>div:first-child{display:none!important}
+        .path-faculty-intake-step>div:nth-child(2)>div:last-child{width:100%!important}
+        .path-faculty-intake-step>div:nth-child(2)>div:last-child>p:first-child{margin:4px 0 17px 36px!important;color:#928699!important;font-size:9px!important;line-height:1.5!important}
+        .path-faculty-step-02>div:first-child h3:before{content:"02"}
+        .path-faculty-step-03>div:first-child h3:before{content:"03"}
+        .path-faculty-step-04>div:first-child h3:before{content:"04"}
+        .path-faculty-intake-step select{height:41px!important;border:1px solid #e2d9ea!important;border-radius:8px!important;color:#5f5069!important;font:700 10px 'DM Sans',sans-serif!important;box-shadow:none!important}
+        .path-faculty-intake-step label{color:#66576f!important;font-size:9px!important;font-weight:800!important}
+        .path-faculty-step-01>div:nth-child(2)>div:last-child>label{display:none!important}
+        .path-faculty-step-01>div:nth-child(2)>div:last-child>div{margin-top:0!important}
+        .path-faculty-intake-step textarea{min-height:98px!important;border-color:#e2d9ea!important;border-radius:8px!important;color:#5f5069!important;font:500 10px 'DM Sans',sans-serif!important}
+        .path-faculty-intake-step [style*="border: 1px dashed"]{display:flex!important;min-height:72px;align-items:center!important;justify-content:center!important;background:#fdfcff!important;border-color:#e5ddea!important;border-radius:8px!important}
+        .path-faculty-intake-step [style*="border: 1px dashed"] p{display:flex;align-items:center;justify-content:center;gap:9px;margin:0!important;color:#a094a8!important;font-size:10px!important}
+        .path-faculty-intake-step [style*="border: 1px dashed"] svg{width:17px;color:#a982e9}
+        .path-faculty-summary-aside{align-self:start!important}
+        .path-faculty-summary-card{border-color:#e6dfee!important;border-radius:12px!important;box-shadow:0 10px 26px rgba(54,36,87,.04)!important}
+        .path-faculty-summary-kicker{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px;color:#978c9e;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+        .path-faculty-summary-kicker b{border-radius:4px;padding:4px 7px;background:#fff4d9;color:#a57524;font-size:8px;letter-spacing:0;text-transform:none}
+        .path-faculty-summary-card>h3{margin:0 0 9px!important;color:#4a3a54!important;font-family:Manrope,sans-serif!important;font-size:16px!important;font-weight:800!important;letter-spacing:-.045em!important}
+        .path-faculty-summary-card>p{margin:0 0 13px!important;padding-bottom:13px;border-bottom:1px solid #eee8f3;color:#9b90a2!important;font-size:9px!important;line-height:1.5!important}
+        .path-faculty-summary-card [style*="padding: 8px 0"]{padding:10px 0!important;border-color:#eee8f3!important}
+        .path-faculty-summary-card [style*="padding: 8px 0"]>span:first-child{color:#928699!important;font-size:9px!important}
+        .path-faculty-missing-note{display:flex;align-items:center;gap:7px;margin:5px 0 16px;color:#9d711f;font-size:9px;font-weight:800}
+        .path-faculty-missing-note i{width:6px;height:6px;border-radius:50%;background:#a97724}
+        .path-faculty-summary-card button{border-radius:7px!important;font-family:'DM Sans',sans-serif!important;font-size:10px!important}
+        .path-faculty-summary-card .path-faculty-submit-button{background:#a976e7!important;box-shadow:none!important}
+        .path-faculty-summary-card .path-faculty-draft-button,.path-faculty-summary-card .path-faculty-cancel-button{background:#fff!important;border-color:#e5dfea!important;box-shadow:none!important}
+        .path-faculty-summary-card button:active{transform:scale(.97)}
+        .path-faculty-summary-aside>div:last-child{margin-top:12px!important;padding:12px 0 0!important;border:0!important;border-top:1px solid #eee8f3!important;border-radius:0!important;background:transparent!important}
+        .path-faculty-summary-aside>div:last-child>svg{width:15px!important;height:15px!important;padding:3px!important;border-radius:50%;background:#f3edff!important;color:#8555d4!important}
+        .path-faculty-summary-aside>div:last-child div:first-child{color:#6c5e75!important;font-size:9px!important;letter-spacing:0!important;text-transform:none!important}
+        .path-faculty-summary-aside>div:last-child div:last-child{color:#9b90a2!important;font-size:8px!important;cursor:default!important}
+        @media(max-width:900px){.path-faculty-start-shell{grid-template-columns:1fr!important}.path-faculty-summary-aside{position:static!important}.path-faculty-intake-step{padding:17px!important}}
       `}</style>
 
       {/* Toast container */}
@@ -2961,8 +3002,11 @@ export default function Forms() {
                 alignItems: "start",
               }}
             >
-              <div>
-                <div style={{ marginBottom: 20 }}>
+              <div className="path-faculty-intake-main">
+                <div
+                  className="path-faculty-intake-intro"
+                  style={{ marginBottom: 20 }}
+                >
                   <h2
                     style={{
                       fontSize: 18,
@@ -3002,6 +3046,7 @@ export default function Forms() {
 
                 {/* ── STEP 1: FORM TYPE SELECTION ── */}
                 <div
+                  className="path-faculty-intake-step path-faculty-step-01"
                   style={{
                     background: "white",
                     border: "1px solid #f3f4f6",
@@ -3030,7 +3075,7 @@ export default function Forms() {
                         margin: 0,
                       }}
                     >
-                      Form Type Selection
+                      Choose a form type
                     </h3>
                   </div>
                   <div
@@ -3065,8 +3110,8 @@ export default function Forms() {
                           margin: "0 0 16px",
                         }}
                       >
-                        Choose the specific form you wish to file from the list
-                        below.
+                        Select the workflow that matches your department
+                        document.
                       </p>
 
                       <label
@@ -3112,7 +3157,7 @@ export default function Forms() {
                               ? "Loading…"
                               : categories.length === 0
                                 ? "No form types found"
-                                : "Select a form type..."}
+                                : "Select a form type"}
                           </option>
                           {categories.map((c) => (
                             <option
@@ -3153,6 +3198,7 @@ export default function Forms() {
 
                 {/* ── STEP 2: FORM FIELDS (dynamic — driven by the selected template) ── */}
                 <div
+                  className={`path-faculty-intake-step path-faculty-step-02 ${!selectedCategory ? "is-muted" : ""}`}
                   style={{
                     background: "white",
                     border: "1px solid #f3f4f6",
@@ -3181,7 +3227,7 @@ export default function Forms() {
                         margin: 0,
                       }}
                     >
-                      Form Fields
+                      Complete the details
                     </h3>
                   </div>
                   <div
@@ -3217,8 +3263,8 @@ export default function Forms() {
                         }}
                       >
                         {selectedCategory
-                          ? "Fill in the fields required for this form type."
-                          : "Select a form type in Step 1 to load its required fields."}
+                          ? "These fields help the review team route your document accurately."
+                          : "Choose a form type to load the information PATH needs."}
                       </p>
 
                       {!selectedCategory && (
@@ -3319,6 +3365,7 @@ export default function Forms() {
 
                 {/* ── STEP 3: REQUIRED ATTACHMENTS (dedicated panel for mandatory File Upload fields) ── */}
                 <div
+                  className={`path-faculty-intake-step path-faculty-step-03 ${!selectedCategory ? "is-muted" : ""}`}
                   style={{
                     background: "white",
                     border: "1px solid #f3f4f6",
@@ -3347,7 +3394,7 @@ export default function Forms() {
                         margin: 0,
                       }}
                     >
-                      Required Attachments
+                      Attach your documents
                     </h3>
                   </div>
                   <div
@@ -3383,8 +3430,8 @@ export default function Forms() {
                         }}
                       >
                         {selectedCategory
-                          ? "These documents are mandatory — the form can't be submitted until each one is attached."
-                          : "Select a form type in Step 1 to see which documents are required."}
+                          ? "Upload the primary document and supporting evidence requested for this workflow."
+                          : "Required attachments will appear after you select a form type."}
                       </p>
 
                       {!selectedCategory && (
@@ -3438,6 +3485,7 @@ export default function Forms() {
 
                 {/* ── STEP 4: ADDITIONAL INFORMATION ── */}
                 <div
+                  className="path-faculty-intake-step path-faculty-step-04"
                   style={{
                     background: "white",
                     border: "1px solid #f3f4f6",
@@ -3466,7 +3514,7 @@ export default function Forms() {
                         margin: 0,
                       }}
                     >
-                      Additional Information
+                      Add context for the reviewer
                     </h3>
                   </div>
                   <div
@@ -3501,7 +3549,8 @@ export default function Forms() {
                           margin: "0 0 16px",
                         }}
                       >
-                        Provide any extra context for the program chair.
+                        Optional notes help the next reviewer understand the
+                        purpose of your submission.
                       </p>
 
                       <div>
@@ -3514,7 +3563,7 @@ export default function Forms() {
                             marginBottom: 5,
                           }}
                         >
-                          Remarks / Special Notes
+                          Reviewer notes
                         </label>
                         <textarea
                           value={wizardInfo.remarks}
@@ -3527,7 +3576,7 @@ export default function Forms() {
                           rows={3}
                           onFocus={onFieldFocus}
                           onBlur={onFieldBlur}
-                          placeholder="Enter any additional context for the program chair..."
+                          placeholder="Add a short note, context, or special instructions for the review team..."
                           style={{
                             ...fieldBase,
                             width: "100%",
@@ -3546,8 +3595,12 @@ export default function Forms() {
               </div>
 
               {/* ── RIGHT: SUBMISSION SUMMARY ── */}
-              <div style={{ position: "sticky", top: 20 }}>
+              <div
+                className="path-faculty-summary-aside"
+                style={{ position: "sticky", top: 20 }}
+              >
                 <div
+                  className="path-faculty-summary-card"
                   style={{
                     background: "white",
                     border: "1px solid #f3f4f6",
@@ -3556,6 +3609,14 @@ export default function Forms() {
                     boxShadow: "0 4px 12px rgba(124,58,237,0.05)",
                   }}
                 >
+                  <div className="path-faculty-summary-kicker">
+                    <span>Submission summary</span>
+                    <b>
+                      {wizardFormType && wizardMissingCount === 0
+                        ? "Ready"
+                        : "In progress"}
+                    </b>
+                  </div>
                   <h3
                     style={{
                       fontSize: 15,
@@ -3564,12 +3625,13 @@ export default function Forms() {
                       margin: "0 0 2px",
                     }}
                   >
-                    Submission Summary
+                    Ready when you are
                   </h3>
                   <p
                     style={{ fontSize: 11, color: "#888", margin: "0 0 14px" }}
                   >
-                    Step 4: Review details
+                    Complete the required details and attachments to send this
+                    document into review.
                   </p>
 
                   <div
@@ -3589,7 +3651,7 @@ export default function Forms() {
                       }}
                     >
                       <span style={{ fontSize: 11, color: "#6b7280" }}>
-                        Form Type
+                        Form type
                       </span>
                       <span
                         style={{
@@ -3601,40 +3663,10 @@ export default function Forms() {
                         {wizardFormType || "Not selected"}
                       </span>
                     </div>
-                    {requiredFileFields.length > 0 && (
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          padding: "8px 0",
-                          borderBottom: "1px solid #f3f4f6",
-                        }}
-                      >
-                        <span style={{ fontSize: 11, color: "#6b7280" }}>
-                          Attachments
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color:
-                              wizardAttachmentsCompleteCount ===
-                              requiredFileFields.length
-                                ? "#059669"
-                                : "#111",
-                          }}
-                        >
-                          {wizardAttachmentsCompleteCount} of{" "}
-                          {requiredFileFields.length} Files
-                        </span>
-                      </div>
-                    )}
                     {[
-                      ["Required Fields", wizardRequiredCount],
+                      ["Required fields", wizardRequiredCount],
                       ["Completed", wizardUploadedCount],
-                      ["Uploading", wizardUploadingCount],
-                      ["Missing", wizardMissingCount],
+                      ["Uploaded", wizardAttachmentsCompleteCount],
                     ].map(([label, val]) => (
                       <div
                         key={label}
@@ -3651,47 +3683,19 @@ export default function Forms() {
                         <span
                           style={{
                             fontWeight: 700,
-                            color:
-                              label === "Missing" && val > 0
-                                ? "#dc2626"
-                                : "#111",
+                            color: "#111",
                           }}
                         >
                           {val}
                         </span>
                       </div>
                     ))}
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "8px 0",
-                      }}
-                    >
-                      <span style={{ fontSize: 11, color: "#6b7280" }}>
-                        Status
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          color: wizardStatusColor,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6,
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            background: wizardStatusColor,
-                            display: "inline-block",
-                          }}
-                        />
-                        {wizardStatusLabel}
+                    <div className="path-faculty-missing-note">
+                      <i />
+                      <span>
+                        {wizardMissingCount === 0 && wizardFormType
+                          ? "Everything needed is ready."
+                          : `${wizardMissingCount || 1} item${(wizardMissingCount || 1) === 1 ? "" : "s"} missing`}
                       </span>
                     </div>
                   </div>
@@ -3700,6 +3704,7 @@ export default function Forms() {
                     style={{ display: "flex", flexDirection: "column", gap: 8 }}
                   >
                     <button
+                      className="path-faculty-submit-button"
                       onClick={handleWizardSubmit}
                       disabled={wizardSubmitting}
                       style={{
@@ -3720,10 +3725,11 @@ export default function Forms() {
                       }}
                     >
                       <Icon.Send />{" "}
-                      {wizardSubmitting ? "Submitting..." : "Submit Form"}
+                      {wizardSubmitting ? "Submitting..." : "Submit for review"}
                     </button>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
+                        className="path-faculty-draft-button"
                         onClick={handleWizardSaveDraft}
                         disabled={wizardSubmitting}
                         style={{
@@ -3741,6 +3747,7 @@ export default function Forms() {
                         Save as Draft
                       </button>
                       <button
+                        className="path-faculty-cancel-button"
                         onClick={handleWizardCancel}
                         style={{
                           flex: 1,
