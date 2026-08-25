@@ -596,6 +596,7 @@ function PathTasksWorkspace({
   fmtDate,
   fmtDeadline,
   fmtDateTime,
+  onOpenDocumentReview,
   onLogout,
 }) {
   const isFaculty = !canViewAdminNav;
@@ -799,9 +800,9 @@ function PathTasksWorkspace({
                     <button
                       type="button"
                       className="path-task-primary"
-                      onClick={() => fetchSelectedTask(primaryTask.id)}
+                      onClick={() => onOpenDocumentReview(primaryTask)}
                     >
-                      Open task details ↗
+                      Open document ↗
                     </button>
                   </>
                 ) : (
@@ -855,7 +856,7 @@ function PathTasksWorkspace({
                     key={task.id}
                     className="path-task-support-row"
                     type="button"
-                    onClick={() => fetchSelectedTask(task.id)}
+                    onClick={() => onOpenDocumentReview(task)}
                   >
                     <span className={`path-task-file ${priorityClass(task)}`}>
                       <Icon.Forms />
@@ -983,7 +984,7 @@ function PathTasksWorkspace({
                     <article
                       key={task.id}
                       className={`path-task-table-row ${selected?.id === task.id ? "active" : ""}`}
-                      onClick={() => fetchSelectedTask(task.id)}
+                      onClick={() => onOpenDocumentReview(task)}
                     >
                       <div className="path-task-row-main">
                         <span
@@ -1428,6 +1429,68 @@ export default function MyTasks() {
       }
     },
     [API, token],
+  );
+
+  const openDocumentReview = useCallback(
+    async (task) => {
+      if (!task) return;
+
+      const getFormId = (record) =>
+        record?.form_id ||
+        record?.formId ||
+        record?.submission_id ||
+        record?.submissionId ||
+        record?.form?.id ||
+        record?.document?.form_id ||
+        record?.document?.id ||
+        record?.document_id;
+
+      let formId = getFormId(task);
+
+      try {
+        if (!formId && task.id) {
+          const detailRes = await fetch(`${API}/api/tasks/${task.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (detailRes.ok) {
+            const detailData = await detailRes.json();
+            formId = getFormId(detailData.task || detailData);
+          }
+        }
+
+        if (!formId) {
+          const formsRes = await fetch(`${API}/api/forms/my`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (formsRes.ok) {
+            const formsData = await formsRes.json();
+            const forms = Array.isArray(formsData)
+              ? formsData
+              : formsData.forms || [];
+            const matchedForm = forms.find(
+              (form) =>
+                (task.tracking_id && form.tracking_id === task.tracking_id) ||
+                (task.title && form.title === task.title),
+            );
+            formId = matchedForm?.id;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to resolve the task document:", error);
+      }
+
+      if (!formId) {
+        pushToast(
+          "Document unavailable",
+          "This task is not currently linked to a document review record.",
+          "error",
+        );
+        return;
+      }
+
+      navigate(`/document-review/${formId}`);
+    },
+    [token, navigate, pushToast],
   );
 
   // ── Deep-link support: /tasks?taskId=35 opens that task's detail panel
@@ -1941,6 +2004,7 @@ export default function MyTasks() {
       fmtDate={fmtDate}
       fmtDeadline={fmtDeadline}
       fmtDateTime={fmtDateTime}
+      onOpenDocumentReview={openDocumentReview}
       onLogout={handleLogout}
     />
   );
