@@ -49,6 +49,22 @@ const statusTone = (status) =>
       : /review/i.test(status)
         ? "violet"
         : "gold";
+const DECISION_REASONS = {
+  return: [
+    "Missing information or supporting document",
+    "Template or format correction required",
+    "Content needs clarification",
+    "Required approval or endorsement is missing",
+    "Other revision needed",
+  ],
+  reject: [
+    "Does not meet eligibility requirements",
+    "Required evidence is missing",
+    "Duplicate or superseded submission",
+    "Outside the scope of this request",
+    "Other rejection reason",
+  ],
+};
 
 function Toasts({ items, remove }) {
   return items.length ? (
@@ -94,6 +110,9 @@ export default function DocumentReview() {
   const [zoom, setZoom] = useState(100);
   const [brief, setBrief] = useState("");
   const [version, setVersion] = useState(null);
+  const [decisionForm, setDecisionForm] = useState(null);
+  const [decisionReason, setDecisionReason] = useState("");
+  const [decisionNote, setDecisionNote] = useState("");
 
   const currentUser = () => {
     try {
@@ -150,14 +169,20 @@ export default function DocumentReview() {
     })();
   }, [id]);
 
-  const decision = async (action, requiredNote, successMessage) => {
-    if (requiredNote && !note.trim()) return notify(requiredNote, "error");
+  const decision = async (
+    action,
+    requiredNote,
+    successMessage,
+    noteOverride = note,
+  ) => {
+    if (requiredNote && !noteOverride.trim())
+      return notify(requiredNote, "error");
     setSubmitting(true);
     try {
       const response = await fetch(`${API}/api/forms/${form.id}/${action}`, {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ note }),
+        body: JSON.stringify({ note: noteOverride }),
       });
       if (!response.ok) {
         let message = `Action failed (${response.status}).`;
@@ -175,6 +200,27 @@ export default function DocumentReview() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const openDecisionForm = (kind) => {
+    setDecisionForm(kind);
+    setDecisionReason("");
+    setDecisionNote("");
+  };
+  const submitStructuredDecision = async (event) => {
+    event.preventDefault();
+    if (!decisionReason)
+      return notify("Select a reason before continuing.", "error");
+    if (!decisionNote.trim())
+      return notify("Add clear direction for the submitter.", "error");
+    const isReturn = decisionForm === "return";
+    const structuredNote = `Reason: ${decisionReason}\n\nReviewer direction: ${decisionNote.trim()}`;
+    await decision(
+      isReturn ? "revise" : "reject",
+      null,
+      isReturn ? "Revision requested." : "Form rejected.",
+      structuredNote,
+    );
   };
 
   if (loading)
@@ -384,6 +430,7 @@ export default function DocumentReview() {
       <style>{`.doc-reader-pdf{overflow:hidden;scrollbar-width:none}.doc-reader-pdf::-webkit-scrollbar{display:none}.doc-reader-pdf iframe{height:100%;min-height:0!important;overflow:hidden}`}</style>
       <style>{`.doc-kicker,.doc-label{font-weight:800;color:#958a9d}.doc-id h1{font-weight:800;letter-spacing:-.062em}.doc-id p{font-weight:600;color:#8f8498}.doc-meta span{font-weight:800;color:#9b90a2}.doc-meta strong{font-weight:800;color:#46384f}.doc-meta strong.doc-person{font-weight:800}.doc-status h2{font-weight:800;color:#372b40}.doc-status .doc-label{font-weight:800}.doc-status .doc-label span{font-weight:700;letter-spacing:0;text-transform:none;color:#4b9778}.doc-pill{font-weight:800}.doc-owner-copy strong,.doc-field strong{font-weight:800}`}</style>
       <style>{`.doc-preview-head p{font-weight:800;color:#5b4e64}.doc-panel h2,.doc-summary h2,.doc-comments h2,.doc-history h2,.doc-audit h2,.doc-owners h2,.doc-decision h2,.doc-sla h2{font-weight:800}.doc-sla h3{font-weight:800}.doc-sla p,.doc-sla-grid strong{font-weight:800}.doc-decision label{font-weight:800}.doc-compare-head{font-weight:800}.doc-empty-note strong{font-weight:800}`}</style>
+      <style>{`.doc-decision-intro{margin:8px 0 16px;color:#877a90;font-size:9px;line-height:1.55}.doc-optional{margin-left:4px;color:#9b90a2;font-size:8px;font-weight:600;text-transform:none}.doc-decision-actions .approve{grid-column:1/-1}.doc-decision-actions .return,.doc-decision-actions .reject{min-height:38px}.doc-decision-actions .return{border-color:#e9d7a6;background:#fffcf4}.doc-decision-actions .reject{border-color:#edcfcb;background:#fff7f5}.doc-decision-modal-backdrop{position:fixed;z-index:1500;inset:0;display:grid;place-items:center;padding:20px;background:rgba(43,30,59,.38);backdrop-filter:blur(5px)}.doc-decision-modal{position:relative;width:min(100%,560px);max-height:calc(100vh - 40px);overflow:auto;border:1px solid #e3d8ed;border-radius:16px;padding:27px;background:#fff;box-shadow:0 24px 65px rgba(42,25,63,.28);color:#51435b}.doc-decision-modal.return{border-top:4px solid #c59335}.doc-decision-modal.reject{border-top:4px solid #bd665c}.doc-decision-modal-close{position:absolute;top:14px;right:15px;display:grid;width:29px;height:29px;place-items:center;border:1px solid #e6dfee;border-radius:8px;background:#fff;color:#8e8198;font-size:19px;line-height:1;cursor:pointer}.doc-decision-modal-kicker{display:flex;align-items:center;gap:8px;color:#8b7e95;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.doc-decision-modal-kicker span{display:grid;width:25px;height:25px;place-items:center;border-radius:7px;background:#f4ebff;color:#7742c6;font-size:14px}.doc-decision-modal.reject .doc-decision-modal-kicker span{background:#fff0ed;color:#b75f54}.doc-decision-modal h2{margin:15px 0 6px;color:#382b42;font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.05em}.doc-decision-modal>p{margin:0;color:#887b91;font-size:10px;line-height:1.6}.doc-decision-modal-record{display:flex;justify-content:space-between;gap:12px;margin:18px 0;padding:11px 12px;border:1px solid #ede6f2;border-radius:9px;background:#faf8fc;color:#6d5f75;font-size:9px}.doc-decision-modal-record span{overflow:hidden;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.doc-decision-modal-record b{flex:0 0 auto;color:#9a8da2;font-size:8px}.doc-decision-modal label{display:block;margin-top:16px;color:#605169;font-size:10px;font-weight:800}.doc-decision-modal label em{margin-left:4px;color:#b85f55;font-size:8px;font-style:normal;font-weight:800}.doc-decision-modal select,.doc-decision-modal textarea{width:100%;margin-top:7px;border:1px solid #ded4e7;border-radius:8px;padding:10px 11px;background:#fff;color:#55475f;font-family:'DM Sans',sans-serif;font-size:10px;outline:0}.doc-decision-modal select{height:39px;cursor:pointer}.doc-decision-modal textarea{min-height:110px;resize:vertical;line-height:1.55}.doc-decision-modal select:focus,.doc-decision-modal textarea:focus{border-color:#b79ae6;box-shadow:0 0 0 3px #f3edff}.doc-decision-modal-selection{margin-top:9px;padding:9px 10px;border-left:2px solid #9d78dd;border-radius:0 7px 7px 0;background:#faf8fd}.doc-decision-modal-selection span{display:block;color:#9d91a5;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.doc-decision-modal-selection strong{display:block;margin-top:3px;color:#62536c;font-size:9px;font-weight:800}.doc-decision-modal-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:19px}.doc-decision-modal-actions button{min-height:38px;border:1px solid #e1d7e9;border-radius:8px;background:#fff;color:#75677e;font-size:10px;font-weight:800;cursor:pointer}.doc-decision-modal-actions button[type='submit']{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.2)}.doc-decision-modal.reject .doc-decision-modal-actions button[type='submit']{border-color:#b75f54;background:#b75f54;box-shadow:0 7px 14px rgba(183,95,84,.2)}.doc-decision-modal-actions button:disabled,.doc-decision-modal-close:disabled{cursor:not-allowed;opacity:.6}@media(max-width:560px){.doc-decision-modal-backdrop{padding:12px}.doc-decision-modal{max-height:calc(100vh - 24px);padding:22px 18px}.doc-decision-modal h2{font-size:21px}.doc-decision-modal-actions{grid-template-columns:1fr}.doc-decision-modal-actions button[type='submit']{grid-row:1}.doc-decision-actions{grid-template-columns:1fr}}`}</style>
       <Toasts
         items={toasts}
         remove={(toastId) =>
@@ -856,7 +903,11 @@ export default function DocumentReview() {
               )}
               <Panel className="doc-decision" id="review-decision">
                 <Label>Reviewer decision</Label>
-                <h2>Record your action</h2>
+                <h2>Choose the next step</h2>
+                <p className="doc-decision-intro">
+                  Approve this submission, send it back with clear revision
+                  direction, or record a formal rejection.
+                </p>
                 {/revision|rejected|returned/i.test(status) &&
                   form.review_note && (
                     <div className="doc-decision-note">
@@ -866,14 +917,13 @@ export default function DocumentReview() {
                     </div>
                   )}
                 <label htmlFor="review-note">
-                  Feedback & comments{" "}
-                  <span style={{ color: "#bf5f57" }}>*</span>
+                  Approval note <span className="doc-optional">optional</span>
                 </label>
                 <textarea
                   id="review-note"
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
-                  placeholder="Required for revision requests and rejections. Explain what needs to change, or add an approval note for the audit trail."
+                  placeholder="Add an optional note for the approval audit trail."
                 />
                 <div className="doc-decision-actions">
                   <button
@@ -888,30 +938,17 @@ export default function DocumentReview() {
                     type="button"
                     className="return"
                     disabled={submitting}
-                    onClick={() =>
-                      decision(
-                        "revise",
-                        "Please provide revision instructions for the faculty.",
-                        "Revision requested.",
-                      )
-                    }
+                    onClick={() => openDecisionForm("return")}
                   >
-                    ↩ Request revision
+                    ↩ Return with feedback
                   </button>
                   <button
                     type="button"
                     className="reject"
-                    style={{ gridColumn: "1 / -1" }}
                     disabled={submitting}
-                    onClick={() =>
-                      decision(
-                        "reject",
-                        "Please provide a reason for rejection.",
-                        "Form rejected.",
-                      )
-                    }
+                    onClick={() => openDecisionForm("reject")}
                   >
-                    × Reject & archive
+                    × Reject submission
                   </button>
                 </div>
               </Panel>
@@ -919,6 +956,101 @@ export default function DocumentReview() {
           </section>
         </div>
       </main>
+      {decisionForm && (
+        <div className="doc-decision-modal-backdrop">
+          <form
+            className={`doc-decision-modal ${decisionForm}`}
+            onSubmit={submitStructuredDecision}
+          >
+            <button
+              type="button"
+              className="doc-decision-modal-close"
+              aria-label="Close decision form"
+              onClick={() => setDecisionForm(null)}
+              disabled={submitting}
+            >
+              ×
+            </button>
+            <div className="doc-decision-modal-kicker">
+              <span>{decisionForm === "return" ? "↩" : "×"}</span>
+              {decisionForm === "return"
+                ? "Return for revision"
+                : "Reject submission"}
+            </div>
+            <h2>
+              {decisionForm === "return"
+                ? "Set the revision path"
+                : "Record a clear decision"}
+            </h2>
+            <p>
+              {decisionForm === "return"
+                ? "The submitter will receive your selected reason and direction, then can prepare a revised version."
+                : "A rejection closes the current submission. Be specific so the audit trail clearly explains the decision."}
+            </p>
+            <div className="doc-decision-modal-record">
+              <span>{title}</span>
+              <b>{tracking}</b>
+            </div>
+            <label htmlFor="decision-reason">
+              Reason <em>required</em>
+            </label>
+            <select
+              id="decision-reason"
+              value={decisionReason}
+              onChange={(event) => setDecisionReason(event.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Select a reason
+              </option>
+              {DECISION_REASONS[decisionForm].map((reason) => (
+                <option key={reason} value={reason}>
+                  {reason}
+                </option>
+              ))}
+            </select>
+            {decisionReason && (
+              <div className="doc-decision-modal-selection">
+                <span>Selected reason</span>
+                <strong>{decisionReason}</strong>
+              </div>
+            )}
+            <label htmlFor="decision-direction">
+              {decisionForm === "return"
+                ? "Revision direction"
+                : "Rejection explanation"}{" "}
+              <em>required</em>
+            </label>
+            <textarea
+              id="decision-direction"
+              value={decisionNote}
+              onChange={(event) => setDecisionNote(event.target.value)}
+              placeholder={
+                decisionForm === "return"
+                  ? "State exactly what the submitter needs to correct or add before resubmitting."
+                  : "Explain the decision in terms that are clear and appropriate for the submitter."
+              }
+              required
+            />
+            <div className="doc-decision-modal-actions">
+              <button
+                type="button"
+                onClick={() => setDecisionForm(null)}
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+              <button type="submit" disabled={submitting}>
+                {submitting
+                  ? "Saving…"
+                  : decisionForm === "return"
+                    ? "Send revision request"
+                    : "Confirm rejection"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
