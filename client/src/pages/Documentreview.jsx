@@ -1,157 +1,146 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 
 const API = import.meta.env.VITE_API_URL;
-const resolveFileUrl = (u) => (!u ? "" : /^https?:\/\//i.test(u) ? u : `${API || "http://localhost:5000"}${u}`);
+const fileUrl = (value) =>
+  !value
+    ? ""
+    : /^https?:\/\//i.test(value)
+      ? value
+      : `${API || "http://localhost:5000"}${value}`;
+const stamp = (value, fallback = "—") => {
+  const date = value && new Date(value);
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : fallback;
+};
+const shortTime = (value, fallback = "Recorded") => {
+  const date = value && new Date(value);
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : fallback;
+};
+const initials = (value = "PATH") =>
+  String(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase() || "PA";
+const isFileField = (field) => field.fieldType === "File Upload";
+const statusTone = (status) =>
+  /approved/i.test(status)
+    ? "success"
+    : /return|reject|revision/i.test(status)
+      ? "danger"
+      : /review/i.test(status)
+        ? "violet"
+        : "gold";
 
-function getUser() {
-  try {
-    const token = localStorage.getItem("token");
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch { return {}; }
-}
-
-const isFileField = (f) => f.fieldType === "File Upload";
-
-const FileIcon = () => (
-  <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="28" height="28">
-    <path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" />
-    <path d="M10 2v4h4" />
-  </svg>
-);
-
-const AVATAR_PALETTE = [
-  { bg: "#e9ddff", color: "#4a1fb8" },
-  { bg: "#eaddff", color: "#5a00c6" },
-  { bg: "#dcecff", color: "#0b4a8f" },
-  { bg: "#e3f5e8", color: "#0f6b3a" },
-  { bg: "#ffe4e6", color: "#9d174d" },
-  { bg: "#fef3c7", color: "#92400e" },
-];
-function Avatar({ name = "", src = null, size = 26 }) {
-  const [imgFailed, setImgFailed] = useState(false);
-  const initials = name.trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() || "").join("") || "?";
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  const palette = AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
-
-  if (src && !imgFailed) {
-    return (
-      <img
-        src={src}
-        alt={name || "User"}
-        onError={() => setImgFailed(true)}
-        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-      />
-    );
-  }
-
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: "50%", background: palette.bg, color: palette.color,
-      display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 800,
-      flexShrink: 0,
-    }}>
-      {initials}
-    </div>
-  );
-}
-
-// ── Toast (lightweight, local to this page) ────────────────────────────────
-function Toast({ toasts, onDismiss }) {
-  if (!toasts.length) return null;
-  return (
-    <div style={{ position: "fixed", top: 20, right: 20, zIndex: 2000, display: "flex", flexDirection: "column", gap: 10 }}>
-      {toasts.map(t => (
-        <div key={t.id} style={{
-          background: t.type === "success" ? "#059669" : t.type === "info" ? "#7c3aed" : "#dc2626",
-          color: "white", borderRadius: 10, padding: "12px 16px", fontSize: 13, fontWeight: 600,
-          boxShadow: "0 8px 24px rgba(0,0,0,0.18)", display: "flex", alignItems: "center", gap: 10,
-          minWidth: 280, maxWidth: 360,
-        }}>
-          <span style={{ flex: 1, lineHeight: 1.4 }}>{t.message}</span>
-          <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 16, lineHeight: 1 }}>×</button>
+function Toasts({ items, remove }) {
+  return items.length ? (
+    <div className="doc-toasts">
+      {items.map((item) => (
+        <div className={`doc-toast ${item.type}`} key={item.id}>
+          <span>{item.message}</span>
+          <button type="button" onClick={() => remove(item.id)}>
+            ×
+          </button>
         </div>
       ))}
     </div>
-  );
+  ) : null;
 }
 
-const T = {
-  primary: "#6b38d4",
-  primaryFixed: "#e9ddff",
-  tertiary: "#5f5293",
-  onSurface: "#181445",
-  onSurfaceVariant: "#494454",
-  surface: "#fcf8ff",
-  surfaceContainerLowest: "#ffffff",
-  surfaceContainerLow: "#f6f2ff",
-  surfaceVariant: "#e3dfff",
-  outline: "#7b7486",
-  outlineVariant: "#cbc3d7",
-  error: "#ba1a1a",
-  errorContainer: "#ffdad6",
-  inverseSurface: "#2d2a5b",
-  inverseOnSurface: "#f3eeff",
-};
-
-const statusColors = {
-  Pending: { bg: "#fef9c3", color: "#854d0e" },
-  Reviewing: { bg: "#ede9fe", color: "#5b21b6" },
-  Approved: { bg: "#d1fae5", color: "#065f46" },
-  Rejected: { bg: "#fee2e2", color: "#991b1b" },
-  Revision: { bg: "#fee2e2", color: "#991b1b" },
-};
+function Panel({ children, className = "" }) {
+  return <article className={`doc-panel ${className}`}>{children}</article>;
+}
+function Label({ children }) {
+  return (
+    <div className="doc-label">
+      <i />
+      {children}
+    </div>
+  );
+}
 
 export default function DocumentReview() {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const token = localStorage.getItem("token");
-  const user = getUser();
-  const authHeaders = { Authorization: `Bearer ${token}` };
-  const handleLogout = () => { localStorage.removeItem("token"); navigate("/login"); };
-
+  const headers = { Authorization: `Bearer ${token}` };
   const [form, setForm] = useState(location.state?.form || null);
   const [loading, setLoading] = useState(!location.state?.form);
   const [loadError, setLoadError] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [reviewNote, setReviewNote] = useState("");
+  const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [preview, setPreview] = useState(true);
+  const [zoom, setZoom] = useState(100);
+  const [brief, setBrief] = useState("");
+  const [version, setVersion] = useState(null);
 
-  const addToast = (message, type = "info") => {
-    const tid = Date.now();
-    setToasts(prev => [...prev, { id: tid, message, type }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== tid)), 4000);
+  const currentUser = () => {
+    try {
+      return JSON.parse(atob(token?.split(".")[1] || ""));
+    } catch {
+      return {};
+    }
   };
-  const dismissToast = (tid) => setToasts(prev => prev.filter(t => t.id !== tid));
+  const notify = (message, type = "info") => {
+    const item = { id: Date.now(), message, type };
+    setToasts((all) => [...all, item]);
+    window.setTimeout(
+      () => setToasts((all) => all.filter((toast) => toast.id !== item.id)),
+      4000,
+    );
+  };
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
-  useEffect(() => { if (!token) navigate("/login"); }, []);
-
-  // Fetch categories (used to push required-attachment fields to the bottom of "Submitted Fields")
+  useEffect(() => {
+    if (!token) navigate("/login");
+  }, [navigate, token]);
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API}/api/categories`, { headers: authHeaders });
-        if (!res.ok) return;
-        const data = await res.json();
-        setCategories((data.categories || []).filter(c => c.status === "Active" && c.type === "Form"));
-      } catch { /* non-critical */ }
+        const response = await fetch(`${API}/api/categories`, { headers });
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(
+            (data.categories || []).filter(
+              (item) => item.status === "Active" && item.type === "Form",
+            ),
+          );
+        }
+      } catch {}
     })();
   }, []);
-
-  // If we weren't handed the form via navigation state (e.g. direct link / refresh), fetch it by id.
   useEffect(() => {
     if (form) return;
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API}/api/forms/${id}`, { headers: authHeaders });
-        if (!res.ok) throw new Error("not found");
-        const data = await res.json();
+        const response = await fetch(`${API}/api/forms/${id}`, { headers });
+        if (!response.ok) throw new Error("not found");
+        const data = await response.json();
         setForm(data.form || data);
       } catch {
         setLoadError(true);
@@ -161,339 +150,715 @@ export default function DocumentReview() {
     })();
   }, [id]);
 
-  const goBack = () => navigate(-1);
-
-  const postDecision = async (action, requireNote, successMessage) => {
-    if (requireNote && !reviewNote.trim()) {
-      alert(requireNote);
-      return;
-    }
+  const decision = async (action, requiredNote, successMessage) => {
+    if (requiredNote && !note.trim()) return notify(requiredNote, "error");
     setSubmitting(true);
     try {
-      const res = await fetch(`${API}/api/forms/${form.id}/${action}`, {
+      const response = await fetch(`${API}/api/forms/${form.id}/${action}`, {
         method: "POST",
-        headers: { ...authHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({ note: reviewNote }),
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ note }),
       });
-      if (!res.ok) {
-        let message = `Action failed (${res.status}).`;
-        try { const d = await res.clone().json(); message = d.message || d.error || message; } catch { /* ignore */ }
-        alert(message);
+      if (!response.ok) {
+        let message = `Action failed (${response.status}).`;
+        try {
+          const data = await response.clone().json();
+          message = data.message || data.error || message;
+        } catch {}
+        notify(message, "error");
         return;
       }
-      addToast(successMessage, "success");
-      setTimeout(() => navigate(-1), 500);
-    } catch (err) {
-      alert("Could not reach the server. Please check your connection and try again.");
+      notify(successMessage, "success");
+      window.setTimeout(() => navigate(-1), 500);
+    } catch {
+      notify("Could not reach the server. Please try again.", "error");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleApprove = () => postDecision("approve", null, "Form approved.");
-  const handleReject = () => postDecision("reject", "Please provide a reason for rejection.", "Form rejected.");
-  const handleRevise = () => postDecision("revise", "Please provide revision instructions for the faculty.", "Revision requested.");
-
-  // ── Loading / error states (still rendered inside the Sidebar/TopBar shell) ──
-  if (loading) {
+  if (loading)
     return (
-      <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
+      <div className="doc-shell">
         <Sidebar activePage="forms" />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0, overflow: "hidden" }}>
-          <TopBar onLogout={handleLogout}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: T.onSurface }}>Document Review</div>
-          </TopBar>
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: T.onSurfaceVariant, fontSize: 14 }}>
-            Loading document…
-          </div>
-        </div>
+        <main className="doc-main">
+          <TopBar onLogout={logout} />
+          <div className="doc-state">Loading document details…</div>
+        </main>
       </div>
     );
-  }
-  if (loadError || !form) {
+  if (loadError || !form)
     return (
-      <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
+      <div className="doc-shell">
         <Sidebar activePage="forms" />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0, overflow: "hidden" }}>
-          <TopBar onLogout={handleLogout}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: T.onSurface }}>Document Review</div>
-          </TopBar>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
-            <div style={{ fontSize: 14, color: T.onSurfaceVariant }}>This form could not be found.</div>
-            <button onClick={goBack} style={{ padding: "10px 18px", background: T.primary, color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-              ← Back to Review Queue
-            </button>
+        <main className="doc-main">
+          <TopBar onLogout={logout} />
+          <div className="doc-state">
+            <div>
+              <b>Document unavailable</b>
+              <p>This form could not be found.</p>
+              <button
+                className="doc-solid"
+                type="button"
+                onClick={() => navigate(-1)}
+              >
+                Back to Review Queue
+              </button>
+            </div>
           </div>
-        </div>
+        </main>
       </div>
     );
-  }
 
-  const displayName = form.file_name || form.tracking_id || `Form #${form.id}`;
-  const submitterName = form.submitter_name || form.full_name || "Unknown Submitter";
-  const filingDateRaw = form.filing_date || form.date || form.created_at;
-  const filingDateLabel = filingDateRaw
-    ? new Date(filingDateRaw).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    : "—";
-
-  // Dynamic "Submitted Fields" from Step 2 of the wizard
-  let dynFields = null;
+  const user = currentUser();
+  const title =
+    form.file_name || form.title || form.tracking_id || `Form #${form.id}`;
+  const tracking = form.tracking_id || `FORM-${form.id}`;
+  const submitter =
+    form.submitter_name || form.full_name || "Faculty submitter";
+  const reviewer = user.full_name || user.username || "Program Chair (You)";
+  const status = form.status || "Pending";
+  const category = form.category || form.document_type || "Academic form";
+  const submitted = form.filing_date || form.date || form.created_at;
+  const deadline = form.review_due || form.deadline || form.due_date;
+  const url = form.file_url ? fileUrl(form.file_url) : "";
+  const extension = (form.file_name || form.file_url || "")
+    .split(".")
+    .pop()
+    .toLowerCase();
+  const pdf = extension === "pdf";
+  const image = ["jpg", "jpeg", "png", "gif", "webp"].includes(extension);
+  let valueMap = null;
   try {
-    dynFields = typeof form.field_values === "string" ? JSON.parse(form.field_values) : form.field_values;
-  } catch { dynFields = null; }
-  let dynEntries = dynFields ? Object.entries(dynFields) : [];
-  const tmpl = categories.find(c => c.name === form.category);
-  const fileFieldNames = new Set((tmpl?.formFields || []).filter(isFileField).map(f => f.name));
-  dynEntries = [
-    ...dynEntries.filter(([label]) => !fileFieldNames.has(label)),
-    ...dynEntries.filter(([label]) => fileFieldNames.has(label)),
+    valueMap =
+      typeof form.field_values === "string"
+        ? JSON.parse(form.field_values)
+        : form.field_values;
+  } catch {}
+  let fields = valueMap ? Object.entries(valueMap) : [];
+  const template = categories.find((item) => item.name === form.category);
+  const attachmentNames = new Set(
+    (template?.formFields || []).filter(isFileField).map((field) => field.name),
+  );
+  fields = [
+    ...fields.filter(([key]) => !attachmentNames.has(key)),
+    ...fields.filter(([key]) => attachmentNames.has(key)),
   ];
-
-  // Derived audit trail (built from the data actually available on the form)
-  const auditSteps = [
-    { label: "Submitted", by: `by ${submitterName}`, when: filingDateLabel, active: true },
-    { label: "Assigned", by: `to ${user.full_name || "Program Chair (You)"}`, when: filingDateLabel, active: true },
-  ];
-  if (form.status === "Revision") {
-    auditSteps.push({ label: "Revision Requested", by: form.review_note ? "Feedback provided" : "Awaiting resubmission", when: "—", active: true });
-  } else if (form.status === "Approved") {
-    auditSteps.push({ label: "Approved", by: "by Program Chair", when: "—", active: true });
-  } else if (form.status === "Rejected") {
-    auditSteps.push({ label: "Rejected", by: "by Program Chair", when: "—", active: true });
-  } else {
-    auditSteps.push({ label: "Under Review", by: "by Program Chair (You)", when: "—", active: true });
-  }
-
-  const sc = statusColors[form.status] || statusColors.Pending;
-
-  const url = form.file_url ? resolveFileUrl(form.file_url) : null;
-  const ext = (form.file_name || form.file_url || "").split(".").pop().toLowerCase();
-  const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-  const isPdf = ext === "pdf";
+  const versions = Array.isArray(
+    form.versions || form.version_history || form.submission_versions,
+  )
+    ? form.versions || form.version_history || form.submission_versions
+    : [
+        {
+          id: "current",
+          version: form.version || 1,
+          label: "Current submission",
+          created_at: form.updated_at || submitted,
+          is_current: true,
+        },
+      ];
+  const activeVersion =
+    version || versions.find((item) => item.is_current) || versions[0];
+  const audits = Array.isArray(form.audit_trail || form.audit || form.history)
+    ? form.audit_trail || form.audit || form.history
+    : [
+        {
+          id: "submitted",
+          action: "Form submitted",
+          user: submitter,
+          timestamp: submitted,
+          detail: "Initial submission received by PATH.",
+        },
+        {
+          id: "assigned",
+          action: "Review assigned",
+          user: reviewer,
+          timestamp: submitted,
+          detail: "Document is currently in the review workspace.",
+        },
+        {
+          id: "status",
+          action: status,
+          user: reviewer,
+          timestamp: form.updated_at,
+          detail: form.review_note || "Latest workflow status recorded.",
+        },
+      ];
+  const comments = Array.isArray(form.comments || form.review_comments)
+    ? form.comments || form.review_comments
+    : [];
+  const approved = /approved/i.test(status);
+  const reviewStep = approved ? 3 : 2;
+  const elapsed =
+    deadline && submitted
+      ? Math.max(
+          8,
+          Math.min(
+            100,
+            Math.round(
+              ((Date.now() - new Date(submitted).getTime()) /
+                Math.max(
+                  1,
+                  new Date(deadline).getTime() - new Date(submitted).getTime(),
+                )) *
+                100,
+            ),
+          ),
+        )
+      : 38;
+  const generateBrief = () => {
+    const details = fields
+      .slice(0, 3)
+      .map(([key, value]) => `${key}: ${String(value || "—")}`)
+      .join(" · ");
+    setBrief(
+      `This ${category.toLowerCase()} was submitted by ${submitter}${submitted ? ` on ${stamp(submitted)}` : ""}. Check the current evidence and ${details || "the submitted details"} before you record a decision.`,
+    );
+  };
+  const share = async () => {
+    try {
+      await navigator.clipboard?.writeText(window.location.href);
+      notify("Document link copied to clipboard.");
+    } catch {
+      notify("Copy the browser URL to share this record.");
+    }
+  };
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", background: T.surface }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; }
-      `}</style>
-
-      <Toast toasts={toasts} onDismiss={dismissToast} />
-
-      {/* ── SIDEBAR (persistent, same as the rest of the app) ── */}
+    <div className="doc-shell">
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');*{box-sizing:border-box}.doc-shell{display:flex;min-height:100vh;background:#f8f7ff;color:#42354b;font-family:'DM Sans',sans-serif}.doc-main{flex:1;min-width:0}.doc-page{max-width:1340px;margin:auto;padding:34px 28px 48px}.doc-back{border:0;background:none;padding:0;color:#7142c4;font-size:10px;font-weight:800;cursor:pointer}.doc-back span{color:#aaa0ae;font-weight:500}.doc-hero{display:flex;justify-content:space-between;align-items:center;gap:22px;margin-top:22px;padding:0 14px 20px;border-bottom:1px solid #e8e1ee}.doc-id{display:flex;align-items:center;gap:14px;min-width:0}.doc-file{display:grid;place-items:center;flex:0 0 auto;width:46px;height:46px;border:1px solid #ded1f4;border-radius:12px;background:#eee7fd;color:#7544c5;font-size:21px}.doc-kicker,.doc-label{display:flex;align-items:center;gap:7px;color:#9c91a4;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.doc-kicker{gap:10px;font-size:9px;letter-spacing:.12em}.doc-label i{width:6px;height:6px;border-radius:50%;background:#b99eea}.doc-id h1{margin:6px 0 4px;overflow:hidden;color:#302638;font-family:'Manrope',sans-serif;font-size:clamp(26px,3.1vw,38px);letter-spacing:-.055em;line-height:1;text-overflow:ellipsis;white-space:nowrap}.doc-id p{margin:0;color:#958a9b;font-size:9px}.doc-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.doc-btn,.doc-solid{display:inline-flex;align-items:center;justify-content:center;min-height:33px;border:1px solid #e6dfee;border-radius:7px;padding:0 11px;background:#fff;color:#756a7e;font-size:9px;font-weight:800;cursor:pointer;text-decoration:none}.doc-solid{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 15px rgba(124,58,237,.24)}.doc-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #e8e1ee;border-top:0;background:#fff}.doc-meta>div{min-width:0;padding:14px 16px;border-right:1px solid #eee9f1}.doc-meta>div:last-child{border-right:0}.doc-meta span{display:block;color:#aaa0ae;font-size:8px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.doc-meta strong{display:block;overflow:hidden;margin-top:6px;color:#5b4d64;font-family:'Manrope',sans-serif;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.doc-meta strong.doc-person{display:flex;align-items:center;gap:6px}.doc-person i,.doc-avatar,.doc-owner-avatar{display:grid;place-items:center;background:#eee7fd;color:#7244c1;font-size:7px;font-weight:800}.doc-person i{width:18px;height:18px;border-radius:6px}.doc-layout{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(280px,.78fr);gap:16px;margin-top:16px}.doc-panel{border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 10px 26px rgba(57,36,93,.04)}.doc-panel h2{margin:0;color:#46384f;font-family:'Manrope',sans-serif;font-size:18px;letter-spacing:-.045em}.doc-status,.doc-summary,.doc-comments,.doc-history,.doc-audit,.doc-fields,.doc-decision,.doc-sla,.doc-owners{padding:19px}.doc-head,.doc-status-head,.doc-sla-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:7px}.doc-head,.doc-sla-top{margin-top:0}.doc-pill{display:inline-flex;align-items:center;gap:5px;border-radius:5px;padding:4px 7px;background:#fff5df;color:#aa7928;font-size:8px;font-weight:800}.doc-pill i{width:5px;height:5px;border-radius:50%;background:currentColor}.doc-pill.violet{background:#f0e9fc;color:#7543c7}.doc-pill.success{background:#e8f5ee;color:#478c6e}.doc-pill.danger{background:#fff0eb;color:#b86f5c}.doc-timeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:10px;margin:30px 16px 26px}.doc-step{display:flex;align-items:center;flex-direction:column;gap:6px;color:#a69bab;font-size:8px;text-align:center}.doc-step b{display:grid;width:27px;height:27px;place-items:center;border:1px solid #e6e0ec;border-radius:50%;background:#fff;color:#9c91a4;font-size:8px}.doc-step.active{color:#7543c7;font-weight:800}.doc-step.active b{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 0 0 5px #f0e9fc}.doc-step.complete b{border-color:#9b78e3;background:#f3ecff;color:#7543c7}.doc-line{height:1px;background:#e8e2ed}.doc-line.complete{background:#b692ed}.doc-callout{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border:1px solid #e4daf4;border-radius:8px;background:#fbf9ff}.doc-callout>div{display:flex;gap:9px;align-items:flex-start}.doc-callout b{display:grid;flex:0 0 auto;width:27px;height:27px;place-items:center;border-radius:8px;background:#eee7fd;color:#7543c7}.doc-callout strong{display:block;color:#65576e;font-size:9px}.doc-callout p{margin:3px 0 0;color:#9b90a1;font-size:8px}.doc-callout button{border:0;background:none;color:#7042c3;font-size:8px;font-weight:800;cursor:pointer}.doc-preview{margin-top:16px;overflow:hidden}.doc-preview-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 20px;border-bottom:1px solid #f0edf4}.doc-preview-head p{margin:4px 0 0;color:#a299a8;font-size:8px}.doc-preview-actions,.doc-controls div{display:flex;align-items:center;gap:7px}.doc-preview-actions button,.doc-controls button,.doc-head button{display:inline-flex;align-items:center;justify-content:center;min-height:28px;border:1px solid #e5dced;border-radius:7px;padding:0 8px;background:#fff;color:#7a4bc2;font-size:8px;font-weight:800;cursor:pointer}.doc-controls{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid #f0edf4;color:#9b91a1;font-size:8px}.doc-controls button{display:grid;width:25px;height:25px;padding:0}.doc-canvas{min-height:380px;padding:28px;background:#f5f2f8}.doc-paper{min-height:325px;max-width:620px;margin:0 auto;padding:38px 46px;background:#fff;box-shadow:0 8px 20px rgba(45,29,66,.1);transform-origin:top center}.doc-paper-top{display:flex;justify-content:space-between;border-bottom:1px solid #dbc8f8;padding-bottom:12px;color:#9387a0;font-size:7px;letter-spacing:.08em}.doc-paper h3{margin:28px 0 5px;color:#3f3248;font-family:'Manrope',sans-serif;font-size:22px;letter-spacing:-.055em}.doc-paper p{margin:0;color:#9e93a3;font-size:8px}.doc-paper-line{height:7px;margin-top:15px;border-radius:5px;background:#ede8f3}.doc-paper-line.wide{width:74%}.doc-paper-line.mid{width:51%}.doc-paper-note{margin-top:27px;padding:12px;border-left:2px solid #a882ec;background:#faf8fe;color:#82758e;font-size:8px;line-height:1.55}.doc-frame{min-height:380px;background:#f5f2f8}.doc-frame iframe{width:100%;min-height:520px;border:0;background:#fff}.doc-image{display:grid;min-height:380px;place-items:center;background:#15121d}.doc-image img{display:block;max-width:100%;max-height:620px;object-fit:contain}.doc-summary,.doc-comments{margin-top:16px}.doc-summary p{margin:14px 0 0;color:#82768c;font-size:10px;line-height:1.65}.doc-empty-note{display:flex;align-items:center;gap:9px;margin-top:14px;padding:12px;border:1px dashed #ddd2ef;border-radius:8px;background:#fbf9ff;color:#94889d;font-size:9px;line-height:1.5}.doc-empty-note i{display:grid;flex:0 0 auto;width:25px;height:25px;place-items:center;border-radius:7px;background:#eee7fd;color:#7543c7}.doc-count,.doc-badge{display:grid;min-width:18px;height:18px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font-size:8px;font-weight:800}.doc-comment{display:flex;gap:9px;margin-top:15px}.doc-avatar{flex:0 0 auto;width:25px;height:25px;border-radius:7px}.doc-comment strong{display:block;color:#65576e;font-size:9px}.doc-comment strong span{margin-left:5px;color:#aaa0ae;font-size:8px;font-weight:500}.doc-comment p{margin:4px 0 0;color:#80758a;font-size:9px;line-height:1.55}.doc-comment-empty{margin:16px 0 0;color:#a69bab;font-size:9px}.doc-workflow{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:16px;margin-top:16px}.doc-history,.doc-audit{margin-top:0}.doc-version-list{display:flex;flex-direction:column;gap:8px;margin-top:15px}.doc-version{display:flex;align-items:center;justify-content:space-between;gap:9px;width:100%;border:1px solid #ece5f1;border-radius:8px;padding:10px;background:#fff;color:#6c5e75;text-align:left;cursor:pointer}.doc-version.active{border-color:#bda2ec;background:#fbf9ff;box-shadow:0 0 0 3px #f4effe}.doc-version strong{display:block;color:#5c4d66;font-size:9px}.doc-version span{display:block;margin-top:3px;color:#9e92a2;font-size:8px}.doc-badge{height:auto;padding:3px 5px}.doc-compare{margin-top:14px;border:1px solid #e6dcef;border-radius:8px;overflow:hidden}.doc-compare-head{display:flex;justify-content:space-between;gap:10px;padding:10px 11px;background:#fbf9ff;color:#695b73;font-size:9px;font-weight:800}.doc-compare p{margin:0;padding:12px;color:#9d92a1;font-size:8px;line-height:1.5}.doc-audit-list{position:relative;margin-top:15px;padding-left:19px}.doc-audit-list:before{position:absolute;left:4px;top:5px;bottom:5px;width:1px;background:#e3d8eb;content:''}.doc-audit-item{position:relative;margin-top:14px}.doc-audit-item:first-child{margin-top:0}.doc-audit-item:before{position:absolute;left:-18px;top:3px;width:8px;height:8px;border:2px solid #f8f7ff;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 1px #cbb8ec;content:''}.doc-audit-item strong{display:block;color:#67596f;font-size:9px}.doc-audit-item span{display:block;margin-top:3px;color:#a196a4;font-size:8px}.doc-audit-item p{margin:5px 0 0;color:#877b91;font-size:8px;line-height:1.45}.doc-sla h3{margin:24px 0 4px;color:#4c3f55;font-family:'Manrope',sans-serif;font-size:20px;letter-spacing:-.05em}.doc-sla p{margin:0;color:#aa7b2e;font-size:9px;font-weight:700}.doc-live{color:#579176;font-size:8px;font-weight:800}.doc-progress{height:7px;margin-top:19px;overflow:hidden;border-radius:99px;background:#eee8f4}.doc-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#c3a8f7,#7c3aed)}.doc-progress-meta{display:flex;justify-content:space-between;margin-top:6px;color:#a59aa9;font-size:8px}.doc-sla-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:22px;padding-top:15px;border-top:1px solid #f0edf4}.doc-sla-grid span{display:block;color:#aaa0ae;font-size:8px}.doc-sla-grid strong{display:block;margin-top:4px;color:#61546a;font-family:'Manrope',sans-serif;font-size:9px}.doc-owners,.doc-fields,.doc-decision{margin-top:16px}.doc-owner-line{position:relative;display:flex;gap:10px;margin-top:15px}.doc-owner-line:not(:last-child):after{position:absolute;left:11px;top:25px;bottom:-15px;width:1px;background:#e5ddeb;content:''}.doc-owner-avatar{flex:0 0 auto;width:23px;height:23px;border-radius:7px}.doc-owner-copy strong{display:block;color:#65576e;font-size:9px}.doc-owner-copy span{display:block;margin-top:2px;color:#a69bab;font-size:8px}.doc-fields{display:flex;flex-direction:column;gap:9px}.doc-field{display:flex;justify-content:space-between;gap:12px;padding-bottom:9px;border-bottom:1px solid #f0edf4}.doc-field:last-child{padding-bottom:0;border-bottom:0}.doc-field span{color:#9c91a4;font-size:8px;font-weight:800}.doc-field strong{max-width:56%;overflow-wrap:anywhere;color:#65576e;font-size:9px;text-align:right}.doc-decision{border-color:#e1d2f7;background:linear-gradient(155deg,#fff 25%,#fbf9ff)}.doc-decision h2{margin-top:6px}.doc-decision-note{margin-top:15px;padding:11px;border-left:2px solid #d98a71;border-radius:0 7px 7px 0;background:#fff5f1;color:#876358;font-size:9px;line-height:1.55}.doc-decision label{display:block;margin-top:15px;color:#65576e;font-size:9px;font-weight:800}.doc-decision textarea{width:100%;min-height:105px;margin-top:7px;resize:vertical;border:1px solid #e5deed;border-radius:8px;padding:10px;color:#5b4e64;font-family:'DM Sans',sans-serif;font-size:9px;outline:0}.doc-decision textarea:focus{border-color:#bda1ec;box-shadow:0 0 0 3px #f4effe}.doc-decision-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}.doc-decision-actions button{display:inline-flex;min-height:34px;align-items:center;justify-content:center;gap:5px;border:1px solid #e6dfee;border-radius:7px;background:#fff;color:#756a7e;font-size:9px;font-weight:800;cursor:pointer}.doc-decision-actions .approve{border-color:#7c3aed;background:#7c3aed;color:#fff}.doc-decision-actions .return{color:#a87b35;border-color:#eee0b9;background:#fffdf7}.doc-decision-actions .reject{color:#ad695f;border-color:#f1dedb}.doc-decision-actions button:disabled{cursor:not-allowed;opacity:.6}.doc-toasts{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:10px}.doc-toast{display:flex;align-items:center;gap:12px;min-width:270px;max-width:360px;border-radius:10px;padding:12px 14px;box-shadow:0 12px 28px rgba(45,29,66,.2);color:#fff;font-size:12px;font-weight:700}.doc-toast.info{background:#7c3aed}.doc-toast.success{background:#3b8b68}.doc-toast.error{background:#bf5f57}.doc-toast span{flex:1;line-height:1.4}.doc-toast button{border:0;background:none;color:rgba(255,255,255,.8);font-size:17px;cursor:pointer}.doc-state{display:grid;min-height:calc(100vh - 64px);place-items:center;padding:40px;color:#a198a7;font-size:13px;text-align:center}.doc-state p{margin:7px 0 15px}@media(max-width:1060px){.doc-layout{grid-template-columns:1fr}.doc-side{display:grid;grid-template-columns:1fr 1fr;gap:16px}.doc-side .doc-decision,.doc-side .doc-fields{grid-column:1/-1}.doc-owners{margin-top:0}}@media(max-width:720px){.doc-page{padding:22px 14px 34px}.doc-hero{align-items:flex-start;flex-direction:column}.doc-actions{justify-content:flex-start}.doc-meta{grid-template-columns:1fr 1fr}.doc-meta>div:nth-child(2){border-right:0}.doc-meta>div:nth-child(-n+2){border-bottom:1px solid #eee9f1}.doc-side,.doc-workflow{grid-template-columns:1fr}.doc-side .doc-decision,.doc-side .doc-fields{grid-column:auto}.doc-id h1{font-size:28px}.doc-timeline{margin-right:0;margin-left:0;gap:5px}.doc-step{font-size:7px}.doc-preview-head{align-items:flex-start;flex-direction:column}.doc-canvas{padding:16px}.doc-paper{padding:28px 25px}.doc-frame iframe{min-height:390px}.doc-toasts{top:12px;right:12px;left:12px}.doc-toast{max-width:none;min-width:0}.doc-decision-actions{grid-template-columns:1fr}}`}</style>
+      <Toasts
+        items={toasts}
+        remove={(toastId) =>
+          setToasts((all) => all.filter((item) => item.id !== toastId))
+        }
+      />
       <Sidebar activePage="forms" />
-
-      {/* ── MAIN ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.surface, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
-
-        {/* ── TOPBAR (persistent, same as the rest of the app) ── */}
-        <div style={{ flexShrink: 0, position: "relative", zIndex: 1, boxShadow: "0 2px 6px rgba(24,20,69,0.08)" }}>
-        <TopBar onLogout={handleLogout} />
-        </div>
-
-        {/* ── PAGE HEADER (specific to this Document Review screen, sits below the app topbar) ── */}
-        <div style={{ flexShrink: 0, borderBottom: `1px solid ${T.surfaceVariant}`, background: T.surfaceContainerLowest, padding: "14px 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
-              <button onClick={goBack} title="Back to Review Queue"
-                style={{ background: "none", border: "none", cursor: "pointer", color: T.onSurfaceVariant, fontSize: 20, display: "flex", alignItems: "center", padding: 4, flexShrink: 0 }}
-                onMouseEnter={e => e.currentTarget.style.color = T.primary}
-                onMouseLeave={e => e.currentTarget.style.color = T.onSurfaceVariant}>
-                ←
-              </button>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 1 }}>
-                  Submissions / Documents
+      <main className="doc-main">
+        <TopBar onLogout={logout} />
+        <div className="doc-page">
+          <button
+            type="button"
+            className="doc-back"
+            onClick={() => navigate(-1)}
+          >
+            ← Back to Review Queue <span>/ Document details</span>
+          </button>
+          <section className="doc-hero">
+            <div className="doc-id">
+              <span className="doc-file">▤</span>
+              <div>
+                <div className="doc-kicker">
+                  ◆ Form record <span>{tracking}</span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
-                  <h1 style={{ fontSize: 16, fontWeight: 700, color: T.onSurface, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 320 }}>{displayName}</h1>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 999, background: sc.bg, color: sc.color, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
-                    🕓 {form.status || "Pending"} Review
-                  </span>
-                </div>
+                <h1 title={title}>{title}</h1>
+                <p>
+                  {category} &nbsp;·&nbsp; Submitted by {submitter}
+                </p>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <div className="doc-actions">
+              <button
+                type="button"
+                className="doc-btn"
+                onClick={() => setPreview((value) => !value)}
+              >
+                {preview ? "Hide inline" : "Read inline"}
+              </button>
               {url && (
-                <a href={url} download={form.file_name} target="_blank" rel="noreferrer"
-                  style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, textDecoration: "none", whiteSpace: "nowrap" }}>
-                  Download Copy
+                <a
+                  className="doc-btn"
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  download={form.file_name}
+                >
+                  Download
                 </a>
               )}
-              <button onClick={() => { navigator.clipboard?.writeText(window.location.href); addToast("Link copied to clipboard.", "info"); }}
-                style={{ padding: "8px 16px", border: `1px solid ${T.outlineVariant}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: T.onSurface, background: "white", cursor: "pointer", whiteSpace: "nowrap" }}>
+              <button type="button" className="doc-btn" onClick={share}>
                 Share
               </button>
+              <button
+                type="button"
+                className="doc-solid"
+                onClick={() =>
+                  document
+                    .getElementById("review-decision")
+                    ?.scrollIntoView({ behavior: "smooth", block: "center" })
+                }
+              >
+                Review decision
+              </button>
             </div>
-          </div>
-        </div>
-
-      {/* ── Content ── */}
-      <main style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
-
-        {/* LEFT: document preview + audit trail */}
-        <div style={{ flex: 1, minHeight: 0, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", borderRight: `1px solid ${T.surfaceVariant}` }}>
-
-          {/* Document preview card */}
-          <div style={{ flex: 1, background: T.surfaceContainerLow, border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-            {url && isImg ? (
-              // Photos/screenshots: full-bleed, no paper skeuomorph — the image IS the surface.
-              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto", background: "#0b0a17" }}>
-                <img src={url} alt="Form Preview" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }} />
-              </div>
-            ) : (
-              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: 24 }}>
-                {/* White "page" the document sits on top of */}
-                <div style={{ background: "white", borderRadius: 6, boxShadow: "0 4px 10px rgba(24,20,69,0.10), 0 12px 28px rgba(24,20,69,0.14)", width: "100%", maxWidth: 640, height: "100%", display: "flex", overflow: "hidden" }}>
-                  {url ? (
-                    isPdf ? (
-                      <iframe src={`${url}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`} title="Form Preview" style={{ width: "100%", height: "100%", border: "none" }} />
-                    ) : (
-                      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 14, color: T.onSurfaceVariant }}>
-                        <FileIcon />
-                        <div style={{ fontSize: 13, fontWeight: 600, color: T.onSurface }}>{form.file_name || "Attached file"}</div>
-                        <div style={{ fontSize: 11, color: T.outline }}>Preview not available for this file type.</div>
-                      </div>
-                    )
+          </section>
+          <section className="doc-meta">
+            <div>
+              <span>Current reviewer</span>
+              <strong className="doc-person">
+                <i>{initials(reviewer)}</i>
+                {reviewer}
+              </strong>
+            </div>
+            <div>
+              <span>Priority</span>
+              <strong>{form.priority || "Standard"}</strong>
+            </div>
+            <div>
+              <span>Submitted</span>
+              <strong>{stamp(submitted)}</strong>
+            </div>
+            <div>
+              <span>Last updated</span>
+              <strong>{shortTime(form.updated_at, "Just now")}</strong>
+            </div>
+          </section>
+          <section className="doc-layout">
+            <div>
+              <Panel className="doc-status">
+                <Label>
+                  Live status <span>● updated just now</span>
+                </Label>
+                <div className="doc-status-head">
+                  <h2>{status}</h2>
+                  <span className={`doc-pill ${statusTone(status)}`}>
+                    <i />
+                    {status}
+                  </span>
+                </div>
+                <div className="doc-timeline">
+                  <div className="doc-step complete">
+                    <b>✓</b>
+                    <span>Submitted</span>
+                  </div>
+                  <i className="doc-line complete" />
+                  <div
+                    className={`doc-step ${reviewStep === 2 ? "active" : "complete"}`}
+                  >
+                    <b>{reviewStep > 2 ? "✓" : "02"}</b>
+                    <span>In review</span>
+                  </div>
+                  <i
+                    className={`doc-line ${reviewStep > 2 ? "complete" : ""}`}
+                  />
+                  <div
+                    className={`doc-step ${reviewStep === 3 ? "active" : ""}`}
+                  >
+                    <b>03</b>
+                    <span>Decision</span>
+                  </div>
+                </div>
+                <div className="doc-callout">
+                  <div>
+                    <b>⌁</b>
+                    <span>
+                      <strong>
+                        {reviewStep === 2
+                          ? "Review is with you"
+                          : "Workflow update"}
+                      </strong>
+                      <p>
+                        Check the record and move it before the next SLA
+                        threshold.
+                      </p>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document
+                        .querySelector(".doc-preview")
+                        ?.scrollIntoView({ behavior: "smooth" })
+                    }
+                  >
+                    Review now ↗
+                  </button>
+                </div>
+              </Panel>
+              {preview && (
+                <Panel className="doc-preview">
+                  <div className="doc-preview-head">
+                    <div>
+                      <Label>Inline preview</Label>
+                      <h2>{title}</h2>
+                      <p>{form.file_name || "No attached file"}</p>
+                    </div>
+                    <div className="doc-preview-actions">
+                      <button type="button" onClick={generateBrief}>
+                        Review brief
+                      </button>
+                      {url && (
+                        <button
+                          type="button"
+                          onClick={() => window.open(url, "_blank")}
+                        >
+                          Open file
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="doc-controls">
+                    <span>
+                      {url ? "Current attachment" : "Preview placeholder"}
+                    </span>
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setZoom((value) => Math.max(70, value - 10))
+                        }
+                      >
+                        −
+                      </button>
+                      <strong>{zoom}%</strong>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setZoom((value) => Math.min(140, value + 10))
+                        }
+                      >
+                        +
+                      </button>
+                      {url && (
+                        <button
+                          type="button"
+                          onClick={() => window.open(url, "_blank")}
+                        >
+                          ↗
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {url && pdf ? (
+                    <div className="doc-frame">
+                      <iframe
+                        title={`Preview of ${title}`}
+                        src={`${url}#toolbar=0`}
+                      />
+                    </div>
+                  ) : url && image ? (
+                    <div className="doc-image">
+                      <img src={url} alt={`Preview of ${title}`} />
+                    </div>
                   ) : (
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 10, color: T.outline }}>
-                      <FileIcon />
-                      <div style={{ fontSize: 13, color: T.onSurfaceVariant }}>No file attached</div>
+                    <div className="doc-canvas">
+                      <div
+                        className="doc-paper"
+                        style={{
+                          transform: `scale(${zoom / 100})`,
+                          marginBottom: `${Math.max(0, (zoom - 100) * 2)}px`,
+                        }}
+                      >
+                        <div className="doc-paper-top">
+                          <span>DEPARTMENT OF COMPUTER SCIENCE</span>
+                          <span>
+                            {new Date().getFullYear()}–
+                            {new Date().getFullYear() + 1}
+                          </span>
+                        </div>
+                        <h3>{title}</h3>
+                        <p>{category}</p>
+                        <div className="doc-paper-line wide" />
+                        <div className="doc-paper-line mid" />
+                        <div className="doc-paper-note">
+                          <strong>Review context</strong>
+                          <br />
+                          {form.notes ||
+                            form.description ||
+                            "Supporting information, submitted fields, and workflow context are recorded with this form."}
+                        </div>
+                      </div>
                     </div>
                   )}
+                </Panel>
+              )}
+              <Panel className="doc-summary">
+                <div className="doc-head">
+                  <div>
+                    <Label>Document intelligence</Label>
+                    <h2>Review brief</h2>
+                  </div>
+                  <button type="button" onClick={generateBrief}>
+                    Generate brief
+                  </button>
                 </div>
-              </div>
-            )}
-
-            {/* Floating toolbar */}
-            {url && (
-              <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", background: "rgba(45,42,91,0.9)", backdropFilter: "blur(8px)", color: T.inverseOnSurface, borderRadius: 999, padding: "8px 16px", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}>
-                <a href={url} target="_blank" rel="noreferrer" download={form.file_name}
-                  title="Download" style={{ color: "inherit", textDecoration: "none", display: "flex", alignItems: "center" }}>⬇</a>
-                <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.25)" }} />
-                <button onClick={() => window.open(url, "_blank")?.print?.()} title="Print"
-                  style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", display: "flex", alignItems: "center", fontSize: 14 }}>🖶</button>
-                <a href={url} target="_blank" rel="noreferrer" title="Open in new tab"
-                  style={{ color: "inherit", textDecoration: "none", display: "flex", alignItems: "center" }}>↗</a>
-              </div>
-            )}
-          </div>
-
-          {/* Document audit trail */}
-          <div style={{ background: T.surfaceContainerLowest, border: `1px solid ${T.surfaceVariant}`, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: T.onSurface, margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
-              🕘 Document Audit Trail
-            </h3>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
-              {auditSteps.map((step, i) => (
-                <div key={i} style={{ flex: 1, minWidth: 180, borderLeft: `2px solid ${step.active ? T.primary : T.surfaceVariant}`, paddingLeft: 14 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: T.onSurface, marginBottom: 3 }}>{step.label}</div>
-                  <div style={{ fontSize: 13, color: T.onSurfaceVariant, marginBottom: 3 }}>{step.by}</div>
-                  <div style={{ fontSize: 11, color: T.outline }}>{step.when}</div>
+                {brief ? (
+                  <p>{brief}</p>
+                ) : (
+                  <div className="doc-empty-note">
+                    <i>⌁</i>
+                    <span>
+                      Create a concise review brief from the available document
+                      metadata and submitted fields. It supports your decision
+                      without changing the original record.
+                    </span>
+                  </div>
+                )}
+              </Panel>
+              <Panel className="doc-comments">
+                <div className="doc-head">
+                  <div>
+                    <Label>Review discussion</Label>
+                    <h2>Reviewer comments</h2>
+                  </div>
+                  <span className="doc-count">{comments.length}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT: metadata + review action */}
-        <aside style={{ width: 400, flexShrink: 0, minHeight: 0, background: T.surfaceContainerLowest, padding: 24, display: "flex", flexDirection: "column", gap: 24, overflowY: "auto" }}>
-
-          {/* Metadata */}
-          <section>
-            <h2 style={{ fontSize: 15, fontWeight: 700, color: T.onSurface, margin: "0 0 12px" }}>Metadata</h2>
-            <div style={{ background: T.surfaceContainerLow, borderRadius: 12, padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Submitter</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Avatar name={submitterName} src={form.submitter_avatar ? resolveFileUrl(form.submitter_avatar) : null} />
-                  <span style={{ fontSize: 13, color: T.onSurface, fontWeight: 600 }}>{submitterName}</span>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Submission Date</div>
-                  <div style={{ fontSize: 13, color: T.onSurface }}>{filingDateLabel}</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Category</div>
-                  <div style={{ fontSize: 13, color: T.onSurface }}>{form.category || "—"}</div>
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: T.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Status</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: sc.color, display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: sc.color, display: "inline-block" }} />
-                  {form.status || "Pending"}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Submitted fields (from Step 2 of the wizard) */}
-          {dynEntries.length > 0 && (
-            <section>
-              <h2 style={{ fontSize: 15, fontWeight: 700, color: T.onSurface, margin: "0 0 12px" }}>Submitted Fields</h2>
-              <div style={{ background: T.surfaceContainerLow, borderRadius: 12, padding: 18, display: "flex", flexDirection: "column", gap: 10 }}>
-                {dynEntries.map(([label, value]) => {
-                  const display = value === null || value === "" ? "—" : String(value);
-                  return (
-                    <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingBottom: 8, borderBottom: `1px solid ${T.surfaceVariant}` }}>
-                      <span style={{ fontSize: 11, color: T.onSurfaceVariant, fontWeight: 600, flexShrink: 0 }}>{label}</span>
-                      <span style={{ fontSize: 12, color: T.onSurface, fontWeight: 600, textAlign: "right", wordBreak: "break-word" }}>{display}</span>
+                {comments.length ? (
+                  comments.map((comment, index) => (
+                    <div className="doc-comment" key={comment.id || index}>
+                      <span className="doc-avatar">
+                        {initials(
+                          comment.sender_name || comment.user || "Reviewer",
+                        )}
+                      </span>
+                      <div>
+                        <strong>
+                          {comment.sender_name || comment.user || "Reviewer"}
+                          <span>{shortTime(comment.created_at)}</span>
+                        </strong>
+                        <p>
+                          {comment.content || comment.note || comment.message}
+                        </p>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {/* Previous review note, if any */}
-          {form.review_note && (
-            <div style={{ background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: 10, padding: "12px 14px" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Previous Review Note</div>
-              <div style={{ fontSize: 12, color: "#78350f", lineHeight: 1.5 }}>{form.review_note}</div>
+                  ))
+                ) : (
+                  <p className="doc-comment-empty">
+                    No threaded comments have been recorded. Use the decision
+                    note to leave review direction for this form.
+                  </p>
+                )}
+              </Panel>
+              <section className="doc-workflow">
+                <Panel className="doc-history">
+                  <div className="doc-head">
+                    <div>
+                      <Label>Submission history</Label>
+                      <h2>Version history</h2>
+                    </div>
+                    <span className="doc-badge">
+                      {versions.length} version
+                      {versions.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  <div className="doc-version-list">
+                    {versions.map((item, index) => (
+                      <button
+                        type="button"
+                        className={`doc-version ${(activeVersion?.id || activeVersion?.version) === (item.id || item.version) ? "active" : ""}`}
+                        key={item.id || item.version || index}
+                        onClick={() => setVersion(item)}
+                      >
+                        <span>
+                          <strong>
+                            {item.label ||
+                              `Version ${item.version || versions.length - index}`}
+                          </strong>
+                          <span>
+                            {shortTime(
+                              item.created_at || item.submitted_at,
+                              "Current record",
+                            )}
+                          </span>
+                        </span>
+                        <i className="doc-badge">
+                          {item.is_current ? "Current" : "View"}
+                        </i>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="doc-compare">
+                    <div className="doc-compare-head">
+                      <span>Version context</span>
+                      <span>
+                        {activeVersion?.label ||
+                          `Version ${activeVersion?.version || "—"}`}
+                      </span>
+                    </div>
+                    <p>
+                      Select a version to inspect its submission date and
+                      workflow context. Detailed file comparison appears here
+                      when version analysis is available.
+                    </p>
+                  </div>
+                </Panel>
+                <Panel className="doc-audit">
+                  <div className="doc-head">
+                    <div>
+                      <Label>Accountability</Label>
+                      <h2>Audit trail</h2>
+                    </div>
+                    <span className="doc-badge">{audits.length} events</span>
+                  </div>
+                  <div className="doc-audit-list">
+                    {audits.map((item, index) => (
+                      <div className="doc-audit-item" key={item.id || index}>
+                        <strong>
+                          {item.action ||
+                            item.event ||
+                            item.status ||
+                            "Form updated"}
+                        </strong>
+                        <span>
+                          {item.user ||
+                            item.actor ||
+                            item.sender_name ||
+                            "System"}{" "}
+                          ·{" "}
+                          {shortTime(
+                            item.timestamp ||
+                              item.created_at ||
+                              item.updated_at,
+                          )}
+                        </span>
+                        {(item.detail || item.description || item.note) && (
+                          <p>{item.detail || item.description || item.note}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Panel>
+              </section>
             </div>
-          )}
-
-          <div style={{ height: 1, background: T.surfaceVariant, width: "100%" }} />
-
-          {/* Review action */}
-          <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700, color: T.onSurface, margin: 0 }}>Review Action</h2>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: T.onSurface, marginBottom: 6, display: "block" }}>
-                Feedback &amp; Comments <span style={{ color: T.error }}>*</span>
-              </label>
-              <textarea
-                value={reviewNote}
-                onChange={e => setReviewNote(e.target.value)}
-                placeholder="Required for rejections and revisions. Detail what needs to be changed or why the document was approved with conditions..."
-                rows={5}
-                style={{ width: "100%", background: "white", border: `1px solid ${T.outlineVariant}`, borderRadius: 10, padding: 12, fontSize: 13, color: T.onSurface, resize: "none", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
-                onFocus={e => { e.target.style.borderColor = T.primary; e.target.style.boxShadow = `0 0 0 3px ${T.primaryFixed}`; }}
-                onBlur={e => { e.target.style.borderColor = T.outlineVariant; e.target.style.boxShadow = "none"; }}
-              />
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
-              <button onClick={handleApprove} disabled={submitting}
-                style={{ width: "100%", background: T.inverseSurface, color: T.inverseOnSurface, border: "none", borderRadius: 10, padding: "13px 18px", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1 }}>
-                ✓ Approve Document
-              </button>
-              <button onClick={handleRevise} disabled={submitting}
-                style={{ width: "100%", background: "white", color: T.tertiary, border: `2px solid ${T.tertiary}`, borderRadius: 10, padding: "12px 18px", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1 }}>
-                ↩ Request Revision
-              </button>
-              <button onClick={handleReject} disabled={submitting}
-                style={{ width: "100%", background: "white", color: T.error, border: `1px solid ${T.error}`, borderRadius: 10, padding: "13px 18px", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1 }}>
-                ✗ Reject &amp; Archive
-              </button>
-            </div>
+            <aside className="doc-side">
+              <Panel className="doc-sla">
+                <div className="doc-sla-top">
+                  <div>
+                    <Label>SLA tracking</Label>
+                    <h2>{deadline ? "On track" : "No deadline"}</h2>
+                  </div>
+                  <span className="doc-live">● Live</span>
+                </div>
+                <h3>{deadline ? stamp(deadline) : "Not set"}</h3>
+                <p>{deadline ? "Review deadline" : "Set a review deadline"}</p>
+                <div className="doc-progress">
+                  <i style={{ width: `${elapsed}%` }} />
+                </div>
+                <div className="doc-progress-meta">
+                  <span>Started {stamp(submitted, "recently")}</span>
+                  <span>{elapsed}% elapsed</span>
+                </div>
+                <div className="doc-sla-grid">
+                  <div>
+                    <span>Target</span>
+                    <strong>{form.sla_target || "2 business days"}</strong>
+                  </div>
+                  <div>
+                    <span>Current state</span>
+                    <strong>{status}</strong>
+                  </div>
+                </div>
+              </Panel>
+              <Panel className="doc-owners">
+                <Label>Workflow ownership</Label>
+                <h2>Handoff map</h2>
+                <div className="doc-owner-line">
+                  <span className="doc-owner-avatar">
+                    {initials(submitter)}
+                  </span>
+                  <div className="doc-owner-copy">
+                    <strong>{submitter}</strong>
+                    <span>Faculty submitter</span>
+                  </div>
+                </div>
+                <div className="doc-owner-line">
+                  <span className="doc-owner-avatar">{initials(reviewer)}</span>
+                  <div className="doc-owner-copy">
+                    <strong>{reviewer}</strong>
+                    <span>Current reviewer</span>
+                  </div>
+                </div>
+                <div className="doc-owner-line">
+                  <span className="doc-owner-avatar">AP</span>
+                  <div className="doc-owner-copy">
+                    <strong>
+                      {form.final_approver_name || "Academic Provost"}
+                    </strong>
+                    <span>Next approver</span>
+                  </div>
+                </div>
+              </Panel>
+              {fields.length > 0 && (
+                <Panel className="doc-fields">
+                  <div>
+                    <Label>Submitted record</Label>
+                    <h2>Form details</h2>
+                  </div>
+                  {fields.map(([key, value]) => (
+                    <div className="doc-field" key={key}>
+                      <span>{key}</span>
+                      <strong>
+                        {value === null || value === "" ? "—" : String(value)}
+                      </strong>
+                    </div>
+                  ))}
+                </Panel>
+              )}
+              <Panel className="doc-decision" id="review-decision">
+                <Label>Reviewer decision</Label>
+                <h2>Record your action</h2>
+                {/revision|rejected|returned/i.test(status) &&
+                  form.review_note && (
+                    <div className="doc-decision-note">
+                      <strong>Previous review direction</strong>
+                      <br />
+                      {form.review_note}
+                    </div>
+                  )}
+                <label htmlFor="review-note">
+                  Feedback & comments{" "}
+                  <span style={{ color: "#bf5f57" }}>*</span>
+                </label>
+                <textarea
+                  id="review-note"
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  placeholder="Required for revision requests and rejections. Explain what needs to change, or add an approval note for the audit trail."
+                />
+                <div className="doc-decision-actions">
+                  <button
+                    type="button"
+                    className="approve"
+                    disabled={submitting}
+                    onClick={() => decision("approve", null, "Form approved.")}
+                  >
+                    ✓ Approve
+                  </button>
+                  <button
+                    type="button"
+                    className="return"
+                    disabled={submitting}
+                    onClick={() =>
+                      decision(
+                        "revise",
+                        "Please provide revision instructions for the faculty.",
+                        "Revision requested.",
+                      )
+                    }
+                  >
+                    ↩ Request revision
+                  </button>
+                  <button
+                    type="button"
+                    className="reject"
+                    style={{ gridColumn: "1 / -1" }}
+                    disabled={submitting}
+                    onClick={() =>
+                      decision(
+                        "reject",
+                        "Please provide a reason for rejection.",
+                        "Form rejected.",
+                      )
+                    }
+                  >
+                    × Reject & archive
+                  </button>
+                </div>
+              </Panel>
+            </aside>
           </section>
-        </aside>
+        </div>
       </main>
-      </div>
     </div>
   );
 }
