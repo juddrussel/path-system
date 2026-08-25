@@ -2115,6 +2115,25 @@ export default function Forms() {
         @keyframes fadeUp { from { transform: translate(-50%, -46%); opacity:0; } to { transform: translate(-50%, -50%); opacity:1; } }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
         .path-forms-queue-active .path-forms-default-header,.path-forms-queue-active .path-forms-default-stats{display:none!important}
+        /* Final PATH Review Queue rhythm: match the dashboard's page gutters, type hierarchy, and compact operational density. */
+        .path-forms-shell,.path-forms-main,.path-forms-page{font-family:'DM Sans',sans-serif!important}
+        .path-forms-page{padding:26px 28px 36px!important;gap:20px!important}
+        .path-forms-queue-active .path-forms-page{max-width:none;margin:0 auto;width:100%}
+        .path-forms-queue-active .path-forms-hero{min-height:132px;padding:23px 20px;border-width:0 0 0 2px;border-radius:0;background:linear-gradient(105deg,#fbf9ff,#f5f1ff);box-shadow:none}
+        .path-forms-queue-active .path-forms-hero h1{font-size:42px;line-height:1;letter-spacing:-.06em}
+        .path-forms-queue-active .path-forms-hero p{max-width:560px;font-size:12px;line-height:1.5}
+        .path-forms-queue-active .path-forms-kicker{font-size:9px;letter-spacing:.13em}
+        .path-forms-queue-active .path-forms-tab-actions{margin-top:14px}
+        .path-forms-queue-active .path-review-stats{gap:14px}
+        .path-forms-queue-active .path-review-stat{min-height:106px;padding:17px 18px}
+        .path-forms-queue-active .path-review-stat strong{font-size:29px}
+        .path-forms-queue-active .path-review-toolbar{padding:17px 19px}
+        .path-forms-queue-active .path-review-toolbar h2{font-size:18px}
+        .path-forms-queue-active .path-review-layout{gap:14px}
+        .path-forms-queue-active .path-review-ledger,.path-forms-queue-active .path-review-detail{border-radius:10px}
+        .path-forms-queue-active .path-review-row{min-height:78px;padding:12px 18px}
+        .path-forms-queue-active .path-review-detail{padding:18px}
+        @media(max-width:760px){.path-forms-page{padding:17px 14px 28px!important;gap:14px!important}.path-forms-queue-active .path-forms-hero{min-height:auto;padding:21px 17px}.path-forms-queue-active .path-forms-hero h1{font-size:33px}.path-forms-queue-active .path-review-stats{gap:10px}.path-forms-queue-active .path-review-toolbar{padding:15px}.path-forms-queue-active .path-review-row{padding:12px 14px}}
       `}</style>
 
       {/* Toast container */}
