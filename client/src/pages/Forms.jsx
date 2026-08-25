@@ -1358,7 +1358,6 @@ export default function Forms() {
     full_name: "",
     semester: "1st Semester",
     academic_year: ACADEMIC_YEARS[1],
-    priority: "Standard",
     remarks: "",
   });
   const [wizardSubmitting, setWizardSubmitting] = useState(false);
@@ -1681,7 +1680,6 @@ export default function Forms() {
     fd.append("full_name", wizardInfo.full_name);
     fd.append("semester", wizardInfo.semester);
     fd.append("academic_year", wizardInfo.academic_year);
-    fd.append("priority", wizardInfo.priority);
     fd.append("remarks", wizardInfo.remarks);
     fd.append("filing_date", new Date().toISOString().split("T")[0]);
     if (status) fd.append("status", status);
@@ -1734,7 +1732,6 @@ export default function Forms() {
       full_name: "",
       semester: "1st Semester",
       academic_year: ACADEMIC_YEARS[1],
-      priority: "Standard",
       remarks: "",
     });
   };
@@ -1843,7 +1840,6 @@ export default function Forms() {
       Object.keys(wizardDocs).length > 0 ||
       Object.keys(wizardFieldValues).length > 0 ||
       wizardFormType ||
-      wizardInfo.priority !== "Standard" ||
       wizardInfo.remarks
     ) {
       if (
@@ -2595,16 +2591,6 @@ export default function Forms() {
         .path-faculty-dynamic-field.is-choice>div:first-child>div:first-child{min-width:0!important;margin:0 0 7px!important}
         .path-faculty-dynamic-field.is-choice>div:first-child>div:first-child>div:first-child>span:first-child{display:none!important}
         .path-faculty-dynamic-field.is-choice>div:first-child>div:first-child>div:last-child{display:none!important}
-        .path-faculty-priority-picker{margin-top:16px;padding-top:14px;border-top:1px solid #eee8f3}
-        .path-faculty-priority-label{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:#66576f;font-size:9px;font-weight:800}
-        .path-faculty-priority-label small{color:#b56a68;font-size:7px;text-transform:uppercase}
-        .path-faculty-priority-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-        .path-faculty-priority-options button{display:flex;align-items:flex-start;gap:7px;min-height:52px;padding:10px;border:1px solid #e1dbe8;border-radius:8px;background:#fff;color:#65566f;text-align:left;cursor:pointer;transition:border-color .16s,background .16s,box-shadow .16s}
-        .path-faculty-priority-options button i{width:10px;height:10px;flex:0 0 auto;margin-top:2px;border:1.5px solid #c9bfda;border-radius:50%}
-        .path-faculty-priority-options button span{display:flex;flex-direction:column;gap:3px}
-        .path-faculty-priority-options button strong{font-size:9px}.path-faculty-priority-options button small{color:#998e9e;font-size:7px;line-height:1.35}
-        .path-faculty-priority-options button.active{border-color:#a779e4;background:#fcfaff;box-shadow:0 0 0 2px rgba(167,121,228,.12)}
-        .path-faculty-priority-options button.active i{border:3px solid #7c3aed}
         .path-faculty-step-03 .path-faculty-dynamic-field.is-file{min-height:51px;padding:8px 11px!important;border:1px solid #e5dfea!important;border-radius:8px!important;background:#fff!important;box-shadow:none!important}
         .path-faculty-step-03 .path-faculty-dynamic-field.is-file.is-required{border-color:#e7ddb6!important;background:#fffefa!important}
         .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child{align-items:center!important;gap:12px!important}
@@ -2637,8 +2623,8 @@ export default function Forms() {
         .path-faculty-summary-aside>div:last-child>svg{width:15px!important;height:15px!important;padding:3px!important;border-radius:50%;background:#f3edff!important;color:#8555d4!important}
         .path-faculty-summary-aside>div:last-child div:first-child{color:#6c5e75!important;font-size:9px!important;letter-spacing:0!important;text-transform:none!important}
         .path-faculty-summary-aside>div:last-child div:last-child{color:#9b90a2!important;font-size:8px!important;cursor:default!important}
-        @media(max-width:900px){.path-faculty-start-shell{grid-template-columns:1fr!important}.path-faculty-summary-aside{position:static!important}.path-faculty-intake-step{padding:17px!important}.path-faculty-details-grid,.path-faculty-priority-options{grid-template-columns:1fr 1fr!important}}
-        @media(max-width:620px){.path-forms-start-active .path-forms-page{padding:20px 14px 32px!important}.path-faculty-details-grid,.path-faculty-priority-options{grid-template-columns:1fr!important}.path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child{align-items:flex-start!important;flex-direction:column!important}.path-faculty-step-03 .path-faculty-file-attach-trigger{width:100%;justify-content:center!important}}
+        @media(max-width:900px){.path-faculty-start-shell{grid-template-columns:1fr!important}.path-faculty-summary-aside{position:static!important}.path-faculty-intake-step{padding:17px!important}.path-faculty-details-grid{grid-template-columns:1fr 1fr!important}}
+        @media(max-width:620px){.path-forms-start-active .path-forms-page{padding:20px 14px 32px!important}.path-faculty-details-grid{grid-template-columns:1fr!important}.path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child{align-items:flex-start!important;flex-direction:column!important}.path-faculty-step-03 .path-faculty-file-attach-trigger{width:100%;justify-content:center!important}}
       `}</style>
 
       {/* Toast container */}
@@ -3358,53 +3344,6 @@ export default function Forms() {
                           }}
                         >
                           {otherFields.map((f, idx) => renderFieldRow(f, idx))}
-                        </div>
-                      )}
-
-                      {selectedCategory && (
-                        <div className="path-faculty-priority-picker">
-                          <div className="path-faculty-priority-label">
-                            <span>Processing priority</span>
-                            <small>Optional</small>
-                          </div>
-                          <div className="path-faculty-priority-options">
-                            {[
-                              {
-                                value: "Standard",
-                                note: "Normal workflow target",
-                              },
-                              {
-                                value: "High",
-                                note: "Needs review within 3 business days",
-                              },
-                              {
-                                value: "Urgent",
-                                note: "Time-sensitive academic requirement",
-                              },
-                            ].map((choice) => (
-                              <button
-                                key={choice.value}
-                                type="button"
-                                className={
-                                  wizardInfo.priority === choice.value
-                                    ? "active"
-                                    : ""
-                                }
-                                onClick={() =>
-                                  setWizardInfo((previous) => ({
-                                    ...previous,
-                                    priority: choice.value,
-                                  }))
-                                }
-                              >
-                                <i />
-                                <span>
-                                  <strong>{choice.value}</strong>
-                                  <small>{choice.note}</small>
-                                </span>
-                              </button>
-                            ))}
-                          </div>
                         </div>
                       )}
 
