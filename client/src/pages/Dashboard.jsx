@@ -1852,7 +1852,14 @@ function FacultyDashboardOverview({ displayName, forms, loading, navigate }) {
     },
   ];
   return (
-    <div className="faculty-dashboard-canvas">
+    <div
+      className="faculty-dashboard-canvas"
+      style={{
+        marginLeft: 72,
+        marginRight: 48,
+        padding: "28px 0 44px",
+      }}
+    >
       <section className="faculty-dashboard-hero">
         <div>
           <span>Faculty workspace · your document flow</span>
@@ -3012,7 +3019,14 @@ export default function Dashboard() {
         }
         .path-overview-shell .faculty-dashboard-canvas {
           box-sizing: border-box;
-          padding: 18px 48px 36px;
+          margin-left: 72px !important;
+          margin-right: 48px !important;
+          padding: 28px 0 44px !important;
+        }
+        .path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-hero {
+          margin: 0 !important;
+          border-left: 0 !important;
+          border-radius: 16px !important;
         }
         @media (max-width: 900px) {
           .path-overview-shell .dashboard-workspace-canvas {
@@ -3022,7 +3036,9 @@ export default function Dashboard() {
             border-radius: 12px !important;
           }
           .path-overview-shell .faculty-dashboard-canvas {
-            padding: 0;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding: 18px 20px 30px !important;
           }
         }
       `}</style>
