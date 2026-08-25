@@ -531,6 +531,17 @@ function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function initialsFor(name = "Faculty") {
+  return (
+    String(name)
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() || "")
+      .join("") || "FA"
+  );
+}
+
 // ── Status Badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }) {
   const map = {
@@ -931,6 +942,390 @@ function Toast({ toasts, onDismiss }) {
   );
 }
 
+function FacultySubmissionsWorkspace({
+  forms,
+  stats,
+  loading,
+  search,
+  onSearch,
+  onStartSubmission,
+  onResubmit,
+  onActivity,
+  page,
+  totalPages,
+  onPageChange,
+  onLogout,
+  toasts,
+  onDismissToast,
+}) {
+  const [filter, setFilter] = useState("All");
+  const [selectedId, setSelectedId] = useState("");
+  const matchesFilter = (row) => {
+    if (filter === "All") return true;
+    if (filter === "In review") return /pending|review/i.test(row.status || "");
+    if (filter === "Returned") return /revision|return/i.test(row.status || "");
+    return new RegExp(filter, "i").test(row.status || "");
+  };
+  const visible = forms.filter(matchesFilter);
+  const selected =
+    visible.find((row) => String(row.id) === String(selectedId)) ||
+    visible[0] ||
+    forms[0] ||
+    null;
+  const titleFor = (row) =>
+    row?.file_name ||
+    row?.title ||
+    row?.tracking_id ||
+    `Submission #${row?.id}`;
+  const typeFor = (row) =>
+    row?.category || row?.document_type || "Academic form";
+  const statusFor = (row) => row?.status || "Draft";
+  const nextStep = (row) => {
+    const status = statusFor(row);
+    if (/revision|return/i.test(status)) return "Update and resubmit";
+    if (/approved/i.test(status)) return "Workflow complete";
+    if (/reject/i.test(status)) return "Decision recorded";
+    if (/review|pending/i.test(status)) return "With reviewer";
+    return "Complete draft";
+  };
+  const statusClass = (status) =>
+    /revision|return/i.test(status)
+      ? "returned"
+      : /approved/i.test(status)
+        ? "approved"
+        : /reject/i.test(status)
+          ? "rejected"
+          : /review|pending/i.test(status)
+            ? "review"
+            : "draft";
+
+  return (
+    <div className="faculty-submissions-shell">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
+        *{box-sizing:border-box}.faculty-submissions-shell{display:flex;min-height:100vh;background:#f8f7ff;color:#46394f;font-family:'DM Sans',sans-serif}.faculty-submissions-main{min-width:0;flex:1}.faculty-submissions-page{max-width:1360px;margin:0 auto;padding:30px 28px 48px}.faculty-submissions-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:0 13px 24px;border-bottom:1px solid #e6dfee}.faculty-submissions-kicker{display:flex;align-items:center;gap:8px;color:#988da0;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.faculty-submissions-kicker i{width:6px;height:6px;border-radius:50%;background:#b595e8}.faculty-submissions-hero h1{margin:8px 0 7px;color:#34283d;font:800 clamp(31px,3vw,42px) Manrope,sans-serif;letter-spacing:-.06em;line-height:1}.faculty-submissions-hero p{max-width:620px;margin:0;color:#8f8398;font-size:11px;line-height:1.6}.faculty-submissions-insight{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #e9e0f2;border-radius:10px;background:#fff}.faculty-submissions-insight>i{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee6fc;color:#7543c7;font-style:normal}.faculty-submissions-insight strong,.faculty-submissions-insight small{display:block}.faculty-submissions-insight strong{color:#5d4e66;font-size:9px;font-weight:800}.faculty-submissions-insight small{margin-top:3px;color:#9e92a4;font-size:8px}.faculty-submissions-start{display:inline-flex;min-height:36px;align-items:center;gap:7px;border:0;border-radius:8px;padding:0 13px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;box-shadow:0 8px 16px rgba(124,58,237,.22);cursor:pointer}.faculty-submissions-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}.faculty-submissions-stat{position:relative;min-height:105px;overflow:hidden;border:1px solid #e6dfee;border-radius:11px;padding:15px;background:#fff;box-shadow:0 9px 22px rgba(54,36,87,.04)}.faculty-submissions-stat:after{position:absolute;right:-24px;top:-29px;width:88px;height:88px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.42),rgba(196,181,253,.08) 58%,transparent 70%);content:''}.faculty-submissions-stat.returned:after{background:radial-gradient(circle,rgba(224,168,104,.32),rgba(255,239,210,.1) 58%,transparent 70%)}.faculty-submissions-stat span{display:block;color:#988d9f;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.faculty-submissions-stat strong{display:block;margin-top:16px;color:#3e3047;font:800 26px Manrope,sans-serif;letter-spacing:-.06em}.faculty-submissions-stat small{display:block;margin-top:5px;color:#8f8399;font-size:8px}.faculty-submissions-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:21px;padding:18px 20px;border:1px solid #e6dfee;border-radius:11px;background:#fff}.faculty-submissions-toolbar-label{color:#978b9e;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.faculty-submissions-toolbar h2{margin:5px 0 0;color:#44354d;font:800 18px Manrope,sans-serif;letter-spacing:-.04em}.faculty-submissions-toolbar h2 span{display:inline-grid;min-width:20px;height:18px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font:800 8px 'DM Sans',sans-serif;vertical-align:middle}.faculty-submissions-toolbar p{margin:5px 0 0;color:#9c92a3;font-size:9px}.faculty-submissions-controls{display:flex;align-items:center;gap:9px}.faculty-submissions-search{display:flex;width:205px;align-items:center;gap:7px;padding:8px 10px;border:1px solid #ebe5f0;border-radius:7px;color:#8b8292}.faculty-submissions-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size:9px}.faculty-submissions-filters{display:flex;gap:4px}.faculty-submissions-filters button{min-height:30px;border:1px solid #e8e2ed;border-radius:6px;padding:0 8px;background:#fff;color:#978c9e;font-size:8px;font-weight:700;cursor:pointer}.faculty-submissions-filters button.active{border-color:#d9c8f4;background:#faf8fe;color:#7543c7}.faculty-submissions-layout{display:grid;grid-template-columns:minmax(0,1.58fr) minmax(285px,.72fr);gap:16px;margin-top:16px}.faculty-submissions-ledger,.faculty-submissions-detail{overflow:hidden;border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.faculty-submissions-table-head,.faculty-submission-row{display:grid;grid-template-columns:minmax(220px,1.35fr) minmax(110px,.66fr) 120px 18px;gap:12px;align-items:center}.faculty-submissions-table-head{padding:10px 19px;border-bottom:1px solid #f0edf4;background:#fbf9fd;color:#aaa0ad;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.faculty-submission-row{width:100%;min-height:79px;padding:12px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.faculty-submission-row:hover,.faculty-submission-row.selected{background:#fbf9ff}.faculty-submission-row.selected{box-shadow:inset 2px 0 #7c3aed}.faculty-submission-document{display:flex;min-width:0;align-items:center;gap:10px}.faculty-submission-icon{display:grid;flex:0 0 auto;width:32px;height:32px;place-items:center;border-radius:9px;background:#eee8fb;color:#7750c4;font-size:14px}.faculty-submission-icon.returned{background:#fff1e9;color:#c2745a}.faculty-submission-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.faculty-submission-copy strong{overflow:hidden;color:#51405a;font:800 10px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.faculty-submission-copy small{overflow:hidden;color:#a097a6;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.faculty-submission-copy small i{font-style:normal;color:#7a4bc1}.faculty-submission-status{display:flex;flex-direction:column;gap:5px}.faculty-submission-status b{width:max-content;border-radius:5px;padding:4px 6px;font-size:7px}.faculty-submission-status b.review{background:#f0e9fc;color:#7543c7}.faculty-submission-status b.returned{background:#fff4df;color:#a2762c}.faculty-submission-status b.approved{background:#e9f6ef;color:#4b8e70}.faculty-submission-status b.rejected{background:#fff0ed;color:#b5685d}.faculty-submission-status b.draft{background:#f1eef4;color:#7d7187}.faculty-submission-status small{color:#a095a5;font-size:8px}.faculty-submission-next strong{display:block;color:#6a5c73;font-size:9px}.faculty-submission-next small{display:block;margin-top:4px;color:#a198a5;font-size:8px}.faculty-submission-chevron{color:#a797b0;font-size:15px}.faculty-submissions-empty{display:flex;min-height:205px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:25px;color:#9d92a2;text-align:center}.faculty-submissions-empty strong{color:#6a5d73;font:800 12px Manrope,sans-serif}.faculty-submissions-empty span{font-size:9px}.faculty-submissions-detail{padding:19px}.faculty-submissions-detail-head{display:flex;align-items:flex-start;justify-content:space-between}.faculty-submissions-detail h3{margin:6px 0 0;color:#44354d;font:800 17px Manrope,sans-serif;letter-spacing:-.04em}.faculty-submissions-detail>p{margin:9px 0 0;color:#9c92a3;font-size:9px;line-height:1.5}.faculty-submissions-title{display:flex;align-items:center;gap:10px;margin-top:18px;padding-bottom:15px;border-bottom:1px solid #eee9f1}.faculty-submissions-avatar{display:grid;width:31px;height:31px;place-items:center;border-radius:9px;background:#eee7fd;color:#7543c7;font-size:8px;font-weight:800}.faculty-submissions-title strong{display:block;color:#51405a;font:800 10px Manrope,sans-serif}.faculty-submissions-title span{display:block;margin-top:3px;color:#9c92a3;font-size:8px}.faculty-submissions-status-card{margin-top:14px;padding:12px;border:1px solid #e8dff0;border-radius:8px;background:#fbf9ff}.faculty-submissions-status-card span{display:block;color:#a198a6;font-size:8px}.faculty-submissions-status-card strong{display:block;margin-top:5px;color:#614f6b;font:800 12px Manrope,sans-serif}.faculty-submissions-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.faculty-submissions-meta span{display:block;color:#aaa0ad;font-size:8px}.faculty-submissions-meta strong{display:block;margin-top:4px;overflow:hidden;color:#695b72;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.faculty-submissions-note{display:flex;gap:8px;margin-top:15px;padding:10px;border:1px solid #e3d8f3;border-radius:8px;background:#fbf9ff;color:#7543c7}.faculty-submissions-note i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#eee7fd;font-style:normal}.faculty-submissions-note strong{display:block;color:#6a5c73;font-size:9px}.faculty-submissions-note span{display:block;margin-top:3px;color:#958b9d;font-size:8px;line-height:1.4}.faculty-submissions-actions{display:flex;flex-direction:column;gap:7px;margin-top:16px}.faculty-submissions-actions button{min-height:32px;border:1px solid #e2d7ee;border-radius:7px;background:#fff;color:#725f7e;font-size:9px;font-weight:800;cursor:pointer}.faculty-submissions-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}.faculty-submissions-actions button.return{border-color:#edd9c0;background:#fffdf8;color:#a47b3a}@media(max-width:1050px){.faculty-submissions-layout{grid-template-columns:1fr}.faculty-submissions-detail{min-height:0}}@media(max-width:760px){.faculty-submissions-page{padding:22px 14px 34px}.faculty-submissions-hero{align-items:flex-start;flex-direction:column}.faculty-submissions-insight{max-width:100%}.faculty-submissions-stats{grid-template-columns:1fr 1fr;gap:9px}.faculty-submissions-stat{min-height:96px;padding:12px}.faculty-submissions-stat strong{margin-top:11px;font-size:23px}.faculty-submissions-toolbar{align-items:stretch;flex-direction:column}.faculty-submissions-controls{flex-wrap:wrap}.faculty-submissions-search{width:100%}.faculty-submissions-filters{overflow-x:auto;padding-bottom:2px}.faculty-submissions-table-head{display:none}.faculty-submission-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.faculty-submission-status{grid-column:2;grid-row:1}.faculty-submission-next{grid-column:1}.faculty-submission-chevron{display:none}}
+      `}</style>
+      <Toast toasts={toasts} onDismiss={onDismissToast} />
+      <Sidebar activePage="forms" />
+      <main className="faculty-submissions-main">
+        <TopBar onLogout={onLogout} />
+        <div className="faculty-submissions-page">
+          <section className="faculty-submissions-hero">
+            <div>
+              <div className="faculty-submissions-kicker">
+                <i /> Faculty workspace · your document register
+              </div>
+              <h1>Submissions</h1>
+              <p>
+                Create, monitor, and prepare the forms that move through your
+                department’s review workflow.
+              </p>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                flexWrap: "wrap",
+              }}
+            >
+              <div className="faculty-submissions-insight">
+                <i>▤</i>
+                <span>
+                  <strong>Submission health</strong>
+                  <small>
+                    {
+                      forms.filter((row) =>
+                        /revision|return/i.test(row.status || ""),
+                      ).length
+                    }{" "}
+                    record needs an update
+                  </small>
+                </span>
+              </div>
+              <button
+                className="faculty-submissions-start"
+                type="button"
+                onClick={onStartSubmission}
+              >
+                <Icon.Plus color="white" size={15} /> Start a submission
+              </button>
+            </div>
+          </section>
+          <section className="faculty-submissions-stats">
+            <article className="faculty-submissions-stat">
+              <span>All submissions</span>
+              <strong>
+                {String(stats.total || forms.length).padStart(2, "0")}
+              </strong>
+              <small>Across your active and completed work</small>
+            </article>
+            <article className="faculty-submissions-stat">
+              <span>In review</span>
+              <strong>
+                {String(
+                  stats.pending ||
+                    forms.filter((row) =>
+                      /pending|review/i.test(row.status || ""),
+                    ).length,
+                ).padStart(2, "0")}
+              </strong>
+              <small>Currently with a reviewer</small>
+            </article>
+            <article className="faculty-submissions-stat">
+              <span>Approved</span>
+              <strong>
+                {String(
+                  stats.approved ||
+                    forms.filter((row) => /approved/i.test(row.status || ""))
+                      .length,
+                ).padStart(2, "0")}
+              </strong>
+              <small>Completed workflow records</small>
+            </article>
+            <article className="faculty-submissions-stat returned">
+              <span>Returned</span>
+              <strong>
+                {String(
+                  forms.filter((row) =>
+                    /revision|return/i.test(row.status || ""),
+                  ).length,
+                ).padStart(2, "0")}
+              </strong>
+              <small>Needs your update</small>
+            </article>
+          </section>
+          <section className="faculty-submissions-toolbar">
+            <div>
+              <div className="faculty-submissions-toolbar-label">
+                Your document register
+              </div>
+              <h2>
+                All submissions <span>{visible.length}</span>
+              </h2>
+              <p>
+                Choose a record to see its status, next handoff, and available
+                action.
+              </p>
+            </div>
+            <div className="faculty-submissions-controls">
+              <label className="faculty-submissions-search">
+                <Icon.Search />
+                <input
+                  value={search}
+                  onChange={(event) => onSearch(event.target.value)}
+                  placeholder="Search submissions"
+                />
+              </label>
+              <div className="faculty-submissions-filters">
+                {["All", "In review", "Returned", "Approved"].map((item) => (
+                  <button
+                    type="button"
+                    key={item}
+                    className={filter === item ? "active" : ""}
+                    onClick={() => setFilter(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+          <section className="faculty-submissions-layout">
+            <article className="faculty-submissions-ledger">
+              <div className="faculty-submissions-table-head">
+                <span>Document</span>
+                <span>Status</span>
+                <span>Next handoff</span>
+                <span />
+              </div>
+              {loading ? (
+                <div className="faculty-submissions-empty">
+                  <strong>Loading your submissions…</strong>
+                </div>
+              ) : visible.length ? (
+                visible.map((row) => {
+                  const status = statusFor(row);
+                  const tone = statusClass(status);
+                  return (
+                    <button
+                      type="button"
+                      key={row.id}
+                      className={`faculty-submission-row ${String(selected?.id) === String(row.id) ? "selected" : ""}`}
+                      onClick={() => setSelectedId(row.id)}
+                    >
+                      <span className="faculty-submission-document">
+                        <i className={`faculty-submission-icon ${tone}`}>▤</i>
+                        <span className="faculty-submission-copy">
+                          <strong>{titleFor(row)}</strong>
+                          <small>
+                            <i>{row.tracking_id || `FORM-${row.id}`}</i> ·{" "}
+                            {typeFor(row)}
+                          </small>
+                        </span>
+                      </span>
+                      <span className="faculty-submission-status">
+                        <b className={tone}>{status}</b>
+                        <small>
+                          {row.updated_at ||
+                            row.filing_date ||
+                            "Recently updated"}
+                        </small>
+                      </span>
+                      <span className="faculty-submission-next">
+                        <strong>{nextStep(row)}</strong>
+                        <small>
+                          {row.review_due || row.deadline || "No deadline"}
+                        </small>
+                      </span>
+                      <span className="faculty-submission-chevron">›</span>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="faculty-submissions-empty">
+                  <strong>No submissions match this view</strong>
+                  <span>Try another status or clear your search.</span>
+                </div>
+              )}
+            </article>
+            <aside className="faculty-submissions-detail">
+              {selected ? (
+                <>
+                  <div className="faculty-submissions-detail-head">
+                    <div>
+                      <div className="faculty-submissions-toolbar-label">
+                        Selected submission
+                      </div>
+                      <h3>Submission details</h3>
+                    </div>
+                  </div>
+                  <p>
+                    Keep each submission complete and ready for its next
+                    workflow handoff.
+                  </p>
+                  <div className="faculty-submissions-title">
+                    <span className="faculty-submissions-avatar">
+                      {initialsFor(
+                        selected.full_name ||
+                          selected.submitter_name ||
+                          "Faculty",
+                      )}
+                    </span>
+                    <div>
+                      <strong>{titleFor(selected)}</strong>
+                      <span>
+                        {selected.tracking_id || selected.id} ·{" "}
+                        {selected.file_name || "Document record"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="faculty-submissions-status-card">
+                    <span>Current status</span>
+                    <strong>{statusFor(selected)}</strong>
+                  </div>
+                  <div className="faculty-submissions-meta">
+                    <div>
+                      <span>Submitter</span>
+                      <strong>
+                        {selected.full_name || selected.submitter_name || "You"}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Reviewer</span>
+                      <strong>
+                        {selected.reviewer_name ||
+                          selected.current_owner ||
+                          "Review team"}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Form type</span>
+                      <strong>{typeFor(selected)}</strong>
+                    </div>
+                    <div>
+                      <span>Next handoff</span>
+                      <strong>{nextStep(selected)}</strong>
+                    </div>
+                  </div>
+                  <div className="faculty-submissions-note">
+                    <i>i</i>
+                    <div>
+                      <strong>Submission note</strong>
+                      <span>
+                        {selected.review_note ||
+                          selected.remarks ||
+                          "Your document remains connected to its workflow history and review updates."}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="faculty-submissions-actions">
+                    {statusClass(statusFor(selected)) === "returned" ? (
+                      <button
+                        className="return"
+                        type="button"
+                        onClick={() => onResubmit(selected)}
+                      >
+                        Update and resubmit
+                      </button>
+                    ) : (
+                      <button
+                        className="primary"
+                        type="button"
+                        onClick={() => onActivity(selected)}
+                      >
+                        View activity
+                      </button>
+                    )}
+                    <button type="button" onClick={onStartSubmission}>
+                      Start another submission
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="faculty-submissions-empty">
+                  <strong>Your register is clear</strong>
+                  <span>
+                    Start a submission to create your first document record.
+                  </span>
+                </div>
+              )}
+            </aside>
+          </section>
+          {totalPages > 1 && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 8,
+                marginTop: 18,
+              }}
+            >
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => onPageChange(page - 1)}
+              >
+                Previous
+              </button>
+              <span style={{ fontSize: 10, color: "#85798e", paddingTop: 8 }}>
+                Page {page} of {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={page >= totalPages}
+                onClick={() => onPageChange(page + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
 // ════════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ════════════════════════════════════════════════════════════════════════════════
@@ -942,7 +1337,7 @@ export default function Forms() {
 
   const [activeNav, setActiveNav] = useState("forms");
   const [activeTab, setActiveTab] = useState(
-    isProgramChair ? "review" : "submit",
+    isProgramChair ? "review" : "history",
   );
   const [search, setSearch] = useState("");
 
@@ -2092,6 +2487,40 @@ export default function Forms() {
         .includes("revision") ||
       String(form.priority || "").toLowerCase() === "urgent",
   ).length;
+
+  if (!isProgramChair && activeTab === "history") {
+    return (
+      <FacultySubmissionsWorkspace
+        forms={forms}
+        stats={stats}
+        loading={loading}
+        search={search}
+        onSearch={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        onStartSubmission={() => setActiveTab("submit")}
+        onResubmit={(row) => {
+          setResubmitForm(row);
+          setResubmitFile(null);
+          setResubmitModal(true);
+        }}
+        onActivity={(row) =>
+          addToast(
+            `${row.file_name || row.title || row.tracking_id || `Submission #${row.id}`} was last updated ${row.updated_at || row.filing_date || "recently"}.`,
+            "info",
+          )
+        }
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        onLogout={handleLogout}
+        toasts={toasts}
+        onDismissToast={dismissToast}
+      />
+    );
+  }
+
   return (
     <div
       className={`path-forms-shell ${isProgramChair && activeTab === "review" ? "path-forms-queue-active" : ""}`}
