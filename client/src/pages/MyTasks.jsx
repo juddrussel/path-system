@@ -597,6 +597,7 @@ function PathTasksWorkspace({
   fmtDeadline,
   fmtDateTime,
   onOpenDocumentReview,
+  onViewAssigned,
   onLogout,
 }) {
   const isFaculty = !canViewAdminNav;
@@ -672,9 +673,9 @@ function PathTasksWorkspace({
         .path-task-focus{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.75fr);overflow:hidden;border:1px solid #e1d9e9;border-radius:13px;background:#fff}.path-task-next,.path-task-health{padding:18px 20px}.path-task-next{background:#fcfbff}.path-task-health{border-left:1px solid #ece5f0}.path-task-section-label{display:flex;align-items:center;gap:6px;color:#9b8ca6;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.path-task-section-label i{width:5px;height:5px;border-radius:50%;background:#c4b5fd}.path-task-next-title{display:flex;align-items:center;gap:10px;margin:13px 0}.path-task-file{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;flex:0 0 auto}.path-task-file.high{background:#fff0ed;color:#c76c58}.path-task-file.low{background:#e8f5ef;color:#4d937b}.path-task-next h2,.path-task-health h2{margin:0;color:#4a3b56;font-family:'Manrope',sans-serif;font-size:15px;letter-spacing:-.04em}.path-task-next p,.path-task-health p{margin:4px 0 0;color:#988b9f;font-size:9px;line-height:1.55}.path-task-note{margin:9px 0;padding:10px 11px;border:1px solid #eee3bd;border-radius:7px;background:#fffcf4;color:#927f60;font-size:9px}.path-task-primary{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:37px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 7px 13px rgba(124,58,237,.18)}.path-task-primary:hover{background:#6d28d9}.path-task-health h2{margin-top:12px}.path-task-health-row{display:flex;justify-content:space-between;gap:8px;margin-top:17px;padding-top:12px;border-top:1px solid #eee8f0;color:#766984;font-size:8px}.path-task-health-row strong{color:#5c4e69}.path-task-health-row span:last-child{color:#b77567}
         .path-task-support{margin:12px 0;border:1px solid #e5deeb;border-radius:12px;background:#fff;overflow:hidden}.path-task-support-head{display:flex;align-items:flex-end;justify-content:space-between;padding:13px 17px;border-bottom:1px solid #eee8f1}.path-task-support-head h2{margin:5px 0 0;font-family:'Manrope',sans-serif;font-size:14px;letter-spacing:-.04em}.path-task-text-btn{display:inline-flex;align-items:center;gap:5px;border:0;background:none;color:#713dca;font-size:9px;font-weight:800;cursor:pointer}.path-task-support-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto 13px;align-items:center;gap:9px;width:100%;min-height:50px;padding:0 17px;border:0;border-top:1px solid #f1edf4;background:transparent;text-align:left;cursor:pointer}.path-task-support-row:hover{background:#fcfbff}.path-task-copy{min-width:0}.path-task-copy strong,.path-task-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-copy strong{color:#574863;font-size:10px;font-weight:800}.path-task-copy small{margin-top:3px;color:#9b8e9f;font-size:8px}.path-task-badge{padding:4px 7px;border-radius:5px;background:#f1edf5;color:#796a85;font-size:8px;font-weight:800;white-space:nowrap}.path-task-badge.revision{background:#fff2cf;color:#97680d}.path-task-badge.review{background:#eee7fc;color:#7447bc}.path-task-badge.complete{background:#e7f6ef;color:#47836d}.path-task-sla{color:#6e9980;font-size:8px;font-weight:800;white-space:nowrap}.path-task-sla.risk{color:#bb7164}
         .path-task-register{margin-top:18px}.path-task-register-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px}.path-task-register-head h2{margin:5px 0 0;color:#44354e;font-family:'Manrope',sans-serif;font-size:20px;letter-spacing:-.05em}.path-task-register-head h2 b{display:inline-grid;min-width:20px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;font-size:9px;vertical-align:middle}.path-task-register-head > span{color:#91859e;font-size:9px}
-        .path-task-controls{display:flex;align-items:center;gap:8px;margin-bottom:10px}.path-task-search{display:flex;flex:1;align-items:center;gap:8px;min-width:180px;padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-task-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size:10px}.path-task-controls select,.path-task-date{height:34px;max-width:145px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#6d5f77;font-size:9px;outline:0}.path-task-table{overflow:hidden;border:1px solid #e3dce9;border-radius:12px;background:#fff}.path-task-table-head,.path-task-table-row{display:grid;grid-template-columns:minmax(240px,1.45fr) minmax(100px,.6fr) minmax(126px,.66fr) minmax(110px,.55fr) 34px;align-items:center;gap:14px}.path-task-table-head{padding:10px 17px;background:#faf8fc;color:#9b8fa4;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-table-row{min-height:66px;padding:0 17px;border-top:1px solid #f0ecf3;cursor:pointer}.path-task-table-row:hover,.path-task-table-row.active{background:#fdfbff}.path-task-table-row.active{box-shadow:inset 3px 0 #7c3aed}.path-task-row-main{display:grid;grid-template-columns:27px minmax(0,1fr) 13px;align-items:center;gap:8px;min-width:0}.path-task-row-main strong,.path-task-row-main small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-row-main strong{color:#50415c;font-size:10px;font-weight:800}.path-task-row-main small{margin-top:3px;color:#968a9d;font-size:8px}.path-task-deadline strong,.path-task-deadline small{display:block}.path-task-deadline strong{color:#6a5b76;font-size:9px}.path-task-deadline small{margin-top:3px;color:#6e9b80;font-size:8px;font-weight:800}.path-task-deadline small.late{color:#b96e62}.path-task-check{display:grid;width:23px;height:23px;place-items:center;border:1px solid #dfd6e8;border-radius:7px;background:#fff;cursor:pointer;color:#806e8f}.path-task-check input{accent-color:#7c3aed}.path-task-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 3px;color:#93879d;font-size:9px}.path-task-page-btn{display:inline-grid;width:25px;height:25px;place-items:center;border:1px solid #e2d9eb;border-radius:6px;background:#fff;color:#725c87;cursor:pointer}.path-task-page-btn:disabled{cursor:not-allowed;opacity:.4}
+        .path-task-controls{display:flex;align-items:center;gap:8px;margin-bottom:10px}.path-task-search{display:flex;flex:1;align-items:center;gap:8px;min-width:180px;padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-task-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size:10px}.path-task-controls select,.path-task-date{height:34px;max-width:145px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#6d5f77;font-size:9px;outline:0}.path-task-table{overflow:hidden;border:1px solid #e3dce9;border-radius:12px;background:#fff}.path-task-table-head,.path-task-table-row{display:grid;grid-template-columns:minmax(240px,1.45fr) minmax(100px,.6fr) minmax(126px,.66fr) minmax(110px,.55fr);align-items:center;gap:14px}.path-task-table-head{padding:10px 17px;background:#faf8fc;color:#9b8fa4;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-table-row{min-height:66px;padding:0 17px;border-top:1px solid #f0ecf3;cursor:pointer}.path-task-table-row:hover,.path-task-table-row.active{background:#fdfbff}.path-task-table-row.active{box-shadow:inset 3px 0 #7c3aed}.path-task-row-main{display:grid;grid-template-columns:27px minmax(0,1fr) 13px;align-items:center;gap:8px;min-width:0}.path-task-row-main strong,.path-task-row-main small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-row-main strong{color:#50415c;font-size:10px;font-weight:800}.path-task-row-main small{margin-top:3px;color:#968a9d;font-size:8px}.path-task-deadline strong,.path-task-deadline small{display:block}.path-task-deadline strong{color:#6a5b76;font-size:9px}.path-task-deadline small{margin-top:3px;color:#6e9b80;font-size:8px;font-weight:800}.path-task-deadline small.late{color:#b96e62}.path-task-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 3px;color:#93879d;font-size:9px}.path-task-handoff-footer{margin-top:10px;padding:12px 14px;border-top:1px solid #e9e3ee;color:#8e8299}.path-task-handoff-footer .path-task-text-btn{font-size:9px}.path-task-page-btn{display:inline-grid;width:25px;height:25px;place-items:center;border:1px solid #e2d9eb;border-radius:6px;background:#fff;color:#725c87;cursor:pointer}.path-task-page-btn:disabled{cursor:not-allowed;opacity:.4}
         .path-task-detail{position:fixed;z-index:55;top:0;right:0;display:flex;width:min(485px,94vw);height:100vh;flex-direction:column;border-left:1px solid #e3dbea;background:#fff;box-shadow:-18px 0 45px rgba(48,30,75,.17)}.path-task-detail-head{display:flex;align-items:flex-start;justify-content:space-between;padding:21px 22px 16px;border-bottom:1px solid #eee9f1}.path-task-detail-head small{color:#8067a5;font-size:9px;font-weight:800}.path-task-detail-head h2{margin:7px 0 0;color:#44354f;font-family:'Manrope',sans-serif;font-size:19px;letter-spacing:-.05em}.path-task-icon-btn{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e5deec;border-radius:7px;background:#fff;color:#7f6e8d;cursor:pointer}.path-task-detail-scroll{flex:1;overflow:auto;padding:18px 22px}.path-task-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}.path-task-detail-grid div{padding:10px;border:1px solid #eee8f2;border-radius:8px;background:#fcfbfd}.path-task-detail-grid small,.path-task-detail-grid strong{display:block}.path-task-detail-grid small{color:#9b8fa2;font-size:8px;font-weight:800;text-transform:uppercase}.path-task-detail-grid strong{margin-top:5px;color:#594967;font-size:10px}.path-task-detail-section{margin-top:18px}.path-task-detail-section h3{margin:0 0 9px;color:#8b7e96;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-task-detail-note{margin:0;color:#685a74;font-size:10px;line-height:1.6}.path-task-attachment{display:flex;align-items:center;gap:9px;width:100%;margin-top:7px;padding:9px;border:1px solid #e8e2ed;border-radius:8px;background:#fff;text-align:left;cursor:pointer}.path-task-attachment strong,.path-task-attachment small{display:block}.path-task-attachment strong{color:#584a64;font-size:10px}.path-task-attachment small{margin-top:3px;color:#927e9a;font-size:8px}.path-task-comment{padding:9px 0;border-bottom:1px solid #f1edf4}.path-task-comment strong{color:#5a4b65;font-size:9px}.path-task-comment p{margin:4px 0 0;color:#7c6e86;font-size:9px;line-height:1.5}.path-task-composer{margin-top:11px;border:1px solid #e3dbe9;border-radius:8px;overflow:hidden}.path-task-composer textarea{display:block;width:100%;min-height:54px;padding:9px;border:0;outline:0;resize:vertical;color:#55445f;font-size:10px}.path-task-composer-actions{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-top:1px solid #eee9f1;background:#faf8fc}.path-task-composer-actions button{border:0;background:transparent;color:#713dcc;font-size:9px;font-weight:800;cursor:pointer}.path-task-detail-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:13px 22px;border-top:1px solid #eee9f1}.path-task-detail-actions button{min-height:34px;border:1px solid #dfd5e8;border-radius:8px;background:#fff;color:#6a5877;font-size:9px;font-weight:800;cursor:pointer}.path-task-detail-actions .main{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-task-detail-actions .danger{border-color:#f0c9c4;color:#b65b52}
-        @media(max-width:900px){.path-task-body{padding:20px}.path-task-hero{align-items:flex-start;flex-direction:column}.path-task-hero-card{width:100%}.path-task-stats{grid-template-columns:repeat(2,1fr)}.path-task-stat:nth-child(2){border-right:0}.path-task-stat:nth-child(-n+2){border-bottom:1px solid #ebe5f0}.path-task-focus{grid-template-columns:1fr}.path-task-health{border-top:1px solid #ece5f0;border-left:0}.path-task-table-head{display:none}.path-task-table-row{grid-template-columns:minmax(0,1fr) auto 30px;gap:8px;padding:10px 12px}.path-task-table-row .path-task-deadline{display:none}.path-task-table-row .path-task-badge{grid-column:1;grid-row:2;width:max-content}.path-task-table-row .path-task-check{grid-column:3;grid-row:1 / 3}.path-task-support-row{grid-template-columns:30px minmax(0,1fr) auto 12px;padding:0 13px}.path-task-support-row .path-task-sla{display:none}.path-task-controls{flex-wrap:wrap}.path-task-search{min-width:100%}.path-task-controls select,.path-task-date{flex:1;max-width:none}}
+        @media(max-width:900px){.path-task-body{padding:20px}.path-task-hero{align-items:flex-start;flex-direction:column}.path-task-hero-card{width:100%}.path-task-stats{grid-template-columns:repeat(2,1fr)}.path-task-stat:nth-child(2){border-right:0}.path-task-stat:nth-child(-n+2){border-bottom:1px solid #ebe5f0}.path-task-focus{grid-template-columns:1fr}.path-task-health{border-top:1px solid #ece5f0;border-left:0}.path-task-table-head{display:none}.path-task-table-row{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px 12px}.path-task-table-row .path-task-deadline{display:none}.path-task-table-row .path-task-badge{grid-column:1;grid-row:2;width:max-content}.path-task-support-row{grid-template-columns:30px minmax(0,1fr) auto 12px;padding:0 13px}.path-task-support-row .path-task-sla{display:none}.path-task-controls{flex-wrap:wrap}.path-task-search{min-width:100%}.path-task-controls select,.path-task-date{flex:1;max-width:none}}
         @media(max-width:620px){.path-task-body{padding:18px 16px}.path-task-hero{padding:20px}.path-task-hero h1{font-size:25px}.path-task-role{align-items:flex-start;flex-direction:column;gap:9px}.path-task-register-head{align-items:flex-start;flex-direction:column}.path-task-support-head{align-items:flex-start}.path-task-detail{width:100vw}.path-task-detail-grid{grid-template-columns:1fr}.path-task-controls select{min-width:0}.path-task-footer{gap:9px}.path-task-footer > span{max-width:190px}.path-task-stats{margin-bottom:12px}.path-task-stat{min-height:82px;padding:13px}.path-task-stat strong{font-size:22px}}
       `}</style>
       <Sidebar activePage="tasks" />
@@ -955,7 +956,6 @@ function PathTasksWorkspace({
                   <span>Status</span>
                   <span>Deadline</span>
                   <span>Priority</span>
-                  <span />
                 </div>
                 {loading ? (
                   <div
@@ -1019,72 +1019,19 @@ function PathTasksWorkspace({
                       >
                         {task.priority || "Medium"}
                       </span>
-                      <label
-                        className="path-task-check"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checkedIds.includes(task.id)}
-                          onChange={() => toggleCheck(task.id)}
-                          aria-label={`Select ${task.title || "task"}`}
-                        />
-                      </label>
                     </article>
                   ))
                 )}
               </div>
-              <footer className="path-task-footer">
-                <span>
-                  {filteredTasks.length
-                    ? `Showing ${Math.min((taskPage - 1) * 5 + 1, filteredTasks.length)}–${Math.min(taskPage * 5, filteredTasks.length)} of ${filteredTasks.length} tasks`
-                    : "No tasks to show"}
-                </span>
-                <span>
-                  <button
-                    className="path-task-text-btn"
-                    type="button"
-                    onClick={() => {
-                      setSelectAll(!selectAll);
-                      setCheckedIds(
-                        !selectAll ? filteredTasks.map((task) => task.id) : [],
-                      );
-                    }}
-                  >
-                    {selectAll ? "Clear selection" : "Select all"}
-                  </button>
-                  {checkedIds.length > 0 && (
-                    <button
-                      className="path-task-text-btn"
-                      type="button"
-                      style={{ marginLeft: 10 }}
-                      onClick={handleArchive}
-                    >
-                      Archive {checkedIds.length}
-                    </button>
-                  )}
-                </span>
-                <span>
-                  <button
-                    className="path-task-page-btn"
-                    type="button"
-                    disabled={taskPage === 1}
-                    onClick={() => setTaskPage((page) => Math.max(1, page - 1))}
-                  >
-                    ‹
-                  </button>
-                  <button
-                    className="path-task-page-btn"
-                    type="button"
-                    style={{ marginLeft: 4 }}
-                    disabled={taskPage === totalTaskPages}
-                    onClick={() =>
-                      setTaskPage((page) => Math.min(totalTaskPages, page + 1))
-                    }
-                  >
-                    ›
-                  </button>
-                </span>
+              <footer className="path-task-footer path-task-handoff-footer">
+                <span>{activeCount} active handoffs remain in your desk.</span>
+                <button
+                  className="path-task-text-btn"
+                  type="button"
+                  onClick={onViewAssigned}
+                >
+                  View all assigned tasks ↗
+                </button>
               </footer>
             </section>
           </div>
@@ -2005,6 +1952,7 @@ export default function MyTasks() {
       fmtDeadline={fmtDeadline}
       fmtDateTime={fmtDateTime}
       onOpenDocumentReview={openDocumentReview}
+      onViewAssigned={() => navigate("/assigned")}
       onLogout={handleLogout}
     />
   );
