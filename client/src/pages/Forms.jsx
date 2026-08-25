@@ -2570,10 +2570,9 @@ export default function Forms() {
         .path-forms-start-active .path-forms-default-header>div:first-child{padding-left:13px;border-left:2px solid #bca5ef}
         .path-forms-start-active .path-forms-default-header h1{margin:8px 0 7px!important;color:#34283d!important;font-family:'Manrope',sans-serif!important;font-size:clamp(31px,3vw,42px)!important;font-weight:800!important;letter-spacing:-.06em!important;line-height:1!important}
         .path-forms-start-active .path-forms-default-header p{max-width:610px;margin:0!important;color:#8f8398!important;font-size:11px!important;line-height:1.6!important}
-        .path-forms-start-active .path-start-breadcrumb{gap:8px!important;margin:0!important;color:#988da0!important;font-size:9px!important;font-weight:800!important;letter-spacing:.12em;text-transform:uppercase}
-        .path-forms-start-active .path-start-breadcrumb span:nth-child(even){display:none}
-        .path-forms-start-active .path-start-breadcrumb span:last-child{color:#988da0!important;font-weight:800!important}
-        .path-forms-start-active .path-forms-default-header>div:last-child{padding:3px;border:1px solid #e8e0f0!important;background:#fff!important;box-shadow:0 6px 18px rgba(57,36,93,.04)}
+        .path-start-back{display:inline-flex;align-items:center;gap:6px;border:0;padding:0;background:transparent;color:#7543c7;font:800 10px 'DM Sans',sans-serif;cursor:pointer}.path-start-back span{font-size:15px;line-height:1}
+        .path-forms-start-active .path-start-breadcrumb{display:flex;align-items:center;gap:8px;margin-top:19px!important;color:#978c9e!important;font-size:9px!important;font-weight:800!important;letter-spacing:.12em;text-transform:uppercase}.path-forms-start-active .path-start-breadcrumb i{width:6px;height:6px;border-radius:50%;background:#b596e8}
+        .path-start-traceability{display:flex;max-width:270px;gap:10px;padding:12px;border:1px solid #e9e0f2;border-radius:10px;background:#fff;box-shadow:0 6px 18px rgba(57,36,93,.04)}.path-start-traceability>span{display:grid;flex:0 0 auto;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee6fc;color:#7543c7}.path-start-traceability>span svg{width:16px;height:16px}.path-start-traceability strong,.path-start-traceability small{display:block}.path-start-traceability strong{color:#5d4e66;font-size:9px;font-weight:800}.path-start-traceability small{margin-top:3px;color:#9e92a4;font-size:8px;line-height:1.45}
         .path-faculty-start-shell{width:100%}
         .path-faculty-start-shell>div{gap:18px!important}
         .path-faculty-start-shell h2{font-family:'Manrope',sans-serif!important;letter-spacing:-.04em}
@@ -2816,24 +2815,18 @@ export default function Forms() {
           >
             <div>
               {activeTab === "submit" && !isProgramChair && (
-                <div
-                  className="path-start-breadcrumb"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: "#9ca3af",
-                    marginBottom: 6,
-                  }}
-                >
-                  <span>Faculty intake</span>
-                  <span style={{ fontSize: 13 }}>›</span>
-                  <span style={{ color: "#7c3aed", fontWeight: 700 }}>
-                    Guided submission
-                  </span>
-                </div>
+                <>
+                  <button
+                    className="path-start-back"
+                    type="button"
+                    onClick={() => setActiveTab("history")}
+                  >
+                    <span>←</span> Back to submissions
+                  </button>
+                  <div className="path-start-breadcrumb">
+                    <i /> Faculty intake · guided submission
+                  </div>
+                </>
               )}
               <h1
                 style={{
@@ -2851,93 +2844,63 @@ export default function Forms() {
               </h1>
               <p style={{ fontSize: 14, color: "#494454", margin: "8px 0 0" }}>
                 {activeTab === "submit" && !isProgramChair
-                  ? "Choose a form type, add the required files and context, then send the submission into review."
+                  ? "Prepare the right document, add the required context, and send it into your department's review workflow."
                   : isProgramChair
                     ? "Review, approve, and manage submitted student forms."
                     : "Upload and submit student forms for program chair review."}
               </p>
             </div>
-            {/* Tabs */}
-            <div
-              style={{
-                display: "flex",
-                gap: 2,
-                background: "#efebff",
-                borderRadius: 10,
-                padding: 3,
-              }}
-            >
-              {!isProgramChair && (
-                <button
-                  onClick={() => setActiveTab("submit")}
-                  style={{
-                    padding: "6px 16px",
-                    borderRadius: 8,
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background:
-                      activeTab === "submit" ? "white" : "transparent",
-                    color: activeTab === "submit" ? "#6d3bd7" : "#7b7486",
-                    boxShadow:
-                      activeTab === "submit"
-                        ? "0 1px 4px rgba(109,59,215,0.1)"
-                        : "none",
-                  }}
-                >
-                  Start a submission
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  setActiveTab(isProgramChair ? "review" : "history");
-                  setPendingBadge(0);
-                }}
+            {activeTab === "submit" && !isProgramChair ? (
+              <aside className="path-start-traceability">
+                <span>
+                  <Icon.Shield />
+                </span>
+                <div>
+                  <strong>Every handoff is traceable</strong>
+                  <small>
+                    Your draft, file, and workflow activity remain linked in
+                    PATH.
+                  </small>
+                </div>
+              </aside>
+            ) : (
+              /* Tabs */
+              <div
                 style={{
-                  padding: "6px 16px",
-                  borderRadius: 8,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  background:
-                    activeTab === "review" || activeTab === "history"
-                      ? "white"
-                      : "transparent",
-                  color:
-                    activeTab === "review" || activeTab === "history"
-                      ? "#6d3bd7"
-                      : "#7b7486",
-                  boxShadow:
-                    activeTab === "review" || activeTab === "history"
-                      ? "0 1px 4px rgba(109,59,215,0.1)"
-                      : "none",
-                  position: "relative",
+                  display: "flex",
+                  gap: 2,
+                  background: "#efebff",
+                  borderRadius: 10,
+                  padding: 3,
                 }}
               >
-                {isProgramChair ? "Review Queue" : "My Submissions"}
-                {/* Inline badge on the tab button */}
-                {isProgramChair && pendingBadge > 0 && (
-                  <span
+                {!isProgramChair && (
+                  <button
+                    onClick={() => setActiveTab("submit")}
                     style={{
-                      marginLeft: 6,
-                      background: "#dc2626",
-                      color: "white",
-                      borderRadius: 20,
-                      fontSize: 9,
-                      fontWeight: 800,
-                      padding: "1px 6px",
-                      animation: "pulse 1.5s infinite",
+                      padding: "6px 16px",
+                      borderRadius: 8,
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      background:
+                        activeTab === "submit" ? "white" : "transparent",
+                      color: activeTab === "submit" ? "#6d3bd7" : "#7b7486",
+                      boxShadow:
+                        activeTab === "submit"
+                          ? "0 1px 4px rgba(109,59,215,0.1)"
+                          : "none",
                     }}
                   >
-                    {pendingBadge}
-                  </span>
+                    Start a submission
+                  </button>
                 )}
-              </button>
-              {isProgramChair && (
                 <button
-                  onClick={() => setActiveTab("templates")}
+                  onClick={() => {
+                    setActiveTab(isProgramChair ? "review" : "history");
+                    setPendingBadge(0);
+                  }}
                   style={{
                     padding: "6px 16px",
                     borderRadius: 8,
@@ -2946,18 +2909,63 @@ export default function Forms() {
                     fontSize: 12,
                     fontWeight: 700,
                     background:
-                      activeTab === "templates" ? "white" : "transparent",
-                    color: activeTab === "templates" ? "#6d3bd7" : "#7b7486",
+                      activeTab === "review" || activeTab === "history"
+                        ? "white"
+                        : "transparent",
+                    color:
+                      activeTab === "review" || activeTab === "history"
+                        ? "#6d3bd7"
+                        : "#7b7486",
                     boxShadow:
-                      activeTab === "templates"
+                      activeTab === "review" || activeTab === "history"
                         ? "0 1px 4px rgba(109,59,215,0.1)"
                         : "none",
+                    position: "relative",
                   }}
                 >
-                  Form Templates
+                  {isProgramChair ? "Review Queue" : "My Submissions"}
+                  {/* Inline badge on the tab button */}
+                  {isProgramChair && pendingBadge > 0 && (
+                    <span
+                      style={{
+                        marginLeft: 6,
+                        background: "#dc2626",
+                        color: "white",
+                        borderRadius: 20,
+                        fontSize: 9,
+                        fontWeight: 800,
+                        padding: "1px 6px",
+                        animation: "pulse 1.5s infinite",
+                      }}
+                    >
+                      {pendingBadge}
+                    </span>
+                  )}
                 </button>
-              )}
-            </div>
+                {isProgramChair && (
+                  <button
+                    onClick={() => setActiveTab("templates")}
+                    style={{
+                      padding: "6px 16px",
+                      borderRadius: 8,
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      background:
+                        activeTab === "templates" ? "white" : "transparent",
+                      color: activeTab === "templates" ? "#6d3bd7" : "#7b7486",
+                      boxShadow:
+                        activeTab === "templates"
+                          ? "0 1px 4px rgba(109,59,215,0.1)"
+                          : "none",
+                    }}
+                  >
+                    Form Templates
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Stat Cards */}
