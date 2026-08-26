@@ -1285,21 +1285,20 @@ function FacultySubmissionsWorkspace({
                     </div>
                   </div>
                   <div className="faculty-submissions-actions">
-                    {statusClass(statusFor(selected)) === "returned" ? (
+                    <button
+                      className="primary"
+                      type="button"
+                      onClick={() => onActivity(selected)}
+                    >
+                      View activity
+                    </button>
+                    {statusClass(statusFor(selected)) === "returned" && (
                       <button
                         className="return"
                         type="button"
                         onClick={() => onResubmit(selected)}
                       >
                         Update and resubmit
-                      </button>
-                    ) : (
-                      <button
-                        className="primary"
-                        type="button"
-                        onClick={() => onActivity(selected)}
-                      >
-                        View activity
                       </button>
                     )}
                     <button type="button" onClick={onStartSubmission}>
