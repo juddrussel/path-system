@@ -304,14 +304,21 @@ export default function TaskDetail() {
     task?.trackingId ||
     (task?.id ? `TASK-${task.id}` : "TASK");
   const taskTitle = task?.title || "Task details";
-  const taskDescription =
-    task?.description ||
+  const assignedObjective =
+    task?.notes ||
+    task?.content ||
+    task?.objective ||
+    task?.objectives ||
     task?.instructions ||
+    task?.description ||
+    "";
+  const taskDescription =
+    assignedObjective ||
     "Review the task brief, attach the required evidence, and keep the decision trail with this handoff.";
   const taskInstructions =
-    task?.instructions ||
-    task?.description ||
+    assignedObjective ||
     "Complete the requested work, check source records, and provide a concise submission note for the reviewer.";
+  const hasAssignedObjective = Boolean(assignedObjective);
   const submissions =
     task?.submissions || task?.submitted_files || task?.submission_files || [];
   const attachments =
@@ -747,15 +754,25 @@ export default function TaskDetail() {
                       <Icon name="file" />
                     </span>
                     <div>
-                      <span>Instructions</span>
-                      <h2>Complete the record with confidence</h2>
+                      <span>
+                        {hasAssignedObjective
+                          ? "Chair/Admin task brief"
+                          : "Instructions"}
+                      </span>
+                      <h2>
+                        {hasAssignedObjective
+                          ? "Content and objectives"
+                          : "Complete the record with confidence"}
+                      </h2>
                     </div>
                   </div>
                   <div className="td-copy">
                     <p>{taskInstructions}</p>
                     <ol>
                       <li>
-                        Review the task brief and any linked source record.
+                        {hasAssignedObjective
+                          ? "Follow the content and objective set by the Program Chair/Admin above."
+                          : "Review the task brief and any linked source record."}
                       </li>
                       <li>
                         Confirm the required information before sending a
