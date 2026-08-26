@@ -307,6 +307,39 @@ export default function TaskDetail() {
   const latestSubmission = submissions.length
     ? submissions[submissions.length - 1]
     : null;
+  const latestSubmissionName =
+    latestSubmission?.file_name || latestSubmission?.name || "Submitted work";
+  const latestSubmissionUrl = resolveFileUrl(
+    api,
+    latestSubmission?.file_url ||
+      latestSubmission?.url ||
+      latestSubmission?.path ||
+      latestSubmission?.file_path,
+  );
+  const latestSubmissionExtension = latestSubmissionName
+    .split(".")
+    .pop()
+    ?.toLowerCase();
+  const isLatestSubmissionImage = [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp",
+  ].includes(latestSubmissionExtension || "");
+  const isLatestSubmissionPdf = latestSubmissionExtension === "pdf";
+  const isLatestSubmissionOffice = [
+    "doc",
+    "docx",
+    "xls",
+    "xlsx",
+    "ppt",
+    "pptx",
+  ].includes(latestSubmissionExtension || "");
+  const latestSubmissionEmbedUrl =
+    isLatestSubmissionOffice && latestSubmissionUrl
+      ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(latestSubmissionUrl)}`
+      : latestSubmissionUrl;
   const hasFacultySubmission = Boolean(latestSubmission);
   const decisionStatus =
     !hasFacultySubmission && isChair
@@ -540,7 +573,7 @@ export default function TaskDetail() {
         .td-layout{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(280px,.56fr);align-items:start;gap:16px;margin-top:16px}.td-main-column{display:flex;flex-direction:column;gap:16px}.td-card,.td-side-card{border:1px solid #e8e1ed;border-radius:14px;background:#fff;box-shadow:0 10px 25px rgba(73,44,105,.035)}.td-card{padding:21px}.td-section-title{display:flex;align-items:center;gap:10px}.td-icon{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fb;color:#7043bb}.td-section-title>div>span,.td-side-label{display:block;color:#998b9f;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.td-section-title h2{margin:3px 0 0;color:#4b3858;font:800 16px Manrope,sans-serif;letter-spacing:-.045em}.td-meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 20px;margin-top:21px;padding-top:18px;border-top:1px solid #f0ebf3}.td-meta>span{display:flex;align-items:center;gap:5px;color:#9b8da2;font-size:8px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.td-meta>strong{display:flex;align-items:center;gap:6px;margin-top:8px;color:#56405f;font-size:10px;line-height:1.35}.td-avatar{display:grid;width:20px;height:20px;place-items:center;border-radius:6px;background:#eee7fb;color:#7545bd;font-size:8px}.td-priority{color:#bd6257}.td-deadline-value{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.td-deadline-value button,.td-deadline-actions button{border:1px solid #dccdea;border-radius:5px;padding:4px 6px;background:#faf8fd;color:#7549a3;font-size:7px;font-weight:800;cursor:pointer}.td-deadline-editor{display:grid;gap:6px;margin-top:5px}.td-deadline-editor input{width:100%;padding:7px;border:1px solid #d9cbe6;border-radius:6px;color:#594668;font-size:8px}.td-deadline-actions{display:flex;gap:6px}.td-deadline-actions button:last-child{border-color:#7c3aed;background:#7c3aed;color:#fff}.td-field-error{margin:0;color:#b55e51;font-size:8px;line-height:1.4}
         .td-copy{padding:17px 0 2px;color:#6a5a73;font-size:10px;line-height:1.65}.td-copy p{margin:0}.td-copy ol{display:grid;gap:4px;margin:13px 0 0;padding-left:17px}.td-file-card{display:flex;align-items:center;gap:10px;width:100%;margin-top:15px;padding:11px;border:1px solid #e0d5ef;border-radius:10px;background:#fcfaff;color:#633f8b;text-align:left;cursor:pointer}.td-file-card>span{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#e9ddfb}.td-file-card>div{flex:1;min-width:0}.td-file-card strong,.td-file-card small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.td-file-card strong{font-size:10px;font-weight:800}.td-file-card small{margin-top:3px;color:#9a88a6;font-size:8px}.td-file-card>svg{color:#7e57b2}
         .td-submission-intro{margin:15px 0 0;color:#8d7e98;font-size:10px;line-height:1.55}.td-return-guidance{margin-top:13px;padding:11px;border:1px solid #edd9bb;border-left:3px solid #c58644;border-radius:8px;background:#fff9ef}.td-return-guidance span{display:block;color:#996d37;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.td-return-guidance p{margin:6px 0 0;color:#70543a;font-size:9px;line-height:1.55}.td-upload-button{display:flex;align-items:center;gap:10px;width:100%;margin-top:14px;padding:11px;border:1px dashed #cdbbe6;border-radius:9px;background:#fcfaff;color:#7044a3;text-align:left;cursor:pointer}.td-upload-button.selected{border-style:solid;border-color:#bee0cf;background:#f5fbf8;color:#478d6c}.td-upload-button>span{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#ece2fb}.td-upload-button>div{flex:1;min-width:0}.td-upload-button strong,.td-upload-button small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.td-upload-button strong{font-size:10px;font-weight:800}.td-upload-button small{margin-top:3px;color:#9a8ba6;font-size:8px}.td-note-label{display:block;margin-top:12px;color:#806f8b;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.td-note-label textarea,.td-composer textarea,.td-return-form textarea{display:block;width:100%;margin-top:7px;padding:10px;border:1px solid #e2d9e9;border-radius:9px;outline:0;resize:vertical;color:#5d4867;font:10px 'DM Sans',sans-serif;line-height:1.5}.td-submit{display:inline-flex;align-items:center;gap:6px;margin-top:12px;border:0;border-radius:8px;padding:9px 11px;background:#7c3aed;color:#fff;font-size:9px;font-weight:800;cursor:pointer;box-shadow:0 7px 14px rgba(124,58,237,.16)}.td-submit:disabled{opacity:.55;cursor:not-allowed}
-        .td-submitted-intro{margin:13px 0 0;color:#8b7d96;font-size:10px;line-height:1.5}.td-note-block{margin-top:13px;padding:12px;border:1px solid #eadff3;border-left:3px solid #8b5cf6;border-radius:9px;background:#fcfaff}.td-note-block span{display:block;color:#8b759f;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.td-note-block p{margin:7px 0 0;color:#5e496b;font-size:10px;line-height:1.6}.td-file-preview{margin-top:14px;border:1px solid #e2d8ea;border-radius:10px;overflow:hidden;background:#faf8fc}.td-file-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-bottom:1px solid #e7e0ec;background:#fff}.td-file-preview-head>span{display:flex;align-items:center;gap:5px;color:#8a7b94;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.td-file-preview-head div{display:flex;align-items:center;gap:7px;min-width:0}.td-file-preview-head strong{overflow:hidden;color:#594568;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.td-file-preview-head small{color:#9d91a5;font-size:8px;white-space:nowrap}.td-file-preview canvas{display:block;width:100%;min-height:124px;background:linear-gradient(135deg,#f4eefb,#fbfaff)}.td-file-preview button{display:block;width:100%;border:0;padding:9px;background:#fff;color:#7650a3;font-size:8px;font-weight:800;cursor:pointer}
+        .td-submitted-intro{margin:13px 0 0;color:#8b7d96;font-size:10px;line-height:1.5}.td-note-block{margin-top:13px;padding:12px;border:1px solid #eadff3;border-left:3px solid #8b5cf6;border-radius:9px;background:#fcfaff}.td-note-block span{display:block;color:#8b759f;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.td-note-block p{margin:7px 0 0;color:#5e496b;font-size:10px;line-height:1.6}.td-file-preview{margin-top:14px;border:1px solid #e2d8ea;border-radius:10px;overflow:hidden;background:#faf8fc}.td-file-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-bottom:1px solid #e7e0ec;background:#fff}.td-file-preview-head>span{display:flex;align-items:center;gap:5px;color:#8a7b94;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.td-file-preview-head div{display:flex;align-items:center;gap:7px;min-width:0}.td-file-preview-head strong{overflow:hidden;color:#594568;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.td-file-preview-head small{color:#9d91a5;font-size:8px;white-space:nowrap}.td-file-preview-frame{display:block;width:100%;height:420px;border:0;background:#f4eefb}.td-file-preview-image{display:block;width:100%;max-height:540px;object-fit:contain;background:#f4eefb}.td-file-preview-fallback{display:flex;min-height:176px;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:22px;background:linear-gradient(135deg,#f4eefb,#fbfaff);color:#84758f;text-align:center}.td-file-preview-fallback strong{color:#60496e;font-size:10px}.td-file-preview-fallback span{max-width:330px;font-size:8px;line-height:1.55}.td-file-preview button{display:block;width:100%;border:0;padding:9px;background:#fff;color:#7650a3;font-size:8px;font-weight:800;cursor:pointer}
         .td-lineage-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.td-lineage-count{padding-top:3px;color:#8c7e98;font-size:8px;font-weight:800}.td-lineage-copy{margin:12px 0 0;color:#8f8199;font-size:9px;line-height:1.5}.td-lineage{position:relative;display:grid;margin-top:16px}.td-lineage:before{position:absolute;top:14px;bottom:14px;left:14px;width:1px;background:#e2d8ea;content:''}.td-lineage-row{position:relative;display:grid;grid-template-columns:29px minmax(0,1fr) max-content;gap:11px;padding:11px 0}.td-lineage-row+.td-lineage-row{border-top:1px solid #f0ebf3}.td-version{position:relative;z-index:1;display:grid;width:29px;height:29px;place-items:center;border:1px solid #d9cdec;border-radius:50%;background:#faf8fc;color:#7650a3;font-size:8px;font-weight:800}.td-version.current{border-color:#9a75d4;background:#f0e7ff;box-shadow:0 0 0 4px #fff}.td-lineage-main h3{display:flex;align-items:center;gap:7px;margin:1px 0 0;color:#55405f;font-size:10px;font-weight:800}.td-badge{padding:3px 5px;border-radius:4px;background:#eee7fb;color:#7044ad;font-size:7px}.td-badge.returned{background:#fff0db;color:#956d22}.td-badge.approved{background:#e7f5ed;color:#4b8f6c}.td-lineage-main p{margin:5px 0 0;color:#8c7e97;font-size:8px;line-height:1.45}.td-lineage-meta{display:flex;align-items:center;gap:5px;margin-top:7px;color:#a093a8;font-size:8px}.td-preview-pill{display:inline-flex;align-items:center;gap:6px;min-height:28px;border:1px solid #ded4e6;border-radius:999px;padding:4px 5px 4px 8px;background:#fff;color:#746082;font-size:8px;cursor:pointer}.td-preview-pill span{display:grid;width:18px;height:18px;place-items:center;border-radius:50%;background:#f1eafa;color:#7142aa}
         .td-discussion-empty{margin:17px 0 0;color:#9b8fa1;font-size:10px;font-style:italic}.td-comments{display:grid;gap:9px;margin-top:15px}.td-comment{display:flex;gap:8px;padding:10px;border:1px solid #f0ebf3;border-radius:9px;background:#fdfcff}.td-comment>span{display:grid;width:25px;height:25px;place-items:center;border-radius:7px;background:#ebe2fb;color:#7043ba;font-size:8px;font-weight:800}.td-comment div{flex:1}.td-comment strong{color:#5b4766;font-size:9px}.td-comment time{margin-left:7px;color:#a394a8;font-size:8px}.td-comment p{margin:5px 0 0;color:#75657d;font-size:9px;line-height:1.5}.td-composer{position:relative;margin-top:15px;border:1px solid #e4dce9;border-radius:10px;overflow:hidden}.td-composer textarea{margin:0;min-height:75px;padding-bottom:40px;border:0;border-radius:0}.td-composer button{position:absolute;right:7px;bottom:7px;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:7px;padding:7px 9px;background:#7c3aed;color:#fff;font-size:8px;font-weight:800;cursor:pointer}
         .td-side{position:sticky;top:18px;display:flex;flex-direction:column;gap:13px}.td-decision{overflow:hidden;border:1px solid #decff0;border-radius:14px;background:linear-gradient(150deg,#f5efff,#fcfaff 58%,#fff);box-shadow:0 12px 26px rgba(79,44,119,.055)}.td-decision-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid #e6daef}.td-decision-head>span{color:#825c9b;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.td-state{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:5px 7px;background:#f0e6ff;color:#7244ac;font-size:8px;font-weight:800}.td-state.waiting{background:#fff3da;color:#9a7225}.td-state.approved{background:#e7f6ed;color:#478d6c}.td-state.returned{background:#feeae6;color:#b05d51}.td-decision h2{margin:17px 15px 6px;color:#51395d;font:800 17px Manrope,sans-serif;letter-spacing:-.05em;line-height:1.16}.td-decision>p{margin:0 15px 16px;color:#8a7996;font-size:9px;line-height:1.55}.td-action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 15px 15px}.td-action-buttons button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:33px;border-radius:8px;font-size:9px;font-weight:800;cursor:pointer}.td-approve{border:1px solid #7c3aed;background:#7c3aed;color:#fff}.td-return{border:1px solid #d8c8e8;background:#fff;color:#76538d}.td-action-buttons button:disabled{background:#e7e1ea;border-color:#e7e1ea;color:#a89fad;cursor:not-allowed}.td-return-form{display:grid;gap:8px;margin:0 15px 15px;padding:11px;border:1px solid #ead5c2;border-radius:9px;background:#fffaf3}.td-return-form label{color:#8b693a;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.td-return-form textarea{min-height:76px;margin-top:0;border-color:#e7d8c8;font-size:9px}.td-return-form-actions{display:flex;justify-content:flex-end;gap:7px}.td-return-form-actions button{border-radius:6px;padding:7px 9px;font-size:8px;font-weight:800;cursor:pointer}.td-return-form-actions button:first-child{border:1px solid #e1d5ca;background:#fff;color:#8c7969}.td-return-form-actions button:last-child{border:1px solid #a95d44;background:#a95d44;color:#fff}.td-side-card{padding:15px}.td-readiness{display:grid;gap:8px;margin-top:12px}.td-readiness span{display:flex;align-items:center;gap:6px;color:#7f6f87;font-size:9px;font-weight:700}.td-readiness b{display:grid;width:12px;height:12px;place-items:center;border:1px solid #d7cddb;border-radius:50%;font-size:8px}.td-readiness span.complete{color:#549073}.td-readiness span.complete b{border-color:transparent;background:#e7f6ed;color:#4b8f6c}.td-side-card p{margin:9px 0 0;color:#93859d;font-size:9px;line-height:1.55}
@@ -876,27 +909,44 @@ export default function TaskDetail() {
                           <Icon name="file" size={13} /> Submitted file
                         </span>
                         <div>
-                          <strong>
-                            {latestSubmission.file_name ||
-                              latestSubmission.name ||
-                              "Submitted work"}
-                          </strong>
+                          <strong>{latestSubmissionName}</strong>
                           <small>{formatSize(latestSubmission.size)}</small>
                         </div>
                       </div>
-                      <canvas aria-label="Read-only document preview placeholder" />
+                      {latestSubmissionUrl && isLatestSubmissionImage ? (
+                        <img
+                          className="td-file-preview-image"
+                          src={latestSubmissionUrl}
+                          alt={`Preview of ${latestSubmissionName}`}
+                        />
+                      ) : latestSubmissionUrl &&
+                        (isLatestSubmissionPdf || isLatestSubmissionOffice) ? (
+                        <iframe
+                          className="td-file-preview-frame"
+                          src={latestSubmissionEmbedUrl}
+                          title={`Inline preview of ${latestSubmissionName}`}
+                        />
+                      ) : (
+                        <div className="td-file-preview-fallback">
+                          <Icon name="file" size={24} />
+                          <strong>
+                            {latestSubmissionUrl
+                              ? "This file opens in the document viewer"
+                              : "The uploaded file link is unavailable"}
+                          </strong>
+                          <span>
+                            {latestSubmissionUrl
+                              ? "Use Open inline preview to view or download this file."
+                              : "Refresh the task or ask the faculty member to upload the file again."}
+                          </span>
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={() =>
                           previewFile({
-                            name:
-                              latestSubmission.file_name ||
-                              latestSubmission.name ||
-                              "Submitted work",
-                            url: resolveFileUrl(
-                              api,
-                              latestSubmission.file_url || latestSubmission.url,
-                            ),
+                            name: latestSubmissionName,
+                            url: latestSubmissionUrl,
                             size: latestSubmission.size,
                             label: "Latest submission",
                           })
