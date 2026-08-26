@@ -79,7 +79,7 @@ function AppRoutes() {
       <Route path="/sla-configuration" element={<SLAConfiguration/>} />
       <Route path="/notifications" element={<Notifications/>} />
       <Route path="/document-review/:id" element={<DocumentReview />} />
-      <Route path="/task-details/ :id" element={<TaskDetail />} />
+      <Route path="/task-details/:id" element={<TaskDetail />} />
     </Routes>
   );
 }

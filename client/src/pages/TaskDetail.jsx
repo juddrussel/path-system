@@ -3,6 +3,14 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 
+/*
+  Router integration requirement (React Router v6):
+  <Route path="/task-details/:id" element={<TaskDetail />} />
+
+  Do not include a space before `:id`; `/task-details/ :id` does not match
+  `/task-details/74` and results in a blank route.
+*/
+
 const ADMIN_ROLES = ["admin", "program_chair"];
 
 const statusInfo = (status) => {
@@ -199,7 +207,8 @@ function FileCard({ file, api, onPreview, label = "Attached file" }) {
 export default function TaskDetail() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { taskId } = useParams();
+  const params = useParams();
+  const taskId = params.taskId || params.id || params.task_id;
   const token = localStorage.getItem("token");
   const user = useMemo(() => getUser(token), [token]);
   const isChair = ADMIN_ROLES.includes(user.role);
