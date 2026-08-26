@@ -596,7 +596,7 @@ function PathTasksWorkspace({
   fmtDate,
   fmtDeadline,
   fmtDateTime,
-  onOpenDocumentReview,
+  onOpenTaskDetails,
   onViewAssigned,
   onLogout,
 }) {
@@ -801,9 +801,9 @@ function PathTasksWorkspace({
                     <button
                       type="button"
                       className="path-task-primary"
-                      onClick={() => onOpenDocumentReview(primaryTask)}
+                      onClick={() => onOpenTaskDetails(primaryTask)}
                     >
-                      Open document ↗
+                      Open task details ↗
                     </button>
                   </>
                 ) : (
@@ -857,7 +857,7 @@ function PathTasksWorkspace({
                     key={task.id}
                     className="path-task-support-row"
                     type="button"
-                    onClick={() => onOpenDocumentReview(task)}
+                    onClick={() => onOpenTaskDetails(task)}
                   >
                     <span className={`path-task-file ${priorityClass(task)}`}>
                       <Icon.Forms />
@@ -984,7 +984,7 @@ function PathTasksWorkspace({
                     <article
                       key={task.id}
                       className={`path-task-table-row ${selected?.id === task.id ? "active" : ""}`}
-                      onClick={() => onOpenDocumentReview(task)}
+                      onClick={() => onOpenTaskDetails(task)}
                     >
                       <div className="path-task-row-main">
                         <span
@@ -1257,7 +1257,7 @@ function PathAssignedWorkspace({
   detailLoading,
   fetchSelectedTask,
   handleApprove,
-  onOpenDocumentReview,
+  onOpenTaskDetails,
   onBack,
   onLogout,
   fmtDeadline,
@@ -1605,9 +1605,9 @@ function PathAssignedWorkspace({
                           <button
                             className="violet"
                             type="button"
-                            onClick={() => onOpenDocumentReview(selected)}
+                            onClick={() => onOpenTaskDetails(selected)}
                           >
-                            View document
+                            View task details
                           </button>
                         </div>
                       </>
@@ -1852,66 +1852,30 @@ export default function MyTasks() {
     [API, token],
   );
 
-  const openDocumentReview = useCallback(
-    async (task) => {
-      if (!task) return;
-
-      const getFormId = (record) =>
-        record?.form_id ||
-        record?.formId ||
-        record?.submission_id ||
-        record?.submissionId ||
-        record?.form?.id ||
-        record?.document?.form_id ||
-        record?.document?.id ||
-        record?.document_id;
-
-      let formId = getFormId(task);
-
-      try {
-        if (!formId && task.id) {
-          const detailRes = await fetch(`${API}/api/tasks/${task.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (detailRes.ok) {
-            const detailData = await detailRes.json();
-            formId = getFormId(detailData.task || detailData);
-          }
-        }
-
-        if (!formId) {
-          const formsRes = await fetch(`${API}/api/forms/my`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (formsRes.ok) {
-            const formsData = await formsRes.json();
-            const forms = Array.isArray(formsData)
-              ? formsData
-              : formsData.forms || [];
-            const matchedForm = forms.find(
-              (form) =>
-                (task.tracking_id && form.tracking_id === task.tracking_id) ||
-                (task.title && form.title === task.title),
-            );
-            formId = matchedForm?.id;
-          }
-        }
-      } catch (error) {
-        console.error("Failed to resolve the task document:", error);
-      }
-
-      if (!formId) {
+  // TaskDetails owns the role-aware task workflow. The selected task travels
+  // in navigation state for an immediate render, while its ID supports a
+  // fetch-backed detail view after a direct-link refresh.
+  const openTaskDetails = useCallback(
+    (task) => {
+      const taskId = task?.id || task?.task_id || task?.taskId;
+      if (!taskId) {
         pushToast(
-          "Document unavailable",
-          "This task is not currently linked to a document review record.",
+          "Task unavailable",
+          "This task record cannot be opened because its identifier is missing.",
           "error",
         );
         return;
       }
 
-      navigate(`/document-review/${formId}`);
+      navigate(`/task-details/${taskId}`, {
+        state: {
+          task,
+          viewerRole: canViewAdminNav ? "chair" : "faculty",
+          returnTo: "/tasks",
+        },
+      });
     },
-    [token, navigate, pushToast],
+    [canViewAdminNav, navigate, pushToast],
   );
 
   // ── Deep-link support: /tasks?taskId=35 opens that task's detail panel
@@ -2408,7 +2372,7 @@ export default function MyTasks() {
         detailLoading={detailLoading}
         fetchSelectedTask={fetchSelectedTask}
         handleApprove={handleApprove}
-        onOpenDocumentReview={openDocumentReview}
+        onOpenTaskDetails={openTaskDetails}
         onBack={closeAssignedView}
         onLogout={handleLogout}
         fmtDeadline={fmtDeadline}
@@ -2469,7 +2433,7 @@ export default function MyTasks() {
       fmtDate={fmtDate}
       fmtDeadline={fmtDeadline}
       fmtDateTime={fmtDateTime}
-      onOpenDocumentReview={openDocumentReview}
+      onOpenTaskDetails={openTaskDetails}
       onViewAssigned={openAssignedView}
       onLogout={handleLogout}
     />
