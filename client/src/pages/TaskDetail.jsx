@@ -88,13 +88,13 @@ const toDatetimeInput = (value) => {
 const resolveFileUrl = (api, value) =>
   !value ? "" : /^https?:\/\//i.test(value) ? value : `${api}${value}`;
 
-const pdfReadingUrl = (value) => {
+const pdfReadingUrl = (value, zoom = "page-width") => {
   if (!value) return "";
   const [fileUrl, currentFragment = ""] = value.split("#");
   const params = new URLSearchParams(currentFragment);
   params.set("navpanes", "0");
   params.set("toolbar", "0");
-  params.set("zoom", "page-width");
+  params.set("zoom", String(zoom));
   return `${fileUrl}#${params.toString()}`;
 };
 
@@ -227,6 +227,7 @@ export default function TaskDetail() {
   const [loading, setLoading] = useState(!location.state?.task);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState(null);
+  const [readerZoom, setReaderZoom] = useState(100);
   const [selectedFile, setSelectedFile] = useState(null);
   const [submissionNote, setSubmissionNote] = useState("");
   const [submissionError, setSubmissionError] = useState("");
@@ -533,7 +534,10 @@ export default function TaskDetail() {
     }
   };
 
-  const previewFile = (file) => setPreview(file);
+  const previewFile = (file) => {
+    setReaderZoom(100);
+    setPreview(file);
+  };
 
   if (loading) {
     return (
@@ -593,6 +597,7 @@ export default function TaskDetail() {
       `}</style>
       <style>{`.td-file-preview-frame{height:min(78vh,760px);min-height:620px;background:#f7f4fb}.td-preview-content iframe{width:min(100%,760px);min-height:640px;margin:0 auto;background:#fff}@media(max-width:720px){.td-file-preview-frame{height:68vh;min-height:460px}.td-preview-content iframe{min-height:520px}}`}</style>
       <style>{`.td-no-submission{display:flex;align-items:flex-start;gap:8px;margin:0 15px 15px;padding:10px;border:1px solid #e5d8ee;border-left:3px solid #a78bfa;border-radius:8px;background:#fbf9ff;color:#735989}.td-no-submission svg{flex:none;margin-top:1px}.td-no-submission strong{display:block;color:#614677;font-size:9px}.td-no-submission p{margin:4px 0 0;color:#8d7b99;font-size:8px;line-height:1.5}`}</style>
+      <style>{`.td-reader{width:min(1120px,calc(100vw - 48px));max-height:calc(100vh - 36px);overflow:auto;border:1px solid #e1d8ea;border-radius:13px;background:#fff;box-shadow:0 28px 80px rgba(45,27,64,.32)}.td-reader-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:16px 18px;border-bottom:1px solid #eee7f2}.td-reader-eyebrow{display:flex;align-items:center;gap:6px;color:#9c8da7;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.td-reader-eyebrow i{width:5px;height:5px;border-radius:50%;background:#a78bfa}.td-reader-head h2{margin:7px 0 0;color:#4b3757;font:800 18px Manrope,sans-serif;letter-spacing:-.04em}.td-reader-head p{margin:5px 0 0;color:#907f9a;font-size:8px}.td-reader-head-actions{display:flex;align-items:center;gap:11px;padding-top:4px}.td-reader-head-actions span{color:#8058a5;font-size:8px;font-weight:800}.td-reader-head-actions button{display:grid;width:28px;height:28px;place-items:center;border:1px solid #e2d9e8;border-radius:7px;background:#fff;color:#76568d;font-size:16px;cursor:pointer}.td-reader-stage{padding:18px;background:linear-gradient(135deg,#f2edf8,#faf9fd)}.td-reader-frame{width:min(680px,100%);margin:0 auto;border:1px solid #ded6e4;border-radius:8px;overflow:hidden;background:#27272a;box-shadow:0 16px 30px rgba(49,35,62,.22)}.td-reader-toolbar{display:flex;align-items:center;gap:9px;min-height:43px;padding:0 12px;background:#303035;color:#f7f4fb}.td-reader-toolbar b{display:grid;min-width:18px;height:20px;place-items:center;border-radius:3px;background:#171719;color:#fff;font-size:9px}.td-reader-toolbar span{font-size:9px;font-weight:800}.td-reader-toolbar button{display:grid;width:21px;height:21px;place-items:center;border:0;border-radius:3px;background:transparent;color:#f5f3f7;font-size:15px;cursor:pointer}.td-reader-toolbar button:hover{background:rgba(255,255,255,.12)}.td-reader-toolbar .td-reader-toolbar-spacer{flex:1}.td-reader-paper{display:flex;min-height:clamp(440px,67vh,720px);align-items:stretch;justify-content:center;background:#f7f7f7}.td-reader-paper iframe{width:100%;min-height:clamp(440px,67vh,720px);border:0;background:#fff}.td-reader-paper img{display:block;max-width:100%;max-height:clamp(440px,67vh,720px);object-fit:contain;background:#fff}.td-reader-fallback{display:flex;min-height:440px;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:24px;color:#806e89;text-align:center}.td-reader-fallback strong{color:#60496d;font-size:11px}.td-reader-fallback span{max-width:300px;font-size:9px;line-height:1.55}@media(max-width:720px){.td-reader{width:calc(100vw - 20px);max-height:calc(100vh - 20px)}.td-reader-head{padding:13px}.td-reader-head h2{font-size:15px}.td-reader-head-actions span{display:none}.td-reader-stage{padding:11px}.td-reader-toolbar{gap:5px;padding:0 8px}.td-reader-paper,.td-reader-paper iframe{min-height:58vh}.td-reader-paper img{max-height:58vh}}`}</style>
       <Sidebar activePage="tasks" />
       <main className="td-main">
         <TopBar
@@ -1324,53 +1329,91 @@ export default function TaskDetail() {
           }}
         >
           <section
-            className="td-dialog"
+            className="td-reader"
             role="dialog"
             aria-modal="true"
             aria-labelledby="td-preview-title"
           >
-            <header className="td-dialog-head">
+            <header className="td-reader-head">
               <div>
-                <span>{preview.label || "Document preview"}</span>
-                <strong id="td-preview-title">{preview.name}</strong>
+                <span className="td-reader-eyebrow">
+                  <i /> Inline preview
+                </span>
+                <h2 id="td-preview-title">{preview.name}</h2>
+                <p>{preview.name}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setPreview(null)}
-                aria-label="Close inline document preview"
-              >
-                <Icon name="close" />
-              </button>
+              <div className="td-reader-head-actions">
+                <span>✦ AI Summary</span>
+                <span>▢ PDF</span>
+                <button
+                  type="button"
+                  onClick={() => setPreview(null)}
+                  aria-label="Close inline document preview"
+                >
+                  <Icon name="close" />
+                </button>
+              </div>
             </header>
-            <div className="td-dialog-meta">
-              {formatSize(preview.size)} · Read-only inline preview
-            </div>
-            <div className="td-preview-content">
-              {preview.url && /\.pdf($|\?)/i.test(preview.url) ? (
-                <iframe title={preview.name} src={pdfReadingUrl(preview.url)} />
-              ) : preview.url &&
-                /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.url) ? (
-                <img src={preview.url} alt={preview.name} />
-              ) : (
-                <article className="td-paper">
-                  <div className="td-paper-head">
-                    <span>Department record</span>
-                    <span>{preview.label || "Task document"}</span>
-                  </div>
-                  <h3>{preview.name?.replace(/\.[^/.]+$/, "")}</h3>
-                  <p>PATH document preview · available within this handoff</p>
-                  <div className="td-lines">
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                  <div className="td-paper-note">
-                    This inline preview keeps the document in context. Use
-                    Escape or the close control to return to the task.
-                  </div>
-                </article>
-              )}
+            <div className="td-reader-stage">
+              <div className="td-reader-frame">
+                <div className="td-reader-toolbar">
+                  <button type="button" aria-label="Reader menu">
+                    ☰
+                  </button>
+                  <b>1</b>
+                  <span>/ 1</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReaderZoom((value) => Math.max(60, value - 10))
+                    }
+                    aria-label="Zoom out"
+                  >
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReaderZoom((value) => Math.min(150, value + 10))
+                    }
+                    aria-label="Zoom in"
+                  >
+                    +
+                  </button>
+                  <span>{readerZoom}%</span>
+                  <span className="td-reader-toolbar-spacer" />
+                  <button
+                    type="button"
+                    disabled={!preview.url}
+                    onClick={() =>
+                      window.open(preview.url, "_blank", "noopener,noreferrer")
+                    }
+                    aria-label="Open file in a new tab"
+                  >
+                    ↗
+                  </button>
+                </div>
+                <div className="td-reader-paper">
+                  {preview.url && /\.pdf($|\?)/i.test(preview.url) ? (
+                    <iframe
+                      title={preview.name}
+                      src={pdfReadingUrl(preview.url, readerZoom)}
+                    />
+                  ) : preview.url &&
+                    /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.url) ? (
+                    <img src={preview.url} alt={preview.name} />
+                  ) : (
+                    <div className="td-reader-fallback">
+                      <Icon name="file" size={28} />
+                      <strong>Preview available in a new tab</strong>
+                      <span>
+                        This document type does not support an embedded reader.
+                        Use the open control to view the uploaded file.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
         </div>
