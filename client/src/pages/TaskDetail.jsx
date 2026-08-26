@@ -640,7 +640,7 @@ export default function TaskDetail() {
                     <i /> Active handoff
                   </div>
                   <h1>{taskTitle}</h1>
-                  <p>{taskDescription}</p>
+                  {!hasAssignedObjective && <p>{taskDescription}</p>}
                 </div>
                 <div className="td-status-card">
                   <span>Current position</span>
