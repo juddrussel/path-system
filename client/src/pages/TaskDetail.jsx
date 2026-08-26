@@ -88,6 +88,16 @@ const toDatetimeInput = (value) => {
 const resolveFileUrl = (api, value) =>
   !value ? "" : /^https?:\/\//i.test(value) ? value : `${api}${value}`;
 
+const pdfReadingUrl = (value) => {
+  if (!value) return "";
+  const [fileUrl, currentFragment = ""] = value.split("#");
+  const params = new URLSearchParams(currentFragment);
+  params.set("navpanes", "0");
+  params.set("toolbar", "0");
+  params.set("zoom", "page-width");
+  return `${fileUrl}#${params.toString()}`;
+};
+
 function Icon({ name, size = 15 }) {
   const common = {
     width: size,
@@ -336,8 +346,9 @@ export default function TaskDetail() {
     "ppt",
     "pptx",
   ].includes(latestSubmissionExtension || "");
-  const latestSubmissionEmbedUrl =
-    isLatestSubmissionOffice && latestSubmissionUrl
+  const latestSubmissionEmbedUrl = isLatestSubmissionPdf
+    ? pdfReadingUrl(latestSubmissionUrl)
+    : isLatestSubmissionOffice && latestSubmissionUrl
       ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(latestSubmissionUrl)}`
       : latestSubmissionUrl;
   const hasFacultySubmission = Boolean(latestSubmission);
@@ -580,6 +591,7 @@ export default function TaskDetail() {
         .td-modal{position:fixed;z-index:80;display:grid;place-items:center;inset:0;padding:20px;background:rgba(48,31,65,.4);backdrop-filter:blur(4px)}.td-dialog{width:min(780px,100%);max-height:calc(100vh - 40px);overflow:auto;border:1px solid #e4d9ec;border-radius:14px;background:#fff;box-shadow:0 25px 70px rgba(57,34,80,.28)}.td-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #eee7f2}.td-dialog-head div{min-width:0}.td-dialog-head span{display:block;color:#8e8099;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.td-dialog-head strong{display:block;overflow:hidden;margin-top:4px;color:#4f3c5d;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.td-dialog-head button{display:grid;width:28px;height:28px;place-items:center;border:1px solid #e3d9e9;border-radius:7px;background:#fff;color:#715585;cursor:pointer}.td-dialog-meta{padding:8px 16px;border-bottom:1px solid #eee7f2;color:#9a8ea4;font-size:8px}.td-preview-content{min-height:345px;padding:20px;background:linear-gradient(135deg,#f3eef9,#fbfaff)}.td-preview-content iframe,.td-preview-content img{display:block;width:100%;min-height:390px;border:1px solid #e5dfeb;background:#fff;object-fit:contain}.td-paper{max-width:550px;min-height:320px;margin:0 auto;padding:25px;border:1px solid #ebe4ef;background:#fff;box-shadow:0 10px 20px rgba(78,49,104,.09)}.td-paper-head{display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:2px solid #8b5cf6;color:#9a8da4;font-size:7px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.td-paper h3{margin:18px 0 5px;color:#463451;font:800 22px Manrope,sans-serif;letter-spacing:-.05em}.td-paper p{margin:0;color:#9a8ea2;font-size:9px}.td-lines{display:grid;gap:8px;margin-top:22px}.td-lines i{display:block;height:7px;border-radius:4px;background:#e6e0eb}.td-lines i:nth-child(2){width:78%}.td-lines i:nth-child(3){width:89%}.td-lines i:nth-child(4){width:62%}.td-paper-note{margin-top:20px;padding:10px;border-left:2px solid #a78bfa;background:#f8f4ff;color:#76538f;font-size:8px;line-height:1.5}
         @media(max-width:1050px){.td-scroll{padding:24px}.td-layout{grid-template-columns:1fr}.td-side{position:static;display:grid;grid-template-columns:1.35fr .65fr .65fr}.td-decision{grid-row:span 2}}@media(max-width:720px){.td-scroll{padding:18px 14px 34px}.td-hero{padding:19px}.td-hero-top{align-items:flex-start;flex-direction:column}.td-hero-controls{align-items:flex-start;flex-direction:column}.td-hero-grid{grid-template-columns:1fr;margin-top:22px}.td-hero h1{font-size:28px}.td-card{padding:17px}.td-meta-grid{grid-template-columns:1fr 1fr}.td-side{display:flex}.td-decision{grid-row:auto}.td-action-buttons{grid-template-columns:1fr}.td-lineage-row{grid-template-columns:28px minmax(0,1fr)}.td-lineage-row>button{grid-column:2;justify-self:start}.td-file-preview-head{align-items:flex-start;flex-direction:column}.td-file-preview-head div{width:100%;justify-content:space-between}}@media(max-width:480px){.td-meta-grid{grid-template-columns:1fr}.td-dialog{max-height:calc(100vh - 24px)}.td-modal{padding:12px}.td-preview-content{padding:13px}.td-preview-content iframe,.td-preview-content img{min-height:250px}}
       `}</style>
+      <style>{`.td-file-preview-frame{height:min(78vh,760px);min-height:620px;background:#f7f4fb}.td-preview-content iframe{width:min(100%,760px);min-height:640px;margin:0 auto;background:#fff}@media(max-width:720px){.td-file-preview-frame{height:68vh;min-height:460px}.td-preview-content iframe{min-height:520px}}`}</style>
       <style>{`.td-no-submission{display:flex;align-items:flex-start;gap:8px;margin:0 15px 15px;padding:10px;border:1px solid #e5d8ee;border-left:3px solid #a78bfa;border-radius:8px;background:#fbf9ff;color:#735989}.td-no-submission svg{flex:none;margin-top:1px}.td-no-submission strong{display:block;color:#614677;font-size:9px}.td-no-submission p{margin:4px 0 0;color:#8d7b99;font-size:8px;line-height:1.5}`}</style>
       <Sidebar activePage="tasks" />
       <main className="td-main">
@@ -1335,7 +1347,7 @@ export default function TaskDetail() {
             </div>
             <div className="td-preview-content">
               {preview.url && /\.pdf($|\?)/i.test(preview.url) ? (
-                <iframe title={preview.name} src={preview.url} />
+                <iframe title={preview.name} src={pdfReadingUrl(preview.url)} />
               ) : preview.url &&
                 /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.url) ? (
                 <img src={preview.url} alt={preview.name} />
