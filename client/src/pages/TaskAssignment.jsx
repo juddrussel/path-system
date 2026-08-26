@@ -449,14 +449,22 @@ function TaskAssignmentInner() {
     : fallbackSla.hours;
   const activeSla = documentSlaRule
     ? {
-        turnaround: `${documentSlaRule.turnaround_hours}h configured window`,
-        escalation: `After ${documentSlaRule.escalation_hours}h`,
-        review: documentSlaRule.reviewer_role || "Chair visible",
+        turnaround:
+          documentSlaRule.turnaround_hours != null
+            ? `${documentSlaRule.turnaround_hours}-hour response window`
+            : "Not configured",
+        escalation:
+          documentSlaRule.escalation_hours != null
+            ? `After ${documentSlaRule.escalation_hours} hours`
+            : "Not configured",
+        review: documentSlaRule.reviewer_role || "Not configured",
       }
     : {
-        turnaround: fallbackSla.turnaround,
-        escalation: fallbackSla.escalation,
-        review: "Chair visible",
+        turnaround: form.doc_type
+          ? "No active SLA rule"
+          : "Select document type",
+        escalation: "—",
+        review: "—",
       };
   const windowStart = toManilaParts(new Date());
   const windowEnd = toManilaParts(
@@ -974,7 +982,11 @@ function TaskAssignmentInner() {
                 <div className="path-assignment-sla">
                   <Icon.Clock />
                   <span>
-                    <small>PATH review window</small>
+                    <small>
+                      {documentSlaRule
+                        ? "Configured review window"
+                        : "PATH review window"}
+                    </small>
                     <strong>{activeSla.turnaround}</strong>
                   </span>
                   <span>
