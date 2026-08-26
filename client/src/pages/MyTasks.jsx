@@ -1279,8 +1279,11 @@ function PathAssignedWorkspace({
         (task.status || "").toLowerCase(),
       ),
   ).length;
-  const focusTask =
-    activeTasks.find(isOverdue) || activeTasks[0] || tasks[0] || null;
+  const queueSnapshot = activeTasks.slice(0, 3);
+  const completedCount = tasks.filter(isComplete).length;
+  const completionRate = tasks.length
+    ? Math.round((completedCount / tasks.length) * 100)
+    : 0;
   const docTypes = [
     "All",
     ...Array.from(new Set(tasks.map((task) => task.doc_type).filter(Boolean))),
@@ -1611,46 +1614,93 @@ function PathAssignedWorkspace({
                     )}
                   </article>
                 ) : (
-                  <div className="path-assigned-empty">
-                    <span className="path-assigned-empty-orb">✦</span>
-                    <small>Decision workspace</small>
-                    <h2>Choose your next handoff</h2>
-                    <p>
-                      Each task opens a focused brief with document context,
-                      deadline, and a clear next action.
-                    </p>
-                    {focusTask && (
-                      <div className="path-assigned-empty-focus">
-                        <span className="path-assigned-empty-number">01</span>
-                        <span>
-                          <strong>{focusTask.title || "Next task"}</strong>
-                          <small>
-                            {fmtDeadline(focusTask.deadline)} ·{" "}
-                            {focusTask.priority || "Medium"} priority
-                          </small>
+                  <>
+                    <style>{`
+                      .path-assigned-queue{width:100%;min-height:100%;padding:23px}.path-assigned-queue-head{padding-bottom:17px;border-bottom:1px solid #eee8f1}.path-assigned-queue-head h2{margin:7px 0 5px;color:#44354f;font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.06em;line-height:1.12}.path-assigned-queue-head p{max-width:365px;margin:0;color:#95889f;font-size:10px;line-height:1.5}.path-assigned-queue-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}.path-assigned-queue-metric{padding:11px 10px;border:1px solid #e8e1ed;border-radius:9px;background:#fcfbfd}.path-assigned-queue-metric small,.path-assigned-queue-metric strong{display:block}.path-assigned-queue-metric small{color:#9a8da2;font-size:8px;font-weight:800;letter-spacing:.075em;text-transform:uppercase}.path-assigned-queue-metric strong{margin-top:6px;color:#503e5e;font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.06em}.path-assigned-queue-metric.attention strong{color:#b9695b}.path-assigned-queue-progress{padding:12px;border:1px solid #e9e1f0;border-radius:9px;background:#faf8ff}.path-assigned-queue-progress-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#79658c;font-size:9px;font-weight:800}.path-assigned-queue-progress-top strong{color:#634581;font-size:9px}.path-assigned-queue-progress-bar{height:5px;margin:9px 0 6px;border-radius:999px;background:#e8e1f0;overflow:hidden}.path-assigned-queue-progress-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7c3aed,#a78bfa)}.path-assigned-queue-progress small{color:#9789a0;font-size:8px}.path-assigned-queue-list{margin-top:20px}.path-assigned-queue-list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.path-assigned-queue-list-head strong{color:#5a4968;font-size:10px;font-weight:800}.path-assigned-queue-list-head span{color:#9b8ea2;font-size:8px;font-weight:700}.path-assigned-queue-item{display:grid;grid-template-columns:25px minmax(0,1fr) auto;align-items:center;gap:9px;width:100%;padding:10px 0;border:0;border-top:1px solid #f0ebf3;background:transparent;color:inherit;text-align:left;cursor:pointer}.path-assigned-queue-item:first-of-type{border-top:0}.path-assigned-queue-number{display:grid;width:24px;height:24px;place-items:center;border-radius:7px;background:#eee8fb;color:#7542c5;font-size:8px;font-weight:800}.path-assigned-queue-item-copy{min-width:0}.path-assigned-queue-item-copy strong,.path-assigned-queue-item-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-queue-item-copy strong{color:#5a4967;font-size:9px;font-weight:800}.path-assigned-queue-item-copy small{margin-top:3px;color:#9b8ea1;font-size:8px}.path-assigned-queue-item span:last-child{color:#7a45c1;font-size:8px;font-weight:800}.path-assigned-queue-empty{padding:13px 0;border-top:1px solid #f0ebf3;color:#968a9f;font-size:9px;line-height:1.5}.path-assigned-queue-foot{display:flex;align-items:flex-start;gap:7px;margin-top:12px;padding:10px 0 0;border-top:1px solid #eee8f1;color:#927fa1;font-size:8px;line-height:1.45}.path-assigned-queue-foot svg{flex:0 0 auto;margin-top:1px;color:#7c3aed}@media(max-width:620px){.path-assigned-queue{padding:18px}.path-assigned-queue-head h2{font-size:20px}.path-assigned-queue-metrics{gap:6px}.path-assigned-queue-metric{padding:10px 8px}.path-assigned-queue-metric strong{font-size:18px}}
+                    `}</style>
+                    <div className="path-assigned-queue">
+                      <header className="path-assigned-queue-head">
+                        <span className="path-assigned-kicker">
+                          <i /> Queue overview
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => openTask(focusTask)}
-                        >
-                          Open focus ↗
-                        </button>
+                        <h2>Review load at a glance</h2>
+                        <p>
+                          See what is active, time-sensitive, and ready for a
+                          decision before opening an individual task.
+                        </p>
+                      </header>
+                      <div className="path-assigned-queue-metrics">
+                        <div className="path-assigned-queue-metric">
+                          <small>Active</small>
+                          <strong>
+                            {String(activeTasks.length).padStart(2, "0")}
+                          </strong>
+                        </div>
+                        <div className="path-assigned-queue-metric">
+                          <small>Ready</small>
+                          <strong>{String(readyCount).padStart(2, "0")}</strong>
+                        </div>
+                        <div className="path-assigned-queue-metric attention">
+                          <small>Attention</small>
+                          <strong>
+                            {String(overdueCount).padStart(2, "0")}
+                          </strong>
+                        </div>
                       </div>
-                    )}
-                    <div className="path-assigned-empty-progress">
-                      <span>Today’s review pace</span>
-                      <div>
-                        <i
-                          style={{
-                            width: `${Math.max(20, Math.min(88, (tasks.length - readyCount) * 22 + 28))}%`,
-                          }}
-                        />
-                      </div>
-                      <small>
-                        {readyCount} decisions still need your attention
-                      </small>
+                      <section className="path-assigned-queue-progress">
+                        <div className="path-assigned-queue-progress-top">
+                          <span>Queue resolution</span>
+                          <strong>{completionRate}% complete</strong>
+                        </div>
+                        <div className="path-assigned-queue-progress-bar">
+                          <i style={{ width: `${completionRate}%` }} />
+                        </div>
+                        <small>
+                          {completedCount} of {tasks.length} assigned tasks are
+                          complete.
+                        </small>
+                      </section>
+                      <section className="path-assigned-queue-list">
+                        <div className="path-assigned-queue-list-head">
+                          <strong>Next in your queue</strong>
+                          <span>{queueSnapshot.length} visible</span>
+                        </div>
+                        {queueSnapshot.length ? (
+                          queueSnapshot.map((task, index) => (
+                            <button
+                              className="path-assigned-queue-item"
+                              type="button"
+                              key={task.id}
+                              onClick={() => openTask(task)}
+                            >
+                              <span className="path-assigned-queue-number">
+                                {String(index + 1).padStart(2, "0")}
+                              </span>
+                              <span className="path-assigned-queue-item-copy">
+                                <strong>{task.title || "Untitled task"}</strong>
+                                <small>
+                                  {fmtDeadline(task.deadline)} ·{" "}
+                                  {task.priority || "Medium"} priority
+                                </small>
+                              </span>
+                              <span>Open ↗</span>
+                            </button>
+                          ))
+                        ) : (
+                          <p className="path-assigned-queue-empty">
+                            No active handoffs match the current filters.
+                          </p>
+                        )}
+                      </section>
+                      <footer className="path-assigned-queue-foot">
+                        <Icon.Check />
+                        <span>
+                          Select any task to open its decision brief and view
+                          the linked document.
+                        </span>
+                      </footer>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
             </section>
