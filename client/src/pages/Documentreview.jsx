@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
@@ -113,6 +113,10 @@ export default function DocumentReview() {
   const [decisionForm, setDecisionForm] = useState(null);
   const [decisionReason, setDecisionReason] = useState("");
   const [decisionNote, setDecisionNote] = useState("");
+  const [submissionFile, setSubmissionFile] = useState(null);
+  const [submissionNote, setSubmissionNote] = useState("");
+  const [withdrawing, setWithdrawing] = useState(false);
+  const submissionFileRef = useRef(null);
 
   const currentUser = () => {
     try {
@@ -222,6 +226,102 @@ export default function DocumentReview() {
       structuredNote,
     );
   };
+  const submitFacultyFile = async () => {
+    if (!submissionFile)
+      return notify("Choose a file before sending your submission.", "error");
+    setSubmitting(true);
+    try {
+      const payload = new FormData();
+      payload.append("file", submissionFile);
+      payload.append("student_id", form.student_id || "");
+      payload.append("full_name", form.full_name || form.submitter_name || "");
+      payload.append("category", form.category || form.document_type || "");
+      payload.append("filing_date", form.filing_date || "");
+      payload.append("college_year", form.college_year || "");
+      payload.append("section", form.section || "");
+      payload.append("original_id", form.id);
+      if (submissionNote.trim()) payload.append("note", submissionNote.trim());
+
+      const response = await fetch(`${API}/api/forms/${form.id}/resubmit`, {
+        method: "POST",
+        headers,
+        body: payload,
+      });
+      if (!response.ok) {
+        let message = `Submission failed (${response.status}).`;
+        try {
+          const data = await response.clone().json();
+          message = data.message || data.error || message;
+        } catch {}
+        notify(message, "error");
+        return;
+      }
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {}
+      const updated = data.form || data;
+      setForm((current) => ({
+        ...current,
+        ...updated,
+        file_name: updated.file_name || submissionFile.name,
+        file_url:
+          updated.file_url || updated.file_path || current.file_url || "",
+        status: updated.status || "Pending",
+        review_note:
+          updated.review_note || submissionNote.trim() || current.review_note,
+      }));
+      setSubmissionFile(null);
+      setSubmissionNote("");
+      notify("Submission sent to the review queue.", "success");
+    } catch {
+      notify("Could not reach the server. Please try again.", "error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const withdrawFacultySubmission = async () => {
+    setWithdrawing(true);
+    try {
+      const response = await fetch(`${API}/api/forms/${form.id}/withdraw`, {
+        method: "POST",
+        headers,
+      });
+      if (!response.ok) {
+        let message = `Withdrawal failed (${response.status}).`;
+        try {
+          const data = await response.clone().json();
+          message = data.message || data.error || message;
+        } catch {}
+        notify(message, "error");
+        return;
+      }
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {}
+      const updated = data.form || data;
+      setForm((current) => ({
+        ...current,
+        ...updated,
+        file_name: "",
+        file_url: "",
+        file_path: "",
+        attachment_url: "",
+        status: updated.status || "Draft",
+      }));
+      setSubmissionFile(null);
+      setSubmissionNote("");
+      notify(
+        "Submission withdrawn. You can now submit a different file.",
+        "success",
+      );
+    } catch {
+      notify("Could not reach the server. Please try again.", "error");
+    } finally {
+      setWithdrawing(false);
+    }
+  };
 
   if (loading)
     return (
@@ -257,18 +357,27 @@ export default function DocumentReview() {
     );
 
   const user = currentUser();
+  const isFacultyView = !["admin", "program_chair"].includes(user.role);
   const title =
     form.file_name || form.title || form.tracking_id || `Form #${form.id}`;
   const tracking = form.tracking_id || `FORM-${form.id}`;
   const submitter =
     form.submitter_name || form.full_name || "Faculty submitter";
-  const reviewer = user.full_name || user.username || "Program Chair (You)";
+  const reviewer = isFacultyView
+    ? form.reviewer_name || form.current_owner || "Program Chair"
+    : user.full_name || user.username || "Program Chair (You)";
   const status = form.status || "Pending";
   const category = form.category || form.document_type || "Academic form";
   const submitted = form.filing_date || form.date || form.created_at;
   const deadline = form.review_due || form.deadline || form.due_date;
-  const url = form.file_url ? fileUrl(form.file_url) : "";
-  const extension = (form.file_name || form.file_url || "")
+  const submittedFileValue =
+    form.file_url ||
+    form.file_path ||
+    form.attachment_url ||
+    form.uploaded_file;
+  const hasSubmittedFile = Boolean(submittedFileValue || form.file_name);
+  const url = submittedFileValue ? fileUrl(submittedFileValue) : "";
+  const extension = (form.file_name || submittedFileValue || "")
     .split(".")
     .pop()
     .toLowerCase();
@@ -431,6 +540,7 @@ export default function DocumentReview() {
       <style>{`.doc-kicker,.doc-label{font-weight:800;color:#958a9d}.doc-id h1{font-weight:800;letter-spacing:-.062em}.doc-id p{font-weight:600;color:#8f8498}.doc-meta span{font-weight:800;color:#9b90a2}.doc-meta strong{font-weight:800;color:#46384f}.doc-meta strong.doc-person{font-weight:800}.doc-status h2{font-weight:800;color:#372b40}.doc-status .doc-label{font-weight:800}.doc-status .doc-label span{font-weight:700;letter-spacing:0;text-transform:none;color:#4b9778}.doc-pill{font-weight:800}.doc-owner-copy strong,.doc-field strong{font-weight:800}`}</style>
       <style>{`.doc-preview-head p{font-weight:800;color:#5b4e64}.doc-panel h2,.doc-summary h2,.doc-comments h2,.doc-history h2,.doc-audit h2,.doc-owners h2,.doc-decision h2,.doc-sla h2{font-weight:800}.doc-sla h3{font-weight:800}.doc-sla p,.doc-sla-grid strong{font-weight:800}.doc-decision label{font-weight:800}.doc-compare-head{font-weight:800}.doc-empty-note strong{font-weight:800}`}</style>
       <style>{`.doc-decision-intro{margin:8px 0 16px;color:#877a90;font-size:9px;line-height:1.55}.doc-optional{margin-left:4px;color:#9b90a2;font-size:8px;font-weight:600;text-transform:none}.doc-decision-actions .approve{grid-column:1/-1}.doc-decision-actions .return,.doc-decision-actions .reject{min-height:38px}.doc-decision-actions .return{border-color:#e9d7a6;background:#fffcf4}.doc-decision-actions .reject{border-color:#edcfcb;background:#fff7f5}.doc-decision-modal-backdrop{position:fixed;z-index:1500;inset:0;display:grid;place-items:center;padding:20px;background:rgba(43,30,59,.38);backdrop-filter:blur(5px)}.doc-decision-modal{position:relative;width:min(100%,560px);max-height:calc(100vh - 40px);overflow:auto;border:1px solid #e3d8ed;border-radius:16px;padding:27px;background:#fff;box-shadow:0 24px 65px rgba(42,25,63,.28);color:#51435b}.doc-decision-modal.return{border-top:4px solid #c59335}.doc-decision-modal.reject{border-top:4px solid #bd665c}.doc-decision-modal-close{position:absolute;top:14px;right:15px;display:grid;width:29px;height:29px;place-items:center;border:1px solid #e6dfee;border-radius:8px;background:#fff;color:#8e8198;font-size:19px;line-height:1;cursor:pointer}.doc-decision-modal-kicker{display:flex;align-items:center;gap:8px;color:#8b7e95;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.doc-decision-modal-kicker span{display:grid;width:25px;height:25px;place-items:center;border-radius:7px;background:#f4ebff;color:#7742c6;font-size:14px}.doc-decision-modal.reject .doc-decision-modal-kicker span{background:#fff0ed;color:#b75f54}.doc-decision-modal h2{margin:15px 0 6px;color:#382b42;font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.05em}.doc-decision-modal>p{margin:0;color:#887b91;font-size:10px;line-height:1.6}.doc-decision-modal-record{display:flex;justify-content:space-between;gap:12px;margin:18px 0;padding:11px 12px;border:1px solid #ede6f2;border-radius:9px;background:#faf8fc;color:#6d5f75;font-size:9px}.doc-decision-modal-record span{overflow:hidden;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.doc-decision-modal-record b{flex:0 0 auto;color:#9a8da2;font-size:8px}.doc-decision-modal label{display:block;margin-top:16px;color:#605169;font-size:10px;font-weight:800}.doc-decision-modal label em{margin-left:4px;color:#b85f55;font-size:8px;font-style:normal;font-weight:800}.doc-decision-modal select,.doc-decision-modal textarea{width:100%;margin-top:7px;border:1px solid #ded4e7;border-radius:8px;padding:10px 11px;background:#fff;color:#55475f;font-family:'DM Sans',sans-serif;font-size:10px;outline:0}.doc-decision-modal select{height:39px;cursor:pointer}.doc-decision-modal textarea{min-height:110px;resize:vertical;line-height:1.55}.doc-decision-modal select:focus,.doc-decision-modal textarea:focus{border-color:#b79ae6;box-shadow:0 0 0 3px #f3edff}.doc-decision-modal-selection{margin-top:9px;padding:9px 10px;border-left:2px solid #9d78dd;border-radius:0 7px 7px 0;background:#faf8fd}.doc-decision-modal-selection span{display:block;color:#9d91a5;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.doc-decision-modal-selection strong{display:block;margin-top:3px;color:#62536c;font-size:9px;font-weight:800}.doc-decision-modal-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:19px}.doc-decision-modal-actions button{min-height:38px;border:1px solid #e1d7e9;border-radius:8px;background:#fff;color:#75677e;font-size:10px;font-weight:800;cursor:pointer}.doc-decision-modal-actions button[type='submit']{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.2)}.doc-decision-modal.reject .doc-decision-modal-actions button[type='submit']{border-color:#b75f54;background:#b75f54;box-shadow:0 7px 14px rgba(183,95,84,.2)}.doc-decision-modal-actions button:disabled,.doc-decision-modal-close:disabled{cursor:not-allowed;opacity:.6}@media(max-width:560px){.doc-decision-modal-backdrop{padding:12px}.doc-decision-modal{max-height:calc(100vh - 24px);padding:22px 18px}.doc-decision-modal h2{font-size:21px}.doc-decision-modal-actions{grid-template-columns:1fr}.doc-decision-modal-actions button[type='submit']{grid-row:1}.doc-decision-actions{grid-template-columns:1fr}}`}</style>
+      <style>{`.doc-faculty-submission{margin-top:16px;padding:19px;border-color:#dfd2f5;background:linear-gradient(150deg,#fff 18%,#fbf9ff)}.doc-faculty-submission h2{margin-top:6px}.doc-faculty-submission>p{margin:8px 0 0;color:#887b92;font-size:9px;line-height:1.55}.doc-submission-upload{display:grid;place-items:center;min-height:112px;margin-top:16px;border:1.5px dashed #cbb5ef;border-radius:10px;background:#fcfaff;color:#7647b2;text-align:center;cursor:pointer;transition:border-color .16s ease,background .16s ease}.doc-submission-upload:hover{border-color:#7c3aed;background:#f8f4ff}.doc-submission-upload b,.doc-submission-upload span{display:block}.doc-submission-upload b{font-size:10px}.doc-submission-upload span{max-width:210px;margin-top:4px;color:#9b8fa3;font-size:8px;line-height:1.45}.doc-submission-note{width:100%;min-height:78px;margin-top:10px;resize:vertical;border:1px solid #e5deed;border-radius:8px;padding:10px;color:#5b4e64;font-family:'DM Sans',sans-serif;font-size:9px;outline:0}.doc-submission-note:focus{border-color:#bda1ec;box-shadow:0 0 0 3px #f4effe}.doc-submission-primary,.doc-submission-withdraw{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:35px;margin-top:10px;border-radius:8px;font-size:9px;font-weight:800;cursor:pointer}.doc-submission-primary{border:1px solid #7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.18)}.doc-submission-primary:disabled,.doc-submission-withdraw:disabled{cursor:not-allowed;opacity:.6}.doc-submitted-file{display:flex;align-items:center;gap:9px;margin-top:16px;padding:11px;border:1px solid #ded1f4;border-radius:9px;background:#fbf9ff}.doc-submitted-file>i{display:grid;flex:0 0 auto;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;color:#7543c7;font-style:normal}.doc-submitted-file strong,.doc-submitted-file span{display:block}.doc-submitted-file strong{overflow:hidden;color:#5e4e68;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.doc-submitted-file span{margin-top:3px;color:#9b90a1;font-size:8px}.doc-submission-locked{display:flex;gap:8px;margin-top:12px;padding:10px;border-left:2px solid #a882ec;border-radius:0 7px 7px 0;background:#faf8fe;color:#82758e;font-size:8px;line-height:1.5}.doc-submission-withdraw{border:1px solid #edcfcb;background:#fff8f7;color:#a85d55}`}</style>
       <Toasts
         items={toasts}
         remove={(toastId) =>
@@ -901,57 +1011,159 @@ export default function DocumentReview() {
                   ))}
                 </Panel>
               )}
-              <Panel className="doc-decision" id="review-decision">
-                <Label>Reviewer decision</Label>
-                <h2>Choose the next step</h2>
-                <p className="doc-decision-intro">
-                  Approve this submission, send it back with clear revision
-                  direction, or record a formal rejection.
-                </p>
-                {/revision|rejected|returned/i.test(status) &&
-                  form.review_note && (
-                    <div className="doc-decision-note">
-                      <strong>Previous review direction</strong>
-                      <br />
-                      {form.review_note}
-                    </div>
+              {isFacultyView ? (
+                <Panel
+                  className="doc-faculty-submission"
+                  id="faculty-submission"
+                >
+                  <Label>Faculty submission</Label>
+                  <h2>
+                    {hasSubmittedFile
+                      ? "Submission sent"
+                      : "Send your document"}
+                  </h2>
+                  <p>
+                    {hasSubmittedFile
+                      ? "This document is already in the workflow. Withdraw it before replacing the file."
+                      : "Attach the completed document and add a short handoff note for the review team."}
+                  </p>
+                  {hasSubmittedFile ? (
+                    <>
+                      <div className="doc-submitted-file">
+                        <i>▤</i>
+                        <div>
+                          <strong>
+                            {form.file_name || "Submitted document"}
+                          </strong>
+                          <span>
+                            {status} ·{" "}
+                            {shortTime(
+                              form.updated_at || submitted,
+                              "Submitted",
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="doc-submission-locked">
+                        <span>✓</span>
+                        <span>
+                          Submitting another file is locked while this
+                          submission is active.
+                        </span>
+                      </div>
+                      <button
+                        className="doc-submission-withdraw"
+                        type="button"
+                        disabled={withdrawing}
+                        onClick={withdrawFacultySubmission}
+                      >
+                        {withdrawing ? "Withdrawing…" : "Withdraw submission"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        ref={submissionFileRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        style={{ display: "none" }}
+                        onChange={(event) =>
+                          setSubmissionFile(event.target.files?.[0] || null)
+                        }
+                      />
+                      <button
+                        className="doc-submission-upload"
+                        type="button"
+                        onClick={() => submissionFileRef.current?.click()}
+                      >
+                        <span>⇧</span>
+                        <div>
+                          <b>
+                            {submissionFile
+                              ? submissionFile.name
+                              : "Choose a document"}
+                          </b>
+                          <span>
+                            {submissionFile
+                              ? "Ready to send to the review team"
+                              : "PDF, DOC, DOCX, JPG, or PNG"}
+                          </span>
+                        </div>
+                      </button>
+                      <textarea
+                        className="doc-submission-note"
+                        value={submissionNote}
+                        onChange={(event) =>
+                          setSubmissionNote(event.target.value)
+                        }
+                        placeholder="Add an optional note for the reviewer."
+                      />
+                      <button
+                        className="doc-submission-primary"
+                        type="button"
+                        disabled={submitting || !submissionFile}
+                        onClick={submitFacultyFile}
+                      >
+                        {submitting ? "Submitting…" : "Submit document"}
+                      </button>
+                    </>
                   )}
-                <label htmlFor="review-note">
-                  Approval note <span className="doc-optional">optional</span>
-                </label>
-                <textarea
-                  id="review-note"
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                  placeholder="Add an optional note for the approval audit trail."
-                />
-                <div className="doc-decision-actions">
-                  <button
-                    type="button"
-                    className="approve"
-                    disabled={submitting}
-                    onClick={() => decision("approve", null, "Form approved.")}
-                  >
-                    ✓ Approve
-                  </button>
-                  <button
-                    type="button"
-                    className="return"
-                    disabled={submitting}
-                    onClick={() => openDecisionForm("return")}
-                  >
-                    ↩ Return with feedback
-                  </button>
-                  <button
-                    type="button"
-                    className="reject"
-                    disabled={submitting}
-                    onClick={() => openDecisionForm("reject")}
-                  >
-                    × Reject submission
-                  </button>
-                </div>
-              </Panel>
+                </Panel>
+              ) : (
+                <Panel className="doc-decision" id="review-decision">
+                  <Label>Reviewer decision</Label>
+                  <h2>Choose the next step</h2>
+                  <p className="doc-decision-intro">
+                    Approve this submission, send it back with clear revision
+                    direction, or record a formal rejection.
+                  </p>
+                  {/revision|rejected|returned/i.test(status) &&
+                    form.review_note && (
+                      <div className="doc-decision-note">
+                        <strong>Previous review direction</strong>
+                        <br />
+                        {form.review_note}
+                      </div>
+                    )}
+                  <label htmlFor="review-note">
+                    Approval note <span className="doc-optional">optional</span>
+                  </label>
+                  <textarea
+                    id="review-note"
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    placeholder="Add an optional note for the approval audit trail."
+                  />
+                  <div className="doc-decision-actions">
+                    <button
+                      type="button"
+                      className="approve"
+                      disabled={submitting}
+                      onClick={() =>
+                        decision("approve", null, "Form approved.")
+                      }
+                    >
+                      ✓ Approve
+                    </button>
+                    <button
+                      type="button"
+                      className="return"
+                      disabled={submitting}
+                      onClick={() => openDecisionForm("return")}
+                    >
+                      ↩ Return with feedback
+                    </button>
+                    <button
+                      type="button"
+                      className="reject"
+                      disabled={submitting}
+                      onClick={() => openDecisionForm("reject")}
+                    >
+                      × Reject submission
+                    </button>
+                  </div>
+                </Panel>
+              )}
             </aside>
           </section>
         </div>
