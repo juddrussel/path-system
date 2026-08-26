@@ -4186,7 +4186,7 @@ export default function Forms() {
                 setResubmitFile(null);
                 setResubmitModal(true);
               }}
-              onActivity={(form) => navigate(`/document-details/${form.id}`)}
+              onActivity={(form) => navigate(`/document-review/${form.id}`)}
               page={page}
               totalPages={totalPages}
               onPageChange={setPage}
