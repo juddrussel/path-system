@@ -228,7 +228,7 @@ export default function TaskDetail() {
   const [error, setError] = useState("");
   const [preview, setPreview] = useState(null);
   const [readerZoom, setReaderZoom] = useState(100);
-  const [inlineReaderZoom, setInlineReaderZoom] = useState(100);
+  const [inlineReaderZoom, setInlineReaderZoom] = useState("page-width");
   const [selectedFile, setSelectedFile] = useState(null);
   const [submissionNote, setSubmissionNote] = useState("");
   const [submissionError, setSubmissionError] = useState("");
@@ -963,7 +963,9 @@ export default function TaskDetail() {
                             type="button"
                             onClick={() =>
                               setInlineReaderZoom((value) =>
-                                Math.max(60, value - 10),
+                                typeof value === "number"
+                                  ? Math.max(60, value - 10)
+                                  : 90,
                               )
                             }
                             aria-label="Zoom out"
@@ -974,14 +976,20 @@ export default function TaskDetail() {
                             type="button"
                             onClick={() =>
                               setInlineReaderZoom((value) =>
-                                Math.min(150, value + 10),
+                                typeof value === "number"
+                                  ? Math.min(150, value + 10)
+                                  : 110,
                               )
                             }
                             aria-label="Zoom in"
                           >
                             +
                           </button>
-                          <span>{inlineReaderZoom}%</span>
+                          <span>
+                            {typeof inlineReaderZoom === "number"
+                              ? `${inlineReaderZoom}%`
+                              : "Fit width"}
+                          </span>
                           <span className="td-reader-toolbar-spacer" />
                           <button
                             type="button"
