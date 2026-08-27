@@ -261,16 +261,67 @@ export default function DocumentReview() {
         data = await response.json();
       } catch {}
       const updated = data.form || data;
-      setForm((current) => ({
-        ...current,
-        ...updated,
-        file_name: updated.file_name || submissionFile.name,
-        file_url:
-          updated.file_url || updated.file_path || current.file_url || "",
-        status: updated.status || "Pending",
-        review_note:
-          updated.review_note || submissionNote.trim() || current.review_note,
-      }));
+      setForm((current) => {
+        const persistedSubmissions = [
+          updated.submissions,
+          updated.submitted_files,
+          updated.submission_files,
+          updated.versions,
+          updated.version_history,
+          updated.submission_versions,
+        ].find((items) => Array.isArray(items) && items.length);
+        const currentSubmissions =
+          [
+            current.submissions,
+            current.submitted_files,
+            current.submission_files,
+            current.versions,
+            current.version_history,
+            current.submission_versions,
+          ].find((items) => Array.isArray(items)) || [];
+        const submittedAt =
+          updated.submitted_at ||
+          updated.created_at ||
+          updated.updated_at ||
+          new Date().toISOString();
+        const nextSubmission = {
+          id:
+            updated.submission_id ||
+            updated.version_id ||
+            `local-${submittedAt}-${submissionFile.name}`,
+          file_name: updated.file_name || submissionFile.name,
+          file_url: updated.file_url || updated.file_path || "",
+          file_path: updated.file_path || "",
+          size: updated.file_size || submissionFile.size,
+          file_size: updated.file_size || submissionFile.size,
+          status: updated.status || "Pending",
+          note:
+            updated.review_note || submissionNote.trim() || current.review_note,
+          submission_note:
+            updated.submission_note || submissionNote.trim() || "",
+          submitted_at: submittedAt,
+          created_at: submittedAt,
+          is_current: true,
+        };
+        const nextVersions = persistedSubmissions || [
+          ...currentSubmissions.map((item) => ({
+            ...item,
+            is_current: false,
+          })),
+          nextSubmission,
+        ];
+        return {
+          ...current,
+          ...updated,
+          file_name: updated.file_name || submissionFile.name,
+          file_url:
+            updated.file_url || updated.file_path || current.file_url || "",
+          status: updated.status || "Pending",
+          review_note:
+            updated.review_note || submissionNote.trim() || current.review_note,
+          submissions: nextVersions,
+        };
+      });
       setSubmissionFile(null);
       setSubmissionNote("");
       notify("Submission sent to the review queue.", "success");
@@ -394,21 +445,32 @@ export default function DocumentReview() {
     ...fields.filter(([key]) => !attachmentNames.has(key)),
     ...fields.filter(([key]) => attachmentNames.has(key)),
   ];
-  const versions = Array.isArray(
-    form.versions || form.version_history || form.submission_versions,
-  )
-    ? form.versions || form.version_history || form.submission_versions
-    : [
-        {
-          id: "current",
-          version: form.version || 1,
-          label: "Current submission",
-          created_at: form.updated_at || submitted,
-          is_current: true,
-        },
-      ];
-  const activeVersion =
-    version || versions.find((item) => item.is_current) || versions[0];
+  const submittedVersions = [
+    form.submissions,
+    form.submitted_files,
+    form.submission_files,
+    form.versions,
+    form.version_history,
+    form.submission_versions,
+  ].find((items) => Array.isArray(items) && items.length);
+  const versions =
+    submittedVersions ||
+    (hasSubmittedFile
+      ? [
+          {
+            id: "current",
+            file_name: form.file_name,
+            file_url: submittedFileValue,
+            size: form.file_size,
+            status,
+            note: form.review_note,
+            submitted_at: form.updated_at || submitted,
+            created_at: form.updated_at || submitted,
+            is_current: true,
+          },
+        ]
+      : []);
+  const activeVersion = version || versions[versions.length - 1] || null;
   const activeFileValue =
     activeVersion?.file_url ||
     activeVersion?.file_path ||
@@ -701,12 +763,12 @@ export default function DocumentReview() {
                 </div>
               </Panel>
               {preview && (
-                <Panel className="doc-preview">
+                <Panel className="doc-preview" id="document-preview">
                   <div className="doc-preview-head">
                     <div>
                       <Label>Inline preview</Label>
-                      <h2>{title}</h2>
-                      <p>{form.file_name || "No attached file"}</p>
+                      <h2>{activeFileName || title}</h2>
+                      <p>{activeFileName || "No attached file"}</p>
                     </div>
                     <div className="doc-preview-meta">
                       <button
@@ -724,7 +786,7 @@ export default function DocumentReview() {
                       {readerToolbar}
                       <div className="doc-reader-scroll doc-reader-pdf">
                         <iframe
-                          title={`Preview of ${title}`}
+                          title={`Preview of ${activeFileName || title}`}
                           src={`${url}#toolbar=0`}
                         />
                       </div>
@@ -875,16 +937,13 @@ export default function DocumentReview() {
                   </p>
                   <div className="doc-lineage">
                     {[...versions].reverse().map((item, reverseIndex) => {
-                      const versionNumber =
-                        item.version || versions.length - reverseIndex;
+                      const versionNumber = versions.length - reverseIndex;
                       const isCurrent =
                         (activeVersion?.id || activeVersion?.version) ===
                         (item.id || item.version);
                       const versionStatus =
                         item.status ||
-                        (item.is_current || reverseIndex === 0
-                          ? status
-                          : "Submitted");
+                        (reverseIndex === 0 ? status : "Submitted");
                       const versionFileName =
                         item.file_name ||
                         item.name ||
@@ -930,6 +989,14 @@ export default function DocumentReview() {
                             onClick={() => {
                               setVersion(item);
                               setPreview(true);
+                              window.requestAnimationFrame(() =>
+                                document
+                                  .getElementById("document-preview")
+                                  ?.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                  }),
+                              );
                             }}
                           >
                             <time>
