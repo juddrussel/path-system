@@ -66,17 +66,35 @@ const DECISION_REASONS = {
   ],
 };
 const VERSION_HISTORY_STORAGE_PREFIX = "path.document-review.lineage:";
-const versionHistoryKey = (form) =>
-  `${VERSION_HISTORY_STORAGE_PREFIX}${form?.id || form?.tracking_id || "unknown"}`;
+const versionHistoryKeys = (form) => {
+  const identifiers = [
+    form?.tracking_id,
+    form?.trackingId,
+    form?.tracking_number,
+    form?.trackingNumber,
+    form?.document_id,
+    form?.documentId,
+    form?.id,
+  ]
+    .filter((value) => value !== null && value !== undefined && value !== "")
+    .map((value) => String(value));
+  return [
+    ...new Set(
+      (identifiers.length ? identifiers : ["unknown"]).map(
+        (identifier) => `${VERSION_HISTORY_STORAGE_PREFIX}${identifier}`,
+      ),
+    ),
+  ];
+};
 const readPersistedVersions = (form) => {
   if (typeof window === "undefined") return [];
   try {
-    const stored = JSON.parse(
-      window.localStorage.getItem(versionHistoryKey(form)) || "[]",
-    );
-    return Array.isArray(stored)
-      ? stored.filter((item) => item && typeof item === "object")
-      : [];
+    return versionHistoryKeys(form).flatMap((key) => {
+      const stored = JSON.parse(window.localStorage.getItem(key) || "[]");
+      return Array.isArray(stored)
+        ? stored.filter((item) => item && typeof item === "object")
+        : [];
+    });
   } catch {
     return [];
   }
@@ -84,10 +102,9 @@ const readPersistedVersions = (form) => {
 const persistVersions = (form, versions) => {
   if (typeof window === "undefined" || !Array.isArray(versions)) return;
   try {
-    window.localStorage.setItem(
-      versionHistoryKey(form),
-      JSON.stringify(versions),
-    );
+    versionHistoryKeys(form).forEach((key) => {
+      window.localStorage.setItem(key, JSON.stringify(versions));
+    });
   } catch {}
 };
 const versionTimestamp = (item) =>
