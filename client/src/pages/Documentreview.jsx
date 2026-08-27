@@ -106,11 +106,10 @@ const versionRecords = (...sources) => {
       if (!item || typeof item !== "object") return;
       const fileUrl = versionFileUrl(item);
       const fileName = versionFileName(item);
-      const key =
-        item.submission_id ||
-        item.version_id ||
-        item.id ||
-        `${fileUrl || fileName || "record"}-${versionTimestamp(item) || index}`;
+      const fileIdentity = String(fileUrl || fileName || "").toLowerCase();
+      const key = fileIdentity
+        ? `file:${fileIdentity}`
+        : `record:${item.submission_id || item.version_id || item.id || index}`;
       if (seen.has(key)) return;
       seen.add(key);
       records.push({
@@ -760,6 +759,7 @@ export default function DocumentReview() {
       <style>{`.doc-decision-intro{margin:8px 0 16px;color:#877a90;font-size:9px;line-height:1.55}.doc-optional{margin-left:4px;color:#9b90a2;font-size:8px;font-weight:600;text-transform:none}.doc-decision-actions .approve{grid-column:1/-1}.doc-decision-actions .return,.doc-decision-actions .reject{min-height:38px}.doc-decision-actions .return{border-color:#e9d7a6;background:#fffcf4}.doc-decision-actions .reject{border-color:#edcfcb;background:#fff7f5}.doc-decision-modal-backdrop{position:fixed;z-index:1500;inset:0;display:grid;place-items:center;padding:20px;background:rgba(43,30,59,.38);backdrop-filter:blur(5px)}.doc-decision-modal{position:relative;width:min(100%,560px);max-height:calc(100vh - 40px);overflow:auto;border:1px solid #e3d8ed;border-radius:16px;padding:27px;background:#fff;box-shadow:0 24px 65px rgba(42,25,63,.28);color:#51435b}.doc-decision-modal.return{border-top:4px solid #c59335}.doc-decision-modal.reject{border-top:4px solid #bd665c}.doc-decision-modal-close{position:absolute;top:14px;right:15px;display:grid;width:29px;height:29px;place-items:center;border:1px solid #e6dfee;border-radius:8px;background:#fff;color:#8e8198;font-size:19px;line-height:1;cursor:pointer}.doc-decision-modal-kicker{display:flex;align-items:center;gap:8px;color:#8b7e95;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.doc-decision-modal-kicker span{display:grid;width:25px;height:25px;place-items:center;border-radius:7px;background:#f4ebff;color:#7742c6;font-size:14px}.doc-decision-modal.reject .doc-decision-modal-kicker span{background:#fff0ed;color:#b75f54}.doc-decision-modal h2{margin:15px 0 6px;color:#382b42;font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.05em}.doc-decision-modal>p{margin:0;color:#887b91;font-size:10px;line-height:1.6}.doc-decision-modal-record{display:flex;justify-content:space-between;gap:12px;margin:18px 0;padding:11px 12px;border:1px solid #ede6f2;border-radius:9px;background:#faf8fc;color:#6d5f75;font-size:9px}.doc-decision-modal-record span{overflow:hidden;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.doc-decision-modal-record b{flex:0 0 auto;color:#9a8da2;font-size:8px}.doc-decision-modal label{display:block;margin-top:16px;color:#605169;font-size:10px;font-weight:800}.doc-decision-modal label em{margin-left:4px;color:#b85f55;font-size:8px;font-style:normal;font-weight:800}.doc-decision-modal select,.doc-decision-modal textarea{width:100%;margin-top:7px;border:1px solid #ded4e7;border-radius:8px;padding:10px 11px;background:#fff;color:#55475f;font-family:'DM Sans',sans-serif;font-size:10px;outline:0}.doc-decision-modal select{height:39px;cursor:pointer}.doc-decision-modal textarea{min-height:110px;resize:vertical;line-height:1.55}.doc-decision-modal select:focus,.doc-decision-modal textarea:focus{border-color:#b79ae6;box-shadow:0 0 0 3px #f3edff}.doc-decision-modal-selection{margin-top:9px;padding:9px 10px;border-left:2px solid #9d78dd;border-radius:0 7px 7px 0;background:#faf8fd}.doc-decision-modal-selection span{display:block;color:#9d91a5;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.doc-decision-modal-selection strong{display:block;margin-top:3px;color:#62536c;font-size:9px;font-weight:800}.doc-decision-modal-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:19px}.doc-decision-modal-actions button{min-height:38px;border:1px solid #e1d7e9;border-radius:8px;background:#fff;color:#75677e;font-size:10px;font-weight:800;cursor:pointer}.doc-decision-modal-actions button[type='submit']{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.2)}.doc-decision-modal.reject .doc-decision-modal-actions button[type='submit']{border-color:#b75f54;background:#b75f54;box-shadow:0 7px 14px rgba(183,95,84,.2)}.doc-decision-modal-actions button:disabled,.doc-decision-modal-close:disabled{cursor:not-allowed;opacity:.6}@media(max-width:560px){.doc-decision-modal-backdrop{padding:12px}.doc-decision-modal{max-height:calc(100vh - 24px);padding:22px 18px}.doc-decision-modal h2{font-size:21px}.doc-decision-modal-actions{grid-template-columns:1fr}.doc-decision-modal-actions button[type='submit']{grid-row:1}.doc-decision-actions{grid-template-columns:1fr}}`}</style>
       <style>{`.doc-faculty-submission{margin-top:16px;padding:19px;border-color:#dfd2f5;background:linear-gradient(150deg,#fff 18%,#fbf9ff)}.doc-faculty-submission h2{margin-top:6px}.doc-faculty-submission>p{margin:8px 0 0;color:#887b92;font-size:9px;line-height:1.55}.doc-submission-upload{display:grid;place-items:center;min-height:112px;margin-top:16px;border:1.5px dashed #cbb5ef;border-radius:10px;background:#fcfaff;color:#7647b2;text-align:center;cursor:pointer;transition:border-color .16s ease,background .16s ease}.doc-submission-upload:hover{border-color:#7c3aed;background:#f8f4ff}.doc-submission-upload b,.doc-submission-upload span{display:block}.doc-submission-upload b{font-size:10px}.doc-submission-upload span{max-width:210px;margin-top:4px;color:#9b8fa3;font-size:8px;line-height:1.45}.doc-submission-note{width:100%;min-height:78px;margin-top:10px;resize:vertical;border:1px solid #e5deed;border-radius:8px;padding:10px;color:#5b4e64;font-family:'DM Sans',sans-serif;font-size:9px;outline:0}.doc-submission-note:focus{border-color:#bda1ec;box-shadow:0 0 0 3px #f4effe}.doc-submission-primary,.doc-submission-withdraw{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:35px;margin-top:10px;border-radius:8px;font-size:9px;font-weight:800;cursor:pointer}.doc-submission-primary{border:1px solid #7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.18)}.doc-submission-primary:disabled,.doc-submission-withdraw:disabled{cursor:not-allowed;opacity:.6}.doc-submitted-file{display:flex;align-items:center;gap:9px;margin-top:16px;padding:11px;border:1px solid #ded1f4;border-radius:9px;background:#fbf9ff}.doc-submitted-file>i{display:grid;flex:0 0 auto;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;color:#7543c7;font-style:normal}.doc-submitted-file strong,.doc-submitted-file span{display:block}.doc-submitted-file strong{overflow:hidden;color:#5e4e68;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.doc-submitted-file span{margin-top:3px;color:#9b90a1;font-size:8px}.doc-submission-locked{display:flex;gap:8px;margin-top:12px;padding:10px;border-left:2px solid #a882ec;border-radius:0 7px 7px 0;background:#faf8fe;color:#82758e;font-size:8px;line-height:1.5}.doc-submission-withdraw{border:1px solid #edcfcb;background:#fff8f7;color:#a85d55}`}</style>
       <style>{`.doc-lineage-card{overflow:visible}.doc-lineage-copy{margin:12px 0 0;color:#8f839a;font-size:8px;line-height:1.55}.doc-lineage{position:relative;margin-top:21px}.doc-lineage:before{position:absolute;left:15px;top:27px;bottom:27px;width:1px;background:#dfd3ec;content:''}.doc-lineage-row{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;align-items:center;min-height:78px;padding:8px 0}.doc-lineage-version{position:relative;z-index:1;display:grid;width:31px;height:31px;place-items:center;border:1px solid #bea2e8;border-radius:50%;background:#f7f2ff;color:#7543c7;font-size:8px;font-weight:800}.doc-lineage-row.current .doc-lineage-version{border-color:#8b5cf6;background:#eee7fd;box-shadow:0 0 0 4px #fbf9ff}.doc-lineage-main{min-width:0}.doc-lineage-main h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0;color:#5a4b64;font-size:9px}.doc-lineage-status{display:inline-flex;border-radius:4px;padding:3px 5px;font-size:7px;font-weight:800;line-height:1}.doc-lineage-status.success{background:#e8f5ee;color:#478c6e}.doc-lineage-status.danger{background:#fff0eb;color:#b86f5c}.doc-lineage-status.violet{background:#f0e9fc;color:#7543c7}.doc-lineage-status.gold{background:#fff5df;color:#aa7928}.doc-lineage-main p{margin:5px 0 0;overflow:hidden;color:#877b91;font-size:8px;line-height:1.45;text-overflow:ellipsis;white-space:nowrap}.doc-lineage-meta{display:flex;align-items:center;gap:5px;min-width:0;margin-top:6px;color:#a196a5;font-size:7px}.doc-lineage-meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.doc-lineage-meta i{font-style:normal}.doc-lineage-meta b{color:#7543c7;font-size:7px}.doc-lineage-open{display:flex;align-items:center;gap:7px;border:1px solid #e5ddeb;border-radius:999px;padding:7px 8px 7px 10px;background:#fff;color:#918597;font-size:7px;cursor:pointer}.doc-lineage-open span{display:grid;width:16px;height:16px;place-items:center;border-radius:50%;background:#f0e9fc;color:#7543c7;font-size:8px}@media(max-width:560px){.doc-lineage-row{grid-template-columns:29px minmax(0,1fr)}.doc-lineage-version{width:28px;height:28px}.doc-lineage:before{left:13px}.doc-lineage-open{grid-column:2;justify-self:start;margin-top:-3px}.doc-lineage-main p{white-space:normal}.doc-lineage-copy{font-size:9px}}`}</style>
+      <style>{`.doc-faculty-submission{margin-top:16px;padding:21px;border-color:#e1d6f0;background:linear-gradient(135deg,#fff 20%,#fbf9ff)}.doc-faculty-heading{display:flex;align-items:flex-start;gap:10px}.doc-faculty-heading-icon{display:grid;flex:0 0 auto;width:30px;height:30px;place-items:center;border-radius:8px;background:#f0e8ff;color:#7c3aed;font-size:14px}.doc-faculty-heading .doc-label{margin-top:1px}.doc-faculty-heading h2{margin-top:5px;color:#382d43;font-size:18px;font-weight:800}.doc-faculty-intro{margin:13px 0 0;color:#887b92;font-size:9px;line-height:1.55}.doc-submission-upload{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-height:56px;margin-top:15px;border:1px dashed #cbb4ec;border-radius:9px;padding:8px 12px;background:#fdfbff;color:#7545b8;text-align:left}.doc-submission-upload-icon{display:grid!important;width:30px;height:30px;place-items:center;border-radius:8px;background:#eee5fb;color:#7543c7;font-size:12px;font-weight:800}.doc-submission-upload b{overflow:hidden;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.doc-submission-upload span:not(.doc-submission-upload-icon):not(.doc-submission-upload-view){max-width:none;margin-top:2px;color:#998ba4;font-size:7px}.doc-submission-upload-view{color:#7543c7;font-size:11px}.doc-submission-note-label{display:block;margin-top:14px;color:#887b96;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.doc-submission-note{min-height:68px;margin-top:7px;border-color:#e0d9e8;font-size:9px;line-height:1.55}.doc-submission-primary{width:auto;min-height:34px;margin-top:11px;padding:0 13px;border-radius:7px;box-shadow:0 7px 14px rgba(124,58,237,.2)}@media(max-width:560px){.doc-faculty-submission{padding:17px}.doc-faculty-heading h2{font-size:16px}.doc-submission-upload{grid-template-columns:30px minmax(0,1fr) auto;padding:8px 10px}.doc-submission-primary{width:100%}}`}</style>
       <Toasts
         items={toasts}
         remove={(toastId) =>
@@ -1271,20 +1271,25 @@ export default function DocumentReview() {
                   className="doc-faculty-submission"
                   id="faculty-submission"
                 >
-                  <Label>Faculty submission</Label>
-                  <h2>
+                  <div className="doc-faculty-heading">
+                    <span className="doc-faculty-heading-icon">➤</span>
+                    <div>
+                      <Label>Faculty submission</Label>
+                      <h2>
+                        {canSubmitReplacement
+                          ? "Submit your revised work"
+                          : hasSubmittedFile
+                            ? "Submission sent"
+                            : "Submit your completed work"}
+                      </h2>
+                    </div>
+                  </div>
+                  <p className="doc-faculty-intro">
                     {canSubmitReplacement
-                      ? "Submit a revised document"
+                      ? "Attach the corrected file and add a concise handoff note for the Program Chair."
                       : hasSubmittedFile
-                        ? "Submission sent"
-                        : "Send your document"}
-                  </h2>
-                  <p>
-                    {canSubmitReplacement
-                      ? "A revision was requested. Attach your updated file and send it back to the review team."
-                      : hasSubmittedFile
-                        ? "This document is already in the workflow. Withdraw it before replacing the file."
-                        : "Attach the completed document and add a short handoff note for the review team."}
+                        ? "Your work is in the review workflow. Withdraw it before replacing the file."
+                        : "Attach the completed file and leave a concise note that helps the chair make a decision."}
                   </p>
                   {hasSubmittedFile && !canSubmitReplacement ? (
                     <>
@@ -1337,7 +1342,7 @@ export default function DocumentReview() {
                       <input
                         ref={submissionFileRef}
                         type="file"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
                         style={{ display: "none" }}
                         onChange={(event) =>
                           setSubmissionFile(event.target.files?.[0] || null)
@@ -1348,27 +1353,37 @@ export default function DocumentReview() {
                         type="button"
                         onClick={() => submissionFileRef.current?.click()}
                       >
-                        <span>⇧</span>
+                        <span className="doc-submission-upload-icon">
+                          {submissionFile ? "✓" : "⌁"}
+                        </span>
                         <div>
                           <b>
                             {submissionFile
                               ? submissionFile.name
-                              : "Choose a document"}
+                              : "Attach completed file"}
                           </b>
                           <span>
                             {submissionFile
                               ? "Ready to send to the review team"
-                              : "PDF, DOC, DOCX, JPG, or PNG"}
+                              : "PDF, DOCX, XLSX, CSV, or image"}
                           </span>
                         </div>
+                        <span className="doc-submission-upload-view">◉</span>
                       </button>
+                      <label
+                        className="doc-submission-note-label"
+                        htmlFor="faculty-submission-note"
+                      >
+                        Submission note
+                      </label>
                       <textarea
+                        id="faculty-submission-note"
                         className="doc-submission-note"
                         value={submissionNote}
                         onChange={(event) =>
                           setSubmissionNote(event.target.value)
                         }
-                        placeholder="Add an optional note for the reviewer."
+                        placeholder="Summarize what was completed or flag any exception for review…"
                       />
                       <button
                         className="doc-submission-primary"
@@ -1379,8 +1394,8 @@ export default function DocumentReview() {
                         {submitting
                           ? "Submitting…"
                           : canSubmitReplacement
-                            ? "Submit revised document"
-                            : "Submit document"}
+                            ? "➤ Submit revised work"
+                            : "➤ Submit for chair review"}
                       </button>
                     </>
                   )}
