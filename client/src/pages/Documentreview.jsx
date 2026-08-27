@@ -1315,10 +1315,19 @@ export default function DocumentReview() {
                       const versionNumber = item.lineage_number;
                       const isCurrent =
                         activeVersion?.lineage_id === item.lineage_id;
-                      const versionStatus = versionWorkflowStatus(
+                      const inferredVersionStatus = versionWorkflowStatus(
                         item,
-                        reverseIndex === 0 ? status : "Pending",
+                        reverseIndex === 0 ? status : "",
                       );
+                      const isTerminalVersionStatus = [
+                        "Approved",
+                        "Returned",
+                        "Rejected",
+                      ].includes(inferredVersionStatus);
+                      const versionStatus =
+                        reverseIndex > 0 && !isTerminalVersionStatus
+                          ? "Returned"
+                          : inferredVersionStatus || status;
                       const rowFileName =
                         versionFileName(item) || `Version ${versionNumber}`;
                       const versionSize = versionFileSize(item);
