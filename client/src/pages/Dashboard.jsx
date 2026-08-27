@@ -3090,6 +3090,9 @@ export default function Dashboard() {
       <style>{`
         .path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-hero h1,.path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-focus h2,.path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-list h2{font-weight:800!important}
       `}</style>
+      <style>{`
+        .path-overview-shell .dashboard-workspace-canvas .path-overview-heading h2,.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:nth-child(2) h3,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid h3{font-weight:800!important}
+      `}</style>
 
       <Sidebar activePage="dashboard" />
 
