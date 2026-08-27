@@ -155,8 +155,34 @@ const versionWorkflowStatus = (item, fallback = "Pending") => {
     item?.review_status ||
     item?.decision ||
     item?.state ||
-    fallback;
-  return displayStatus(value, fallback);
+    "";
+  const normalized = displayStatus(value, "");
+  if (["Approved", "Returned", "Rejected"].includes(normalized)) {
+    return normalized;
+  }
+
+  const reviewerDirection = String(
+    item?.review_note ||
+      item?.reviewer_note ||
+      item?.reviewer_direction ||
+      item?.review_direction ||
+      item?.revision_instruction ||
+      item?.return_instruction ||
+      item?.return_reason ||
+      item?.note ||
+      item?.remarks ||
+      "",
+  ).trim();
+  if (item?.rejection_reason || item?.rejected_reason) return "Rejected";
+  if (
+    reviewerDirection &&
+    /\b(reviewer\s*(direction|instruction|feedback)|return(?:ed)?\s*(reason|instruction)|revision\s*(reason|instruction)|needs?\s+(revision|clarification|correction)|please\s+(revise|correct|update))\b/i.test(
+      reviewerDirection,
+    )
+  ) {
+    return "Returned";
+  }
+  return normalized || displayStatus(fallback);
 };
 const versionRecords = (...sources) => {
   const seen = new Set();
