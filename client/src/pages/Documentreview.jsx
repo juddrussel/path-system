@@ -176,6 +176,28 @@ const versionRecords = (...sources) => {
       is_current: index === items.length - 1,
     }));
 };
+const formLineageIdentifiers = (record) =>
+  [
+    record?.tracking_id,
+    record?.trackingId,
+    record?.tracking_number,
+    record?.trackingNumber,
+    record?.document_id,
+    record?.documentId,
+    record?.parent_form_id,
+    record?.parentFormId,
+    record?.form_id,
+    record?.formId,
+    record?.id,
+  ]
+    .filter((value) => value !== null && value !== undefined && value !== "")
+    .map((value) => String(value));
+const belongsToFormLineage = (candidate, form) => {
+  const formIdentifiers = new Set(formLineageIdentifiers(form));
+  return formLineageIdentifiers(candidate).some((identifier) =>
+    formIdentifiers.has(identifier),
+  );
+};
 
 function Toasts({ items, remove }) {
   return items.length ? (
@@ -227,6 +249,7 @@ export default function DocumentReview() {
   const [submissionFile, setSubmissionFile] = useState(null);
   const [submissionNote, setSubmissionNote] = useState("");
   const [withdrawing, setWithdrawing] = useState(false);
+  const [serverLineage, setServerLineage] = useState([]);
   const submissionFileRef = useRef(null);
 
   const currentUser = () => {
@@ -300,6 +323,42 @@ export default function DocumentReview() {
           };
         });
         if (latestVersions.length) persistVersions(latestForm, latestVersions);
+        try {
+          const role = String(currentUser()?.role || "").toLowerCase();
+          const historyEndpoint = [
+            "admin",
+            "program_chair",
+            "programchair",
+            "chair",
+          ].includes(role)
+            ? "/api/forms/all?limit=100"
+            : "/api/forms/my?limit=100";
+          const historyResponse = await fetch(`${API}${historyEndpoint}`, {
+            headers,
+          });
+          if (!historyResponse.ok || !isActive) return;
+          const historyPayload = await historyResponse.json();
+          const historyRows =
+            historyPayload.forms ||
+            historyPayload.items ||
+            historyPayload.results ||
+            historyPayload.data ||
+            historyPayload;
+          const matchingLineage = Array.isArray(historyRows)
+            ? historyRows.filter((item) =>
+                belongsToFormLineage(item, latestForm),
+              )
+            : [];
+          setServerLineage(matchingLineage);
+          const completeLineage = versionRecords(
+            latestVersions,
+            matchingLineage,
+          );
+          if (completeLineage.length)
+            persistVersions(latestForm, completeLineage);
+        } catch {
+          if (isActive) setServerLineage([]);
+        }
         setVersion(null);
       } catch {
         if (isActive && !form) setLoadError(true);
@@ -644,6 +703,7 @@ export default function DocumentReview() {
     form.versions,
     form.version_history,
     form.submission_versions,
+    serverLineage,
     readPersistedVersions(form),
   );
   const versions = mergedVersions.length
