@@ -122,6 +122,31 @@ const versionFileSize = (item) =>
   item?.file_size || item?.size || item?.bytes || item?.file?.size || "";
 const versionIdentity = (item, index) =>
   `${versionFileUrl(item) || versionFileName(item) || "file"}-${versionTimestamp(item) || item?.version || item?.submission_id || item?.id || index}`;
+const formVersionRecord = (form) => {
+  const fileUrl = versionFileUrl(form);
+  const fileName = versionFileName(form);
+  if (!fileUrl && !fileName) return [];
+  const recordedAt =
+    form?.submitted_at ||
+    form?.updated_at ||
+    form?.filing_date ||
+    form?.created_at ||
+    "";
+  return [
+    {
+      id: `record-${form?.id || form?.tracking_id || "form"}-${fileUrl || fileName}`,
+      file_name: fileName,
+      file_url: fileUrl,
+      file_size: versionFileSize(form),
+      status: form?.status,
+      note: form?.submission_note || form?.review_note || "",
+      submission_note: form?.submission_note || "",
+      submitted_at: recordedAt,
+      created_at: recordedAt,
+      is_current: true,
+    },
+  ];
+};
 const mergeVersions = (...sources) => {
   const seen = new Set();
   return sources
@@ -256,20 +281,48 @@ export default function DocumentReview() {
     })();
   }, []);
   useEffect(() => {
-    if (form) return;
+    let isActive = true;
     (async () => {
-      setLoading(true);
+      if (!form) setLoading(true);
       try {
         const response = await fetch(`${API}/api/forms/${id}`, { headers });
         if (!response.ok) throw new Error("not found");
         const data = await response.json();
-        setForm(data.form || data);
+        const latestForm = data.form || data;
+        if (!isActive) return;
+        setForm((current) => {
+          const latestVersions = mergeVersions(
+            latestForm.submissions,
+            latestForm.submitted_files,
+            latestForm.submission_files,
+            latestForm.versions,
+            latestForm.version_history,
+            latestForm.submission_versions,
+            formVersionRecord(latestForm),
+            current?.submissions,
+            current?.submitted_files,
+            current?.submission_files,
+            current?.versions,
+            current?.version_history,
+            current?.submission_versions,
+            readStoredVersions(latestForm),
+          );
+          return {
+            ...current,
+            ...latestForm,
+            ...(latestVersions.length ? { submissions: latestVersions } : {}),
+          };
+        });
+        setVersion(null);
       } catch {
-        setLoadError(true);
+        if (isActive && !form) setLoadError(true);
       } finally {
-        setLoading(false);
+        if (isActive) setLoading(false);
       }
     })();
+    return () => {
+      isActive = false;
+    };
   }, [id]);
 
   const decision = async (
@@ -360,6 +413,13 @@ export default function DocumentReview() {
         data = await response.json();
       } catch {}
       const updated = data.form || data;
+      const responseSubmission =
+        data.submission ||
+        data.latest_submission ||
+        data.submission_record ||
+        data.version ||
+        data.file ||
+        null;
       setForm((current) => {
         const persistedSubmissions =
           [
@@ -412,21 +472,31 @@ export default function DocumentReview() {
                 },
               ]
             : [];
+        const returnedFileName = versionFileName(responseSubmission);
+        const returnedFileUrl = versionFileUrl(responseSubmission);
+        const formReturnedFileName = versionFileName(updated);
+        const formReturnedFileUrl = versionFileUrl(updated);
+        const submittedFileUrl =
+          returnedFileUrl ||
+          (formReturnedFileName === submissionFile.name
+            ? formReturnedFileUrl
+            : "");
         const submittedAt =
-          updated.submitted_at ||
-          updated.created_at ||
-          updated.updated_at ||
+          responseSubmission?.submitted_at ||
+          responseSubmission?.created_at ||
+          responseSubmission?.updated_at ||
           new Date().toISOString();
         const nextSubmission = {
           id:
-            updated.submission_id ||
-            updated.version_id ||
+            responseSubmission?.submission_id ||
+            responseSubmission?.version_id ||
+            responseSubmission?.id ||
             `local-${submittedAt}-${submissionFile.name}`,
-          file_name: updated.file_name || submissionFile.name,
-          file_url: updated.file_url || updated.file_path || "",
-          file_path: updated.file_path || "",
-          size: updated.file_size || submissionFile.size,
-          file_size: updated.file_size || submissionFile.size,
+          file_name: submissionFile.name,
+          file_url: submittedFileUrl,
+          file_path: submittedFileUrl,
+          size: versionFileSize(responseSubmission) || submissionFile.size,
+          file_size: versionFileSize(responseSubmission) || submissionFile.size,
           status: updated.status || "Pending",
           note:
             updated.review_note || submissionNote.trim() || current.review_note,
@@ -446,9 +516,8 @@ export default function DocumentReview() {
         return {
           ...current,
           ...updated,
-          file_name: updated.file_name || submissionFile.name,
-          file_url:
-            updated.file_url || updated.file_path || current.file_url || "",
+          file_name: submissionFile.name,
+          file_url: submittedFileUrl || current.file_url || "",
           status: updated.status || "Pending",
           review_note:
             updated.review_note || submissionNote.trim() || current.review_note,
@@ -457,6 +526,7 @@ export default function DocumentReview() {
       });
       setSubmissionFile(null);
       setSubmissionNote("");
+      setVersion(null);
       notify("Submission sent to the review queue.", "success");
     } catch {
       notify("Could not reach the server. Please try again.", "error");
@@ -496,6 +566,7 @@ export default function DocumentReview() {
       }));
       setSubmissionFile(null);
       setSubmissionNote("");
+      setVersion(null);
       notify(
         "Submission withdrawn. You can now submit a different file.",
         "success",
@@ -585,6 +656,7 @@ export default function DocumentReview() {
     form.versions,
     form.version_history,
     form.submission_versions,
+    formVersionRecord(form),
     readStoredVersions(form),
   );
   const versions = mergedVersions.length
