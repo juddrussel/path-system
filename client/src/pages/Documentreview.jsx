@@ -65,6 +65,31 @@ const DECISION_REASONS = {
     "Other rejection reason",
   ],
 };
+const VERSION_HISTORY_STORAGE_PREFIX = "path.document-review.lineage:";
+const versionHistoryKey = (form) =>
+  `${VERSION_HISTORY_STORAGE_PREFIX}${form?.id || form?.tracking_id || "unknown"}`;
+const readPersistedVersions = (form) => {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = JSON.parse(
+      window.localStorage.getItem(versionHistoryKey(form)) || "[]",
+    );
+    return Array.isArray(stored)
+      ? stored.filter((item) => item && typeof item === "object")
+      : [];
+  } catch {
+    return [];
+  }
+};
+const persistVersions = (form, versions) => {
+  if (typeof window === "undefined" || !Array.isArray(versions)) return;
+  try {
+    window.localStorage.setItem(
+      versionHistoryKey(form),
+      JSON.stringify(versions),
+    );
+  } catch {}
+};
 const versionTimestamp = (item) =>
   item?.submitted_at || item?.created_at || item?.updated_at || "";
 const versionFileUrl = (item) => {
@@ -248,6 +273,7 @@ export default function DocumentReview() {
           form?.versions,
           form?.version_history,
           form?.submission_versions,
+          readPersistedVersions(latestForm),
         );
         setForm((current) => {
           return {
@@ -256,6 +282,7 @@ export default function DocumentReview() {
             ...(latestVersions.length ? { submissions: latestVersions } : {}),
           };
         });
+        if (latestVersions.length) persistVersions(latestForm, latestVersions);
         setVersion(null);
       } catch {
         if (isActive && !form) setLoadError(true);
@@ -452,8 +479,10 @@ export default function DocumentReview() {
         const nextVersions = versionRecords(
           currentSubmissions,
           persistedSubmissions,
+          readPersistedVersions(current),
           [nextSubmission],
         );
+        persistVersions(current, nextVersions);
         return {
           ...current,
           ...updated,
@@ -598,6 +627,7 @@ export default function DocumentReview() {
     form.versions,
     form.version_history,
     form.submission_versions,
+    readPersistedVersions(form),
   );
   const versions = mergedVersions.length
     ? mergedVersions
