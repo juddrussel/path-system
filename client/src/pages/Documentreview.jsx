@@ -378,15 +378,6 @@ export default function DocumentReview() {
   const hasSubmittedFile = Boolean(submittedFileValue || form.file_name);
   const isRevision = /revision|returned/i.test(status);
   const canSubmitReplacement = isFacultyView && isRevision;
-  const url = submittedFileValue ? fileUrl(submittedFileValue) : "";
-  const extension = (form.file_name || submittedFileValue || "")
-    .split(".")
-    .pop()
-    .toLowerCase();
-  const pdf = extension === "pdf";
-  const image = ["jpg", "jpeg", "png", "gif", "webp"].includes(extension);
-  const pageCount = Number(form.page_count || form.pages) || 1;
-  const fileMeta = `${extension ? extension.toUpperCase() : "FILE"}${form.file_size ? ` • ${form.file_size}` : ""}`;
   let valueMap = null;
   try {
     valueMap =
@@ -418,6 +409,23 @@ export default function DocumentReview() {
       ];
   const activeVersion =
     version || versions.find((item) => item.is_current) || versions[0];
+  const activeFileValue =
+    activeVersion?.file_url ||
+    activeVersion?.file_path ||
+    activeVersion?.url ||
+    submittedFileValue;
+  const activeFileName =
+    activeVersion?.file_name || activeVersion?.name || form.file_name;
+  const url = activeFileValue ? fileUrl(activeFileValue) : "";
+  const extension = (activeFileName || activeFileValue || "")
+    .split(".")
+    .pop()
+    .toLowerCase();
+  const pdf = extension === "pdf";
+  const image = ["jpg", "jpeg", "png", "gif", "webp"].includes(extension);
+  const pageCount =
+    Number(activeVersion?.page_count || form.page_count || form.pages) || 1;
+  const fileMeta = `${extension ? extension.toUpperCase() : "FILE"}${activeVersion?.file_size || form.file_size ? ` • ${activeVersion?.file_size || form.file_size}` : ""}`;
   const audits = Array.isArray(form.audit_trail || form.audit || form.history)
     ? form.audit_trail || form.audit || form.history
     : [
@@ -543,6 +551,7 @@ export default function DocumentReview() {
       <style>{`.doc-preview-head p{font-weight:800;color:#5b4e64}.doc-panel h2,.doc-summary h2,.doc-comments h2,.doc-history h2,.doc-audit h2,.doc-owners h2,.doc-decision h2,.doc-sla h2{font-weight:800}.doc-sla h3{font-weight:800}.doc-sla p,.doc-sla-grid strong{font-weight:800}.doc-decision label{font-weight:800}.doc-compare-head{font-weight:800}.doc-empty-note strong{font-weight:800}`}</style>
       <style>{`.doc-decision-intro{margin:8px 0 16px;color:#877a90;font-size:9px;line-height:1.55}.doc-optional{margin-left:4px;color:#9b90a2;font-size:8px;font-weight:600;text-transform:none}.doc-decision-actions .approve{grid-column:1/-1}.doc-decision-actions .return,.doc-decision-actions .reject{min-height:38px}.doc-decision-actions .return{border-color:#e9d7a6;background:#fffcf4}.doc-decision-actions .reject{border-color:#edcfcb;background:#fff7f5}.doc-decision-modal-backdrop{position:fixed;z-index:1500;inset:0;display:grid;place-items:center;padding:20px;background:rgba(43,30,59,.38);backdrop-filter:blur(5px)}.doc-decision-modal{position:relative;width:min(100%,560px);max-height:calc(100vh - 40px);overflow:auto;border:1px solid #e3d8ed;border-radius:16px;padding:27px;background:#fff;box-shadow:0 24px 65px rgba(42,25,63,.28);color:#51435b}.doc-decision-modal.return{border-top:4px solid #c59335}.doc-decision-modal.reject{border-top:4px solid #bd665c}.doc-decision-modal-close{position:absolute;top:14px;right:15px;display:grid;width:29px;height:29px;place-items:center;border:1px solid #e6dfee;border-radius:8px;background:#fff;color:#8e8198;font-size:19px;line-height:1;cursor:pointer}.doc-decision-modal-kicker{display:flex;align-items:center;gap:8px;color:#8b7e95;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.doc-decision-modal-kicker span{display:grid;width:25px;height:25px;place-items:center;border-radius:7px;background:#f4ebff;color:#7742c6;font-size:14px}.doc-decision-modal.reject .doc-decision-modal-kicker span{background:#fff0ed;color:#b75f54}.doc-decision-modal h2{margin:15px 0 6px;color:#382b42;font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.05em}.doc-decision-modal>p{margin:0;color:#887b91;font-size:10px;line-height:1.6}.doc-decision-modal-record{display:flex;justify-content:space-between;gap:12px;margin:18px 0;padding:11px 12px;border:1px solid #ede6f2;border-radius:9px;background:#faf8fc;color:#6d5f75;font-size:9px}.doc-decision-modal-record span{overflow:hidden;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.doc-decision-modal-record b{flex:0 0 auto;color:#9a8da2;font-size:8px}.doc-decision-modal label{display:block;margin-top:16px;color:#605169;font-size:10px;font-weight:800}.doc-decision-modal label em{margin-left:4px;color:#b85f55;font-size:8px;font-style:normal;font-weight:800}.doc-decision-modal select,.doc-decision-modal textarea{width:100%;margin-top:7px;border:1px solid #ded4e7;border-radius:8px;padding:10px 11px;background:#fff;color:#55475f;font-family:'DM Sans',sans-serif;font-size:10px;outline:0}.doc-decision-modal select{height:39px;cursor:pointer}.doc-decision-modal textarea{min-height:110px;resize:vertical;line-height:1.55}.doc-decision-modal select:focus,.doc-decision-modal textarea:focus{border-color:#b79ae6;box-shadow:0 0 0 3px #f3edff}.doc-decision-modal-selection{margin-top:9px;padding:9px 10px;border-left:2px solid #9d78dd;border-radius:0 7px 7px 0;background:#faf8fd}.doc-decision-modal-selection span{display:block;color:#9d91a5;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.doc-decision-modal-selection strong{display:block;margin-top:3px;color:#62536c;font-size:9px;font-weight:800}.doc-decision-modal-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:19px}.doc-decision-modal-actions button{min-height:38px;border:1px solid #e1d7e9;border-radius:8px;background:#fff;color:#75677e;font-size:10px;font-weight:800;cursor:pointer}.doc-decision-modal-actions button[type='submit']{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.2)}.doc-decision-modal.reject .doc-decision-modal-actions button[type='submit']{border-color:#b75f54;background:#b75f54;box-shadow:0 7px 14px rgba(183,95,84,.2)}.doc-decision-modal-actions button:disabled,.doc-decision-modal-close:disabled{cursor:not-allowed;opacity:.6}@media(max-width:560px){.doc-decision-modal-backdrop{padding:12px}.doc-decision-modal{max-height:calc(100vh - 24px);padding:22px 18px}.doc-decision-modal h2{font-size:21px}.doc-decision-modal-actions{grid-template-columns:1fr}.doc-decision-modal-actions button[type='submit']{grid-row:1}.doc-decision-actions{grid-template-columns:1fr}}`}</style>
       <style>{`.doc-faculty-submission{margin-top:16px;padding:19px;border-color:#dfd2f5;background:linear-gradient(150deg,#fff 18%,#fbf9ff)}.doc-faculty-submission h2{margin-top:6px}.doc-faculty-submission>p{margin:8px 0 0;color:#887b92;font-size:9px;line-height:1.55}.doc-submission-upload{display:grid;place-items:center;min-height:112px;margin-top:16px;border:1.5px dashed #cbb5ef;border-radius:10px;background:#fcfaff;color:#7647b2;text-align:center;cursor:pointer;transition:border-color .16s ease,background .16s ease}.doc-submission-upload:hover{border-color:#7c3aed;background:#f8f4ff}.doc-submission-upload b,.doc-submission-upload span{display:block}.doc-submission-upload b{font-size:10px}.doc-submission-upload span{max-width:210px;margin-top:4px;color:#9b8fa3;font-size:8px;line-height:1.45}.doc-submission-note{width:100%;min-height:78px;margin-top:10px;resize:vertical;border:1px solid #e5deed;border-radius:8px;padding:10px;color:#5b4e64;font-family:'DM Sans',sans-serif;font-size:9px;outline:0}.doc-submission-note:focus{border-color:#bda1ec;box-shadow:0 0 0 3px #f4effe}.doc-submission-primary,.doc-submission-withdraw{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:35px;margin-top:10px;border-radius:8px;font-size:9px;font-weight:800;cursor:pointer}.doc-submission-primary{border:1px solid #7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.18)}.doc-submission-primary:disabled,.doc-submission-withdraw:disabled{cursor:not-allowed;opacity:.6}.doc-submitted-file{display:flex;align-items:center;gap:9px;margin-top:16px;padding:11px;border:1px solid #ded1f4;border-radius:9px;background:#fbf9ff}.doc-submitted-file>i{display:grid;flex:0 0 auto;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;color:#7543c7;font-style:normal}.doc-submitted-file strong,.doc-submitted-file span{display:block}.doc-submitted-file strong{overflow:hidden;color:#5e4e68;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.doc-submitted-file span{margin-top:3px;color:#9b90a1;font-size:8px}.doc-submission-locked{display:flex;gap:8px;margin-top:12px;padding:10px;border-left:2px solid #a882ec;border-radius:0 7px 7px 0;background:#faf8fe;color:#82758e;font-size:8px;line-height:1.5}.doc-submission-withdraw{border:1px solid #edcfcb;background:#fff8f7;color:#a85d55}`}</style>
+      <style>{`.doc-lineage-card{overflow:visible}.doc-lineage-copy{margin:12px 0 0;color:#8f839a;font-size:8px;line-height:1.55}.doc-lineage{position:relative;margin-top:21px}.doc-lineage:before{position:absolute;left:15px;top:27px;bottom:27px;width:1px;background:#dfd3ec;content:''}.doc-lineage-row{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;align-items:center;min-height:78px;padding:8px 0}.doc-lineage-version{position:relative;z-index:1;display:grid;width:31px;height:31px;place-items:center;border:1px solid #bea2e8;border-radius:50%;background:#f7f2ff;color:#7543c7;font-size:8px;font-weight:800}.doc-lineage-row.current .doc-lineage-version{border-color:#8b5cf6;background:#eee7fd;box-shadow:0 0 0 4px #fbf9ff}.doc-lineage-main{min-width:0}.doc-lineage-main h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0;color:#5a4b64;font-size:9px}.doc-lineage-status{display:inline-flex;border-radius:4px;padding:3px 5px;font-size:7px;font-weight:800;line-height:1}.doc-lineage-status.success{background:#e8f5ee;color:#478c6e}.doc-lineage-status.danger{background:#fff0eb;color:#b86f5c}.doc-lineage-status.violet{background:#f0e9fc;color:#7543c7}.doc-lineage-status.gold{background:#fff5df;color:#aa7928}.doc-lineage-main p{margin:5px 0 0;overflow:hidden;color:#877b91;font-size:8px;line-height:1.45;text-overflow:ellipsis;white-space:nowrap}.doc-lineage-meta{display:flex;align-items:center;gap:5px;min-width:0;margin-top:6px;color:#a196a5;font-size:7px}.doc-lineage-meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.doc-lineage-meta i{font-style:normal}.doc-lineage-meta b{color:#7543c7;font-size:7px}.doc-lineage-open{display:flex;align-items:center;gap:7px;border:1px solid #e5ddeb;border-radius:999px;padding:7px 8px 7px 10px;background:#fff;color:#918597;font-size:7px;cursor:pointer}.doc-lineage-open span{display:grid;width:16px;height:16px;place-items:center;border-radius:50%;background:#f0e9fc;color:#7543c7;font-size:8px}@media(max-width:560px){.doc-lineage-row{grid-template-columns:29px minmax(0,1fr)}.doc-lineage-version{width:28px;height:28px}.doc-lineage:before{left:13px}.doc-lineage-open{grid-column:2;justify-self:start;margin-top:-3px}.doc-lineage-main p{white-space:normal}.doc-lineage-copy{font-size:9px}}`}</style>
       <Toasts
         items={toasts}
         remove={(toastId) =>
@@ -849,10 +858,10 @@ export default function DocumentReview() {
                 )}
               </Panel>
               <section className="doc-workflow">
-                <Panel className="doc-history">
+                <Panel className="doc-history doc-lineage-card">
                   <div className="doc-head">
                     <div>
-                      <Label>Submission history</Label>
+                      <Label>Document lineage</Label>
                       <h2>Version history</h2>
                     </div>
                     <span className="doc-badge">
@@ -860,45 +869,80 @@ export default function DocumentReview() {
                       {versions.length === 1 ? "" : "s"}
                     </span>
                   </div>
-                  <div className="doc-version-list">
-                    {versions.map((item, index) => (
-                      <button
-                        type="button"
-                        className={`doc-version ${(activeVersion?.id || activeVersion?.version) === (item.id || item.version) ? "active" : ""}`}
-                        key={item.id || item.version || index}
-                        onClick={() => setVersion(item)}
-                      >
-                        <span>
-                          <strong>
-                            {item.label ||
-                              `Version ${item.version || versions.length - index}`}
-                          </strong>
-                          <span>
-                            {shortTime(
-                              item.created_at || item.submitted_at,
-                              "Current record",
-                            )}
+                  <p className="doc-lineage-copy">
+                    Every submission and revision stays traceable within this
+                    document record before a final decision is made.
+                  </p>
+                  <div className="doc-lineage">
+                    {[...versions].reverse().map((item, reverseIndex) => {
+                      const versionNumber =
+                        item.version || versions.length - reverseIndex;
+                      const isCurrent =
+                        (activeVersion?.id || activeVersion?.version) ===
+                        (item.id || item.version);
+                      const versionStatus =
+                        item.status ||
+                        (item.is_current || reverseIndex === 0
+                          ? status
+                          : "Submitted");
+                      const versionFileName =
+                        item.file_name ||
+                        item.name ||
+                        form.file_name ||
+                        `Version ${versionNumber}`;
+                      const versionSize = item.file_size || item.size;
+                      return (
+                        <article
+                          className={`doc-lineage-row ${isCurrent ? "current" : ""}`}
+                          key={item.id || item.version || reverseIndex}
+                        >
+                          <span className="doc-lineage-version">
+                            v{versionNumber}
                           </span>
-                        </span>
-                        <i className="doc-badge">
-                          {item.is_current ? "Current" : "View"}
-                        </i>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="doc-compare">
-                    <div className="doc-compare-head">
-                      <span>Version context</span>
-                      <span>
-                        {activeVersion?.label ||
-                          `Version ${activeVersion?.version || "—"}`}
-                      </span>
-                    </div>
-                    <p>
-                      Select a version to inspect its submission date and
-                      workflow context. Detailed file comparison appears here
-                      when version analysis is available.
-                    </p>
+                          <div className="doc-lineage-main">
+                            <h3>
+                              {reverseIndex === 0
+                                ? "Current submission"
+                                : "Prior submission"}
+                              <span
+                                className={`doc-lineage-status ${statusTone(versionStatus)}`}
+                              >
+                                {versionStatus}
+                              </span>
+                            </h3>
+                            <p>
+                              {item.note ||
+                                item.submission_note ||
+                                (isCurrent && form.review_note) ||
+                                "No submission note recorded."}
+                            </p>
+                            <div className="doc-lineage-meta">
+                              <span>{versionFileName}</span>
+                              {versionSize && <i>•</i>}
+                              {versionSize && <span>{versionSize}</span>}
+                              {reverseIndex === 0 && <b>Latest</b>}
+                            </div>
+                          </div>
+                          <button
+                            className="doc-lineage-open"
+                            type="button"
+                            aria-label={`View version ${versionNumber}`}
+                            onClick={() => {
+                              setVersion(item);
+                              setPreview(true);
+                            }}
+                          >
+                            <time>
+                              {shortTime(
+                                item.created_at || item.submitted_at,
+                                "Current record",
+                              )}
+                            </time>
+                            <span>◉</span>
+                          </button>
+                        </article>
+                      );
+                    })}
                   </div>
                 </Panel>
                 <Panel className="doc-audit">
