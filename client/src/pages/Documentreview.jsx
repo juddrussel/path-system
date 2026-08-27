@@ -139,6 +139,25 @@ const versionFileName = (item) => {
 };
 const versionFileSize = (item) =>
   item?.file_size || item?.size || item?.bytes || item?.file?.size || "";
+const displayStatus = (value, fallback = "Pending") => {
+  const status = String(value || "").trim();
+  if (/approved|completed|complete/i.test(status)) return "Approved";
+  if (/returned|revision|revise/i.test(status)) return "Returned";
+  if (/rejected/i.test(status)) return "Rejected";
+  if (/review/i.test(status)) return "In review";
+  if (/pending|draft/i.test(status)) return "Pending";
+  return status || fallback;
+};
+const versionWorkflowStatus = (item, fallback = "Pending") => {
+  const value =
+    item?.status ||
+    item?.workflow_status ||
+    item?.review_status ||
+    item?.decision ||
+    item?.state ||
+    fallback;
+  return displayStatus(value, fallback);
+};
 const versionRecords = (...sources) => {
   const seen = new Set();
   const records = [];
@@ -406,18 +425,69 @@ export default function DocumentReview() {
         action === "approve"
           ? "Approved"
           : action === "revise"
-            ? "Revision"
+            ? "Returned"
             : action === "reject"
               ? "Rejected"
               : form.status;
-      setForm((current) => ({
-        ...current,
-        ...updated,
-        status: updated.status || statusAfterDecision,
-        review_note: updated.review_note || noteOverride || current.review_note,
-        updated_at:
-          updated.updated_at || updated.reviewed_at || new Date().toISOString(),
-      }));
+      setForm((current) => {
+        const existingVersions = versionRecords(
+          current.submissions,
+          current.submitted_files,
+          current.submission_files,
+          current.versions,
+          current.version_history,
+          current.submission_versions,
+          readPersistedVersions(current),
+        );
+        const fileValue =
+          current.file_url ||
+          current.file_path ||
+          current.attachment_url ||
+          current.uploaded_file;
+        const priorVersions = existingVersions.length
+          ? existingVersions
+          : fileValue || current.file_name
+            ? [
+                {
+                  id: `current-${current.id}`,
+                  file_name: current.file_name,
+                  file_url: fileValue || "",
+                  status: current.status || "Pending",
+                  note: current.review_note || "",
+                  submitted_at:
+                    current.submitted_at ||
+                    current.updated_at ||
+                    current.created_at,
+                },
+              ]
+            : [];
+        const decidedVersions = priorVersions.map((entry, index) =>
+          index === priorVersions.length - 1
+            ? {
+                ...entry,
+                status: statusAfterDecision,
+                review_status: statusAfterDecision,
+                note: noteOverride || entry.note || "",
+                review_note: noteOverride || entry.review_note || "",
+                updated_at: new Date().toISOString(),
+              }
+            : entry,
+        );
+        const nextForm = {
+          ...current,
+          ...updated,
+          status: statusAfterDecision,
+          review_note:
+            updated.review_note || noteOverride || current.review_note,
+          updated_at:
+            updated.updated_at ||
+            updated.reviewed_at ||
+            new Date().toISOString(),
+          submissions: decidedVersions,
+        };
+        persistVersions(nextForm, decidedVersions);
+        return nextForm;
+      });
       setDecisionForm(null);
       setNote("");
       notify(successMessage, "success");
@@ -692,7 +762,8 @@ export default function DocumentReview() {
   const reviewer = isFacultyView
     ? form.reviewer_name || form.current_owner || "Program Chair"
     : user.full_name || user.username || "Program Chair (You)";
-  const status = form.status || "Pending";
+  const rawStatus = form.status || "Pending";
+  const status = displayStatus(rawStatus);
   const category = form.category || form.document_type || "Academic form";
   const submitted = form.filing_date || form.date || form.created_at;
   const deadline = form.review_due || form.deadline || form.due_date;
@@ -702,7 +773,7 @@ export default function DocumentReview() {
     form.attachment_url ||
     form.uploaded_file;
   const hasSubmittedFile = Boolean(submittedFileValue || form.file_name);
-  const isRevision = /revision|returned/i.test(status);
+  const isRevision = /revision|returned/i.test(rawStatus);
   const canSubmitReplacement = isFacultyView && isRevision;
   let valueMap = null;
   try {
@@ -1218,9 +1289,10 @@ export default function DocumentReview() {
                       const versionNumber = item.lineage_number;
                       const isCurrent =
                         activeVersion?.lineage_id === item.lineage_id;
-                      const versionStatus =
-                        item.status ||
-                        (reverseIndex === 0 ? status : "Submitted");
+                      const versionStatus = versionWorkflowStatus(
+                        item,
+                        reverseIndex === 0 ? status : "Pending",
+                      );
                       const rowFileName =
                         versionFileName(item) || `Version ${versionNumber}`;
                       const versionSize = versionFileSize(item);
@@ -1489,9 +1561,7 @@ export default function DocumentReview() {
                             <strong>
                               {form.file_name || "Current submission"}
                             </strong>
-                            <span>
-                              Revision requested · attach a replacement below
-                            </span>
+                            <span>Returned · attach a replacement below</span>
                           </div>
                         </div>
                       )}
