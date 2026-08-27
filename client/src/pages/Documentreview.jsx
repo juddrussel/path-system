@@ -299,23 +299,23 @@ export default function DocumentReview() {
         const data = await response.json();
         const latestForm = data.form || data;
         if (!isActive) return;
+        const latestVersions = mergeVersions(
+          latestForm.submissions,
+          latestForm.submitted_files,
+          latestForm.submission_files,
+          latestForm.versions,
+          latestForm.version_history,
+          latestForm.submission_versions,
+          formVersionRecord(latestForm),
+          form?.submissions,
+          form?.submitted_files,
+          form?.submission_files,
+          form?.versions,
+          form?.version_history,
+          form?.submission_versions,
+          readStoredVersions(latestForm),
+        );
         setForm((current) => {
-          const latestVersions = mergeVersions(
-            latestForm.submissions,
-            latestForm.submitted_files,
-            latestForm.submission_files,
-            latestForm.versions,
-            latestForm.version_history,
-            latestForm.submission_versions,
-            formVersionRecord(latestForm),
-            current?.submissions,
-            current?.submitted_files,
-            current?.submission_files,
-            current?.versions,
-            current?.version_history,
-            current?.submission_versions,
-            readStoredVersions(latestForm),
-          );
           return {
             ...current,
             ...latestForm,
