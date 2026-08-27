@@ -651,6 +651,7 @@ function PathTasksWorkspace({
     <div className="path-task-shell">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+        .path-task-date,.path-assigned-date{color:#6f9b93!important;font-weight:500!important}.path-task-date::-webkit-datetime-edit,.path-task-date::-webkit-datetime-edit-fields-wrapper,.path-task-date::-webkit-datetime-edit-text,.path-task-date::-webkit-datetime-edit-month-field,.path-task-date::-webkit-datetime-edit-day-field,.path-task-date::-webkit-datetime-edit-year-field,.path-assigned-date::-webkit-datetime-edit,.path-assigned-date::-webkit-datetime-edit-fields-wrapper,.path-assigned-date::-webkit-datetime-edit-text,.path-assigned-date::-webkit-datetime-edit-month-field,.path-assigned-date::-webkit-datetime-edit-day-field,.path-assigned-date::-webkit-datetime-edit-year-field{color:#6f9b93!important}
         /* PATH typography: editorial Manrope display with compact DM Sans operational UI. */
         .path-task-shell{font-family:'DM Sans',sans-serif;font-weight:500;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
         .path-task-shell .path-task-kicker,.path-task-shell .path-task-section-label,.path-task-shell .path-task-role>span,.path-task-shell .path-task-stat small,.path-task-shell .path-task-table-head,.path-task-shell .path-task-detail-grid small,.path-task-shell .path-task-detail-section h3{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:.115em;line-height:1.12}
@@ -2798,6 +2799,7 @@ export default function MyTasks() {
                 </svg>
                 <span style={{ color: "#888" }}>Date Range</span>
                 <input
+                  className="path-task-date"
                   type="date"
                   value={dateRange}
                   onChange={(e) => setDateRange(e.target.value)}
