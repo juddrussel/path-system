@@ -4084,13 +4084,6 @@ export default function Forms() {
                               Open form record →
                             </button>
                             <button
-                              className="return"
-                              type="button"
-                              onClick={() => handleReview(reviewSelected)}
-                            >
-                              Return for revision
-                            </button>
-                            <button
                               type="button"
                               onClick={() => handleReview(reviewSelected)}
                             >

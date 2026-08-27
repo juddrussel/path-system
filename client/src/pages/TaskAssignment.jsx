@@ -651,6 +651,7 @@ function TaskAssignmentInner() {
       `}</style>
       <style>{`
         .path-assignment-picker-trigger,.path-assignment-picker-trigger>span,.path-assignment-picker-trigger>strong{font-family:'DM Sans',sans-serif !important}.path-assignment-picker-trigger{font-size:10px !important;font-weight:600 !important;letter-spacing:-.01em;line-height:1.2}.path-assignment-picker-trigger>span{font-size:10px !important;font-weight:600 !important;line-height:1.2}.path-assignment-picker-trigger>strong{font-size:12px !important;font-weight:700 !important;line-height:1;color:#806e8d}
+        .path-assignment-section:first-of-type .path-assignment-section-head small{font-size:7px!important;line-height:1!important;letter-spacing:.12em}.path-assignment-section:first-of-type .path-assignment-section-head h2{font-size:13px!important;line-height:1.15!important;letter-spacing:-.035em}.path-assignment-section:first-of-type .path-assignment-mode button{min-height:31px!important;padding:0 10px!important;font-size:8px!important;line-height:1!important}.path-assignment-section:first-of-type .path-assignment-role-select{height:34px!important;padding:0 10px!important;font-size:9px!important;line-height:1.1!important}.path-assignment-section:first-of-type .path-assignment-role-select option{font-size:9px!important}
       `}</style>
       <Sidebar activePage="assign-task" />
       <main className="path-assignment-main">
