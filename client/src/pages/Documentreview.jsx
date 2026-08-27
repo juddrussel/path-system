@@ -376,6 +376,8 @@ export default function DocumentReview() {
     form.attachment_url ||
     form.uploaded_file;
   const hasSubmittedFile = Boolean(submittedFileValue || form.file_name);
+  const isRevision = /revision|returned/i.test(status);
+  const canSubmitReplacement = isFacultyView && isRevision;
   const url = submittedFileValue ? fileUrl(submittedFileValue) : "";
   const extension = (form.file_name || submittedFileValue || "")
     .split(".")
@@ -1018,16 +1020,20 @@ export default function DocumentReview() {
                 >
                   <Label>Faculty submission</Label>
                   <h2>
-                    {hasSubmittedFile
-                      ? "Submission sent"
-                      : "Send your document"}
+                    {canSubmitReplacement
+                      ? "Submit a revised document"
+                      : hasSubmittedFile
+                        ? "Submission sent"
+                        : "Send your document"}
                   </h2>
                   <p>
-                    {hasSubmittedFile
-                      ? "This document is already in the workflow. Withdraw it before replacing the file."
-                      : "Attach the completed document and add a short handoff note for the review team."}
+                    {canSubmitReplacement
+                      ? "A revision was requested. Attach your updated file and send it back to the review team."
+                      : hasSubmittedFile
+                        ? "This document is already in the workflow. Withdraw it before replacing the file."
+                        : "Attach the completed document and add a short handoff note for the review team."}
                   </p>
-                  {hasSubmittedFile ? (
+                  {hasSubmittedFile && !canSubmitReplacement ? (
                     <>
                       <div className="doc-submitted-file">
                         <i>▤</i>
@@ -1062,6 +1068,19 @@ export default function DocumentReview() {
                     </>
                   ) : (
                     <>
+                      {canSubmitReplacement && (
+                        <div className="doc-submitted-file">
+                          <i>↩</i>
+                          <div>
+                            <strong>
+                              {form.file_name || "Current submission"}
+                            </strong>
+                            <span>
+                              Revision requested · attach a replacement below
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <input
                         ref={submissionFileRef}
                         type="file"
@@ -1104,7 +1123,11 @@ export default function DocumentReview() {
                         disabled={submitting || !submissionFile}
                         onClick={submitFacultyFile}
                       >
-                        {submitting ? "Submitting…" : "Submit document"}
+                        {submitting
+                          ? "Submitting…"
+                          : canSubmitReplacement
+                            ? "Submit revised document"
+                            : "Submit document"}
                       </button>
                     </>
                   )}
