@@ -1325,9 +1325,11 @@ export default function DocumentReview() {
                         "Rejected",
                       ].includes(inferredVersionStatus);
                       const versionStatus =
-                        reverseIndex > 0 && !isTerminalVersionStatus
-                          ? "Returned"
-                          : inferredVersionStatus || status;
+                        reverseIndex === 0
+                          ? status
+                          : !isTerminalVersionStatus
+                            ? "Returned"
+                            : inferredVersionStatus;
                       const rowFileName =
                         versionFileName(item) || `Version ${versionNumber}`;
                       const versionSize = versionFileSize(item);
