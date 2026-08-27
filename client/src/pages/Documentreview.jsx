@@ -1076,7 +1076,7 @@ export default function DocumentReview() {
                       const versionStatus =
                         item.status ||
                         (reverseIndex === 0 ? status : "Submitted");
-                      const versionFileName =
+                      const rowFileName =
                         versionFileName(item) || `Version ${versionNumber}`;
                       const versionSize = versionFileSize(item);
                       return (
@@ -1105,7 +1105,7 @@ export default function DocumentReview() {
                                 "No submission note recorded."}
                             </p>
                             <div className="doc-lineage-meta">
-                              <span>{versionFileName}</span>
+                              <span>{rowFileName}</span>
                               {versionSize && <i>•</i>}
                               {versionSize && <span>{versionSize}</span>}
                               {reverseIndex === 0 && <b>Latest</b>}
