@@ -120,8 +120,17 @@ const versionFileName = (item) => {
 };
 const versionFileSize = (item) =>
   item?.file_size || item?.size || item?.bytes || item?.file?.size || "";
-const versionIdentity = (item, index) =>
-  `${versionFileUrl(item) || versionFileName(item) || "file"}-${versionTimestamp(item) || item?.version || item?.submission_id || item?.id || index}`;
+const versionIdentity = (item, index) => {
+  const fileUrl = String(versionFileUrl(item) || "")
+    .trim()
+    .toLowerCase();
+  const fileName = String(versionFileName(item) || "")
+    .trim()
+    .toLowerCase();
+  const fileIdentity = fileUrl || fileName;
+  if (fileIdentity) return `file:${fileIdentity}`;
+  return `record:${item?.submission_id || item?.version_id || item?.id || index}`;
+};
 const formVersionRecord = (form) => {
   const fileUrl = versionFileUrl(form);
   const fileName = versionFileName(form);
@@ -313,6 +322,7 @@ export default function DocumentReview() {
             ...(latestVersions.length ? { submissions: latestVersions } : {}),
           };
         });
+        if (latestVersions.length) storeVersions(latestForm, latestVersions);
         setVersion(null);
       } catch {
         if (isActive && !form) setLoadError(true);
@@ -517,7 +527,8 @@ export default function DocumentReview() {
           ...current,
           ...updated,
           file_name: submissionFile.name,
-          file_url: submittedFileUrl || current.file_url || "",
+          file_url: submittedFileUrl || "",
+          file_path: submittedFileUrl || "",
           status: updated.status || "Pending",
           review_note:
             updated.review_note || submissionNote.trim() || current.review_note,
