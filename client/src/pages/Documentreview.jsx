@@ -65,29 +65,6 @@ const DECISION_REASONS = {
     "Other rejection reason",
   ],
 };
-const VERSION_HISTORY_STORAGE_PREFIX = "path.form.version-history:";
-const versionHistoryKey = (form) =>
-  `${VERSION_HISTORY_STORAGE_PREFIX}${form?.id || form?.tracking_id || "unknown"}`;
-const readStoredVersions = (form) => {
-  if (typeof window === "undefined") return [];
-  try {
-    const stored = JSON.parse(
-      window.localStorage.getItem(versionHistoryKey(form)) || "[]",
-    );
-    return Array.isArray(stored) ? stored : [];
-  } catch {
-    return [];
-  }
-};
-const storeVersions = (form, versions) => {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(
-      versionHistoryKey(form),
-      JSON.stringify(versions),
-    );
-  } catch {}
-};
 const versionTimestamp = (item) =>
   item?.submitted_at || item?.created_at || item?.updated_at || "";
 const versionFileUrl = (item) => {
@@ -120,77 +97,37 @@ const versionFileName = (item) => {
 };
 const versionFileSize = (item) =>
   item?.file_size || item?.size || item?.bytes || item?.file?.size || "";
-const versionIdentity = (item, index) => {
-  const fileUrl = String(versionFileUrl(item) || "")
-    .trim()
-    .toLowerCase();
-  const fileName = String(versionFileName(item) || "")
-    .trim()
-    .toLowerCase();
-  const fileIdentity = fileUrl || fileName;
-  if (fileIdentity) return `file:${fileIdentity}`;
-  return `record:${item?.submission_id || item?.version_id || item?.id || index}`;
-};
-const formVersionRecord = (form) => {
-  const fileUrl = versionFileUrl(form);
-  const fileName = versionFileName(form);
-  if (!fileUrl && !fileName) return [];
-  const recordedAt =
-    form?.submitted_at ||
-    form?.updated_at ||
-    form?.filing_date ||
-    form?.created_at ||
-    "";
-  return [
-    {
-      id: `record-${form?.id || form?.tracking_id || "form"}-${fileUrl || fileName}`,
-      file_name: fileName,
-      file_url: fileUrl,
-      file_size: versionFileSize(form),
-      status: form?.status,
-      note: form?.submission_note || form?.review_note || "",
-      submission_note: form?.submission_note || "",
-      submitted_at: recordedAt,
-      created_at: recordedAt,
-      is_current: true,
-    },
-  ];
-};
-const mergeVersions = (...sources) => {
+const versionRecords = (...sources) => {
   const seen = new Set();
-  return sources
-    .flatMap((items, sourceIndex) =>
-      Array.isArray(items)
-        ? items.map((item, sourceItemIndex) => ({
-            ...item,
-            lineage_id:
-              item?.submission_id ||
-              item?.version_id ||
-              item?.id ||
-              `${sourceIndex}-${sourceItemIndex}-${versionIdentity(item, sourceItemIndex)}`,
-            file_url: versionFileUrl(item),
-            file_name: versionFileName(item),
-            file_size: versionFileSize(item),
-            submitted_at: versionTimestamp(item),
-            lineage_source: sourceIndex,
-            lineage_source_index: sourceItemIndex,
-          }))
-        : [],
-    )
-    .filter((item, index) => {
-      if (!item) return false;
-      const identity = versionIdentity(item, index);
-      if (seen.has(identity)) return false;
-      seen.add(identity);
-      return true;
-    })
+  const records = [];
+  sources.forEach((source) => {
+    if (!Array.isArray(source)) return;
+    source.forEach((item, index) => {
+      if (!item || typeof item !== "object") return;
+      const fileUrl = versionFileUrl(item);
+      const fileName = versionFileName(item);
+      const key =
+        item.submission_id ||
+        item.version_id ||
+        item.id ||
+        `${fileUrl || fileName || "record"}-${versionTimestamp(item) || index}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      records.push({
+        ...item,
+        lineage_id: String(key),
+        file_url: fileUrl,
+        file_name: fileName,
+        file_size: versionFileSize(item),
+        submitted_at: versionTimestamp(item),
+      });
+    });
+  });
+  return records
     .sort((left, right) => {
       const leftTime = new Date(versionTimestamp(left)).getTime() || 0;
       const rightTime = new Date(versionTimestamp(right)).getTime() || 0;
-      if (leftTime !== rightTime) return leftTime - rightTime;
-      if (left.lineage_source !== right.lineage_source)
-        return left.lineage_source - right.lineage_source;
-      return left.lineage_source_index - right.lineage_source_index;
+      return leftTime - rightTime;
     })
     .map((item, index, items) => ({
       ...item,
@@ -299,21 +236,19 @@ export default function DocumentReview() {
         const data = await response.json();
         const latestForm = data.form || data;
         if (!isActive) return;
-        const latestVersions = mergeVersions(
+        const latestVersions = versionRecords(
           latestForm.submissions,
           latestForm.submitted_files,
           latestForm.submission_files,
           latestForm.versions,
           latestForm.version_history,
           latestForm.submission_versions,
-          formVersionRecord(latestForm),
           form?.submissions,
           form?.submitted_files,
           form?.submission_files,
           form?.versions,
           form?.version_history,
           form?.submission_versions,
-          readStoredVersions(latestForm),
         );
         setForm((current) => {
           return {
@@ -322,7 +257,6 @@ export default function DocumentReview() {
             ...(latestVersions.length ? { submissions: latestVersions } : {}),
           };
         });
-        if (latestVersions.length) storeVersions(latestForm, latestVersions);
         setVersion(null);
       } catch {
         if (isActive && !form) setLoadError(true);
@@ -516,13 +450,11 @@ export default function DocumentReview() {
           created_at: submittedAt,
           is_current: true,
         };
-        const nextVersions = mergeVersions(
+        const nextVersions = versionRecords(
           currentSubmissions,
           persistedSubmissions,
-          readStoredVersions(current),
           [nextSubmission],
         );
-        storeVersions(current, nextVersions);
         return {
           ...current,
           ...updated,
@@ -660,20 +592,18 @@ export default function DocumentReview() {
     ...fields.filter(([key]) => !attachmentNames.has(key)),
     ...fields.filter(([key]) => attachmentNames.has(key)),
   ];
-  const mergedVersions = mergeVersions(
+  const mergedVersions = versionRecords(
     form.submissions,
     form.submitted_files,
     form.submission_files,
     form.versions,
     form.version_history,
     form.submission_versions,
-    formVersionRecord(form),
-    readStoredVersions(form),
   );
   const versions = mergedVersions.length
     ? mergedVersions
     : hasSubmittedFile
-      ? mergeVersions([
+      ? versionRecords([
           {
             id: "current",
             file_name: form.file_name,
