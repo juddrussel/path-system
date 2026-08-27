@@ -65,6 +65,54 @@ const DECISION_REASONS = {
     "Other rejection reason",
   ],
 };
+const VERSION_HISTORY_STORAGE_PREFIX = "path.form.version-history:";
+const versionHistoryKey = (form) =>
+  `${VERSION_HISTORY_STORAGE_PREFIX}${form?.id || form?.tracking_id || "unknown"}`;
+const readStoredVersions = (form) => {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = JSON.parse(
+      window.localStorage.getItem(versionHistoryKey(form)) || "[]",
+    );
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+};
+const storeVersions = (form, versions) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      versionHistoryKey(form),
+      JSON.stringify(versions),
+    );
+  } catch {}
+};
+const versionTimestamp = (item) =>
+  item?.submitted_at || item?.created_at || item?.updated_at || "";
+const versionIdentity = (item, index) =>
+  `${item?.file_url || item?.file_path || item?.url || item?.file_name || "file"}-${versionTimestamp(item) || item?.version || item?.submission_id || item?.id || index}`;
+const mergeVersions = (...sources) => {
+  const seen = new Set();
+  return sources
+    .flatMap((items) => (Array.isArray(items) ? items : []))
+    .filter((item, index) => {
+      if (!item) return false;
+      const identity = versionIdentity(item, index);
+      if (seen.has(identity)) return false;
+      seen.add(identity);
+      return true;
+    })
+    .sort((left, right) => {
+      const leftTime = new Date(versionTimestamp(left)).getTime() || 0;
+      const rightTime = new Date(versionTimestamp(right)).getTime() || 0;
+      return leftTime - rightTime;
+    })
+    .map((item, index, items) => ({
+      ...item,
+      is_current: index === items.length - 1,
+    }));
+};
 
 function Toasts({ items, remove }) {
   return items.length ? (
@@ -262,15 +310,16 @@ export default function DocumentReview() {
       } catch {}
       const updated = data.form || data;
       setForm((current) => {
-        const persistedSubmissions = [
-          updated.submissions,
-          updated.submitted_files,
-          updated.submission_files,
-          updated.versions,
-          updated.version_history,
-          updated.submission_versions,
-        ].find((items) => Array.isArray(items) && items.length);
-        const currentSubmissions =
+        const persistedSubmissions =
+          [
+            updated.submissions,
+            updated.submitted_files,
+            updated.submission_files,
+            updated.versions,
+            updated.version_history,
+            updated.submission_versions,
+          ].find((items) => Array.isArray(items) && items.length) || [];
+        const recordedCurrentSubmissions =
           [
             current.submissions,
             current.submitted_files,
@@ -279,6 +328,39 @@ export default function DocumentReview() {
             current.version_history,
             current.submission_versions,
           ].find((items) => Array.isArray(items)) || [];
+        const currentFileValue =
+          current.file_url ||
+          current.file_path ||
+          current.attachment_url ||
+          current.uploaded_file;
+        const currentSubmissions = recordedCurrentSubmissions.length
+          ? recordedCurrentSubmissions
+          : currentFileValue || current.file_name
+            ? [
+                {
+                  id: `record-${current.id}-${currentFileValue || current.file_name}`,
+                  file_name: current.file_name,
+                  file_url: current.file_url || current.file_path || "",
+                  file_path: current.file_path || "",
+                  size: current.file_size,
+                  file_size: current.file_size,
+                  status: current.status,
+                  note: current.review_note,
+                  submission_note: current.submission_note || "",
+                  submitted_at:
+                    current.submitted_at ||
+                    current.updated_at ||
+                    current.filing_date ||
+                    current.created_at,
+                  created_at:
+                    current.submitted_at ||
+                    current.updated_at ||
+                    current.filing_date ||
+                    current.created_at,
+                  is_current: true,
+                },
+              ]
+            : [];
         const submittedAt =
           updated.submitted_at ||
           updated.created_at ||
@@ -303,13 +385,13 @@ export default function DocumentReview() {
           created_at: submittedAt,
           is_current: true,
         };
-        const nextVersions = persistedSubmissions || [
-          ...currentSubmissions.map((item) => ({
-            ...item,
-            is_current: false,
-          })),
-          nextSubmission,
-        ];
+        const nextVersions = mergeVersions(
+          readStoredVersions(current),
+          currentSubmissions,
+          persistedSubmissions,
+          [nextSubmission],
+        );
+        storeVersions(current, nextVersions);
         return {
           ...current,
           ...updated,
@@ -445,17 +527,18 @@ export default function DocumentReview() {
     ...fields.filter(([key]) => !attachmentNames.has(key)),
     ...fields.filter(([key]) => attachmentNames.has(key)),
   ];
-  const submittedVersions = [
+  const mergedVersions = mergeVersions(
+    readStoredVersions(form),
     form.submissions,
     form.submitted_files,
     form.submission_files,
     form.versions,
     form.version_history,
     form.submission_versions,
-  ].find((items) => Array.isArray(items) && items.length);
-  const versions =
-    submittedVersions ||
-    (hasSubmittedFile
+  );
+  const versions = mergedVersions.length
+    ? mergedVersions
+    : hasSubmittedFile
       ? [
           {
             id: "current",
@@ -469,7 +552,7 @@ export default function DocumentReview() {
             is_current: true,
           },
         ]
-      : []);
+      : [];
   const activeVersion = version || versions[versions.length - 1] || null;
   const activeFileValue =
     activeVersion?.file_url ||
