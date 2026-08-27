@@ -377,6 +377,8 @@ export default function DocumentReview() {
     successMessage,
     noteOverride = note,
   ) => {
+    if (/approved/i.test(form?.status || ""))
+      return notify("This document is already approved.", "info");
     if (requiredNote && !noteOverride.trim())
       return notify(requiredNote, "error");
     setSubmitting(true);
@@ -395,8 +397,30 @@ export default function DocumentReview() {
         notify(message, "error");
         return;
       }
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {}
+      const updated = data.form || data;
+      const statusAfterDecision =
+        action === "approve"
+          ? "Approved"
+          : action === "revise"
+            ? "Revision"
+            : action === "reject"
+              ? "Rejected"
+              : form.status;
+      setForm((current) => ({
+        ...current,
+        ...updated,
+        status: updated.status || statusAfterDecision,
+        review_note: updated.review_note || noteOverride || current.review_note,
+        updated_at:
+          updated.updated_at || updated.reviewed_at || new Date().toISOString(),
+      }));
+      setDecisionForm(null);
+      setNote("");
       notify(successMessage, "success");
-      window.setTimeout(() => navigate(-1), 500);
     } catch {
       notify("Could not reach the server. Please try again.", "error");
     } finally {
@@ -867,6 +891,7 @@ export default function DocumentReview() {
       <style>{`.doc-faculty-submission{margin-top:16px;padding:19px;border-color:#dfd2f5;background:linear-gradient(150deg,#fff 18%,#fbf9ff)}.doc-faculty-submission h2{margin-top:6px}.doc-faculty-submission>p{margin:8px 0 0;color:#887b92;font-size:9px;line-height:1.55}.doc-submission-upload{display:grid;place-items:center;min-height:112px;margin-top:16px;border:1.5px dashed #cbb5ef;border-radius:10px;background:#fcfaff;color:#7647b2;text-align:center;cursor:pointer;transition:border-color .16s ease,background .16s ease}.doc-submission-upload:hover{border-color:#7c3aed;background:#f8f4ff}.doc-submission-upload b,.doc-submission-upload span{display:block}.doc-submission-upload b{font-size:10px}.doc-submission-upload span{max-width:210px;margin-top:4px;color:#9b8fa3;font-size:8px;line-height:1.45}.doc-submission-note{width:100%;min-height:78px;margin-top:10px;resize:vertical;border:1px solid #e5deed;border-radius:8px;padding:10px;color:#5b4e64;font-family:'DM Sans',sans-serif;font-size:9px;outline:0}.doc-submission-note:focus{border-color:#bda1ec;box-shadow:0 0 0 3px #f4effe}.doc-submission-primary,.doc-submission-withdraw{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:35px;margin-top:10px;border-radius:8px;font-size:9px;font-weight:800;cursor:pointer}.doc-submission-primary{border:1px solid #7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 14px rgba(124,58,237,.18)}.doc-submission-primary:disabled,.doc-submission-withdraw:disabled{cursor:not-allowed;opacity:.6}.doc-submitted-file{display:flex;align-items:center;gap:9px;margin-top:16px;padding:11px;border:1px solid #ded1f4;border-radius:9px;background:#fbf9ff}.doc-submitted-file>i{display:grid;flex:0 0 auto;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;color:#7543c7;font-style:normal}.doc-submitted-file strong,.doc-submitted-file span{display:block}.doc-submitted-file strong{overflow:hidden;color:#5e4e68;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.doc-submitted-file span{margin-top:3px;color:#9b90a1;font-size:8px}.doc-submission-locked{display:flex;gap:8px;margin-top:12px;padding:10px;border-left:2px solid #a882ec;border-radius:0 7px 7px 0;background:#faf8fe;color:#82758e;font-size:8px;line-height:1.5}.doc-submission-withdraw{border:1px solid #edcfcb;background:#fff8f7;color:#a85d55}`}</style>
       <style>{`.doc-lineage-card{overflow:visible}.doc-lineage-copy{margin:12px 0 0;color:#8f839a;font-size:8px;line-height:1.55}.doc-lineage{position:relative;margin-top:21px}.doc-lineage:before{position:absolute;left:15px;top:27px;bottom:27px;width:1px;background:#dfd3ec;content:''}.doc-lineage-row{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;align-items:center;min-height:78px;padding:8px 0}.doc-lineage-version{position:relative;z-index:1;display:grid;width:31px;height:31px;place-items:center;border:1px solid #bea2e8;border-radius:50%;background:#f7f2ff;color:#7543c7;font-size:8px;font-weight:800}.doc-lineage-row.current .doc-lineage-version{border-color:#8b5cf6;background:#eee7fd;box-shadow:0 0 0 4px #fbf9ff}.doc-lineage-main{min-width:0}.doc-lineage-main h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0;color:#5a4b64;font-size:9px}.doc-lineage-status{display:inline-flex;border-radius:4px;padding:3px 5px;font-size:7px;font-weight:800;line-height:1}.doc-lineage-status.success{background:#e8f5ee;color:#478c6e}.doc-lineage-status.danger{background:#fff0eb;color:#b86f5c}.doc-lineage-status.violet{background:#f0e9fc;color:#7543c7}.doc-lineage-status.gold{background:#fff5df;color:#aa7928}.doc-lineage-main p{margin:5px 0 0;overflow:hidden;color:#877b91;font-size:8px;line-height:1.45;text-overflow:ellipsis;white-space:nowrap}.doc-lineage-meta{display:flex;align-items:center;gap:5px;min-width:0;margin-top:6px;color:#a196a5;font-size:7px}.doc-lineage-meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.doc-lineage-meta i{font-style:normal}.doc-lineage-meta b{color:#7543c7;font-size:7px}.doc-lineage-open{display:flex;align-items:center;gap:7px;border:1px solid #e5ddeb;border-radius:999px;padding:7px 8px 7px 10px;background:#fff;color:#918597;font-size:7px;cursor:pointer}.doc-lineage-open span{display:grid;width:16px;height:16px;place-items:center;border-radius:50%;background:#f0e9fc;color:#7543c7;font-size:8px}@media(max-width:560px){.doc-lineage-row{grid-template-columns:29px minmax(0,1fr)}.doc-lineage-version{width:28px;height:28px}.doc-lineage:before{left:13px}.doc-lineage-open{grid-column:2;justify-self:start;margin-top:-3px}.doc-lineage-main p{white-space:normal}.doc-lineage-copy{font-size:9px}}`}</style>
       <style>{`.doc-faculty-submission{margin-top:16px;padding:21px;border-color:#e1d6f0;background:linear-gradient(135deg,#fff 20%,#fbf9ff)}.doc-faculty-heading{display:flex;align-items:flex-start;gap:10px}.doc-faculty-heading-icon{display:grid;flex:0 0 auto;width:30px;height:30px;place-items:center;border-radius:8px;background:#f0e8ff;color:#7c3aed;font-size:14px}.doc-faculty-heading .doc-label{margin-top:1px}.doc-faculty-heading h2{margin-top:5px;color:#382d43;font-size:18px;font-weight:800}.doc-faculty-intro{margin:13px 0 0;color:#887b92;font-size:9px;line-height:1.55}.doc-submission-upload{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-height:56px;margin-top:15px;border:1px dashed #cbb4ec;border-radius:9px;padding:8px 12px;background:#fdfbff;color:#7545b8;text-align:left}.doc-submission-upload-icon{display:grid!important;width:30px;height:30px;place-items:center;border-radius:8px;background:#eee5fb;color:#7543c7;font-size:12px;font-weight:800}.doc-submission-upload b{overflow:hidden;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.doc-submission-upload span:not(.doc-submission-upload-icon):not(.doc-submission-upload-view){max-width:none;margin-top:2px;color:#998ba4;font-size:7px}.doc-submission-upload-view{color:#7543c7;font-size:11px}.doc-submission-note-label{display:block;margin-top:14px;color:#887b96;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.doc-submission-note{min-height:68px;margin-top:7px;border-color:#e0d9e8;font-size:9px;line-height:1.55}.doc-submission-primary{width:auto;min-height:34px;margin-top:11px;padding:0 13px;border-radius:7px;box-shadow:0 7px 14px rgba(124,58,237,.2)}@media(max-width:560px){.doc-faculty-submission{padding:17px}.doc-faculty-heading h2{font-size:16px}.doc-submission-upload{grid-template-columns:30px minmax(0,1fr) auto;padding:8px 10px}.doc-submission-primary{width:100%}}`}</style>
+      <style>{`.doc-approved-notice{display:flex;align-items:flex-start;gap:10px;margin-top:15px;padding:12px;border:1px solid #bfe6cf;border-radius:9px;background:#f3fbf6;color:#4e8066}.doc-approved-notice>span{display:grid;flex:0 0 auto;width:28px;height:28px;place-items:center;border-radius:8px;background:#dff4e7;color:#378259;font-size:13px;font-weight:800}.doc-approved-notice strong{display:block;color:#397552;font-size:9px}.doc-approved-notice p{margin:3px 0 0;color:#6e927c;font-size:8px;line-height:1.5}.doc-approved-reviewer{margin-top:14px}.doc-approved-reviewer p{margin-bottom:0}.doc-faculty-submission .doc-approved-notice+.doc-submitted-file{margin-top:10px}`}</style>
       <Toasts
         items={toasts}
         remove={(toastId) =>
@@ -1398,7 +1423,31 @@ export default function DocumentReview() {
                         ? "Your work is in the review workflow. Withdraw it before replacing the file."
                         : "Attach the completed file and leave a concise note that helps the chair make a decision."}
                   </p>
-                  {hasSubmittedFile && !canSubmitReplacement ? (
+                  {approved ? (
+                    <>
+                      <div className="doc-approved-notice">
+                        <span>✓</span>
+                        <div>
+                          <strong>Document approved</strong>
+                          <p>
+                            Your submission has been approved by the Program
+                            Chair. No further action is required.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="doc-submitted-file">
+                        <i>▤</i>
+                        <div>
+                          <strong>
+                            {form.file_name || "Approved document"}
+                          </strong>
+                          <span>
+                            Approved · {shortTime(form.updated_at, "Recorded")}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  ) : hasSubmittedFile && !canSubmitReplacement ? (
                     <>
                       <div className="doc-submitted-file">
                         <i>▤</i>
@@ -1510,56 +1559,75 @@ export default function DocumentReview() {
               ) : (
                 <Panel className="doc-decision" id="review-decision">
                   <Label>Reviewer decision</Label>
-                  <h2>Choose the next step</h2>
-                  <p className="doc-decision-intro">
-                    Approve this submission, send it back with clear revision
-                    direction, or record a formal rejection.
-                  </p>
-                  {/revision|rejected|returned/i.test(status) &&
-                    form.review_note && (
-                      <div className="doc-decision-note">
-                        <strong>Previous review direction</strong>
-                        <br />
-                        {form.review_note}
+                  <h2>
+                    {approved ? "Document approved" : "Choose the next step"}
+                  </h2>
+                  {approved ? (
+                    <div className="doc-approved-notice doc-approved-reviewer">
+                      <span>✓</span>
+                      <div>
+                        <strong>Approval already recorded</strong>
+                        <p>
+                          This document was approved{" "}
+                          {shortTime(form.updated_at, "recently")}. Reviewer
+                          actions are now locked.
+                        </p>
                       </div>
-                    )}
-                  <label htmlFor="review-note">
-                    Approval note <span className="doc-optional">optional</span>
-                  </label>
-                  <textarea
-                    id="review-note"
-                    value={note}
-                    onChange={(event) => setNote(event.target.value)}
-                    placeholder="Add an optional note for the approval audit trail."
-                  />
-                  <div className="doc-decision-actions">
-                    <button
-                      type="button"
-                      className="approve"
-                      disabled={submitting}
-                      onClick={() =>
-                        decision("approve", null, "Form approved.")
-                      }
-                    >
-                      ✓ Approve
-                    </button>
-                    <button
-                      type="button"
-                      className="return"
-                      disabled={submitting}
-                      onClick={() => openDecisionForm("return")}
-                    >
-                      ↩ Return with feedback
-                    </button>
-                    <button
-                      type="button"
-                      className="reject"
-                      disabled={submitting}
-                      onClick={() => openDecisionForm("reject")}
-                    >
-                      × Reject submission
-                    </button>
-                  </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="doc-decision-intro">
+                        Approve this submission, send it back with clear
+                        revision direction, or record a formal rejection.
+                      </p>
+                      {/revision|rejected|returned/i.test(status) &&
+                        form.review_note && (
+                          <div className="doc-decision-note">
+                            <strong>Previous review direction</strong>
+                            <br />
+                            {form.review_note}
+                          </div>
+                        )}
+                      <label htmlFor="review-note">
+                        Approval note{" "}
+                        <span className="doc-optional">optional</span>
+                      </label>
+                      <textarea
+                        id="review-note"
+                        value={note}
+                        onChange={(event) => setNote(event.target.value)}
+                        placeholder="Add an optional note for the approval audit trail."
+                      />
+                      <div className="doc-decision-actions">
+                        <button
+                          type="button"
+                          className="approve"
+                          disabled={submitting}
+                          onClick={() =>
+                            decision("approve", null, "Form approved.")
+                          }
+                        >
+                          ✓ Approve
+                        </button>
+                        <button
+                          type="button"
+                          className="return"
+                          disabled={submitting}
+                          onClick={() => openDecisionForm("return")}
+                        >
+                          ↩ Return with feedback
+                        </button>
+                        <button
+                          type="button"
+                          className="reject"
+                          disabled={submitting}
+                          onClick={() => openDecisionForm("reject")}
+                        >
+                          × Reject submission
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </Panel>
               )}
             </aside>
