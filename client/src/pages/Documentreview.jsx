@@ -90,12 +90,59 @@ const storeVersions = (form, versions) => {
 };
 const versionTimestamp = (item) =>
   item?.submitted_at || item?.created_at || item?.updated_at || "";
+const versionFileUrl = (item) => {
+  const embeddedFile = item?.file || item?.attachment || item?.document;
+  return (
+    item?.file_url ||
+    item?.fileUrl ||
+    item?.file_path ||
+    item?.path ||
+    item?.url ||
+    item?.attachment_url ||
+    (typeof embeddedFile === "string" ? embeddedFile : "") ||
+    embeddedFile?.file_url ||
+    embeddedFile?.url ||
+    embeddedFile?.path ||
+    ""
+  );
+};
+const versionFileName = (item) => {
+  const embeddedFile = item?.file || item?.attachment || item?.document;
+  return (
+    item?.file_name ||
+    item?.filename ||
+    item?.original_name ||
+    item?.name ||
+    embeddedFile?.file_name ||
+    embeddedFile?.name ||
+    ""
+  );
+};
+const versionFileSize = (item) =>
+  item?.file_size || item?.size || item?.bytes || item?.file?.size || "";
 const versionIdentity = (item, index) =>
-  `${item?.file_url || item?.file_path || item?.url || item?.file_name || "file"}-${versionTimestamp(item) || item?.version || item?.submission_id || item?.id || index}`;
+  `${versionFileUrl(item) || versionFileName(item) || "file"}-${versionTimestamp(item) || item?.version || item?.submission_id || item?.id || index}`;
 const mergeVersions = (...sources) => {
   const seen = new Set();
   return sources
-    .flatMap((items) => (Array.isArray(items) ? items : []))
+    .flatMap((items, sourceIndex) =>
+      Array.isArray(items)
+        ? items.map((item, sourceItemIndex) => ({
+            ...item,
+            lineage_id:
+              item?.submission_id ||
+              item?.version_id ||
+              item?.id ||
+              `${sourceIndex}-${sourceItemIndex}-${versionIdentity(item, sourceItemIndex)}`,
+            file_url: versionFileUrl(item),
+            file_name: versionFileName(item),
+            file_size: versionFileSize(item),
+            submitted_at: versionTimestamp(item),
+            lineage_source: sourceIndex,
+            lineage_source_index: sourceItemIndex,
+          }))
+        : [],
+    )
     .filter((item, index) => {
       if (!item) return false;
       const identity = versionIdentity(item, index);
@@ -106,10 +153,14 @@ const mergeVersions = (...sources) => {
     .sort((left, right) => {
       const leftTime = new Date(versionTimestamp(left)).getTime() || 0;
       const rightTime = new Date(versionTimestamp(right)).getTime() || 0;
-      return leftTime - rightTime;
+      if (leftTime !== rightTime) return leftTime - rightTime;
+      if (left.lineage_source !== right.lineage_source)
+        return left.lineage_source - right.lineage_source;
+      return left.lineage_source_index - right.lineage_source_index;
     })
     .map((item, index, items) => ({
       ...item,
+      lineage_number: index + 1,
       is_current: index === items.length - 1,
     }));
 };
@@ -386,9 +437,9 @@ export default function DocumentReview() {
           is_current: true,
         };
         const nextVersions = mergeVersions(
-          readStoredVersions(current),
           currentSubmissions,
           persistedSubmissions,
+          readStoredVersions(current),
           [nextSubmission],
         );
         storeVersions(current, nextVersions);
@@ -528,18 +579,18 @@ export default function DocumentReview() {
     ...fields.filter(([key]) => attachmentNames.has(key)),
   ];
   const mergedVersions = mergeVersions(
-    readStoredVersions(form),
     form.submissions,
     form.submitted_files,
     form.submission_files,
     form.versions,
     form.version_history,
     form.submission_versions,
+    readStoredVersions(form),
   );
   const versions = mergedVersions.length
     ? mergedVersions
     : hasSubmittedFile
-      ? [
+      ? mergeVersions([
           {
             id: "current",
             file_name: form.file_name,
@@ -551,16 +602,15 @@ export default function DocumentReview() {
             created_at: form.updated_at || submitted,
             is_current: true,
           },
-        ]
+        ])
       : [];
   const activeVersion = version || versions[versions.length - 1] || null;
-  const activeFileValue =
-    activeVersion?.file_url ||
-    activeVersion?.file_path ||
-    activeVersion?.url ||
-    submittedFileValue;
-  const activeFileName =
-    activeVersion?.file_name || activeVersion?.name || form.file_name;
+  const activeFileValue = activeVersion
+    ? versionFileUrl(activeVersion)
+    : submittedFileValue;
+  const activeFileName = activeVersion
+    ? versionFileName(activeVersion)
+    : form.file_name;
   const url = activeFileValue ? fileUrl(activeFileValue) : "";
   const extension = (activeFileName || activeFileValue || "")
     .split(".")
@@ -570,7 +620,7 @@ export default function DocumentReview() {
   const image = ["jpg", "jpeg", "png", "gif", "webp"].includes(extension);
   const pageCount =
     Number(activeVersion?.page_count || form.page_count || form.pages) || 1;
-  const fileMeta = `${extension ? extension.toUpperCase() : "FILE"}${activeVersion?.file_size || form.file_size ? ` • ${activeVersion?.file_size || form.file_size}` : ""}`;
+  const fileMeta = `${extension ? extension.toUpperCase() : "FILE"}${versionFileSize(activeVersion) || form.file_size ? ` • ${versionFileSize(activeVersion) || form.file_size}` : ""}`;
   const audits = Array.isArray(form.audit_trail || form.audit || form.history)
     ? form.audit_trail || form.audit || form.history
     : [
@@ -1020,23 +1070,19 @@ export default function DocumentReview() {
                   </p>
                   <div className="doc-lineage">
                     {[...versions].reverse().map((item, reverseIndex) => {
-                      const versionNumber = versions.length - reverseIndex;
+                      const versionNumber = item.lineage_number;
                       const isCurrent =
-                        (activeVersion?.id || activeVersion?.version) ===
-                        (item.id || item.version);
+                        activeVersion?.lineage_id === item.lineage_id;
                       const versionStatus =
                         item.status ||
                         (reverseIndex === 0 ? status : "Submitted");
                       const versionFileName =
-                        item.file_name ||
-                        item.name ||
-                        form.file_name ||
-                        `Version ${versionNumber}`;
-                      const versionSize = item.file_size || item.size;
+                        versionFileName(item) || `Version ${versionNumber}`;
+                      const versionSize = versionFileSize(item);
                       return (
                         <article
                           className={`doc-lineage-row ${isCurrent ? "current" : ""}`}
-                          key={item.id || item.version || reverseIndex}
+                          key={item.lineage_id || reverseIndex}
                         >
                           <span className="doc-lineage-version">
                             v{versionNumber}
