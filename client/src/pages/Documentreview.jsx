@@ -143,7 +143,7 @@ const displayStatus = (value, fallback = "Pending") => {
   const status = String(value || "").trim();
   if (/approved|completed|complete/i.test(status)) return "Approved";
   if (/returned|revision|revise/i.test(status)) return "Returned";
-  if (/rejected/i.test(status)) return "Rejected";
+  if (/reject(?:ed)?/i.test(status)) return "Rejected";
   if (/review/i.test(status)) return "In review";
   if (/pending|draft/i.test(status)) return "Pending";
   return status || fallback;
