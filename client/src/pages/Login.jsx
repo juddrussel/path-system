@@ -585,7 +585,7 @@ export default function Login() {
           <div style={{ ...styles.mobileBrand, display: "flex" }}>
             <span style={styles.mobileMark}>
             </span>
-            <span style={styles.mobileBrandName}>DS PATH</span>
+
           </div>
           <header style={styles.header}>
             <span style={{ ...styles.headerKicker, color: violet.muted }}>
