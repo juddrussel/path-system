@@ -187,12 +187,18 @@ const styles = {
   mobileBrand: {
     display: "none",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
     marginBottom: 42,
+  },
+  mobileMark: {
+    display: "grid",
+    width: 52,
+    height: 52,
+    placeItems: "center",
   },
   mobileBrandName: {
     color: violet.ink,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 800,
     letterSpacing: ".14em",
   },
@@ -577,7 +583,7 @@ export default function Login() {
       <section style={styles.main}>
         <div style={styles.formWrap}>
           <div style={{ ...styles.mobileBrand, display: "flex" }}>
-            <span style={styles.mark}>
+            <span style={styles.mobileMark}>
               <img src={logo} alt="DS PATH logo" style={styles.markImg} />
             </span>
             <span style={styles.mobileBrandName}>DS PATH</span>
