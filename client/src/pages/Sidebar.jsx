@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL || "";
@@ -234,7 +234,7 @@ export default function Sidebar({ activePage }) {
   const [unreadTotal, setUnreadTotal] = useState(0);
   const [profile, setProfile] = useState(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
