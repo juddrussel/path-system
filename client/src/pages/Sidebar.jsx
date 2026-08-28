@@ -152,6 +152,7 @@ const Icon = {
 
 // ── Layout-only CSS (grouped nav, profile footer) ──────────────────────────
 const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;900&display=swap');
   .path-sidebar {
     box-sizing: border-box;
     width: 250px;
@@ -163,7 +164,7 @@ const styles = `
     border-right: 1px solid #ebe5f0;
     background: #f8f7fc;
     color: #40354a;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     position: sticky;
     top: 0;
     height: 100vh;
