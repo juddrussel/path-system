@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import logowhite from "../assets/logowhite.png";
 
 const colors = {
   ink: "#2f2638",
@@ -64,7 +65,12 @@ const s = {
     height: 34,
     placeItems: "center",
     borderRadius: 10,
-    background: colors.violet,
+  },
+  markImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    filter: "drop-shadow(0 10px 24px rgba(46, 19, 76, .2))",
   },
   markSvg: {
     width: 18,
@@ -490,8 +496,8 @@ export default function ResetPassword() {
         <span style={s.orb} aria-hidden="true" />
         <span style={s.orbBottom} aria-hidden="true" />
         <div style={s.brand}>
-          <span style={styles.mark}>
-            <img src={logowhite} alt="DS PATH logo" style={styles.markImg} />
+          <span style={s.mark}>
+            <img src={logowhite} alt="DS PATH logo" style={s.markImg} />
           </span>
           <span>
             <span style={s.brandName}>DS PATH</span>
