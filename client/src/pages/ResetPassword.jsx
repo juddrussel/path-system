@@ -404,6 +404,32 @@ export default function ResetPassword() {
   const [tokenValid, setTokenValid] = useState(null); // null=checking, true=valid, false=invalid
   const [showPassword, setShowPassword] = useState(false);
 
+  // Load DM Sans via real <link> tags (more reliable than an inline
+  // <style>@import, which can get stripped or blocked and silently
+  // fall back to the browser's default bold sans-serif).
+  useEffect(() => {
+    if (document.getElementById("dm-sans-font")) return;
+
+    const preconnect1 = document.createElement("link");
+    preconnect1.rel = "preconnect";
+    preconnect1.href = "https://fonts.googleapis.com";
+
+    const preconnect2 = document.createElement("link");
+    preconnect2.rel = "preconnect";
+    preconnect2.href = "https://fonts.gstatic.com";
+    preconnect2.crossOrigin = "anonymous";
+
+    const stylesheet = document.createElement("link");
+    stylesheet.id = "dm-sans-font";
+    stylesheet.rel = "stylesheet";
+    stylesheet.href =
+      "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap";
+
+    document.head.appendChild(preconnect1);
+    document.head.appendChild(preconnect2);
+    document.head.appendChild(stylesheet);
+  }, []);
+
   const token = new URLSearchParams(window.location.search).get("token");
 
   // Verify token on mount
