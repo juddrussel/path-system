@@ -163,7 +163,7 @@ const styles = `
     border-right: 1px solid #ebe5f0;
     background: #f8f7fc;
     color: #40354a;
-    font-family: inherit;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     position: sticky;
     top: 0;
     height: 100vh;
