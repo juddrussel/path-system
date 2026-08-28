@@ -235,6 +235,10 @@ export default function Sidebar({ activePage }) {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
     fetch(`${API}/api/chat/unread-count`, { headers: { Authorization: `Bearer ${token}` } })
