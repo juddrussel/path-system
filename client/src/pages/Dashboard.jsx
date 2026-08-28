@@ -3107,59 +3107,7 @@ export default function Dashboard() {
         }}
       >
         {/* Topbar */}
-        <TopBar onLogout={handleLogout}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "6px 12px",
-                color: "#9ca3af",
-              }}
-            >
-              <Icon.Search />
-              <input
-                type="text"
-                placeholder="Search tracking #, requester, keyword..."
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  outline: "none",
-                  fontSize: 12,
-                  color: "#374151",
-                  width: "100%",
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              />
-            </div>
-            <button
-              onClick={() => navigate("/documents/new")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 whitespace-nowrap"
-              style={{ cursor: "pointer" }}
-            >
-              <Icon.Plus /> New Document
-            </button>
-            <button
-              onClick={() => navigate("/documents/new")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#5e3bdb] text-white hover:bg-[#481bc6] whitespace-nowrap"
-              style={{ cursor: "pointer" }}
-            >
-              <Icon.Download /> Intake Document
-            </button>
-          </div>
-        </TopBar>
+        <TopBar onLogout={handleLogout} />
 
         {/* ── Content: Program Chair layout ── */}
         <div
