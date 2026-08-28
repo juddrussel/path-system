@@ -12,15 +12,15 @@ const colors = {
 const fontStack =
   '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
-const s = {
+const styles = {
   page: {
     display: "grid",
-    gridTemplateColumns: "minmax(320px, 42%) 1fr",
+    gridTemplateColumns: "minmax(330px, 42%) 1fr",
     minHeight: "100vh",
     overflow: "hidden",
-    background: colors.panel,
-    color: colors.ink,
-    fontFamily: fontStack,
+    background: violet.panel,
+    color: violet.ink,
+    fontFamily: '"DM Sans", Arial, sans-serif',
   },
   aside: {
     position: "relative",
