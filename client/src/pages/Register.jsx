@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import logowhite from "../assets/logowhite.png";
 
 // Replace with your own site key (get one at https://www.google.com/recaptcha/admin).
 // The key below is Google's shared TEST key — it always passes and works on any domain,
@@ -316,8 +317,11 @@ const s = {
     width: 34,
     height: 34,
     placeItems: "center",
-    borderRadius: 10,
-    background: "rgba(255,255,255,.16)",
+  },
+  markImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
   },
   markSvg: {
     width: 18,
@@ -387,15 +391,6 @@ const s = {
   featureTitle: { display: "block", color: "#fff", fontSize: 12, fontWeight: 800 },
   featureText: { display: "block", marginTop: 2, color: "rgba(255,255,255,.68)", fontSize: 10.5, lineHeight: 1.5 },
 };
-
-function FileMark() {
-  return (
-    <svg viewBox="0 0 24 24" style={s.markSvg} aria-hidden="true">
-      <path d="M7 3.5h7l4 4V20.5H7z" />
-      <path d="M14 3.5v4h4M10 12h5M10 15.5h5" />
-    </svg>
-  );
-}
 
 function EnvelopeIcon() {
   return (
@@ -916,7 +911,7 @@ export default function Register() {
         <span style={s.orb} aria-hidden="true" />
         <div style={s.brand}>
           <span style={s.mark}>
-            <FileMark />
+            <img src={logowhite} alt="DS PATH logo" style={s.markImg} />
           </span>
           <span>
             <span style={s.brandName}>PATH</span>
