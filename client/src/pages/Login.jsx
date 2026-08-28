@@ -549,7 +549,7 @@ export default function Login() {
             <FileMark />
           </span>
           <span>
-            <span style={styles.brandName}>PATH</span>
+            <span style={styles.brandName}>DS PATH</span>
             <span style={styles.brandSub}>Processing &amp; Tracking Hub</span>
           </span>
         </div>
@@ -559,7 +559,7 @@ export default function Login() {
           </span>
           <h1 style={styles.asideTitle}>Keep every academic handoff clear.</h1>
           <p style={styles.asideText}>
-            PATH gives faculty and program chairs one place to submit, review,
+            DS PATH gives faculty and program chairs one place to submit, review,
             track, and act on the records that move the department forward.
           </p>
         </div>
@@ -584,7 +584,7 @@ export default function Login() {
             <span style={styles.mark}>
               <FileMark />
             </span>
-            <span style={styles.mobileBrandName}>PATH</span>
+            <span style={styles.mobileBrandName}>DS PATH</span>
           </div>
           <header style={styles.header}>
             <span style={{ ...styles.headerKicker, color: violet.muted }}>
@@ -608,7 +608,7 @@ export default function Login() {
                   Choose how you&apos;ll sign in
                 </strong>
                 <small style={styles.introText}>
-                  Use your PATH credentials to access your workspace.
+                  Use your DS PATH credentials to access your workspace.
                 </small>
               </span>
             </div>
@@ -727,12 +727,12 @@ export default function Login() {
             </div>
           </div>
 
-          <div style={styles.trust} aria-label="PATH security features">
+          <div style={styles.trust} aria-label="DS PATH security features">
             <span>✓ Encrypted session</span>
             <span>✓ Role-aware workspace</span>
           </div>
           <p style={styles.switchText}>
-            New to PATH?{" "}
+            New to DS PATH?{" "}
             <a style={styles.link} href="/register">
               Create an account
             </a>
