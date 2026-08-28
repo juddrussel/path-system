@@ -1,12 +1,500 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+const API_BASE =
+  (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+
+const violet = {
+  ink: "#2f2638",
+  muted: "#82768a",
+  faint: "#a095a8",
+  violet: "#7c3aed",
+  violetDark: "#5b21b6",
+  panel: "#f8f7ff",
+  line: "#e9e1f1",
+};
+
+const styles = {
+  page: {
+    display: "grid",
+    gridTemplateColumns: "minmax(330px, 42%) 1fr",
+    minHeight: "100vh",
+    overflow: "hidden",
+    background: violet.panel,
+    color: violet.ink,
+    fontFamily: '"DM Sans", Arial, sans-serif',
+  },
+  aside: {
+    position: "relative",
+    display: "flex",
+    minHeight: "100vh",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    overflow: "hidden",
+    padding: "38px 44px",
+    background:
+      "linear-gradient(145deg, #3b2054 0%, #6431a9 56%, #8439f0 100%)",
+    color: "#fff",
+  },
+  asideOrb: {
+    position: "absolute",
+    width: 460,
+    height: 460,
+    right: -210,
+    top: 110,
+    border: "1px solid rgba(255,255,255,.17)",
+    borderRadius: "50%",
+  },
+  asideOrbBottom: {
+    position: "absolute",
+    width: 380,
+    height: 380,
+    left: -220,
+    bottom: -170,
+    border: "1px solid rgba(255,255,255,.14)",
+    borderRadius: "50%",
+  },
+  brand: {
+    position: "relative",
+    zIndex: 1,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  mark: {
+    display: "grid",
+    width: 34,
+    height: 34,
+    placeItems: "center",
+    borderRadius: 10,
+    background: violet.violet,
+    boxShadow: "0 10px 24px rgba(46, 19, 76, .2)",
+  },
+  markIcon: {
+    width: 18,
+    height: 18,
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+  },
+  brandName: {
+    fontSize: 18,
+    fontWeight: 800,
+    letterSpacing: ".16em",
+  },
+  brandSub: {
+    display: "block",
+    marginTop: 2,
+    color: "rgba(255,255,255,.6)",
+    fontSize: 7,
+    fontWeight: 700,
+    letterSpacing: ".11em",
+    textTransform: "uppercase",
+  },
+  asideCopy: {
+    position: "relative",
+    zIndex: 1,
+    maxWidth: 410,
+    margin: "auto 0",
+  },
+  kicker: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    color: "rgba(255,255,255,.78)",
+    fontSize: 9,
+    fontWeight: 800,
+    letterSpacing: ".12em",
+    textTransform: "uppercase",
+  },
+  kickerDot: {
+    width: 6,
+    height: 6,
+    borderRadius: "50%",
+    background: "#c4b5fd",
+  },
+  asideTitle: {
+    margin: "22px 0 12px",
+    fontSize: "clamp(42px, 4.3vw, 64px)",
+    fontWeight: 800,
+    letterSpacing: "-.065em",
+    lineHeight: 0.96,
+  },
+  asideText: {
+    maxWidth: 360,
+    margin: 0,
+    color: "rgba(255,255,255,.74)",
+    fontSize: 13,
+    lineHeight: 1.65,
+  },
+  workflow: {
+    position: "relative",
+    zIndex: 1,
+    maxWidth: 356,
+    padding: "18px 18px 16px",
+    border: "1px solid rgba(255,255,255,.2)",
+    borderRadius: 13,
+    background: "rgba(255,255,255,.1)",
+    backdropFilter: "blur(8px)",
+  },
+  workflowLabel: {
+    display: "block",
+    marginBottom: 13,
+    color: "rgba(255,255,255,.66)",
+    fontSize: 8,
+    fontWeight: 800,
+    letterSpacing: ".11em",
+    textTransform: "uppercase",
+  },
+  workflowText: {
+    display: "block",
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: 700,
+  },
+  workflowLines: {
+    display: "flex",
+    gap: 6,
+    marginTop: 14,
+  },
+  workflowLine: {
+    width: 62,
+    height: 4,
+    borderRadius: 99,
+    background: "rgba(255,255,255,.32)",
+  },
+  workflowLineActive: {
+    background: "#fff",
+  },
+  main: {
+    display: "flex",
+    minWidth: 0,
+    minHeight: "100vh",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "54px 56px",
+    overflowY: "auto",
+  },
+  formWrap: {
+    width: "min(100%, 462px)",
+  },
+  mobileBrand: {
+    display: "none",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 42,
+  },
+  mobileBrandName: {
+    color: violet.ink,
+    fontSize: 18,
+    fontWeight: 800,
+    letterSpacing: ".14em",
+  },
+  header: {
+    marginBottom: 27,
+  },
+  headerKicker: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    color: violet.muted,
+    fontSize: 9,
+    fontWeight: 800,
+    letterSpacing: ".12em",
+    textTransform: "uppercase",
+  },
+  headerTitle: {
+    margin: "14px 0 8px",
+    color: violet.ink,
+    fontSize: 42,
+    fontWeight: 800,
+    letterSpacing: "-.06em",
+    lineHeight: 1.02,
+  },
+  headerText: {
+    maxWidth: 375,
+    margin: 0,
+    color: violet.muted,
+    fontSize: 12,
+    lineHeight: 1.55,
+  },
+  card: {
+    border: `1px solid ${violet.line}`,
+    borderRadius: 16,
+    padding: 20,
+    background: "rgba(255,255,255,.84)",
+    boxShadow: "0 18px 42px rgba(76,46,102,.08)",
+  },
+  intro: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  introIcon: {
+    display: "grid",
+    flex: "0 0 auto",
+    width: 34,
+    height: 34,
+    placeItems: "center",
+    borderRadius: 10,
+    background: "#f0eaff",
+    color: "#7134d6",
+  },
+  introTitle: {
+    display: "block",
+    color: "#42334c",
+    fontSize: 12,
+    fontWeight: 800,
+  },
+  introText: {
+    display: "block",
+    maxWidth: 330,
+    marginTop: 5,
+    color: violet.muted,
+    fontSize: 11,
+    lineHeight: 1.55,
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 14,
+    marginTop: 22,
+  },
+  label: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 7,
+    color: "#51405e",
+    fontSize: 10,
+    fontWeight: 800,
+  },
+  inputShell: {
+    display: "flex",
+    alignItems: "center",
+    gap: 9,
+    minHeight: 42,
+    border: "1px solid #ded6e5",
+    borderRadius: 8,
+    padding: "0 12px",
+    background: "#fff",
+    color: "#a096a8",
+  },
+  inputShellError: {
+    border: "1px solid #f19a9a",
+  },
+  input: {
+    width: "100%",
+    minWidth: 0,
+    border: 0,
+    outline: 0,
+    background: "transparent",
+    color: violet.ink,
+    font: "500 12px Arial, sans-serif",
+  },
+  fieldError: {
+    margin: 0,
+    color: "#d34848",
+    fontSize: 10,
+    fontWeight: 600,
+  },
+  passwordButton: {
+    display: "grid",
+    flex: "0 0 auto",
+    width: 22,
+    height: 22,
+    placeItems: "center",
+    border: 0,
+    background: "transparent",
+    color: "#7956a6",
+    cursor: "pointer",
+  },
+  options: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: -1,
+  },
+  check: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    color: violet.muted,
+    fontSize: 9,
+    fontWeight: 600,
+  },
+  link: {
+    border: 0,
+    padding: 0,
+    background: "transparent",
+    color: "#7144bf",
+    font: "800 9px Arial, sans-serif",
+    cursor: "pointer",
+    textDecoration: "none",
+  },
+  primary: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    width: "100%",
+    minHeight: 46,
+    marginTop: 7,
+    border: 0,
+    borderRadius: 8,
+    background: "linear-gradient(135deg, #7c3aed, #8439f0)",
+    color: "#fff",
+    font: "800 11px Arial, sans-serif",
+    boxShadow: "0 12px 22px rgba(124,58,237,.2)",
+    cursor: "pointer",
+  },
+  primaryDisabled: {
+    opacity: 0.65,
+    cursor: "not-allowed",
+  },
+  divider: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    margin: "20px 0 14px",
+    color: violet.faint,
+    fontSize: 9,
+    fontWeight: 800,
+    letterSpacing: ".06em",
+    textTransform: "uppercase",
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    background: "#ece6f0",
+  },
+  providers: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: 10,
+  },
+  provider: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    minHeight: 40,
+    border: "1px solid #e2dbe8",
+    borderRadius: 8,
+    background: "#fff",
+    color: "#554761",
+    font: "800 10px Arial, sans-serif",
+    cursor: "pointer",
+  },
+  google: {
+    color: "#4285f4",
+    font: "800 14px Arial, sans-serif",
+  },
+  microsoft: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 7px)",
+    gridTemplateRows: "repeat(2, 7px)",
+    gap: 1,
+  },
+  square: {
+    width: 7,
+    height: 7,
+  },
+  notice: {
+    margin: "13px 0 0",
+    border: "1px solid #e0d3f5",
+    borderRadius: 8,
+    padding: "9px 10px",
+    background: "#faf7ff",
+    color: "#6f5790",
+    fontSize: 10,
+    lineHeight: 1.5,
+    fontWeight: 600,
+  },
+  noticeSuccess: {
+    border: "1px solid #bfe3c8",
+    background: "#f2fbf4",
+    color: "#2c7a43",
+  },
+  noticeError: {
+    border: "1px solid #f1c3c3",
+    background: "#fdf4f4",
+    color: "#c23f3f",
+  },
+  trust: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "10px 18px",
+    marginTop: 18,
+    color: "#8d8195",
+    fontSize: 9,
+    fontWeight: 700,
+  },
+  switchText: {
+    margin: "26px 0 0",
+    color: violet.muted,
+    fontSize: 10,
+    textAlign: "center",
+  },
+};
+
+function FileMark() {
+  return (
+    <svg viewBox="0 0 24 24" style={styles.markIcon} aria-hidden="true">
+      <path d="M7 3.5h7l4 4V20.5H7z" />
+      <path d="M14 3.5v4h4M10 12h5M10 15.5h5" />
+    </svg>
+  );
+}
+
+function EyeIcon({ hidden = false }) {
+  return (
+    <svg viewBox="0 0 24 24" style={styles.markIcon} aria-hidden="true">
+      {hidden ? (
+        <>
+          <path d="m4 4 16 16" />
+          <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+          <path d="M9.9 5.2A11.7 11.7 0 0 1 12 5c5.2 0 8.6 4.9 9.5 7a16 16 0 0 1-2.1 3.2M6.1 6.1A16 16 0 0 0 2.5 12c.9 2.1 4.3 7 9.5 7 1 0 2-.2 2.9-.5" />
+        </>
+      ) : (
+        <>
+          <path d="M2.5 12s3.4-7 9.5-7 9.5 7 9.5 7-3.4 7-9.5 7-9.5-7-9.5-7Z" />
+          <circle cx="12" cy="12" r="2.5" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg viewBox="0 0 24 24" style={styles.markIcon} aria-hidden="true">
+      <path d="M12 3.5 19 6v5.2c0 4.4-2.8 7.9-7 9.3-4.2-1.4-7-4.9-7-9.3V6z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      style={{ ...styles.markIcon, width: 16, height: 16 }}
+      aria-hidden="true"
+    >
+      <path d="M4 12h15M13 6l6 6-6 6" />
+    </svg>
+  );
+}
 
 export default function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [errors, setErrors] = useState({});
   const [alertMsg, setAlertMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,125 +539,205 @@ export default function Login() {
   };
 
   return (
-    <div className="flex w-full h-screen font-sans">
-
-      {/* LEFT — Login Card */}
-      <div className="w-[55%] bg-[#f5f5f5] flex items-center justify-center p-10">
-        <div className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.07)] p-11 w-full max-w-[460px]">
-
-          {/* Brand */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-9 h-9 bg-[#7c3aed] rounded-lg flex items-center justify-center overflow-hidden">
-              <img src="/images/path.png" alt="PATH" className="w-full h-full object-contain" />
-            </div>
-            <span className="text-xl font-bold text-[#7c3aed] tracking-[2px]">PATH</span>
-          </div>
-
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h2>
-          <p className="text-sm text-gray-500 mb-6">Please enter your credentials to access your workspace.</p>
-
-          {/* Alert */}
-          {alertMsg && (
-            <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium text-white ${alertMsg.type === "success" ? "bg-green-600" : "bg-red-500"}`}>
-              {alertMsg.text}
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Enter your username"
-                className={`w-full px-3.5 py-2.5 border rounded-lg text-sm outline-none focus:border-[#7c3aed] transition-colors ${errors.username ? "border-red-400" : "border-gray-300"}`}
-              />
-              {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className={`w-full px-3.5 py-2.5 border rounded-lg text-sm outline-none focus:border-[#7c3aed] transition-colors ${errors.password ? "border-red-400" : "border-gray-300"}`}
-              />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-[#7c3aed] hover:bg-[#8371d3] text-white font-bold text-[15px] rounded-lg transition-colors disabled:opacity-60"
-            >
-              {loading ? "Signing in..." : "Login to Workspace"}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-[11px] text-gray-400 tracking-wider">OR CONTINUE WITH</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-
-          {/* Socials */}
-          <div className="flex gap-3 mb-5">
-            <button className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-              Google
-            </button>
-            <button className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-              Microsoft
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-500 mb-2.5">Don't have an account?</p>
-          <a
-            href="/register"
-            className="block text-center py-3 bg-[#ede9fe] hover:bg-[#ddd6fe] text-[#7c3aed] font-bold text-sm rounded-lg transition-colors"
-          >
-            Sign up here
-          </a>
-
-          <a
-            href="/forgot-password"
-            className="block text-center mt-4 text-[#7c3aed] font-bold text-sm underline"
-          >
-            Forgot your password?
-          </a>
-        </div>
-      </div>
-
-      {/* RIGHT — Hero Panel */}
-      <div
-        className="w-[45%] relative flex items-end p-12"
-        style={{ background: "url('/images/office.png') center/cover no-repeat" }}
-      >
-        <div className="absolute inset-0 bg-[rgba(80,30,160,0.65)]" />
-        <div className="relative z-10 text-white">
-          <span className="inline-block text-xs bg-white/15 border border-white/30 px-4 py-1.5 rounded-full mb-5">
-            Enterprise-grade Security
+    <main style={styles.page}>
+      <aside style={styles.aside}>
+        <span style={styles.asideOrb} aria-hidden="true" />
+        <span style={styles.asideOrbBottom} aria-hidden="true" />
+        <div style={styles.brand}>
+          <span style={styles.mark}>
+            <FileMark />
           </span>
-          <h1 className="text-[36px] font-bold leading-tight mb-4">
-            Streamlining documents, empowering progress.
-          </h1>
-          <p className="text-sm text-white/80 leading-relaxed mb-7">
-            The next generation of document routing is here. Automate workflows, track every interaction, and maintain total control over your organizational data.
+          <span>
+            <span style={styles.brandName}>PATH</span>
+            <span style={styles.brandSub}>Processing &amp; Tracking Hub</span>
+          </span>
+        </div>
+        <div style={styles.asideCopy}>
+          <span style={styles.kicker}>
+            <i style={styles.kickerDot} /> Academic workflow operations
+          </span>
+          <h1 style={styles.asideTitle}>Keep every academic handoff clear.</h1>
+          <p style={styles.asideText}>
+            PATH gives faculty and program chairs one place to submit, review,
+            track, and act on the records that move the department forward.
           </p>
-          <div className="flex gap-2">
-            <span className="w-7 h-[3px] rounded-sm bg-white/35 inline-block" />
-            <span className="w-7 h-[3px] rounded-sm bg-white inline-block" />
-            <span className="w-7 h-[3px] rounded-sm bg-white/35 inline-block" />
+        </div>
+        <div style={styles.workflow}>
+          <span style={styles.workflowLabel}>Today&apos;s workflow</span>
+          <strong style={styles.workflowText}>
+            One secure workspace for every submission.
+          </strong>
+          <div style={styles.workflowLines} aria-hidden="true">
+            <i
+              style={{ ...styles.workflowLine, ...styles.workflowLineActive }}
+            />
+            <i style={styles.workflowLine} />
+            <i style={styles.workflowLine} />
           </div>
         </div>
-      </div>
+      </aside>
 
-    </div>
+      <section style={styles.main}>
+        <div style={styles.formWrap}>
+          <div style={{ ...styles.mobileBrand, display: "flex" }}>
+            <span style={styles.mark}>
+              <FileMark />
+            </span>
+            <span style={styles.mobileBrandName}>PATH</span>
+          </div>
+          <header style={styles.header}>
+            <span style={{ ...styles.headerKicker, color: violet.muted }}>
+              <i style={{ ...styles.kickerDot, background: violet.violet }} />{" "}
+              Secure access
+            </span>
+            <h2 style={styles.headerTitle}>Welcome back</h2>
+            <p style={styles.headerText}>
+              Sign in to continue managing your department&apos;s document
+              workflow.
+            </p>
+          </header>
+
+          <div style={styles.card}>
+            <div style={styles.intro}>
+              <span style={styles.introIcon}>
+                <ShieldIcon />
+              </span>
+              <span>
+                <strong style={styles.introTitle}>
+                  Choose how you&apos;ll sign in
+                </strong>
+                <small style={styles.introText}>
+                  Use your PATH credentials to access your workspace.
+                </small>
+              </span>
+            </div>
+
+            {alertMsg && (
+              <p
+                role="status"
+                style={{
+                  ...styles.notice,
+                  ...(alertMsg.type === "success"
+                    ? styles.noticeSuccess
+                    : styles.noticeError),
+                  marginTop: 14,
+                }}
+              >
+                {alertMsg.text}
+              </p>
+            )}
+
+            <form style={styles.form} onSubmit={handleSubmit} noValidate>
+              <label style={styles.label}>
+                Username
+                <span
+                  style={{
+                    ...styles.inputShell,
+                    ...(errors.username ? styles.inputShellError : {}),
+                  }}
+                >
+                  <span aria-hidden="true">✉</span>
+                  <input
+                    style={styles.input}
+                    type="text"
+                    name="username"
+                    autoComplete="username"
+                    placeholder="Enter your username"
+                    value={formData.username}
+                    onChange={handleChange}
+                  />
+                </span>
+                {errors.username && (
+                  <p style={styles.fieldError}>{errors.username}</p>
+                )}
+              </label>
+              <label style={styles.label}>
+                Password
+                <span
+                  style={{
+                    ...styles.inputShell,
+                    ...(errors.password ? styles.inputShellError : {}),
+                  }}
+                >
+                  <span aria-hidden="true">▣</span>
+                  <input
+                    style={styles.input}
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  <button
+                    style={styles.passwordButton}
+                    type="button"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    <EyeIcon hidden={showPassword} />
+                  </button>
+                </span>
+                {errors.password && (
+                  <p style={styles.fieldError}>{errors.password}</p>
+                )}
+              </label>
+              <div style={styles.options}>
+                <label style={styles.check}>
+                  <input type="checkbox" defaultChecked /> Keep me signed in
+                </label>
+                <a style={styles.link} href="/forgot-password">
+                  Forgot password?
+                </a>
+              </div>
+              <button
+                style={{
+                  ...styles.primary,
+                  ...(loading ? styles.primaryDisabled : {}),
+                }}
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Signing in..." : "Sign in with username"}
+                {!loading && <ArrowIcon />}
+              </button>
+            </form>
+
+            <div style={styles.divider} aria-hidden="true">
+              <i style={styles.dividerLine} />
+              <span>or continue with</span>
+              <i style={styles.dividerLine} />
+            </div>
+            <div style={styles.providers}>
+              <button style={styles.provider} type="button">
+                <span style={styles.google}>G</span> Google
+              </button>
+              <button style={styles.provider} type="button">
+                <span style={styles.microsoft} aria-hidden="true">
+                  <i style={{ ...styles.square, background: "#f35325" }} />
+                  <i style={{ ...styles.square, background: "#81bc06" }} />
+                  <i style={{ ...styles.square, background: "#05a6f0" }} />
+                  <i style={{ ...styles.square, background: "#ffba08" }} />
+                </span>
+                Microsoft
+              </button>
+            </div>
+          </div>
+
+          <div style={styles.trust} aria-label="PATH security features">
+            <span>✓ Encrypted session</span>
+            <span>✓ Role-aware workspace</span>
+          </div>
+          <p style={styles.switchText}>
+            New to PATH?{" "}
+            <a style={styles.link} href="/register">
+              Create an account
+            </a>
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }
