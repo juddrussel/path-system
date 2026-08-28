@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import logo from "../assets/logo.png";
+import logowhite from "../assets/logowhite.png";
 
 const API_BASE =
   (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
@@ -541,7 +542,7 @@ export default function Login() {
         <span style={styles.asideOrbBottom} aria-hidden="true" />
         <div style={styles.brand}>
           <span style={styles.mark}>
-            <img src={logo} alt="DS PATH logo" style={styles.markImg} />
+            <img src={logowhite} alt="DS PATH logo" style={styles.markImg} />
           </span>
           <span>
             <span style={styles.brandName}>DS PATH</span>
