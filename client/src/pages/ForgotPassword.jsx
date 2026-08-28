@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import logowhite from "../assets/logowhite.png";
 
 const colors = {
   ink: "#2f2638",
@@ -385,10 +386,10 @@ export default function ForgotPassword() {
         <span style={s.orbBottom} aria-hidden="true" />
         <div style={s.brand}>
           <span style={s.mark}>
-            <FileMark />
+            <img src={logowhite} alt="DS PATH logo" style={s.markImg} />
           </span>
           <span>
-            <span style={s.brandName}>PATH</span>
+            <span style={s.brandName}>DS PATH</span>
             <span style={s.brandSub}>Processing &amp; Tracking Hub</span>
           </span>
         </div>
@@ -412,12 +413,7 @@ export default function ForgotPassword() {
 
       <section style={s.main}>
         <div style={s.wrap}>
-          <div style={{ ...s.mobileBrand, display: "flex" }}>
-            <span style={s.mark}>
-              <FileMark />
-            </span>
-            <span style={s.mobileName}>PATH</span>
-          </div>
+          
 
           <header style={s.header}>
             <span style={s.headerKicker}>

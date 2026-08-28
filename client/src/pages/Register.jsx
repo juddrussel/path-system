@@ -644,7 +644,7 @@ export default function Register() {
           </span>
           <h2 style={s.title}>Create your account</h2>
           <p style={s.subtitle}>
-            Join PATH to submit and coordinate academic documents with clear
+            Join DS PATH to submit and coordinate academic documents with clear
             ownership and live status.
           </p>
 
@@ -914,7 +914,7 @@ export default function Register() {
             <img src={logowhite} alt="DS PATH logo" style={s.markImg} />
           </span>
           <span>
-            <span style={s.brandName}>PATH</span>
+            <span style={s.brandName}>DS PATH</span>
             <span style={s.brandSub}>Processing &amp; Tracking Hub</span>
           </span>
         </div>
@@ -925,7 +925,7 @@ export default function Register() {
           </span>
           <h1 style={s.heroTitle}>Bring document work into focus.</h1>
           <p style={s.heroText}>
-            From submission to approval, PATH keeps responsibilities, required
+            From submission to approval, DS PATH keeps responsibilities, required
             evidence, and deadlines in one secure operational record.
           </p>
         </div>
