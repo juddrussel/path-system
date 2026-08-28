@@ -584,7 +584,6 @@ export default function Login() {
         <div style={styles.formWrap}>
           <div style={{ ...styles.mobileBrand, display: "flex" }}>
             <span style={styles.mobileMark}>
-              <img src={logo} alt="DS PATH logo" style={styles.markImg} />
             </span>
             <span style={styles.mobileBrandName}>DS PATH</span>
           </div>
