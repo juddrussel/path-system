@@ -8,6 +8,9 @@ const colors = {
   line: "#e7dfed",
 };
 
+const fontStack =
+  '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
 const s = {
   page: {
     display: "grid",
@@ -16,7 +19,7 @@ const s = {
     overflow: "hidden",
     background: colors.panel,
     color: colors.ink,
-    fontFamily: '"DM Sans", Arial, sans-serif',
+    fontFamily: fontStack,
   },
   aside: {
     position: "relative",
@@ -222,7 +225,7 @@ const s = {
     outline: 0,
     background: "transparent",
     color: colors.ink,
-    font: "500 12px Arial, sans-serif",
+    font: `500 12px ${fontStack}`,
   },
   passwordButton: {
     display: "grid",
@@ -261,7 +264,7 @@ const s = {
     borderRadius: 8,
     background: "linear-gradient(135deg, #7c3aed, #8439f0)",
     color: "#fff",
-    font: "800 11px Arial, sans-serif",
+    font: `800 11px ${fontStack}`,
     cursor: "pointer",
   },
   submitDisabled: {
@@ -275,7 +278,7 @@ const s = {
     padding: 0,
     background: "transparent",
     color: "#7144bf",
-    font: "800 10px Arial, sans-serif",
+    font: `800 10px ${fontStack}`,
     cursor: "pointer",
     textDecoration: "none",
     textAlign: "center",
@@ -339,7 +342,7 @@ const s = {
     borderRadius: 8,
     background: "linear-gradient(135deg, #7c3aed, #8439f0)",
     color: "#fff",
-    font: "800 11px Arial, sans-serif",
+    font: `800 11px ${fontStack}`,
     cursor: "pointer",
     textDecoration: "none",
   },
