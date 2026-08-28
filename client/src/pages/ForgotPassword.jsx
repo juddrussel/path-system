@@ -18,8 +18,8 @@ const s = {
     gridTemplateColumns: "minmax(330px, 42%) 1fr",
     minHeight: "100vh",
     overflow: "hidden",
-    background: violet.panel,
-    color: violet.ink,
+    background: colors.panel,
+    color: colors.ink,
     fontFamily: '"DM Sans", Arial, sans-serif',
   },
   aside: {
