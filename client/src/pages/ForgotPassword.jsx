@@ -16,7 +16,8 @@ const s = {
     overflow: "hidden",
     background: colors.panel,
     color: colors.ink,
-    fontFamily: '"DM Sans", Arial, sans-serif',
+    fontFamily:
+      '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
   },
   aside: {
     position: "relative",
@@ -101,10 +102,10 @@ const s = {
   dot: { width: 6, height: 6, borderRadius: "50%", background: "#c4b5fd" },
   asideTitle: {
     margin: "22px 0 12px",
-    fontSize: "clamp(42px, 4.3vw, 64px)",
+    fontSize: "clamp(38px, 4vw, 56px)",
     fontWeight: 800,
-    letterSpacing: "-.065em",
-    lineHeight: 0.96,
+    letterSpacing: "-.02em",
+    lineHeight: 1.08,
   },
   asideText: {
     maxWidth: 360,
@@ -175,8 +176,8 @@ const s = {
     margin: "14px 0 8px",
     fontSize: 42,
     fontWeight: 800,
-    letterSpacing: "-.06em",
-    lineHeight: 1.02,
+    letterSpacing: "-.02em",
+    lineHeight: 1.1,
   },
   subtitle: {
     maxWidth: 380,
