@@ -11,16 +11,15 @@ function getUser() {
   } catch { return {}; }
 }
 
-// ── Palette ───────────────────────────────────────────────────────────────
-const COLORS = {
-  bg: "#f8f7fc",
-  border: "rgba(15,10,40,0.08)",
-  textMuted: "#6b7280",
-  textActive: "#7c3aed",
-  activePill: "#ece7fb",
-  accent: "#7c3aed",
-  heading: "#111827",
-};
+function initialsFor(name) {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(p => p[0].toUpperCase())
+    .join("");
+}
 
 // ── Sidebar SVG Icons ────────────────────────────────────────────────────────
 const Icon = {
@@ -116,67 +115,75 @@ const Icon = {
       <path d="M8 1.6v1.5M8 12.9v1.5M2.9 4.4l1.1 1.1M12 10.5l1.1 1.1M1.6 8h1.5M12.9 8h1.5M2.9 11.6l1.1-1.1M12 5.5l1.1-1.1" strokeLinecap="round" />
     </svg>
   ),
-  Collapse: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
-      <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
-      <path d="M5.7 2.5v11" />
-    </svg>
-  ),
-  Chevron: () => (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" width="12" height="12">
-      <path d="M4.5 6.5L8 10l3.5-3.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
   Logout: () => (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
       <path d="M6 2H3.2a1 1 0 00-1 1v10a1 1 0 001 1H6" strokeLinecap="round" />
       <path d="M10 11l3.5-3-3.5-3M13.3 8H6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
+  Mark: () => (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="17" height="17">
+      <path d="M4.5 1.8h5l3 3V14.2H4.5z" strokeLinejoin="round" />
+      <path d="M9.5 1.8v3h3M6.2 8h3.6M6.2 10.5h3.6" strokeLinecap="round" />
+    </svg>
+  ),
 };
 
-// ── Sidebar Item ──────────────────────────────────────────────────────────────
-function SbItem({ icon, label, active, onClick, badge }) {
-  const [hover, setHover] = useState(false);
-  const highlighted = active || hover;
-
-  return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        margin: "2px 12px",
-        padding: "8px 11px",
-        borderRadius: 10,
-        color: highlighted ? COLORS.textActive : COLORS.textMuted,
-        fontSize: 13,
-        fontWeight: highlighted ? 600 : 500,
-        cursor: "pointer",
-        background: active
-          ? "linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05))"
-          : hover ? "rgba(124,58,237,0.06)" : "transparent",
-        border: "1px solid transparent",
-        transition: "background 0.15s ease, border-color 0.15s ease, color 0.15s ease",
-      }}
-    >
-      <span style={{ display: "flex", opacity: highlighted ? 1 : 0.85, flexShrink: 0 }}>{icon}</span>
-      <span style={{ flex: 1 }}>{label}</span>
-      {badge > 0 && (
-        <span style={{
-          minWidth: 16, height: 16, padding: "0 4px", borderRadius: 8,
-          background: "#dc2626", color: "white", fontSize: 10, fontWeight: "bold",
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        }}>
-          {badge > 99 ? "99+" : badge}
-        </span>
-      )}
-    </div>
-  );
-}
+// ── Layout-only CSS (grouped nav, workspace switcher, profile footer) ──────
+const styles = `
+  .path-sidebar {
+    box-sizing: border-box;
+    width: 250px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 28px 20px 20px;
+    border-right: 1px solid #ebe5f0;
+    background: #f8f7fc;
+    color: #40354a;
+    font-family: inherit;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex-shrink: 0;
+  }
+  .path-sidebar *, .path-sidebar *::before, .path-sidebar *::after { box-sizing: border-box; }
+  .path-sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 0 9px; }
+  .path-sidebar__mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 9px; background: #7c3aed; color: #fff; box-shadow: 0 8px 17px rgba(124, 58, 237, .18); }
+  .path-sidebar__name { color: #111827; font-size: 15px; font-weight: 700; letter-spacing: .1em; line-height: 1; }
+  .path-sidebar__subname { display: block; margin-top: 4px; color: #a196aa; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .path-sidebar__workspace { position: relative; }
+  .path-sidebar__workspace-button { width: 100%; display: flex; align-items: center; gap: 9px; border: 1px solid #e9e1ee; border-radius: 12px; padding: 10px; background: #fff; color: #62566e; text-align: left; cursor: pointer; }
+  .path-sidebar__workspace-button:hover { border-color: #d7c7ee; background: #fbf9ff; }
+  .path-sidebar__workspace-avatar { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border-radius: 9px; background: #efe8ff; color: #7040c7; font-size: 10px; font-weight: 900; }
+  .path-sidebar__workspace-copy { min-width: 0; flex: 1; }
+  .path-sidebar__workspace-label { display: block; margin-bottom: 3px; color: #a096a8; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .path-sidebar__workspace-name { display: block; overflow: hidden; color: #42364c; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .path-sidebar__chevron { color: #a69bac; font-size: 13px; }
+  .path-sidebar__workspace-menu { position: absolute; z-index: 2; top: calc(100% + 7px); right: 0; left: 0; border: 1px solid #e8e0ef; border-radius: 10px; padding: 6px; background: #fff; box-shadow: 0 14px 28px rgba(58, 37, 75, .12); }
+  .path-sidebar__workspace-option { width: 100%; border: 0; border-radius: 7px; padding: 8px; background: transparent; color: #65576f; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; }
+  .path-sidebar__workspace-option:hover { background: #f5f0ff; color: #6d35c8; }
+  .path-sidebar__navigation { flex: 1; overflow-y: auto; padding-right: 2px; }
+  .path-sidebar__group + .path-sidebar__group { margin-top: 22px; }
+  .path-sidebar__group-label { display: block; margin: 0 9px 10px; color: #b1a7b7; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .path-sidebar__items { display: flex; flex-direction: column; gap: 3px; }
+  .path-sidebar__item { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 35px; border: 0; border-radius: 9px; padding: 0 11px; background: transparent; color: #6b7280; font-size: 13px; font-weight: 500; text-align: left; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
+  .path-sidebar__item:hover { background: rgba(124,58,237,0.06); color: #7c3aed; }
+  .path-sidebar__item--active { background: linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05)); color: #7c3aed; font-weight: 600; }
+  .path-sidebar__item--active:hover { background: linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05)); }
+  .path-sidebar__item-icon { display: grid; width: 16px; height: 16px; flex: 0 0 auto; place-items: center; opacity: .85; }
+  .path-sidebar__item--active .path-sidebar__item-icon, .path-sidebar__item:hover .path-sidebar__item-icon { opacity: 1; }
+  .path-sidebar__item-label { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .path-sidebar__badge { display: grid; min-width: 18px; height: 16px; place-items: center; border-radius: 99px; padding: 0 4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; }
+  .path-sidebar__profile { display: flex; align-items: center; gap: 9px; border-top: 1px solid #ebe5f0; padding: 17px 8px 0; }
+  .path-sidebar__profile-avatar { display: grid; width: 31px; height: 31px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e9ddff; color: #7134d6; font-size: 10px; font-weight: 900; }
+  .path-sidebar__profile-copy { min-width: 0; flex: 1; }
+  .path-sidebar__profile-name { display: block; overflow: hidden; color: #4c3c56; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .path-sidebar__profile-role { display: block; margin-top: 3px; color: #a096a8; font-size: 9px; font-weight: 600; text-transform: capitalize; }
+  .path-sidebar__profile-menu-button { display: grid; width: 26px; height: 26px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 6px; background: transparent; color: #a69bac; cursor: pointer; }
+  .path-sidebar__profile-menu-button:hover { background: #f7f3fb; color: #6d35c8; }
+`;
 
 // Maps a URL path to the nav key it should highlight as active.
 const NAV_ITEMS = [
@@ -213,6 +220,7 @@ export default function Sidebar({ activePage }) {
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
   const [unreadTotal, setUnreadTotal] = useState(0);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -234,81 +242,95 @@ export default function Sidebar({ activePage }) {
 
   const badgeFor = key => (key === "inbox" ? unreadTotal : undefined);
 
+  const manageItems = [
+    ...(canViewAdminNav ? ADMIN_NAV_ITEMS : []),
+    { key: "settings", icon: Icon.Settings, label: "Settings", path: null },
+  ];
+
+  const navGroups = [
+    { label: "Workspace", items: NAV_ITEMS },
+    { label: "Manage", items: manageItems },
+  ];
+
   return (
-    <div style={{
-      width: 220, background: COLORS.bg, color: COLORS.textMuted,
-      display: "flex", flexDirection: "column", flexShrink: 0,
-      minHeight: "100vh", position: "sticky", top: 0, height: "100vh", overflowY: "auto",
-      fontFamily: "inherit", borderRight: `1px solid ${COLORS.border}`,
-    }}>
-      {/* Logo */}
-      <div style={{
-        padding: "16px 16px", display: "flex", alignItems: "center",
-        justifyContent: "space-between", gap: 10,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 30, height: 30, background: COLORS.accent, borderRadius: 8,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "white", fontSize: 12, fontWeight: 700, letterSpacing: 0.5,
-          }}>
-            DS
-          </div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: COLORS.heading, letterSpacing: 1.5 }}>
-            DS PATH
+    <>
+      <style>{styles}</style>
+      <aside className="path-sidebar" aria-label="Main navigation">
+        {/* Brand */}
+        <div className="path-sidebar__brand">
+          <span className="path-sidebar__mark"><Icon.Mark /></span>
+          <span>
+            <span className="path-sidebar__name">DS PATH</span>
+            <span className="path-sidebar__subname">Processing &amp; Tracking Hub</span>
           </span>
         </div>
-        <span style={{ color: "#9ca3af", cursor: "pointer", display: "flex" }}>
-          <Icon.Collapse />
-        </span>
-      </div>
 
-      {/* Nav */}
-      <div style={{ padding: "8px 0", flex: 1 }}>
-        {NAV_ITEMS.map(n => (
-          <SbItem
-            key={n.key}
-            icon={<n.icon />}
-            label={n.label}
-            active={currentKey === n.key}
-            onClick={() => navigate(n.path)}
-            badge={badgeFor(n.key)}
-          />
-        ))}
+        {/* Workspace / account switcher (layout only, no real switching yet) */}
+        <div className="path-sidebar__workspace">
+          <button
+            className="path-sidebar__workspace-button"
+            type="button"
+            disabled
+            aria-disabled="true"
+          >
+            <span className="path-sidebar__workspace-avatar">{initialsFor(user.name)}</span>
+            <span className="path-sidebar__workspace-copy">
+              <span className="path-sidebar__workspace-label">Signed in as</span>
+              <span className="path-sidebar__workspace-name">{user.name || "User"}</span>
+            </span>
+          </button>
+        </div>
 
-        {canViewAdminNav && (
-          <div style={{
-            fontSize: 10.5, fontWeight: 700, color: "#9ca3af", letterSpacing: 1,
-            padding: "16px 22px 6px", textTransform: "uppercase",
-          }}>
-            Administration
-          </div>
-        )}
-        {canViewAdminNav && ADMIN_NAV_ITEMS.map(n => (
-          <SbItem
-            key={n.key}
-            icon={<n.icon />}
-            label={n.label}
-            active={currentKey === n.key}
-            onClick={() => navigate(n.path)}
-          />
-        ))}
+        {/* Nav */}
+        <nav className="path-sidebar__navigation">
+          {navGroups.map(group => {
+            if (!group.items.length) return null;
+            return (
+              <section className="path-sidebar__group" key={group.label}>
+                <span className="path-sidebar__group-label">{group.label}</span>
+                <div className="path-sidebar__items">
+                  {group.items.map(n => {
+                    const isActive = currentKey === n.key;
+                    const badge = badgeFor(n.key);
+                    return (
+                      <button
+                        key={n.key}
+                        type="button"
+                        className={`path-sidebar__item${isActive ? " path-sidebar__item--active" : ""}`}
+                        onClick={() => (n.path ? navigate(n.path) : undefined)}
+                        aria-current={isActive ? "page" : undefined}
+                      >
+                        <span className="path-sidebar__item-icon"><n.icon /></span>
+                        <span className="path-sidebar__item-label">{n.label}</span>
+                        {badge > 0 && (
+                          <span className="path-sidebar__badge">{badge > 99 ? "99+" : badge}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
+        </nav>
 
-        <SbItem icon={<Icon.Settings />} label="Settings" active={currentKey === "settings"} onClick={() => { }} />
-      </div>
-
-      {/* Bottom */}
-      <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: "12px 16px" }}>
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          fontSize: 11, color: "#9ca3af",
-        }}>
-          <span>v1.0.0</span>
-          <span onClick={handleLogout} style={{ cursor: "pointer", display: "flex", color: "#9ca3af" }}>
+        {/* Profile / logout */}
+        <div className="path-sidebar__profile">
+          <span className="path-sidebar__profile-avatar">{initialsFor(user.name)}</span>
+          <span className="path-sidebar__profile-copy">
+            <span className="path-sidebar__profile-name">{user.name || "User"}</span>
+            <span className="path-sidebar__profile-role">{user.role ? user.role.replace(/_/g, " ") : ""}</span>
+          </span>
+          <button
+            className="path-sidebar__profile-menu-button"
+            type="button"
+            onClick={handleLogout}
+            aria-label="Log out"
+          >
             <Icon.Logout />
-          </span>
+          </button>
         </div>
-      </div>
-    </div>
+      </aside>
+    </>
   );
 }
