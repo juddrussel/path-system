@@ -23,7 +23,7 @@ const s = {
   page: {
     display: "grid",
     gridTemplateColumns: "minmax(360px, 54%) 1fr",
-    minHeight: "100vh",
+    height: "100vh",
     overflow: "hidden",
     background: colors.bg,
     color: colors.ink,
@@ -32,7 +32,7 @@ const s = {
   main: {
     display: "flex",
     minWidth: 0,
-    minHeight: "100vh",
+    height: "100%",
     justifyContent: "center",
     overflowY: "auto",
     padding: "48px 64px 56px",
@@ -293,7 +293,7 @@ const s = {
   aside: {
     position: "relative",
     display: "flex",
-    minHeight: "100vh",
+    height: "100%",
     flexDirection: "column",
     justifyContent: "space-between",
     overflow: "hidden",
