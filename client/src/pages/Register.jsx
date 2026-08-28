@@ -636,9 +636,13 @@ export default function Register() {
 
   return (
     <main style={s.page}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');
+        .path-scroll-hide { scrollbar-width: none; -ms-overflow-style: none; }
+        .path-scroll-hide::-webkit-scrollbar { display: none; width: 0; height: 0; }
+      `}</style>
 
-      <section style={s.main}>
+      <section style={s.main} className="path-scroll-hide">
         <div style={s.wrap}>
           <span style={s.kicker}>
             <i style={s.dot} /> Workspace access
