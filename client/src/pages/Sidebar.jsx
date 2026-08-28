@@ -179,9 +179,9 @@ const styles = `
   .path-sidebar__group + .path-sidebar__group { margin-top: 22px; }
   .path-sidebar__group-label { display: block; margin: 0 9px 10px; color: #b1a7b7; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
   .path-sidebar__items { display: flex; flex-direction: column; gap: 3px; }
-  .path-sidebar__item { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 35px; border: 0; border-radius: 9px; padding: 0 11px; background: transparent; color: #6b7280; font-size: 13px; font-weight: 500; text-align: left; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
+  .path-sidebar__item { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 35px; border: 0; border-radius: 9px; padding: 0 11px; background: transparent; color: #6b7280; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; font-size: 13px !important; font-weight: 500 !important; line-height: normal !important; text-align: left; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
   .path-sidebar__item:hover { background: rgba(124,58,237,0.06); color: #7c3aed; }
-  .path-sidebar__item--active { background: linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05)); color: #7c3aed; font-weight: 600; }
+  .path-sidebar__item--active { background: linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05)); color: #7c3aed; font-weight: 600 !important; }
   .path-sidebar__item--active:hover { background: linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05)); }
   .path-sidebar__item-icon { display: grid; width: 16px; height: 16px; flex: 0 0 auto; place-items: center; opacity: .85; }
   .path-sidebar__item--active .path-sidebar__item-icon, .path-sidebar__item:hover .path-sidebar__item-icon { opacity: 1; }
