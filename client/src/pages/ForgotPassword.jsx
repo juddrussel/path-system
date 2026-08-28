@@ -71,7 +71,6 @@ const s = {
     height: 34,
     placeItems: "center",
     borderRadius: 10,
-    background: colors.violet,
   },
   markSvg: {
     width: 18,
