@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL || "";
+const API_BASE = `${API}/api`;
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
 function getUser() {
@@ -11,14 +12,34 @@ function getUser() {
   } catch { return {}; }
 }
 
-function initialsFor(name) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(p => p[0].toUpperCase())
-    .join("");
+function fullAvatarUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${API}${url}`;
+}
+
+const ROLE_LABELS = {
+  admin: "Admin",
+  program_chair: "Program Chair",
+  user: "Faculty",
+  guest: "Guest",
+};
+function formatRole(role) {
+  return ROLE_LABELS[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : "User");
+}
+
+const AVATAR_COLORS = [
+  ["#ede9fe", "#5b21b6"], ["#dbeafe", "#1d4ed8"], ["#d1fae5", "#065f46"],
+  ["#fef3c7", "#92400e"], ["#fce7f3", "#9d174d"], ["#e0f2fe", "#0369a1"],
+];
+function avatarBg(name = "") {
+  return AVATAR_COLORS[(name.charCodeAt(0) || 0) % AVATAR_COLORS.length];
+}
+function initials(fullName = "") {
+  const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
 // ── Sidebar SVG Icons ────────────────────────────────────────────────────────
@@ -129,7 +150,7 @@ const Icon = {
   ),
 };
 
-// ── Layout-only CSS (grouped nav, workspace switcher, profile footer) ──────
+// ── Layout-only CSS (grouped nav, profile footer) ──────────────────────────
 const styles = `
   .path-sidebar {
     box-sizing: border-box;
@@ -153,17 +174,6 @@ const styles = `
   .path-sidebar__mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 9px; background: #7c3aed; color: #fff; box-shadow: 0 8px 17px rgba(124, 58, 237, .18); }
   .path-sidebar__name { color: #111827; font-size: 15px; font-weight: 700; letter-spacing: .1em; line-height: 1; }
   .path-sidebar__subname { display: block; margin-top: 4px; color: #a196aa; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-  .path-sidebar__workspace { position: relative; }
-  .path-sidebar__workspace-button { width: 100%; display: flex; align-items: center; gap: 9px; border: 1px solid #e9e1ee; border-radius: 12px; padding: 10px; background: #fff; color: #62566e; text-align: left; cursor: pointer; }
-  .path-sidebar__workspace-button:hover { border-color: #d7c7ee; background: #fbf9ff; }
-  .path-sidebar__workspace-avatar { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border-radius: 9px; background: #efe8ff; color: #7040c7; font-size: 10px; font-weight: 900; }
-  .path-sidebar__workspace-copy { min-width: 0; flex: 1; }
-  .path-sidebar__workspace-label { display: block; margin-bottom: 3px; color: #a096a8; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-  .path-sidebar__workspace-name { display: block; overflow: hidden; color: #42364c; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-  .path-sidebar__chevron { color: #a69bac; font-size: 13px; }
-  .path-sidebar__workspace-menu { position: absolute; z-index: 2; top: calc(100% + 7px); right: 0; left: 0; border: 1px solid #e8e0ef; border-radius: 10px; padding: 6px; background: #fff; box-shadow: 0 14px 28px rgba(58, 37, 75, .12); }
-  .path-sidebar__workspace-option { width: 100%; border: 0; border-radius: 7px; padding: 8px; background: transparent; color: #65576f; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; }
-  .path-sidebar__workspace-option:hover { background: #f5f0ff; color: #6d35c8; }
   .path-sidebar__navigation { flex: 1; overflow-y: auto; padding-right: 2px; }
   .path-sidebar__group + .path-sidebar__group { margin-top: 22px; }
   .path-sidebar__group-label { display: block; margin: 0 9px 10px; color: #b1a7b7; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
@@ -177,7 +187,8 @@ const styles = `
   .path-sidebar__item-label { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .path-sidebar__badge { display: grid; min-width: 18px; height: 16px; place-items: center; border-radius: 99px; padding: 0 4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; }
   .path-sidebar__profile { display: flex; align-items: center; gap: 9px; border-top: 1px solid #ebe5f0; padding: 17px 8px 0; }
-  .path-sidebar__profile-avatar { display: grid; width: 31px; height: 31px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e9ddff; color: #7134d6; font-size: 10px; font-weight: 900; }
+  .path-sidebar__profile-avatar { display: grid; width: 31px; height: 31px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e9ddff; color: #7134d6; font-size: 10px; font-weight: 900; overflow: hidden; }
+  .path-sidebar__profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .path-sidebar__profile-copy { min-width: 0; flex: 1; }
   .path-sidebar__profile-name { display: block; overflow: hidden; color: #4c3c56; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
   .path-sidebar__profile-role { display: block; margin-top: 3px; color: #a096a8; font-size: 9px; font-weight: 600; text-transform: capitalize; }
@@ -220,7 +231,7 @@ export default function Sidebar({ activePage }) {
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
   const [unreadTotal, setUnreadTotal] = useState(0);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -230,6 +241,25 @@ export default function Sidebar({ activePage }) {
       .then(d => { if (d) setUnreadTotal(d.count || 0); })
       .catch(() => {});
   }, [location.pathname]);
+
+  // Fetch the full profile (name, avatar, role) from the API using the JWT
+  // id, same pattern TopBar.jsx uses — falls back to the decoded token so
+  // the sidebar still shows something if the request fails.
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      fetch(`${API_BASE}/users/${decoded.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => setProfile(data || decoded))
+        .catch(() => setProfile(decoded));
+    } catch {
+      setProfile({});
+    }
+  }, []);
 
   const currentKey = activePage || [...NAV_ITEMS, ...ADMIN_NAV_ITEMS].find(
     n => location.pathname.startsWith(n.path)
@@ -263,22 +293,6 @@ export default function Sidebar({ activePage }) {
             <span className="path-sidebar__name">DS PATH</span>
             <span className="path-sidebar__subname">Processing &amp; Tracking Hub</span>
           </span>
-        </div>
-
-        {/* Workspace / account switcher (layout only, no real switching yet) */}
-        <div className="path-sidebar__workspace">
-          <button
-            className="path-sidebar__workspace-button"
-            type="button"
-            disabled
-            aria-disabled="true"
-          >
-            <span className="path-sidebar__workspace-avatar">{initialsFor(user.name)}</span>
-            <span className="path-sidebar__workspace-copy">
-              <span className="path-sidebar__workspace-label">Signed in as</span>
-              <span className="path-sidebar__workspace-name">{user.name || "User"}</span>
-            </span>
-          </button>
         </div>
 
         {/* Nav */}
@@ -315,21 +329,32 @@ export default function Sidebar({ activePage }) {
         </nav>
 
         {/* Profile / logout */}
-        <div className="path-sidebar__profile">
-          <span className="path-sidebar__profile-avatar">{initialsFor(user.name)}</span>
-          <span className="path-sidebar__profile-copy">
-            <span className="path-sidebar__profile-name">{user.name || "User"}</span>
-            <span className="path-sidebar__profile-role">{user.role ? user.role.replace(/_/g, " ") : ""}</span>
-          </span>
-          <button
-            className="path-sidebar__profile-menu-button"
-            type="button"
-            onClick={handleLogout}
-            aria-label="Log out"
-          >
-            <Icon.Logout />
-          </button>
-        </div>
+        {(() => {
+          const [bg, fg] = avatarBg(profile?.full_name || "");
+          return (
+            <div className="path-sidebar__profile">
+              <span className="path-sidebar__profile-avatar" style={!profile?.avatar_url ? { background: bg, color: fg } : undefined}>
+                {profile?.avatar_url ? (
+                  <img src={fullAvatarUrl(profile.avatar_url)} alt="" />
+                ) : (
+                  initials(profile?.full_name)
+                )}
+              </span>
+              <span className="path-sidebar__profile-copy">
+                <span className="path-sidebar__profile-name">{profile?.full_name || profile?.username || "User"}</span>
+                <span className="path-sidebar__profile-role">{formatRole(profile?.role || user.role)}</span>
+              </span>
+              <button
+                className="path-sidebar__profile-menu-button"
+                type="button"
+                onClick={handleLogout}
+                aria-label="Log out"
+              >
+                <Icon.Logout />
+              </button>
+            </div>
+          );
+        })()}
       </aside>
     </>
   );
