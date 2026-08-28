@@ -385,8 +385,8 @@ export default function ForgotPassword() {
         <span style={s.orb} aria-hidden="true" />
         <span style={s.orbBottom} aria-hidden="true" />
         <div style={s.brand}>
-          <span style={s.mark}>
-            <img src={logowhite} alt="DS PATH logo" style={s.markImg} />
+          <span style={styles.mark}>
+            <img src={logowhite} alt="DS PATH logo" style={styles.markImg} />
           </span>
           <span>
             <span style={s.brandName}>DS PATH</span>
@@ -413,7 +413,7 @@ export default function ForgotPassword() {
 
       <section style={s.main}>
         <div style={s.wrap}>
-          
+
 
           <header style={s.header}>
             <span style={s.headerKicker}>
@@ -422,7 +422,7 @@ export default function ForgotPassword() {
             <h2 style={s.title}>Forgot your password?</h2>
             <p style={s.subtitle}>
               Enter your university email and we&apos;ll send instructions to
-              help you regain access to PATH.
+              help you regain access to DS PATH.
             </p>
           </header>
 

@@ -490,11 +490,11 @@ export default function ResetPassword() {
         <span style={s.orb} aria-hidden="true" />
         <span style={s.orbBottom} aria-hidden="true" />
         <div style={s.brand}>
-          <span style={s.mark}>
-            <FileMark />
+          <span style={styles.mark}>
+            <img src={logowhite} alt="DS PATH logo" style={styles.markImg} />
           </span>
           <span>
-            <span style={s.brandName}>PATH</span>
+            <span style={s.brandName}>DS PATH</span>
             <span style={s.brandSub}>Processing &amp; Tracking Hub</span>
           </span>
         </div>
@@ -519,10 +519,6 @@ export default function ResetPassword() {
       <section style={s.main}>
         <div style={s.wrap}>
           <div style={{ ...s.mobileBrand, display: "flex" }}>
-            <span style={s.mark}>
-              <FileMark />
-            </span>
-            <span style={s.mobileName}>PATH</span>
           </div>
 
           <header style={s.header}>
@@ -535,7 +531,7 @@ export default function ResetPassword() {
             <p style={s.subtitle}>
               {tokenValid === false
                 ? "This password reset link is invalid or has expired (links expire after 1 hour)."
-                : "Choose a new password for your PATH account. Use at least eight characters so your workspace stays protected."}
+                : "Choose a new password for your DS PATH account. Use at least eight characters so your workspace stays protected."}
             </p>
           </header>
 
