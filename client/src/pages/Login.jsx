@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import logo from "./assets/logo.png";
 
 const API_BASE =
   (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
@@ -65,9 +66,12 @@ const styles = {
     width: 34,
     height: 34,
     placeItems: "center",
-    borderRadius: 10,
-    background: violet.violet,
-    boxShadow: "0 10px 24px rgba(46, 19, 76, .2)",
+  },
+  markImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    filter: "drop-shadow(0 10px 24px rgba(46, 19, 76, .2))",
   },
   markIcon: {
     width: 18,
@@ -440,15 +444,6 @@ const styles = {
   },
 };
 
-function FileMark() {
-  return (
-    <svg viewBox="0 0 24 24" style={styles.markIcon} aria-hidden="true">
-      <path d="M7 3.5h7l4 4V20.5H7z" />
-      <path d="M14 3.5v4h4M10 12h5M10 15.5h5" />
-    </svg>
-  );
-}
-
 function EyeIcon({ hidden = false }) {
   return (
     <svg viewBox="0 0 24 24" style={styles.markIcon} aria-hidden="true">
@@ -546,7 +541,7 @@ export default function Login() {
         <span style={styles.asideOrbBottom} aria-hidden="true" />
         <div style={styles.brand}>
           <span style={styles.mark}>
-            <FileMark />
+            <img src={logo} alt="DS PATH logo" style={styles.markImg} />
           </span>
           <span>
             <span style={styles.brandName}>DS PATH</span>
@@ -582,7 +577,7 @@ export default function Login() {
         <div style={styles.formWrap}>
           <div style={{ ...styles.mobileBrand, display: "flex" }}>
             <span style={styles.mark}>
-              <FileMark />
+              <img src={logo} alt="DS PATH logo" style={styles.markImg} />
             </span>
             <span style={styles.mobileBrandName}>DS PATH</span>
           </div>
