@@ -15,12 +15,12 @@ const fontStack =
 const s = {
   page: {
     display: "grid",
-    gridTemplateColumns: "minmax(320px, 42%) 1fr",
+    gridTemplateColumns: "minmax(330px, 42%) 1fr",
     minHeight: "100vh",
     overflow: "hidden",
-    background: colors.panel,
-    color: colors.ink,
-    fontFamily: fontStack,
+    background: violet.panel,
+    color: violet.ink,
+    fontFamily: '"DM Sans", Arial, sans-serif',
   },
   aside: {
     position: "relative",
@@ -58,6 +58,12 @@ const s = {
     display: "flex",
     alignItems: "center",
     gap: 10,
+  },
+  markImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    filter: "drop-shadow(0 10px 24px rgba(46, 19, 76, .2))",
   },
   mark: {
     display: "grid",
@@ -385,8 +391,8 @@ export default function ForgotPassword() {
         <span style={s.orb} aria-hidden="true" />
         <span style={s.orbBottom} aria-hidden="true" />
         <div style={s.brand}>
-          <span style={styles.mark}>
-            <img src={logowhite} alt="DS PATH logo" style={styles.markImg} />
+          <span style={s.mark}>
+            <img src={logowhite} alt="DS PATH logo" style={s.markImg} />
           </span>
           <span>
             <span style={s.brandName}>DS PATH</span>
