@@ -540,6 +540,7 @@ export default function Login() {
 
   return (
     <main style={styles.page}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');`}</style>
       <aside style={styles.aside}>
         <span style={styles.asideOrb} aria-hidden="true" />
         <span style={styles.asideOrbBottom} aria-hidden="true" />
