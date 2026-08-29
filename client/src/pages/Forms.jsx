@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { io as socketIO } from "socket.io-client";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 
 const API = import.meta.env.VITE_API_URL;
 // Attachments/submissions now store full R2 URLs (https://...). Older rows
@@ -1020,9 +1018,9 @@ function FacultySubmissionsWorkspace({
         `}</style>
       )}
       {!embedded && <Toast toasts={toasts} onDismiss={onDismissToast} />}
-      {!embedded && <Sidebar activePage="forms" />}
+      {!embedded }
       <main className="faculty-submissions-main">
-        {!embedded && <TopBar onLogout={onLogout} />}
+        {!embedded }
         <div className="faculty-submissions-page">
           <section className="faculty-submissions-hero">
             <div>
@@ -1876,10 +1874,6 @@ export default function Forms() {
     navigate(`/document-review/${form.id}`, { state: { form } });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
   const canViewAdminNav = ["admin", "program_chair"].includes(user.role);
 
   // ── Submission Summary (derived from wizard state) ────────────────────────
@@ -2626,8 +2620,7 @@ export default function Forms() {
       {/* Toast container */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* ── SIDEBAR ── */}
-      <Sidebar activePage="forms" />
+
 
       {/* ── MAIN ── */}
       <div
@@ -2640,48 +2633,7 @@ export default function Forms() {
           minWidth: 0,
         }}
       >
-        {/* Topbar */}
-        <TopBar onLogout={handleLogout}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "6px 12px",
-                color: "#9ca3af",
-              }}
-            >
-              <Icon.Search />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search document ID, student name, category..."
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  outline: "none",
-                  fontSize: 12,
-                  color: "#374151",
-                  width: "100%",
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              />
-            </div>
-          </div>
-        </TopBar>
+        
 
         {/* Content */}
         <div
@@ -4125,7 +4077,6 @@ export default function Forms() {
               page={page}
               totalPages={totalPages}
               onPageChange={setPage}
-              onLogout={handleLogout}
               toasts={toasts}
               onDismissToast={dismissToast}
             />
