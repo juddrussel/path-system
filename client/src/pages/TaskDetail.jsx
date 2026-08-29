@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 
 /*
   Router integration requirement (React Router v6):
@@ -550,14 +548,9 @@ export default function TaskDetail() {
   if (loading) {
     return (
       <div className="td-shell">
-        <Sidebar activePage="tasks" />
+
         <main className="td-main">
-          <TopBar
-            onLogout={() => {
-              localStorage.removeItem("token");
-              navigate("/login");
-            }}
-          />
+          
           <div className="td-loading">Loading task details…</div>
         </main>
       </div>
@@ -567,14 +560,8 @@ export default function TaskDetail() {
   if (!task) {
     return (
       <div className="td-shell">
-        <Sidebar activePage="tasks" />
         <main className="td-main">
-          <TopBar
-            onLogout={() => {
-              localStorage.removeItem("token");
-              navigate("/login");
-            }}
-          />
+          
           <div className="td-loading">
             <strong>Task unavailable</strong>
             <span>{error || "This task could not be found."}</span>
@@ -607,7 +594,7 @@ export default function TaskDetail() {
       <style>{`.td-no-submission{display:flex;align-items:flex-start;gap:8px;margin:0 15px 15px;padding:10px;border:1px solid #e5d8ee;border-left:3px solid #a78bfa;border-radius:8px;background:#fbf9ff;color:#735989}.td-no-submission svg{flex:none;margin-top:1px}.td-no-submission strong{display:block;color:#614677;font-size:9px}.td-no-submission p{margin:4px 0 0;color:#8d7b99;font-size:8px;line-height:1.5}`}</style>
       <style>{`.td-reader{width:min(1120px,calc(100vw - 48px));max-height:calc(100vh - 36px);overflow:auto;border:1px solid #e1d8ea;border-radius:13px;background:#fff;box-shadow:0 28px 80px rgba(45,27,64,.32)}.td-reader-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:16px 18px;border-bottom:1px solid #eee7f2}.td-reader-eyebrow{display:flex;align-items:center;gap:6px;color:#9c8da7;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.td-reader-eyebrow i{width:5px;height:5px;border-radius:50%;background:#a78bfa}.td-reader-head h2{margin:7px 0 0;color:#4b3757;font:800 18px Manrope,sans-serif;letter-spacing:-.04em}.td-reader-head p{margin:5px 0 0;color:#907f9a;font-size:8px}.td-reader-head-actions{display:flex;align-items:center;gap:11px;padding-top:4px}.td-reader-head-actions span{color:#8058a5;font-size:8px;font-weight:800}.td-reader-head-actions button{display:grid;width:28px;height:28px;place-items:center;border:1px solid #e2d9e8;border-radius:7px;background:#fff;color:#76568d;font-size:16px;cursor:pointer}.td-reader-stage{padding:18px;background:linear-gradient(135deg,#f2edf8,#faf9fd)}.td-reader-frame{width:min(680px,100%);margin:0 auto;border:1px solid #ded6e4;border-radius:8px;overflow:hidden;background:#27272a;box-shadow:0 16px 30px rgba(49,35,62,.22)}.td-reader-toolbar{display:flex;align-items:center;gap:9px;min-height:43px;padding:0 12px;background:#303035;color:#f7f4fb}.td-reader-toolbar b{display:grid;min-width:18px;height:20px;place-items:center;border-radius:3px;background:#171719;color:#fff;font-size:9px}.td-reader-toolbar span{font-size:9px;font-weight:800}.td-reader-toolbar button{display:grid;width:21px;height:21px;place-items:center;border:0;border-radius:3px;background:transparent;color:#f5f3f7;font-size:15px;cursor:pointer}.td-reader-toolbar button:hover{background:rgba(255,255,255,.12)}.td-reader-toolbar .td-reader-toolbar-spacer{flex:1}.td-reader-paper{display:flex;min-height:clamp(440px,67vh,720px);align-items:stretch;justify-content:center;background:#f7f7f7}.td-reader-paper iframe{width:100%;min-height:clamp(440px,67vh,720px);border:0;background:#fff}.td-reader-paper img{display:block;max-width:100%;max-height:clamp(440px,67vh,720px);object-fit:contain;background:#fff}.td-reader-fallback{display:flex;min-height:440px;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:24px;color:#806e89;text-align:center}.td-reader-fallback strong{color:#60496d;font-size:11px}.td-reader-fallback span{max-width:300px;font-size:9px;line-height:1.55}@media(max-width:720px){.td-reader{width:calc(100vw - 20px);max-height:calc(100vh - 20px)}.td-reader-head{padding:13px}.td-reader-head h2{font-size:15px}.td-reader-head-actions span{display:none}.td-reader-stage{padding:11px}.td-reader-toolbar{gap:5px;padding:0 8px}.td-reader-paper,.td-reader-paper iframe{min-height:58vh}.td-reader-paper img{max-height:58vh}}`}</style>
       <style>{`.td-inline-reader{margin-top:14px;border:1px solid #e2d8ea;border-radius:11px;overflow:hidden;background:#faf8fc}.td-inline-reader-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid #e9e2ee;background:#fff}.td-inline-reader-head strong,.td-inline-reader-head small{display:block}.td-inline-reader-head strong{margin-top:6px;color:#564060;font:800 12px Manrope,sans-serif}.td-inline-reader-head small{margin-top:4px;color:#9b8d9f;font-size:8px}.td-inline-reader-head>div:last-child{display:flex;align-items:center;gap:8px;padding-top:3px}.td-inline-reader-head>div:last-child span{color:#8058a5;font-size:8px;font-weight:800}.td-inline-reader-head>div:last-child button{border:1px solid #ded4e7;border-radius:6px;padding:5px 7px;background:#fff;color:#735393;font-size:8px;font-weight:800;cursor:pointer}.td-inline-reader-frame{width:min(410px,calc(100% - 32px));margin:18px auto}.td-inline-reader .td-reader-paper,.td-inline-reader .td-reader-paper iframe{min-height:620px}@media(max-width:720px){.td-inline-reader-head{align-items:flex-start;flex-direction:column}.td-inline-reader-head>div:last-child span{display:none}.td-inline-reader-frame{width:calc(100% - 20px);margin:11px auto}.td-inline-reader .td-reader-paper,.td-inline-reader .td-reader-paper iframe{min-height:56vh}}`}</style>
-      <Sidebar activePage="tasks" />
+
       <main className="td-main">
         <TopBar
           onLogout={() => {
