@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 import {
   FileText, Calendar, Users, ClipboardList, CheckCircle2,
   Clock, AlertTriangle, XCircle, TrendingUp, TrendingDown, BarChart3,
@@ -558,10 +556,7 @@ export default function Reports() {
   const user = (() => { try { return JSON.parse(atob(token.split(".")[1])); } catch { return {}; } })();
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+  
 
   const [dateRange, setDateRange] = useState("Last 30 Days");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
@@ -1576,17 +1571,10 @@ export default function Reports() {
     <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}${PATH_OVERVIEW_CSS}${PATH_TRANSACTION_REGISTER_CSS}${PATH_BOTTLENECK_CSS}${PATH_FOLLOWUP_CSS}`}</style>
 
-      {/* ── Sidebar ── */}
-      <Sidebar activePage="reports" />
+
       {/* ── Main ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "white", minWidth: 0 }}>
-        <TopBar onLogout={handleLogout}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>PATH</span>
-            <ChevronRight style={{ width: 12, height: 12, color: "#d1d5db" }} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Reports</span>
-          </div>
-        </TopBar>
+       
 
         <div className="path-reports-main" style={{ minHeight: "calc(100vh - 56px)", background: "#f5f4fb", overflowY: "auto" }}>
           <div className="path-reports-content" style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>

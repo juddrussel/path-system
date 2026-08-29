@@ -650,7 +650,47 @@ export default function Notifications() {
                       current.
                     </p>
                   </div>
-                  
+                  <div className="notifications-filter-controls">
+                    <div className="notifications-search">
+                      <Search size={14} />
+                      <input
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search notifications"
+                        aria-label="Search notifications"
+                      />
+                    </div>
+                    <select
+                      value={activeTab}
+                      onChange={(e) => setActiveTab(e.target.value)}
+                      aria-label="Filter notifications"
+                    >
+                      <option value="all">All notifications</option>
+                      <option value="unread">Unread</option>
+                      <option value="tasks">Tasks</option>
+                      <option value="forms">Forms</option>
+                      <option value="messages">Messages</option>
+                      <option value="announcements">Announcements</option>
+                    </select>
+                    <button
+                      className="ghost-action"
+                      type="button"
+                      onClick={clearAll}
+                      disabled={!notifications.length}
+                      style={{
+                        minHeight: 32,
+                        padding: "0 10px",
+                        fontSize: 9,
+                        whiteSpace: "nowrap",
+                        opacity: notifications.length ? 1 : 0.45,
+                        cursor: notifications.length
+                          ? "pointer"
+                          : "not-allowed",
+                      }}
+                    >
+                      <Trash2 size={13} /> Clear all
+                    </button>
+                  </div>
                 </div>
                 {loading ? (
                   <div className="notifications-empty">
