@@ -1133,6 +1133,63 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
   );
 }
 
+// ─── HARDENED STYLE TOKENS ────────────────────────────────────────────────────
+// Explicit px + hex values instead of Tailwind classes for anything that
+// defines this bar's box model, typography, or color. Tailwind utility
+// classes are `rem`-based (so they shift if a host page changes the root
+// <html> font-size) and are low-specificity (so a host page's own CSS can
+// override them, or — in a multi-build setup — the classes may not even be
+// generated if that page's Tailwind content-scan misses this file). Inline
+// styles are immune to all three: they don't reference the root font-size,
+// they beat any external stylesheet rule, and they never depend on Tailwind
+// having compiled a particular class. Hover/transition effects are left as
+// Tailwind classes since they're cosmetic, not structural.
+const TB = {
+  bar: {
+    display: "flex", alignItems: "center", gap: "10px",
+    padding: "10px 20px",
+    borderBottom: "1px solid #f3f4f6",
+    background: "#ffffff",
+    position: "sticky", top: 0, zIndex: 10,
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: "16px", lineHeight: "normal", boxSizing: "border-box",
+  },
+  childrenSlot: { flex: "1 1 0%", minWidth: 0 },
+  rightGroup: { display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 },
+  bellWrap: { position: "relative" },
+  iconBtn: {
+    position: "relative", width: "32px", height: "32px", borderRadius: "8px",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    color: "#6b7280", background: "transparent", border: "none", padding: 0,
+    cursor: "pointer", boxSizing: "border-box",
+  },
+  badge: {
+    position: "absolute", top: "4px", right: "4px", width: "16px", height: "16px",
+    borderRadius: "9999px", background: "#7c3aed", color: "#ffffff",
+    fontSize: "9px", fontWeight: 700, display: "flex", alignItems: "center",
+    justifyContent: "center", lineHeight: 1, boxSizing: "border-box",
+  },
+  profileWrap: { position: "relative" },
+  profileBtn: {
+    display: "flex", alignItems: "center", gap: "8px",
+    padding: "4px 8px 4px 4px", borderRadius: "8px",
+    background: "transparent", border: "none", cursor: "pointer", boxSizing: "border-box",
+  },
+  avatarImg: {
+    width: "28px", height: "28px", borderRadius: "9999px", objectFit: "cover",
+    border: "1px solid #e5e7eb", boxSizing: "border-box",
+  },
+  avatarFallback: {
+    width: "28px", height: "28px", borderRadius: "9999px", display: "flex",
+    alignItems: "center", justifyContent: "center", fontSize: "10px",
+    fontWeight: 700, border: "1px solid #e5e7eb", boxSizing: "border-box",
+  },
+  nameBlock: { textAlign: "left" },
+  name: { fontSize: "12px", fontWeight: 700, color: "#1f2937", lineHeight: 1.2, margin: 0 },
+  role: { fontSize: "10px", color: "#9ca3af", lineHeight: 1.2, margin: "0" },
+  chevron: { color: "#9ca3af", flexShrink: 0 },
+};
+
 // ─── MAIN TOPBAR ─────────────────────────────────────────────────────────────
 export default function TopBar({ children, onLogout }) {
   const navigate = useNavigate();
@@ -1292,23 +1349,21 @@ export default function TopBar({ children, onLogout }) {
 
   return (
     <>
-      <div
-        className="flex items-center gap-2.5 px-5 py-2.5 border-b border-gray-100 bg-white sticky top-0 z-10"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
-      >
-        <div className="flex-1 min-w-0">{children}</div>
+      <div style={TB.bar}>
+        <div style={TB.childrenSlot}>{children}</div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div style={TB.rightGroup}>
 
           {/* Notification Bell */}
-          <div className="relative" ref={notifRef}>
+          <div style={TB.bellWrap} ref={notifRef}>
             <button
               onClick={() => { setShowNotif(v => !v); setShowDropdown(false); }}
-              className="relative w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+              className="hover:bg-gray-100 transition-colors"
+              style={TB.iconBtn}
             >
               <BellIcon />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-violet-600 text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                <span style={TB.badge}>
                   {unreadCount}
                 </span>
               )}
@@ -1326,25 +1381,26 @@ export default function TopBar({ children, onLogout }) {
           </div>
 
           {/* Profile Avatar Button */}
-          <div className="relative" ref={dropRef}>
+          <div style={TB.profileWrap} ref={dropRef}>
             <button
               onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
-              className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
+              className="hover:bg-gray-100 transition-colors"
+              style={TB.profileBtn}
             >
               {profile?.avatar_url ? (
-                <img src={fullAvatarUrl(profile.avatar_url)} alt="" className="w-7 h-7 rounded-full object-cover border border-gray-200" />
+                <img src={fullAvatarUrl(profile.avatar_url)} alt="" style={TB.avatarImg} />
               ) : (
-                <span className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border border-gray-200" style={{ background: bg, color: fg }}>
+                <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
                   {initials(profile?.full_name)}
                 </span>
               )}
-              <div className="hidden sm:block text-left">
-                <p className="text-xs font-bold text-gray-800 leading-tight">
+              <div className="hidden sm:block" style={TB.nameBlock}>
+                <p style={TB.name}>
                   {profile?.full_name || profile?.username || "User"}
                 </p>
-                <p className="text-[10px] text-gray-400 leading-tight">{formatRole(profile?.role)}</p>
+                <p style={TB.role}>{formatRole(profile?.role)}</p>
               </div>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" width="10" height="10" className="text-gray-400 hidden sm:block">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" width="10" height="10" className="hidden sm:block" style={TB.chevron}>
                 <path d="M2 4l4 4 4-4" strokeLinecap="round" />
               </svg>
             </button>
