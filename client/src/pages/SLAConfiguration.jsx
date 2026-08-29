@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 import {
   Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown, Pencil,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
@@ -855,11 +853,6 @@ export default function SLAConfiguration() {
 
   const statAccent = { "Total Rules": COLORS.primary, "Active Rules": COLORS.success, "Near Deadline": COLORS.warning, "Overdue": COLORS.danger };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary, background: COLORS.surface }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
@@ -1132,11 +1125,9 @@ export default function SLAConfiguration() {
         @media (max-width:560px) { .sla-create-header { padding:19px 18px 16px; } .sla-create-title { font-size:19px; } .sla-create-subtitle { font-size:10.5px; } .sla-create-body { padding:17px 18px 19px; } .sla-create-fields { grid-template-columns:1fr; gap:14px; } .sla-create-fields > div { grid-column:1 / -1 !important; } .sla-create-actions { padding:12px 18px 16px; } }
       `}</style>
 
-      <Sidebar activePage="sla-configuration" />
 
       {/* ── Main ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <TopBar onLogout={handleLogout} />
 
         {/* ── Content ── */}
         <div style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>

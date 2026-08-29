@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 import {
   Archive,
   BarChart3,
@@ -662,9 +660,8 @@ export default function DocumentCategories() {
   return (
     <div className="path-cat-app">
       <style>{`${PATH_CATEGORY_CSS}${PATH_CATEGORY_SPACING_CSS}${PATH_CATEGORY_TYPOGRAPHY_CSS}${PATH_CATEGORY_TYPE_SCALE_CSS}${PATH_CATEGORY_PAGINATION_CSS}`}</style>
-      <Sidebar activePage="document-categories" />
       <main className="path-cat-main">
-        <TopBar onLogout={logout} />
+
         <div className="path-cat-content">
           <section className="path-cat-hero">
             <div>

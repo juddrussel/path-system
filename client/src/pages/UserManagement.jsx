@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 import { socket, connectSocket } from "./socket";
 
 // ─── API CONFIG ────────────────────────────────────────────────────────────────
@@ -1539,11 +1537,6 @@ export default function UserManagement() {
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   return (
     <div
       className="path-um-page flex min-h-screen bg-[#f8f7ff]"
@@ -1628,24 +1621,9 @@ export default function UserManagement() {
         .path-um-tab-nav{padding:18px 0 0;background:#f8f7ff}.path-um-tab-rail{display:flex;min-height:40px;align-items:center;gap:3px;padding:3px 6px;border:1px solid #e3ddea;border-radius:9px;background:#fff;box-shadow:0 1px 2px rgba(55,35,83,.025)}.path-um-tab-button{display:inline-flex;height:32px;align-items:center;gap:6px;border-radius:6px;padding:0 11px;color:#7d7486;font:800 9px/1 'DM Sans',sans-serif;transition:background .16s ease,color .16s ease,transform .16s ease}.path-um-tab-button:hover{background:#faf8fd;color:#51455b}.path-um-tab-button:active{transform:scale(.97)}.path-um-tab-button.is-active{background:#f0e9ff;color:#6939cb}.path-um-tab-button svg{width:12px;height:12px;flex:0 0 auto}.path-um-tab-count{display:inline-grid;min-width:15px;height:15px;place-items:center;border-radius:4px;background:#f4f1f8;color:#877d90;font:800 7px/1 'DM Sans',sans-serif}.path-um-tab-button.is-active .path-um-tab-count{background:#e5d8ff;color:#6833c8}@media(max-width:620px){.path-um-tab-nav{padding-top:12px}.path-um-tab-rail{overflow-x:auto}.path-um-tab-button{white-space:nowrap}}
       `}</style>
 
-      <Sidebar activePage="users" />
 
       {/* ── MAIN ── */}
-      <main className="path-um-main flex-1 flex flex-col min-w-0">
-        {/* Topbar */}
-        <TopBar onLogout={handleLogout}>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">
-              <SearchIcon />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search user, email, role…"
-                className="bg-transparent outline-none text-xs text-gray-700 w-full placeholder:text-gray-400"
-              />
-            </div>
-          </div>
-        </TopBar>
+      <main className="path-um-main flex-1 flex flex-col min-w-0">     
 
         {/* Tab Nav */}
         <div className="path-um-tab-nav">

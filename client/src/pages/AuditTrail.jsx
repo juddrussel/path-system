@@ -13,8 +13,6 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 
 const API_BASE =
   (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
@@ -264,10 +262,6 @@ export default function AuditTrail() {
   const [selectedId, setSelectedId] = useState(null);
   const PAGE_SIZE = 10;
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
   const fetchData = useCallback(async () => {
     if (!canViewAudit) return;
     setLoading(true);
@@ -363,9 +357,8 @@ export default function AuditTrail() {
   return (
     <div className="path-audit-app">
       <style>{`${PATH_AUDIT_CSS}${PATH_AUDIT_COMPACT_DETAIL_CSS}`}</style>
-      <Sidebar activePage="audit" />
+
       <main className="path-audit-main">
-        <TopBar onLogout={handleLogout} />
         {!canViewAudit ? (
           <AccessDenied onBack={() => navigate("/dashboard")} />
         ) : (

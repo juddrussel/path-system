@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
@@ -670,11 +668,6 @@ export default function TaskAssigned() {
   }, [selected]);
 
   const PER_PAGE = 8;
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
 
   // ── Toast helpers ──────────────────────────────────────────────────────────
   const pushToast = useCallback((title, body, type = "info") => {
@@ -1382,8 +1375,6 @@ export default function TaskAssigned() {
       {/* Toast stack */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      <Sidebar activePage="task-assigned" />
-
       {/* ── Main ── */}
       <div
         style={{
@@ -1394,20 +1385,7 @@ export default function TaskAssigned() {
           background: "white",
         }}
       >
-        {/* Topbar */}
-        <TopBar onLogout={handleLogout}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              gap: 8,
-              width: "100%",
-            }}
-          >
-            <LiveDot connected={socketConnected} />
-          </div>
-        </TopBar>
+        
 
         {/* Page Body */}
         <div
@@ -5549,27 +5527,7 @@ function PathTasksAssignedLayout({
         .path-assigned-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#51405e;font-family:'DM Sans',sans-serif}.path-assigned-shell *{box-sizing:border-box}.path-assigned-shell button,.path-assigned-shell input,.path-assigned-shell select,.path-assigned-shell textarea{font-family:inherit}.path-assigned-main{display:flex;min-width:0;flex:1;flex-direction:column;background:#f8f7ff}.path-assigned-body{flex:1;overflow:auto;padding:28px 30px 20px}.path-assigned-content{max-width:1480px;margin:0 auto}.path-assigned-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:4px 12px 23px;border-bottom:1px solid #e7dfed}.path-assigned-kicker{display:flex;align-items:center;gap:7px;color:#978a9f;font-size:9px;font-weight:800;letter-spacing:.11em}.path-assigned-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6}.path-assigned-hero h1{margin:10px 0 7px;color:#382a42;font:800 clamp(28px,3vw,42px) Manrope,sans-serif;letter-spacing:-.065em;line-height:1}.path-assigned-hero p{max-width:650px;margin:0;color:#97899e;font-size:11px;line-height:1.55}.path-assigned-hero-actions{display:flex;align-items:center;gap:10px}.path-assigned-live{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid #e7dfee;border-radius:9px;background:#fff;color:#8c7c97;font-size:9px;font-weight:700}.path-assigned-live i{width:7px;height:7px;border-radius:50%;background:#d49145}.path-assigned-live i.online{background:#4da276;box-shadow:0 0 0 3px #e4f6ec}.path-assigned-primary,.path-assigned-open{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 9px 18px rgba(124,58,237,.2)}.path-assigned-primary{min-height:38px;padding:0 13px}.path-assigned-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:21px}.path-assigned-metric{position:relative;display:flex;gap:11px;min-height:108px;overflow:hidden;padding:15px;border:1px solid #e8e0ee;border-radius:12px;background:#fff;box-shadow:0 10px 24px rgba(58,35,90,.04)}.path-assigned-metric:after{position:absolute;right:-27px;top:-31px;width:92px;height:92px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.28),transparent 69%);content:''}.path-assigned-metric>span{position:relative;z-index:1;display:grid;width:31px;height:31px;flex:0 0 auto;place-items:center;border-radius:9px;background:#eee7fd;color:#744ab2;font-size:15px;font-weight:800}.path-assigned-metric.review>span{background:#fff4dc;color:#a97826}.path-assigned-metric.submitted>span{background:#e9f1ff;color:#557dc4}.path-assigned-metric.risk>span{background:#fff0ed;color:#b45d52}.path-assigned-metric small{display:block;color:#9b8ea2;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-assigned-metric strong{display:block;margin-top:7px;color:#4c3857;font:800 23px Manrope,sans-serif;letter-spacing:-.06em}.path-assigned-metric p{margin:5px 0 0;color:#9b8fa1;font-size:8px}.path-assigned-controls{display:flex;align-items:center;gap:9px;margin-top:20px;padding:12px 14px;border:1px solid #e8e1ee;border-radius:11px;background:#fff}.path-assigned-search,.path-assigned-filter{display:flex;align-items:center;gap:7px;border:1px solid #e8e1ed;border-radius:7px;color:#93869d}.path-assigned-search{width:260px;padding:8px 10px}.path-assigned-search input{width:100%;border:0;outline:0;background:transparent;color:#5e4b69;font-size:9px}.path-assigned-filter{padding:0 8px}.path-assigned-filter select{min-height:31px;border:0;outline:0;background:#fff;color:#73647e;font-size:8px;font-weight:700;cursor:pointer}.path-assigned-count{margin-left:auto;color:#978b9e;font-size:8px;font-weight:700}.path-assigned-layout{display:grid;grid-template-columns:minmax(0,1.56fr) minmax(294px,.64fr);align-items:start;gap:16px;margin-top:15px}.path-assigned-panel{overflow:hidden;border:1px solid #e7dfed;border-radius:12px;background:#fff;box-shadow:0 12px 28px rgba(58,36,88,.045)}.path-assigned-register-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:17px 18px}.path-assigned-register-head span,.path-assigned-selected-label{display:block;color:#a195a7;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-assigned-register-head h2,.path-assigned-detail h2{margin:5px 0 0;color:#4a3756;font:800 17px Manrope,sans-serif;letter-spacing:-.045em}.path-assigned-register-head p{max-width:215px;margin:0;color:#9b90a0;font-size:8px;line-height:1.5;text-align:right}.path-assigned-head,.path-assigned-row{display:grid;grid-template-columns:minmax(185px,1.45fr) minmax(126px,1fr) minmax(105px,.78fr) minmax(100px,.72fr);gap:10px;align-items:center}.path-assigned-head{padding:10px 18px;border-top:1px solid #f1edf3;border-bottom:1px solid #f1edf3;background:#fbfafe;color:#a79dac;font-size:8px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}.path-assigned-row{width:100%;min-height:73px;padding:10px 18px;border:0;border-bottom:1px solid #f1edf4;background:#fff;color:inherit;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.path-assigned-row:hover,.path-assigned-row.selected{background:#fcfaff}.path-assigned-row.selected{box-shadow:inset 3px 0 #7c3aed}.path-assigned-task{display:flex;min-width:0;align-items:center;gap:9px}.path-assigned-priority{display:grid;width:25px;height:25px;flex:0 0 25px;place-items:center;border-radius:7px;background:#eee7fa;color:#7448b2;font-size:9px;font-style:normal;font-weight:800}.path-assigned-priority.high{background:#fff0ed;color:#b45d52}.path-assigned-priority.medium{background:#fff4dc;color:#aa7727}.path-assigned-task-copy,.path-assigned-owner-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.path-assigned-task-copy strong,.path-assigned-owner-copy strong{overflow:hidden;color:#55405f;font:800 10px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.path-assigned-task-copy small,.path-assigned-owner-copy small{overflow:hidden;color:#9d91a2;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.path-assigned-owner{display:flex;min-width:0;align-items:center;gap:8px}.path-assigned-avatar{display:grid;width:27px;height:27px;flex:0 0 auto;place-items:center;border-radius:8px;background:#efe8fc;color:#7044ae;font-size:8px;font-weight:800}.path-assigned-state{display:flex;min-width:0;align-items:center;gap:5px;color:#765d85;font-size:8px;font-weight:800;white-space:nowrap}.path-assigned-state i,.path-assigned-selected-label i{width:6px;height:6px;flex:0 0 auto;border-radius:50%;background:#8b5cf6}.path-assigned-state i.review,.path-assigned-selected-label i.review{background:#6192d4}.path-assigned-state i.approved,.path-assigned-selected-label i.approved{background:#58a17b}.path-assigned-state i.returned,.path-assigned-selected-label i.returned{background:#d78660}.path-assigned-state i.risk,.path-assigned-selected-label i.risk{background:#cf6656}.path-assigned-due{display:flex;min-width:0;flex-direction:column;gap:3px}.path-assigned-due strong,.path-assigned-due small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-due strong{color:#74657c;font-size:8px}.path-assigned-due small{color:#579172;font-size:8px;font-weight:700}.path-assigned-due small.late{color:#b76757}.path-assigned-pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;color:#9b8fa2;font-size:8px}.path-assigned-pagination div{display:flex;gap:5px}.path-assigned-pagination button{display:grid;width:25px;height:25px;place-items:center;border:1px solid #e6deeb;border-radius:6px;background:#fff;color:#76548c;cursor:pointer}.path-assigned-pagination button:disabled{cursor:not-allowed;opacity:.4}.path-assigned-empty{display:flex;min-height:250px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:28px;color:#9e92a3;text-align:center}.path-assigned-empty strong{color:#695a72;font:800 11px Manrope,sans-serif}.path-assigned-empty span{font-size:9px}.path-assigned-empty button{margin-top:5px;border:0;border-radius:7px;padding:7px 9px;background:#efe7fb;color:#7044ac;font-size:8px;font-weight:800;cursor:pointer}.path-assigned-detail{padding:18px}.path-assigned-selected-label{display:flex;align-items:center;justify-content:space-between}.path-assigned-detail h2{margin-top:11px;font-size:20px;line-height:1.18}.path-assigned-detail>p{margin:8px 0 0;color:#988b9d;font-size:9px;line-height:1.5}.path-assigned-owner-card{display:flex;align-items:center;gap:9px;margin-top:16px;padding:10px;border:1px solid #e8e0ee;border-radius:9px;background:#fbf9fe}.path-assigned-owner-card>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:3px}.path-assigned-owner-card small{color:#9d91a2;font-size:8px}.path-assigned-owner-card strong{color:#5c4867;font-size:9px}.path-assigned-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 10px;margin-top:17px}.path-assigned-info-grid span{display:block;color:#a397a8;font-size:8px}.path-assigned-info-grid strong{display:block;overflow:hidden;margin-top:4px;color:#66536f;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.path-assigned-return-box{display:grid;gap:7px;margin-top:15px;padding:10px;border:1px solid #edcfbf;border-radius:9px;background:#fff9f4}.path-assigned-return-box label{color:#93653c;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.path-assigned-return-box textarea{width:100%;min-height:58px;resize:vertical;border:1px solid #e6d8ce;border-radius:7px;padding:8px;color:#5e4a3f;font-size:9px;outline:0}.path-assigned-return-actions{display:flex;justify-content:flex-end;gap:7px}.path-assigned-return-actions button{border-radius:6px;padding:6px 8px;font-size:8px;font-weight:800;cursor:pointer}.path-assigned-return-actions button:first-child{border:1px solid #e1d5ca;background:#fff;color:#8c7969}.path-assigned-return-actions button:last-child{border:1px solid #ad6047;background:#ad6047;color:#fff}.path-assigned-detail-actions{display:grid;gap:8px;margin-top:15px}.path-assigned-open{width:100%;min-height:34px}.path-assigned-secondary{min-height:32px;border:1px solid #dcd2e6;border-radius:8px;background:#fff;color:#745589;font-size:9px;font-weight:800;cursor:pointer}.path-assigned-approve{min-height:32px;border:1px solid #bfe3cd;border-radius:8px;background:#eef9f2;color:#428164;font-size:9px;font-weight:800;cursor:pointer}.path-assigned-approve:disabled{cursor:not-allowed;opacity:.55}.path-assigned-check{margin:0 7px 0 0;accent-color:#7c3aed}@media(max-width:1080px){.path-assigned-layout{grid-template-columns:1fr}.path-assigned-detail{min-height:0}}@media(max-width:780px){.path-assigned-body{padding:20px 16px}.path-assigned-hero{align-items:flex-start;flex-direction:column}.path-assigned-hero-actions{width:100%;justify-content:space-between}.path-assigned-metrics{grid-template-columns:1fr 1fr;gap:9px}.path-assigned-metric{min-height:95px;padding:12px}.path-assigned-controls{align-items:stretch;flex-wrap:wrap}.path-assigned-search{width:100%}.path-assigned-count{width:100%;margin-left:0}.path-assigned-head{display:none}.path-assigned-row{grid-template-columns:minmax(0,1fr) minmax(96px,.56fr);gap:8px}.path-assigned-task{grid-column:1;grid-row:1}.path-assigned-owner{grid-column:1;grid-row:2}.path-assigned-state{grid-column:2;grid-row:1;justify-self:end}.path-assigned-due{grid-column:2;grid-row:2;align-items:flex-end}.path-assigned-due strong,.path-assigned-due small{text-align:right;white-space:normal}.path-assigned-register-head{align-items:flex-start;flex-direction:column}.path-assigned-register-head p{text-align:left}}@media(max-width:470px){.path-assigned-hero-actions{align-items:stretch;flex-direction:column}.path-assigned-primary{width:100%}.path-assigned-metrics{grid-template-columns:1fr}.path-assigned-filter{flex:1}.path-assigned-filter select{width:100%}.path-assigned-info-grid{grid-template-columns:1fr}}
       `}</style>
       <Toast toasts={toasts} onDismiss={onDismissToast} />
-      <Sidebar activePage="task-assigned" />
       <main className="path-assigned-main">
-        <TopBar
-          onLogout={() => {
-            localStorage.removeItem("token");
-            navigate("/login");
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              width: "100%",
-            }}
-          >
-            <span className="path-assigned-live">
-              <i className={socketConnected ? "online" : ""} />
-              {socketConnected ? "Live updates" : "Reconnecting"}
-            </span>
-          </div>
-        </TopBar>
         <div className="path-assigned-body">
           <div className="path-assigned-content">
             <header className="path-assigned-hero">

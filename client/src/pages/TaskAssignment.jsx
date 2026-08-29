@@ -1,7 +1,6 @@
 import React, { Component, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
+
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -638,10 +637,6 @@ function TaskAssignmentInner() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
 
   return (
     <div className="path-assignment-shell">
@@ -654,18 +649,7 @@ function TaskAssignmentInner() {
         .path-assignment-section:first-of-type .path-assignment-section-head small{font-size:7px!important;line-height:1!important;letter-spacing:.12em}.path-assignment-section:first-of-type .path-assignment-section-head h2{font-size:13px!important;line-height:1.15!important;letter-spacing:-.035em}.path-assignment-section:first-of-type .path-assignment-mode button{min-height:31px!important;padding:0 10px!important;font-size:8px!important;line-height:1!important}.path-assignment-section:first-of-type .path-assignment-role-select{height:34px!important;padding:0 10px!important;font-size:9px!important;line-height:1.1!important}.path-assignment-section:first-of-type .path-assignment-role-select option{font-size:9px!important}
         .path-assignment-section:first-of-type .path-assignment-mode{gap:6px!important;margin-bottom:10px!important}.path-assignment-section:first-of-type .path-assignment-mode button{border-color:#e2dbe9!important;border-radius:7px!important;background:#fff!important;color:#806e8d!important;box-shadow:none!important;transition:border-color .16s ease,background .16s ease,color .16s ease}.path-assignment-section:first-of-type .path-assignment-mode button.active{border-color:#c9b4ef!important;background:#fbf9ff!important;color:#6b39be!important}.path-assignment-section:first-of-type .path-assignment-mode button span{width:7px!important;height:7px!important}.path-assignment-section:first-of-type .path-assignment-picker-trigger{height:39px!important;padding:0 12px!important;border-color:#e0d9e7!important;border-radius:8px!important;background:#fff!important;color:#5e4e6b!important;font-size:9px!important;font-weight:600!important;box-shadow:none!important}.path-assignment-section:first-of-type .path-assignment-picker-trigger>span{font-size:9px!important}.path-assignment-section:first-of-type .path-assignment-picker-trigger>strong{font-size:10px!important}
       `}</style>
-      <Sidebar activePage="assign-task" />
       <main className="path-assignment-main">
-        <TopBar onLogout={handleLogout}>
-          <label className="path-assignment-search">
-            <Icon.Search />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search recent assignments…"
-            />
-          </label>
-        </TopBar>
         <div className="path-assignment-content">
           <header className="path-assignment-hero">
             <div>
