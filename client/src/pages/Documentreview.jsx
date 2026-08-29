@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 
 const API = import.meta.env.VITE_API_URL;
 const fileUrl = (value) =>
@@ -748,9 +746,9 @@ export default function DocumentReview() {
   if (loading)
     return (
       <div className="doc-shell">
-        <Sidebar activePage="forms" />
+  
         <main className="doc-main">
-          <TopBar onLogout={logout} />
+         
           <div className="doc-state">Loading document details…</div>
         </main>
       </div>
@@ -758,9 +756,9 @@ export default function DocumentReview() {
   if (loadError || !form)
     return (
       <div className="doc-shell">
-        <Sidebar activePage="forms" />
+
         <main className="doc-main">
-          <TopBar onLogout={logout} />
+         
           <div className="doc-state">
             <div>
               <b>Document unavailable</b>
@@ -995,9 +993,9 @@ export default function DocumentReview() {
           setToasts((all) => all.filter((item) => item.id !== toastId))
         }
       />
-      <Sidebar activePage="forms" />
+
       <main className="doc-main">
-        <TopBar onLogout={logout} />
+ 
         <div className="doc-page">
           <button
             type="button"
