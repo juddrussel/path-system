@@ -3587,7 +3587,7 @@ export default function Dashboard() {
                           Loading priority queue…
                         </p>
                       ) : (
-                        trackedPageItems.slice(0, 4).map((row, index) => (
+                        trackedPageItems.slice(0, 5).map((row, index) => (
                           <button
                             key={row.id}
                             type="button"
@@ -3692,44 +3692,6 @@ export default function Dashboard() {
                           message="No matching documents"
                         />
                       )}
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        padding: "12px 20px",
-                        borderTop: "1px solid #f0eaf5",
-                        color: "#8d8196",
-                        fontSize: 11,
-                      }}
-                    >
-                      <span>
-                        <ShieldCheck
-                          size={14}
-                          style={{
-                            verticalAlign: "middle",
-                            marginRight: 6,
-                            color: "#8b5cf6",
-                          }}
-                        />
-                        SLA health is monitored automatically
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => navigate("/sla")}
-                        style={{
-                          border: "none",
-                          background: "none",
-                          color: "#7c3aed",
-                          fontWeight: 800,
-                          fontSize: 11,
-                          cursor: "pointer",
-                        }}
-                      >
-                        See SLA details <ArrowUpRight size={13} />
-                      </button>
                     </div>
                   </article>
 
