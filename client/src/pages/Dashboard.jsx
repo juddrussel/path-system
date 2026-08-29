@@ -3166,58 +3166,6 @@ export default function Dashboard() {
                   <div
                     style={{ display: "flex", alignItems: "center", gap: 14 }}
                   >
-                    {/* Notification bell */}
-                    <button
-                      onClick={() => setNotifOpen((v) => !v)}
-                      style={{
-                        position: "relative",
-                        width: 38,
-                        height: 38,
-                        borderRadius: "50%",
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#484555",
-                      }}
-                    >
-                      <Bell style={{ width: 18, height: 18 }} />
-                      {unread > 0 && (
-                        <span
-                          style={{
-                            position: "absolute",
-                            top: 6,
-                            right: 6,
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            background: "#ba1a1a",
-                            border: "2px solid #faf8ff",
-                          }}
-                        />
-                      )}
-                    </button>
-
-                    {/* Quick refresh */}
-                    <button
-                      style={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: "50%",
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#484555",
-                      }}
-                    >
-                      <RefreshCw style={{ width: 16, height: 16 }} />
-                    </button>
-
                     {/* Date/time */}
                     <div style={{ textAlign: "right" }}>
                       <p
