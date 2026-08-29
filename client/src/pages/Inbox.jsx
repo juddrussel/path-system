@@ -1591,24 +1591,7 @@ export default function Inbox() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "white" }}>
 
         {/* ── Top Bar ── */}
-        <TopBar onLogout={handleLogout}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "#f5f5f8", border: "0.5px solid #e5e7eb", borderRadius: 8, padding: "7px 12px", fontSize: 12, color: "#999" }}>
-              <Icon.Search />
-              <input
-                type="text"
-                placeholder="Search messages, documents..."
-                style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, color: "#333", width: "100%" }}
-              />
-            </div>
-            <button onClick={() => navigate("/documents/new")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 whitespace-nowrap" style={{ cursor: "pointer" }}>
-              <Icon.Plus /> New Document
-            </button>
-            <button onClick={() => navigate("/documents/new")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 whitespace-nowrap" style={{ cursor: "pointer" }}>
-              <Icon.Download /> Intake Document
-            </button>
-          </div>
-        </TopBar>
+        <TopBar onLogout={handleLogout} />
 
         {/* ── Inbox Body ── */}
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
