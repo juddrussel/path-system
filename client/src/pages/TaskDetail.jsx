@@ -596,12 +596,7 @@ export default function TaskDetail() {
       <style>{`.td-inline-reader{margin-top:14px;border:1px solid #e2d8ea;border-radius:11px;overflow:hidden;background:#faf8fc}.td-inline-reader-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid #e9e2ee;background:#fff}.td-inline-reader-head strong,.td-inline-reader-head small{display:block}.td-inline-reader-head strong{margin-top:6px;color:#564060;font:800 12px Manrope,sans-serif}.td-inline-reader-head small{margin-top:4px;color:#9b8d9f;font-size:8px}.td-inline-reader-head>div:last-child{display:flex;align-items:center;gap:8px;padding-top:3px}.td-inline-reader-head>div:last-child span{color:#8058a5;font-size:8px;font-weight:800}.td-inline-reader-head>div:last-child button{border:1px solid #ded4e7;border-radius:6px;padding:5px 7px;background:#fff;color:#735393;font-size:8px;font-weight:800;cursor:pointer}.td-inline-reader-frame{width:min(410px,calc(100% - 32px));margin:18px auto}.td-inline-reader .td-reader-paper,.td-inline-reader .td-reader-paper iframe{min-height:620px}@media(max-width:720px){.td-inline-reader-head{align-items:flex-start;flex-direction:column}.td-inline-reader-head>div:last-child span{display:none}.td-inline-reader-frame{width:calc(100% - 20px);margin:11px auto}.td-inline-reader .td-reader-paper,.td-inline-reader .td-reader-paper iframe{min-height:56vh}}`}</style>
 
       <main className="td-main">
-        <TopBar
-          onLogout={() => {
-            localStorage.removeItem("token");
-            navigate("/login");
-          }}
-        />
+        
         <div className="td-scroll">
           <div className="td-page">
             <header className="td-hero">
