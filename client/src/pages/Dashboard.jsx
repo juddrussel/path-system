@@ -2579,6 +2579,38 @@ export default function Dashboard() {
     });
   }, [facultyPerformance, delayedDocs, trackedItems]);
 
+  // ── Faculty Performance Summary panel — aggregate stats + "team signal"
+  //    highlight, derived live from FACULTY_WORKLOAD (mirrors the summary
+  //    object from the DashboardLayout mockup, but computed from real data).
+  const facultyPerformanceSummary = useMemo(() => {
+    const totals = FACULTY_WORKLOAD.reduce(
+      (sum, f) => ({
+        assigned: sum.assigned + f.assigned,
+        completed: sum.completed + f.completed,
+        pending: sum.pending + f.pending,
+        delayed: sum.delayed + f.delayed,
+      }),
+      { assigned: 0, completed: 0, pending: 0, delayed: 0 },
+    );
+    const top = [...FACULTY_WORKLOAD].sort((a, b) => b.rate - a.rate)[0];
+    return {
+      ...totals,
+      open: totals.pending,
+      onTimeRate: totals.assigned
+        ? Math.max(
+            0,
+            Math.round(
+              ((totals.assigned - totals.delayed) / totals.assigned) * 100,
+            ),
+          )
+        : 0,
+      atRisk: FACULTY_WORKLOAD.filter(
+        (f) => f.delayed > 0 || f.rate < 80,
+      ).length,
+      top,
+    };
+  }, [FACULTY_WORKLOAD]);
+
   const ALERT_SLA = {
     approvalWaitDays: 5, // "For Approval" items waiting longer than this breach SLA
     workflowStagnantDays: 5, // non-task items sitting untouched this long count as a workflow delay
@@ -4040,6 +4072,145 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </article>
+                </section>
+
+                <section className="path-panel path-performance-panel">
+                  <div className="path-performance-heading">
+                    <div>
+                      <div className="path-kicker">Faculty performance</div>
+                      <h2>How faculty work is moving</h2>
+                      <p>
+                        A quick read of completion, open work, and
+                        timeliness across the department.
+                      </p>
+                    </div>
+                    <button
+                      className="path-text-button"
+                      type="button"
+                      onClick={() => setFacultyModalOpen(true)}
+                    >
+                      View full report <ArrowUpRight size={13} />
+                    </button>
+                  </div>
+                  <div className="path-performance-summary">
+                    <div>
+                      <span>Assigned</span>
+                      <strong>{facultyPerformanceSummary.assigned}</strong>
+                      <small>faculty transactions</small>
+                    </div>
+                    <div>
+                      <span>Open queue</span>
+                      <strong>{facultyPerformanceSummary.open}</strong>
+                      <small>still in progress</small>
+                    </div>
+                    <div>
+                      <span>Completed</span>
+                      <strong>{facultyPerformanceSummary.completed}</strong>
+                      <small>closed transactions</small>
+                    </div>
+                    <div>
+                      <span>On-time rate</span>
+                      <strong>{facultyPerformanceSummary.onTimeRate}%</strong>
+                      <small>{facultyPerformanceSummary.delayed} delayed</small>
+                    </div>
+                  </div>
+                  <div className="path-performance-content">
+                    <div>
+                      {facultyLoading ? (
+                        <p
+                          style={{
+                            padding: "24px 0",
+                            color: "#776b83",
+                            textAlign: "center",
+                          }}
+                        >
+                          Loading faculty performance…
+                        </p>
+                      ) : FACULTY_WORKLOAD.length === 0 ? (
+                        <ListEmptyState
+                          icon={Users}
+                          message="No faculty performance data yet."
+                        />
+                      ) : (
+                        FACULTY_WORKLOAD.slice(0, 6).map((f) => {
+                          const risk = f.delayed > 0 || f.rate < 80;
+                          const status = risk ? "Needs attention" : "Strong";
+                          const rowInitials = f.name
+                            .split(" ")
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map((w) => w[0])
+                            .join("")
+                            .toUpperCase();
+                          return (
+                            <div
+                              className="path-performance-row"
+                              key={f.name}
+                              style={{ cursor: "pointer" }}
+                              onClick={() => {
+                                const raw = facultyPerformance.find(
+                                  (p) => (p.full_name || p.name) === f.name,
+                                );
+                                if (raw) setSelectedFaculty(raw);
+                                else setFacultyModalOpen(true);
+                              }}
+                            >
+                              <div className="path-performance-person">
+                                <span className="path-performance-avatar">
+                                  {rowInitials}
+                                </span>
+                                <div>
+                                  <strong>{f.name}</strong>
+                                  <span>
+                                    {f.completed} completed · {f.pending} open
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="path-performance-progress">
+                                <div className="path-performance-progress-top">
+                                  <span>Completion</span>
+                                  <b>{f.rate}%</b>
+                                </div>
+                                <div className="path-performance-track">
+                                  <span
+                                    className={risk ? "risk" : ""}
+                                    style={{
+                                      width: `${Math.min(f.rate, 100)}%`,
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <span
+                                className={`path-performance-status ${risk ? "risk" : ""}`}
+                              >
+                                {status}
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    <aside className="path-performance-highlight">
+                      <div className="path-kicker">Team signal</div>
+                      <strong>
+                        {facultyPerformanceSummary.top?.name ??
+                          "No faculty data"}
+                      </strong>
+                      <p>
+                        Highest completion rate across the active workload.
+                      </p>
+                      <div className="path-performance-highlight-metrics">
+                        <div>
+                          <span>At risk</span>
+                          <b>{facultyPerformanceSummary.atRisk}</b>
+                        </div>
+                        <div>
+                          <span>Faculty tracked</span>
+                          <b>{FACULTY_WORKLOAD.length}</b>
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
                 </section>
 
                 <section
