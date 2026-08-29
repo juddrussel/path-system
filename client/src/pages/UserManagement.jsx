@@ -1019,112 +1019,208 @@ function DeleteUserModal({ user, onClose, onConfirm }) {
   );
 }
 
+const userDetailModalCss = `
+  .path-user-details-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: auto; background: rgba(48,35,64,.48); backdrop-filter: blur(4px); }
+  .path-user-details-modal { width: min(492px, calc(100vw - 32px)); max-height: min(680px, calc(100vh - 32px)); overflow: auto; border: 1px solid #e8e1ed; border-radius: 16px; background: #fff; color: #2f2638; box-shadow: 0 28px 80px rgba(49,31,93,.2); }
+  .path-user-details-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 24px 24px 20px; border-bottom: 1px solid #f0ebf3; }
+  .path-user-details-kicker { display: flex; align-items: center; color: #9b8eaa; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+  .path-user-details-kicker::before { display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: #c4b5fd; content: ""; }
+  .path-user-details-title { margin: 8px 0 4px; color: #1f1729; font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+  .path-user-details-description { margin: 0; color: #82768a; font-size: 12px; line-height: 1.5; }
+  .path-user-details-close { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 8px; background: transparent; color: #9b8eaa; font-size: 18px; cursor: pointer; }
+  .path-user-details-close:hover { background: #f7f3fb; color: #6d35c8; }
+  .path-user-details-identity { display: flex; align-items: center; gap: 12px; margin: 18px 24px 0; padding: 12px; border: 1px solid #eee8f2; border-radius: 11px; background: #fbfaff; }
+  .path-user-details-avatar { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border-radius: 10px; font-size: 11px; font-weight: 900; overflow: hidden; }
+  .path-user-details-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .path-user-details-identity-copy { min-width: 0; flex: 1; }
+  .path-user-details-identity-copy strong, .path-user-details-identity-copy span, .path-user-details-identity-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .path-user-details-identity-copy strong { color: #4c3c56; font-size: 13px; font-weight: 800; }
+  .path-user-details-identity-copy span { margin-top: 3px; color: #9b8eaa; font-size: 11px; }
+  .path-user-details-identity-copy small { margin-top: 4px; color: #b0a5b7; font-size: 10px; }
+  .path-user-details-status { color: #39745d; font-size: 10px; font-weight: 800; white-space: nowrap; }
+  .path-user-details-status.inactive { color: #8a7f92; }
+  .path-user-details-status::before { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; content: ""; }
+  .path-user-details-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 18px 24px 0; }
+  .path-user-details-card { min-width: 0; border: 1px solid #eee8f2; border-radius: 9px; padding: 11px; background: #fff; }
+  .path-user-details-card-label { display: block; overflow: hidden; color: #9b90a5; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+  .path-user-details-card-value { display: block; overflow: hidden; margin-top: 7px; color: #51405e; font-size: 12px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+  .path-user-details-activity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 10px 24px 18px; }
+  .path-user-details-activity-card { min-width: 0; border: 1px solid #eee8f2; border-radius: 9px; padding: 11px; background: #fff; }
+  .path-user-details-activity-value { display: block; overflow: hidden; margin-top: 6px; color: #51405e; font-size: 13px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+  .path-user-details-activity-note { display: block; overflow: hidden; margin-top: 5px; color: #94889e; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+  .path-user-details-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid #f0ebf3; padding: 16px 24px; }
+  .path-user-details-footer-note { max-width: 220px; color: #9b8eaa; font-size: 10px; line-height: 1.45; }
+  .path-user-details-actions { display: flex; align-items: center; gap: 8px; }
+  .path-user-details-button { min-height: 36px; border-radius: 8px; padding: 0 14px; font-size: 11px; font-weight: 800; cursor: pointer; }
+  .path-user-details-button--close { border: 1px solid #e2dae8; background: #fff; color: #75677e; }
+  .path-user-details-button--close:hover { border-color: #d6cce0; color: #4c414f; }
+  .path-user-details-button--danger { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #f3c9c2; background: #fdf4f3; color: #b42318; }
+  .path-user-details-button--danger:hover { background: #fbe6e3; }
+  @media (max-width: 560px) {
+    .path-user-details-backdrop { align-items: flex-start; padding: 12px; }
+    .path-user-details-modal { width: 100%; max-height: calc(100vh - 24px); }
+    .path-user-details-header { padding: 18px; }
+    .path-user-details-identity { margin: 16px 18px 0; }
+    .path-user-details-grid { padding-right: 18px; padding-left: 18px; }
+    .path-user-details-activity { padding-right: 18px; padding-left: 18px; }
+    .path-user-details-footer { align-items: flex-start; flex-direction: column; padding: 15px 18px; }
+    .path-user-details-footer-note { max-width: none; }
+    .path-user-details-actions { width: 100%; justify-content: flex-end; }
+  }
+`;
+
 function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
   if (!user) return null;
   const [bg, fg] = avatarColor(`${user.first_name}${user.last_name}`);
+  const avatarUrl = fullAvatarUrl(user.avatar_url);
+  const isOwnAccount = user.id === currentUserId;
+
   return (
     <>
-      <div className="fixed inset-0 bg-black/20 z-30" onClick={onClose} />
+      <style>{userDetailModalCss}</style>
       <div
-        className="fixed top-0 right-0 h-full w-[320px] bg-white z-40 flex flex-col shadow-2xl"
-        style={{ borderLeft: "1px solid #f0f0f0" }}
+        className="path-user-details-backdrop"
+        role="presentation"
+        onMouseDown={(event) =>
+          event.target === event.currentTarget && onClose?.()
+        }
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-          <span className="text-sm font-bold text-gray-800">User Details</span>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors"
-          >
-            ✕
-          </button>
-        </div>
-        {/* Avatar hero */}
-        <div
-          className="flex flex-col items-center px-5 py-7 shrink-0"
-          style={{
-            background: `linear-gradient(160deg, ${bg}88 0%, #fff 65%)`,
-          }}
+        <section
+          className="path-user-details-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="path-user-details-title"
         >
-          {fullAvatarUrl(user.avatar_url) ? (
-            <img
-              src={fullAvatarUrl(user.avatar_url)}
-              alt={`${user.first_name} ${user.last_name}`}
-              className="w-16 h-16 rounded-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          ) : (
+          <header className="path-user-details-header">
+            <div>
+              <div className="path-user-details-kicker">People directory</div>
+              <h2 className="path-user-details-title" id="path-user-details-title">
+                User details
+              </h2>
+              <p className="path-user-details-description">
+                Review workspace identity, access, and activity at a glance.
+              </p>
+            </div>
+            <button
+              className="path-user-details-close"
+              type="button"
+              onClick={() => onClose?.()}
+              aria-label="Close user details"
+            >
+              ×
+            </button>
+          </header>
+
+          <div className="path-user-details-identity">
             <span
-              className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold"
+              className="path-user-details-avatar"
               style={{ background: bg, color: fg }}
             >
-              {initials(user.first_name, user.last_name)}
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={`${user.first_name} ${user.last_name}`}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              ) : (
+                initials(user.first_name, user.last_name)
+              )}
             </span>
-          )}
-          <h2 className="mt-3 text-base font-bold text-gray-900">
-            {user.first_name} {user.last_name}
-          </h2>
-          <p className="text-xs text-gray-400 mt-0.5">@{user.username}</p>
-          <div className="flex gap-2 mt-3">
-            <RoleBadge role={user.role} />
-            <StatusBadge active={user.is_active} />
-          </div>
-        </div>
-        {/* Info rows */}
-        <div className="flex-1 overflow-y-auto px-5 py-2">
-          {[
-            {
-              label: "Full Name",
-              value: `${user.first_name} ${user.last_name}`,
-            },
-            { label: "Email", value: user.email || "—" },
-            { label: "Username", value: `@${user.username}` },
-            { label: "Phone", value: user.phone || "—" },
-            { label: "Department", value: user.department || "—" },
-            {
-              label: "Role",
-              value: user.role
-                ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-                : "—",
-            },
-            { label: "Status", value: user.is_active ? "Active" : "Inactive" },
-            { label: "Member Since", value: fmtDate(user.created_at) },
-            { label: "Last Updated", value: fmtDate(user.updated_at) },
-            { label: "User ID", value: `#${user.id}` },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="flex justify-between items-start py-2.5 border-b border-gray-50 last:border-0 gap-3"
-            >
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide shrink-0 mt-0.5">
-                {label}
-              </span>
-              <span className="text-xs text-gray-800 font-medium text-right break-all">
-                {value}
-              </span>
+            <div className="path-user-details-identity-copy">
+              <strong>
+                {user.first_name} {user.last_name}
+              </strong>
+              <span>{user.email || "—"}</span>
+              <small>@{user.username}</small>
             </div>
-          ))}
-        </div>
-        {/* Footer action */}
-        <div className="px-5 py-4 border-t border-gray-100 shrink-0">
-          {user.id !== currentUserId ? (
-            <button
-              onClick={() => {
-                onDelete(user.id, `${user.first_name} ${user.last_name}`);
-                onClose();
-              }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+            <span
+              className={`path-user-details-status${user.is_active ? "" : " inactive"}`}
             >
-              <TrashIcon /> Remove This User
-            </button>
-          ) : (
-            <p className="text-center text-xs text-gray-400">
-              This is your own account.
-            </p>
-          )}
-        </div>
+              {user.is_active ? "Active" : "Inactive"}
+            </span>
+          </div>
+
+          <div className="path-user-details-grid">
+            <div className="path-user-details-card">
+              <span className="path-user-details-card-label">Phone</span>
+              <strong className="path-user-details-card-value">
+                {user.phone || "Not provided"}
+              </strong>
+            </div>
+            <div className="path-user-details-card">
+              <span className="path-user-details-card-label">Department</span>
+              <strong className="path-user-details-card-value">
+                {user.department || "—"}
+              </strong>
+            </div>
+            <div className="path-user-details-card">
+              <span className="path-user-details-card-label">Role</span>
+              <strong className="path-user-details-card-value">
+                {user.role
+                  ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                  : "—"}
+              </strong>
+            </div>
+            <div className="path-user-details-card">
+              <span className="path-user-details-card-label">User ID</span>
+              <strong className="path-user-details-card-value">
+                #{user.id}
+              </strong>
+            </div>
+          </div>
+
+          <div className="path-user-details-activity">
+            <div className="path-user-details-activity-card">
+              <span className="path-user-details-card-label">Member since</span>
+              <strong className="path-user-details-activity-value">
+                {fmtDate(user.created_at)}
+              </strong>
+              <small className="path-user-details-activity-note">
+                Account created
+              </small>
+            </div>
+            <div className="path-user-details-activity-card">
+              <span className="path-user-details-card-label">Last updated</span>
+              <strong className="path-user-details-activity-value">
+                {fmtDate(user.updated_at)}
+              </strong>
+              <small className="path-user-details-activity-note">
+                Profile last edited
+              </small>
+            </div>
+          </div>
+
+          <footer className="path-user-details-footer">
+            <span className="path-user-details-footer-note">
+              {isOwnAccount
+                ? "This is your own account."
+                : "Profile changes are recorded in the workspace audit trail."}
+            </span>
+            <div className="path-user-details-actions">
+              <button
+                className="path-user-details-button path-user-details-button--close"
+                type="button"
+                onClick={() => onClose?.()}
+              >
+                Close
+              </button>
+              {!isOwnAccount && (
+                <button
+                  className="path-user-details-button path-user-details-button--danger"
+                  type="button"
+                  onClick={() => {
+                    onDelete(user.id, `${user.first_name} ${user.last_name}`);
+                    onClose();
+                  }}
+                >
+                  <TrashIcon /> Remove user
+                </button>
+              )}
+            </div>
+          </footer>
+        </section>
       </div>
     </>
   );
