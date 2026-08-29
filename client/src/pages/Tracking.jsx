@@ -813,7 +813,7 @@ export default function Tracking() {
           const forms = data.forms ?? data ?? [];
           if (forms.length > 0) console.log("[Tracking] form sample fields:", Object.keys(forms[0]), forms[0]);
           (Array.isArray(forms) ? forms : []).forEach(f => {
-            const reviewerName = typeof f.reviewed_by === "number" ? nameOf(f.reviewed_by) : (f.reviewed_by || "Program Chair");
+            const reviewerName = f.reviewer_name || (typeof f.reviewed_by === "number" ? nameOf(f.reviewed_by) : (f.reviewed_by || "Program Chair"));
             // Faculty who uploaded the form — try every possible field the API might return
             const facultySubmitter =
               f.full_name ||
@@ -832,9 +832,9 @@ export default function Tracking() {
               title: f.category ? `${f.category} Form` : "Form Submission",
               department: f.category || "Forms",
               faculty_name:     facultySubmitter,
-              faculty_avatar:   f.avatar_url || (f.user_id ? avatarOf(f.user_id) : null) || (f.faculty_id ? avatarOf(f.faculty_id) : null),
+              faculty_avatar:   f.submitter_avatar || (f.user_id ? avatarOf(f.user_id) : null) || (f.faculty_id ? avatarOf(f.faculty_id) : null),
               assigned_by_name: reviewerName,
-              assigned_by_avatar: typeof f.reviewed_by === "number" ? avatarOf(f.reviewed_by) : null,
+              assigned_by_avatar: f.reviewer_avatar || (typeof f.reviewed_by === "number" ? avatarOf(f.reviewed_by) : null),
               submitted_by: facultySubmitter,
               current_handler: reviewerName,
               stage: f.stage || (["Approved", "Received"].includes(f.status) ? "Approved" : "Submitted"),
