@@ -682,16 +682,7 @@ function PathTasksWorkspace({
       `}</style>
       <Sidebar activePage="tasks" />
       <main className="path-task-canvas">
-        <TopBar onLogout={onLogout}>
-          <div className="path-task-search" style={{ maxWidth: 410 }}>
-            <Icon.Search />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search task, document, or tracking #…"
-            />
-          </div>
-        </TopBar>
+        <TopBar onLogout={onLogout} />
         <div className="path-task-body">
           <div className="path-task-inner">
             <section className="path-task-hero">
@@ -1340,16 +1331,7 @@ function PathAssignedWorkspace({
       `}</style>
       <Sidebar activePage="assigned" />
       <main className="path-assigned-canvas">
-        <TopBar onLogout={onLogout}>
-          <label className="path-assigned-top-search">
-            <Icon.Search />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search assigned work…"
-            />
-          </label>
-        </TopBar>
+        <TopBar onLogout={onLogout} />
         <div className="path-assigned-body">
           <div className="path-assigned-inner">
             <header className="path-assigned-hero">
@@ -2483,46 +2465,7 @@ export default function MyTasks() {
         }}
       >
         {/* Topbar */}
-        <TopBar onLogout={handleLogout}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "6px 12px",
-                color: "#9ca3af",
-              }}
-            >
-              <Icon.Search />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by tracking #, keyword..."
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  outline: "none",
-                  fontSize: 12,
-                  color: "#374151",
-                  width: "100%",
-                }}
-              />
-            </div>
-          </div>
-        </TopBar>
+        <TopBar onLogout={handleLogout} />
 
         {/* PAGE BODY */}
         <div
