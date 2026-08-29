@@ -743,6 +743,7 @@ export default function Tracking() {
         if (res.ok) {
           const data = await res.json();
           const users = data.users ?? data ?? [];
+          if (users.length > 0) console.log("[Tracking] user sample fields:", Object.keys(users[0]), users[0]);
           (Array.isArray(users) ? users : []).forEach(u => {
             const name = u.full_name || u.name || u.username || u.email;
             const avatar = u.avatar_url || null;
@@ -857,6 +858,7 @@ export default function Tracking() {
         return db - da;
       });
 
+      if (merged.length > 0) console.log("[Tracking] merged doc sample:", { faculty_avatar: merged[0].faculty_avatar, assigned_by_avatar: merged[0].assigned_by_avatar, sample: merged[0] });
       setDocs(merged);
     } finally {
       setLoading(false);
