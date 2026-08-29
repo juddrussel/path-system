@@ -360,6 +360,47 @@ function AddUserModal({ onClose, onCreated }) {
 }
 
 // ─── EDIT USER MODAL ───────────────────────────────────────────────────────────
+const editUserModalCss = `
+  .path-edit-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: auto; background: rgba(48,35,64,.48); backdrop-filter: blur(4px); }
+  .path-edit-modal { width: min(560px, calc(100vw - 32px)); max-height: min(760px, calc(100vh - 32px)); overflow: auto; border: 1px solid #e7dfed; border-radius: 18px; background: #fff; color: #2f2638; box-shadow: 0 28px 80px rgba(49,31,93,.2); }
+  .path-edit-header { display: flex; justify-content: space-between; gap: 18px; padding: 22px 24px; border-bottom: 1px solid #eee8f2; }
+  .path-edit-kicker { display: flex; align-items: center; color: #9b8eaa; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+  .path-edit-kicker::before { display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: #c4b5fd; content: ""; }
+  .path-edit-title { margin: 8px 0 4px; font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; color: #1f1729; }
+  .path-edit-copy { margin: 0; color: #82768a; font-size: 12px; line-height: 1.5; }
+  .path-edit-close { width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: #9b8eaa; font-size: 18px; line-height: 1; cursor: pointer; }
+  .path-edit-close:hover { background: #f7f3fb; color: #6d35c8; }
+  .path-edit-person { display: flex; align-items: center; gap: 12px; margin: 18px 24px 0; padding: 12px; border: 1px solid #eee8f2; border-radius: 11px; background: #fbfaff; }
+  .path-edit-avatar { display: grid; width: 34px; height: 34px; flex-shrink: 0; place-items: center; border-radius: 10px; font-size: 11px; font-weight: 900; }
+  .path-edit-person-copy { min-width: 0; flex: 1; }
+  .path-edit-person-name, .path-edit-person-email { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .path-edit-person-name { color: #4c3c56; font-size: 13px; font-weight: 800; }
+  .path-edit-person-email { margin-top: 3px; color: #9b8eaa; font-size: 11px; }
+  .path-edit-status { color: #39745d; font-size: 10px; font-weight: 800; white-space: nowrap; }
+  .path-edit-status.inactive { color: #8a7f92; }
+  .path-edit-status::before { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; content: ""; }
+  .path-edit-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 14px; padding: 20px 24px; }
+  .path-edit-field { display: grid; gap: 7px; min-width: 0; }
+  .path-edit-full { grid-column: 1 / -1; }
+  .path-edit-label { color: #51405e; font-size: 11px; font-weight: 800; }
+  .path-edit-required { margin-left: 7px; color: #7c3aed; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+  .path-edit-input, .path-edit-select { width: 100%; min-height: 40px; border: 1px solid #ded6e5; border-radius: 9px; padding: 0 12px; outline: 0; background: #fff; color: #3f3448; font-size: 13px; font-weight: 500; }
+  .path-edit-input:focus, .path-edit-select:focus { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(139,92,246,.12); }
+  .path-edit-input:disabled, .path-edit-select:disabled { opacity: .55; cursor: not-allowed; }
+  .path-edit-locked { position: relative; }
+  .path-edit-locked .path-edit-input { padding-right: 38px; background: #faf7ff; color: #6d5b7c; cursor: not-allowed; }
+  .path-edit-lock { position: absolute; right: 12px; bottom: 12px; display: flex; color: #7c3aed; }
+  .path-edit-notice { margin: 0 24px 16px; border: 1px solid #f3c9c2; border-radius: 8px; padding: 9px 10px; background: #fdf4f3; color: #b42318; font-size: 11px; line-height: 1.4; }
+  .path-edit-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid #eee8f2; padding: 16px 24px; }
+  .path-edit-audit { color: #9b8eaa; font-size: 10px; }
+  .path-edit-actions { display: flex; gap: 8px; }
+  .path-edit-button { min-height: 38px; border-radius: 8px; padding: 0 14px; font-size: 11px; font-weight: 800; cursor: pointer; }
+  .path-edit-secondary { border: 1px solid #e2dae8; background: #fff; color: #75677e; }
+  .path-edit-primary { display: flex; align-items: center; gap: 6px; border: 0; background: linear-gradient(135deg,#7c3aed,#8439f0); color: #fff; box-shadow: 0 7px 15px rgba(124,58,237,.17); }
+  .path-edit-primary:disabled { opacity: .6; cursor: not-allowed; }
+  @media (max-width: 640px) { .path-edit-backdrop { align-items: flex-start; padding: 12px; } .path-edit-modal { width: 100%; max-height: calc(100vh - 24px); } .path-edit-header { padding: 18px; } .path-edit-person { margin: 16px 18px 0; } .path-edit-fields { grid-template-columns: 1fr; padding: 18px; } .path-edit-full { grid-column: auto; } .path-edit-notice { margin-left: 18px; margin-right: 18px; } .path-edit-footer { align-items: flex-start; flex-direction: column; padding: 15px 18px; } .path-edit-actions { width: 100%; } .path-edit-button { flex: 1; } }
+`;
+
 function EditUserModal({ user, onClose, onUpdated, currentUserRole }) {
   const [form, setForm] = useState({
     full_name: `${user.first_name || ""} ${user.last_name || ""}`.trim(),
@@ -412,133 +453,183 @@ function EditUserModal({ user, onClose, onUpdated, currentUserRole }) {
   }
 
   const [bg] = avatarColor(`${user.first_name}${user.last_name}`);
+  const isActive = form.is_active === "1";
 
   return (
-    <div
-      className="fixed inset-0 bg-black/35 flex items-center justify-center z-50"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="w-[520px] bg-white rounded-xl shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
+    <>
+      <style>{editUserModalCss}</style>
+      <div
+        className="path-edit-backdrop"
+        role="presentation"
+        onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+      >
+        <section
+          className="path-edit-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="path-edit-title"
+        >
+          <header className="path-edit-header">
+            <div>
+              <div className="path-edit-kicker">User management</div>
+              <h2 className="path-edit-title" id="path-edit-title">
+                Edit user
+              </h2>
+              <p className="path-edit-copy">
+                Update profile details, department access, role, and status
+                for this workspace member.
+              </p>
+            </div>
+            <button
+              className="path-edit-close"
+              type="button"
+              onClick={onClose}
+              aria-label="Close Edit user panel"
+            >
+              ×
+            </button>
+          </header>
+
+          <div className="path-edit-person">
             <span
-              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+              className="path-edit-avatar"
               style={{ background: bg, color: "#5b21b6" }}
             >
               {initials(user.first_name, user.last_name)}
             </span>
-            <div>
-              <h2 className="text-sm font-bold text-gray-900">Edit User</h2>
-              <p className="text-xs text-gray-400">@{user.username}</p>
+            <div className="path-edit-person-copy">
+              <span className="path-edit-person-name">
+                {form.full_name || "New workspace user"}
+              </span>
+              <span className="path-edit-person-email">
+                @{user.username}
+              </span>
             </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:bg-gray-100 rounded-md px-2 py-1 text-base leading-none"
-          >
-            ✕
-          </button>
-        </div>
-
-        {error && (
-          <div className="mx-6 mt-4 bg-red-50 text-red-700 text-xs px-3 py-2 rounded-lg border border-red-100">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
-          {/* Name */}
-          <Field label="Full Name *">
-            <input
-              required
-              value={form.full_name}
-              onChange={(e) => set("full_name", e.target.value)}
-              placeholder="Full name"
-            />
-          </Field>
-
-          {/* Email */}
-          <Field label="Email">
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => set("email", e.target.value)}
-              placeholder="user@example.com"
-            />
-          </Field>
-
-          {/* Phone + Department */}
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Phone">
-              <input
-                value={form.phone}
-                onChange={(e) => set("phone", e.target.value)}
-                placeholder="+63 9XX XXX XXXX"
-              />
-            </Field>
-            <Field label="Department">
-              <input
-                value="Information Systems"
-                readOnly
-                className="opacity-60 cursor-not-allowed"
-              />
-            </Field>
-          </div>
-
-          {/* Role + Status — admin only */}
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={canChangeRole ? "Role *" : "Role (read-only)"}>
-              <select
-                value={form.role}
-                onChange={(e) => set("role", e.target.value)}
-                disabled={!canChangeRole}
-                className={
-                  !canChangeRole ? "opacity-50 cursor-not-allowed" : ""
-                }
-              >
-                <option value="">Select role…</option>
-                <option value="admin">Admin</option>
-                <option value="program_chair">Program Chair</option>
-                <option value="faculty">Faculty</option>
-              </select>
-            </Field>
-            <Field label={canChangeStatus ? "Status" : "Status (read-only)"}>
-              <select
-                value={form.is_active}
-                onChange={(e) => set("is_active", e.target.value)}
-                disabled={!canChangeStatus}
-                className={
-                  !canChangeStatus ? "opacity-50 cursor-not-allowed" : ""
-                }
-              >
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-              </select>
-            </Field>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-2 border-t border-gray-100 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+            <span
+              className={`path-edit-status${isActive ? "" : " inactive"}`}
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center gap-1.5"
-            >
-              {loading ? <Spinner /> : <CheckIcon />}
-              {loading ? "Saving…" : "Save Changes"}
-            </button>
+              {isActive ? "Active" : "Inactive"}
+            </span>
           </div>
-        </form>
+
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="path-edit-fields">
+              <label className="path-edit-field path-edit-full">
+                <span className="path-edit-label">
+                  Full name <b className="path-edit-required">Required</b>
+                </span>
+                <input
+                  className="path-edit-input"
+                  required
+                  value={form.full_name}
+                  onChange={(e) => set("full_name", e.target.value)}
+                  placeholder="Full name"
+                  autoComplete="name"
+                />
+              </label>
+
+              <label className="path-edit-field path-edit-full">
+                <span className="path-edit-label">Email address</span>
+                <input
+                  className="path-edit-input"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => set("email", e.target.value)}
+                  placeholder="user@example.com"
+                  autoComplete="email"
+                />
+              </label>
+
+              <label className="path-edit-field">
+                <span className="path-edit-label">Phone</span>
+                <input
+                  className="path-edit-input"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                  placeholder="+63 9XX XXX XXXX"
+                  autoComplete="tel"
+                />
+              </label>
+
+              <label className="path-edit-field path-edit-locked">
+                <span className="path-edit-label">Department</span>
+                <input
+                  className="path-edit-input"
+                  value="Information Systems"
+                  readOnly
+                  aria-readonly="true"
+                />
+                <span className="path-edit-lock" aria-hidden="true">
+                  <LockIcon />
+                </span>
+              </label>
+
+              <label className="path-edit-field">
+                <span className="path-edit-label">
+                  {canChangeRole ? "Role" : "Role (read-only)"}
+                </span>
+                <select
+                  className="path-edit-select"
+                  value={form.role}
+                  onChange={(e) => set("role", e.target.value)}
+                  disabled={!canChangeRole}
+                >
+                  <option value="">Select role…</option>
+                  <option value="admin">Admin</option>
+                  <option value="program_chair">Program Chair</option>
+                  <option value="faculty">Faculty</option>
+                </select>
+              </label>
+
+              <label className="path-edit-field">
+                <span className="path-edit-label">
+                  {canChangeStatus ? "Status" : "Status (read-only)"}
+                </span>
+                <select
+                  className="path-edit-select"
+                  value={form.is_active}
+                  onChange={(e) => set("is_active", e.target.value)}
+                  disabled={!canChangeStatus}
+                >
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </label>
+            </div>
+
+            {error && (
+              <p className="path-edit-notice" role="alert">
+                {error}
+              </p>
+            )}
+
+            <footer className="path-edit-footer">
+              <span className="path-edit-audit">
+                Changes are recorded in the workspace audit trail.
+              </span>
+              <div className="path-edit-actions">
+                <button
+                  className="path-edit-button path-edit-secondary"
+                  type="button"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="path-edit-button path-edit-primary"
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? <Spinner /> : <CheckIcon />}
+                  {loading ? "Saving…" : "Save changes"}
+                </button>
+              </div>
+            </footer>
+          </form>
+        </section>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -699,6 +790,19 @@ const DownloadIcon = () => (
       strokeLinecap="round"
       strokeLinejoin="round"
     />
+  </svg>
+);
+const LockIcon = () => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    width="13"
+    height="13"
+  >
+    <rect x="3.5" y="7.2" width="9" height="6.3" rx="1.4" />
+    <path d="M5.3 7.2V5a2.7 2.7 0 015.4 0v2.2" strokeLinecap="round" />
   </svg>
 );
 const MoreIcon = () => (
