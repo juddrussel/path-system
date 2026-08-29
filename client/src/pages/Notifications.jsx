@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
+
 import { socket, connectSocket } from "./socket";
 import {
   CheckCheck,
@@ -423,10 +422,6 @@ export default function Notifications() {
   try {
     role = JSON.parse(localStorage.getItem("user") || "{}").role || "";
   } catch {}
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
   const pushToast = useCallback((toast) => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev.slice(-4), { id, ...toast }]);
@@ -581,9 +576,9 @@ export default function Notifications() {
     <div className="path-notifications-shell">
       <style>{styles}</style>
       <Toast toasts={toasts} onDismiss={dismissToast} />
-      <Sidebar activePage="notifications" />
+
       <div className="path-notifications-main">
-        <TopBar onLogout={handleLogout}>
+
           <div className="notifications-search">
             <Icon.Search />
             <input
@@ -591,7 +586,7 @@ export default function Notifications() {
               aria-label="Search notifications"
             />
           </div>
-        </TopBar>
+
         <main className="path-notifications-content">
           <section className="notifications-view">
             <section className="notifications-hero">
