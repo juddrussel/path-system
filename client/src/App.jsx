@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { refreshToken } from "./utils/refreshToken";
 import { connectSocket, disconnectSocket } from "./pages/socket";
+import Layout from "./pages/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -61,25 +62,30 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/" element={<Login />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/users" element={<UserManagement />} />
-      <Route path="/audit" element={<AuditTrail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/inbox" element={<Inbox />} />
-      <Route path="/forms" element={<Forms />} />
-      <Route path="/assign-task" element={<TaskAssignment />} />
-      <Route path="/tasks" element={<MyTasks />} />
-      <Route path="/task-assigned" element={<TaskAssigned />} />
-      <Route path="/tracking" element={<Tracking />} />
-      <Route path="/workflow-designer" element={<WorkflowDesigner />} />
-      <Route path="/workflow-dashboard" element={<WorkflowDashboard />} />
-      <Route path="/reports" element={<Reports />} />
-      <Route path="/document-categories" element={<DocumentCategories />} />
-      <Route path="/sla-configuration" element={<SLAConfiguration/>} />
-      <Route path="/notifications" element={<Notifications/>} />
-      <Route path="/document-review/:id" element={<DocumentReview />} />
-      <Route path="/task-details/:id" element={<TaskDetail />} />
+
+      {/* Authenticated shell: Sidebar + TopBar mount once here via Layout,
+          instead of once per page, so they persist across navigation. */}
+      <Route element={<Layout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/users" element={<UserManagement />} />
+        <Route path="/audit" element={<AuditTrail />} />
+        <Route path="/inbox" element={<Inbox />} />
+        <Route path="/forms" element={<Forms />} />
+        <Route path="/assign-task" element={<TaskAssignment />} />
+        <Route path="/tasks" element={<MyTasks />} />
+        <Route path="/task-assigned" element={<TaskAssigned />} />
+        <Route path="/tracking" element={<Tracking />} />
+        <Route path="/workflow-designer" element={<WorkflowDesigner />} />
+        <Route path="/workflow-dashboard" element={<WorkflowDashboard />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/document-categories" element={<DocumentCategories />} />
+        <Route path="/sla-configuration" element={<SLAConfiguration />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/document-review/:id" element={<DocumentReview />} />
+        <Route path="/task-details/:id" element={<TaskDetail />} />
+      </Route>
     </Routes>
   );
 }

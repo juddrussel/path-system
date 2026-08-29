@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -1537,11 +1535,6 @@ export default function Inbox() {
     u.username.toLowerCase().includes(userSearch.toLowerCase())
   );
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   const displayName = currentUser.username || "User";
 
   // ── Conversation list: search + filter pills (layout helpers) ──
@@ -1585,13 +1578,8 @@ export default function Inbox() {
         }
       `}</style>
 
-      <Sidebar activePage="inbox" />
-
       {/* ── Main content area ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "white" }}>
-
-        {/* ── Top Bar ── */}
-        <TopBar onLogout={handleLogout} />
 
         {/* ── Inbox Body ── */}
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>

@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 import {
   FileText,
   Clock,
@@ -2371,11 +2369,6 @@ export default function Dashboard() {
     trackedPage * TRACKED_PAGE_SIZE,
   );
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   const displayName =
     user.full_name || user.fullName || user.name || user.username || "User";
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
@@ -3094,8 +3087,6 @@ export default function Dashboard() {
         .path-overview-shell .dashboard-workspace-canvas .path-overview-heading h2,.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:nth-child(2) h3,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid h3{font-weight:800!important}
       `}</style>
 
-      <Sidebar activePage="dashboard" />
-
       {/* ── Main ── */}
       <div
         style={{
@@ -3106,9 +3097,6 @@ export default function Dashboard() {
           minWidth: 0,
         }}
       >
-        {/* Topbar */}
-        <TopBar onLogout={handleLogout} />
-
         {/* ── Content: Program Chair layout ── */}
         <div
           className="dashboard-workspace-canvas"

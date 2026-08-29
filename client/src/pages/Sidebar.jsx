@@ -232,7 +232,18 @@ export default function Sidebar({ activePage }) {
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
   const [unreadTotal, setUnreadTotal] = useState(0);
-  const [profile, setProfile] = useState(null);
+  // Seed from the last-known profile (cached in sessionStorage) instead of
+  // null, so switching pages — which remounts Sidebar from scratch — shows
+  // the real name/avatar immediately instead of flashing the "?" placeholder
+  // and "User" text while the fresh fetch below resolves.
+  const [profile, setProfile] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("sidebar_profile_cache");
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -259,7 +270,11 @@ export default function Sidebar({ activePage }) {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then(r => (r.ok ? r.json() : null))
-        .then(data => setProfile(data || decoded))
+        .then(data => {
+          const resolved = data || decoded;
+          setProfile(resolved);
+          try { sessionStorage.setItem("sidebar_profile_cache", JSON.stringify(resolved)); } catch {}
+        })
         .catch(() => setProfile(decoded));
     } catch {
       setProfile({});
