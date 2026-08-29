@@ -4000,7 +4000,6 @@ export default function Dashboard() {
                                   "Recently"}
                               </small>
                             </div>
-                            <MoreHorizontal size={15} color="#b3a6bd" />
                           </div>
                         );
                       })}
