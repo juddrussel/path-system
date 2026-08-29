@@ -648,7 +648,7 @@ function PathTasksWorkspace({
   };
 
   return (
-    <div className="path-task-shell">
+    <div className="path-task-shell" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
         .path-task-date,.path-assigned-date{font-size:9px!important}.path-task-date::-webkit-datetime-edit,.path-task-date::-webkit-datetime-edit-fields-wrapper,.path-task-date::-webkit-datetime-edit-text,.path-task-date::-webkit-datetime-edit-month-field,.path-task-date::-webkit-datetime-edit-day-field,.path-task-date::-webkit-datetime-edit-year-field,.path-assigned-date::-webkit-datetime-edit,.path-assigned-date::-webkit-datetime-edit-fields-wrapper,.path-assigned-date::-webkit-datetime-edit-text,.path-assigned-date::-webkit-datetime-edit-month-field,.path-assigned-date::-webkit-datetime-edit-day-field,.path-assigned-date::-webkit-datetime-edit-year-field{font-size:9px!important}
@@ -1327,7 +1327,7 @@ function PathAssignedWorkspace({
   };
 
   return (
-    <div className="path-assigned-shell">
+    <div className="path-assigned-shell" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
         .path-assigned-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#40334a;font-family:'DM Sans',sans-serif;font-weight:500;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}.path-assigned-shell *{box-sizing:border-box}.path-assigned-shell button,.path-assigned-shell input,.path-assigned-shell select{font:inherit}.path-assigned-canvas{display:flex;min-width:0;flex:1;height:100vh;flex-direction:column;overflow:hidden;background:#f8f7ff}.path-assigned-body{flex:1;overflow:auto;padding:28px 46px 34px}.path-assigned-inner{max-width:1280px;margin:0 auto}.path-assigned-top-search{display:flex;align-items:center;gap:8px;width:min(410px,100%);padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-assigned-top-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size:10px}
