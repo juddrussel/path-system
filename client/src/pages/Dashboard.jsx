@@ -49,6 +49,155 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+// ── Shell CSS ported from DashboardLayout.jsx (sidebar/topbar rules removed) ──
+const DASHBOARD_LAYOUT_CSS = `
+  .path-dashboard { min-height: 100vh; display: flex; background: #faf9fc; color: #3e3248; font-family: "DM Sans", Arial, sans-serif; }
+  .path-dashboard-main { min-width: 0; flex: 1; }
+  .path-content { max-width: 1170px; margin: 0 auto; padding: 42px 48px 28px; }
+  .path-perspective { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; padding: 9px 13px; border: 1px solid #e7e1ec; border-radius: 10px; background: #fff; color: #8f8399; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+  .path-perspective-options { display: flex; align-items: center; gap: 3px; padding: 3px; border-radius: 7px; background: #f8f6fb; }
+  .path-perspective-options button { display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 5px; padding: 7px 9px; background: transparent; color: #93889b; font-size: 8px; font-weight: 800; text-transform: none; cursor: pointer; }
+  .path-perspective-options button.active { background: #fff; color: #6b35c4; box-shadow: 0 2px 7px rgba(56,35,92,.08); }
+  .path-hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; min-height: 130px; border-left: 2px solid #c9b5f8; padding: 20px 0 17px 18px; }
+  .path-kicker { color: #a59aac; font-size: 8px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+  .path-kicker::before { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #8c4be7; content: ""; vertical-align: 0; }
+  .path-hero h1 { margin: 14px 0 8px; color: #2f2638; font-family: "Manrope", Arial, sans-serif; font-size: 35px; font-weight: 800; letter-spacing: -.065em; line-height: 1; }
+  .path-hero p { margin: 0; color: #8e8297; font-size: 11px; }
+  .path-primary-button { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 8px; padding: 12px 16px; background: #7c3aed; color: #fff; font-size: 10px; font-weight: 800; box-shadow: 0 8px 16px rgba(124,58,237,.18); cursor: pointer; }
+  .path-primary-button:hover { background: #6d28d9; }
+  .path-primary-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+  .path-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+  .path-stat-card, .path-panel { border: 1px solid #ece7f0; border-radius: 12px; background: #fff; box-shadow: 0 4px 18px rgba(58,42,77,.025); }
+  .path-stat-card { min-width: 0; padding: 18px 18px 16px; }
+  .path-stat-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #948a9e; font-size: 9px; }
+  .path-stat-icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 7px; }
+  .path-stat-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+  .path-stat-card.violet .path-stat-icon { background: #f0eaff; color: #7342cc; }
+  .path-stat-card.amber .path-stat-icon { background: #fff6dc; color: #b28326; }
+  .path-stat-card.mint .path-stat-icon { background: #e6f7ef; color: #4e9a77; }
+  .path-stat-card.blue .path-stat-icon { background: #e9f3ff; color: #4784bd; }
+  .path-stat-value { margin-top: 13px; color: #2f2738; font-family: "Manrope", Arial, sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -.06em; line-height: 1; }
+  .path-stat-detail { display: flex; align-items: center; gap: 5px; margin-top: 8px; color: #aca2b1; font-size: 8px; }
+  .path-stat-change { color: #6c35c3; font-weight: 800; }
+  .path-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 34px 0 13px; }
+  .path-section-heading h2 { margin: 5px 0 0; color: #44344f; font-family: "Manrope", Arial, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.05em; }
+  .path-section-heading h2 span { display: inline-block; margin-left: 5px; border-radius: 5px; padding: 3px 5px; background: #f0e8ff; color: #7941cd; font-family: "DM Sans", Arial, sans-serif; font-size: 9px; vertical-align: 3px; }
+  .path-section-actions { display: flex; align-items: center; gap: 13px; }
+  .path-ghost-button, .path-text-button { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; font-family: "DM Sans", Arial, sans-serif; font-size: 9px; font-weight: 800; cursor: pointer; }
+  .path-ghost-button { border: 1px solid #e2dce7; border-radius: 7px; padding: 8px 10px; color: #74677e; }
+  .path-text-button { color: #7040c5; }
+  .path-ghost-button svg, .path-text-button svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+  .path-filter-menu { position: absolute; z-index: 2; margin-top: 5px; min-width: 126px; border: 1px solid #ebe4f0; border-radius: 8px; padding: 5px; background: #fff; box-shadow: 0 12px 28px rgba(47,32,69,.12); }
+  .path-filter-wrap { position: relative; }
+  .path-filter-menu button { display: block; width: 100%; border: 0; border-radius: 5px; padding: 8px; background: transparent; color: #76687e; font-size: 9px; text-align: left; cursor: pointer; }
+  .path-filter-menu button:hover { background: #f7f2ff; color: #6734bd; }
+  .path-work-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(250px, .75fr); gap: 14px; }
+  .path-queue-card { overflow: hidden; }
+  .path-queue-row { display: grid; grid-template-columns: 25px 30px minmax(0, 1fr) auto 15px; width: 100%; min-height: 65px; align-items: center; gap: 10px; border: 0; border-bottom: 1px solid #f2eef4; padding: 0 18px; background: #fff; color: inherit; text-align: left; cursor: pointer; }
+  .path-queue-row:hover { background: #fcfbff; }
+  .path-queue-index { color: #b09fbf; font-size: 8px; }
+  .path-person-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: #eee7ff; color: #7040c5; font-size: 8px; font-weight: 900; }
+  .path-queue-main { min-width: 0; }
+  .path-queue-main strong, .path-queue-main span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .path-queue-main strong { color: #55435f; font-size: 10px; font-weight: 800; }
+  .path-queue-main span { margin-top: 4px; color: #a095aa; font-size: 8px; }
+  .path-queue-main i { color: #c9becd; font-style: normal; }
+  .path-queue-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .path-status-pill { border-radius: 999px; padding: 4px 7px; font-size: 7px; font-weight: 800; white-space: nowrap; }
+  .path-status-pill.urgent { background: #fff0ed; color: #b65d51; }
+  .path-status-pill.review { background: #fff9e9; color: #a27a2c; }
+  .path-status-pill.progress { background: #eef3ff; color: #6579ba; }
+  .path-status-pill.draft { background: #f3f1f4; color: #8c8290; }
+  .path-due-label { color: #aaa0ae; font-size: 8px; white-space: nowrap; }
+  .path-row-arrow { width: 14px; height: 14px; fill: none; stroke: #afa2b3; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+  .path-queue-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 18px; color: #9b8fa5; font-size: 8px; }
+  .path-queue-footer span { display: inline-flex; align-items: center; gap: 5px; }
+  .path-queue-footer svg { width: 14px; height: 14px; fill: none; stroke: #8f70d0; stroke-width: 1.5; }
+  .path-sla-card { padding: 18px; }
+  .path-panel-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .path-panel-topline h3 { margin: 6px 0 0; color: #51405d; font-family: "Manrope", Arial, sans-serif; font-size: 15px; letter-spacing: -.035em; }
+  .path-more { border: 0; background: transparent; color: #aa9fae; cursor: pointer; }
+  .path-more svg { width: 15px; height: 15px; fill: currentColor; }
+  .path-health-score { display: flex; align-items: center; gap: 14px; margin-top: 21px; }
+  .path-score-ring { display: grid; width: 76px; height: 76px; place-items: center; border: 7px solid #f0eaff; border-top-color: #7c3aed; border-right-color: #8e52e3; border-radius: 50%; }
+  .path-score-ring strong { color: #622cb6; font-family: "Manrope", Arial, sans-serif; font-size: 20px; letter-spacing: -.05em; }
+  .path-score-ring span { color: #7955b0; font-size: 10px; }
+  .path-health-score-copy strong { display: block; color: #594463; font-size: 12px; font-weight: 800; }
+  .path-health-score-copy p { margin: 5px 0 0; color: #9b8fa4; font-size: 8px; }
+  .path-health-bar { height: 5px; margin-top: 20px; overflow: hidden; border-radius: 99px; background: #eeeaf4; }
+  .path-health-bar span { display: block; width: 92%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #a986ed, #7c3aed); }
+  .path-health-caption { display: flex; justify-content: space-between; margin-top: 5px; color: #b2a8b7; font-size: 7px; }
+  .path-sla-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 23px; padding-top: 14px; border-top: 1px solid #f0edf2; }
+  .path-mini-label { display: block; color: #a69ba9; font-size: 7px; letter-spacing: .08em; text-transform: uppercase; }
+  .path-sla-metrics strong { display: block; margin-top: 5px; color: #5b465f; font-family: "Manrope", Arial, sans-serif; font-size: 17px; letter-spacing: -.05em; }
+  .path-sla-metrics small { display: inline-flex; align-items: center; gap: 3px; margin-top: 5px; color: #669b7d; font-size: 7px; }
+  .path-sla-metrics small.negative { color: #b78442; }
+  .path-sla-metrics small svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .path-performance-panel { margin-top: 16px; padding: 22px 24px 20px; overflow: hidden; }
+  .path-performance-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+  .path-performance-heading h2 { margin: 5px 0 0; color: #44344f; font-family: "Manrope", Arial, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.045em; }
+  .path-performance-heading p { max-width: 560px; margin: 7px 0 0; color: #8c8096; font-size: 10px; line-height: 1.55; }
+  .path-performance-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-top: 18px; }
+  .path-performance-summary > div { min-width: 0; padding: 12px 13px; border: 1px solid #eee8f2; border-radius: 9px; background: #fcfbff; }
+  .path-performance-summary span, .path-performance-summary small { display: block; color: #95899f; font-size: 8px; font-weight: 800; }
+  .path-performance-summary span { letter-spacing: .07em; text-transform: uppercase; }
+  .path-performance-summary strong { display: block; margin-top: 5px; color: #5523a8; font-family: "Manrope", Arial, sans-serif; font-size: 22px; letter-spacing: -.055em; line-height: 1; }
+  .path-performance-summary small { margin-top: 5px; color: #a69aaf; font-size: 8px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+  .path-performance-content { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(190px, .75fr); gap: 18px; margin-top: 18px; }
+  .path-performance-row { display: grid; grid-template-columns: minmax(145px, 1.15fr) minmax(150px, 1fr) auto; align-items: center; gap: 16px; min-height: 57px; border-top: 1px solid #f1edf4; }
+  .path-performance-row:first-child { border-top: 0; }
+  .path-performance-person { display: flex; min-width: 0; align-items: center; gap: 9px; }
+  .path-performance-avatar { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: #eee7ff; color: #7040c5; font-size: 8px; font-weight: 900; }
+  .path-performance-person > div { min-width: 0; }
+  .path-performance-person strong, .path-performance-person span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .path-performance-person strong { color: #584762; font-size: 10px; font-weight: 800; }
+  .path-performance-person span { margin-top: 3px; color: #a095aa; font-size: 8px; }
+  .path-performance-progress-top { display: flex; justify-content: space-between; gap: 8px; color: #a095aa; font-size: 8px; }
+  .path-performance-progress-top b { color: #6840a6; font-size: 9px; }
+  .path-performance-track { height: 6px; margin-top: 6px; overflow: hidden; border-radius: 999px; background: #eeeaf3; }
+  .path-performance-track span { display: block; height: 100%; border-radius: inherit; background: #65a58a; }
+  .path-performance-track span.risk { background: #ce7668; }
+  .path-performance-status { min-width: 80px; border-radius: 999px; padding: 5px 8px; background: #edf8f2; color: #4c8b6e; font-size: 8px; font-weight: 800; text-align: center; white-space: nowrap; }
+  .path-performance-status.risk { background: #fff0ed; color: #b45b50; }
+  .path-performance-highlight { min-width: 0; border: 1px solid #e2d6f4; border-radius: 10px; padding: 16px; background: linear-gradient(145deg, #fcfbff 0%, #f4effe 100%); }
+  .path-performance-highlight > strong { display: block; overflow: hidden; margin-top: 8px; color: #4d2b78; font-family: "Manrope", Arial, sans-serif; font-size: 16px; letter-spacing: -.04em; text-overflow: ellipsis; white-space: nowrap; }
+  .path-performance-highlight > p { margin: 6px 0 0; color: #817391; font-size: 9px; line-height: 1.5; }
+  .path-performance-highlight-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 22px; }
+  .path-performance-highlight-metrics > div { border-top: 1px solid #e4d9f2; padding-top: 9px; }
+  .path-performance-highlight-metrics span, .path-performance-highlight-metrics b { display: block; }
+  .path-performance-highlight-metrics span { color: #9586a3; font-size: 8px; }
+  .path-performance-highlight-metrics b { margin-top: 5px; color: #6334ad; font-family: "Manrope", Arial, sans-serif; font-size: 18px; letter-spacing: -.04em; }
+  .path-lower-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(250px, .75fr); gap: 14px; margin-top: 16px; }
+  .path-activity-card, .path-report-card { min-width: 0; padding: 18px; }
+  .path-activity-list { margin-top: 14px; }
+  .path-activity-row { display: flex; align-items: center; gap: 10px; min-height: 50px; border-top: 1px solid #f1edf4; }
+  .path-activity-row:first-child { border-top: 0; }
+  .path-activity-icon { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border-radius: 8px; }
+  .path-activity-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+  .path-activity-icon.mint { background: #e8f8ef; color: #5ba17d; }
+  .path-activity-icon.violet { background: #efe8ff; color: #7844cb; }
+  .path-activity-icon.blue { background: #e9f3ff; color: #4889c4; }
+  .path-activity-icon.amber { background: #fff5db; color: #b2832e; }
+  .path-activity-copy { min-width: 0; flex: 1; }
+  .path-activity-copy strong, .path-activity-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .path-activity-copy strong { color: #5a4763; font-size: 9px; font-weight: 800; }
+  .path-activity-copy span { margin-top: 4px; color: #a098a7; font-size: 8px; }
+  .path-report-summary { margin: 18px 0 17px; }
+  .path-report-summary strong { color: #5a3c67; font-family: "Manrope", Arial, sans-serif; font-size: 27px; letter-spacing: -.06em; }
+  .path-report-summary span { margin-left: 7px; color: #9e93a7; font-size: 8px; }
+  .path-report-summary small { display: block; margin-top: 5px; color: #5fa17c; font-size: 8px; }
+  .path-report-bars { display: grid; gap: 10px; }
+  .path-report-bar-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 22px; align-items: center; gap: 8px; color: #9a8fa4; font-size: 8px; }
+  .path-report-bar-track { height: 6px; overflow: hidden; border-radius: 999px; background: #f0edf4; }
+  .path-report-bar-track span { display: block; height: 100%; border-radius: inherit; background: #8854df; }
+  .path-report-bar-row strong { color: #6c5a77; font-size: 8px; text-align: right; }
+  .path-toast { position: fixed; right: 22px; bottom: 22px; z-index: 5; border: 1px solid #dfd3f3; border-radius: 9px; padding: 11px 14px; background: #fff; color: #6232ae; font-size: 9px; font-weight: 800; box-shadow: 0 14px 30px rgba(55,34,84,.14); }
+  .path-footer { display: flex; justify-content: space-between; gap: 14px; margin-top: 24px; padding: 14px 0 0; border-top: 1px solid #eeeaf1; color: #aaa0b1; font-size: 8px; }
+@media (max-width: 1040px) { .path-content { padding-right: 28px; padding-left: 28px; } .path-work-grid, .path-lower-grid { grid-template-columns: minmax(0, 1.35fr) minmax(230px, .8fr); } }
+@media (max-width: 820px) { .path-content { padding: 24px 16px; } .path-perspective { align-items: flex-start; flex-direction: column; } .path-hero { display: block; } .path-hero h1 { font-size: 30px; } .path-primary-button { margin-top: 20px; } .path-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .path-work-grid, .path-lower-grid, .path-performance-content { grid-template-columns: 1fr; } .path-performance-highlight { order: -1; } }
+@media (max-width: 520px) { .path-section-heading { align-items: flex-start; flex-direction: column; } .path-section-actions { width: 100%; justify-content: space-between; } .path-stat-card { padding: 14px 12px; } .path-stat-value { font-size: 23px; } .path-performance-panel { padding: 18px 15px 16px; } .path-performance-heading { display: block; } .path-performance-heading .path-text-button { margin-top: 12px; } .path-performance-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .path-performance-row { grid-template-columns: minmax(0, 1fr) auto; gap: 9px; padding: 10px 0; } .path-performance-progress { grid-column: 1 / -1; grid-row: 2; } .path-performance-status { grid-column: 2; grid-row: 1; } .path-queue-row { grid-template-columns: 20px 28px minmax(0, 1fr) 14px; gap: 7px; padding: 0 11px; } .path-queue-meta { display: none; } .path-footer { flex-direction: column; } }
+`;
+
 // ── Role-based nav visibility ─────────────────────────────────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 const API = import.meta.env.VITE_API_URL || "";
@@ -2986,7 +3135,7 @@ export default function Dashboard() {
 
   return (
     <div
-      className="path-overview-shell"
+      className="path-overview-shell path-dashboard"
       style={{
         display: "flex",
         minHeight: "100vh",
@@ -2996,6 +3145,8 @@ export default function Dashboard() {
         background: "#f8f7ff",
       }}
     >
+      {/* Shell/container CSS ported from DashboardLayout.jsx (sidebar & topbar rules excluded) */}
+      <style>{DASHBOARD_LAYOUT_CSS}</style>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap');
 .path-overview-shell{--path-ink:#27213a;--path-muted:#776b83;--path-violet:#7c3aed;--path-violet-2:#8b5cf6;--path-lilac:#f1ebff;--path-paper:#f8f7ff;--path-border:#ebe4f4;background:var(--path-paper)!important;color:var(--path-ink)!important}
 .path-overview-shell h1,.path-overview-shell h2,.path-overview-shell h3{font-family:Manrope,'DM Sans',sans-serif!important;letter-spacing:-.025em}
@@ -3089,6 +3240,7 @@ export default function Dashboard() {
 
       {/* ── Main ── */}
       <div
+        className="path-dashboard-main"
         style={{
           flex: 1,
           display: "flex",
@@ -3099,7 +3251,7 @@ export default function Dashboard() {
       >
         {/* ── Content: Program Chair layout ── */}
         <div
-          className="dashboard-workspace-canvas"
+          className="dashboard-workspace-canvas path-content"
           style={{
             minHeight: "calc(100vh - 56px)",
             background: "#faf8ff",
