@@ -44,7 +44,7 @@ function authHeaders() {
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const BellIcon = () => (
-  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="18" height="18">
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ width: "18px", height: "18px", display: "block", flexShrink: 0 }}>
     <path d="M10 2a6 6 0 00-6 6v3l-1.5 2.5h15L16 11V8a6 6 0 00-6-6z" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M8 15.5a2 2 0 004 0" strokeLinecap="round" />
   </svg>
@@ -1400,7 +1400,7 @@ export default function TopBar({ children, onLogout }) {
                 </p>
                 <p style={TB.role}>{formatRole(profile?.role)}</p>
               </div>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" width="10" height="10" className="hidden sm:block" style={TB.chevron}>
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px" }}>
                 <path d="M2 4l4 4 4-4" strokeLinecap="round" />
               </svg>
             </button>
