@@ -3772,21 +3772,6 @@ export default function Dashboard() {
                           Workflow health
                         </h3>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => navigate("/sla")}
-                        aria-label="Open SLA configuration"
-                        style={{
-                          border: "none",
-                          background: "#f1ebff",
-                          color: "#7c3aed",
-                          borderRadius: 8,
-                          padding: 8,
-                          cursor: "pointer",
-                        }}
-                      >
-                        <MoreHorizontal size={15} />
-                      </button>
                     </div>
                     <div
                       style={{
