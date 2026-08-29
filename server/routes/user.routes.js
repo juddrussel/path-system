@@ -181,7 +181,7 @@ router.get("/resolved", requireAuth, requireAdminOrChair, async (req, res) => {
 router.get("/names", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT id, full_name FROM users WHERE status = 'approved'`
+      `SELECT id, full_name, avatar_url FROM users WHERE status = 'approved'`
     );
     return res.json(rows);
   } catch (err) {
