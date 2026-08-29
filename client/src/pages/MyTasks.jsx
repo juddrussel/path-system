@@ -2348,7 +2348,6 @@ export default function MyTasks() {
         handleApprove={handleApprove}
         onOpenTaskDetails={openTaskDetails}
         onBack={closeAssignedView}
-        onLogout={handleLogout}
         fmtDeadline={fmtDeadline}
       />
     );
@@ -2409,7 +2408,6 @@ export default function MyTasks() {
       fmtDateTime={fmtDateTime}
       onOpenTaskDetails={openTaskDetails}
       onViewAssigned={openAssignedView}
-      onLogout={handleLogout}
     />
   );
 
