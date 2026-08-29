@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io } from "socket.io-client";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
@@ -1764,11 +1762,6 @@ export default function MyTasks() {
     selectedRef.current = selected;
   }, [selected]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -2450,7 +2443,6 @@ export default function MyTasks() {
         * { scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }
       `}</style>
 
-      <Sidebar activePage="tasks" />
 
       {/* MAIN */}
       <div
@@ -2464,8 +2456,7 @@ export default function MyTasks() {
           height: "100vh",
         }}
       >
-        {/* Topbar */}
-        <TopBar onLogout={handleLogout} />
+     
 
         {/* PAGE BODY */}
         <div
