@@ -602,6 +602,69 @@ function Toast({ toasts, onDismiss }) {
   );
 }
 
+// ── Avatar (profile picture with initials fallback) ────────────────────────────
+// Renders a person's real profile photo when a picture URL is available and
+// loads successfully; otherwise falls back to the existing colored-initial
+// circle look used throughout this file. Pass through the same
+// size/background/color/border/fontSize props each call site already used
+// for its initials circle so the visual footprint doesn't change.
+function AvatarCircle({
+  name,
+  pictureUrl,
+  size = 32,
+  background = "#e9ddff",
+  color = "#5516be",
+  fontSize,
+  border,
+  className,
+  style,
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const initial = (name || "?")[0]?.toUpperCase() || "?";
+
+  if (pictureUrl && !imgFailed) {
+    return (
+      <img
+        src={pictureUrl}
+        alt={name || "Avatar"}
+        onError={() => setImgFailed(true)}
+        className={className}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          flexShrink: 0,
+          border,
+          ...style,
+        }}
+      />
+    );
+  }
+  return (
+    <div
+      className={className}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background,
+        color,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: fontSize || Math.round(size * 0.4),
+        fontWeight: 700,
+        flexShrink: 0,
+        border,
+        ...style,
+      }}
+    >
+      {initial}
+    </div>
+  );
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function TaskAssigned() {
   const navigate = useNavigate();
@@ -620,6 +683,43 @@ export default function TaskAssigned() {
   // "/uploads/tasks/xyz.pdf" — those still need the API host prepended.
   const resolveFileUrl = (u) =>
     !u ? "" : /^https?:\/\//i.test(u) ? u : `${API}${u}`;
+
+  // Faculty/staff profile pictures aren't included on task/comment payloads
+  // (those only carry a name), so we fetch the user directory once and join
+  // on name wherever an avatar is shown.
+  const [usersDirectory, setUsersDirectory] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API}/api/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const list = data.users ?? data ?? [];
+        if (!cancelled) setUsersDirectory(Array.isArray(list) ? list : []);
+      } catch {
+        if (!cancelled) setUsersDirectory([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [API, token]);
+  const avatarByName = {};
+  usersDirectory.forEach((u) => {
+    const name = u.full_name || u.name || u.username;
+    if (name) {
+      avatarByName[name] =
+        u.avatar_url || u.profile_picture || u.picture_url || u.avatar || null;
+    }
+  });
+  const avatarUrlFor = (name) => {
+    const raw = avatarByName[name];
+    if (!raw) return null;
+    return /^https?:\/\//i.test(raw) ? raw : `${API}${raw}`;
+  };
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [tasks, setTasks] = useState([]);
@@ -2045,25 +2145,16 @@ export default function TaskAssigned() {
                                 marginBottom: 5,
                               }}
                             >
-                              <div
-                                style={{
-                                  width: 18,
-                                  height: 18,
-                                  borderRadius: "50%",
-                                  background: "#e9ddff",
-                                  color: "#5516be",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: 8,
-                                  fontWeight: 700,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {(
-                                  task.assigned_to_name?.[0] || "?"
-                                ).toUpperCase()}
-                              </div>
+                              <AvatarCircle
+                                name={task.assigned_to_name}
+                                pictureUrl={avatarUrlFor(
+                                  task.assigned_to_name,
+                                )}
+                                size={18}
+                                background="#e9ddff"
+                                color="#5516be"
+                                fontSize={8}
+                              />
                               <span style={{ fontSize: 11, color: "#494454" }}>
                                 {task.assigned_to_name || "Unassigned"}
                               </span>
@@ -2399,25 +2490,16 @@ export default function TaskAssigned() {
                                 gap: 8,
                               }}
                             >
-                              <div
-                                style={{
-                                  width: 24,
-                                  height: 24,
-                                  borderRadius: "50%",
-                                  background: "#e9ddff",
-                                  color: "#5516be",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: 9,
-                                  fontWeight: 700,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {(
-                                  selected.assigned_to_name?.[0] || "?"
-                                ).toUpperCase()}
-                              </div>
+                              <AvatarCircle
+                                name={selected.assigned_to_name}
+                                pictureUrl={avatarUrlFor(
+                                  selected.assigned_to_name,
+                                )}
+                                size={24}
+                                background="#e9ddff"
+                                color="#5516be"
+                                fontSize={9}
+                              />
                               <span
                                 style={{
                                   fontSize: 13,
@@ -2659,9 +2741,6 @@ export default function TaskAssigned() {
                             user.full_name ||
                             user.username ||
                             "You";
-                          const assignerInitial = (
-                            assignerName[0] || "?"
-                          ).toUpperCase();
                           const assignedAt = selected.created_at;
                           const docType = selected.doc_type || null;
                           return (
@@ -2691,24 +2770,15 @@ export default function TaskAssigned() {
                                     gap: 10,
                                   }}
                                 >
-                                  <div
-                                    style={{
-                                      width: 36,
-                                      height: 36,
-                                      borderRadius: "50%",
-                                      background: "#1e1b2e",
-                                      color: "white",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      fontSize: 13,
-                                      fontWeight: 700,
-                                      flexShrink: 0,
-                                      border: "2px solid #e9ddff",
-                                    }}
-                                  >
-                                    {assignerInitial}
-                                  </div>
+                                  <AvatarCircle
+                                    name={assignerName}
+                                    pictureUrl={avatarUrlFor(assignerName)}
+                                    size={36}
+                                    background="#1e1b2e"
+                                    color="white"
+                                    fontSize={13}
+                                    border="2px solid #e9ddff"
+                                  />
                                   <div>
                                     <div
                                       style={{
@@ -3008,9 +3078,6 @@ export default function TaskAssigned() {
 
                         const facultyName =
                           selected.assigned_to_name || "Faculty";
-                        const facultyInitial = (
-                          facultyName[0] || "?"
-                        ).toUpperCase();
 
                         // Determine which submission-note comments already correspond to a file group
                         // (so we don't double-post the same note both standalone AND inside a file post)
@@ -3123,9 +3190,6 @@ export default function TaskAssigned() {
                                   );
                                 } catch {}
                                 if (!revisionMeta) return null;
-                                const senderInitial = (
-                                  c.sender_name?.[0] || "?"
-                                ).toUpperCase();
                                 return (
                                   <div
                                     key={`rev-${event.i}`}
@@ -3156,24 +3220,17 @@ export default function TaskAssigned() {
                                           gap: 10,
                                         }}
                                       >
-                                        <div
-                                          style={{
-                                            width: 36,
-                                            height: 36,
-                                            borderRadius: "50%",
-                                            background: "#ffdad6",
-                                            color: "#ba1a1a",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontSize: 13,
-                                            fontWeight: 700,
-                                            flexShrink: 0,
-                                            border: "2px solid #fecaca",
-                                          }}
-                                        >
-                                          {senderInitial}
-                                        </div>
+                                        <AvatarCircle
+                                          name={c.sender_name}
+                                          pictureUrl={avatarUrlFor(
+                                            c.sender_name,
+                                          )}
+                                          size={36}
+                                          background="#ffdad6"
+                                          color="#ba1a1a"
+                                          fontSize={13}
+                                          border="2px solid #fecaca"
+                                        />
                                         <div>
                                           <div
                                             style={{
@@ -3500,24 +3557,17 @@ export default function TaskAssigned() {
                                       }}
                                     >
                                       {/* Avatar */}
-                                      <div
-                                        style={{
-                                          width: 36,
-                                          height: 36,
-                                          borderRadius: "50%",
-                                          background: "#e9ddff",
-                                          color: "#5516be",
-                                          display: "flex",
-                                          alignItems: "center",
-                                          justifyContent: "center",
-                                          fontSize: 13,
-                                          fontWeight: 700,
-                                          flexShrink: 0,
-                                          border: "2px solid #efebff",
-                                        }}
-                                      >
-                                        {facultyInitial}
-                                      </div>
+                                      <AvatarCircle
+                                        name={facultyName}
+                                        pictureUrl={avatarUrlFor(
+                                          facultyName,
+                                        )}
+                                        size={36}
+                                        background="#e9ddff"
+                                        color="#5516be"
+                                        fontSize={13}
+                                        border="2px solid #efebff"
+                                      />
                                       <div>
                                         {/* Name + role badge */}
                                         <div
@@ -4441,23 +4491,14 @@ export default function TaskAssigned() {
                                   transition: "opacity 0.3s",
                                 }}
                               >
-                                <div
-                                  style={{
-                                    width: 32,
-                                    height: 32,
-                                    borderRadius: "50%",
-                                    background: "#e9ddff",
-                                    color: "#5516be",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  {(c.sender_name?.[0] || "?").toUpperCase()}
-                                </div>
+                                <AvatarCircle
+                                  name={c.sender_name}
+                                  pictureUrl={avatarUrlFor(c.sender_name)}
+                                  size={32}
+                                  background="#e9ddff"
+                                  color="#5516be"
+                                  fontSize={11}
+                                />
                                 <div style={{ flex: 1 }}>
                                   <div
                                     style={{
@@ -4687,28 +4728,17 @@ export default function TaskAssigned() {
                           alignItems: "flex-start",
                         }}
                       >
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: "50%",
-                            background: "#e9ddff",
-                            color: "#5516be",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 11,
-                            fontWeight: 700,
-                            flexShrink: 0,
-                            marginTop: 2,
-                          }}
-                        >
-                          {(
-                            user.full_name?.[0] ||
-                            user.username?.[0] ||
-                            "?"
-                          ).toUpperCase()}
-                        </div>
+                        <AvatarCircle
+                          name={user.full_name || user.username}
+                          pictureUrl={avatarUrlFor(
+                            user.full_name || user.username,
+                          )}
+                          size={32}
+                          background="#e9ddff"
+                          color="#5516be"
+                          fontSize={11}
+                          style={{ marginTop: 2 }}
+                        />
                         <div
                           style={{
                             flex: 1,
@@ -5708,9 +5738,15 @@ function PathTasksAssignedLayout({
                           </span>
                         </span>
                         <span className="path-assigned-owner">
-                          <i className="path-assigned-avatar">
-                            {initials(task.assigned_to_name)}
-                          </i>
+                          <AvatarCircle
+                            name={task.assigned_to_name}
+                            pictureUrl={avatarUrlFor(task.assigned_to_name)}
+                            size={27}
+                            background="#efe8fc"
+                            color="#7044ae"
+                            fontSize={8}
+                            style={{ borderRadius: 8 }}
+                          />
                           <span className="path-assigned-owner-copy">
                             <strong>
                               {task.assigned_to_name || "Unassigned"}
@@ -5790,9 +5826,15 @@ function PathTasksAssignedLayout({
                     <h2>{selected.title || "Untitled task"}</h2>
                     <p>{selected.doc_type || "Workflow handoff"}</p>
                     <div className="path-assigned-owner-card">
-                      <i className="path-assigned-avatar">
-                        {initials(selected.assigned_to_name)}
-                      </i>
+                      <AvatarCircle
+                        name={selected.assigned_to_name}
+                        pictureUrl={avatarUrlFor(selected.assigned_to_name)}
+                        size={27}
+                        background="#efe8fc"
+                        color="#7044ae"
+                        fontSize={8}
+                        style={{ borderRadius: 8 }}
+                      />
                       <span>
                         <small>Assigned to</small>
                         <strong>
