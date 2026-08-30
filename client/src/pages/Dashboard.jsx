@@ -3900,16 +3900,10 @@ export default function Dashboard() {
                                 color: "#7c3aed",
                                 display: "grid",
                                 placeItems: "center",
-                                fontSize: 11,
-                                fontWeight: 800,
+                                flexShrink: 0,
                               }}
                             >
-                              {(row.person || "--")
-                                .split(" ")
-                                .map((part) => part[0])
-                                .join("")
-                                .slice(0, 2)
-                                .toUpperCase()}
+                              <FileText size={15} />
                             </span>
                             <span style={{ minWidth: 0 }}>
                               <strong
