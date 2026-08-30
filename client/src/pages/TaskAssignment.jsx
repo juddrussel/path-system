@@ -215,6 +215,35 @@ function initials(name = "?") {
     .toUpperCase();
 }
 
+// Resolves a possibly-relative avatar path (as stored by the API) into a
+// fully-qualified URL, same convention as UserManagement.jsx.
+function fullAvatarUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${API}${url}`;
+}
+
+// Shows a member's real profile picture when available, falling back to the
+// existing colored-initials badge (same "path-assignment-avatar" look) if
+// there's no picture or it fails to load.
+function Avatar({ name, pictureUrl, className = "path-assignment-avatar" }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const src = fullAvatarUrl(pictureUrl);
+
+  if (src && !imgFailed) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        onError={() => setImgFailed(true)}
+        className={className}
+        style={{ objectFit: "cover" }}
+      />
+    );
+  }
+  return <span className={className}>{initials(name)}</span>;
+}
+
 function fileKind(name = "") {
   const extension = (name.split(".").pop() || "").toLowerCase();
   if (extension === "pdf") return "PDF";
@@ -756,9 +785,15 @@ function TaskAssignmentInner() {
                               checked={selectedFacultyIds.includes(member.id)}
                               onChange={() => toggleFaculty(member.id)}
                             />
-                            <span className="path-assignment-avatar">
-                              {initials(member.full_name)}
-                            </span>
+                            <Avatar
+                              name={member.full_name}
+                              pictureUrl={
+                                member.avatar_url ||
+                                member.profile_picture ||
+                                member.picture_url ||
+                                member.avatar
+                              }
+                            />
                             <span>
                               {member.full_name}
                               <small> · Faculty reviewer</small>
@@ -1122,9 +1157,15 @@ function TaskAssignmentInner() {
                       className="path-assignment-workload-row"
                       key={member.id}
                     >
-                      <span className="path-assignment-avatar">
-                        {initials(member.full_name)}
-                      </span>
+                      <Avatar
+                        name={member.full_name}
+                        pictureUrl={
+                          member.avatar_url ||
+                          member.profile_picture ||
+                          member.picture_url ||
+                          member.avatar
+                        }
+                      />
                       <span>
                         <strong>{member.full_name}</strong>
                         <small>
