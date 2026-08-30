@@ -3269,6 +3269,14 @@ export default function Dashboard() {
       <style>{`
         .path-overview-shell .dashboard-workspace-canvas .path-overview-heading h2,.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:nth-child(2) h3,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid h3{font-weight:800!important}
       `}</style>
+      <style>{`
+        html body .path-overview-shell.path-dashboard .path-dashboard-main .dashboard-workspace-canvas.path-content {
+          padding-left: 32px !important;
+        }
+        html body .path-overview-shell.path-dashboard .path-dashboard-main .faculty-dashboard-canvas {
+          margin-left: 32px !important;
+        }
+      `}</style>
 
       {/* ── Main ── */}
       <div
