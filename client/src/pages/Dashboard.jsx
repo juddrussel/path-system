@@ -3276,6 +3276,14 @@ export default function Dashboard() {
         html body .path-overview-shell.path-dashboard .path-dashboard-main .faculty-dashboard-canvas {
           margin-left: 32px !important;
         }
+        html body .path-overview-shell.path-dashboard .path-dashboard-main .dashboard-workspace-canvas.path-content {
+          max-width: none !important;
+          margin: 0 !important;
+        }
+        html body .path-overview-shell.path-dashboard .path-dashboard-main .dashboard-workspace-canvas .path-content-area {
+          max-width: none !important;
+          margin: 0 !important;
+        }
       `}</style>
 
       {/* ── Main ── */}
