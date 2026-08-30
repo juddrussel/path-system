@@ -3288,7 +3288,7 @@ export default function Dashboard() {
             minHeight: "calc(100vh - 56px)",
             background: "#faf8ff",
             overflowY: "auto",
-            padding: isFacultyDashboard ? 0 : "18px 48px 36px",
+            padding: isFacultyDashboard ? 0 : "28px 48px 44px 72px",
             boxSizing: "border-box",
           }}
         >
@@ -3316,7 +3316,7 @@ export default function Dashboard() {
                   borderBottom: "1px solid #ebe4f4",
                   borderLeft: "2px solid #c9b5f8",
                   padding: "25px 22px",
-                  margin: "18px 48px 0",
+                  margin: 0,
                   borderRadius: 16,
                 }}
               >
@@ -3401,7 +3401,7 @@ export default function Dashboard() {
                   display: "grid",
                   gridTemplateColumns: "1.18fr .92fr 1.08fr .92fr",
                   gap: 13,
-                  margin: "16px 48px",
+                  marginTop: 16,
                 }}
               >
                 {[
