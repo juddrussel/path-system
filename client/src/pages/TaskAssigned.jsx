@@ -1375,6 +1375,7 @@ export default function TaskAssigned() {
     <PathTasksAssignedLayout
       navigate={navigate}
       user={user}
+      avatarUrlFor={avatarUrlFor}
       tasks={tasks}
       stats={stats}
       loading={loading}
@@ -5467,6 +5468,7 @@ export default function TaskAssigned() {
 function PathTasksAssignedLayout({
   navigate,
   user,
+  avatarUrlFor,
   tasks,
   stats,
   loading,
