@@ -3315,7 +3315,7 @@ export default function Dashboard() {
                     "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)",
                   borderBottom: "1px solid #ebe4f4",
                   borderLeft: "2px solid #c9b5f8",
-                  padding: "20px 48px 22px 46px",
+                  padding: "25px 22px",
                   margin: "18px 48px 0",
                   borderRadius: 16,
                 }}
@@ -3400,8 +3400,8 @@ export default function Dashboard() {
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1.18fr .92fr 1.08fr .92fr",
-                  gap: 14,
-                  margin: "18px 48px 0",
+                  gap: 13,
+                  margin: "16px 48px",
                 }}
               >
                 {[
