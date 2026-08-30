@@ -3306,88 +3306,81 @@ export default function Dashboard() {
                 className="path-hero"
                 style={{
                   position: "relative",
-                  display: "flex",
-                  alignItems: "flex-end",
-                  justifyContent: "space-between",
-                  gap: 16,
-                  flexWrap: "wrap",
-                  minHeight: 130,
                   background:
                     "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)",
                   borderBottom: "1px solid #ebe4f4",
                   borderLeft: "2px solid #c9b5f8",
-                  padding: "20px 48px 17px 46px",
+                  padding: "20px 48px 22px 46px",
                   margin: "18px 48px 0",
                   borderRadius: 16,
                 }}
               >
-                <div>
-                  <div
-                    className="path-kicker"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      color: "#a59aac",
-                      fontSize: 10,
-                      fontWeight: 800,
-                      letterSpacing: ".13em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: 7,
-                        height: 7,
-                        borderRadius: "50%",
-                        background: "#8c4be7",
-                        flexShrink: 0,
-                      }}
-                    />
-                    {dateStr}
-                  </div>
-                  <h1
-                    style={{
-                      fontSize: 36,
-                      fontWeight: 800,
-                      color: "#27213a",
-                      lineHeight: 1.12,
-                      letterSpacing: "-0.035em",
-                      margin: "14px 0 8px",
-                      fontFamily: "Manrope, 'DM Sans', sans-serif",
-                    }}
-                  >
-                    Good morning, {displayName}.
-                  </h1>
-                  <p style={{ fontSize: 14, color: "#484555", margin: 0 }}>
-                    Here’s what needs your attention across the department.
-                  </p>
-                  <div style={{ display: "none" }}>
-                    <ShieldAlert style={{ width: 13, height: 13 }} />
-                    <span style={{ fontSize: 11, fontWeight: 600 }}>
-                      PATH Administrator
-                    </span>
-                  </div>
-                </div>
-
-                {/* PATH Overview stat strip */}
                 <div
-                  className="path-stat-grid"
+                  className="path-kicker"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "1.18fr .92fr 1.08fr .92fr",
-                    gap: 14,
-                    marginTop: 26,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    color: "#a59aac",
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: ".13em",
+                    textTransform: "uppercase",
                   }}
                 >
-                  {[
-                    {
-                      label: "Open submissions",
-                      value: trackedItems.length,
-                      change: "Live queue",
-                      detail: "across the department",
-                      color: "#7c3aed",
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "#8c4be7",
+                      flexShrink: 0,
+                    }}
+                  />
+                  {dateStr}
+                </div>
+                <h1
+                  style={{
+                    fontSize: 36,
+                    fontWeight: 800,
+                    color: "#27213a",
+                    lineHeight: 1.12,
+                    letterSpacing: "-0.035em",
+                    margin: "14px 0 8px",
+                    fontFamily: "Manrope, 'DM Sans', sans-serif",
+                  }}
+                >
+                  Good morning, {displayName}.
+                </h1>
+                <p style={{ fontSize: 14, color: "#484555", margin: 0 }}>
+                  Here’s what needs your attention across the department.
+                </p>
+                <div style={{ display: "none" }}>
+                  <ShieldAlert style={{ width: 13, height: 13 }} />
+                  <span style={{ fontSize: 11, fontWeight: 600 }}>
+                    PATH Administrator
+                  </span>
+                </div>
+              </div>
+
+              {/* PATH Overview stat strip */}
+              <div
+                className="path-stat-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.18fr .92fr 1.08fr .92fr",
+                  gap: 14,
+                  margin: "18px 48px 0",
+                }}
+              >
+                {[
+                  {
+                    label: "Open submissions",
+                    value: trackedItems.length,
+                    change: "Live queue",
+                    detail: "across the department",
+                    color: "#7c3aed",
                       icon: FileText,
                     },
                     {
@@ -3497,7 +3490,6 @@ export default function Dashboard() {
                     );
                   })}
                 </div>
-              </div>
 
               {/* Notification dropdown */}
               {notifOpen && (
