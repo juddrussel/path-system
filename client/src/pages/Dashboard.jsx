@@ -3306,6 +3306,11 @@ export default function Dashboard() {
                 className="path-hero"
                 style={{
                   position: "relative",
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  gap: 16,
+                  flexWrap: "wrap",
                   background:
                     "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)",
                   borderBottom: "1px solid #ebe4f4",
@@ -3315,53 +3320,78 @@ export default function Dashboard() {
                   borderRadius: 16,
                 }}
               >
-                <div
-                  className="path-kicker"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    color: "#a59aac",
-                    fontSize: 10,
-                    fontWeight: 800,
-                    letterSpacing: ".13em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  <span
+                <div>
+                  <div
+                    className="path-kicker"
                     style={{
-                      display: "inline-block",
-                      width: 7,
-                      height: 7,
-                      borderRadius: "50%",
-                      background: "#8c4be7",
-                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      color: "#a59aac",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      letterSpacing: ".13em",
+                      textTransform: "uppercase",
                     }}
-                  />
-                  {dateStr}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        background: "#8c4be7",
+                        flexShrink: 0,
+                      }}
+                    />
+                    {dateStr}
+                  </div>
+                  <h1
+                    style={{
+                      fontSize: 36,
+                      fontWeight: 800,
+                      color: "#27213a",
+                      lineHeight: 1.12,
+                      letterSpacing: "-0.035em",
+                      margin: "14px 0 8px",
+                      fontFamily: "Manrope, 'DM Sans', sans-serif",
+                    }}
+                  >
+                    Good morning, {displayName}.
+                  </h1>
+                  <p style={{ fontSize: 14, color: "#484555", margin: 0 }}>
+                    Here’s what needs your attention across the department.
+                  </p>
+                  <div style={{ display: "none" }}>
+                    <ShieldAlert style={{ width: 13, height: 13 }} />
+                    <span style={{ fontSize: 11, fontWeight: 600 }}>
+                      PATH Administrator
+                    </span>
+                  </div>
                 </div>
-                <h1
+
+                <button
+                  className="path-primary-button"
+                  type="button"
+                  onClick={() => navigate("/forms?tab=submit")}
                   style={{
-                    fontSize: 36,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 7,
+                    border: 0,
+                    borderRadius: 8,
+                    padding: "12px 16px",
+                    background: "#7c3aed",
+                    color: "#fff",
+                    fontSize: 12,
                     fontWeight: 800,
-                    color: "#27213a",
-                    lineHeight: 1.12,
-                    letterSpacing: "-0.035em",
-                    margin: "14px 0 8px",
-                    fontFamily: "Manrope, 'DM Sans', sans-serif",
+                    boxShadow: "0 8px 16px rgba(124,58,237,.18)",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  Good morning, {displayName}.
-                </h1>
-                <p style={{ fontSize: 14, color: "#484555", margin: 0 }}>
-                  Here’s what needs your attention across the department.
-                </p>
-                <div style={{ display: "none" }}>
-                  <ShieldAlert style={{ width: 13, height: 13 }} />
-                  <span style={{ fontSize: 11, fontWeight: 600 }}>
-                    PATH Administrator
-                  </span>
-                </div>
+                  <Plus size={14} /> Start a submission
+                </button>
               </div>
 
               {/* PATH Overview stat strip */}
