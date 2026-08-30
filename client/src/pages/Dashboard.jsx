@@ -668,16 +668,73 @@ function PriorityPill({ p }) {
   );
 }
 
-function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
-  const rate = Number(f.performance_score) || 0;
-  const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
-  const initials = (f.full_name || "?")
+// ── Avatar (profile picture with initials fallback) ────────────────────────
+// Renders a faculty member's real profile photo when a picture URL is
+// available and loads successfully; otherwise falls back to the existing
+// colored-initials circle look used throughout this file.
+function AvatarCircle({
+  name,
+  pictureUrl,
+  size = 32,
+  background = "#e9ddff",
+  color = "#5516be",
+  fontSize,
+  border,
+  style,
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const initials = (name || "?")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((w) => w[0])
     .join("")
     .toUpperCase();
+
+  if (pictureUrl && !imgFailed) {
+    return (
+      <img
+        src={pictureUrl}
+        alt={name || "Avatar"}
+        onError={() => setImgFailed(true)}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          flexShrink: 0,
+          border,
+          ...style,
+        }}
+      />
+    );
+  }
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background,
+        color,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: fontSize || Math.round(size * 0.35),
+        fontWeight: 800,
+        flexShrink: 0,
+        border,
+        ...style,
+      }}
+    >
+      {initials || "?"}
+    </div>
+  );
+}
+
+function FacultyPerformanceRow({ f, idx, delayedDocs, onClick, avatarUrlFor }) {
+  const rate = Number(f.performance_score) || 0;
+  const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
   const delayedCount = Array.isArray(delayedDocs)
     ? delayedDocs.filter((d) => d.faculty_name === f.full_name).length
     : 0;
@@ -725,29 +782,15 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
         {idx === 0 ? "★" : `#${idx + 1}`}
       </span>
       {/* Avatar */}
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: "50%",
-          background: `hsl(${idx * 55 + 250}, 60%, 92%)`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          border: `2px solid hsl(${idx * 55 + 250}, 50%, 75%)`,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 800,
-            color: `hsl(${idx * 55 + 250}, 50%, 35%)`,
-          }}
-        >
-          {initials}
-        </span>
-      </div>
+      <AvatarCircle
+        name={f.full_name}
+        pictureUrl={avatarUrlFor?.(f.full_name)}
+        size={32}
+        background={`hsl(${idx * 55 + 250}, 60%, 92%)`}
+        color={`hsl(${idx * 55 + 250}, 50%, 35%)`}
+        fontSize={11}
+        border={`2px solid hsl(${idx * 55 + 250}, 50%, 75%)`}
+      />
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>
           {f.full_name}
@@ -817,16 +860,9 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick }) {
 // ── Faculty Performance — table row (mirrors the "Faculty Performance
 //    Summary" table from the DS PATH mockup: avatar+name/role cell,
 //    Tasks Done / Active columns, and a Success Rate progress bar) ─────────
-function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick }) {
+function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick, avatarUrlFor }) {
   const rate = Number(f.performance_score) || 0;
   const rateColor = rate >= 90 ? "#10b981" : rate >= 80 ? "#d97706" : "#dc2626";
-  const initials = (f.full_name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
   const delayedCount = Array.isArray(delayedDocs)
     ? delayedDocs.filter((d) => d.faculty_name === f.full_name).length
     : 0;
@@ -848,29 +884,15 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick }) {
     >
       <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              flexShrink: 0,
-              background: `hsl(${idx * 55 + 250}, 60%, 92%)`,
-              border: `2px solid hsl(${idx * 55 + 250}, 50%, 78%)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: `hsl(${idx * 55 + 250}, 55%, 35%)`,
-              }}
-            >
-              {initials}
-            </span>
-          </div>
+          <AvatarCircle
+            name={f.full_name}
+            pictureUrl={avatarUrlFor?.(f.full_name)}
+            size={32}
+            background={`hsl(${idx * 55 + 250}, 60%, 92%)`}
+            color={`hsl(${idx * 55 + 250}, 55%, 35%)`}
+            fontSize={12}
+            border={`2px solid hsl(${idx * 55 + 250}, 50%, 78%)`}
+          />
           <div
             style={{ display: "flex", flexDirection: "column", minWidth: 0 }}
           >
@@ -976,6 +998,7 @@ function FacultyDetailPanel({
   faculty,
   delayedDocs,
   trackedItems,
+  avatarUrlFor,
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -988,13 +1011,6 @@ function FacultyDetailPanel({
 
   const rate = Number(faculty.performance_score) || 0;
   const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
-  const initials = (faculty.full_name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
 
   // Items (documents/tasks/forms) belonging to this faculty member, pulled
   // from the same merged list that powers the tracking table.
@@ -1141,23 +1157,15 @@ function FacultyDetailPanel({
                 />
               </button>
             )}
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: "#e6deff",
-                border: "2px solid #cabeff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#481bc6" }}>
-                {initials}
-              </span>
-            </div>
+            <AvatarCircle
+              name={faculty.full_name}
+              pictureUrl={avatarUrlFor?.(faculty.full_name)}
+              size={36}
+              background="#e6deff"
+              color="#481bc6"
+              fontSize={12}
+              border="2px solid #cabeff"
+            />
             <div style={{ minWidth: 0 }}>
               <p
                 style={{
@@ -1421,6 +1429,7 @@ function FacultyPerformanceModal({
   faculty,
   delayedDocs,
   onSelectFaculty,
+  avatarUrlFor,
 }) {
   if (!open) return null;
 
@@ -1521,6 +1530,7 @@ function FacultyPerformanceModal({
                 idx={idx}
                 delayedDocs={delayedDocs}
                 onClick={onSelectFaculty}
+                avatarUrlFor={avatarUrlFor}
               />
             ))
           )}
@@ -2200,6 +2210,44 @@ export default function Dashboard() {
   const [alertsModalOpen, setAlertsModalOpen] = useState(false);
   const [delayedDocs, setDelayedDocs] = useState([]);
   const [delayedLoading, setDelayedLoading] = useState(true);
+
+  // Faculty profile pictures aren't included on the /api/faculty/performance
+  // payload (it only carries names/counts), so we fetch the user directory
+  // once and join on name wherever a faculty avatar is shown — same approach
+  // as TaskAssigned.jsx.
+  const [usersDirectory, setUsersDirectory] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API}/api/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const list = data.users ?? data ?? [];
+        if (!cancelled) setUsersDirectory(Array.isArray(list) ? list : []);
+      } catch {
+        if (!cancelled) setUsersDirectory([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+  const avatarByName = {};
+  usersDirectory.forEach((u) => {
+    if (!u) return;
+    const fullName = `${u.first_name || ""} ${u.last_name || ""}`.trim();
+    const name = fullName || u.full_name || u.name || u.username;
+    if (name) avatarByName[name] = u.avatar_url || null;
+    if (u.username) avatarByName[u.username] = u.avatar_url || null;
+  });
+  const avatarUrlFor = (name) => {
+    const raw = avatarByName[name];
+    if (!raw) return null;
+    return /^https?:\/\//i.test(raw) ? raw : `${API}${raw}`;
+  };
 
   // ── Live data for the "My Forms" widget ──────────────────────────────────
   // Uses /api/forms/my (the same server-filtered endpoint Forms.jsx calls
@@ -4178,13 +4226,6 @@ export default function Dashboard() {
                         FACULTY_WORKLOAD.slice(0, 6).map((f) => {
                           const risk = f.delayed > 0 || f.rate < 80;
                           const status = risk ? "Needs attention" : "Strong";
-                          const rowInitials = f.name
-                            .split(" ")
-                            .filter(Boolean)
-                            .slice(0, 2)
-                            .map((w) => w[0])
-                            .join("")
-                            .toUpperCase();
                           return (
                             <div
                               className="path-performance-row"
@@ -4199,9 +4240,15 @@ export default function Dashboard() {
                               }}
                             >
                               <div className="path-performance-person">
-                                <span className="path-performance-avatar">
-                                  {rowInitials}
-                                </span>
+                                <AvatarCircle
+                                  name={f.name}
+                                  pictureUrl={avatarUrlFor(f.name)}
+                                  size={28}
+                                  background="#eee7ff"
+                                  color="#7040c5"
+                                  fontSize={8}
+                                  style={{ borderRadius: 8 }}
+                                />
                                 <div>
                                   <strong>{f.name}</strong>
                                   <span>
@@ -4519,6 +4566,7 @@ export default function Dashboard() {
             faculty={facultyPerformance}
             delayedDocs={delayedDocs}
             onSelectFaculty={setSelectedFaculty}
+            avatarUrlFor={avatarUrlFor}
           />
           <FacultyDetailPanel
             open={!!selectedFaculty}
@@ -4527,6 +4575,7 @@ export default function Dashboard() {
             faculty={selectedFaculty}
             delayedDocs={delayedDocs}
             trackedItems={trackedItems}
+            avatarUrlFor={avatarUrlFor}
           />
 
           {/* All Alerts modal (Bottleneck & Alerts) */}
