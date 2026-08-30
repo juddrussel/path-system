@@ -13,6 +13,14 @@ const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 const API = import.meta.env.VITE_API_URL || "";
 const AUDIT_PREVIEW_LIMIT = 8; // rows shown on the Reports "Audit Trail" tab before linking to /audit
 
+// Resolves a possibly-relative avatar path (as stored by the API) into a
+// fully-qualified URL, same convention as UserManagement.jsx.
+function fullAvatarUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${API}${url}`;
+}
+
 const PATH_REPORTS_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
   .path-reports-shell { background:#f8f7ff !important; color:#4c3e56 !important; }
@@ -284,7 +292,20 @@ function hashStr(s) {
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   return h;
 }
-function Avatar({ name, size = 28 }) {
+function Avatar({ name, size = 28, pictureUrl }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const src = fullAvatarUrl(pictureUrl);
+
+  if (src && !imgFailed) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        onError={() => setImgFailed(true)}
+        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+      />
+    );
+  }
   const cfg = AVATAR_PALETTE[hashStr(name) % AVATAR_PALETTE.length];
   return (
     <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: "50%", background: cfg.bg, color: cfg.color, fontSize: size * 0.36, fontWeight: 700, flexShrink: 0 }}>
@@ -292,10 +313,10 @@ function Avatar({ name, size = 28 }) {
     </span>
   );
 }
-function NameCell({ name, sub }) {
+function NameCell({ name, sub, pictureUrl }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-      <Avatar name={name} />
+      <Avatar name={name} pictureUrl={pictureUrl} />
       <div>
         <div style={{ fontWeight: 500, color: "#1f2937" }}>{name}</div>
         {sub && <div style={{ fontSize: 10, color: "#9ca3af" }}>{sub}</div>}
@@ -378,7 +399,7 @@ function PathProcessingRanges({ data }) {
 function PathFacultyPulse({ data }) {
   const max = Math.max(1, ...data.map((item) => item.assigned || 0));
   if (!data.length) return <p className="path-chart-empty">No faculty workload data available.</p>;
-  return <div className="path-faculty-pulse">{data.map((item) => <div className="path-faculty-pulse-row" key={item.name}><div><Avatar name={item.name} size={25} /><strong>{item.name}</strong></div><section><i><b style={{ width: `${((item.completed || 0) / max) * 100}%` }} /><em style={{ width: `${((item.pending || 0) / max) * 100}%` }} /></i><small>{item.completed} complete · {(item.pending || 0) + (item.delayed || 0)} open</small></section><span>{item.assigned}</span></div>)}</div>;
+  return <div className="path-faculty-pulse">{data.map((item) => <div className="path-faculty-pulse-row" key={item.name}><div><Avatar name={item.name} size={25} pictureUrl={item.avatarUrl} /><strong>{item.name}</strong></div><section><i><b style={{ width: `${((item.completed || 0) / max) * 100}%` }} /><em style={{ width: `${((item.pending || 0) / max) * 100}%` }} /></i><small>{item.completed} complete · {(item.pending || 0) + (item.delayed || 0)} open</small></section><span>{item.assigned}</span></div>)}</div>;
 }
 
 function PathOverview({ items, processing, bottlenecks, quickReports, onSelectTab, onExport, onNavigate }) {
@@ -588,6 +609,10 @@ export default function Reports() {
   const [auditTrail, setAuditTrail] = useState([]);
   const [auditLoading, setAuditLoading] = useState(true);
   const [auditUnavailable, setAuditUnavailable] = useState(false);
+  // Directory of { id, name, avatar_url } from /api/users, used to attach
+  // profile pictures to faculty rows — /api/faculty/performance doesn't
+  // return an avatar field itself, so we join on name against this list.
+  const [usersDirectory, setUsersDirectory] = useState([]);
 
   const REAL_STATUS_DISPLAY = {
     "pending":        "Pending",
@@ -682,9 +707,15 @@ export default function Reports() {
         if (res.ok) {
           const data = await res.json();
           const users = data.users ?? data ?? [];
-          (Array.isArray(users) ? users : []).forEach(u => {
+          const usersArr = Array.isArray(users) ? users : [];
+          usersArr.forEach(u => {
             userMap[u.id] = u.full_name || u.name || u.username || `User #${u.id}`;
           });
+          setUsersDirectory(usersArr.map(u => ({
+            id: u.id,
+            name: u.full_name || u.name || u.username || `User #${u.id}`,
+            avatar_url: u.avatar_url || u.profile_picture || u.picture_url || u.avatar || null,
+          })));
         }
       } catch (err) { console.error("Users fetch error:", err); }
       const nameOf = (id) => userMap[id] || (id ? `User #${id}` : "—");
@@ -874,6 +905,17 @@ export default function Reports() {
     return cfg.map(c => ({ ...c, value: items.filter(i => i.status === c.name).length }));
   }, [items]);
 
+  // ── Faculty name → profile picture lookup, joined against the /api/users
+  //    directory by name (faculty/performance and delayed-documents rows
+  //    only carry a name, not a user id). ──
+  const FACULTY_AVATAR_BY_NAME = useMemo(() => {
+    const map = {};
+    usersDirectory.forEach(u => {
+      map[u.name] = u.avatar_url;
+    });
+    return map;
+  }, [usersDirectory]);
+
   // ── By document type bar ──
   const DOC_TYPE_BAR = useMemo(() => {
     const counts = {};
@@ -914,6 +956,7 @@ export default function Reports() {
         sourceType: (d.source_type || d.sourceType || d.type || "document").toLowerCase(),
         department: d.department || d.dept || d.category || "—",
         faculty: d.faculty_name || "—",
+        facultyAvatar: FACULTY_AVATAR_BY_NAME[d.faculty_name || "—"] || null,
         status: d.status || "Delayed",
         stage: d.stage || d.current_stage || "—",
         days,
@@ -928,12 +971,13 @@ export default function Reports() {
       .map(i => ({
         id: i.id, docType: i.docType, title: i.title || i.docType,
         sourceType: i.sourceType, department: i.department || "—",
-        faculty: i.person, status: i.status,
+        faculty: i.person, facultyAvatar: FACULTY_AVATAR_BY_NAME[i.person] || null,
+        status: i.status,
         stage: i.stage, days: i.days, overdue: i.days >= 7,
       }));
 
     return [...fromEndpoint, ...fromItems];
-  }, [delayedDocs, items]);
+  }, [delayedDocs, items, FACULTY_AVATAR_BY_NAME]);
 
   const DELAYED_PAGE_SIZE = 5;
   const delayedPageCount = Math.max(1, Math.ceil(DELAYED_TRANSACTIONS.length / DELAYED_PAGE_SIZE));
@@ -984,6 +1028,7 @@ export default function Reports() {
       const assigned = active + pending + completed;
       return {
         name,
+        avatarUrl: FACULTY_AVATAR_BY_NAME[name] || null,
         assigned,
         pending,
         completed,
@@ -1001,7 +1046,7 @@ export default function Reports() {
         rate: Math.round(assigned > 0 ? (completed / assigned) * 100 : 0),
       };
     });
-  }, [facultyPerformance, delayedDocs, rawItems]);
+  }, [facultyPerformance, delayedDocs, rawItems, FACULTY_AVATAR_BY_NAME]);
 
   // ── Bottleneck view — grouped by current status/stage since the API doesn't
   //    expose a distinct workflow-stage field beyond status. "Pending",
@@ -1696,7 +1741,7 @@ export default function Reports() {
                   <tbody>
                     {FACULTY_SNAPSHOT.map((f, i) => (
                       <tr key={f.name} style={{ borderBottom: i < FACULTY_SNAPSHOT.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                        <td style={TD_STYLE}><NameCell name={f.name} /></td>
+                        <td style={TD_STYLE}><NameCell name={f.name} pictureUrl={f.avatarUrl} /></td>
                         <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{f.assigned}</td>
                         <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
                         <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
@@ -1850,7 +1895,7 @@ export default function Reports() {
                 {pagedDelayedTransactions.map((d) => <div className="path-delay-table path-delay-row" key={d.id}>
                   <strong>{formatTxnId(d.id)}</strong>
                   <span className="path-delay-title"><b>{d.title || d.docType}</b><small>{d.department || d.docType}</small></span>
-                  <span className="path-delay-faculty"><Avatar name={d.faculty} size={25} />{d.faculty}</span>
+                  <span className="path-delay-faculty"><Avatar name={d.faculty} size={25} pictureUrl={d.facultyAvatar} />{d.faculty}</span>
                   <span className={`path-delay-status ${d.overdue ? "overdue" : "delayed"}`}>{d.status}</span>
                   <span className="path-delay-stage">{d.stage}</span>
                   <span className={`path-delay-days ${d.overdue ? "overdue" : ""}`}><i />{d.days}d</span>
@@ -1944,7 +1989,7 @@ export default function Reports() {
                 <tbody>
                   {FACULTY_WORKLOAD.map((f, i) => (
                     <tr key={f.name} style={{ borderBottom: i < FACULTY_WORKLOAD.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={TD_STYLE}><NameCell name={f.name} /></td>
+                      <td style={TD_STYLE}><NameCell name={f.name} pictureUrl={f.avatarUrl} /></td>
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#374151" }}>{f.assigned}</td>
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#d97706", fontWeight: 600 }}>{f.pending}</td>
                       <td style={{ ...TD_STYLE, textAlign: "center", fontFamily: "monospace", color: "#059669", fontWeight: 600 }}>{f.completed}</td>
