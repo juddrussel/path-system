@@ -579,14 +579,6 @@ export default function Notifications() {
 
       <div className="path-notifications-main">
 
-          <div className="notifications-search">
-            <Icon.Search />
-            <input
-              placeholder="Search notifications"
-              aria-label="Search notifications"
-            />
-          </div>
-
         <main className="path-notifications-content">
           <section className="notifications-view">
             <section className="notifications-hero">
