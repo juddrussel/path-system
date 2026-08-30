@@ -709,10 +709,18 @@ export default function TaskAssigned() {
   }, [API, token]);
   const avatarByName = {};
   usersDirectory.forEach((u) => {
-    const name = u.full_name || u.name || u.username;
+    // Task/comment payloads carry names as "First Last" strings, so the
+    // directory must be keyed the same way. The /api/users endpoint returns
+    // first_name/last_name (not full_name) — see UserManagement.jsx, which
+    // builds its own display name the same way (`${first_name} ${last_name}`).
+    const fullName = `${u.first_name || ""} ${u.last_name || ""}`.trim();
+    const name = fullName || u.full_name || u.name || u.username;
     if (name) {
-      avatarByName[name] =
-        u.avatar_url || u.profile_picture || u.picture_url || u.avatar || null;
+      avatarByName[name] = u.avatar_url || null;
+    }
+    // Also key by username as a fallback in case a caller passes that instead.
+    if (u.username) {
+      avatarByName[u.username] = u.avatar_url || null;
     }
   });
   const avatarUrlFor = (name) => {
