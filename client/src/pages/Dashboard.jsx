@@ -3305,66 +3305,69 @@ export default function Dashboard() {
               <div
                 className="path-hero"
                 style={{
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  gap: 16,
+                  flexWrap: "wrap",
+                  minHeight: 130,
                   background:
                     "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)",
                   borderBottom: "1px solid #ebe4f4",
-                  padding: "42px 48px 30px",
+                  borderLeft: "2px solid #c9b5f8",
+                  padding: "20px 48px 17px 46px",
                   margin: "18px 48px 0",
                   borderRadius: 16,
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                    justifyContent: "space-between",
-                    gap: 16,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div>
-                    <h1
-                      style={{
-                        fontSize: 36,
-                        fontWeight: 800,
-                        color: "#27213a",
-                        lineHeight: 1.12,
-                        letterSpacing: "-0.035em",
-                        marginBottom: 7,
-                        fontFamily: "Manrope, 'DM Sans', sans-serif",
-                      }}
-                    >
-                      Good morning, {displayName}.
-                    </h1>
-                    <p style={{ fontSize: 14, color: "#484555" }}>
-                      Here’s what needs your attention across the department.
-                    </p>
-                    <div style={{ display: "none" }}>
-                      <ShieldAlert style={{ width: 13, height: 13 }} />
-                      <span style={{ fontSize: 11, fontWeight: 600 }}>
-                        PATH Administrator
-                      </span>
-                    </div>
-                  </div>
-
+                <div>
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 14 }}
+                    className="path-kicker"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      color: "#a59aac",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      letterSpacing: ".13em",
+                      textTransform: "uppercase",
+                    }}
                   >
-                    {/* Date/time */}
-                    <div style={{ textAlign: "right" }}>
-                      <p
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: "#191b24",
-                        }}
-                      >
-                        {dateStr}
-                      </p>
-                      <p style={{ fontSize: 11, color: "#484555" }}>
-                        {timeStr}
-                      </p>
-                    </div>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        background: "#8c4be7",
+                        flexShrink: 0,
+                      }}
+                    />
+                    {dateStr}
+                  </div>
+                  <h1
+                    style={{
+                      fontSize: 36,
+                      fontWeight: 800,
+                      color: "#27213a",
+                      lineHeight: 1.12,
+                      letterSpacing: "-0.035em",
+                      margin: "14px 0 8px",
+                      fontFamily: "Manrope, 'DM Sans', sans-serif",
+                    }}
+                  >
+                    Good morning, {displayName}.
+                  </h1>
+                  <p style={{ fontSize: 14, color: "#484555", margin: 0 }}>
+                    Here’s what needs your attention across the department.
+                  </p>
+                  <div style={{ display: "none" }}>
+                    <ShieldAlert style={{ width: 13, height: 13 }} />
+                    <span style={{ fontSize: 11, fontWeight: 600 }}>
+                      PATH Administrator
+                    </span>
                   </div>
                 </div>
 
@@ -3465,9 +3468,11 @@ export default function Dashboard() {
                           style={{
                             display: "block",
                             marginTop: 13,
-                            color: stat.color,
+                            color: "#2f2738",
                             fontFamily: "Manrope, 'DM Sans', sans-serif",
                             fontSize: 27,
+                            fontWeight: 800,
+                            letterSpacing: "-0.03em",
                             lineHeight: 1,
                           }}
                         >
