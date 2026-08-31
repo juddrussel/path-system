@@ -4050,490 +4050,6 @@ export default function Forms() {
                 fontSize: 14,
               }}
             >
-              <div
-                style={{
-                  background: "white",
-                  border: "1px solid #cbc3d7",
-                  borderRadius: 16,
-                  overflow: "hidden",
-                  boxShadow: "0 4px 12px rgba(139,92,246,0.05)",
-                }}
-              >
-                <div
-                  style={{
-                    padding: "16px 24px",
-                    borderBottom: "1px solid #cbc3d7",
-                    background: "#fcf8ff",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 14,
-                      flexWrap: "wrap",
-                      gap: 10,
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 10,
-                        }}
-                      >
-                        <h3
-                          style={{
-                            fontSize: 14,
-                            fontWeight: 700,
-                            color: "#181445",
-                            margin: "0 0 2px",
-                          }}
-                        >
-                          {isProgramChair
-                            ? "Review Queue"
-                            : "Document Repository"}
-                        </h3>
-                        {isProgramChair && stats.pending > 0 && (
-                          <span
-                            style={{
-                              background: "#fef9c3",
-                              color: "#854d0e",
-                              border: "1px solid #fef08a",
-                              fontSize: 11,
-                              fontWeight: 700,
-                              padding: "2px 10px",
-                              borderRadius: 20,
-                            }}
-                          >
-                            {stats.pending} pending
-                          </span>
-                        )}
-                      </div>
-                      <p style={{ fontSize: 12, color: "#7b7486", margin: 0 }}>
-                        {isProgramChair
-                          ? "Pending forms from faculty — review, approve, or reject below."
-                          : "Track the status of all your submitted forms."}
-                      </p>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6,
-                          padding: "8px 14px",
-                          border: "1px solid #cbc3d7",
-                          borderRadius: 10,
-                          background: "white",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          color: "#494454",
-                        }}
-                      >
-                        <Icon.Filter /> More Filters
-                      </button>
-                      <button
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6,
-                          padding: "8px 14px",
-                          border: "1px solid #cbc3d7",
-                          borderRadius: 10,
-                          background: "white",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          color: "#494454",
-                        }}
-                      >
-                        <Icon.ExportCSV /> Export
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Search (mirrors the mockup's filters bar) */}
-                  <div style={{ position: "relative", maxWidth: 420 }}>
-                    <span
-                      style={{
-                        position: "absolute",
-                        left: 12,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        color: "#7b7486",
-                      }}
-                    >
-                      <Icon.Search />
-                    </span>
-                    <input
-                      type="text"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Search forms by ID, title, or submitter..."
-                      style={{
-                        width: "100%",
-                        padding: "9px 12px 9px 34px",
-                        border: "1px solid #cbc3d7",
-                        borderRadius: 8,
-                        fontSize: 13,
-                        color: "#181445",
-                        background: "white",
-                        fontFamily: "'Inter', sans-serif",
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ overflowX: "auto" }}>
-                  <table
-                    style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
-                      minWidth: 760,
-                    }}
-                  >
-                    <thead>
-                      <tr style={{ background: "#f6f2ff" }}>
-                        {[
-                          "Document ID",
-                          "Name",
-                          "Category",
-                          "Filing Date",
-                          "Status",
-                          "Actions",
-                        ].map((h, i) => (
-                          <th
-                            key={h}
-                            style={{
-                              padding: "16px 24px",
-                              textAlign: i === 5 ? "right" : "left",
-                              fontSize: 11,
-                              fontWeight: 500,
-                              color: "#494454",
-                              textTransform: "uppercase",
-                              letterSpacing: 0.5,
-                              borderBottom: "1px solid #cbc3d7",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {loading ? (
-                        <tr>
-                          <td
-                            colSpan={6}
-                            style={{
-                              padding: 40,
-                              textAlign: "center",
-                              color: "#aaa",
-                              fontSize: 13,
-                            }}
-                          >
-                            Loading...
-                          </td>
-                        </tr>
-                      ) : forms.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan={6}
-                            style={{ padding: 48, textAlign: "center" }}
-                          >
-                            <div style={{ color: "#aaa", fontSize: 13 }}>
-                              {isProgramChair
-                                ? "No pending forms to review."
-                                : "No submissions yet."}
-                            </div>
-                          </td>
-                        </tr>
-                      ) : (
-                        forms.map((row) => (
-                          <tr
-                            key={row.id}
-                            className="group"
-                            style={{
-                              borderBottom: "1px solid #e3dfff",
-                              transition: "background .15s",
-                            }}
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.background = "#f6f2ff")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.background = "white")
-                            }
-                          >
-                            <td style={{ padding: "16px 24px" }}>
-                              <span
-                                style={{
-                                  color: "#7b7486",
-                                  fontWeight: 500,
-                                  fontSize: 12,
-                                  fontFamily: "monospace",
-                                }}
-                              >
-                                {row.tracking_id || row.id}
-                              </span>
-                            </td>
-                            <td style={{ padding: "16px 24px" }}>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 12,
-                                }}
-                              >
-                                <Avatar
-                                  name={row.full_name || row.student_id || "?"}
-                                  src={
-                                    row.submitter_avatar
-                                      ? resolveFileUrl(row.submitter_avatar)
-                                      : null
-                                  }
-                                />
-                                <div>
-                                  <div
-                                    style={{
-                                      fontSize: 14,
-                                      fontWeight: 500,
-                                      color: "#181445",
-                                    }}
-                                  >
-                                    {row.full_name}
-                                  </div>
-                                  {row.student_id && (
-                                    <span
-                                      style={{
-                                        display: "inline-block",
-                                        fontSize: 10,
-                                        fontWeight: 600,
-                                        color: "#5f5293",
-                                        background: "#e7deff",
-                                        padding: "2px 6px",
-                                        borderRadius: 999,
-                                        marginTop: 2,
-                                      }}
-                                    >
-                                      {row.student_id}
-                                    </span>
-                                  )}
-                                  {isProgramChair && row.submitter_name && (
-                                    <div
-                                      style={{
-                                        fontSize: 10,
-                                        color: "#7b7486",
-                                        marginTop: 2,
-                                      }}
-                                    >
-                                      by {row.submitter_name}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td
-                              style={{
-                                padding: "16px 24px",
-                                fontSize: 14,
-                                color: "#494454",
-                              }}
-                            >
-                              {row.category}
-                            </td>
-                            <td
-                              style={{
-                                padding: "16px 24px",
-                                fontSize: 14,
-                                color: "#494454",
-                              }}
-                            >
-                              {row.filing_date}
-                            </td>
-                            <td style={{ padding: "16px 24px" }}>
-                              <StatusBadge status={row.status} />
-                              {!isProgramChair &&
-                                row.status === "Revision" &&
-                                row.review_note && (
-                                  <div
-                                    style={{
-                                      marginTop: 5,
-                                      background: "#fef9c3",
-                                      border: "1px solid #fef08a",
-                                      borderRadius: 6,
-                                      padding: "5px 8px",
-                                      maxWidth: 220,
-                                    }}
-                                  >
-                                    <div
-                                      style={{
-                                        fontSize: 9,
-                                        fontWeight: 800,
-                                        color: "#854d0e",
-                                        textTransform: "uppercase",
-                                        letterSpacing: 0.5,
-                                        marginBottom: 2,
-                                      }}
-                                    >
-                                      📝 Revision Note
-                                    </div>
-                                    <div
-                                      style={{
-                                        fontSize: 11,
-                                        color: "#78350f",
-                                        lineHeight: 1.4,
-                                      }}
-                                    >
-                                      {row.review_note}
-                                    </div>
-                                  </div>
-                                )}
-                            </td>
-                            <td style={{ padding: "16px 24px" }}>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  gap: 6,
-                                  justifyContent: "flex-end",
-                                }}
-                              >
-                                {isProgramChair &&
-                                  (row.status === "Pending" ||
-                                    row.status === "Reviewing") && (
-                                    <button
-                                      onClick={() => handleReview(row)}
-                                      style={{
-                                        padding: "5px 12px",
-                                        border: "1px solid #6d3bd7",
-                                        borderRadius: 8,
-                                        background: "#ede9fe",
-                                        cursor: "pointer",
-                                        color: "#6d3bd7",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 4,
-                                        fontSize: 11,
-                                        fontWeight: 700,
-                                      }}
-                                    >
-                                      Review
-                                    </button>
-                                  )}
-                                {!isProgramChair &&
-                                  row.status === "Revision" && (
-                                    <button
-                                      onClick={() => {
-                                        setResubmitForm(row);
-                                        setResubmitFile(null);
-                                        setResubmitModal(true);
-                                      }}
-                                      style={{
-                                        padding: "5px 12px",
-                                        border: "1px solid #d97706",
-                                        borderRadius: 8,
-                                        background: "#fef9c3",
-                                        cursor: "pointer",
-                                        color: "#854d0e",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 4,
-                                        fontSize: 11,
-                                        fontWeight: 700,
-                                      }}
-                                    >
-                                      ↩ Resubmit
-                                    </button>
-                                  )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination */}
-                <div
-                  style={{
-                    padding: "16px 24px",
-                    borderTop: "1px solid #cbc3d7",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    background: "white",
-                  }}
-                >
-                  <span style={{ fontSize: 14, color: "#494454" }}>
-                    Showing page {page} of {totalPages} ({stats.pending || 0}{" "}
-                    pending)
-                  </span>
-                  <div
-                    style={{ display: "flex", gap: 4, alignItems: "center" }}
-                  >
-                    <button
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                      style={{
-                        padding: "4px 10px",
-                        border: "1px solid #cbc3d7",
-                        borderRadius: 8,
-                        background: "white",
-                        cursor: "pointer",
-                        fontSize: 12,
-                        color: "#494454",
-                      }}
-                    >
-                      Previous
-                    </button>
-                    {Array.from(
-                      { length: Math.min(totalPages, 3) },
-                      (_, i) => i + 1,
-                    ).map((n) => (
-                      <button
-                        key={n}
-                        onClick={() => setPage(n)}
-                        style={{
-                          width: 28,
-                          height: 28,
-                          border: "1px solid #cbc3d7",
-                          borderRadius: 8,
-                          background: page === n ? "#6d3bd7" : "white",
-                          color: page === n ? "white" : "#494454",
-                          cursor: "pointer",
-                          fontSize: 12,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() =>
-                        setPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      disabled={page === totalPages}
-                      style={{
-                        padding: "4px 10px",
-                        border: "1px solid #cbc3d7",
-                        borderRadius: 8,
-                        background: "white",
-                        cursor: "pointer",
-                        fontSize: 12,
-                        color: "#494454",
-                      }}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              </div>
-
               {/* ── EXISTING FORMS (Program Chair): full history, any status ── */}
               {isProgramChair && (
                 <div
@@ -4622,183 +4138,102 @@ export default function Forms() {
                     </div>
                   </div>
 
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        minWidth: 720,
-                      }}
-                    >
-                      <thead>
-                        <tr style={{ background: "#f6f2ff" }}>
-                          {[
-                            "Document ID",
-                            "Name",
-                            "Category",
-                            "Filing Date",
-                            "Status",
-                            "Submitted By",
-                          ].map((h) => (
-                            <th
-                              key={h}
-                              style={{
-                                padding: "16px 24px",
-                                textAlign: "left",
-                                fontSize: 11,
-                                fontWeight: 500,
-                                color: "#494454",
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                                borderBottom: "1px solid #cbc3d7",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {allFormsLoading ? (
-                          <tr>
-                            <td
-                              colSpan={6}
-                              style={{
-                                padding: 40,
-                                textAlign: "center",
-                                color: "#aaa",
-                                fontSize: 13,
-                              }}
-                            >
-                              Loading...
-                            </td>
-                          </tr>
-                        ) : allForms.length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan={6}
-                              style={{ padding: 48, textAlign: "center" }}
-                            >
-                              <div style={{ color: "#aaa", fontSize: 13 }}>
-                                No forms found
-                                {allFormsStatusFilter !== "All"
-                                  ? ` with status "${allFormsStatusFilter}"`
-                                  : ""}
-                                .
-                              </div>
-                            </td>
-                          </tr>
-                        ) : (
-                          allForms.map((row) => (
-                            <tr
-                              key={row.id}
-                              style={{
-                                borderBottom: "1px solid #e3dfff",
-                                transition: "background .15s",
-                              }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.background = "#f6f2ff")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.background = "white")
-                              }
-                            >
-                              <td style={{ padding: "16px 24px" }}>
-                                <span
-                                  style={{
-                                    color: "#7b7486",
-                                    fontWeight: 500,
-                                    fontSize: 12,
-                                    fontFamily: "monospace",
-                                  }}
-                                >
-                                  {row.tracking_id || row.id}
-                                </span>
-                              </td>
-                              <td style={{ padding: "16px 24px" }}>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 12,
-                                  }}
-                                >
-                                  <Avatar
-                                    name={
-                                      row.full_name || row.student_id || "?"
-                                    }
-                                    src={
-                                      row.submitter_avatar
-                                        ? resolveFileUrl(row.submitter_avatar)
-                                        : null
-                                    }
-                                  />
-                                  <div>
-                                    <div
-                                      style={{
-                                        fontSize: 14,
-                                        fontWeight: 500,
-                                        color: "#181445",
-                                      }}
-                                    >
-                                      {row.full_name}
-                                    </div>
-                                    {row.student_id && (
-                                      <span
-                                        style={{
-                                          display: "inline-block",
-                                          fontSize: 10,
-                                          fontWeight: 600,
-                                          color: "#5f5293",
-                                          background: "#e7deff",
-                                          padding: "2px 6px",
-                                          borderRadius: 999,
-                                          marginTop: 2,
-                                        }}
-                                      >
-                                        {row.student_id}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-                              <td
-                                style={{
-                                  padding: "16px 24px",
-                                  fontSize: 14,
-                                  color: "#494454",
-                                }}
+                  <article
+                    className="path-review-ledger"
+                    style={{ border: "none", borderRadius: 0, boxShadow: "none" }}
+                  >
+                    <div className="path-review-table-head">
+                      <span>Form submission</span>
+                      <span>Submitter</span>
+                      <span>Review status</span>
+                      <span>SLA</span>
+                      <span />
+                    </div>
+                    {allFormsLoading ? (
+                      <div className="path-review-empty">
+                        <strong>Loading submissions</strong>
+                        <span>Fetching every form on file.</span>
+                      </div>
+                    ) : allForms.length ? (
+                      allForms.map((row) => {
+                        const name =
+                          row.full_name ||
+                          row.submitter_name ||
+                          row.student_id ||
+                          "Unknown submitter";
+                        const initials =
+                          name
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((part) => part[0])
+                            .join("")
+                            .toUpperCase() || "?";
+                        const isRisk =
+                          String(row.priority || "").toLowerCase() ===
+                            "urgent" ||
+                          String(row.status || "").toLowerCase() ===
+                            "revision";
+                        return (
+                          <button
+                            className="path-review-row"
+                            type="button"
+                            key={row.id}
+                            onClick={() =>
+                              navigate(`/document-review/${row.id}`)
+                            }
+                          >
+                            <span className="path-review-doc">
+                              <i
+                                className={`path-review-doc-icon ${isRisk ? "risk" : ""}`}
                               >
-                                {row.category}
-                              </td>
-                              <td
-                                style={{
-                                  padding: "16px 24px",
-                                  fontSize: 14,
-                                  color: "#494454",
-                                }}
-                              >
-                                {row.filing_date}
-                              </td>
-                              <td style={{ padding: "16px 24px" }}>
-                                <StatusBadge status={row.status} />
-                              </td>
-                              <td
-                                style={{
-                                  padding: "16px 24px",
-                                  fontSize: 14,
-                                  color: "#494454",
-                                }}
-                              >
-                                {row.submitter_name || "—"}
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                                <Icon.Forms />
+                              </i>
+                              <span className="path-review-doc-copy">
+                                <strong>
+                                  {row.category || "Form submission"}
+                                </strong>
+                                <small>
+                                  <i>{row.tracking_id || `FORM-${row.id}`}</i>{" "}
+                                  · {row.filing_date || "Submitted recently"}
+                                </small>
+                              </span>
+                            </span>
+                            <span className="path-review-owner">
+                              <i>{initials}</i>
+                              <span>{name}</span>
+                            </span>
+                            <span className="path-review-status">
+                              <b>{row.status || "Pending"}</b>
+                              <small>
+                                {row.student_id || "Faculty submission"}
+                              </small>
+                            </span>
+                            <span
+                              className={`path-review-sla ${isRisk ? "risk" : ""}`}
+                            >
+                              <i />
+                              {isRisk ? "Needs attention" : "On track"}
+                            </span>
+                            <span className="path-review-chevron">›</span>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="path-review-empty">
+                        <strong>
+                          No forms found
+                          {allFormsStatusFilter !== "All"
+                            ? ` with status "${allFormsStatusFilter}"`
+                            : ""}
+                          .
+                        </strong>
+                        <span>
+                          Try another status filter or clear your search.
+                        </span>
+                      </div>
+                    )}
+                  </article>
+
 
                   {/* Pagination */}
                   <div
