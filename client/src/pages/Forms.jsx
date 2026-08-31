@@ -4046,20 +4046,47 @@ export default function Forms() {
           {isProgramChair && activeTab === "allSubmissions" && (
             <div
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'DM Sans', sans-serif",
                 fontSize: 14,
               }}
             >
+              <section className="path-forms-hero">
+                <div>
+                  <div className="path-forms-kicker">
+                    <i /> Submission records · full history
+                  </div>
+                  <h1>All submissions</h1>
+                  <p>
+                    Every form ever submitted to the department, across every
+                    status — approved, rejected, or still in progress.
+                  </p>
+                </div>
+                <div className="path-forms-health">
+                  <i>
+                    <Icon.Shield />
+                  </i>
+                  <span>
+                    <strong>
+                      {allForms.length} submission
+                      {allForms.length === 1 ? "" : "s"} shown
+                    </strong>
+                    <small>
+                      Page {allFormsPage} of {allFormsTotalPages}
+                    </small>
+                  </span>
+                </div>
+              </section>
+
               {/* ── EXISTING FORMS (Program Chair): full history, any status ── */}
               {isProgramChair && (
                 <div
                   style={{
                     background: "white",
-                    border: "1px solid #cbc3d7",
-                    borderRadius: 16,
+                    border: "1px solid #e5deed",
+                    borderRadius: 11,
                     overflow: "hidden",
-                    marginTop: 20,
-                    boxShadow: "0 4px 12px rgba(139,92,246,0.05)",
+                    marginTop: 18,
+                    boxShadow: "0 12px 30px rgba(57,36,93,.045)",
                   }}
                 >
                   <div
@@ -4068,8 +4095,8 @@ export default function Forms() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      borderBottom: "1px solid #cbc3d7",
-                      background: "#fcf8ff",
+                      borderBottom: "1px solid #f0edf4",
+                      background: "#fbf9fd",
                       flexWrap: "wrap",
                       gap: 10,
                     }}
@@ -4077,9 +4104,11 @@ export default function Forms() {
                     <div>
                       <h3
                         style={{
-                          fontSize: 14,
-                          fontWeight: 700,
-                          color: "#181445",
+                          fontFamily: "'Manrope', sans-serif",
+                          fontSize: 15,
+                          fontWeight: 800,
+                          color: "#40344b",
+                          letterSpacing: "-.03em",
                           margin: "0 0 2px",
                         }}
                       >
@@ -4099,7 +4128,7 @@ export default function Forms() {
                         }}
                         style={{
                           padding: "8px 30px 8px 12px",
-                          border: "1px solid #cbc3d7",
+                          border: "1px solid #e6dfee",
                           borderRadius: 10,
                           background: "white",
                           fontSize: 12,
@@ -4239,7 +4268,7 @@ export default function Forms() {
                   <div
                     style={{
                       padding: "16px 24px",
-                      borderTop: "1px solid #cbc3d7",
+                      borderTop: "1px solid #f0edf4",
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
@@ -4259,7 +4288,7 @@ export default function Forms() {
                         disabled={allFormsPage === 1}
                         style={{
                           padding: "4px 10px",
-                          border: "1px solid #cbc3d7",
+                          border: "1px solid #e6dfee",
                           borderRadius: 8,
                           background: "white",
                           cursor: "pointer",
@@ -4279,7 +4308,7 @@ export default function Forms() {
                           style={{
                             width: 28,
                             height: 28,
-                            border: "1px solid #cbc3d7",
+                            border: "1px solid #e6dfee",
                             borderRadius: 8,
                             background:
                               allFormsPage === n ? "#6d3bd7" : "white",
@@ -4301,7 +4330,7 @@ export default function Forms() {
                         disabled={allFormsPage === allFormsTotalPages}
                         style={{
                           padding: "4px 10px",
-                          border: "1px solid #cbc3d7",
+                          border: "1px solid #e6dfee",
                           borderRadius: 8,
                           background: "white",
                           cursor: "pointer",
