@@ -4077,6 +4077,60 @@ export default function Forms() {
                 </div>
               </section>
 
+              <section className="path-review-toolbar" style={{ marginTop: 18 }}>
+                <div>
+                  <div className="path-forms-kicker">
+                    <i /> All submission records
+                  </div>
+                  <h2>
+                    Existing forms <span>{allForms.length}</span>
+                  </h2>
+                  <p>
+                    Every form ever submitted, regardless of status —
+                    approved, rejected, or in progress.
+                  </p>
+                </div>
+                <div className="path-review-controls">
+                  <label className="path-review-search">
+                    <Icon.Search />
+                    <input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Search forms or submitters"
+                    />
+                  </label>
+                  {[
+                    "All",
+                    "Pending",
+                    "Reviewing",
+                    "Approved",
+                    "Rejected",
+                    "Revision",
+                  ].map((filter) => (
+                    <button
+                      key={filter}
+                      className="path-review-filter"
+                      type="button"
+                      onClick={() => {
+                        setAllFormsStatusFilter(filter);
+                        setAllFormsPage(1);
+                      }}
+                      style={
+                        allFormsStatusFilter === filter
+                          ? {
+                              borderColor: "#d5c0f5",
+                              background: "#f3edff",
+                              color: "#6d3ec5",
+                            }
+                          : undefined
+                      }
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
               {/* ── EXISTING FORMS (Program Chair): full history, any status ── */}
               {isProgramChair && (
                 <div
@@ -4085,88 +4139,10 @@ export default function Forms() {
                     border: "1px solid #e5deed",
                     borderRadius: 11,
                     overflow: "hidden",
-                    marginTop: 18,
+                    marginTop: 16,
                     boxShadow: "0 12px 30px rgba(57,36,93,.045)",
                   }}
                 >
-                  <div
-                    style={{
-                      padding: "16px 24px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      borderBottom: "1px solid #f0edf4",
-                      background: "#fbf9fd",
-                      flexWrap: "wrap",
-                      gap: 10,
-                    }}
-                  >
-                    <div>
-                      <h3
-                        style={{
-                          fontFamily: "'Manrope', sans-serif",
-                          fontSize: 15,
-                          fontWeight: 800,
-                          color: "#40344b",
-                          letterSpacing: "-.03em",
-                          margin: "0 0 2px",
-                        }}
-                      >
-                        Existing Forms
-                      </h3>
-                      <p style={{ fontSize: 12, color: "#7b7486", margin: 0 }}>
-                        Every form ever submitted, regardless of status —
-                        approved, rejected, or in progress.
-                      </p>
-                    </div>
-                    <div style={{ position: "relative" }}>
-                      <select
-                        value={allFormsStatusFilter}
-                        onChange={(e) => {
-                          setAllFormsStatusFilter(e.target.value);
-                          setAllFormsPage(1);
-                        }}
-                        style={{
-                          padding: "8px 30px 8px 12px",
-                          border: "1px solid #e6dfee",
-                          borderRadius: 10,
-                          background: "white",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: "#494454",
-                          cursor: "pointer",
-                          appearance: "none",
-                          WebkitAppearance: "none",
-                          MozAppearance: "none",
-                        }}
-                      >
-                        {[
-                          "All",
-                          "Pending",
-                          "Reviewing",
-                          "Approved",
-                          "Rejected",
-                          "Revision",
-                        ].map((s) => (
-                          <option key={s} value={s}>
-                            {s === "All" ? "Status: All" : s}
-                          </option>
-                        ))}
-                      </select>
-                      <span
-                        style={{
-                          position: "absolute",
-                          right: 9,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          pointerEvents: "none",
-                        }}
-                      >
-                        <Icon.Chevron size={13} />
-                      </span>
-                    </div>
-                  </div>
-
                   <article
                     className="path-review-ledger"
                     style={{ border: "none", borderRadius: 0, boxShadow: "none" }}
