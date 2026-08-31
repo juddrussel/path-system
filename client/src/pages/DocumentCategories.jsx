@@ -988,7 +988,8 @@ export default function DocumentCategories() {
 }
 
 const PATH_CATEGORY_SPACING_CSS = `
-.path-cat-content{box-sizing:border-box;width:100%;max-width:1540px;margin:0 auto;padding:38px clamp(34px,4vw,56px) 50px}
+.path-cat-content{box-sizing:border-box;width:100%;max-width:none;margin:0 auto;padding:38px clamp(34px,4vw,56px) 50px}
+@media(min-width:1100px){.path-cat-content{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}
 @media(max-width:900px){.path-cat-content{padding:30px 30px 42px}}
 @media(max-width:640px){.path-cat-content{padding:20px 16px 34px}}
 `;
