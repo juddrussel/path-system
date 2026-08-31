@@ -4249,6 +4249,7 @@ export default function Forms() {
                       justifyContent: "space-between",
                       alignItems: "center",
                       background: "white",
+                      fontFamily: "'DM Sans', sans-serif",
                     }}
                   >
                     <span style={{ fontSize: 14, color: "#494454" }}>
@@ -4270,6 +4271,7 @@ export default function Forms() {
                           cursor: "pointer",
                           fontSize: 12,
                           color: "#494454",
+                          fontFamily: "'DM Sans', sans-serif",
                         }}
                       >
                         Previous
@@ -4292,6 +4294,7 @@ export default function Forms() {
                             cursor: "pointer",
                             fontSize: 12,
                             fontWeight: 700,
+                            fontFamily: "'DM Sans', sans-serif",
                           }}
                         >
                           {n}
@@ -4312,6 +4315,7 @@ export default function Forms() {
                           cursor: "pointer",
                           fontSize: 12,
                           color: "#494454",
+                          fontFamily: "'DM Sans', sans-serif",
                         }}
                       >
                         Next
