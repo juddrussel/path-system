@@ -4203,6 +4203,21 @@ export default function Forms() {
                                 Use this form →
                               </button>
                             )}
+                            {isProgramChair && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  navigate("/document-categories", {
+                                    state: {
+                                      editCategoryId: cat.id,
+                                      editCategoryName: cat.name,
+                                    },
+                                  })
+                                }
+                              >
+                                Manage form →
+                              </button>
+                            )}
                           </div>
                         </article>
                       );
