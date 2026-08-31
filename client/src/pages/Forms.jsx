@@ -2517,7 +2517,7 @@ export default function Forms() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap');
-        .path-forms-shell{background:#f8f7ff!important;color:#40344b!important}.path-forms-main{background:#f8f7ff!important}.path-forms-page{background:#f8f7ff!important;padding:24px 28px 34px!important;gap:18px!important}.path-forms-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;min-height:156px;padding:25px 27px;border:1px solid #e3d8f2;border-left:2px solid #bda7ef;border-radius:12px;background:linear-gradient(118deg,#fbf9ff,#f2ecff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.path-forms-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.path-forms-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.path-forms-hero h1{margin:9px 0 7px;color:#2c2537;font-family:'Manrope',sans-serif;font-size:31px;font-weight:700;line-height:1.12;letter-spacing:-.045em}.path-forms-hero p{max-width:610px;margin:0;color:#83778b;font-size:13px;line-height:1.4}.path-forms-health{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid #e2d7f2;border-radius:8px;background:#fff;color:#6e45b9}.path-forms-health>i{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;font-style:normal}.path-forms-health span{display:flex;flex-direction:column;gap:2px}.path-forms-health strong{color:#5b4f64;font-family:'Manrope',sans-serif;font-size:10px}.path-forms-health small{color:#9a90a2;font-size:8px}.path-forms-hero-actions{display:flex;align-items:center;gap:10px}.path-forms-hero-cta{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 16px;border:0;border-radius:8px;background:#7c3aed;color:#fff;box-shadow:0 8px 18px rgba(124,58,237,.16);font:700 11px/1 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}.path-forms-hero-cta:hover{background:#6d28d9}.path-review-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.path-review-stat{min-height:108px;padding:18px 19px;border:1px solid #e7e2ec;border-radius:10px;background:#fff;box-shadow:0 8px 23px rgba(57,36,93,.035)}.path-review-stat>span{display:flex;align-items:center;justify-content:space-between;color:#a098a7;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-review-stat>span i{font-style:normal;color:#8b62d2}.path-review-stat strong{display:block;margin-top:10px;color:#40344b;font-family:'Manrope',sans-serif;font-size:29px;line-height:1;letter-spacing:-.06em}.path-review-stat small{display:block;margin-top:6px;color:#9b91a3;font-size:9px}.path-review-stat.risk strong{color:#9a6534}.path-review-stat.complete strong{color:#397d65}.path-review-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 20px;border:1px solid #e6dfee;border-radius:11px;background:#fff}.path-review-toolbar h2{margin:5px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size:18px;letter-spacing:-.04em}.path-review-toolbar h2 span{display:inline-grid;min-width:20px;height:18px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font-family:'DM Sans',sans-serif;font-size:8px;vertical-align:middle}.path-review-toolbar p{margin:5px 0 0;color:#9c92a3;font-size:9px}.path-review-controls{display:flex;align-items:center;gap:9px}.path-review-search{display:flex;width:205px;align-items:center;gap:7px;padding:8px 10px;border:1px solid #ebe5f0;border-radius:7px;color:#8b8292}.path-review-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size:9px}.path-review-filter{min-height:31px;border:1px solid #e8e2ed;border-radius:6px;padding:0 8px;background:#fff;color:#978c9e;font-size:8px;font-weight:700;cursor:pointer}.path-review-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(295px,.72fr);gap:16px;align-items:start}.path-review-ledger,.path-review-detail{overflow:hidden;border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.path-review-table-head,.path-review-row{display:grid;grid-template-columns:minmax(235px,1.35fr) minmax(120px,.68fr) 112px 110px 18px;gap:12px;align-items:center}.path-review-table-head{padding:10px 19px;border-bottom:1px solid #f0edf4;background:#fbf9fd;color:#aaa0ad;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.path-review-row{width:100%;min-height:80px;padding:13px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.path-review-row:hover,.path-review-row.selected{background:#fbf9ff}.path-review-row.selected{box-shadow:inset 2px 0 #7c3aed}.path-review-doc{display:flex;min-width:0;align-items:center;gap:10px}.path-review-doc-icon{display:grid;flex:0 0 auto;width:32px;height:32px;place-items:center;border-radius:9px;background:#eee8fb;color:#7750c4}.path-review-doc-icon.risk{background:#fff1ec;color:#c2745a}.path-review-doc-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.path-review-doc-copy strong{overflow:hidden;color:#51405a;font-family:'Manrope',sans-serif;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small{overflow:hidden;color:#a097a6;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small i{font-style:normal;color:#7a4bc1}.path-review-owner{display:flex;min-width:0;align-items:center;gap:7px;color:#75697d;font-size:9px}.path-review-owner i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#e8f1fc;color:#527fae;font-size:7px;font-style:normal;font-weight:800}.path-review-owner span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-review-status{display:flex;flex-direction:column;gap:5px}.path-review-status b{width:max-content;padding:4px 6px;border-radius:5px;background:#f0e9fc;color:#7543c7;font-size:7px}.path-review-status small{color:#a095a5;font-size:8px}.path-review-sla{display:flex;align-items:center;gap:5px;color:#579176;font-size:8px;font-weight:800}.path-review-sla i{width:6px;height:6px;border-radius:50%;background:currentColor}.path-review-sla.risk{color:#c47a52}.path-review-chevron{color:#a797b0;font-size:15px}.path-review-empty{display:flex;min-height:200px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:25px;color:#9d92a2;text-align:center}.path-review-empty strong{color:#6a5d73;font-family:'Manrope',sans-serif;font-size:12px}.path-review-empty span{font-size:9px}.path-review-detail{padding:19px}.path-review-detail-head{display:flex;align-items:flex-start;justify-content:space-between}.path-review-detail-head h3{margin:6px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size:17px;letter-spacing:-.04em}.path-review-detail p{margin:9px 0 0;color:#9c92a3;font-size:9px;line-height:1.5}.path-review-detail-title{display:flex;align-items:center;gap:10px;margin-top:18px;padding-bottom:15px;border-bottom:1px solid #eee9f1}.path-review-detail-avatar{display:grid;width:31px;height:31px;place-items:center;border-radius:9px;background:#eee7fd;color:#7543c7;font-size:8px;font-weight:800}.path-review-detail-title strong{display:block;color:#51405a;font-family:'Manrope',sans-serif;font-size:10px}.path-review-detail-title span{display:block;margin-top:3px;color:#9c92a3;font-size:8px}.path-review-deadline{margin-top:14px;padding:12px;border:1px solid #e8dff0;border-radius:8px;background:#fbf9ff}.path-review-deadline span{display:block;color:#a198a6;font-size:8px}.path-review-deadline strong{display:block;margin-top:5px;color:#614f6b;font-family:'Manrope',sans-serif;font-size:12px}.path-review-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.path-review-meta span{display:block;color:#aaa0ad;font-size:8px}.path-review-meta strong{display:block;margin-top:4px;overflow:hidden;color:#695b72;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.path-review-focus{display:flex;gap:8px;margin-top:15px;padding:10px;border:1px solid #e3d8f3;border-radius:8px;background:#fbf9ff;color:#7543c7}.path-review-focus i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#eee7fd;font-style:normal}.path-review-focus strong{display:block;font-size:9px}.path-review-focus span{display:block;margin-top:3px;color:#958b9d;font-size:8px;line-height:1.4}.path-review-actions{display:flex;flex-direction:column;gap:7px;margin-top:16px}.path-review-actions button{min-height:32px;border:1px solid #e2d7ee;border-radius:7px;background:#fff;color:#725f7e;font-size:9px;font-weight:800;cursor:pointer}.path-review-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-review-actions button.return{border-color:#edd9c0;background:#fffdf8;color:#a47b3a}@media(max-width:1050px){.path-review-layout{grid-template-columns:1fr}.path-review-detail{min-height:0}}.path-forms-catalog{display:flex;flex-direction:column;gap:15px}.path-forms-catalog-toolbar{display:flex;justify-content:flex-end}.path-forms-catalog-search{display:flex;width:280px;align-items:center;gap:7px;padding:9px 12px;border:1px solid #e6dfee;border-radius:8px;background:#fff;color:#8b8292}.path-forms-catalog-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size:10px}.path-forms-catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:15px}.path-forms-catalog-card{display:flex;flex-direction:column;padding:17px 18px;border:1px solid #e7e2ec;border-radius:11px;background:#fff;box-shadow:0 8px 23px rgba(57,36,93,.035)}.path-forms-catalog-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.path-forms-catalog-status{padding:3px 8px;border-radius:20px;background:#eefaf2;color:#397d65;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.path-forms-catalog-status.inactive{background:#f4f1f7;color:#8b8296}.path-forms-catalog-code{color:#a098a7;font-size:9px;font-weight:700;letter-spacing:.04em}.path-forms-catalog-card h3{margin:12px 0 6px;color:#40344b;font-family:'Manrope',sans-serif;font-size:15px;letter-spacing:-.03em}.path-forms-catalog-card p{flex:1;margin:0;color:#8f8398;font-size:10px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.path-forms-catalog-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:13px;border-top:1px solid #f0edf4;color:#a098a7;font-size:9px;font-weight:700}.path-forms-catalog-meta button{border:0;background:none;padding:0;color:#7c3aed;font-size:10px;font-weight:800;cursor:pointer}.path-forms-catalog-empty{display:flex;min-height:180px;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:25px;border:1px solid #e7e2ec;border-radius:11px;background:#fff;color:#9d92a2;text-align:center}.path-forms-catalog-empty strong{color:#6a5d73;font-family:'Manrope',sans-serif;font-size:12px}.path-forms-catalog-empty span{font-size:9px}
+        .path-forms-shell{background:#f8f7ff!important;color:#40344b!important}.path-forms-main{background:#f8f7ff!important}.path-forms-page{background:#f8f7ff!important;padding:24px 28px 34px!important;gap:18px!important}.path-forms-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;min-height:156px;padding:25px 27px;border:1px solid #e3d8f2;border-left:2px solid #bda7ef;border-radius:12px;background:linear-gradient(118deg,#fbf9ff,#f2ecff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.path-forms-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.path-forms-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.path-forms-hero h1{margin:9px 0 7px;color:#2c2537;font-family:'Manrope',sans-serif;font-size:31px;font-weight:700;line-height:1.12;letter-spacing:-.045em}.path-forms-hero p{max-width:610px;margin:0;color:#83778b;font-size:13px;line-height:1.4}.path-forms-health{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid #e2d7f2;border-radius:8px;background:#fff;color:#6e45b9}.path-forms-health>i{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;font-style:normal}.path-forms-health span{display:flex;flex-direction:column;gap:2px}.path-forms-health strong{color:#5b4f64;font-family:'Manrope',sans-serif;font-size:10px}.path-forms-health small{color:#9a90a2;font-size:8px}.path-forms-hero-actions{display:flex;align-items:center;gap:10px}.path-forms-hero-cta{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 16px;border:0;border-radius:8px;background:#7c3aed;color:#fff;box-shadow:0 8px 18px rgba(124,58,237,.16);font:700 11px/1 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}.path-forms-hero-cta:hover{background:#6d28d9}.path-forms-tabbar{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:#efebff;align-self:flex-start}.path-forms-tabbar button{position:relative;padding:6px 16px;border:0;border-radius:8px;background:transparent;color:#7b7486;font-size:12px;font-weight:700;cursor:pointer}.path-forms-tabbar button.active{background:#fff;color:#6d3bd7;box-shadow:0 1px 4px rgba(109,59,215,.1)}.path-forms-tabbar-badge{margin-left:6px;padding:1px 6px;border-radius:20px;background:#dc2626;color:#fff;font-size:9px;font-weight:800;animation:pulse 1.5s infinite}.path-review-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.path-review-stat{min-height:108px;padding:18px 19px;border:1px solid #e7e2ec;border-radius:10px;background:#fff;box-shadow:0 8px 23px rgba(57,36,93,.035)}.path-review-stat>span{display:flex;align-items:center;justify-content:space-between;color:#a098a7;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-review-stat>span i{font-style:normal;color:#8b62d2}.path-review-stat strong{display:block;margin-top:10px;color:#40344b;font-family:'Manrope',sans-serif;font-size:29px;line-height:1;letter-spacing:-.06em}.path-review-stat small{display:block;margin-top:6px;color:#9b91a3;font-size:9px}.path-review-stat.risk strong{color:#9a6534}.path-review-stat.complete strong{color:#397d65}.path-review-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 20px;border:1px solid #e6dfee;border-radius:11px;background:#fff}.path-review-toolbar h2{margin:5px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size:18px;letter-spacing:-.04em}.path-review-toolbar h2 span{display:inline-grid;min-width:20px;height:18px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font-family:'DM Sans',sans-serif;font-size:8px;vertical-align:middle}.path-review-toolbar p{margin:5px 0 0;color:#9c92a3;font-size:9px}.path-review-controls{display:flex;align-items:center;gap:9px}.path-review-search{display:flex;width:205px;align-items:center;gap:7px;padding:8px 10px;border:1px solid #ebe5f0;border-radius:7px;color:#8b8292}.path-review-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size:9px}.path-review-filter{min-height:31px;border:1px solid #e8e2ed;border-radius:6px;padding:0 8px;background:#fff;color:#978c9e;font-size:8px;font-weight:700;cursor:pointer}.path-review-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(295px,.72fr);gap:16px;align-items:start}.path-review-ledger,.path-review-detail{overflow:hidden;border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.path-review-table-head,.path-review-row{display:grid;grid-template-columns:minmax(235px,1.35fr) minmax(120px,.68fr) 112px 110px 18px;gap:12px;align-items:center}.path-review-table-head{padding:10px 19px;border-bottom:1px solid #f0edf4;background:#fbf9fd;color:#aaa0ad;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.path-review-row{width:100%;min-height:80px;padding:13px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.path-review-row:hover,.path-review-row.selected{background:#fbf9ff}.path-review-row.selected{box-shadow:inset 2px 0 #7c3aed}.path-review-doc{display:flex;min-width:0;align-items:center;gap:10px}.path-review-doc-icon{display:grid;flex:0 0 auto;width:32px;height:32px;place-items:center;border-radius:9px;background:#eee8fb;color:#7750c4}.path-review-doc-icon.risk{background:#fff1ec;color:#c2745a}.path-review-doc-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.path-review-doc-copy strong{overflow:hidden;color:#51405a;font-family:'Manrope',sans-serif;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small{overflow:hidden;color:#a097a6;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small i{font-style:normal;color:#7a4bc1}.path-review-owner{display:flex;min-width:0;align-items:center;gap:7px;color:#75697d;font-size:9px}.path-review-owner i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#e8f1fc;color:#527fae;font-size:7px;font-style:normal;font-weight:800}.path-review-owner span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-review-status{display:flex;flex-direction:column;gap:5px}.path-review-status b{width:max-content;padding:4px 6px;border-radius:5px;background:#f0e9fc;color:#7543c7;font-size:7px}.path-review-status small{color:#a095a5;font-size:8px}.path-review-sla{display:flex;align-items:center;gap:5px;color:#579176;font-size:8px;font-weight:800}.path-review-sla i{width:6px;height:6px;border-radius:50%;background:currentColor}.path-review-sla.risk{color:#c47a52}.path-review-chevron{color:#a797b0;font-size:15px}.path-review-empty{display:flex;min-height:200px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:25px;color:#9d92a2;text-align:center}.path-review-empty strong{color:#6a5d73;font-family:'Manrope',sans-serif;font-size:12px}.path-review-empty span{font-size:9px}.path-review-detail{padding:19px}.path-review-detail-head{display:flex;align-items:flex-start;justify-content:space-between}.path-review-detail-head h3{margin:6px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size:17px;letter-spacing:-.04em}.path-review-detail p{margin:9px 0 0;color:#9c92a3;font-size:9px;line-height:1.5}.path-review-detail-title{display:flex;align-items:center;gap:10px;margin-top:18px;padding-bottom:15px;border-bottom:1px solid #eee9f1}.path-review-detail-avatar{display:grid;width:31px;height:31px;place-items:center;border-radius:9px;background:#eee7fd;color:#7543c7;font-size:8px;font-weight:800}.path-review-detail-title strong{display:block;color:#51405a;font-family:'Manrope',sans-serif;font-size:10px}.path-review-detail-title span{display:block;margin-top:3px;color:#9c92a3;font-size:8px}.path-review-deadline{margin-top:14px;padding:12px;border:1px solid #e8dff0;border-radius:8px;background:#fbf9ff}.path-review-deadline span{display:block;color:#a198a6;font-size:8px}.path-review-deadline strong{display:block;margin-top:5px;color:#614f6b;font-family:'Manrope',sans-serif;font-size:12px}.path-review-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.path-review-meta span{display:block;color:#aaa0ad;font-size:8px}.path-review-meta strong{display:block;margin-top:4px;overflow:hidden;color:#695b72;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.path-review-focus{display:flex;gap:8px;margin-top:15px;padding:10px;border:1px solid #e3d8f3;border-radius:8px;background:#fbf9ff;color:#7543c7}.path-review-focus i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#eee7fd;font-style:normal}.path-review-focus strong{display:block;font-size:9px}.path-review-focus span{display:block;margin-top:3px;color:#958b9d;font-size:8px;line-height:1.4}.path-review-actions{display:flex;flex-direction:column;gap:7px;margin-top:16px}.path-review-actions button{min-height:32px;border:1px solid #e2d7ee;border-radius:7px;background:#fff;color:#725f7e;font-size:9px;font-weight:800;cursor:pointer}.path-review-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-review-actions button.return{border-color:#edd9c0;background:#fffdf8;color:#a47b3a}@media(max-width:1050px){.path-review-layout{grid-template-columns:1fr}.path-review-detail{min-height:0}}.path-forms-catalog{display:flex;flex-direction:column;gap:15px}.path-forms-catalog-toolbar{display:flex;justify-content:flex-end}.path-forms-catalog-search{display:flex;width:280px;align-items:center;gap:7px;padding:9px 12px;border:1px solid #e6dfee;border-radius:8px;background:#fff;color:#8b8292}.path-forms-catalog-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size:10px}.path-forms-catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:15px}.path-forms-catalog-card{display:flex;flex-direction:column;padding:17px 18px;border:1px solid #e7e2ec;border-radius:11px;background:#fff;box-shadow:0 8px 23px rgba(57,36,93,.035)}.path-forms-catalog-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.path-forms-catalog-status{padding:3px 8px;border-radius:20px;background:#eefaf2;color:#397d65;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.path-forms-catalog-status.inactive{background:#f4f1f7;color:#8b8296}.path-forms-catalog-code{color:#a098a7;font-size:9px;font-weight:700;letter-spacing:.04em}.path-forms-catalog-card h3{margin:12px 0 6px;color:#40344b;font-family:'Manrope',sans-serif;font-size:15px;letter-spacing:-.03em}.path-forms-catalog-card p{flex:1;margin:0;color:#8f8398;font-size:10px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.path-forms-catalog-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:13px;border-top:1px solid #f0edf4;color:#a098a7;font-size:9px;font-weight:700}.path-forms-catalog-meta button{border:0;background:none;padding:0;color:#7c3aed;font-size:10px;font-weight:800;cursor:pointer}.path-forms-catalog-empty{display:flex;min-height:180px;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:25px;border:1px solid #e7e2ec;border-radius:11px;background:#fff;color:#9d92a2;text-align:center}.path-forms-catalog-empty strong{color:#6a5d73;font-family:'Manrope',sans-serif;font-size:12px}.path-forms-catalog-empty span{font-size:9px}
         @media(max-width:760px){.path-forms-page{padding:16px 14px 26px!important}.path-forms-hero{align-items:flex-start;flex-direction:column;padding:22px 18px}.path-forms-hero h1{font-size:27px}.path-forms-hero-actions{width:100%;flex-direction:column;align-items:stretch}.path-review-stats{grid-template-columns:1fr 1fr;gap:9px}.path-review-toolbar{align-items:stretch;flex-direction:column}.path-review-controls{flex-wrap:wrap}.path-review-search{width:100%}.path-review-table-head{display:none}.path-review-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.path-review-owner{grid-column:1}.path-review-status{grid-column:2;grid-row:1}.path-review-sla,.path-review-chevron{display:none}.path-forms-catalog-toolbar{justify-content:stretch}.path-forms-catalog-search{width:100%}.path-forms-catalog-grid{grid-template-columns:1fr}}
         * { box-sizing: border-box; }
         input, select, textarea { font-family: 'DM Sans', sans-serif; }
@@ -2669,6 +2669,46 @@ export default function Forms() {
             gap: 24,
           }}
         >
+          {/* Persistent tab bar — always visible, regardless of which
+              tab's header/hero is currently shown below it. */}
+          <div className="path-forms-tabbar">
+            {!isProgramChair && (
+              <button
+                type="button"
+                className={activeTab === "submit" ? "active" : ""}
+                onClick={() => setActiveTab("submit")}
+              >
+                Start a submission
+              </button>
+            )}
+            <button
+              type="button"
+              className={
+                activeTab === "review" || activeTab === "history"
+                  ? "active"
+                  : ""
+              }
+              onClick={() => {
+                setActiveTab(isProgramChair ? "review" : "history");
+                setPendingBadge(0);
+              }}
+            >
+              {isProgramChair ? "Review Queue" : "My Submissions"}
+              {isProgramChair && pendingBadge > 0 && (
+                <span className="path-forms-tabbar-badge">
+                  {pendingBadge}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              className={activeTab === "catalog" ? "active" : ""}
+              onClick={() => setActiveTab("catalog")}
+            >
+              Form Catalog
+            </button>
+          </div>
+
           {isProgramChair && activeTab === "review" && (
             <>
               <section className="path-forms-hero">
@@ -2783,7 +2823,7 @@ export default function Forms() {
                     : "Upload and submit student forms for program chair review."}
               </p>
             </div>
-            {activeTab === "submit" && !isProgramChair ? (
+            {activeTab === "submit" && !isProgramChair && (
               <aside className="path-start-traceability">
                 <span>
                   <Icon.Shield />
@@ -2796,105 +2836,6 @@ export default function Forms() {
                   </small>
                 </div>
               </aside>
-            ) : (
-              /* Tabs */
-              <div
-                style={{
-                  display: "flex",
-                  gap: 2,
-                  background: "#efebff",
-                  borderRadius: 10,
-                  padding: 3,
-                }}
-              >
-                {!isProgramChair && (
-                  <button
-                    onClick={() => setActiveTab("submit")}
-                    style={{
-                      padding: "6px 16px",
-                      borderRadius: 8,
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      background:
-                        activeTab === "submit" ? "white" : "transparent",
-                      color: activeTab === "submit" ? "#6d3bd7" : "#7b7486",
-                      boxShadow:
-                        activeTab === "submit"
-                          ? "0 1px 4px rgba(109,59,215,0.1)"
-                          : "none",
-                    }}
-                  >
-                    Start a submission
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    setActiveTab(isProgramChair ? "review" : "history");
-                    setPendingBadge(0);
-                  }}
-                  style={{
-                    padding: "6px 16px",
-                    borderRadius: 8,
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background:
-                      activeTab === "review" || activeTab === "history"
-                        ? "white"
-                        : "transparent",
-                    color:
-                      activeTab === "review" || activeTab === "history"
-                        ? "#6d3bd7"
-                        : "#7b7486",
-                    boxShadow:
-                      activeTab === "review" || activeTab === "history"
-                        ? "0 1px 4px rgba(109,59,215,0.1)"
-                        : "none",
-                    position: "relative",
-                  }}
-                >
-                  {isProgramChair ? "Review Queue" : "My Submissions"}
-                  {/* Inline badge on the tab button */}
-                  {isProgramChair && pendingBadge > 0 && (
-                    <span
-                      style={{
-                        marginLeft: 6,
-                        background: "#dc2626",
-                        color: "white",
-                        borderRadius: 20,
-                        fontSize: 9,
-                        fontWeight: 800,
-                        padding: "1px 6px",
-                        animation: "pulse 1.5s infinite",
-                      }}
-                    >
-                      {pendingBadge}
-                    </span>
-                  )}
-                </button>
-                <button
-                  onClick={() => setActiveTab("catalog")}
-                  style={{
-                    padding: "6px 16px",
-                    borderRadius: 8,
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: activeTab === "catalog" ? "white" : "transparent",
-                    color: activeTab === "catalog" ? "#6d3bd7" : "#7b7486",
-                    boxShadow:
-                      activeTab === "catalog"
-                        ? "0 1px 4px rgba(109,59,215,0.1)"
-                        : "none",
-                  }}
-                >
-                  Form Catalog
-                </button>
-              </div>
             )}
           </div>
 
