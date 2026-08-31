@@ -1834,8 +1834,9 @@ export default function UserManagement() {
         .path-um-page { color:#51455b; }
         .path-um-page, .path-um-page button, .path-um-page input, .path-um-page select { font-family:'DM Sans',sans-serif; }
         .path-um-main { background:#f8f7ff; }
-        .path-um-tabs { max-width:1500px; width:100%; margin:0 auto; padding-left:48px; padding-right:48px; }
-        .path-um-content { max-width:1500px; width:100%; margin:0 auto; padding-left:48px; padding-right:48px; }
+        .path-um-tabs { max-width:none; width:100%; margin:0 auto; padding-left:48px; padding-right:48px; }
+        .path-um-content { max-width:none; width:100%; margin:0 auto; padding-left:48px; padding-right:48px; }
+        @media (min-width:1100px) { .path-um-tabs, .path-um-content { padding-left:clamp(48px,5vw,84px); padding-right:clamp(48px,5vw,84px); } }
         .path-um-hero { display:flex; align-items:center; justify-content:space-between; gap:28px; min-height:148px; padding:29px 24px; border:1px solid #e6ddf5; border-left:2px solid #c4b5fd; border-radius:12px; background:linear-gradient(112deg,#fcfaff,#f5efff); box-shadow:0 12px 30px rgba(57,36,93,.04); }
         .path-um-kicker { display:flex; align-items:center; gap:8px; margin-bottom:11px; color:#8e8499; font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
         .path-um-kicker::before { width:6px; height:6px; border-radius:50%; background:#8b5cf6; content:''; box-shadow:0 0 0 4px #eee8ff; }
