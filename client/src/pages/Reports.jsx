@@ -25,7 +25,7 @@ const PATH_REPORTS_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
   .path-reports-shell { background:#f8f7ff !important; color:#4c3e56 !important; }
   .path-reports-main { background:#f8f7ff !important; }
-  .path-reports-content { width:min(1480px,100%); margin:0 auto; padding:28px 30px 42px !important; gap:18px !important; }
+  .path-reports-content { width:100%; margin:0 auto; padding:28px 30px 42px !important; gap:18px !important; }
   .path-reports-hero { min-height:148px; padding:28px 24px !important; border:1px solid #e4dbf2; border-left:2px solid #c4b5fd; border-radius:12px; background:linear-gradient(112deg,#fcfaff 0%,#f5efff 100%); }
   .path-reports-hero h1 { margin:9px 0 7px !important; color:#302638 !important; font-family:'Manrope',sans-serif !important; font-size:clamp(30px,4vw,43px) !important; letter-spacing:-.06em; }
   .path-reports-hero p { color:#91859d !important; font-size:12px !important; }
