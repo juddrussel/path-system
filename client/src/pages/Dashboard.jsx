@@ -3325,12 +3325,6 @@ export default function Dashboard() {
       `}</style>
       <style>{`
         html body .path-overview-shell.path-dashboard .path-dashboard-main .dashboard-workspace-canvas.path-content {
-          padding-left: 64px !important;
-        }
-        html body .path-overview-shell.path-dashboard .path-dashboard-main .faculty-dashboard-canvas {
-          margin-left: 64px !important;
-        }
-        html body .path-overview-shell.path-dashboard .path-dashboard-main .dashboard-workspace-canvas.path-content {
           max-width: none !important;
           margin: 0 !important;
         }
