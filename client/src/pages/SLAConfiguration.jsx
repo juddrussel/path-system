@@ -989,6 +989,7 @@ export default function SLAConfiguration() {
         @media (max-width:700px) { .sla-config-hero { align-items:flex-start !important; flex-direction:column !important; gap:18px !important; padding:22px 18px !important; } .sla-policy-status { width:100% !important; min-width:0 !important; margin-left:0 !important; } .sla-config-hero h1 { font-size:26px !important; } }
       /* Final PATH sizing scale: match the canonical SLA Configuration page. */
         .sla-config-view { width:100% !important; max-width:none !important; margin:0 auto !important; padding:16px 0 48px !important; }
+        @media (min-width:1100px) { .sla-config-view { padding-left:clamp(48px,5vw,84px) !important; padding-right:clamp(48px,5vw,84px) !important; } }
         .sla-config-hero { width:100% !important; min-height:148px !important; height:148px !important; padding:29px 24px 27px !important; margin:0 0 22px !important; }
         .sla-document-stats { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:12px !important; margin:0 0 18px !important; }
         .sla-document-stats article { min-height:116px !important; height:116px !important; padding:18px 17px !important; }
