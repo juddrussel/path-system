@@ -406,7 +406,7 @@ export default function Sidebar({ activePage }) {
       <aside className="path-sidebar" aria-label="Main navigation">
         {/* Brand */}
         <div className="path-sidebar__brand">
-          <img src="/src/assets/logo.png" alt="DS PATH Logo" className="path-sidebar__logo" />
+          <img src={logoImg} alt="DS PATH Logo" className="path-sidebar__logo" />
           <span>
             <span className="path-sidebar__name">DS PATH</span>
             <span className="path-sidebar__subname">Processing &amp; Tracking Hub</span>
