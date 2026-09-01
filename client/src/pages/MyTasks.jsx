@@ -368,7 +368,7 @@ function Badge({ label }) {
         display: "inline-block",
         padding: "2px 8px",
         borderRadius: 20,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: "bold",
       }}
     >
@@ -412,10 +412,10 @@ function TimelineItem({ label, value, sub, dot = "#7c3aed", isLast }) {
         )}
       </div>
       <div>
-        <div style={{ fontSize: 11, color: "#888" }}>{label}</div>
+        <div style={{ fontSize: 13, color: "#888" }}>{label}</div>
         <div
           style={{
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: "bold",
             color: "#111",
             marginTop: 1,
@@ -424,7 +424,7 @@ function TimelineItem({ label, value, sub, dot = "#7c3aed", isLast }) {
           {value}
         </div>
         {sub && (
-          <div style={{ fontSize: 10, color: "#aaa", marginTop: 1 }}>{sub}</div>
+          <div style={{ fontSize: 12, color: "#aaa", marginTop: 1 }}>{sub}</div>
         )}
       </div>
     </div>
@@ -463,7 +463,7 @@ function AttachCard({ name, size }) {
       <div style={{ minWidth: 0 }}>
         <div
           style={{
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: "bold",
             color: "#111",
             whiteSpace: "nowrap",
@@ -473,7 +473,7 @@ function AttachCard({ name, size }) {
         >
           {name}
         </div>
-        <div style={{ fontSize: 10, color: "#aaa" }}>{size}</div>
+        <div style={{ fontSize: 12, color: "#aaa" }}>{size}</div>
       </div>
     </div>
   );
@@ -501,7 +501,7 @@ function Toast({ toasts, onDismiss }) {
             border: `1px solid ${t.type === "error" ? "#fecaca" : "#e5e7eb"}`,
             borderRadius: 10,
             padding: "10px 14px",
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 600,
             boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
             minWidth: 260,
@@ -512,13 +512,13 @@ function Toast({ toasts, onDismiss }) {
             animation: "slideIn 0.2s ease",
           }}
         >
-          <span style={{ fontSize: 16, flexShrink: 0 }}>
+          <span style={{ fontSize: 17, flexShrink: 0 }}>
             {t.type === "error" ? "⚠️" : "🗓️"}
           </span>
           <div style={{ flex: 1 }}>
             <div style={{ marginBottom: 1 }}>{t.title}</div>
             {t.body && (
-              <div style={{ fontSize: 11, opacity: 0.75, fontWeight: 400 }}>
+              <div style={{ fontSize: 13, opacity: 0.75, fontWeight: 400 }}>
                 {t.body}
               </div>
             )}
@@ -649,35 +649,35 @@ function PathTasksWorkspace({
     <div className="path-task-shell" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-        .path-task-date,.path-assigned-date{font-size:9px!important}.path-task-date::-webkit-datetime-edit,.path-task-date::-webkit-datetime-edit-fields-wrapper,.path-task-date::-webkit-datetime-edit-text,.path-task-date::-webkit-datetime-edit-month-field,.path-task-date::-webkit-datetime-edit-day-field,.path-task-date::-webkit-datetime-edit-year-field,.path-assigned-date::-webkit-datetime-edit,.path-assigned-date::-webkit-datetime-edit-fields-wrapper,.path-assigned-date::-webkit-datetime-edit-text,.path-assigned-date::-webkit-datetime-edit-month-field,.path-assigned-date::-webkit-datetime-edit-day-field,.path-assigned-date::-webkit-datetime-edit-year-field{font-size:9px!important}
-        .path-task-shell .path-task-support-head .path-task-text-btn{font-size:9px!important;line-height:1.1!important}
+        .path-task-date,.path-assigned-date{font-size: 12px!important}.path-task-date::-webkit-datetime-edit,.path-task-date::-webkit-datetime-edit-fields-wrapper,.path-task-date::-webkit-datetime-edit-text,.path-task-date::-webkit-datetime-edit-month-field,.path-task-date::-webkit-datetime-edit-day-field,.path-task-date::-webkit-datetime-edit-year-field,.path-assigned-date::-webkit-datetime-edit,.path-assigned-date::-webkit-datetime-edit-fields-wrapper,.path-assigned-date::-webkit-datetime-edit-text,.path-assigned-date::-webkit-datetime-edit-month-field,.path-assigned-date::-webkit-datetime-edit-day-field,.path-assigned-date::-webkit-datetime-edit-year-field{font-size: 12px!important}
+        .path-task-shell .path-task-support-head .path-task-text-btn{font-size: 12px!important;line-height:1.1!important}
         /* PATH typography: editorial Manrope display with compact DM Sans operational UI. */
         .path-task-shell{font-family:'DM Sans',sans-serif;font-weight:500;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
         .path-task-shell .path-task-kicker,.path-task-shell .path-task-section-label,.path-task-shell .path-task-role>span,.path-task-shell .path-task-stat small,.path-task-shell .path-task-table-head,.path-task-shell .path-task-detail-grid small,.path-task-shell .path-task-detail-section h3{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:.115em;line-height:1.12}
-        .path-task-shell .path-task-hero h1{font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.065em;line-height:1.07}.path-task-shell .path-task-hero p{font-size:10px;font-weight:500;letter-spacing:-.012em;line-height:1.55}.path-task-shell .path-task-hero-card small{font-weight:800;letter-spacing:.105em}.path-task-shell .path-task-hero-card strong{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
-        .path-task-shell .path-task-role-pill{font-size:9px;font-weight:800;letter-spacing:-.01em}.path-task-shell .path-task-stat strong{font-family:'Manrope',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.075em;line-height:.98}.path-task-shell .path-task-stat em{font-size:8px;font-weight:500;line-height:1.32}
-        .path-task-shell .path-task-next h2,.path-task-shell .path-task-health h2,.path-task-shell .path-task-support-head h2,.path-task-shell .path-task-register-head h2,.path-task-shell .path-task-detail-head h2{font-family:'Manrope',sans-serif;font-weight:800;letter-spacing:-.055em;line-height:1.16}.path-task-shell .path-task-next h2,.path-task-shell .path-task-health h2{font-size:15px}.path-task-shell .path-task-support-head h2{font-size:14px}.path-task-shell .path-task-register-head h2{font-size:20px}.path-task-shell .path-task-detail-head h2{font-size:19px}
-        .path-task-shell .path-task-next p,.path-task-shell .path-task-health p,.path-task-shell .path-task-note,.path-task-shell .path-task-health-row,.path-task-shell .path-task-detail-note,.path-task-shell .path-task-comment p{font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:-.012em}.path-task-shell .path-task-note{line-height:1.45}.path-task-shell .path-task-primary,.path-task-shell .path-task-text-btn,.path-task-shell .path-task-badge,.path-task-shell .path-task-sla,.path-task-shell .path-task-page-btn,.path-task-shell .path-task-detail-actions button{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:-.012em}.path-task-shell .path-task-primary{font-size:9px;font-weight:700;line-height:1}
+        .path-task-shell .path-task-hero h1{font-family:'Manrope',sans-serif;font-size: 28px;font-weight:800;letter-spacing:-.065em;line-height:1.07}.path-task-shell .path-task-hero p{font-size: 12px;font-weight:500;letter-spacing:-.012em;line-height:1.55}.path-task-shell .path-task-hero-card small{font-weight:800;letter-spacing:.105em}.path-task-shell .path-task-hero-card strong{font-family:'DM Sans',sans-serif;font-size: 13px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+        .path-task-shell .path-task-role-pill{font-size: 12px;font-weight:800;letter-spacing:-.01em}.path-task-shell .path-task-stat strong{font-family:'Manrope',sans-serif;font-size: 26px;font-weight:800;letter-spacing:-.075em;line-height:.98}.path-task-shell .path-task-stat em{font-size: 11px;font-weight:500;line-height:1.32}
+        .path-task-shell .path-task-next h2,.path-task-shell .path-task-health h2,.path-task-shell .path-task-support-head h2,.path-task-shell .path-task-register-head h2,.path-task-shell .path-task-detail-head h2{font-family:'Manrope',sans-serif;font-weight:800;letter-spacing:-.055em;line-height:1.16}.path-task-shell .path-task-next h2,.path-task-shell .path-task-health h2{font-size: 16px}.path-task-shell .path-task-support-head h2{font-size: 15px}.path-task-shell .path-task-register-head h2{font-size: 21px}.path-task-shell .path-task-detail-head h2{font-size: 20px}
+        .path-task-shell .path-task-next p,.path-task-shell .path-task-health p,.path-task-shell .path-task-note,.path-task-shell .path-task-health-row,.path-task-shell .path-task-detail-note,.path-task-shell .path-task-comment p{font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:-.012em}.path-task-shell .path-task-note{line-height:1.45}.path-task-shell .path-task-primary,.path-task-shell .path-task-text-btn,.path-task-shell .path-task-badge,.path-task-shell .path-task-sla,.path-task-shell .path-task-page-btn,.path-task-shell .path-task-detail-actions button{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:-.012em}.path-task-shell .path-task-primary{font-size: 12px;font-weight:700;line-height:1}
         .path-task-shell .path-task-copy strong,.path-task-shell .path-task-row-main strong,.path-task-shell .path-task-detail-grid strong,.path-task-shell .path-task-attachment strong,.path-task-shell .path-task-comment strong{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:-.018em;line-height:1.26}.path-task-shell .path-task-copy small,.path-task-shell .path-task-row-main small,.path-task-shell .path-task-detail-grid small,.path-task-shell .path-task-attachment small{font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:-.01em;line-height:1.28}
-        .path-task-shell .path-task-controls select,.path-task-shell .path-task-date,.path-task-shell .path-task-search input,.path-task-shell .path-task-composer textarea{font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:-.01em}.path-task-shell .path-task-table-head{font-size:8px}.path-task-shell .path-task-table-row{font-family:'DM Sans',sans-serif}.path-task-shell .path-task-deadline strong{font-weight:700;letter-spacing:-.01em}.path-task-shell .path-task-deadline small{font-weight:800;letter-spacing:-.01em}
+        .path-task-shell .path-task-controls select,.path-task-shell .path-task-date,.path-task-shell .path-task-search input,.path-task-shell .path-task-composer textarea{font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:-.01em}.path-task-shell .path-task-table-head{font-size: 11px}.path-task-shell .path-task-table-row{font-family:'DM Sans',sans-serif}.path-task-shell .path-task-deadline strong{font-weight:700;letter-spacing:-.01em}.path-task-shell .path-task-deadline small{font-weight:800;letter-spacing:-.01em}
         .path-task-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#40334a;font-family:'DM Sans',sans-serif}
         .path-task-shell *{box-sizing:border-box}.path-task-shell button,.path-task-shell input,.path-task-shell select,.path-task-shell textarea{font:inherit}
         .path-task-canvas{display:flex;flex:1;min-width:0;height:100vh;flex-direction:column;overflow:hidden;background:#f8f7ff}
         .path-task-body{flex:1;overflow:auto;padding:28px 46px 30px}.path-task-inner{max-width:none;margin:0 auto}
         .path-task-hero{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:24px 26px;border-radius:15px;background:linear-gradient(112deg,#31205e 0%,#482576 55%,#7044b4 100%);color:white;box-shadow:0 14px 30px rgba(72,37,118,.16)}
-        .path-task-kicker{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#d8c8ff}.path-task-kicker i{display:block;width:6px;height:6px;border-radius:50%;background:#c4b5fd}
-        .path-task-hero h1{max-width:620px;margin:8px 0 5px;font-family:'Manrope',sans-serif;font-size:28px;letter-spacing:-.06em;line-height:1.12}.path-task-hero p{margin:0;color:#ddd4ee;font-size:11px;line-height:1.55}
-        .path-task-hero-card{display:grid;gap:5px;min-width:190px;padding:13px 15px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.08);text-align:left;color:inherit;cursor:pointer}.path-task-hero-card small{font-size:8px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#d8c8ff}.path-task-hero-card strong{font-size:11px}.path-task-hero-card span{justify-self:end;margin-top:-20px;color:#e7dcff}
-        .path-task-role{display:flex;align-items:center;justify-content:space-between;margin:22px 0 14px}.path-task-role span{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#91819b}.path-task-role-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #e2d9ed;border-radius:8px;background:#fff;color:#6c4e93;font-size:9px;font-weight:800}
-        .path-task-stats{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:14px;overflow:hidden;border:1px solid #e5deed;border-radius:13px;background:#fff}.path-task-stat{display:flex;align-items:flex-start;justify-content:space-between;min-height:94px;padding:16px 17px;border-right:1px solid #ebe5f0}.path-task-stat:last-child{border-right:0}.path-task-stat small{display:block;color:#93869e;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-stat strong{display:block;margin-top:7px;color:#40334a;font-family:'Manrope',sans-serif;font-size:25px;letter-spacing:-.06em}.path-task-stat em{display:block;margin-top:5px;color:#a195aa;font-size:8px;font-style:normal}.path-task-stat i{display:grid;width:27px;height:27px;place-items:center;border-radius:8px;background:#f1ebfb;color:#713cce;font-style:normal}.path-task-stat.alert i{background:#fff3e6;color:#bd6a4e}.path-task-stat.success i{background:#eaf7f1;color:#4b9479}
-        .path-task-focus{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.75fr);overflow:hidden;border:1px solid #e1d9e9;border-radius:13px;background:#fff}.path-task-next,.path-task-health{padding:18px 20px}.path-task-next{background:#fcfbff}.path-task-health{border-left:1px solid #ece5f0}.path-task-section-label{display:flex;align-items:center;gap:6px;color:#9b8ca6;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.path-task-section-label i{width:5px;height:5px;border-radius:50%;background:#c4b5fd}.path-task-next-title{display:flex;align-items:center;gap:10px;margin:13px 0}.path-task-file{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;flex:0 0 auto}.path-task-file.high{background:#fff0ed;color:#c76c58}.path-task-file.low{background:#e8f5ef;color:#4d937b}.path-task-next h2,.path-task-health h2{margin:0;color:#4a3b56;font-family:'Manrope',sans-serif;font-size:15px;letter-spacing:-.04em}.path-task-next p,.path-task-health p{margin:4px 0 0;color:#988b9f;font-size:9px;line-height:1.55}.path-task-note{margin:9px 0;padding:10px 11px;border:1px solid #eee3bd;border-radius:7px;background:#fffcf4;color:#927f60;font-size:9px}.path-task-primary{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:37px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 7px 13px rgba(124,58,237,.18)}.path-task-primary:hover{background:#6d28d9}.path-task-health h2{margin-top:12px}.path-task-health-row{display:flex;justify-content:space-between;gap:8px;margin-top:17px;padding-top:12px;border-top:1px solid #eee8f0;color:#766984;font-size:8px}.path-task-health-row strong{color:#5c4e69}.path-task-health-row span:last-child{color:#b77567}
-        .path-task-support{margin:12px 0;border:1px solid #e5deeb;border-radius:12px;background:#fff;overflow:hidden}.path-task-support-head{display:flex;align-items:flex-end;justify-content:space-between;padding:13px 17px;border-bottom:1px solid #eee8f1}.path-task-support-head h2{margin:5px 0 0;font-family:'Manrope',sans-serif;font-size:14px;letter-spacing:-.04em}.path-task-text-btn{display:inline-flex;align-items:center;gap:5px;border:0;background:none;color:#713dca;font-size:9px;font-weight:800;cursor:pointer}.path-task-support-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto 13px;align-items:center;gap:9px;width:100%;min-height:50px;padding:0 17px;border:0;border-top:1px solid #f1edf4;background:transparent;text-align:left;cursor:pointer}.path-task-support-row:hover{background:#fcfbff}.path-task-copy{min-width:0}.path-task-copy strong,.path-task-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-copy strong{color:#574863;font-size:10px;font-weight:800}.path-task-copy small{margin-top:3px;color:#9b8e9f;font-size:8px}.path-task-badge{padding:4px 7px;border-radius:5px;background:#f1edf5;color:#796a85;font-size:8px;font-weight:800;white-space:nowrap}.path-task-badge.revision{background:#fff2cf;color:#97680d}.path-task-badge.review{background:#eee7fc;color:#7447bc}.path-task-badge.complete{background:#e7f6ef;color:#47836d}.path-task-sla{color:#6e9980;font-size:8px;font-weight:800;white-space:nowrap}.path-task-sla.risk{color:#bb7164}
-        .path-task-register{margin-top:18px}.path-task-register-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px}.path-task-register-head h2{margin:5px 0 0;color:#44354e;font-family:'Manrope',sans-serif;font-size:20px;letter-spacing:-.05em}.path-task-register-head h2 b{display:inline-grid;min-width:20px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;font-size:9px;vertical-align:middle}.path-task-register-head > span{color:#91859e;font-size:9px}
-        .path-task-controls{display:flex;align-items:center;gap:8px;margin-bottom:10px}.path-task-search{display:flex;flex:1;align-items:center;gap:8px;min-width:180px;padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-task-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size:10px}.path-task-controls select,.path-task-date{height:34px;max-width:145px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#6d5f77;font-size:9px;outline:0}.path-task-table{overflow:hidden;border:1px solid #e3dce9;border-radius:12px;background:#fff}.path-task-table-head,.path-task-table-row{display:grid;grid-template-columns:minmax(240px,1.45fr) minmax(100px,.6fr) minmax(126px,.66fr) minmax(110px,.55fr);align-items:center;gap:14px}.path-task-table-head{padding:10px 17px;background:#faf8fc;color:#9b8fa4;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-table-row{min-height:66px;padding:0 17px;border-top:1px solid #f0ecf3;cursor:pointer}.path-task-table-row:hover,.path-task-table-row.active{background:#fdfbff}.path-task-table-row.active{box-shadow:inset 3px 0 #7c3aed}.path-task-row-main{display:grid;grid-template-columns:27px minmax(0,1fr) 13px;align-items:center;gap:8px;min-width:0}.path-task-row-main strong,.path-task-row-main small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-row-main strong{color:#50415c;font-size:10px;font-weight:800}.path-task-row-main small{margin-top:3px;color:#968a9d;font-size:8px}.path-task-deadline strong,.path-task-deadline small{display:block}.path-task-deadline strong{color:#6a5b76;font-size:9px}.path-task-deadline small{margin-top:3px;color:#6e9b80;font-size:8px;font-weight:800}.path-task-deadline small.late{color:#b96e62}.path-task-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 3px;color:#93879d;font-size:9px}.path-task-handoff-footer{margin-top:10px;padding:12px 14px;border-top:1px solid #e9e3ee;color:#8e8299}.path-task-handoff-footer .path-task-text-btn{font-size:9px}.path-task-page-btn{display:inline-grid;width:25px;height:25px;place-items:center;border:1px solid #e2d9eb;border-radius:6px;background:#fff;color:#725c87;cursor:pointer}.path-task-page-btn:disabled{cursor:not-allowed;opacity:.4}
-        .path-task-detail{position:fixed;z-index:55;top:0;right:0;display:flex;width:min(485px,94vw);height:100vh;flex-direction:column;border-left:1px solid #e3dbea;background:#fff;box-shadow:-18px 0 45px rgba(48,30,75,.17)}.path-task-detail-head{display:flex;align-items:flex-start;justify-content:space-between;padding:21px 22px 16px;border-bottom:1px solid #eee9f1}.path-task-detail-head small{color:#8067a5;font-size:9px;font-weight:800}.path-task-detail-head h2{margin:7px 0 0;color:#44354f;font-family:'Manrope',sans-serif;font-size:19px;letter-spacing:-.05em}.path-task-icon-btn{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e5deec;border-radius:7px;background:#fff;color:#7f6e8d;cursor:pointer}.path-task-detail-scroll{flex:1;overflow:auto;padding:18px 22px}.path-task-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}.path-task-detail-grid div{padding:10px;border:1px solid #eee8f2;border-radius:8px;background:#fcfbfd}.path-task-detail-grid small,.path-task-detail-grid strong{display:block}.path-task-detail-grid small{color:#9b8fa2;font-size:8px;font-weight:800;text-transform:uppercase}.path-task-detail-grid strong{margin-top:5px;color:#594967;font-size:10px}.path-task-detail-section{margin-top:18px}.path-task-detail-section h3{margin:0 0 9px;color:#8b7e96;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-task-detail-note{margin:0;color:#685a74;font-size:10px;line-height:1.6}.path-task-attachment{display:flex;align-items:center;gap:9px;width:100%;margin-top:7px;padding:9px;border:1px solid #e8e2ed;border-radius:8px;background:#fff;text-align:left;cursor:pointer}.path-task-attachment strong,.path-task-attachment small{display:block}.path-task-attachment strong{color:#584a64;font-size:10px}.path-task-attachment small{margin-top:3px;color:#927e9a;font-size:8px}.path-task-comment{padding:9px 0;border-bottom:1px solid #f1edf4}.path-task-comment strong{color:#5a4b65;font-size:9px}.path-task-comment p{margin:4px 0 0;color:#7c6e86;font-size:9px;line-height:1.5}.path-task-composer{margin-top:11px;border:1px solid #e3dbe9;border-radius:8px;overflow:hidden}.path-task-composer textarea{display:block;width:100%;min-height:54px;padding:9px;border:0;outline:0;resize:vertical;color:#55445f;font-size:10px}.path-task-composer-actions{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-top:1px solid #eee9f1;background:#faf8fc}.path-task-composer-actions button{border:0;background:transparent;color:#713dcc;font-size:9px;font-weight:800;cursor:pointer}.path-task-detail-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:13px 22px;border-top:1px solid #eee9f1}.path-task-detail-actions button{min-height:34px;border:1px solid #dfd5e8;border-radius:8px;background:#fff;color:#6a5877;font-size:9px;font-weight:800;cursor:pointer}.path-task-detail-actions .main{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-task-detail-actions .danger{border-color:#f0c9c4;color:#b65b52}
+        .path-task-kicker{display:flex;align-items:center;gap:7px;font-size: 12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#d8c8ff}.path-task-kicker i{display:block;width:6px;height:6px;border-radius:50%;background:#c4b5fd}
+        .path-task-hero h1{max-width:620px;margin:8px 0 5px;font-family:'Manrope',sans-serif;font-size: 28px;letter-spacing:-.06em;line-height:1.12}.path-task-hero p{margin:0;color:#ddd4ee;font-size: 13px;line-height:1.55}
+        .path-task-hero-card{display:grid;gap:5px;min-width:190px;padding:13px 15px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.08);text-align:left;color:inherit;cursor:pointer}.path-task-hero-card small{font-size: 11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#d8c8ff}.path-task-hero-card strong{font-size: 13px}.path-task-hero-card span{justify-self:end;margin-top:-20px;color:#e7dcff}
+        .path-task-role{display:flex;align-items:center;justify-content:space-between;margin:22px 0 14px}.path-task-role span{font-size: 12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#91819b}.path-task-role-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #e2d9ed;border-radius:8px;background:#fff;color:#6c4e93;font-size: 12px;font-weight:800}
+        .path-task-stats{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:14px;overflow:hidden;border:1px solid #e5deed;border-radius:13px;background:#fff}.path-task-stat{display:flex;align-items:flex-start;justify-content:space-between;min-height:94px;padding:16px 17px;border-right:1px solid #ebe5f0}.path-task-stat:last-child{border-right:0}.path-task-stat small{display:block;color:#93869e;font-size: 11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-stat strong{display:block;margin-top:7px;color:#40334a;font-family:'Manrope',sans-serif;font-size: 25px;letter-spacing:-.06em}.path-task-stat em{display:block;margin-top:5px;color:#a195aa;font-size: 11px;font-style:normal}.path-task-stat i{display:grid;width:27px;height:27px;place-items:center;border-radius:8px;background:#f1ebfb;color:#713cce;font-style:normal}.path-task-stat.alert i{background:#fff3e6;color:#bd6a4e}.path-task-stat.success i{background:#eaf7f1;color:#4b9479}
+        .path-task-focus{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.75fr);overflow:hidden;border:1px solid #e1d9e9;border-radius:13px;background:#fff}.path-task-next,.path-task-health{padding:18px 20px}.path-task-next{background:#fcfbff}.path-task-health{border-left:1px solid #ece5f0}.path-task-section-label{display:flex;align-items:center;gap:6px;color:#9b8ca6;font-size: 11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.path-task-section-label i{width:5px;height:5px;border-radius:50%;background:#c4b5fd}.path-task-next-title{display:flex;align-items:center;gap:10px;margin:13px 0}.path-task-file{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;flex:0 0 auto}.path-task-file.high{background:#fff0ed;color:#c76c58}.path-task-file.low{background:#e8f5ef;color:#4d937b}.path-task-next h2,.path-task-health h2{margin:0;color:#4a3b56;font-family:'Manrope',sans-serif;font-size: 16px;letter-spacing:-.04em}.path-task-next p,.path-task-health p{margin:4px 0 0;color:#988b9f;font-size: 12px;line-height:1.55}.path-task-note{margin:9px 0;padding:10px 11px;border:1px solid #eee3bd;border-radius:7px;background:#fffcf4;color:#927f60;font-size: 12px}.path-task-primary{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:37px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size: 12px;font-weight:800;cursor:pointer;box-shadow:0 7px 13px rgba(124,58,237,.18)}.path-task-primary:hover{background:#6d28d9}.path-task-health h2{margin-top:12px}.path-task-health-row{display:flex;justify-content:space-between;gap:8px;margin-top:17px;padding-top:12px;border-top:1px solid #eee8f0;color:#766984;font-size: 11px}.path-task-health-row strong{color:#5c4e69}.path-task-health-row span:last-child{color:#b77567}
+        .path-task-support{margin:12px 0;border:1px solid #e5deeb;border-radius:12px;background:#fff;overflow:hidden}.path-task-support-head{display:flex;align-items:flex-end;justify-content:space-between;padding:13px 17px;border-bottom:1px solid #eee8f1}.path-task-support-head h2{margin:5px 0 0;font-family:'Manrope',sans-serif;font-size: 15px;letter-spacing:-.04em}.path-task-text-btn{display:inline-flex;align-items:center;gap:5px;border:0;background:none;color:#713dca;font-size: 12px;font-weight:800;cursor:pointer}.path-task-support-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto 13px;align-items:center;gap:9px;width:100%;min-height:50px;padding:0 17px;border:0;border-top:1px solid #f1edf4;background:transparent;text-align:left;cursor:pointer}.path-task-support-row:hover{background:#fcfbff}.path-task-copy{min-width:0}.path-task-copy strong,.path-task-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-copy strong{color:#574863;font-size: 12px;font-weight:800}.path-task-copy small{margin-top:3px;color:#9b8e9f;font-size: 11px}.path-task-badge{padding:4px 7px;border-radius:5px;background:#f1edf5;color:#796a85;font-size: 11px;font-weight:800;white-space:nowrap}.path-task-badge.revision{background:#fff2cf;color:#97680d}.path-task-badge.review{background:#eee7fc;color:#7447bc}.path-task-badge.complete{background:#e7f6ef;color:#47836d}.path-task-sla{color:#6e9980;font-size: 11px;font-weight:800;white-space:nowrap}.path-task-sla.risk{color:#bb7164}
+        .path-task-register{margin-top:18px}.path-task-register-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px}.path-task-register-head h2{margin:5px 0 0;color:#44354e;font-family:'Manrope',sans-serif;font-size: 21px;letter-spacing:-.05em}.path-task-register-head h2 b{display:inline-grid;min-width:20px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;font-size: 12px;vertical-align:middle}.path-task-register-head > span{color:#91859e;font-size: 12px}
+        .path-task-controls{display:flex;align-items:center;gap:8px;margin-bottom:10px}.path-task-search{display:flex;flex:1;align-items:center;gap:8px;min-width:180px;padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-task-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size: 12px}.path-task-controls select,.path-task-date{height:34px;max-width:145px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#6d5f77;font-size: 12px;outline:0}.path-task-table{overflow:hidden;border:1px solid #e3dce9;border-radius:12px;background:#fff}.path-task-table-head,.path-task-table-row{display:grid;grid-template-columns:minmax(240px,1.45fr) minmax(100px,.6fr) minmax(126px,.66fr) minmax(110px,.55fr);align-items:center;gap:14px}.path-task-table-head{padding:10px 17px;background:#faf8fc;color:#9b8fa4;font-size: 11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-task-table-row{min-height:66px;padding:0 17px;border-top:1px solid #f0ecf3;cursor:pointer}.path-task-table-row:hover,.path-task-table-row.active{background:#fdfbff}.path-task-table-row.active{box-shadow:inset 3px 0 #7c3aed}.path-task-row-main{display:grid;grid-template-columns:27px minmax(0,1fr) 13px;align-items:center;gap:8px;min-width:0}.path-task-row-main strong,.path-task-row-main small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-task-row-main strong{color:#50415c;font-size: 12px;font-weight:800}.path-task-row-main small{margin-top:3px;color:#968a9d;font-size: 11px}.path-task-deadline strong,.path-task-deadline small{display:block}.path-task-deadline strong{color:#6a5b76;font-size: 12px}.path-task-deadline small{margin-top:3px;color:#6e9b80;font-size: 11px;font-weight:800}.path-task-deadline small.late{color:#b96e62}.path-task-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 3px;color:#93879d;font-size: 12px}.path-task-handoff-footer{margin-top:10px;padding:12px 14px;border-top:1px solid #e9e3ee;color:#8e8299}.path-task-handoff-footer .path-task-text-btn{font-size: 12px}.path-task-page-btn{display:inline-grid;width:25px;height:25px;place-items:center;border:1px solid #e2d9eb;border-radius:6px;background:#fff;color:#725c87;cursor:pointer}.path-task-page-btn:disabled{cursor:not-allowed;opacity:.4}
+        .path-task-detail{position:fixed;z-index:55;top:0;right:0;display:flex;width:min(485px,94vw);height:100vh;flex-direction:column;border-left:1px solid #e3dbea;background:#fff;box-shadow:-18px 0 45px rgba(48,30,75,.17)}.path-task-detail-head{display:flex;align-items:flex-start;justify-content:space-between;padding:21px 22px 16px;border-bottom:1px solid #eee9f1}.path-task-detail-head small{color:#8067a5;font-size: 12px;font-weight:800}.path-task-detail-head h2{margin:7px 0 0;color:#44354f;font-family:'Manrope',sans-serif;font-size: 20px;letter-spacing:-.05em}.path-task-icon-btn{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e5deec;border-radius:7px;background:#fff;color:#7f6e8d;cursor:pointer}.path-task-detail-scroll{flex:1;overflow:auto;padding:18px 22px}.path-task-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}.path-task-detail-grid div{padding:10px;border:1px solid #eee8f2;border-radius:8px;background:#fcfbfd}.path-task-detail-grid small,.path-task-detail-grid strong{display:block}.path-task-detail-grid small{color:#9b8fa2;font-size: 11px;font-weight:800;text-transform:uppercase}.path-task-detail-grid strong{margin-top:5px;color:#594967;font-size: 12px}.path-task-detail-section{margin-top:18px}.path-task-detail-section h3{margin:0 0 9px;color:#8b7e96;font-size: 11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-task-detail-note{margin:0;color:#685a74;font-size: 12px;line-height:1.6}.path-task-attachment{display:flex;align-items:center;gap:9px;width:100%;margin-top:7px;padding:9px;border:1px solid #e8e2ed;border-radius:8px;background:#fff;text-align:left;cursor:pointer}.path-task-attachment strong,.path-task-attachment small{display:block}.path-task-attachment strong{color:#584a64;font-size: 12px}.path-task-attachment small{margin-top:3px;color:#927e9a;font-size: 11px}.path-task-comment{padding:9px 0;border-bottom:1px solid #f1edf4}.path-task-comment strong{color:#5a4b65;font-size: 12px}.path-task-comment p{margin:4px 0 0;color:#7c6e86;font-size: 12px;line-height:1.5}.path-task-composer{margin-top:11px;border:1px solid #e3dbe9;border-radius:8px;overflow:hidden}.path-task-composer textarea{display:block;width:100%;min-height:54px;padding:9px;border:0;outline:0;resize:vertical;color:#55445f;font-size: 12px}.path-task-composer-actions{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-top:1px solid #eee9f1;background:#faf8fc}.path-task-composer-actions button{border:0;background:transparent;color:#713dcc;font-size: 12px;font-weight:800;cursor:pointer}.path-task-detail-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:13px 22px;border-top:1px solid #eee9f1}.path-task-detail-actions button{min-height:34px;border:1px solid #dfd5e8;border-radius:8px;background:#fff;color:#6a5877;font-size: 12px;font-weight:800;cursor:pointer}.path-task-detail-actions .main{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-task-detail-actions .danger{border-color:#f0c9c4;color:#b65b52}
         @media(min-width:1100px){.path-task-body{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}
         @media(max-width:900px){.path-task-body{padding:20px}.path-task-hero{align-items:flex-start;flex-direction:column}.path-task-hero-card{width:100%}.path-task-stats{grid-template-columns:repeat(2,1fr)}.path-task-stat:nth-child(2){border-right:0}.path-task-stat:nth-child(-n+2){border-bottom:1px solid #ebe5f0}.path-task-focus{grid-template-columns:1fr}.path-task-health{border-top:1px solid #ece5f0;border-left:0}.path-task-table-head{display:none}.path-task-table-row{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px 12px}.path-task-table-row .path-task-deadline{display:none}.path-task-table-row .path-task-badge{grid-column:1;grid-row:2;width:max-content}.path-task-support-row{grid-template-columns:30px minmax(0,1fr) auto 12px;padding:0 13px}.path-task-support-row .path-task-sla{display:none}.path-task-controls{flex-wrap:wrap}.path-task-search{min-width:100%}.path-task-controls select,.path-task-date{flex:1;max-width:none}}
-        @media(max-width:620px){.path-task-body{padding:18px 16px}.path-task-hero{padding:20px}.path-task-hero h1{font-size:25px}.path-task-role{align-items:flex-start;flex-direction:column;gap:9px}.path-task-register-head{align-items:flex-start;flex-direction:column}.path-task-support-head{align-items:flex-start}.path-task-detail{width:100vw}.path-task-detail-grid{grid-template-columns:1fr}.path-task-controls select{min-width:0}.path-task-footer{gap:9px}.path-task-footer > span{max-width:190px}.path-task-stats{margin-bottom:12px}.path-task-stat{min-height:82px;padding:13px}.path-task-stat strong{font-size:22px}}
+        @media(max-width:620px){.path-task-body{padding:18px 16px}.path-task-hero{padding:20px}.path-task-hero h1{font-size: 25px}.path-task-role{align-items:flex-start;flex-direction:column;gap:9px}.path-task-register-head{align-items:flex-start;flex-direction:column}.path-task-support-head{align-items:flex-start}.path-task-detail{width:100vw}.path-task-detail-grid{grid-template-columns:1fr}.path-task-controls select{min-width:0}.path-task-footer{gap:9px}.path-task-footer > span{max-width:190px}.path-task-stats{margin-bottom:12px}.path-task-stat{min-height:82px;padding:13px}.path-task-stat strong{font-size: 22px}}
       `}</style>
       <main className="path-task-canvas">
         
@@ -954,7 +954,7 @@ function PathTasksWorkspace({
                       padding: 34,
                       textAlign: "center",
                       color: "#9b8fa4",
-                      fontSize: 10,
+                      fontSize: 12,
                     }}
                   >
                     Loading assigned work…
@@ -965,7 +965,7 @@ function PathTasksWorkspace({
                       padding: 34,
                       textAlign: "center",
                       color: "#9b8fa4",
-                      fontSize: 10,
+                      fontSize: 12,
                     }}
                   >
                     No tasks match the current filters.
@@ -1049,7 +1049,7 @@ function PathTasksWorkspace({
                 padding: 36,
                 textAlign: "center",
                 color: "#978b9f",
-                fontSize: 11,
+                fontSize: 13,
               }}
             >
               Loading task details…
@@ -1177,10 +1177,10 @@ function PathTasksWorkspace({
                       onChange={(event) =>
                         setSubmitFiles(Array.from(event.target.files || []))
                       }
-                      style={{ marginTop: 8, maxWidth: "100%", fontSize: 9 }}
+                      style={{ marginTop: 8, maxWidth: "100%", fontSize: 12 }}
                     />
                     {submitFiles.length > 0 && (
-                      <p style={{ fontSize: 8, color: "#795e95" }}>
+                      <p style={{ fontSize: 11, color: "#795e95" }}>
                         {submitFiles.length} supporting file(s) ready
                       </p>
                     )}
@@ -1319,14 +1319,14 @@ function PathAssignedWorkspace({
     <div className="path-assigned-shell" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-        .path-assigned-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#40334a;font-family:'DM Sans',sans-serif;font-weight:500;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}.path-assigned-shell *{box-sizing:border-box}.path-assigned-shell button,.path-assigned-shell input,.path-assigned-shell select{font:inherit}.path-assigned-canvas{display:flex;min-width:0;flex:1;height:100vh;flex-direction:column;overflow:hidden;background:#f8f7ff}.path-assigned-body{flex:1;overflow:auto;padding:28px 46px 34px}.path-assigned-inner{max-width:none;margin:0 auto}.path-assigned-top-search{display:flex;align-items:center;gap:8px;width:min(410px,100%);padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-assigned-top-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size:10px}
-        .path-assigned-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 25px;border:1px solid #e3ddeb;border-radius:15px;background:linear-gradient(118deg,#fff 0%,#fcfbff 65%,#f2ebfe 100%);box-shadow:0 12px 28px rgba(78,51,115,.05)}.path-assigned-eyebrow,.path-assigned-kicker{display:flex;align-items:center;gap:7px;color:#94859f;font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.path-assigned-eyebrow i,.path-assigned-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6}.path-assigned-hero h1{margin:9px 0 6px;font-family:'Manrope',sans-serif;color:#40334b;font-size:31px;font-weight:800;letter-spacing:-.065em;line-height:1.05}.path-assigned-hero p{max-width:520px;margin:0;color:#8d8098;font-size:10px;line-height:1.55}.path-assigned-focus{display:flex;align-items:flex-start;gap:8px;margin-top:16px;color:#765d91}.path-assigned-focus svg{margin-top:1px}.path-assigned-focus strong,.path-assigned-focus small{display:block}.path-assigned-focus strong{color:#5b4969;font-size:9px;font-weight:800}.path-assigned-focus small{margin-top:3px;color:#998ca2;font-size:8px}.path-assigned-actions{display:flex;gap:8px;flex:0 0 auto}.path-assigned-actions button{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 11px;border:1px solid #e2d9eb;border-radius:8px;background:#fff;color:#725c87;font-size:9px;font-weight:800;cursor:pointer}.path-assigned-actions button.violet{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 13px rgba(124,58,237,.16)}
-        .path-assigned-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.path-assigned-metric{display:flex;align-items:flex-start;justify-content:space-between;min-height:95px;padding:15px 16px;border:1px solid #e5deed;border-radius:12px;background:#fff}.path-assigned-metric small,.path-assigned-metric strong,.path-assigned-metric em{display:block}.path-assigned-metric small{color:#988b9f;font-size:8px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.path-assigned-metric strong{margin-top:7px;color:#463650;font-family:'Manrope',sans-serif;font-size:25px;font-weight:800;letter-spacing:-.065em;line-height:1}.path-assigned-metric em{margin-top:6px;color:#a295aa;font-size:8px;font-style:normal}.path-assigned-metric>span{display:grid;width:27px;height:27px;place-items:center;border-radius:8px;background:#eee8fb;color:#7640cd;font-size:12px;font-weight:800}.path-assigned-metric.danger>span{background:#fff0ed;color:#bd6657}
-        .path-assigned-controls{display:flex;align-items:center;gap:8px;margin-bottom:12px}.path-assigned-search{display:flex;align-items:center;gap:8px;flex:1;min-width:210px;padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-assigned-search input{width:100%;height:36px;border:0;outline:0;background:transparent;color:#4c3e57;font-size:10px}.path-assigned-filter{display:flex;align-items:center;gap:6px;height:36px;max-width:152px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#786b83}.path-assigned-filter span{color:#93869e;font-size:8px;font-weight:800;white-space:nowrap}.path-assigned-filter select,.path-assigned-date{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#665574;font-size:9px}.path-assigned-date{height:36px;max-width:142px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff}
-        .path-assigned-workspace{display:grid;grid-template-columns:minmax(290px,.78fr) minmax(420px,1.22fr);gap:13px}.path-assigned-feed,.path-assigned-detail{min-height:540px;border:1px solid #e3dce9;border-radius:13px;background:#fff}.path-assigned-feed{overflow:auto}.path-assigned-feed-head{display:flex;align-items:flex-start;justify-content:space-between;padding:17px 17px 14px;border-bottom:1px solid #eee8f1}.path-assigned-feed-head h2{margin:5px 0 0;color:#493a55;font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.055em}.path-assigned-feed-head h2 b{display:inline-grid;min-width:20px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;font-family:'DM Sans',sans-serif;font-size:9px;vertical-align:middle}.path-assigned-feed-head p{margin:5px 0 0;color:#9b8e9f;font-size:8px}.path-assigned-feed-head button{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e6deed;border-radius:7px;background:#fff;color:#806d8d;cursor:pointer}.path-assigned-row{position:relative;display:block;width:100%;padding:13px 17px;border:0;border-bottom:1px solid #f0ecf3;background:#fff;color:inherit;text-align:left;cursor:pointer}.path-assigned-row:hover,.path-assigned-row.active{background:#fdfbff}.path-assigned-row.active{box-shadow:inset 3px 0 #7c3aed}.path-assigned-row-top,.path-assigned-row-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}.path-assigned-id{color:#8169a1;font-size:8px;font-weight:800;letter-spacing:.08em}.path-assigned-date{height:auto;max-width:none;border:0;background:transparent;padding:0;color:#6c9a7e;font-size:8px;font-weight:800}.path-assigned-date.late{color:#ba7062}.path-assigned-row h3{margin:7px 18px 7px 0;color:#554562;font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;letter-spacing:-.035em;line-height:1.25}.path-assigned-row-bottom{justify-content:flex-start;color:#998ca0;font-size:8px}.path-assigned-row-bottom .path-assigned-priority{padding:3px 6px;border-radius:5px;background:#eee8fb;color:#7544ba;font-weight:800}.path-assigned-row-bottom .path-assigned-priority.high{background:#fff0ed;color:#bc6657}.path-assigned-row-bottom .path-assigned-priority.low{background:#e8f5ef;color:#4d9177}.path-assigned-arrow{position:absolute;top:50%;right:16px;color:#806f8d;transform:translateY(-50%)}
-        .path-assigned-detail{display:grid;place-items:center;overflow:hidden}.path-assigned-detail-card{width:100%;padding:23px}.path-assigned-detail-card header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.path-assigned-detail-card header small{color:#8067a5;font-size:8px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.path-assigned-detail-card header h2{margin:7px 0 0;color:#44354f;font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.06em;line-height:1.12}.path-assigned-status{padding:5px 8px;border-radius:6px;background:#eee8fb;color:#7245ba;font-size:8px;font-weight:800;white-space:nowrap}.path-assigned-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:19px 0}.path-assigned-detail-grid span{padding:11px;border:1px solid #eee8f2;border-radius:8px;background:#fcfbfd;color:#9a8fa2;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.path-assigned-detail-grid strong{display:block;margin-top:5px;color:#594967;font-size:10px;letter-spacing:-.01em;text-transform:none}.path-assigned-note{display:flex;gap:10px;padding:12px;border:1px solid #e7def2;border-radius:9px;background:#faf7ff;color:#765990}.path-assigned-note strong,.path-assigned-note small{display:block}.path-assigned-note strong{font-size:9px;font-weight:800}.path-assigned-note small{margin-top:4px;color:#998ba4;font-size:9px;line-height:1.45}.path-assigned-detail-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.path-assigned-detail-actions button{min-height:34px;padding:0 12px;border:1px solid #dfd6e9;border-radius:8px;background:#fff;color:#6a5877;font-size:9px;font-weight:800;cursor:pointer}.path-assigned-detail-actions .violet{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-assigned-empty{max-width:350px;padding:28px;text-align:center}.path-assigned-empty-orb{display:grid;width:41px;height:41px;place-items:center;margin:0 auto 13px;border-radius:14px;background:#eee8fb;color:#7543c1;font-size:17px;font-weight:800}.path-assigned-empty small{color:#9a8da3;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-assigned-empty h2{margin:8px 0;color:#4a3a55;font-family:'Manrope',sans-serif;font-size:21px;font-weight:800;letter-spacing:-.06em}.path-assigned-empty p{margin:0;color:#978a9f;font-size:10px;line-height:1.55}.path-assigned-empty-focus{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;margin-top:18px;padding:10px;border:1px solid #e7dff0;border-radius:9px;background:#fcfbff;text-align:left}.path-assigned-empty-number{display:grid;width:25px;height:25px;place-items:center;border-radius:7px;background:#eee8fb;color:#7640c9;font-size:9px;font-weight:800}.path-assigned-empty-focus strong,.path-assigned-empty-focus small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-empty-focus strong{color:#594965;font-size:9px;font-weight:800}.path-assigned-empty-focus small{margin-top:3px;color:#978a9e;font-size:8px;font-weight:500;letter-spacing:0;text-transform:none}.path-assigned-empty-focus button{border:0;background:none;color:#713dcc;font-size:8px;font-weight:800;cursor:pointer}.path-assigned-empty-progress{margin-top:17px;text-align:left}.path-assigned-empty-progress>span,.path-assigned-empty-progress small{display:block;color:#9a8ea2;font-size:8px}.path-assigned-empty-progress>div{height:5px;margin:7px 0;border-radius:99px;background:#eee8f4;overflow:hidden}.path-assigned-empty-progress i{display:block;height:100%;border-radius:inherit;background:#7c3aed}
+        .path-assigned-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#40334a;font-family:'DM Sans',sans-serif;font-weight:500;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}.path-assigned-shell *{box-sizing:border-box}.path-assigned-shell button,.path-assigned-shell input,.path-assigned-shell select{font:inherit}.path-assigned-canvas{display:flex;min-width:0;flex:1;height:100vh;flex-direction:column;overflow:hidden;background:#f8f7ff}.path-assigned-body{flex:1;overflow:auto;padding:28px 46px 34px}.path-assigned-inner{max-width:none;margin:0 auto}.path-assigned-top-search{display:flex;align-items:center;gap:8px;width:min(410px,100%);padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-assigned-top-search input{width:100%;height:34px;border:0;outline:0;background:transparent;color:#4c3e57;font-size: 12px}
+        .path-assigned-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 25px;border:1px solid #e3ddeb;border-radius:15px;background:linear-gradient(118deg,#fff 0%,#fcfbff 65%,#f2ebfe 100%);box-shadow:0 12px 28px rgba(78,51,115,.05)}.path-assigned-eyebrow,.path-assigned-kicker{display:flex;align-items:center;gap:7px;color:#94859f;font-size: 11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.path-assigned-eyebrow i,.path-assigned-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6}.path-assigned-hero h1{margin:9px 0 6px;font-family:'Manrope',sans-serif;color:#40334b;font-size: 31px;font-weight:800;letter-spacing:-.065em;line-height:1.05}.path-assigned-hero p{max-width:520px;margin:0;color:#8d8098;font-size: 12px;line-height:1.55}.path-assigned-focus{display:flex;align-items:flex-start;gap:8px;margin-top:16px;color:#765d91}.path-assigned-focus svg{margin-top:1px}.path-assigned-focus strong,.path-assigned-focus small{display:block}.path-assigned-focus strong{color:#5b4969;font-size: 12px;font-weight:800}.path-assigned-focus small{margin-top:3px;color:#998ca2;font-size: 11px}.path-assigned-actions{display:flex;gap:8px;flex:0 0 auto}.path-assigned-actions button{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 11px;border:1px solid #e2d9eb;border-radius:8px;background:#fff;color:#725c87;font-size: 12px;font-weight:800;cursor:pointer}.path-assigned-actions button.violet{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 7px 13px rgba(124,58,237,.16)}
+        .path-assigned-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.path-assigned-metric{display:flex;align-items:flex-start;justify-content:space-between;min-height:95px;padding:15px 16px;border:1px solid #e5deed;border-radius:12px;background:#fff}.path-assigned-metric small,.path-assigned-metric strong,.path-assigned-metric em{display:block}.path-assigned-metric small{color:#988b9f;font-size: 11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.path-assigned-metric strong{margin-top:7px;color:#463650;font-family:'Manrope',sans-serif;font-size: 25px;font-weight:800;letter-spacing:-.065em;line-height:1}.path-assigned-metric em{margin-top:6px;color:#a295aa;font-size: 11px;font-style:normal}.path-assigned-metric>span{display:grid;width:27px;height:27px;place-items:center;border-radius:8px;background:#eee8fb;color:#7640cd;font-size: 13px;font-weight:800}.path-assigned-metric.danger>span{background:#fff0ed;color:#bd6657}
+        .path-assigned-controls{display:flex;align-items:center;gap:8px;margin-bottom:12px}.path-assigned-search{display:flex;align-items:center;gap:8px;flex:1;min-width:210px;padding:0 11px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#9a8fa3}.path-assigned-search input{width:100%;height:36px;border:0;outline:0;background:transparent;color:#4c3e57;font-size: 12px}.path-assigned-filter{display:flex;align-items:center;gap:6px;height:36px;max-width:152px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff;color:#786b83}.path-assigned-filter span{color:#93869e;font-size: 11px;font-weight:800;white-space:nowrap}.path-assigned-filter select,.path-assigned-date{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#665574;font-size: 12px}.path-assigned-date{height:36px;max-width:142px;padding:0 8px;border:1px solid #e2dbe9;border-radius:8px;background:#fff}
+        .path-assigned-workspace{display:grid;grid-template-columns:minmax(290px,.78fr) minmax(420px,1.22fr);gap:13px}.path-assigned-feed,.path-assigned-detail{min-height:540px;border:1px solid #e3dce9;border-radius:13px;background:#fff}.path-assigned-feed{overflow:auto}.path-assigned-feed-head{display:flex;align-items:flex-start;justify-content:space-between;padding:17px 17px 14px;border-bottom:1px solid #eee8f1}.path-assigned-feed-head h2{margin:5px 0 0;color:#493a55;font-family:'Manrope',sans-serif;font-size: 19px;font-weight:800;letter-spacing:-.055em}.path-assigned-feed-head h2 b{display:inline-grid;min-width:20px;place-items:center;border-radius:8px;background:#eee8fb;color:#7c3aed;font-family:'DM Sans',sans-serif;font-size: 12px;vertical-align:middle}.path-assigned-feed-head p{margin:5px 0 0;color:#9b8e9f;font-size: 11px}.path-assigned-feed-head button{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e6deed;border-radius:7px;background:#fff;color:#806d8d;cursor:pointer}.path-assigned-row{position:relative;display:block;width:100%;padding:13px 17px;border:0;border-bottom:1px solid #f0ecf3;background:#fff;color:inherit;text-align:left;cursor:pointer}.path-assigned-row:hover,.path-assigned-row.active{background:#fdfbff}.path-assigned-row.active{box-shadow:inset 3px 0 #7c3aed}.path-assigned-row-top,.path-assigned-row-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}.path-assigned-id{color:#8169a1;font-size: 11px;font-weight:800;letter-spacing:.08em}.path-assigned-date{height:auto;max-width:none;border:0;background:transparent;padding:0;color:#6c9a7e;font-size: 11px;font-weight:800}.path-assigned-date.late{color:#ba7062}.path-assigned-row h3{margin:7px 18px 7px 0;color:#554562;font-family:'Manrope',sans-serif;font-size: 13px;font-weight:800;letter-spacing:-.035em;line-height:1.25}.path-assigned-row-bottom{justify-content:flex-start;color:#998ca0;font-size: 11px}.path-assigned-row-bottom .path-assigned-priority{padding:3px 6px;border-radius:5px;background:#eee8fb;color:#7544ba;font-weight:800}.path-assigned-row-bottom .path-assigned-priority.high{background:#fff0ed;color:#bc6657}.path-assigned-row-bottom .path-assigned-priority.low{background:#e8f5ef;color:#4d9177}.path-assigned-arrow{position:absolute;top:50%;right:16px;color:#806f8d;transform:translateY(-50%)}
+        .path-assigned-detail{display:grid;place-items:center;overflow:hidden}.path-assigned-detail-card{width:100%;padding:23px}.path-assigned-detail-card header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.path-assigned-detail-card header small{color:#8067a5;font-size: 11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.path-assigned-detail-card header h2{margin:7px 0 0;color:#44354f;font-family:'Manrope',sans-serif;font-size: 22px;font-weight:800;letter-spacing:-.06em;line-height:1.12}.path-assigned-status{padding:5px 8px;border-radius:6px;background:#eee8fb;color:#7245ba;font-size: 11px;font-weight:800;white-space:nowrap}.path-assigned-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:19px 0}.path-assigned-detail-grid span{padding:11px;border:1px solid #eee8f2;border-radius:8px;background:#fcfbfd;color:#9a8fa2;font-size: 11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.path-assigned-detail-grid strong{display:block;margin-top:5px;color:#594967;font-size: 12px;letter-spacing:-.01em;text-transform:none}.path-assigned-note{display:flex;gap:10px;padding:12px;border:1px solid #e7def2;border-radius:9px;background:#faf7ff;color:#765990}.path-assigned-note strong,.path-assigned-note small{display:block}.path-assigned-note strong{font-size: 12px;font-weight:800}.path-assigned-note small{margin-top:4px;color:#998ba4;font-size: 12px;line-height:1.45}.path-assigned-detail-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.path-assigned-detail-actions button{min-height:34px;padding:0 12px;border:1px solid #dfd6e9;border-radius:8px;background:#fff;color:#6a5877;font-size: 12px;font-weight:800;cursor:pointer}.path-assigned-detail-actions .violet{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-assigned-empty{max-width:350px;padding:28px;text-align:center}.path-assigned-empty-orb{display:grid;width:41px;height:41px;place-items:center;margin:0 auto 13px;border-radius:14px;background:#eee8fb;color:#7543c1;font-size: 18px;font-weight:800}.path-assigned-empty small{color:#9a8da3;font-size: 11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-assigned-empty h2{margin:8px 0;color:#4a3a55;font-family:'Manrope',sans-serif;font-size: 21px;font-weight:800;letter-spacing:-.06em}.path-assigned-empty p{margin:0;color:#978a9f;font-size: 12px;line-height:1.55}.path-assigned-empty-focus{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;margin-top:18px;padding:10px;border:1px solid #e7dff0;border-radius:9px;background:#fcfbff;text-align:left}.path-assigned-empty-number{display:grid;width:25px;height:25px;place-items:center;border-radius:7px;background:#eee8fb;color:#7640c9;font-size: 12px;font-weight:800}.path-assigned-empty-focus strong,.path-assigned-empty-focus small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-empty-focus strong{color:#594965;font-size: 12px;font-weight:800}.path-assigned-empty-focus small{margin-top:3px;color:#978a9e;font-size: 11px;font-weight:500;letter-spacing:0;text-transform:none}.path-assigned-empty-focus button{border:0;background:none;color:#713dcc;font-size: 11px;font-weight:800;cursor:pointer}.path-assigned-empty-progress{margin-top:17px;text-align:left}.path-assigned-empty-progress>span,.path-assigned-empty-progress small{display:block;color:#9a8ea2;font-size: 11px}.path-assigned-empty-progress>div{height:5px;margin:7px 0;border-radius:99px;background:#eee8f4;overflow:hidden}.path-assigned-empty-progress i{display:block;height:100%;border-radius:inherit;background:#7c3aed}
         @media(min-width:1100px){.path-assigned-body{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}
-        @media(max-width:980px){.path-assigned-body{padding:22px}.path-assigned-hero{flex-direction:column}.path-assigned-actions{width:100%}.path-assigned-actions button{flex:1;justify-content:center}.path-assigned-metrics{grid-template-columns:repeat(2,1fr)}.path-assigned-workspace{grid-template-columns:1fr}.path-assigned-feed,.path-assigned-detail{min-height:auto}.path-assigned-detail{min-height:410px}.path-assigned-controls{flex-wrap:wrap}.path-assigned-search{min-width:100%}.path-assigned-filter{flex:1;max-width:none}.path-assigned-date{flex:1;max-width:none}}@media(max-width:620px){.path-assigned-body{padding:18px 16px}.path-assigned-hero{padding:20px}.path-assigned-hero h1{font-size:27px}.path-assigned-metrics{gap:8px}.path-assigned-metric{min-height:84px;padding:12px}.path-assigned-metric strong{font-size:22px}.path-assigned-detail-grid{grid-template-columns:1fr}.path-assigned-detail-card{padding:18px}.path-assigned-detail-actions{display:grid;grid-template-columns:1fr 1fr}.path-assigned-feed-head{padding:15px}.path-assigned-row{padding:12px 15px}}
+        @media(max-width:980px){.path-assigned-body{padding:22px}.path-assigned-hero{flex-direction:column}.path-assigned-actions{width:100%}.path-assigned-actions button{flex:1;justify-content:center}.path-assigned-metrics{grid-template-columns:repeat(2,1fr)}.path-assigned-workspace{grid-template-columns:1fr}.path-assigned-feed,.path-assigned-detail{min-height:auto}.path-assigned-detail{min-height:410px}.path-assigned-controls{flex-wrap:wrap}.path-assigned-search{min-width:100%}.path-assigned-filter{flex:1;max-width:none}.path-assigned-date{flex:1;max-width:none}}@media(max-width:620px){.path-assigned-body{padding:18px 16px}.path-assigned-hero{padding:20px}.path-assigned-hero h1{font-size: 27px}.path-assigned-metrics{gap:8px}.path-assigned-metric{min-height:84px;padding:12px}.path-assigned-metric strong{font-size: 22px}.path-assigned-detail-grid{grid-template-columns:1fr}.path-assigned-detail-card{padding:18px}.path-assigned-detail-actions{display:grid;grid-template-columns:1fr 1fr}.path-assigned-feed-head{padding:15px}.path-assigned-row{padding:12px 15px}}
       `}</style>
       <main className="path-assigned-canvas">
         <div className="path-assigned-body">
@@ -1597,7 +1597,7 @@ function PathAssignedWorkspace({
                 ) : (
                   <>
                     <style>{`
-                      .path-assigned-queue{width:100%;min-height:100%;padding:23px}.path-assigned-queue-head{padding-bottom:17px;border-bottom:1px solid #eee8f1}.path-assigned-queue-head h2{margin:7px 0 5px;color:#44354f;font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.06em;line-height:1.12}.path-assigned-queue-head p{max-width:365px;margin:0;color:#95889f;font-size:10px;line-height:1.5}.path-assigned-queue-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}.path-assigned-queue-metric{padding:11px 10px;border:1px solid #e8e1ed;border-radius:9px;background:#fcfbfd}.path-assigned-queue-metric small,.path-assigned-queue-metric strong{display:block}.path-assigned-queue-metric small{color:#9a8da2;font-size:8px;font-weight:800;letter-spacing:.075em;text-transform:uppercase}.path-assigned-queue-metric strong{margin-top:6px;color:#503e5e;font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.06em}.path-assigned-queue-metric.attention strong{color:#b9695b}.path-assigned-queue-progress{padding:12px;border:1px solid #e9e1f0;border-radius:9px;background:#faf8ff}.path-assigned-queue-progress-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#79658c;font-size:9px;font-weight:800}.path-assigned-queue-progress-top strong{color:#634581;font-size:9px}.path-assigned-queue-progress-bar{height:5px;margin:9px 0 6px;border-radius:999px;background:#e8e1f0;overflow:hidden}.path-assigned-queue-progress-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7c3aed,#a78bfa)}.path-assigned-queue-progress small{color:#9789a0;font-size:8px}.path-assigned-queue-list{margin-top:20px}.path-assigned-queue-list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.path-assigned-queue-list-head strong{color:#5a4968;font-size:10px;font-weight:800}.path-assigned-queue-list-head span{color:#9b8ea2;font-size:8px;font-weight:700}.path-assigned-queue-item{display:grid;grid-template-columns:25px minmax(0,1fr) auto;align-items:center;gap:9px;width:100%;padding:10px 0;border:0;border-top:1px solid #f0ebf3;background:transparent;color:inherit;text-align:left;cursor:pointer}.path-assigned-queue-item:first-of-type{border-top:0}.path-assigned-queue-number{display:grid;width:24px;height:24px;place-items:center;border-radius:7px;background:#eee8fb;color:#7542c5;font-size:8px;font-weight:800}.path-assigned-queue-item-copy{min-width:0}.path-assigned-queue-item-copy strong,.path-assigned-queue-item-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-queue-item-copy strong{color:#5a4967;font-size:9px;font-weight:800}.path-assigned-queue-item-copy small{margin-top:3px;color:#9b8ea1;font-size:8px}.path-assigned-queue-item span:last-child{color:#7a45c1;font-size:8px;font-weight:800}.path-assigned-queue-empty{padding:13px 0;border-top:1px solid #f0ebf3;color:#968a9f;font-size:9px;line-height:1.5}.path-assigned-queue-foot{display:flex;align-items:flex-start;gap:7px;margin-top:12px;padding:10px 0 0;border-top:1px solid #eee8f1;color:#927fa1;font-size:8px;line-height:1.45}.path-assigned-queue-foot svg{flex:0 0 auto;margin-top:1px;color:#7c3aed}@media(max-width:620px){.path-assigned-queue{padding:18px}.path-assigned-queue-head h2{font-size:20px}.path-assigned-queue-metrics{gap:6px}.path-assigned-queue-metric{padding:10px 8px}.path-assigned-queue-metric strong{font-size:18px}}
+                      .path-assigned-queue{width:100%;min-height:100%;padding:23px}.path-assigned-queue-head{padding-bottom:17px;border-bottom:1px solid #eee8f1}.path-assigned-queue-head h2{margin:7px 0 5px;color:#44354f;font-family:'Manrope',sans-serif;font-size: 22px;font-weight:800;letter-spacing:-.06em;line-height:1.12}.path-assigned-queue-head p{max-width:365px;margin:0;color:#95889f;font-size: 12px;line-height:1.5}.path-assigned-queue-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}.path-assigned-queue-metric{padding:11px 10px;border:1px solid #e8e1ed;border-radius:9px;background:#fcfbfd}.path-assigned-queue-metric small,.path-assigned-queue-metric strong{display:block}.path-assigned-queue-metric small{color:#9a8da2;font-size: 11px;font-weight:800;letter-spacing:.075em;text-transform:uppercase}.path-assigned-queue-metric strong{margin-top:6px;color:#503e5e;font-family:'Manrope',sans-serif;font-size: 21px;font-weight:800;letter-spacing:-.06em}.path-assigned-queue-metric.attention strong{color:#b9695b}.path-assigned-queue-progress{padding:12px;border:1px solid #e9e1f0;border-radius:9px;background:#faf8ff}.path-assigned-queue-progress-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#79658c;font-size: 12px;font-weight:800}.path-assigned-queue-progress-top strong{color:#634581;font-size: 12px}.path-assigned-queue-progress-bar{height:5px;margin:9px 0 6px;border-radius:999px;background:#e8e1f0;overflow:hidden}.path-assigned-queue-progress-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7c3aed,#a78bfa)}.path-assigned-queue-progress small{color:#9789a0;font-size: 11px}.path-assigned-queue-list{margin-top:20px}.path-assigned-queue-list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.path-assigned-queue-list-head strong{color:#5a4968;font-size: 12px;font-weight:800}.path-assigned-queue-list-head span{color:#9b8ea2;font-size: 11px;font-weight:700}.path-assigned-queue-item{display:grid;grid-template-columns:25px minmax(0,1fr) auto;align-items:center;gap:9px;width:100%;padding:10px 0;border:0;border-top:1px solid #f0ebf3;background:transparent;color:inherit;text-align:left;cursor:pointer}.path-assigned-queue-item:first-of-type{border-top:0}.path-assigned-queue-number{display:grid;width:24px;height:24px;place-items:center;border-radius:7px;background:#eee8fb;color:#7542c5;font-size: 11px;font-weight:800}.path-assigned-queue-item-copy{min-width:0}.path-assigned-queue-item-copy strong,.path-assigned-queue-item-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-queue-item-copy strong{color:#5a4967;font-size: 12px;font-weight:800}.path-assigned-queue-item-copy small{margin-top:3px;color:#9b8ea1;font-size: 11px}.path-assigned-queue-item span:last-child{color:#7a45c1;font-size: 11px;font-weight:800}.path-assigned-queue-empty{padding:13px 0;border-top:1px solid #f0ebf3;color:#968a9f;font-size: 12px;line-height:1.5}.path-assigned-queue-foot{display:flex;align-items:flex-start;gap:7px;margin-top:12px;padding:10px 0 0;border-top:1px solid #eee8f1;color:#927fa1;font-size: 11px;line-height:1.45}.path-assigned-queue-foot svg{flex:0 0 auto;margin-top:1px;color:#7c3aed}@media(max-width:620px){.path-assigned-queue{padding:18px}.path-assigned-queue-head h2{font-size: 21px}.path-assigned-queue-metrics{gap:6px}.path-assigned-queue-metric{padding:10px 8px}.path-assigned-queue-metric strong{font-size: 19px}}
                     `}</style>
                     <div className="path-assigned-queue">
                       <header className="path-assigned-queue-head">
@@ -2420,7 +2420,7 @@ export default function MyTasks() {
         height: "100vh",
         overflow: "hidden",
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 13,
+        fontSize: 14,
         color: "#111",
         background: "#f4f4f8",
       }}
@@ -2492,7 +2492,7 @@ export default function MyTasks() {
                 >
                   My Tasks
                 </h1>
-                <p style={{ fontSize: 12, color: "#888", margin: 0 }}>
+                <p style={{ fontSize: 13, color: "#888", margin: 0 }}>
                   Manage and approve tasks assigned specifically to you.
                 </p>
               </div>
@@ -2506,7 +2506,7 @@ export default function MyTasks() {
                     borderRadius: 8,
                     border: "1px solid #e5e7eb",
                     background: "white",
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: 700,
                     cursor: "pointer",
                     color: "#374151",
@@ -2523,7 +2523,7 @@ export default function MyTasks() {
                     borderRadius: 8,
                     border: "1px solid #7c3aed",
                     background: "white",
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: 700,
                     cursor: "pointer",
                     color: "#7c3aed",
@@ -2641,7 +2641,7 @@ export default function MyTasks() {
                 >
                   <div>
                     <div
-                      style={{ fontSize: 11, color: "#999", marginBottom: 4 }}
+                      style={{ fontSize: 13, color: "#999", marginBottom: 4 }}
                     >
                       {label}
                     </div>
@@ -2699,7 +2699,7 @@ export default function MyTasks() {
                     border: "none",
                     background: "transparent",
                     outline: "none",
-                    fontSize: 12,
+                    fontSize: 13,
                     color: "#374151",
                     width: "100%",
                   }}
@@ -2714,7 +2714,7 @@ export default function MyTasks() {
                   border: "1px solid #e5e7eb",
                   borderRadius: 8,
                   background: "white",
-                  fontSize: 12,
+                  fontSize: 13,
                   color: "#374151",
                 }}
               >
@@ -2738,7 +2738,7 @@ export default function MyTasks() {
                   style={{
                     border: "none",
                     background: "transparent",
-                    fontSize: 12,
+                    fontSize: 13,
                     outline: "none",
                     cursor: "pointer",
                     color: "#374151",
@@ -2788,7 +2788,7 @@ export default function MyTasks() {
                     border: "1px solid #e5e7eb",
                     borderRadius: 8,
                     background: "white",
-                    fontSize: 12,
+                    fontSize: 13,
                   }}
                 >
                   <Icon.Filter />
@@ -2798,7 +2798,7 @@ export default function MyTasks() {
                     style={{
                       border: "none",
                       background: "transparent",
-                      fontSize: 12,
+                      fontSize: 13,
                       outline: "none",
                       cursor: "pointer",
                       color: "#374151",
@@ -2840,7 +2840,7 @@ export default function MyTasks() {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: "#111" }}
+                    style={{ fontSize: 15, fontWeight: 700, color: "#111" }}
                   >
                     Task Feed
                   </span>
@@ -2848,7 +2848,7 @@ export default function MyTasks() {
                     style={{
                       background: "#7c3aed",
                       color: "white",
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 700,
                       padding: "1px 7px",
                       borderRadius: 20,
@@ -2925,7 +2925,7 @@ export default function MyTasks() {
                 />
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: 700,
                     color: "#888",
                     letterSpacing: 0.5,
@@ -2938,7 +2938,7 @@ export default function MyTasks() {
                     onClick={handleArchive}
                     disabled={checkedIds.length === 0}
                     style={{
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: 700,
                       color: checkedIds.length > 0 ? "#374151" : "#bbb",
                       background: "none",
@@ -2959,7 +2959,7 @@ export default function MyTasks() {
                       padding: 32,
                       textAlign: "center",
                       color: "#aaa",
-                      fontSize: 12,
+                      fontSize: 13,
                     }}
                   >
                     Loading tasks...
@@ -2970,7 +2970,7 @@ export default function MyTasks() {
                       padding: 40,
                       textAlign: "center",
                       color: "#aaa",
-                      fontSize: 12,
+                      fontSize: 13,
                     }}
                   >
                     No tasks assigned to you yet.
@@ -3033,20 +3033,20 @@ export default function MyTasks() {
                           >
                             <span
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: "#7c3aed",
                                 fontWeight: 700,
                               }}
                             >
                               {task.tracking_id}
                             </span>
-                            <span style={{ fontSize: 10, color: "#aaa" }}>
+                            <span style={{ fontSize: 12, color: "#aaa" }}>
                               {fmtDate(task.deadline || task.created_at)}
                             </span>
                           </div>
                           <div
                             style={{
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: 600,
                               color: "#111",
                               marginBottom: 6,
@@ -3086,7 +3086,7 @@ export default function MyTasks() {
                   justifyContent: "space-between",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#888" }}>
+                <span style={{ fontSize: 13, color: "#888" }}>
                   Showing{" "}
                   {Math.min(
                     (taskPage - 1) * PER_PAGE + 1,
@@ -3188,7 +3188,7 @@ export default function MyTasks() {
                   >
                     <path d="M5 8h30v20H5zM5 28l7 6v-6" />
                   </svg>
-                  <div style={{ fontSize: 14, color: "#aaa", fontWeight: 600 }}>
+                  <div style={{ fontSize: 15, color: "#aaa", fontWeight: 600 }}>
                     Select a task to view details
                   </div>
                 </div>
@@ -3213,7 +3213,7 @@ export default function MyTasks() {
                       animation: "spin 0.7s linear infinite",
                     }}
                   />
-                  <div style={{ fontSize: 12, color: "#aaa" }}>
+                  <div style={{ fontSize: 13, color: "#aaa" }}>
                     Loading task details...
                   </div>
                   <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -3243,7 +3243,7 @@ export default function MyTasks() {
                     >
                       <span
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           background: "#ede9fe",
                           color: "#7c3aed",
                           padding: "3px 10px",
@@ -3253,7 +3253,7 @@ export default function MyTasks() {
                       >
                         {selected.tracking_id}
                       </span>
-                      <span style={{ fontSize: 11, color: "#aaa" }}>
+                      <span style={{ fontSize: 13, color: "#aaa" }}>
                         Created on {fmtDate(selected.created_at)}
                       </span>
                     </div>
@@ -3305,7 +3305,7 @@ export default function MyTasks() {
                     >
                       <h2
                         style={{
-                          fontSize: 19,
+                          fontSize: 20,
                           fontWeight: 800,
                           color: "#111",
                           margin: "0 0 18px",
@@ -3318,7 +3318,7 @@ export default function MyTasks() {
                       {/* TASK INFORMATION */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#aaa",
@@ -3341,7 +3341,7 @@ export default function MyTasks() {
                         <div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#aaa",
                               marginBottom: 5,
                             }}
@@ -3365,7 +3365,7 @@ export default function MyTasks() {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontSize: 9,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 flexShrink: 0,
                               }}
@@ -3378,7 +3378,7 @@ export default function MyTasks() {
                             </div>
                             <span
                               style={{
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: 600,
                                 color: "#111",
                               }}
@@ -3392,7 +3392,7 @@ export default function MyTasks() {
                         <div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#aaa",
                               marginBottom: 5,
                             }}
@@ -3401,7 +3401,7 @@ export default function MyTasks() {
                           </div>
                           <div
                             style={{
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: 600,
                               color: "#111",
                             }}
@@ -3412,7 +3412,7 @@ export default function MyTasks() {
                         <div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#aaa",
                               marginBottom: 5,
                             }}
@@ -3424,7 +3424,7 @@ export default function MyTasks() {
                         <div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#aaa",
                               marginBottom: 5,
                             }}
@@ -3436,7 +3436,7 @@ export default function MyTasks() {
                         <div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#aaa",
                               marginBottom: 5,
                             }}
@@ -3445,7 +3445,7 @@ export default function MyTasks() {
                           </div>
                           <div
                             style={{
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: 600,
                               color: "#111",
                             }}
@@ -3456,7 +3456,7 @@ export default function MyTasks() {
                         <div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#aaa",
                               marginBottom: 5,
                             }}
@@ -3465,7 +3465,7 @@ export default function MyTasks() {
                           </div>
                           <div
                             style={{
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: 600,
                               color: "#111",
                             }}
@@ -3495,7 +3495,7 @@ export default function MyTasks() {
                             <>
                               <div
                                 style={{
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   fontWeight: 700,
                                   letterSpacing: 1,
                                   color: "#aaa",
@@ -3541,7 +3541,7 @@ export default function MyTasks() {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         fontWeight: 700,
                                         flexShrink: 0,
                                         border: "2px solid #ede9fe",
@@ -3559,7 +3559,7 @@ export default function MyTasks() {
                                       >
                                         <span
                                           style={{
-                                            fontSize: 13,
+                                            fontSize: 14,
                                             fontWeight: 700,
                                             color: "#111",
                                           }}
@@ -3568,7 +3568,7 @@ export default function MyTasks() {
                                         </span>
                                         <span
                                           style={{
-                                            fontSize: 10,
+                                            fontSize: 12,
                                             background: "#1e1b2e",
                                             color: "white",
                                             padding: "2px 8px",
@@ -3589,7 +3589,7 @@ export default function MyTasks() {
                                       >
                                         <span
                                           style={{
-                                            fontSize: 10,
+                                            fontSize: 12,
                                             color: "#888",
                                           }}
                                         >
@@ -3599,7 +3599,7 @@ export default function MyTasks() {
                                         </span>
                                         <span
                                           style={{
-                                            fontSize: 9,
+                                            fontSize: 12,
                                             background: "#fef3c7",
                                             color: "#92400e",
                                             padding: "1px 6px",
@@ -3611,7 +3611,7 @@ export default function MyTasks() {
                                         </span>
                                         <span
                                           style={{
-                                            fontSize: 9,
+                                            fontSize: 12,
                                             background: "#dbeafe",
                                             color: "#1e40af",
                                             padding: "1px 6px",
@@ -3653,7 +3653,7 @@ export default function MyTasks() {
                                   <div
                                     style={{
                                       padding: "10px 16px 2px",
-                                      fontSize: 13,
+                                      fontSize: 14,
                                       color: "#374151",
                                       lineHeight: 1.65,
                                       whiteSpace: selected.notes
@@ -3765,7 +3765,7 @@ export default function MyTasks() {
                                             justifyContent: "center",
                                           }}
                                         >
-                                          <span style={{ fontSize: 14 }}>
+                                          <span style={{ fontSize: 15 }}>
                                             {isPdf
                                               ? "📄"
                                               : isXlsx
@@ -3778,7 +3778,7 @@ export default function MyTasks() {
                                         <div style={{ minWidth: 0 }}>
                                           <div
                                             style={{
-                                              fontSize: 12,
+                                              fontSize: 13,
                                               fontWeight: 700,
                                               color: "#111",
                                               maxWidth: 160,
@@ -3791,7 +3791,7 @@ export default function MyTasks() {
                                           </div>
                                           <div
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: "#7c3aed",
                                               marginTop: 2,
                                               fontWeight: 600,
@@ -3990,7 +3990,7 @@ export default function MyTasks() {
                                           display: "flex",
                                           alignItems: "center",
                                           justifyContent: "center",
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           fontWeight: 700,
                                           flexShrink: 0,
                                           border: "2px solid #fecaca",
@@ -4008,7 +4008,7 @@ export default function MyTasks() {
                                         >
                                           <span
                                             style={{
-                                              fontSize: 13,
+                                              fontSize: 14,
                                               fontWeight: 700,
                                               color: "#111",
                                             }}
@@ -4017,7 +4017,7 @@ export default function MyTasks() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               background: "#dc2626",
                                               color: "white",
                                               padding: "2px 8px",
@@ -4029,7 +4029,7 @@ export default function MyTasks() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               background: "#fee2e2",
                                               color: "#dc2626",
                                               padding: "2px 8px",
@@ -4050,7 +4050,7 @@ export default function MyTasks() {
                                         >
                                           <span
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: "#888",
                                             }}
                                           >
@@ -4058,7 +4058,7 @@ export default function MyTasks() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 9,
+                                              fontSize: 12,
                                               background: "#fee2e2",
                                               color: "#991b1b",
                                               padding: "1px 6px",
@@ -4108,7 +4108,7 @@ export default function MyTasks() {
                                       </svg>
                                       <span
                                         style={{
-                                          fontSize: 12,
+                                          fontSize: 13,
                                           color: "#dc2626",
                                           fontWeight: 600,
                                         }}
@@ -4122,7 +4122,7 @@ export default function MyTasks() {
                                       <div
                                         style={{
                                           padding: "8px 16px",
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           color: "#374151",
                                           lineHeight: 1.65,
                                         }}
@@ -4143,7 +4143,7 @@ export default function MyTasks() {
                                         <div
                                           style={{
                                             width: "100%",
-                                            fontSize: 11,
+                                            fontSize: 13,
                                             fontWeight: 700,
                                             color: "#dc2626",
                                             letterSpacing: 0.5,
@@ -4251,7 +4251,7 @@ export default function MyTasks() {
                                                   justifyContent: "center",
                                                 }}
                                               >
-                                                <span style={{ fontSize: 14 }}>
+                                                <span style={{ fontSize: 15 }}>
                                                   {isPdf
                                                     ? "📄"
                                                     : isXlsx
@@ -4262,7 +4262,7 @@ export default function MyTasks() {
                                               <div style={{ minWidth: 0 }}>
                                                 <div
                                                   style={{
-                                                    fontSize: 12,
+                                                    fontSize: 13,
                                                     fontWeight: 700,
                                                     color: "#111",
                                                     maxWidth: 150,
@@ -4275,7 +4275,7 @@ export default function MyTasks() {
                                                 </div>
                                                 <div
                                                   style={{
-                                                    fontSize: 10,
+                                                    fontSize: 12,
                                                     color: "#dc2626",
                                                     marginTop: 2,
                                                     fontWeight: 600,
@@ -4295,7 +4295,7 @@ export default function MyTasks() {
                                         <div
                                           style={{
                                             padding: "10px 16px 14px",
-                                            fontSize: 12,
+                                            fontSize: 13,
                                             color: "#aaa",
                                             fontStyle: "italic",
                                           }}
@@ -4358,7 +4358,7 @@ export default function MyTasks() {
                                           display: "flex",
                                           alignItems: "center",
                                           justifyContent: "center",
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           fontWeight: 700,
                                           flexShrink: 0,
                                           border: "2px solid #f3f0ff",
@@ -4380,7 +4380,7 @@ export default function MyTasks() {
                                         >
                                           <span
                                             style={{
-                                              fontSize: 13,
+                                              fontSize: 14,
                                               fontWeight: 700,
                                               color: "#111",
                                             }}
@@ -4391,7 +4391,7 @@ export default function MyTasks() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               background: "#ede9fe",
                                               color: "#5b21b6",
                                               padding: "2px 8px",
@@ -4412,7 +4412,7 @@ export default function MyTasks() {
                                         >
                                           <span
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: "#888",
                                             }}
                                           >
@@ -4422,7 +4422,7 @@ export default function MyTasks() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 9,
+                                              fontSize: 12,
                                               background: "#fef3c7",
                                               color: "#92400e",
                                               padding: "1px 6px",
@@ -4434,7 +4434,7 @@ export default function MyTasks() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 9,
+                                              fontSize: 12,
                                               background: "#d1fae5",
                                               color: "#065f46",
                                               padding: "1px 6px",
@@ -4479,7 +4479,7 @@ export default function MyTasks() {
                                   <div
                                     style={{
                                       padding: "10px 16px 2px",
-                                      fontSize: 13,
+                                      fontSize: 14,
                                       color: "#374151",
                                       lineHeight: 1.65,
                                     }}
@@ -4597,7 +4597,7 @@ export default function MyTasks() {
                                                 justifyContent: "center",
                                               }}
                                             >
-                                              <span style={{ fontSize: 14 }}>
+                                              <span style={{ fontSize: 15 }}>
                                                 {isPdf
                                                   ? "📄"
                                                   : isXlsx
@@ -4610,7 +4610,7 @@ export default function MyTasks() {
                                             <div style={{ minWidth: 0 }}>
                                               <div
                                                 style={{
-                                                  fontSize: 12,
+                                                  fontSize: 13,
                                                   fontWeight: 700,
                                                   color: "#111",
                                                   maxWidth: 150,
@@ -4623,7 +4623,7 @@ export default function MyTasks() {
                                               </div>
                                               <div
                                                 style={{
-                                                  fontSize: 10,
+                                                  fontSize: 12,
                                                   color: a._pending
                                                     ? "#a78bfa"
                                                     : "#7c3aed",
@@ -4675,7 +4675,7 @@ export default function MyTasks() {
                           >
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 13,
                                 fontWeight: 700,
                                 letterSpacing: 1,
                                 color: alreadySubmitted ? "#059669" : "#7c3aed",
@@ -4711,7 +4711,7 @@ export default function MyTasks() {
                             {alreadySubmitted ? (
                               <div
                                 style={{
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: "#374151",
                                   lineHeight: 1.6,
                                 }}
@@ -4744,7 +4744,7 @@ export default function MyTasks() {
                                   </svg>
                                   <span
                                     style={{
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       color: "#065f46",
                                       fontWeight: 600,
                                     }}
@@ -4768,7 +4768,7 @@ export default function MyTasks() {
                                     padding: "10px 12px",
                                     border: "1px solid #e9d5ff",
                                     borderRadius: 8,
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     color: "#111",
                                     resize: "vertical",
                                     fontFamily: "inherit",
@@ -4842,7 +4842,7 @@ export default function MyTasks() {
                                     <Icon.Attach />
                                     <span
                                       style={{
-                                        fontSize: 12,
+                                        fontSize: 13,
                                         fontWeight: 600,
                                         color: "#7c3aed",
                                       }}
@@ -4850,14 +4850,14 @@ export default function MyTasks() {
                                       Attach files
                                     </span>
                                     <span
-                                      style={{ fontSize: 11, color: "#a78bfa" }}
+                                      style={{ fontSize: 13, color: "#a78bfa" }}
                                     >
                                       or drag & drop here
                                     </span>
                                   </div>
                                   <div
                                     style={{
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       color: "#c4b5fd",
                                       marginTop: 4,
                                     }}
@@ -4927,7 +4927,7 @@ export default function MyTasks() {
                                               justifyContent: "center",
                                             }}
                                           >
-                                            <span style={{ fontSize: 13 }}>
+                                            <span style={{ fontSize: 14 }}>
                                               {isPdf
                                                 ? "📄"
                                                 : isXlsx
@@ -4940,7 +4940,7 @@ export default function MyTasks() {
                                           <div style={{ minWidth: 0, flex: 1 }}>
                                             <div
                                               style={{
-                                                fontSize: 11,
+                                                fontSize: 13,
                                                 fontWeight: 700,
                                                 color: "#111",
                                                 overflow: "hidden",
@@ -4953,7 +4953,7 @@ export default function MyTasks() {
                                             </div>
                                             <div
                                               style={{
-                                                fontSize: 10,
+                                                fontSize: 12,
                                                 color: "#a78bfa",
                                               }}
                                             >
@@ -4998,7 +4998,7 @@ export default function MyTasks() {
                                     border: "none",
                                     background: "#7c3aed",
                                     color: "white",
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     fontWeight: 700,
                                     cursor: submitting
                                       ? "not-allowed"
@@ -5044,7 +5044,7 @@ export default function MyTasks() {
                       {/* DISCUSSION */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#aaa",
@@ -5070,7 +5070,7 @@ export default function MyTasks() {
                         {(selected.comments || []).length === 0 ? (
                           <div
                             style={{
-                              fontSize: 12,
+                              fontSize: 13,
                               color: "#ccc",
                               fontStyle: "italic",
                             }}
@@ -5142,7 +5142,7 @@ export default function MyTasks() {
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    fontSize: 11,
+                                    fontSize: 13,
                                     fontWeight: 700,
                                     flexShrink: 0,
                                   }}
@@ -5160,7 +5160,7 @@ export default function MyTasks() {
                                   >
                                     <span
                                       style={{
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         fontWeight: 700,
                                         color: "#111",
                                       }}
@@ -5168,7 +5168,7 @@ export default function MyTasks() {
                                       {c.sender_name}
                                     </span>
                                     <span
-                                      style={{ fontSize: 11, color: "#aaa" }}
+                                      style={{ fontSize: 13, color: "#aaa" }}
                                     >
                                       {c._pending
                                         ? "Sending..."
@@ -5238,7 +5238,7 @@ export default function MyTasks() {
                                         <div style={{ minWidth: 0 }}>
                                           <div
                                             style={{
-                                              fontSize: 12,
+                                              fontSize: 13,
                                               fontWeight: 700,
                                               color: "#374151",
                                               whiteSpace: "nowrap",
@@ -5251,7 +5251,7 @@ export default function MyTasks() {
                                           </div>
                                           <div
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: "#7c3aed",
                                               fontWeight: 600,
                                             }}
@@ -5268,7 +5268,7 @@ export default function MyTasks() {
                                         alignItems: "center",
                                         justifyContent: "space-between",
                                         gap: 10,
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         color: "#374151",
                                         lineHeight: 1.6,
                                         background: wasReturned
@@ -5284,7 +5284,7 @@ export default function MyTasks() {
                                         <span
                                           style={{
                                             flexShrink: 0,
-                                            fontSize: 9,
+                                            fontSize: 12,
                                             background: "#fee2e2",
                                             color: "#991b1b",
                                             padding: "2px 8px",
@@ -5300,7 +5300,7 @@ export default function MyTasks() {
                                   ) : (
                                     <div
                                       style={{
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         color: "#374151",
                                         lineHeight: 1.6,
                                       }}
@@ -5349,7 +5349,7 @@ export default function MyTasks() {
                           </div>
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#7c3aed",
                               fontStyle: "italic",
                             }}
@@ -5381,7 +5381,7 @@ export default function MyTasks() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 11,
+                            fontSize: 13,
                             fontWeight: 700,
                             flexShrink: 0,
                             marginTop: 2,
@@ -5419,7 +5419,7 @@ export default function MyTasks() {
                               padding: "10px 14px",
                               border: "none",
                               outline: "none",
-                              fontSize: 13,
+                              fontSize: 14,
                               background: "transparent",
                               borderRadius: "10px 10px 0 0",
                             }}
@@ -5453,7 +5453,7 @@ export default function MyTasks() {
                                       border: "1px solid #ddd6fe",
                                       borderRadius: 8,
                                       padding: "4px 8px 4px 6px",
-                                      fontSize: 11,
+                                      fontSize: 13,
                                       maxWidth: 180,
                                     }}
                                   >
@@ -5474,7 +5474,7 @@ export default function MyTasks() {
                                       <>
                                         <span
                                           style={{
-                                            fontSize: 18,
+                                            fontSize: 19,
                                             flexShrink: 0,
                                           }}
                                         >
@@ -5488,7 +5488,7 @@ export default function MyTasks() {
                                             whiteSpace: "nowrap",
                                             color: "#374151",
                                             fontWeight: 600,
-                                            fontSize: 11,
+                                            fontSize: 13,
                                           }}
                                         >
                                           {f.name}
@@ -5580,7 +5580,7 @@ export default function MyTasks() {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 4,
-                                fontSize: 11,
+                                fontSize: 13,
                                 fontWeight: 600,
                               }}
                             >
@@ -5588,7 +5588,7 @@ export default function MyTasks() {
                               {commentFiles.length > 0 && (
                                 <span
                                   style={{
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     background: "#7c3aed",
                                     color: "white",
                                     borderRadius: 10,
@@ -5615,7 +5615,7 @@ export default function MyTasks() {
                                 border: "none",
                                 background: "#7c3aed",
                                 color: "white",
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: 700,
                                 cursor: "pointer",
                               }}
@@ -5643,7 +5643,7 @@ export default function MyTasks() {
                     >
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#aaa",
@@ -5716,7 +5716,7 @@ export default function MyTasks() {
                       {/* Assigned-by card */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#aaa",
@@ -5749,7 +5749,7 @@ export default function MyTasks() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: 700,
                             flexShrink: 0,
                           }}
@@ -5761,14 +5761,14 @@ export default function MyTasks() {
                         <div>
                           <div
                             style={{
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: 700,
                               color: "#111",
                             }}
                           >
                             {selected.assigned_by_name || "—"}
                           </div>
-                          <div style={{ fontSize: 10, color: "#aaa" }}>
+                          <div style={{ fontSize: 12, color: "#aaa" }}>
                             {selected.assigned_by_email ||
                               "evelyn.samson@gmail.com"}
                           </div>
@@ -5792,7 +5792,7 @@ export default function MyTasks() {
                         >
                           <div
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#aaa",
                               marginBottom: 2,
                             }}
@@ -5801,7 +5801,7 @@ export default function MyTasks() {
                           </div>
                           <div
                             style={{
-                              fontSize: 16,
+                              fontSize: 17,
                               fontWeight: 800,
                               color: "#7c3aed",
                             }}
@@ -5819,7 +5819,7 @@ export default function MyTasks() {
                         >
                           <div
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#aaa",
                               marginBottom: 2,
                             }}
@@ -5828,7 +5828,7 @@ export default function MyTasks() {
                           </div>
                           <div
                             style={{
-                              fontSize: 16,
+                              fontSize: 17,
                               fontWeight: 800,
                               color: "#7c3aed",
                             }}
@@ -5853,7 +5853,7 @@ export default function MyTasks() {
             alignItems: "center",
             padding: "9px 24px",
             borderTop: "1px solid #f0f0f0",
-            fontSize: 11,
+            fontSize: 13,
             color: "#aaa",
             background: "white",
           }}
@@ -5880,7 +5880,7 @@ export default function MyTasks() {
                   style={{
                     color: "#aaa",
                     textDecoration: "none",
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: 600,
                     letterSpacing: 0.5,
                   }}
@@ -5935,10 +5935,10 @@ export default function MyTasks() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 16 }}>
+                <span style={{ fontSize: 17 }}>
                   {fileViewer.isPdf ? "📄" : fileViewer.isImg ? "🖼️" : "📎"}
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "white" }}>
                   {fileViewer.name}
                 </span>
               </div>
@@ -5952,7 +5952,7 @@ export default function MyTasks() {
                     background: "#7c3aed",
                     color: "white",
                     borderRadius: 7,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: 700,
                     textDecoration: "none",
                   }}
@@ -5967,7 +5967,7 @@ export default function MyTasks() {
                     background: "#ede9fe",
                     color: "#7c3aed",
                     borderRadius: 7,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: 700,
                     textDecoration: "none",
                   }}
@@ -5983,7 +5983,7 @@ export default function MyTasks() {
                     color: "white",
                     cursor: "pointer",
                     padding: "6px 10px",
-                    fontSize: 16,
+                    fontSize: 17,
                     lineHeight: 1,
                   }}
                 >
@@ -6025,7 +6025,7 @@ export default function MyTasks() {
                   <div style={{ fontSize: 48, marginBottom: 16 }}>📎</div>
                   <div
                     style={{
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: 600,
                       color: "white",
                       marginBottom: 8,
@@ -6034,7 +6034,7 @@ export default function MyTasks() {
                     {fileViewer.name}
                   </div>
                   <div
-                    style={{ fontSize: 12, color: "#888", marginBottom: 20 }}
+                    style={{ fontSize: 13, color: "#888", marginBottom: 20 }}
                   >
                     Preview not available for this file type.
                   </div>
@@ -6046,7 +6046,7 @@ export default function MyTasks() {
                       background: "#7c3aed",
                       color: "white",
                       borderRadius: 8,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: 700,
                       textDecoration: "none",
                     }}
