@@ -54,22 +54,22 @@ const DASHBOARD_LAYOUT_CSS = `
   .path-dashboard { min-height: 100vh; display: flex; background: #faf9fc; color: #3e3248; font-family: "DM Sans", Arial, sans-serif; }
   .path-dashboard-main { min-width: 0; flex: 1; }
   .path-content { max-width: 1170px; margin: 0 auto; padding: 42px 48px 28px; }
-  .path-perspective { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; padding: 9px 13px; border: 1px solid #e7e1ec; border-radius: 10px; background: #fff; color: #8f8399; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+  .path-perspective { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; padding: 9px 13px; border: 1px solid #e7e1ec; border-radius: 10px; background: #fff; color: #8f8399; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
   .path-perspective-options { display: flex; align-items: center; gap: 3px; padding: 3px; border-radius: 7px; background: #f8f6fb; }
-  .path-perspective-options button { display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 5px; padding: 7px 9px; background: transparent; color: #93889b; font-size: 8px; font-weight: 800; text-transform: none; cursor: pointer; }
+  .path-perspective-options button { display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 5px; padding: 7px 9px; background: transparent; color: #93889b; font-size: 11px; font-weight: 800; text-transform: none; cursor: pointer; }
   .path-perspective-options button.active { background: #fff; color: #6b35c4; box-shadow: 0 2px 7px rgba(56,35,92,.08); }
   .path-hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; min-height: 130px; border-left: 2px solid #c9b5f8; padding: 20px 0 17px 18px; }
-  .path-kicker { color: #a59aac; font-size: 8px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+  .path-kicker { color: #a59aac; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
   .path-kicker::before { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #8c4be7; content: ""; vertical-align: 0; }
   .path-hero h1 { margin: 14px 0 8px; color: #2f2638; font-family: "Manrope", Arial, sans-serif; font-size: 35px; font-weight: 800; letter-spacing: -.065em; line-height: 1; }
-  .path-hero p { margin: 0; color: #8e8297; font-size: 11px; }
-  .path-primary-button { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 8px; padding: 12px 16px; background: #7c3aed; color: #fff; font-size: 10px; font-weight: 800; box-shadow: 0 8px 16px rgba(124,58,237,.18); cursor: pointer; }
+  .path-hero p { margin: 0; color: #8e8297; font-size: 13px; }
+  .path-primary-button { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 8px; padding: 12px 16px; background: #7c3aed; color: #fff; font-size: 12px; font-weight: 800; box-shadow: 0 8px 16px rgba(124,58,237,.18); cursor: pointer; }
   .path-primary-button:hover { background: #6d28d9; }
   .path-primary-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; }
   .path-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
   .path-stat-card, .path-panel { border: 1px solid #ece7f0; border-radius: 12px; background: #fff; box-shadow: 0 4px 18px rgba(58,42,77,.025); }
   .path-stat-card { min-width: 0; padding: 18px 18px 16px; }
-  .path-stat-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #948a9e; font-size: 9px; }
+  .path-stat-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #948a9e; font-size: 12px; }
   .path-stat-icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 7px; }
   .path-stat-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
   .path-stat-card.violet .path-stat-icon { background: #f0eaff; color: #7342cc; }
@@ -77,96 +77,96 @@ const DASHBOARD_LAYOUT_CSS = `
   .path-stat-card.mint .path-stat-icon { background: #e6f7ef; color: #4e9a77; }
   .path-stat-card.blue .path-stat-icon { background: #e9f3ff; color: #4784bd; }
   .path-stat-value { margin-top: 13px; color: #2f2738; font-family: "Manrope", Arial, sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -.06em; line-height: 1; }
-  .path-stat-detail { display: flex; align-items: center; gap: 5px; margin-top: 8px; color: #aca2b1; font-size: 8px; }
+  .path-stat-detail { display: flex; align-items: center; gap: 5px; margin-top: 8px; color: #aca2b1; font-size: 11px; }
   .path-stat-change { color: #6c35c3; font-weight: 800; }
   .path-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 34px 0 13px; }
-  .path-section-heading h2 { margin: 5px 0 0; color: #44344f; font-family: "Manrope", Arial, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.05em; }
-  .path-section-heading h2 span { display: inline-block; margin-left: 5px; border-radius: 5px; padding: 3px 5px; background: #f0e8ff; color: #7941cd; font-family: "DM Sans", Arial, sans-serif; font-size: 9px; vertical-align: 3px; }
+  .path-section-heading h2 { margin: 5px 0 0; color: #44344f; font-family: "Manrope", Arial, sans-serif; font-size: 21px; font-weight: 800; letter-spacing: -.05em; }
+  .path-section-heading h2 span { display: inline-block; margin-left: 5px; border-radius: 5px; padding: 3px 5px; background: #f0e8ff; color: #7941cd; font-family: "DM Sans", Arial, sans-serif; font-size: 12px; vertical-align: 3px; }
   .path-section-actions { display: flex; align-items: center; gap: 13px; }
-  .path-ghost-button, .path-text-button { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; font-family: "DM Sans", Arial, sans-serif; font-size: 9px; font-weight: 800; cursor: pointer; }
+  .path-ghost-button, .path-text-button { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; font-family: "DM Sans", Arial, sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; }
   .path-ghost-button { border: 1px solid #e2dce7; border-radius: 7px; padding: 8px 10px; color: #74677e; }
   .path-text-button { color: #7040c5; }
   .path-ghost-button svg, .path-text-button svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
   .path-filter-menu { position: absolute; z-index: 2; margin-top: 5px; min-width: 126px; border: 1px solid #ebe4f0; border-radius: 8px; padding: 5px; background: #fff; box-shadow: 0 12px 28px rgba(47,32,69,.12); }
   .path-filter-wrap { position: relative; }
-  .path-filter-menu button { display: block; width: 100%; border: 0; border-radius: 5px; padding: 8px; background: transparent; color: #76687e; font-size: 9px; text-align: left; cursor: pointer; }
+  .path-filter-menu button { display: block; width: 100%; border: 0; border-radius: 5px; padding: 8px; background: transparent; color: #76687e; font-size: 12px; text-align: left; cursor: pointer; }
   .path-filter-menu button:hover { background: #f7f2ff; color: #6734bd; }
   .path-work-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(250px, .75fr); gap: 14px; }
   .path-queue-card { overflow: hidden; }
   .path-queue-row { display: grid; grid-template-columns: 25px 30px minmax(0, 1fr) auto 15px; width: 100%; min-height: 65px; align-items: center; gap: 10px; border: 0; border-bottom: 1px solid #f2eef4; padding: 0 18px; background: #fff; color: inherit; text-align: left; cursor: pointer; }
   .path-queue-row:hover { background: #fcfbff; }
-  .path-queue-index { color: #b09fbf; font-size: 8px; }
-  .path-person-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: #eee7ff; color: #7040c5; font-size: 8px; font-weight: 900; }
+  .path-queue-index { color: #b09fbf; font-size: 11px; }
+  .path-person-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: #eee7ff; color: #7040c5; font-size: 11px; font-weight: 900; }
   .path-queue-main { min-width: 0; }
   .path-queue-main strong, .path-queue-main span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .path-queue-main strong { color: #55435f; font-size: 10px; font-weight: 800; }
-  .path-queue-main span { margin-top: 4px; color: #a095aa; font-size: 8px; }
+  .path-queue-main strong { color: #55435f; font-size: 12px; font-weight: 800; }
+  .path-queue-main span { margin-top: 4px; color: #a095aa; font-size: 11px; }
   .path-queue-main i { color: #c9becd; font-style: normal; }
   .path-queue-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-  .path-status-pill { border-radius: 999px; padding: 4px 7px; font-size: 7px; font-weight: 800; white-space: nowrap; }
+  .path-status-pill { border-radius: 999px; padding: 4px 7px; font-size: 10px; font-weight: 800; white-space: nowrap; }
   .path-status-pill.urgent { background: #fff0ed; color: #b65d51; }
   .path-status-pill.review { background: #fff9e9; color: #a27a2c; }
   .path-status-pill.progress { background: #eef3ff; color: #6579ba; }
   .path-status-pill.draft { background: #f3f1f4; color: #8c8290; }
-  .path-due-label { color: #aaa0ae; font-size: 8px; white-space: nowrap; }
+  .path-due-label { color: #aaa0ae; font-size: 11px; white-space: nowrap; }
   .path-row-arrow { width: 14px; height: 14px; fill: none; stroke: #afa2b3; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
-  .path-queue-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 18px; color: #9b8fa5; font-size: 8px; }
+  .path-queue-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 18px; color: #9b8fa5; font-size: 11px; }
   .path-queue-footer span { display: inline-flex; align-items: center; gap: 5px; }
   .path-queue-footer svg { width: 14px; height: 14px; fill: none; stroke: #8f70d0; stroke-width: 1.5; }
   .path-sla-card { padding: 18px; }
   .path-panel-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .path-panel-topline h3 { margin: 6px 0 0; color: #51405d; font-family: "Manrope", Arial, sans-serif; font-size: 15px; letter-spacing: -.035em; }
+  .path-panel-topline h3 { margin: 6px 0 0; color: #51405d; font-family: "Manrope", Arial, sans-serif; font-size: 16px; letter-spacing: -.035em; }
   .path-more { border: 0; background: transparent; color: #aa9fae; cursor: pointer; }
   .path-more svg { width: 15px; height: 15px; fill: currentColor; }
   .path-health-score { display: flex; align-items: center; gap: 14px; margin-top: 21px; }
   .path-score-ring { display: grid; width: 76px; height: 76px; place-items: center; border: 7px solid #f0eaff; border-top-color: #7c3aed; border-right-color: #8e52e3; border-radius: 50%; }
-  .path-score-ring strong { color: #622cb6; font-family: "Manrope", Arial, sans-serif; font-size: 20px; letter-spacing: -.05em; }
-  .path-score-ring span { color: #7955b0; font-size: 10px; }
-  .path-health-score-copy strong { display: block; color: #594463; font-size: 12px; font-weight: 800; }
-  .path-health-score-copy p { margin: 5px 0 0; color: #9b8fa4; font-size: 8px; }
+  .path-score-ring strong { color: #622cb6; font-family: "Manrope", Arial, sans-serif; font-size: 21px; letter-spacing: -.05em; }
+  .path-score-ring span { color: #7955b0; font-size: 12px; }
+  .path-health-score-copy strong { display: block; color: #594463; font-size: 13px; font-weight: 800; }
+  .path-health-score-copy p { margin: 5px 0 0; color: #9b8fa4; font-size: 11px; }
   .path-health-bar { height: 5px; margin-top: 20px; overflow: hidden; border-radius: 99px; background: #eeeaf4; }
   .path-health-bar span { display: block; width: 92%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #a986ed, #7c3aed); }
-  .path-health-caption { display: flex; justify-content: space-between; margin-top: 5px; color: #b2a8b7; font-size: 7px; }
+  .path-health-caption { display: flex; justify-content: space-between; margin-top: 5px; color: #b2a8b7; font-size: 10px; }
   .path-sla-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 23px; padding-top: 14px; border-top: 1px solid #f0edf2; }
-  .path-mini-label { display: block; color: #a69ba9; font-size: 7px; letter-spacing: .08em; text-transform: uppercase; }
-  .path-sla-metrics strong { display: block; margin-top: 5px; color: #5b465f; font-family: "Manrope", Arial, sans-serif; font-size: 17px; letter-spacing: -.05em; }
-  .path-sla-metrics small { display: inline-flex; align-items: center; gap: 3px; margin-top: 5px; color: #669b7d; font-size: 7px; }
+  .path-mini-label { display: block; color: #a69ba9; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .path-sla-metrics strong { display: block; margin-top: 5px; color: #5b465f; font-family: "Manrope", Arial, sans-serif; font-size: 18px; letter-spacing: -.05em; }
+  .path-sla-metrics small { display: inline-flex; align-items: center; gap: 3px; margin-top: 5px; color: #669b7d; font-size: 10px; }
   .path-sla-metrics small.negative { color: #b78442; }
   .path-sla-metrics small svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.5; }
   .path-performance-panel { margin-top: 16px; padding: 22px 24px 20px; overflow: hidden; }
   .path-performance-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
-  .path-performance-heading h2 { margin: 5px 0 0; color: #44344f; font-family: "Manrope", Arial, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.045em; }
-  .path-performance-heading p { max-width: 560px; margin: 7px 0 0; color: #8c8096; font-size: 10px; line-height: 1.55; }
+  .path-performance-heading h2 { margin: 5px 0 0; color: #44344f; font-family: "Manrope", Arial, sans-serif; font-size: 21px; font-weight: 800; letter-spacing: -.045em; }
+  .path-performance-heading p { max-width: 560px; margin: 7px 0 0; color: #8c8096; font-size: 12px; line-height: 1.55; }
   .path-performance-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-top: 18px; }
   .path-performance-summary > div { min-width: 0; padding: 12px 13px; border: 1px solid #eee8f2; border-radius: 9px; background: #fcfbff; }
-  .path-performance-summary span, .path-performance-summary small { display: block; color: #95899f; font-size: 8px; font-weight: 800; }
+  .path-performance-summary span, .path-performance-summary small { display: block; color: #95899f; font-size: 11px; font-weight: 800; }
   .path-performance-summary span { letter-spacing: .07em; text-transform: uppercase; }
   .path-performance-summary strong { display: block; margin-top: 5px; color: #5523a8; font-family: "Manrope", Arial, sans-serif; font-size: 22px; letter-spacing: -.055em; line-height: 1; }
-  .path-performance-summary small { margin-top: 5px; color: #a69aaf; font-size: 8px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+  .path-performance-summary small { margin-top: 5px; color: #a69aaf; font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; }
   .path-performance-content { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(190px, .75fr); gap: 18px; margin-top: 18px; }
   .path-performance-row { display: grid; grid-template-columns: minmax(145px, 1.15fr) minmax(150px, 1fr) auto; align-items: center; gap: 16px; min-height: 57px; border-top: 1px solid #f1edf4; }
   .path-performance-row:first-child { border-top: 0; }
   .path-performance-person { display: flex; min-width: 0; align-items: center; gap: 9px; }
-  .path-performance-avatar { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: #eee7ff; color: #7040c5; font-size: 8px; font-weight: 900; }
+  .path-performance-avatar { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: #eee7ff; color: #7040c5; font-size: 11px; font-weight: 900; }
   .path-performance-person > div { min-width: 0; }
   .path-performance-person strong, .path-performance-person span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .path-performance-person strong { color: #584762; font-size: 10px; font-weight: 800; }
-  .path-performance-person span { margin-top: 3px; color: #a095aa; font-size: 8px; }
-  .path-performance-progress-top { display: flex; justify-content: space-between; gap: 8px; color: #a095aa; font-size: 8px; }
-  .path-performance-progress-top b { color: #6840a6; font-size: 9px; }
+  .path-performance-person strong { color: #584762; font-size: 12px; font-weight: 800; }
+  .path-performance-person span { margin-top: 3px; color: #a095aa; font-size: 11px; }
+  .path-performance-progress-top { display: flex; justify-content: space-between; gap: 8px; color: #a095aa; font-size: 11px; }
+  .path-performance-progress-top b { color: #6840a6; font-size: 12px; }
   .path-performance-track { height: 6px; margin-top: 6px; overflow: hidden; border-radius: 999px; background: #eeeaf3; }
   .path-performance-track span { display: block; height: 100%; border-radius: inherit; background: #65a58a; }
   .path-performance-track span.risk { background: #ce7668; }
-  .path-performance-status { min-width: 80px; border-radius: 999px; padding: 5px 8px; background: #edf8f2; color: #4c8b6e; font-size: 8px; font-weight: 800; text-align: center; white-space: nowrap; }
+  .path-performance-status { min-width: 80px; border-radius: 999px; padding: 5px 8px; background: #edf8f2; color: #4c8b6e; font-size: 11px; font-weight: 800; text-align: center; white-space: nowrap; }
   .path-performance-status.risk { background: #fff0ed; color: #b45b50; }
   .path-performance-highlight { min-width: 0; border: 1px solid #e2d6f4; border-radius: 10px; padding: 16px; background: linear-gradient(145deg, #fcfbff 0%, #f4effe 100%); }
-  .path-performance-highlight > strong { display: block; overflow: hidden; margin-top: 8px; color: #4d2b78; font-family: "Manrope", Arial, sans-serif; font-size: 16px; letter-spacing: -.04em; text-overflow: ellipsis; white-space: nowrap; }
-  .path-performance-highlight > p { margin: 6px 0 0; color: #817391; font-size: 9px; line-height: 1.5; }
+  .path-performance-highlight > strong { display: block; overflow: hidden; margin-top: 8px; color: #4d2b78; font-family: "Manrope", Arial, sans-serif; font-size: 17px; letter-spacing: -.04em; text-overflow: ellipsis; white-space: nowrap; }
+  .path-performance-highlight > p { margin: 6px 0 0; color: #817391; font-size: 12px; line-height: 1.5; }
   .path-performance-highlight-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 22px; }
   .path-performance-highlight-metrics > div { border-top: 1px solid #e4d9f2; padding-top: 9px; }
   .path-performance-highlight-metrics span, .path-performance-highlight-metrics b { display: block; }
-  .path-performance-highlight-metrics span { color: #9586a3; font-size: 8px; }
-  .path-performance-highlight-metrics b { margin-top: 5px; color: #6334ad; font-family: "Manrope", Arial, sans-serif; font-size: 18px; letter-spacing: -.04em; }
+  .path-performance-highlight-metrics span { color: #9586a3; font-size: 11px; }
+  .path-performance-highlight-metrics b { margin-top: 5px; color: #6334ad; font-family: "Manrope", Arial, sans-serif; font-size: 19px; letter-spacing: -.04em; }
   .path-lower-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(250px, .75fr); gap: 14px; margin-top: 16px; }
   .path-activity-card, .path-report-card { min-width: 0; padding: 18px; }
   .path-activity-list { margin-top: 14px; }
@@ -180,19 +180,19 @@ const DASHBOARD_LAYOUT_CSS = `
   .path-activity-icon.amber { background: #fff5db; color: #b2832e; }
   .path-activity-copy { min-width: 0; flex: 1; }
   .path-activity-copy strong, .path-activity-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .path-activity-copy strong { color: #5a4763; font-size: 9px; font-weight: 800; }
-  .path-activity-copy span { margin-top: 4px; color: #a098a7; font-size: 8px; }
+  .path-activity-copy strong { color: #5a4763; font-size: 12px; font-weight: 800; }
+  .path-activity-copy span { margin-top: 4px; color: #a098a7; font-size: 11px; }
   .path-report-summary { margin: 18px 0 17px; }
   .path-report-summary strong { color: #5a3c67; font-family: "Manrope", Arial, sans-serif; font-size: 27px; letter-spacing: -.06em; }
-  .path-report-summary span { margin-left: 7px; color: #9e93a7; font-size: 8px; }
-  .path-report-summary small { display: block; margin-top: 5px; color: #5fa17c; font-size: 8px; }
+  .path-report-summary span { margin-left: 7px; color: #9e93a7; font-size: 11px; }
+  .path-report-summary small { display: block; margin-top: 5px; color: #5fa17c; font-size: 11px; }
   .path-report-bars { display: grid; gap: 10px; }
-  .path-report-bar-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 22px; align-items: center; gap: 8px; color: #9a8fa4; font-size: 8px; }
+  .path-report-bar-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 22px; align-items: center; gap: 8px; color: #9a8fa4; font-size: 11px; }
   .path-report-bar-track { height: 6px; overflow: hidden; border-radius: 999px; background: #f0edf4; }
   .path-report-bar-track span { display: block; height: 100%; border-radius: inherit; background: #8854df; }
-  .path-report-bar-row strong { color: #6c5a77; font-size: 8px; text-align: right; }
-  .path-toast { position: fixed; right: 22px; bottom: 22px; z-index: 5; border: 1px solid #dfd3f3; border-radius: 9px; padding: 11px 14px; background: #fff; color: #6232ae; font-size: 9px; font-weight: 800; box-shadow: 0 14px 30px rgba(55,34,84,.14); }
-  .path-footer { display: flex; justify-content: space-between; gap: 14px; margin-top: 24px; padding: 14px 0 0; border-top: 1px solid #eeeaf1; color: #aaa0b1; font-size: 8px; }
+  .path-report-bar-row strong { color: #6c5a77; font-size: 11px; text-align: right; }
+  .path-toast { position: fixed; right: 22px; bottom: 22px; z-index: 5; border: 1px solid #dfd3f3; border-radius: 9px; padding: 11px 14px; background: #fff; color: #6232ae; font-size: 12px; font-weight: 800; box-shadow: 0 14px 30px rgba(55,34,84,.14); }
+  .path-footer { display: flex; justify-content: space-between; gap: 14px; margin-top: 24px; padding: 14px 0 0; border-top: 1px solid #eeeaf1; color: #aaa0b1; font-size: 11px; }
 @media (max-width: 1040px) { .path-content { padding-right: 28px; padding-left: 28px; } .path-work-grid, .path-lower-grid { grid-template-columns: minmax(0, 1.35fr) minmax(230px, .8fr); } }
 @media (max-width: 820px) { .path-content { padding: 24px 16px; } .path-perspective { align-items: flex-start; flex-direction: column; } .path-hero { display: block; } .path-hero h1 { font-size: 30px; } .path-primary-button { margin-top: 20px; } .path-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .path-work-grid, .path-lower-grid, .path-performance-content { grid-template-columns: 1fr; } .path-performance-highlight { order: -1; } }
 @media (max-width: 520px) { .path-section-heading { align-items: flex-start; flex-direction: column; } .path-section-actions { width: 100%; justify-content: space-between; } .path-stat-card { padding: 14px 12px; } .path-stat-value { font-size: 23px; } .path-performance-panel { padding: 18px 15px 16px; } .path-performance-heading { display: block; } .path-performance-heading .path-text-button { margin-top: 12px; } .path-performance-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .path-performance-row { grid-template-columns: minmax(0, 1fr) auto; gap: 9px; padding: 10px 0; } .path-performance-progress { grid-column: 1 / -1; grid-row: 2; } .path-performance-status { grid-column: 2; grid-row: 1; } .path-queue-row { grid-template-columns: 20px 28px minmax(0, 1fr) 14px; gap: 7px; padding: 0 11px; } .path-queue-meta { display: none; } .path-footer { flex-direction: column; } }
@@ -587,7 +587,7 @@ function StatusBadge({ s }) {
         display: "inline-flex",
         alignItems: "center",
         gap: 5,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 700,
         padding: "3px 9px",
         borderRadius: 20,
@@ -621,7 +621,7 @@ function TypeBadge({ type }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        fontSize: 9,
+        fontSize: 12,
         fontWeight: 700,
         padding: "2px 6px",
         borderRadius: 4,
@@ -642,7 +642,7 @@ function PriorityPill({ p }) {
   return (
     <span
       style={{
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: 700,
         padding: "2px 8px",
         borderRadius: 4,
@@ -772,7 +772,7 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick, avatarUrlFor }) {
       {/* Rank */}
       <span
         style={{
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 700,
           color: idx === 0 ? "#f59e0b" : "#9ca3af",
           width: 16,
@@ -792,25 +792,25 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick, avatarUrlFor }) {
         border={`2px solid hsl(${idx * 55 + 250}, 50%, 75%)`}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>
           {f.full_name}
         </p>
         <div
           style={{ display: "flex", gap: 10, marginTop: 2, flexWrap: "wrap" }}
         >
-          <span style={{ fontSize: 10, color: "#6b7280" }}>
+          <span style={{ fontSize: 12, color: "#6b7280" }}>
             Active:{" "}
             <strong style={{ color: "#374151" }}>{f.active_count}</strong>
           </span>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>
+          <span style={{ fontSize: 12, color: "#6b7280" }}>
             Done:{" "}
             <strong style={{ color: "#059669" }}>{f.completed_count}</strong>
           </span>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>
+          <span style={{ fontSize: 12, color: "#6b7280" }}>
             Pending:{" "}
             <strong style={{ color: "#d97706" }}>{f.pending_count}</strong>
           </span>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>
+          <span style={{ fontSize: 12, color: "#6b7280" }}>
             Delayed:{" "}
             <strong style={{ color: delayedCount > 0 ? "#dc2626" : "#374151" }}>
               {delayedCount}
@@ -822,7 +822,7 @@ function FacultyPerformanceRow({ f, idx, delayedDocs, onClick, avatarUrlFor }) {
       <div style={{ width: 80, textAlign: "right" }}>
         <p
           style={{
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: 800,
             color: rateColor,
             lineHeight: 1,
@@ -898,7 +898,7 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick, avatarUrlFor
           >
             <span
               style={{
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 500,
                 color: "#181445",
                 lineHeight: 1.3,
@@ -909,7 +909,7 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick, avatarUrlFor
             >
               {f.full_name}
             </span>
-            <span style={{ fontSize: 11, color: "#7b7486" }}>
+            <span style={{ fontSize: 13, color: "#7b7486" }}>
               {idx === 0 ? "Top performer" : "Faculty member"}
             </span>
           </div>
@@ -919,7 +919,7 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick, avatarUrlFor
         style={{
           padding: "16px 24px",
           textAlign: "center",
-          fontSize: 14,
+          fontSize: 15,
           fontWeight: 600,
           color: "#181445",
         }}
@@ -930,7 +930,7 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick, avatarUrlFor
         style={{
           padding: "16px 24px",
           textAlign: "center",
-          fontSize: 14,
+          fontSize: 15,
           fontWeight: 600,
           color: "#6b38d4",
         }}
@@ -941,7 +941,7 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick, avatarUrlFor
         style={{
           padding: "16px 24px",
           textAlign: "center",
-          fontSize: 14,
+          fontSize: 15,
           fontWeight: 600,
           color: delayedCount > 0 ? "#ba1a1a" : "#181445",
         }}
@@ -957,7 +957,7 @@ function FacultyPerformanceTableRow({ f, idx, delayedDocs, onClick, avatarUrlFor
             width: 110,
           }}
         >
-          <span style={{ fontSize: 13, fontWeight: 600, color: rateColor }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: rateColor }}>
             {rate}%
           </span>
           <div
@@ -1169,7 +1169,7 @@ function FacultyDetailPanel({
             <div style={{ minWidth: 0 }}>
               <p
                 style={{
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: 700,
                   color: "#111827",
                   whiteSpace: "nowrap",
@@ -1179,7 +1179,7 @@ function FacultyDetailPanel({
               >
                 {faculty.full_name}
               </p>
-              <p style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>
+              <p style={{ fontSize: 13, color: "#6b7280", marginTop: 1 }}>
                 Performance breakdown
               </p>
             </div>
@@ -1247,7 +1247,7 @@ function FacultyDetailPanel({
                   </div>
                   <p
                     style={{
-                      fontSize: 18,
+                      fontSize: 19,
                       fontWeight: 800,
                       color: s.color,
                       lineHeight: 1,
@@ -1255,7 +1255,7 @@ function FacultyDetailPanel({
                   >
                     {s.value}
                   </p>
-                  <p style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>
+                  <p style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
                     {s.label}
                   </p>
                 </div>
@@ -1272,10 +1272,10 @@ function FacultyDetailPanel({
                 marginBottom: 5,
               }}
             >
-              <span style={{ fontSize: 11, color: "#6b7280" }}>
+              <span style={{ fontSize: 13, color: "#6b7280" }}>
                 Completion Rate
               </span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: rateColor }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: rateColor }}>
                 {rate}%
               </span>
             </div>
@@ -1312,11 +1312,11 @@ function FacultyDetailPanel({
                     style={{ width: 13, height: 13, color: activeStat.color }}
                   />
                   <span
-                    style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}
+                    style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}
                   >
                     {activeStat.label} tasks
                   </span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                  <span style={{ fontSize: 12, color: "#9ca3af" }}>
                     ({listToShow.length})
                   </span>
                 </div>
@@ -1327,7 +1327,7 @@ function FacultyDetailPanel({
                     border: "none",
                     cursor: "pointer",
                     color: "#9ca3af",
-                    fontSize: 11,
+                    fontSize: 13,
                     padding: 2,
                   }}
                 >
@@ -1338,7 +1338,7 @@ function FacultyDetailPanel({
               {listToShow.length === 0 ? (
                 <p
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     color: "#9ca3af",
                     textAlign: "center",
                     padding: "14px 0",
@@ -1375,7 +1375,7 @@ function FacultyDetailPanel({
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p
                           style={{
-                            fontSize: 11.5,
+                            fontSize: 13.5,
                             fontWeight: 600,
                             color: "#111827",
                             whiteSpace: "nowrap",
@@ -1388,7 +1388,7 @@ function FacultyDetailPanel({
                         {item.date && (
                           <p
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#9ca3af",
                               marginTop: 1,
                             }}
@@ -1399,7 +1399,7 @@ function FacultyDetailPanel({
                       </div>
                       <span
                         style={{
-                          fontSize: 9.5,
+                          fontSize: 12.5,
                           fontWeight: 700,
                           color: activeStat.color,
                           background: `${activeStat.color}14`,
@@ -1476,10 +1476,10 @@ function FacultyPerformanceModal({
             }}
           >
             <div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>
                 Faculty Performance
               </p>
-              <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+              <p style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>
                 {`${faculty.length} faculty member${faculty.length === 1 ? "" : "s"}`}
               </p>
             </div>
@@ -1517,7 +1517,7 @@ function FacultyPerformanceModal({
                 padding: "16px 4px",
                 textAlign: "center",
                 color: "#9ca3af",
-                fontSize: 12,
+                fontSize: 13,
               }}
             >
               No faculty performance data yet.
@@ -1595,7 +1595,7 @@ function SectionCard({
           <div>
             <p
               style={{
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 600,
                 color: titleColor || "#191b24",
                 lineHeight: 1.3,
@@ -1604,7 +1604,7 @@ function SectionCard({
               {title}
             </p>
             {subtitle && (
-              <p style={{ fontSize: 12, color: "#484555", marginTop: 1 }}>
+              <p style={{ fontSize: 13, color: "#484555", marginTop: 1 }}>
                 {subtitle}
               </p>
             )}
@@ -1657,7 +1657,7 @@ function TableEmptyState({ icon: Icon, message, colSpan }) {
           >
             <Icon style={{ width: 16, height: 16, color: "#a89cdb" }} />
           </div>
-          <p style={{ fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}>
+          <p style={{ fontSize: 14, color: "#9ca3af", fontWeight: 500 }}>
             {message}
           </p>
         </div>
@@ -1691,7 +1691,7 @@ function ListEmptyState({ icon: Icon, message }) {
         <Icon size={16} color="#a89cdb" />
       </div>
       <p
-        style={{ margin: 0, fontSize: 12.5, color: "#9ca3af", fontWeight: 500 }}
+        style={{ margin: 0, fontSize: 14, color: "#9ca3af", fontWeight: 500 }}
       >
         {message}
       </p>
@@ -1727,7 +1727,7 @@ function RowLinkButton({ onClick, children }) {
     <button
       onClick={onClick}
       style={{
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: 700,
         color: "#5e3bdb",
         background: "none",
@@ -1761,7 +1761,7 @@ function TablePagination({
   const btnStyle = (disabled) => ({
     padding: "5px 10px",
     borderRadius: 6,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: 600,
     border: "1px solid #e5e7eb",
     background: disabled ? "#f9fafb" : "#fff",
@@ -1780,7 +1780,7 @@ function TablePagination({
         background: "#fcfcfd",
       }}
     >
-      <span style={{ fontSize: 11, color: "#6b7280" }}>
+      <span style={{ fontSize: 13, color: "#6b7280" }}>
         Showing {start}–{end} of {total}
       </span>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1799,7 +1799,7 @@ function TablePagination({
         </button>
         <span
           style={{
-            fontSize: 11,
+            fontSize: 13,
             color: "#374151",
             fontWeight: 600,
             padding: "0 4px",
@@ -1868,10 +1868,10 @@ function QuickActionRow({ icon: Icon, title, subtitle, onClick }) {
         <Icon style={{ width: 16, height: 16, color: "#5e3bdb" }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: "#191b24" }}>
+        <p style={{ fontSize: 14, fontWeight: 600, color: "#191b24" }}>
           {title}
         </p>
-        <p style={{ fontSize: 11.5, color: "#5d5e64", marginTop: 1 }}>
+        <p style={{ fontSize: 13.5, color: "#5d5e64", marginTop: 1 }}>
           {subtitle}
         </p>
       </div>
@@ -3220,7 +3220,7 @@ export default function Dashboard() {
         display: "flex",
         minHeight: "100vh",
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 13,
+        fontSize: 14,
         color: "#27213a",
         background: "#f8f7ff",
       }}
@@ -3236,14 +3236,14 @@ export default function Dashboard() {
 .path-overview-shell>div:last-child{background:var(--path-paper)!important}
 .path-overview-shell>div:last-child>div:nth-child(2){background:var(--path-paper)!important}
 .path-overview-shell>div:last-child>div:nth-child(2)>div:first-child{padding:42px 48px 30px!important;border-bottom:1px solid var(--path-border)!important;background:linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)!important}
-.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child h1{font-size:36px!important;color:var(--path-ink)!important}
+.path-overview-shell>div:last-child>div:nth-child(2)>div:first-child h1{font-size: 36px!important;color:var(--path-ink)!important}
 .path-overview-shell>div:last-child>div:nth-child(2)>div:first-child p{color:var(--path-muted)!important}
 .path-overview-shell>div:last-child>div:nth-child(2)>div:first-child>div:last-child{margin-top:26px!important}
 .path-overview-shell>div:last-child>div:nth-child(2)>div:first-child>div:last-child>div{background:#fff!important;border:1px solid var(--path-border)!important;border-radius:16px!important;box-shadow:0 8px 22px rgba(76,29,149,.06)!important;padding:18px!important}
 .path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3){padding:28px 48px!important;gap:22px!important}
 .path-overview-shell table thead tr{background:#faf7ff!important;border-bottom-color:#e7def2!important}
 .path-overview-shell table tbody tr{border-bottom-color:#f0eaf5!important}
-.path-overview-shell table th{color:#8b7c96!important;font-weight:700!important;font-size:10px!important;letter-spacing:.08em!important}
+.path-overview-shell table th{color:#8b7c96!important;font-weight:700!important;font-size: 12px!important;letter-spacing:.08em!important}
 .path-overview-shell table td{color:#51465e!important}
 .path-hero{background:#fbfaff!important}
 .path-stat-grid{grid-template-columns:1.18fr .92fr 1.08fr .92fr!important}
@@ -3253,9 +3253,9 @@ export default function Dashboard() {
 .path-main-grid>article:first-child{border-top:2px solid #7c3aed!important}
 .path-lower-grid{grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr)!important;gap:14px!important}
 .path-lower-grid>article{border-radius:10px 10px 26px 10px!important}
-.faculty-dashboard-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin:18px 48px 0;min-height:146px;padding:25px 22px;border-left:2px solid #bca5ef;border-bottom:1px solid #e6dfee;background:linear-gradient(105deg,#fbf9ff,#f4efff)}.faculty-dashboard-hero>div>span,.faculty-kicker{display:block;color:#978ca2;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.faculty-dashboard-hero h1,.faculty-dashboard-hero h2,.faculty-dashboard-focus h2,.faculty-dashboard-list h2{font-family:Manrope,'DM Sans',sans-serif}.faculty-dashboard-hero h1{margin:9px 0 7px;color:#34283d;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.06em}.faculty-dashboard-hero p{max-width:620px;margin:0;color:#8f8398;font-size:11px;line-height:1.6}.faculty-dashboard-hero>button,.faculty-dashboard-focus article>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;cursor:pointer}.faculty-dashboard-hero>button{min-height:36px;padding:0 14px;box-shadow:0 8px 16px rgba(124,58,237,.22)}.faculty-dashboard-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:16px 48px}.faculty-dashboard-stats article{display:flex;justify-content:space-between;min-height:105px;padding:15px;border:1px solid #e6dfee;border-radius:11px;background:#fff;box-shadow:0 9px 22px rgba(54,36,87,.04)}.faculty-dashboard-stats span,.faculty-dashboard-stats small{display:block;color:#988d9f;font-size:8px}.faculty-dashboard-stats span{font-weight:800;letter-spacing:.08em;text-transform:uppercase}.faculty-dashboard-stats strong{display:block;margin-top:14px;color:#3e3047;font-family:Manrope,'DM Sans',sans-serif;font-size:26px;letter-spacing:-.06em}.faculty-dashboard-stats i{display:grid;width:28px;height:28px;place-items:center;border-radius:8px}.faculty-dashboard-focus{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(280px,.82fr);gap:16px;margin:0 48px}.faculty-dashboard-focus article,.faculty-dashboard-list{border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.faculty-dashboard-focus article{padding:19px}.faculty-dashboard-focus h2{margin:8px 0 0;color:#44354d;font-size:17px;letter-spacing:-.04em}.faculty-return-title{display:flex;align-items:center;gap:10px;margin-top:15px}.faculty-return-title>i{display:grid;width:33px;height:33px;place-items:center;border-radius:9px;background:#fff2e8;color:#b86f5c}.faculty-return-title h2{margin:0;font-size:14px}.faculty-return-title p,.faculty-dashboard-focus article>p{margin:4px 0 0;color:#9c92a3;font-size:9px;line-height:1.5}.faculty-return-note{margin:15px 0;padding:10px;border:1px solid #efe0c7;border-radius:8px;background:#fffdf8;color:#81634b;font-size:9px;line-height:1.55}.faculty-dashboard-focus article>button{width:100%;min-height:33px}.faculty-health-meta{display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:13px;border-top:1px solid #eee9f1;color:#978c9e;font-size:8px}.faculty-health-meta span:first-child{display:flex;align-items:center;gap:5px;color:#6a5c73;font-weight:800}.faculty-dashboard-list{margin:16px 48px 28px;overflow:hidden}.faculty-dashboard-list header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 19px;border-bottom:1px solid #eee9f1}.faculty-dashboard-list h2{margin:5px 0 0;color:#44354d;font-size:17px;letter-spacing:-.04em}.faculty-dashboard-list header button{display:flex;align-items:center;gap:5px;border:0;background:transparent;color:#7543c7;font-size:9px;font-weight:800;cursor:pointer}.faculty-document-row{display:grid;grid-template-columns:32px minmax(0,1fr) 100px 18px;gap:10px;align-items:center;width:100%;min-height:67px;padding:11px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer}.faculty-document-row:hover{background:#fbf9ff}.faculty-document-row>i{display:grid;width:30px;height:30px;place-items:center;border-radius:8px;background:#eee8fb;color:#7750c4}.faculty-document-row>span{min-width:0}.faculty-document-row strong,.faculty-document-row small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.faculty-document-row strong{color:#51405a;font-family:Manrope,'DM Sans',sans-serif;font-size:10px}.faculty-document-row small{margin-top:4px;color:#a097a6;font-size:8px}.faculty-list-empty{padding:28px 19px;color:#978c9e;font-size:10px}
+.faculty-dashboard-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin:18px 48px 0;min-height:146px;padding:25px 22px;border-left:2px solid #bca5ef;border-bottom:1px solid #e6dfee;background:linear-gradient(105deg,#fbf9ff,#f4efff)}.faculty-dashboard-hero>div>span,.faculty-kicker{display:block;color:#978ca2;font-size: 12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.faculty-dashboard-hero h1,.faculty-dashboard-hero h2,.faculty-dashboard-focus h2,.faculty-dashboard-list h2{font-family:Manrope,'DM Sans',sans-serif}.faculty-dashboard-hero h1{margin:9px 0 7px;color:#34283d;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.06em}.faculty-dashboard-hero p{max-width:620px;margin:0;color:#8f8398;font-size: 13px;line-height:1.6}.faculty-dashboard-hero>button,.faculty-dashboard-focus article>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size: 12px;font-weight:800;cursor:pointer}.faculty-dashboard-hero>button{min-height:36px;padding:0 14px;box-shadow:0 8px 16px rgba(124,58,237,.22)}.faculty-dashboard-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:16px 48px}.faculty-dashboard-stats article{display:flex;justify-content:space-between;min-height:105px;padding:15px;border:1px solid #e6dfee;border-radius:11px;background:#fff;box-shadow:0 9px 22px rgba(54,36,87,.04)}.faculty-dashboard-stats span,.faculty-dashboard-stats small{display:block;color:#988d9f;font-size: 11px}.faculty-dashboard-stats span{font-weight:800;letter-spacing:.08em;text-transform:uppercase}.faculty-dashboard-stats strong{display:block;margin-top:14px;color:#3e3047;font-family:Manrope,'DM Sans',sans-serif;font-size: 26px;letter-spacing:-.06em}.faculty-dashboard-stats i{display:grid;width:28px;height:28px;place-items:center;border-radius:8px}.faculty-dashboard-focus{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(280px,.82fr);gap:16px;margin:0 48px}.faculty-dashboard-focus article,.faculty-dashboard-list{border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.faculty-dashboard-focus article{padding:19px}.faculty-dashboard-focus h2{margin:8px 0 0;color:#44354d;font-size: 18px;letter-spacing:-.04em}.faculty-return-title{display:flex;align-items:center;gap:10px;margin-top:15px}.faculty-return-title>i{display:grid;width:33px;height:33px;place-items:center;border-radius:9px;background:#fff2e8;color:#b86f5c}.faculty-return-title h2{margin:0;font-size: 15px}.faculty-return-title p,.faculty-dashboard-focus article>p{margin:4px 0 0;color:#9c92a3;font-size: 12px;line-height:1.5}.faculty-return-note{margin:15px 0;padding:10px;border:1px solid #efe0c7;border-radius:8px;background:#fffdf8;color:#81634b;font-size: 12px;line-height:1.55}.faculty-dashboard-focus article>button{width:100%;min-height:33px}.faculty-health-meta{display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:13px;border-top:1px solid #eee9f1;color:#978c9e;font-size: 11px}.faculty-health-meta span:first-child{display:flex;align-items:center;gap:5px;color:#6a5c73;font-weight:800}.faculty-dashboard-list{margin:16px 48px 28px;overflow:hidden}.faculty-dashboard-list header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 19px;border-bottom:1px solid #eee9f1}.faculty-dashboard-list h2{margin:5px 0 0;color:#44354d;font-size: 18px;letter-spacing:-.04em}.faculty-dashboard-list header button{display:flex;align-items:center;gap:5px;border:0;background:transparent;color:#7543c7;font-size: 12px;font-weight:800;cursor:pointer}.faculty-document-row{display:grid;grid-template-columns:32px minmax(0,1fr) 100px 18px;gap:10px;align-items:center;width:100%;min-height:67px;padding:11px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer}.faculty-document-row:hover{background:#fbf9ff}.faculty-document-row>i{display:grid;width:30px;height:30px;place-items:center;border-radius:8px;background:#eee8fb;color:#7750c4}.faculty-document-row>span{min-width:0}.faculty-document-row strong,.faculty-document-row small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.faculty-document-row strong{color:#51405a;font-family:Manrope,'DM Sans',sans-serif;font-size: 12px}.faculty-document-row small{margin-top:4px;color:#a097a6;font-size: 11px}.faculty-list-empty{padding:28px 19px;color:#978c9e;font-size: 12px}
 @media(max-width:1100px){.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.path-content-area{max-width:none}.path-main-grid,.path-lower-grid{grid-template-columns:1fr!important}}
-@media(max-width:900px){.path-hero{padding:28px 20px 22px!important}.path-hero h1{font-size:29px!important}.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.path-stat-card{padding:15px!important}.path-stat-card strong{font-size:24px!important}.path-content-area{padding:20px 16px 30px!important;overflow-x:hidden}.path-content-area>section{grid-template-columns:1fr!important}.path-overview-heading{align-items:flex-start!important}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}.faculty-dashboard-hero,.faculty-dashboard-stats,.faculty-dashboard-focus,.faculty-dashboard-list{margin-left:20px;margin-right:20px}.faculty-dashboard-hero{align-items:flex-start;flex-direction:column}.faculty-dashboard-stats{grid-template-columns:repeat(2,1fr);gap:10px}.faculty-dashboard-focus{grid-template-columns:1fr}.faculty-dashboard-list{margin-bottom:24px}}
+@media(max-width:900px){.path-hero{padding:28px 20px 22px!important}.path-hero h1{font-size: 29px!important}.path-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.path-stat-card{padding:15px!important}.path-stat-card strong{font-size: 24px!important}.path-content-area{padding:20px 16px 30px!important;overflow-x:hidden}.path-content-area>section{grid-template-columns:1fr!important}.path-overview-heading{align-items:flex-start!important}.path-overview-shell table{min-width:760px}.path-overview-shell>div:last-child>div:nth-child(2)>div:nth-child(3)>div{overflow-x:auto}.faculty-dashboard-hero,.faculty-dashboard-stats,.faculty-dashboard-focus,.faculty-dashboard-list{margin-left:20px;margin-right:20px}.faculty-dashboard-hero{align-items:flex-start;flex-direction:column}.faculty-dashboard-stats{grid-template-columns:repeat(2,1fr);gap:10px}.faculty-dashboard-focus{grid-template-columns:1fr}.faculty-dashboard-list{margin-bottom:24px}}
 `}</style>
       <style>{`
         .path-overview-shell .dashboard-workspace-canvas .path-hero {
@@ -3298,8 +3298,8 @@ export default function Dashboard() {
         .faculty-attention-list button > i { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 7px; background: #f1ebff; color: #7951c7; }
         .faculty-attention-list button > span { min-width: 0; }
         .faculty-attention-list button strong, .faculty-attention-list button small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .faculty-attention-list button strong { font-family: Manrope, 'DM Sans', sans-serif; font-size: 9px; }
-        .faculty-attention-list button small { margin-top: 3px; color: #9d93a4; font-size: 8px; }
+        .faculty-attention-list button strong { font-family: Manrope, 'DM Sans', sans-serif; font-size: 12px; }
+        .faculty-attention-list button small { margin-top: 3px; color: #9d93a4; font-size: 11px; }
         @media (max-width: 900px) {
           .path-overview-shell .dashboard-workspace-canvas {
             padding: 18px 20px 30px !important;
@@ -3315,7 +3315,7 @@ export default function Dashboard() {
         }
       `}</style>
       <style>{`
-        .path-overview-shell .dashboard-workspace-canvas{padding:28px 48px 44px 64px!important;background:#f8f7ff!important}@media(min-width:1100px){.path-overview-shell .dashboard-workspace-canvas{padding-left:clamp(64px,5vw,84px)!important;padding-right:clamp(48px,5vw,84px)!important}}.path-overview-shell .dashboard-workspace-canvas .path-hero{min-height:146px!important;padding:25px 28px!important;margin:0!important;border:1px solid #ebe4f4!important;border-radius:16px!important;background:#fbfaff!important}.path-overview-shell .dashboard-workspace-canvas .path-hero h1{margin:14px 0 6px!important;font-size:clamp(28px,3vw,34px)!important;line-height:1.15!important;letter-spacing:-.03em!important}.path-overview-shell .dashboard-workspace-canvas .path-hero p{font-size:14px!important;line-height:1.5!important;color:#615a6d!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:13px!important;margin-top:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card{min-height:105px!important;padding:15px!important;border-radius:11px!important;box-shadow:0 9px 22px rgba(54,36,87,.04)!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:first-child>span:first-child{font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card strong{margin-top:14px!important;font-size:26px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:last-child{margin-top:8px!important;font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-content-area{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading>div:first-child>div{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading h2{margin-top:5px!important;font-size:17px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading button{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{border-radius:11px!important;box-shadow:0 12px 30px rgba(57,36,93,.045)!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button{min-height:67px!important;padding:11px 19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button strong{font-family:Manrope,'DM Sans',sans-serif!important;font-size:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button small{font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:last-child{padding:10px 19px!important;font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:nth-child(2),.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{padding:19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid h3,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid h3{margin-top:5px!important;font-size:17px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child>div>div:first-child{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child button{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2){margin-top:15px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div{padding:11px 0!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div strong{font-size:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div small{font-size:9px!important}@media(max-width:900px){.path-overview-shell .dashboard-workspace-canvas{padding:18px 20px 30px!important}.path-overview-shell .dashboard-workspace-canvas .path-hero{padding:22px 18px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:10px!important}}
+        .path-overview-shell .dashboard-workspace-canvas{padding:28px 48px 44px 64px!important;background:#f8f7ff!important}@media(min-width:1100px){.path-overview-shell .dashboard-workspace-canvas{padding-left:clamp(64px,5vw,84px)!important;padding-right:clamp(48px,5vw,84px)!important}}.path-overview-shell .dashboard-workspace-canvas .path-hero{min-height:146px!important;padding:25px 28px!important;margin:0!important;border:1px solid #ebe4f4!important;border-radius:16px!important;background:#fbfaff!important}.path-overview-shell .dashboard-workspace-canvas .path-hero h1{margin:14px 0 6px!important;font-size:clamp(28px,3vw,34px)!important;line-height:1.15!important;letter-spacing:-.03em!important}.path-overview-shell .dashboard-workspace-canvas .path-hero p{font-size: 15px!important;line-height:1.5!important;color:#615a6d!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:13px!important;margin-top:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card{min-height:105px!important;padding:15px!important;border-radius:11px!important;box-shadow:0 9px 22px rgba(54,36,87,.04)!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:first-child>span:first-child{font-size: 11px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card strong{margin-top:14px!important;font-size: 26px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:last-child{margin-top:8px!important;font-size: 11px!important}.path-overview-shell .dashboard-workspace-canvas .path-content-area{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading>div:first-child>div{font-size: 12px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading h2{margin-top:5px!important;font-size: 18px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading button{font-size: 12px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{border-radius:11px!important;box-shadow:0 12px 30px rgba(57,36,93,.045)!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button{min-height:67px!important;padding:11px 19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button strong{font-family:Manrope,'DM Sans',sans-serif!important;font-size: 12px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button small{font-size: 11px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:last-child{padding:10px 19px!important;font-size: 11px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:nth-child(2),.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{padding:19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid h3,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid h3{margin-top:5px!important;font-size: 18px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child>div>div:first-child{font-size: 12px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child button{font-size: 12px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2){margin-top:15px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div{padding:11px 0!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div strong{font-size: 12px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div small{font-size: 12px!important}@media(max-width:900px){.path-overview-shell .dashboard-workspace-canvas{padding:18px 20px 30px!important}.path-overview-shell .dashboard-workspace-canvas .path-hero{padding:22px 18px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:10px!important}}
       `}</style>
       <style>{`
         .path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-hero h1,.path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-focus h2,.path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-list h2{font-weight:800!important}
@@ -3348,7 +3348,7 @@ export default function Dashboard() {
         }
         #path-hero-vivid p {
           color: #D9CBFF !important;
-          font-size: 14px !important;
+          font-size: 15px !important;
         }
         #path-hero-vivid > div:last-child > div {
           background: rgba(255,255,255,.1) !important;
@@ -3460,7 +3460,7 @@ export default function Dashboard() {
                   <span
                     style={{
                       display: "inline-block",
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: 800,
                       padding: "5px 12px",
                       borderRadius: 7,
@@ -3487,7 +3487,7 @@ export default function Dashboard() {
                   </h1>
                   <p
                     style={{
-                      fontSize: 14,
+                      fontSize: 15,
                       color: "#D9CBFF",
                       margin: 0,
                       maxWidth: 480,
@@ -3541,7 +3541,7 @@ export default function Dashboard() {
                       <strong
                         style={{
                           display: "block",
-                          fontSize: 20,
+                          fontSize: 21,
                           fontWeight: 800,
                           color: "#fff",
                           fontFamily: "Manrope, 'DM Sans', sans-serif",
@@ -3550,7 +3550,7 @@ export default function Dashboard() {
                       >
                         {pendingApprovalsCount}
                       </strong>
-                      <span style={{ fontSize: 10, color: "#C9B8EE" }}>
+                      <span style={{ fontSize: 12, color: "#C9B8EE" }}>
                         Awaiting review
                       </span>
                     </div>
@@ -3585,7 +3585,7 @@ export default function Dashboard() {
                       <strong
                         style={{
                           display: "block",
-                          fontSize: 20,
+                          fontSize: 21,
                           fontWeight: 800,
                           color: "#fff",
                           fontFamily: "Manrope, 'DM Sans', sans-serif",
@@ -3594,7 +3594,7 @@ export default function Dashboard() {
                       >
                         {BOTTLENECK_ALERTS.length}
                       </strong>
-                      <span style={{ fontSize: 10, color: "#C9B8EE" }}>
+                      <span style={{ fontSize: 12, color: "#C9B8EE" }}>
                         At risk
                       </span>
                     </div>
@@ -3613,7 +3613,7 @@ export default function Dashboard() {
                       padding: "13px 18px",
                       background: "#F5A623",
                       color: "#3D2506",
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: 800,
                       boxShadow: "0 10px 20px rgba(245,166,35,.35)",
                       cursor: "pointer",
@@ -3712,7 +3712,7 @@ export default function Dashboard() {
                         <span
                           style={{
                             color: "#776b83",
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 800,
                             letterSpacing: ".08em",
                             textTransform: "uppercase",
@@ -3756,7 +3756,7 @@ export default function Dashboard() {
                           gap: 7,
                           marginTop: 10,
                           color: "#8d8196",
-                          fontSize: 11,
+                          fontSize: 13,
                         }}
                       >
                         <span style={{ color: stat.accent, fontWeight: 800 }}>
@@ -3798,7 +3798,7 @@ export default function Dashboard() {
                     >
                       <span
                         style={{
-                          fontSize: 14,
+                          fontSize: 15,
                           fontWeight: 700,
                           color: "#111827",
                         }}
@@ -3808,7 +3808,7 @@ export default function Dashboard() {
                       {unread > 0 && (
                         <span
                           style={{
-                            fontSize: 11,
+                            fontSize: 13,
                             fontWeight: 700,
                             background: "#5e3bdb",
                             color: "#fff",
@@ -3872,7 +3872,7 @@ export default function Dashboard() {
                         <div style={{ flex: 1 }}>
                           <p
                             style={{
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: n.read ? 400 : 600,
                               color: "#111827",
                             }}
@@ -3881,7 +3881,7 @@ export default function Dashboard() {
                           </p>
                           <p
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#6b7280",
                               marginTop: 1,
                             }}
@@ -3890,7 +3890,7 @@ export default function Dashboard() {
                           </p>
                           <p
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#9ca3af",
                               marginTop: 2,
                             }}
@@ -3916,7 +3916,7 @@ export default function Dashboard() {
                   <div style={{ padding: "10px 16px", textAlign: "center" }}>
                     <button
                       style={{
-                        fontSize: 12,
+                        fontSize: 13,
                         color: "#5e3bdb",
                         fontWeight: 600,
                         background: "none",
@@ -3954,7 +3954,7 @@ export default function Dashboard() {
                     <div
                       style={{
                         color: "#9a8fa3",
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 800,
                         letterSpacing: ".12em",
                         textTransform: "uppercase",
@@ -3984,7 +3984,7 @@ export default function Dashboard() {
                           borderRadius: 7,
                           background: "#eee7ff",
                           color: "#7c3aed",
-                          fontSize: 11,
+                          fontSize: 13,
                           verticalAlign: "middle",
                         }}
                       >
@@ -4006,7 +4006,7 @@ export default function Dashboard() {
                         background: "none",
                         color: "#7c3aed",
                         fontWeight: 800,
-                        fontSize: 12,
+                        fontSize: 13,
                         cursor: "pointer",
                       }}
                     >
@@ -4069,7 +4069,7 @@ export default function Dashboard() {
                             <span
                               style={{
                                 color: "#8b5cf6",
-                                fontSize: 11,
+                                fontSize: 13,
                                 fontWeight: 800,
                               }}
                             >
@@ -4094,7 +4094,7 @@ export default function Dashboard() {
                                 style={{
                                   display: "block",
                                   color: "#3b3045",
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   whiteSpace: "nowrap",
                                   overflow: "hidden",
                                   textOverflow: "ellipsis",
@@ -4106,7 +4106,7 @@ export default function Dashboard() {
                                 style={{
                                   display: "block",
                                   color: "#94879c",
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   marginTop: 3,
                                 }}
                               >
@@ -4128,7 +4128,7 @@ export default function Dashboard() {
                                 style={{
                                   display: "block",
                                   color: "#9a8fa3",
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   marginTop: 5,
                                 }}
                               >
@@ -4168,7 +4168,7 @@ export default function Dashboard() {
                         <div
                           style={{
                             color: "#9a8fa3",
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 800,
                             letterSpacing: ".12em",
                             textTransform: "uppercase",
@@ -4180,7 +4180,7 @@ export default function Dashboard() {
                           style={{
                             color: "#27213a",
                             fontFamily: "Manrope, 'DM Sans', sans-serif",
-                            fontSize: 19,
+                            fontSize: 20,
                             margin: "7px 0 0",
                           }}
                         >
@@ -4215,7 +4215,7 @@ export default function Dashboard() {
                             display: "grid",
                             placeItems: "center",
                             color: "#5b21b6",
-                            fontSize: 18,
+                            fontSize: 19,
                             fontWeight: 800,
                           }}
                         >
@@ -4226,7 +4226,7 @@ export default function Dashboard() {
                               <strong style={{ fontSize: 23 }}>
                                 {onTimeCompletionRate}
                               </strong>
-                              <span style={{ fontSize: 14 }}>%</span>
+                              <span style={{ fontSize: 15 }}>%</span>
                             </>
                           )}
                         </div>
@@ -4235,7 +4235,7 @@ export default function Dashboard() {
                         <strong
                           style={{
                             display: "block",
-                            fontSize: 16,
+                            fontSize: 17,
                             color: "#27213a",
                           }}
                         >
@@ -4243,7 +4243,7 @@ export default function Dashboard() {
                             ? "Healthy"
                             : "Needs attention"}
                         </strong>
-                        <span style={{ color: "#8d8196", fontSize: 11 }}>
+                        <span style={{ color: "#8d8196", fontSize: 13 }}>
                           Across all active workflows
                         </span>
                       </div>
@@ -4271,7 +4271,7 @@ export default function Dashboard() {
                         justifyContent: "space-between",
                         marginTop: 7,
                         color: "#aaa0b2",
-                        fontSize: 10,
+                        fontSize: 12,
                       }}
                     >
                       <span>0%</span>
@@ -4291,7 +4291,7 @@ export default function Dashboard() {
                         <span
                           style={{
                             color: "#9a8fa3",
-                            fontSize: 10,
+                            fontSize: 12,
                             display: "block",
                             textTransform: "uppercase",
                             letterSpacing: ".08em",
@@ -4303,13 +4303,13 @@ export default function Dashboard() {
                           style={{
                             display: "block",
                             color: "#27213a",
-                            fontSize: 18,
+                            fontSize: 19,
                             marginTop: 5,
                           }}
                         >
                           {avgApprovalDays.toFixed(1)} days
                         </strong>
-                        <small style={{ color: "#059669", fontSize: 10 }}>
+                        <small style={{ color: "#059669", fontSize: 12 }}>
                           <ArrowUpRight size={11} /> 18% faster
                         </small>
                       </div>
@@ -4317,7 +4317,7 @@ export default function Dashboard() {
                         <span
                           style={{
                             color: "#9a8fa3",
-                            fontSize: 10,
+                            fontSize: 12,
                             display: "block",
                             textTransform: "uppercase",
                             letterSpacing: ".08em",
@@ -4329,13 +4329,13 @@ export default function Dashboard() {
                           style={{
                             display: "block",
                             color: "#27213a",
-                            fontSize: 18,
+                            fontSize: 19,
                             marginTop: 5,
                           }}
                         >
                           {BOTTLENECK_ALERTS.length.toString().padStart(2, "0")}
                         </strong>
-                        <small style={{ color: "#b45309", fontSize: 10 }}>
+                        <small style={{ color: "#b45309", fontSize: 12 }}>
                           <Clock size={11} /> needs action
                         </small>
                       </div>
@@ -4510,7 +4510,7 @@ export default function Dashboard() {
                         <div
                           style={{
                             color: "#9a8fa3",
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 800,
                             letterSpacing: ".12em",
                             textTransform: "uppercase",
@@ -4522,7 +4522,7 @@ export default function Dashboard() {
                           style={{
                             color: "#27213a",
                             fontFamily: "Manrope, 'DM Sans', sans-serif",
-                            fontSize: 19,
+                            fontSize: 20,
                             margin: "7px 0 0",
                           }}
                         >
@@ -4537,7 +4537,7 @@ export default function Dashboard() {
                           background: "none",
                           color: "#7c3aed",
                           fontWeight: 800,
-                          fontSize: 12,
+                          fontSize: 13,
                           cursor: "pointer",
                         }}
                       >
@@ -4577,14 +4577,14 @@ export default function Dashboard() {
                                 style={{
                                   display: "block",
                                   color: "#3b3045",
-                                  fontSize: 12,
+                                  fontSize: 13,
                                 }}
                               >
                                 {activity.title ||
                                   activity.text ||
                                   "Workflow activity"}
                               </strong>
-                              <small style={{ color: "#94879c", fontSize: 11 }}>
+                              <small style={{ color: "#94879c", fontSize: 13 }}>
                                 {activity.subtitle ||
                                   activity.description ||
                                   activity.time ||
@@ -4623,7 +4623,7 @@ export default function Dashboard() {
                         <div
                           style={{
                             color: "#9a8fa3",
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 800,
                             letterSpacing: ".12em",
                             textTransform: "uppercase",
@@ -4635,7 +4635,7 @@ export default function Dashboard() {
                           style={{
                             color: "#27213a",
                             fontFamily: "Manrope, 'DM Sans', sans-serif",
-                            fontSize: 19,
+                            fontSize: 20,
                             margin: "7px 0 0",
                           }}
                         >
@@ -4670,7 +4670,7 @@ export default function Dashboard() {
                         {" "}
                         {trackingOverviewTotal}
                       </strong>
-                      <span style={{ color: "#8d8196", fontSize: 11 }}>
+                      <span style={{ color: "#8d8196", fontSize: 13 }}>
                         documents tracked
                       </span>
                     </div>
@@ -4699,14 +4699,14 @@ export default function Dashboard() {
                               <span
                                 style={{
                                   color: "#554961",
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: 700,
                                 }}
                               >
                                 {item.name}
                               </span>
                               <strong
-                                style={{ color: "#27213a", fontSize: 12 }}
+                                style={{ color: "#27213a", fontSize: 13 }}
                               >
                                 {item.value}
                               </strong>
@@ -4798,14 +4798,14 @@ export default function Dashboard() {
                   <div>
                     <p
                       style={{
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: 800,
                         color: "#111827",
                       }}
                     >
                       All Alerts
                     </p>
-                    <p style={{ fontSize: 11.5, color: "#6b7280" }}>
+                    <p style={{ fontSize: 13.5, color: "#6b7280" }}>
                       {BOTTLENECK_ALERTS.length} items requiring immediate
                       attention
                     </p>
@@ -4887,7 +4887,7 @@ export default function Dashboard() {
                           >
                             <p
                               style={{
-                                fontSize: 12.5,
+                                fontSize: 14,
                                 fontWeight: 700,
                                 color: "#111827",
                               }}
@@ -4899,7 +4899,7 @@ export default function Dashboard() {
                                 style={{
                                   display: "inline-flex",
                                   alignItems: "center",
-                                  fontSize: 9.5,
+                                  fontSize: 12.5,
                                   fontWeight: 700,
                                   padding: "2px 8px",
                                   borderRadius: 5,
@@ -4914,7 +4914,7 @@ export default function Dashboard() {
                           </div>
                           <p
                             style={{
-                              fontSize: 11.5,
+                              fontSize: 13.5,
                               color: "#4b5563",
                               marginTop: 3,
                               lineHeight: 1.4,
@@ -4939,7 +4939,7 @@ export default function Dashboard() {
               alignItems: "center",
               padding: "9px 20px",
               borderTop: "0.5px solid #e5e7eb",
-              fontSize: 10,
+              fontSize: 12,
               color: "#aaa",
               background: "white",
             }}
