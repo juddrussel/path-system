@@ -375,7 +375,7 @@ function Badge({ label }) {
         display: "inline-block",
         padding: "2px 8px",
         borderRadius: 20,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: "bold",
         textTransform: "capitalize",
       }}
@@ -420,10 +420,10 @@ function TimelineItem({ label, value, sub, dot = "#6b38d4", isLast }) {
         )}
       </div>
       <div>
-        <div style={{ fontSize: 11, color: "#7b7486" }}>{label}</div>
+        <div style={{ fontSize: 13, color: "#7b7486" }}>{label}</div>
         <div
           style={{
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: "bold",
             color: "#181445",
             marginTop: 1,
@@ -432,7 +432,7 @@ function TimelineItem({ label, value, sub, dot = "#6b38d4", isLast }) {
           {value}
         </div>
         {sub && (
-          <div style={{ fontSize: 10, color: "#7b7486", marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: "#7b7486", marginTop: 1 }}>
             {sub}
           </div>
         )}
@@ -449,7 +449,7 @@ function LiveDot({ connected }) {
         display: "flex",
         alignItems: "center",
         gap: 5,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 700,
         color: connected ? "#059669" : "#d97706",
       }}
@@ -541,7 +541,7 @@ function Toast({ toasts, onDismiss }) {
               border: `1px solid ${isError ? "#fecaca" : "#cbc3d7"}`,
               borderRadius: 10,
               padding: "10px 14px",
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 600,
               boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
               minWidth: 260,
@@ -572,7 +572,7 @@ function Toast({ toasts, onDismiss }) {
               {t.body && (
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     opacity: 0.75,
                     fontWeight: 400,
                     color: "#494454",
@@ -1459,7 +1459,7 @@ export default function TaskAssigned() {
         height: "100vh",
         overflow: "hidden",
         fontFamily: "'Inter', sans-serif",
-        fontSize: 13,
+        fontSize: 14,
         color: "#181445",
         background: "#fcf8ff",
       }}
@@ -1534,7 +1534,7 @@ export default function TaskAssigned() {
                 >
                   Tasks Assigned
                 </h1>
-                <p style={{ fontSize: 12, color: "#7b7486", margin: 0 }}>
+                <p style={{ fontSize: 13, color: "#7b7486", margin: 0 }}>
                   Track tasks you assigned to faculty — review submissions,
                   approve, or return for revision.
                 </p>
@@ -1549,7 +1549,7 @@ export default function TaskAssigned() {
                     borderRadius: 8,
                     border: "1px solid #cbc3d7",
                     background: "white",
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: 700,
                     cursor: "pointer",
                     color: "#494454",
@@ -1567,7 +1567,7 @@ export default function TaskAssigned() {
                     borderRadius: 8,
                     border: "none",
                     background: "#6b38d4",
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: 700,
                     cursor: "pointer",
                     color: "white",
@@ -1675,7 +1675,7 @@ export default function TaskAssigned() {
                   <div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 13,
                         color: "#7b7486",
                         marginBottom: 4,
                       }}
@@ -1744,7 +1744,7 @@ export default function TaskAssigned() {
                     border: "none",
                     background: "transparent",
                     outline: "none",
-                    fontSize: 12,
+                    fontSize: 13,
                     color: "#494454",
                     width: "100%",
                   }}
@@ -1759,7 +1759,7 @@ export default function TaskAssigned() {
                   border: "1px solid #cbc3d7",
                   borderRadius: 8,
                   background: "white",
-                  fontSize: 12,
+                  fontSize: 13,
                   color: "#494454",
                 }}
               >
@@ -1782,7 +1782,7 @@ export default function TaskAssigned() {
                   style={{
                     border: "none",
                     background: "transparent",
-                    fontSize: 12,
+                    fontSize: 13,
                     outline: "none",
                     cursor: "pointer",
                     color: "#494454",
@@ -1835,7 +1835,7 @@ export default function TaskAssigned() {
                     border: "1px solid #cbc3d7",
                     borderRadius: 8,
                     background: "white",
-                    fontSize: 12,
+                    fontSize: 13,
                   }}
                 >
                   <Icon.Filter />
@@ -1848,7 +1848,7 @@ export default function TaskAssigned() {
                     style={{
                       border: "none",
                       background: "transparent",
-                      fontSize: 12,
+                      fontSize: 13,
                       outline: "none",
                       cursor: "pointer",
                       color: "#494454",
@@ -1874,7 +1874,7 @@ export default function TaskAssigned() {
                     setDateRange("");
                   }}
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     color: "#6b38d4",
                     fontWeight: 700,
                     background: "none",
@@ -1914,7 +1914,7 @@ export default function TaskAssigned() {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: "#181445" }}
+                    style={{ fontSize: 15, fontWeight: 700, color: "#181445" }}
                   >
                     Assigned Tasks
                   </span>
@@ -1922,7 +1922,7 @@ export default function TaskAssigned() {
                     style={{
                       background: "#6b38d4",
                       color: "white",
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 700,
                       padding: "1px 7px",
                       borderRadius: 20,
@@ -1935,7 +1935,7 @@ export default function TaskAssigned() {
                       style={{
                         background: "#ba1a1a",
                         color: "white",
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                         padding: "1px 7px",
                         borderRadius: 20,
@@ -1972,7 +1972,7 @@ export default function TaskAssigned() {
                 />
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: 700,
                     color: "#7b7486",
                     letterSpacing: 0.5,
@@ -1985,7 +1985,7 @@ export default function TaskAssigned() {
                     onClick={handleArchive}
                     disabled={!checkedIds.length}
                     style={{
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: 700,
                       color: checkedIds.length ? "#494454" : "#a39aad",
                       background: "none",
@@ -2006,7 +2006,7 @@ export default function TaskAssigned() {
                       padding: 32,
                       textAlign: "center",
                       color: "#7b7486",
-                      fontSize: 12,
+                      fontSize: 13,
                     }}
                   >
                     Loading tasks...
@@ -2016,7 +2016,7 @@ export default function TaskAssigned() {
                     <div style={{ fontSize: 32, marginBottom: 10 }}>📋</div>
                     <div
                       style={{
-                        fontSize: 13,
+                        fontSize: 14,
                         color: "#7b7486",
                         fontWeight: 600,
                       }}
@@ -2024,7 +2024,7 @@ export default function TaskAssigned() {
                       No assigned tasks found
                     </div>
                     <div
-                      style={{ fontSize: 11, color: "#a39aad", marginTop: 4 }}
+                      style={{ fontSize: 13, color: "#a39aad", marginTop: 4 }}
                     >
                       Try adjusting your filters or assign a new task
                     </div>
@@ -2112,7 +2112,7 @@ export default function TaskAssigned() {
                             >
                               <span
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   color: "#6b38d4",
                                   fontWeight: 700,
                                 }}
@@ -2121,7 +2121,7 @@ export default function TaskAssigned() {
                               </span>
                               <span
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   color:
                                     task.deadline &&
                                     new Date(task.deadline) < new Date()
@@ -2134,7 +2134,7 @@ export default function TaskAssigned() {
                             </div>
                             <div
                               style={{
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: 600,
                                 color: "#181445",
                                 marginBottom: 4,
@@ -2163,9 +2163,9 @@ export default function TaskAssigned() {
                                 size={18}
                                 background="#e9ddff"
                                 color="#5516be"
-                                fontSize={8}
+                                fontSize={11}
                               />
-                              <span style={{ fontSize: 11, color: "#494454" }}>
+                              <span style={{ fontSize: 13, color: "#494454" }}>
                                 {task.assigned_to_name || "Unassigned"}
                               </span>
                             </div>
@@ -2187,7 +2187,7 @@ export default function TaskAssigned() {
                               {isForApproval && (
                                 <span
                                   style={{
-                                    fontSize: 9,
+                                    fontSize: 12,
                                     background: "#fef3c7",
                                     color: "#92400e",
                                     padding: "1px 6px",
@@ -2218,7 +2218,7 @@ export default function TaskAssigned() {
                   flexShrink: 0,
                 }}
               >
-                <span style={{ fontSize: 11, color: "#7b7486" }}>
+                <span style={{ fontSize: 13, color: "#7b7486" }}>
                   {filteredTasks.length === 0
                     ? "0 tasks"
                     : `${Math.min((taskPage - 1) * PER_PAGE + 1, filteredTasks.length)}–${Math.min(taskPage * PER_PAGE, filteredTasks.length)} of ${filteredTasks.length}`}
@@ -2333,11 +2333,11 @@ export default function TaskAssigned() {
                     />
                   </svg>
                   <div
-                    style={{ fontSize: 14, color: "#7b7486", fontWeight: 600 }}
+                    style={{ fontSize: 15, color: "#7b7486", fontWeight: 600 }}
                   >
                     Select a task to review
                   </div>
-                  <div style={{ fontSize: 12, color: "#a39aad" }}>
+                  <div style={{ fontSize: 13, color: "#a39aad" }}>
                     You'll see task details, submitted documents, and faculty
                     activity here
                   </div>
@@ -2367,7 +2367,7 @@ export default function TaskAssigned() {
                     >
                       <span
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           background: "#e9ddff",
                           color: "#6b38d4",
                           padding: "3px 10px",
@@ -2377,13 +2377,13 @@ export default function TaskAssigned() {
                       >
                         {selected.tracking_id}
                       </span>
-                      <span style={{ fontSize: 11, color: "#7b7486" }}>
+                      <span style={{ fontSize: 13, color: "#7b7486" }}>
                         Created on {fmtDate(selected.created_at)}
                       </span>
                       {newSubmissions[selected.id] && (
                         <span
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             background: "#fef3c7",
                             color: "#92400e",
                             padding: "2px 8px",
@@ -2442,7 +2442,7 @@ export default function TaskAssigned() {
                     >
                       <h2
                         style={{
-                          fontSize: 19,
+                          fontSize: 20,
                           fontWeight: 800,
                           color: "#181445",
                           margin: "0 0 18px",
@@ -2464,7 +2464,7 @@ export default function TaskAssigned() {
                       >
                         <div
                           style={{
-                            fontSize: 11,
+                            fontSize: 13,
                             fontWeight: 700,
                             letterSpacing: 1,
                             color: "#7b7486",
@@ -2486,7 +2486,7 @@ export default function TaskAssigned() {
                           <div>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: "#7b7486",
                                 marginBottom: 5,
                               }}
@@ -2508,11 +2508,11 @@ export default function TaskAssigned() {
                                 size={24}
                                 background="#e9ddff"
                                 color="#5516be"
-                                fontSize={9}
+                                fontSize={12}
                               />
                               <span
                                 style={{
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   fontWeight: 600,
                                   color: "#181445",
                                 }}
@@ -2524,7 +2524,7 @@ export default function TaskAssigned() {
                           <div>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: "#7b7486",
                                 marginBottom: 5,
                               }}
@@ -2533,7 +2533,7 @@ export default function TaskAssigned() {
                             </div>
                             <div
                               style={{
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: 600,
                                 color: "#181445",
                               }}
@@ -2544,7 +2544,7 @@ export default function TaskAssigned() {
                           <div>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: "#7b7486",
                                 marginBottom: 5,
                               }}
@@ -2556,7 +2556,7 @@ export default function TaskAssigned() {
                           <div>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: "#7b7486",
                                 marginBottom: 5,
                               }}
@@ -2568,7 +2568,7 @@ export default function TaskAssigned() {
                           <div>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: "#7b7486",
                                 marginBottom: 5,
                               }}
@@ -2591,7 +2591,7 @@ export default function TaskAssigned() {
                                     setDeadlineDraft(e.target.value)
                                   }
                                   style={{
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     padding: "5px 8px",
                                     border: "1px solid #cbc3d7",
                                     borderRadius: 6,
@@ -2605,7 +2605,7 @@ export default function TaskAssigned() {
                                     setDeadlineTimeDraft(e.target.value)
                                   }
                                   style={{
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     padding: "5px 8px",
                                     border: "1px solid #cbc3d7",
                                     borderRadius: 6,
@@ -2618,7 +2618,7 @@ export default function TaskAssigned() {
                                   }
                                   disabled={savingDeadline}
                                   style={{
-                                    fontSize: 11,
+                                    fontSize: 13,
                                     fontWeight: 700,
                                     color: "white",
                                     background: "#6b38d4",
@@ -2636,7 +2636,7 @@ export default function TaskAssigned() {
                                   onClick={() => setEditingDeadline(false)}
                                   disabled={savingDeadline}
                                   style={{
-                                    fontSize: 11,
+                                    fontSize: 13,
                                     fontWeight: 600,
                                     color: "#494454",
                                     background: "transparent",
@@ -2657,7 +2657,7 @@ export default function TaskAssigned() {
                               >
                                 <div
                                   style={{
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     fontWeight: 600,
                                     color: "#181445",
                                   }}
@@ -2688,7 +2688,7 @@ export default function TaskAssigned() {
                                     setEditingDeadline(true);
                                   }}
                                   style={{
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: 700,
                                     color: "#6b38d4",
                                     background: "#e9ddff",
@@ -2706,7 +2706,7 @@ export default function TaskAssigned() {
                           <div>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: "#7b7486",
                                 marginBottom: 5,
                               }}
@@ -2715,7 +2715,7 @@ export default function TaskAssigned() {
                             </div>
                             <div
                               style={{
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: 600,
                                 color: "#181445",
                               }}
@@ -2730,7 +2730,7 @@ export default function TaskAssigned() {
                       {/* Section label */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#7b7486",
@@ -2786,7 +2786,7 @@ export default function TaskAssigned() {
                                     size={36}
                                     background="#1e1b2e"
                                     color="white"
-                                    fontSize={13}
+                                    fontSize={14}
                                     border="2px solid #e9ddff"
                                   />
                                   <div>
@@ -2799,7 +2799,7 @@ export default function TaskAssigned() {
                                     >
                                       <span
                                         style={{
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           fontWeight: 700,
                                           color: "#181445",
                                         }}
@@ -2808,7 +2808,7 @@ export default function TaskAssigned() {
                                       </span>
                                       <span
                                         style={{
-                                          fontSize: 10,
+                                          fontSize: 12,
                                           background: "#1e1b2e",
                                           color: "white",
                                           padding: "2px 8px",
@@ -2831,7 +2831,7 @@ export default function TaskAssigned() {
                                     >
                                       <span
                                         style={{
-                                          fontSize: 10,
+                                          fontSize: 12,
                                           color: "#7b7486",
                                         }}
                                       >
@@ -2841,7 +2841,7 @@ export default function TaskAssigned() {
                                       </span>
                                       <span
                                         style={{
-                                          fontSize: 9,
+                                          fontSize: 12,
                                           background: "#fef3c7",
                                           color: "#92400e",
                                           padding: "1px 6px",
@@ -2853,7 +2853,7 @@ export default function TaskAssigned() {
                                       </span>
                                       <span
                                         style={{
-                                          fontSize: 9,
+                                          fontSize: 12,
                                           background: "#dbeafe",
                                           color: "#1e40af",
                                           padding: "1px 6px",
@@ -2895,7 +2895,7 @@ export default function TaskAssigned() {
                                 <div
                                   style={{
                                     padding: "10px 16px 2px",
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     color: "#494454",
                                     lineHeight: 1.65,
                                     whiteSpace: selected.notes
@@ -3008,7 +3008,7 @@ export default function TaskAssigned() {
                                             justifyContent: "center",
                                           }}
                                         >
-                                          <span style={{ fontSize: 14 }}>
+                                          <span style={{ fontSize: 15 }}>
                                             {isPdf
                                               ? "📄"
                                               : isXlsx
@@ -3021,7 +3021,7 @@ export default function TaskAssigned() {
                                         <div style={{ minWidth: 0 }}>
                                           <div
                                             style={{
-                                              fontSize: 12,
+                                              fontSize: 13,
                                               fontWeight: 700,
                                               color: "#181445",
                                               maxWidth: 160,
@@ -3034,7 +3034,7 @@ export default function TaskAssigned() {
                                           </div>
                                           <div
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: "#6b38d4",
                                               marginTop: 2,
                                               fontWeight: 600,
@@ -3238,7 +3238,7 @@ export default function TaskAssigned() {
                                           size={36}
                                           background="#ffdad6"
                                           color="#ba1a1a"
-                                          fontSize={13}
+                                          fontSize={14}
                                           border="2px solid #fecaca"
                                         />
                                         <div>
@@ -3251,7 +3251,7 @@ export default function TaskAssigned() {
                                           >
                                             <span
                                               style={{
-                                                fontSize: 13,
+                                                fontSize: 14,
                                                 fontWeight: 700,
                                                 color: "#181445",
                                               }}
@@ -3260,7 +3260,7 @@ export default function TaskAssigned() {
                                             </span>
                                             <span
                                               style={{
-                                                fontSize: 10,
+                                                fontSize: 12,
                                                 background: "#ba1a1a",
                                                 color: "white",
                                                 padding: "2px 8px",
@@ -3274,7 +3274,7 @@ export default function TaskAssigned() {
                                             </span>
                                             <span
                                               style={{
-                                                fontSize: 10,
+                                                fontSize: 12,
                                                 background: "#ffdad6",
                                                 color: "#ba1a1a",
                                                 padding: "2px 8px",
@@ -3295,7 +3295,7 @@ export default function TaskAssigned() {
                                           >
                                             <span
                                               style={{
-                                                fontSize: 10,
+                                                fontSize: 12,
                                                 color: "#7b7486",
                                               }}
                                             >
@@ -3305,7 +3305,7 @@ export default function TaskAssigned() {
                                             </span>
                                             <span
                                               style={{
-                                                fontSize: 9,
+                                                fontSize: 12,
                                                 background: "#ffdad6",
                                                 color: "#93000a",
                                                 padding: "1px 6px",
@@ -3345,7 +3345,7 @@ export default function TaskAssigned() {
                                       <div
                                         style={{
                                           padding: "10px 16px 2px",
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           color: "#494454",
                                           lineHeight: 1.65,
                                         }}
@@ -3462,7 +3462,7 @@ export default function TaskAssigned() {
                                                   justifyContent: "center",
                                                 }}
                                               >
-                                                <span style={{ fontSize: 14 }}>
+                                                <span style={{ fontSize: 15 }}>
                                                   {isPdf
                                                     ? "📄"
                                                     : isXlsx
@@ -3473,7 +3473,7 @@ export default function TaskAssigned() {
                                               <div style={{ minWidth: 0 }}>
                                                 <div
                                                   style={{
-                                                    fontSize: 12,
+                                                    fontSize: 13,
                                                     fontWeight: 700,
                                                     color: "#181445",
                                                     maxWidth: 150,
@@ -3486,7 +3486,7 @@ export default function TaskAssigned() {
                                                 </div>
                                                 <div
                                                   style={{
-                                                    fontSize: 10,
+                                                    fontSize: 12,
                                                     color: "#ba1a1a",
                                                     marginTop: 2,
                                                     fontWeight: 600,
@@ -3506,7 +3506,7 @@ export default function TaskAssigned() {
                                         <div
                                           style={{
                                             padding: "10px 16px 14px",
-                                            fontSize: 12,
+                                            fontSize: 13,
                                             color: "#7b7486",
                                             fontStyle: "italic",
                                           }}
@@ -3575,7 +3575,7 @@ export default function TaskAssigned() {
                                         size={36}
                                         background="#e9ddff"
                                         color="#5516be"
-                                        fontSize={13}
+                                        fontSize={14}
                                         border="2px solid #efebff"
                                       />
                                       <div>
@@ -3589,7 +3589,7 @@ export default function TaskAssigned() {
                                         >
                                           <span
                                             style={{
-                                              fontSize: 13,
+                                              fontSize: 14,
                                               fontWeight: 700,
                                               color: "#181445",
                                             }}
@@ -3598,7 +3598,7 @@ export default function TaskAssigned() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               background: "#e9ddff",
                                               color: "#5516be",
                                               padding: "2px 8px",
@@ -3611,7 +3611,7 @@ export default function TaskAssigned() {
                                           {isNew && (
                                             <span
                                               style={{
-                                                fontSize: 9,
+                                                fontSize: 12,
                                                 background: "#ba1a1a",
                                                 color: "white",
                                                 padding: "2px 7px",
@@ -3634,7 +3634,7 @@ export default function TaskAssigned() {
                                         >
                                           <span
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: "#7b7486",
                                             }}
                                           >
@@ -3644,7 +3644,7 @@ export default function TaskAssigned() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 9,
+                                              fontSize: 12,
                                               background: "#fef3c7",
                                               color: "#92400e",
                                               padding: "1px 6px",
@@ -3657,7 +3657,7 @@ export default function TaskAssigned() {
                                           </span>
                                           <span
                                             style={{
-                                              fontSize: 9,
+                                              fontSize: 12,
                                               background: "#d1fae5",
                                               color: "#065f46",
                                               padding: "1px 6px",
@@ -3699,7 +3699,7 @@ export default function TaskAssigned() {
                                   <div
                                     style={{
                                       padding: "10px 16px 2px",
-                                      fontSize: 13,
+                                      fontSize: 14,
                                       color: "#494454",
                                       lineHeight: 1.65,
                                     }}
@@ -3814,7 +3814,7 @@ export default function TaskAssigned() {
                                                 justifyContent: "center",
                                               }}
                                             >
-                                              <span style={{ fontSize: 14 }}>
+                                              <span style={{ fontSize: 15 }}>
                                                 {isPdf
                                                   ? "📄"
                                                   : isXlsx
@@ -3827,7 +3827,7 @@ export default function TaskAssigned() {
                                             <div style={{ minWidth: 0 }}>
                                               <div
                                                 style={{
-                                                  fontSize: 12,
+                                                  fontSize: 13,
                                                   fontWeight: 700,
                                                   color: "#181445",
                                                   maxWidth: 150,
@@ -3840,7 +3840,7 @@ export default function TaskAssigned() {
                                               </div>
                                               <div
                                                 style={{
-                                                  fontSize: 10,
+                                                  fontSize: 12,
                                                   color: a._pending
                                                     ? "#8455ef"
                                                     : "#6b38d4",
@@ -3896,7 +3896,7 @@ export default function TaskAssigned() {
                             >
                               <div
                                 style={{
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   fontWeight: 700,
                                   letterSpacing: 1,
                                   color: actionsLocked ? "#7b7486" : "#6b38d4",
@@ -3911,7 +3911,7 @@ export default function TaskAssigned() {
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 5,
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: 700,
                                     color: "#7b7486",
                                     background: "#efebff",
@@ -3973,7 +3973,7 @@ export default function TaskAssigned() {
                                 </svg>
                                 <span
                                   style={{
-                                    fontSize: 11,
+                                    fontSize: 13,
                                     color: "#92400e",
                                     lineHeight: 1.5,
                                   }}
@@ -4018,7 +4018,7 @@ export default function TaskAssigned() {
                                     ? "#d1d5db"
                                     : "#6b38d4",
                                   color: "white",
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   fontWeight: 700,
                                   cursor:
                                     actionsLocked || actionLoading === "approve"
@@ -4091,7 +4091,7 @@ export default function TaskAssigned() {
                                       ? "#fef2f2"
                                       : "white",
                                   color: actionsLocked ? "#7b7486" : "#ba1a1a",
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   fontWeight: 700,
                                   cursor: actionsLocked
                                     ? "not-allowed"
@@ -4112,7 +4112,7 @@ export default function TaskAssigned() {
                                   border: "1px solid #cbc3d7",
                                   background: "white",
                                   color: "#494454",
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   fontWeight: 700,
                                   cursor: "pointer",
                                 }}
@@ -4136,7 +4136,7 @@ export default function TaskAssigned() {
                                     padding: "10px 12px",
                                     border: "1px solid #fecaca",
                                     borderRadius: 8,
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     color: "#181445",
                                     resize: "vertical",
                                     fontFamily: "inherit",
@@ -4221,14 +4221,14 @@ export default function TaskAssigned() {
                                   >
                                     <Icon.Attach />
                                     <span
-                                      style={{ fontSize: 12, fontWeight: 600 }}
+                                      style={{ fontSize: 13, fontWeight: 600 }}
                                     >
                                       Attach revision notes / reference files
                                     </span>
                                   </div>
                                   <div
                                     style={{
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       color: "#fca5a5",
                                       marginTop: 3,
                                     }}
@@ -4269,7 +4269,7 @@ export default function TaskAssigned() {
                                             border: "1px solid #fecaca",
                                             borderRadius: 8,
                                             padding: "4px 8px 4px 6px",
-                                            fontSize: 11,
+                                            fontSize: 13,
                                             maxWidth: 200,
                                           }}
                                         >
@@ -4289,7 +4289,7 @@ export default function TaskAssigned() {
                                             <>
                                               <span
                                                 style={{
-                                                  fontSize: 18,
+                                                  fontSize: 19,
                                                   flexShrink: 0,
                                                 }}
                                               >
@@ -4371,7 +4371,7 @@ export default function TaskAssigned() {
                                       borderRadius: 7,
                                       border: "1px solid #cbc3d7",
                                       background: "white",
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       fontWeight: 700,
                                       cursor: "pointer",
                                       color: "#494454",
@@ -4388,7 +4388,7 @@ export default function TaskAssigned() {
                                       border: "none",
                                       background: "#ba1a1a",
                                       color: "white",
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       fontWeight: 700,
                                       cursor: "pointer",
                                       opacity:
@@ -4413,7 +4413,7 @@ export default function TaskAssigned() {
                       {/* DISCUSSION */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#7b7486",
@@ -4439,7 +4439,7 @@ export default function TaskAssigned() {
                         {(selected.comments || []).length === 0 ? (
                           <div
                             style={{
-                              fontSize: 12,
+                              fontSize: 13,
                               color: "#a39aad",
                               fontStyle: "italic",
                             }}
@@ -4507,7 +4507,7 @@ export default function TaskAssigned() {
                                   size={32}
                                   background="#e9ddff"
                                   color="#5516be"
-                                  fontSize={11}
+                                  fontSize={13}
                                 />
                                 <div style={{ flex: 1 }}>
                                   <div
@@ -4520,7 +4520,7 @@ export default function TaskAssigned() {
                                   >
                                     <span
                                       style={{
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         fontWeight: 700,
                                         color: "#181445",
                                       }}
@@ -4528,7 +4528,7 @@ export default function TaskAssigned() {
                                       {c.sender_name}
                                     </span>
                                     <span
-                                      style={{ fontSize: 11, color: "#7b7486" }}
+                                      style={{ fontSize: 13, color: "#7b7486" }}
                                     >
                                       {c._pending
                                         ? "Sending..."
@@ -4598,7 +4598,7 @@ export default function TaskAssigned() {
                                         <div style={{ minWidth: 0 }}>
                                           <div
                                             style={{
-                                              fontSize: 12,
+                                              fontSize: 13,
                                               fontWeight: 700,
                                               color: "#494454",
                                               whiteSpace: "nowrap",
@@ -4611,7 +4611,7 @@ export default function TaskAssigned() {
                                           </div>
                                           <div
                                             style={{
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: "#6b38d4",
                                               fontWeight: 600,
                                             }}
@@ -4628,7 +4628,7 @@ export default function TaskAssigned() {
                                         alignItems: "center",
                                         justifyContent: "space-between",
                                         gap: 10,
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         color: "#494454",
                                         lineHeight: 1.6,
                                         background: wasReturned
@@ -4644,7 +4644,7 @@ export default function TaskAssigned() {
                                         <span
                                           style={{
                                             flexShrink: 0,
-                                            fontSize: 9,
+                                            fontSize: 12,
                                             background: "#ffdad6",
                                             color: "#93000a",
                                             padding: "2px 8px",
@@ -4660,7 +4660,7 @@ export default function TaskAssigned() {
                                   ) : (
                                     <div
                                       style={{
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         color: "#494454",
                                         lineHeight: 1.6,
                                         background: c.content?.startsWith("↺")
@@ -4716,7 +4716,7 @@ export default function TaskAssigned() {
                           </div>
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#6b38d4",
                               fontStyle: "italic",
                             }}
@@ -4746,7 +4746,7 @@ export default function TaskAssigned() {
                           size={32}
                           background="#e9ddff"
                           color="#5516be"
-                          fontSize={11}
+                          fontSize={13}
                           style={{ marginTop: 2 }}
                         />
                         <div
@@ -4775,7 +4775,7 @@ export default function TaskAssigned() {
                               padding: "10px 14px",
                               border: "none",
                               outline: "none",
-                              fontSize: 13,
+                              fontSize: 14,
                               background: "transparent",
                               borderRadius: "10px 10px 0 0",
                             }}
@@ -4809,7 +4809,7 @@ export default function TaskAssigned() {
                                       border: "1px solid #e9ddff",
                                       borderRadius: 8,
                                       padding: "4px 8px 4px 6px",
-                                      fontSize: 11,
+                                      fontSize: 13,
                                       maxWidth: 180,
                                     }}
                                   >
@@ -4830,7 +4830,7 @@ export default function TaskAssigned() {
                                       <>
                                         <span
                                           style={{
-                                            fontSize: 18,
+                                            fontSize: 19,
                                             flexShrink: 0,
                                           }}
                                         >
@@ -4844,7 +4844,7 @@ export default function TaskAssigned() {
                                             whiteSpace: "nowrap",
                                             color: "#494454",
                                             fontWeight: 600,
-                                            fontSize: 11,
+                                            fontSize: 13,
                                           }}
                                         >
                                           {f.name}
@@ -4938,7 +4938,7 @@ export default function TaskAssigned() {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 4,
-                                fontSize: 11,
+                                fontSize: 13,
                                 fontWeight: 600,
                               }}
                             >
@@ -4946,7 +4946,7 @@ export default function TaskAssigned() {
                               {commentFiles.length > 0 && (
                                 <span
                                   style={{
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     background: "#6b38d4",
                                     color: "white",
                                     borderRadius: 10,
@@ -4973,7 +4973,7 @@ export default function TaskAssigned() {
                                 border: "none",
                                 background: "#6b38d4",
                                 color: "white",
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: 700,
                                 cursor: "pointer",
                               }}
@@ -5002,7 +5002,7 @@ export default function TaskAssigned() {
                       {/* Faculty card (compact) */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#7b7486",
@@ -5031,7 +5031,7 @@ export default function TaskAssigned() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 15,
+                            fontSize: 16,
                             fontWeight: 700,
                             flexShrink: 0,
                             marginBottom: 6,
@@ -5046,7 +5046,7 @@ export default function TaskAssigned() {
                         </div>
                         <div
                           style={{
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: 800,
                             color: "#181445",
                           }}
@@ -5055,7 +5055,7 @@ export default function TaskAssigned() {
                         </div>
                         <div
                           style={{
-                            fontSize: 10.5,
+                            fontSize: 12,
                             color: "#8b3ff2",
                             fontWeight: 600,
                             marginTop: 2,
@@ -5071,7 +5071,7 @@ export default function TaskAssigned() {
                             borderRadius: 20,
                             background: "#e9ddff",
                             color: "#6b38d4",
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 700,
                           }}
                         >
@@ -5110,7 +5110,7 @@ export default function TaskAssigned() {
                           </svg>
                           <div
                             style={{
-                              fontSize: 14,
+                              fontSize: 15,
                               fontWeight: 800,
                               color: "#6b38d4",
                             }}
@@ -5119,7 +5119,7 @@ export default function TaskAssigned() {
                           </div>
                           <div
                             style={{
-                              fontSize: 9,
+                              fontSize: 12,
                               color: "#7b7486",
                               marginTop: 1,
                               letterSpacing: 0.4,
@@ -5147,7 +5147,7 @@ export default function TaskAssigned() {
                           </svg>
                           <div
                             style={{
-                              fontSize: 14,
+                              fontSize: 15,
                               fontWeight: 800,
                               color: "#6b38d4",
                             }}
@@ -5156,7 +5156,7 @@ export default function TaskAssigned() {
                           </div>
                           <div
                             style={{
-                              fontSize: 9,
+                              fontSize: 12,
                               color: "#7b7486",
                               marginTop: 1,
                               letterSpacing: 0.4,
@@ -5178,7 +5178,7 @@ export default function TaskAssigned() {
                       {/* Task Timeline */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           letterSpacing: 1,
                           color: "#7b7486",
@@ -5263,7 +5263,7 @@ export default function TaskAssigned() {
             alignItems: "center",
             padding: "9px 24px",
             borderTop: "1px solid #cbc3d7",
-            fontSize: 11,
+            fontSize: 13,
             color: "#7b7486",
             background: "white",
             flexShrink: 0,
@@ -5291,7 +5291,7 @@ export default function TaskAssigned() {
                   style={{
                     color: "#7b7486",
                     textDecoration: "none",
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: 600,
                     letterSpacing: 0.5,
                   }}
@@ -5345,10 +5345,10 @@ export default function TaskAssigned() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 16 }}>
+                <span style={{ fontSize: 17 }}>
                   {fileViewer.isPdf ? "📄" : fileViewer.isImg ? "🖼️" : "📎"}
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "white" }}>
                   {fileViewer.name}
                 </span>
               </div>
@@ -5362,7 +5362,7 @@ export default function TaskAssigned() {
                     background: "#6b38d4",
                     color: "white",
                     borderRadius: 7,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: 700,
                     textDecoration: "none",
                   }}
@@ -5377,7 +5377,7 @@ export default function TaskAssigned() {
                     background: "#e9ddff",
                     color: "#6b38d4",
                     borderRadius: 7,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: 700,
                     textDecoration: "none",
                   }}
@@ -5393,7 +5393,7 @@ export default function TaskAssigned() {
                     color: "white",
                     cursor: "pointer",
                     padding: "6px 10px",
-                    fontSize: 16,
+                    fontSize: 17,
                   }}
                 >
                   ×
@@ -5432,7 +5432,7 @@ export default function TaskAssigned() {
                   <div style={{ fontSize: 48, marginBottom: 16 }}>📎</div>
                   <div
                     style={{
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: 600,
                       color: "white",
                       marginBottom: 8,
@@ -5448,7 +5448,7 @@ export default function TaskAssigned() {
                       background: "#6b38d4",
                       color: "white",
                       borderRadius: 8,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: 700,
                       textDecoration: "none",
                     }}
@@ -5564,8 +5564,8 @@ function PathTasksAssignedLayout({
     <div className="path-assigned-shell">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
-        .path-assigned-filter input[type="date"]{min-width:0;width:132px;border:0;outline:0;background:transparent;color:#73647e;font-size:8px!important;font-weight:700}.path-assigned-filter input[type="date"]::-webkit-datetime-edit,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-fields-wrapper,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-text,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-month-field,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-day-field,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-year-field{font-size:8px!important;font-weight:700}
-        .path-assigned-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#51405e;font-family:'DM Sans',sans-serif}.path-assigned-shell *{box-sizing:border-box}.path-assigned-shell button,.path-assigned-shell input,.path-assigned-shell select,.path-assigned-shell textarea{font-family:inherit}.path-assigned-main{display:flex;min-width:0;flex:1;flex-direction:column;background:#f8f7ff}.path-assigned-body{flex:1;overflow:auto;padding:28px 30px 20px}@media(min-width:1100px){.path-assigned-body{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}.path-assigned-content{max-width:none;margin:0 auto}.path-assigned-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:148px;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.path-assigned-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size:9px;font-weight:700;letter-spacing:.12em}.path-assigned-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.path-assigned-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope,sans-serif;letter-spacing:-.045em}.path-assigned-hero p{max-width:650px;margin:0;color:#83778b;font-size:13px;line-height:1.4}.path-assigned-hero-actions{display:flex;align-items:center;gap:10px}.path-assigned-live{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid #e7dfee;border-radius:9px;background:#fff;color:#8c7c97;font-size:9px;font-weight:700}.path-assigned-live i{width:7px;height:7px;border-radius:50%;background:#d49145}.path-assigned-live i.online{background:#4da276;box-shadow:0 0 0 3px #e4f6ec}.path-assigned-primary,.path-assigned-open{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 9px 18px rgba(124,58,237,.2)}.path-assigned-primary{min-height:38px;padding:0 13px}.path-assigned-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:21px}.path-assigned-metric{position:relative;display:flex;gap:11px;min-height:108px;overflow:hidden;padding:15px;border:1px solid #e8e0ee;border-radius:12px;background:#fff;box-shadow:0 10px 24px rgba(58,35,90,.04)}.path-assigned-metric:after{position:absolute;right:-27px;top:-31px;width:92px;height:92px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.28),transparent 69%);content:''}.path-assigned-metric>span{position:relative;z-index:1;display:grid;width:31px;height:31px;flex:0 0 auto;place-items:center;border-radius:9px;background:#eee7fd;color:#744ab2;font-size:15px;font-weight:800}.path-assigned-metric.review>span{background:#fff4dc;color:#a97826}.path-assigned-metric.submitted>span{background:#e9f1ff;color:#557dc4}.path-assigned-metric.risk>span{background:#fff0ed;color:#b45d52}.path-assigned-metric small{display:block;color:#9b8ea2;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-assigned-metric strong{display:block;margin-top:7px;color:#4c3857;font:800 23px Manrope,sans-serif;letter-spacing:-.06em}.path-assigned-metric p{margin:5px 0 0;color:#9b8fa1;font-size:8px}.path-assigned-controls{display:flex;align-items:center;gap:9px;margin-top:20px;padding:12px 14px;border:1px solid #e8e1ee;border-radius:11px;background:#fff}.path-assigned-search,.path-assigned-filter{display:flex;align-items:center;gap:7px;border:1px solid #e8e1ed;border-radius:7px;color:#93869d}.path-assigned-search{width:260px;padding:8px 10px}.path-assigned-search input{width:100%;border:0;outline:0;background:transparent;color:#5e4b69;font-size:9px}.path-assigned-filter{padding:0 8px}.path-assigned-filter select{min-height:31px;border:0;outline:0;background:#fff;color:#73647e;font-size:8px;font-weight:700;cursor:pointer}.path-assigned-count{margin-left:auto;color:#978b9e;font-size:8px;font-weight:700}.path-assigned-layout{display:grid;grid-template-columns:minmax(0,1.56fr) minmax(294px,.64fr);align-items:start;gap:16px;margin-top:15px}.path-assigned-panel{overflow:hidden;border:1px solid #e7dfed;border-radius:12px;background:#fff;box-shadow:0 12px 28px rgba(58,36,88,.045)}.path-assigned-register-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:17px 18px}.path-assigned-register-head span,.path-assigned-selected-label{display:block;color:#a195a7;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-assigned-register-head h2,.path-assigned-detail h2{margin:5px 0 0;color:#4a3756;font:800 17px Manrope,sans-serif;letter-spacing:-.045em}.path-assigned-register-head p{max-width:215px;margin:0;color:#9b90a0;font-size:8px;line-height:1.5;text-align:right}.path-assigned-head,.path-assigned-row{display:grid;grid-template-columns:minmax(185px,1.45fr) minmax(126px,1fr) minmax(105px,.78fr) minmax(100px,.72fr);gap:10px;align-items:center}.path-assigned-head{padding:10px 18px;border-top:1px solid #f1edf3;border-bottom:1px solid #f1edf3;background:#fbfafe;color:#a79dac;font-size:8px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}.path-assigned-row{width:100%;min-height:73px;padding:10px 18px;border:0;border-bottom:1px solid #f1edf4;background:#fff;color:inherit;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.path-assigned-row:hover,.path-assigned-row.selected{background:#fcfaff}.path-assigned-row.selected{box-shadow:inset 3px 0 #7c3aed}.path-assigned-task{display:flex;min-width:0;align-items:center;gap:9px}.path-assigned-priority{display:grid;width:25px;height:25px;flex:0 0 25px;place-items:center;border-radius:7px;background:#eee7fa;color:#7448b2;font-size:9px;font-style:normal;font-weight:800}.path-assigned-priority.high{background:#fff0ed;color:#b45d52}.path-assigned-priority.medium{background:#fff4dc;color:#aa7727}.path-assigned-task-copy,.path-assigned-owner-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.path-assigned-task-copy strong,.path-assigned-owner-copy strong{overflow:hidden;color:#55405f;font:800 10px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.path-assigned-task-copy small,.path-assigned-owner-copy small{overflow:hidden;color:#9d91a2;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.path-assigned-owner{display:flex;min-width:0;align-items:center;gap:8px}.path-assigned-avatar{display:grid;width:27px;height:27px;flex:0 0 auto;place-items:center;border-radius:8px;background:#efe8fc;color:#7044ae;font-size:8px;font-weight:800}.path-assigned-state{display:flex;min-width:0;align-items:center;gap:5px;color:#765d85;font-size:8px;font-weight:800;white-space:nowrap}.path-assigned-state i,.path-assigned-selected-label i{width:6px;height:6px;flex:0 0 auto;border-radius:50%;background:#8b5cf6}.path-assigned-state i.review,.path-assigned-selected-label i.review{background:#6192d4}.path-assigned-state i.approved,.path-assigned-selected-label i.approved{background:#58a17b}.path-assigned-state i.returned,.path-assigned-selected-label i.returned{background:#d78660}.path-assigned-state i.risk,.path-assigned-selected-label i.risk{background:#cf6656}.path-assigned-due{display:flex;min-width:0;flex-direction:column;gap:3px}.path-assigned-due strong,.path-assigned-due small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-due strong{color:#74657c;font-size:8px}.path-assigned-due small{color:#579172;font-size:8px;font-weight:700}.path-assigned-due small.late{color:#b76757}.path-assigned-pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;color:#9b8fa2;font-size:8px}.path-assigned-pagination div{display:flex;gap:5px}.path-assigned-pagination button{display:grid;width:25px;height:25px;place-items:center;border:1px solid #e6deeb;border-radius:6px;background:#fff;color:#76548c;cursor:pointer}.path-assigned-pagination button:disabled{cursor:not-allowed;opacity:.4}.path-assigned-empty{display:flex;min-height:250px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:28px;color:#9e92a3;text-align:center}.path-assigned-empty strong{color:#695a72;font:800 11px Manrope,sans-serif}.path-assigned-empty span{font-size:9px}.path-assigned-empty button{margin-top:5px;border:0;border-radius:7px;padding:7px 9px;background:#efe7fb;color:#7044ac;font-size:8px;font-weight:800;cursor:pointer}.path-assigned-detail{padding:18px}.path-assigned-selected-label{display:flex;align-items:center;justify-content:space-between}.path-assigned-detail h2{margin-top:11px;font-size:20px;line-height:1.18}.path-assigned-detail>p{margin:8px 0 0;color:#988b9d;font-size:9px;line-height:1.5}.path-assigned-owner-card{display:flex;align-items:center;gap:9px;margin-top:16px;padding:10px;border:1px solid #e8e0ee;border-radius:9px;background:#fbf9fe}.path-assigned-owner-card>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:3px}.path-assigned-owner-card small{color:#9d91a2;font-size:8px}.path-assigned-owner-card strong{color:#5c4867;font-size:9px}.path-assigned-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 10px;margin-top:17px}.path-assigned-info-grid span{display:block;color:#a397a8;font-size:8px}.path-assigned-info-grid strong{display:block;overflow:hidden;margin-top:4px;color:#66536f;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.path-assigned-return-box{display:grid;gap:7px;margin-top:15px;padding:10px;border:1px solid #edcfbf;border-radius:9px;background:#fff9f4}.path-assigned-return-box label{color:#93653c;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.path-assigned-return-box textarea{width:100%;min-height:58px;resize:vertical;border:1px solid #e6d8ce;border-radius:7px;padding:8px;color:#5e4a3f;font-size:9px;outline:0}.path-assigned-return-actions{display:flex;justify-content:flex-end;gap:7px}.path-assigned-return-actions button{border-radius:6px;padding:6px 8px;font-size:8px;font-weight:800;cursor:pointer}.path-assigned-return-actions button:first-child{border:1px solid #e1d5ca;background:#fff;color:#8c7969}.path-assigned-return-actions button:last-child{border:1px solid #ad6047;background:#ad6047;color:#fff}.path-assigned-detail-actions{display:grid;gap:8px;margin-top:15px}.path-assigned-open{width:100%;min-height:34px}.path-assigned-secondary{min-height:32px;border:1px solid #dcd2e6;border-radius:8px;background:#fff;color:#745589;font-size:9px;font-weight:800;cursor:pointer}.path-assigned-approve{min-height:32px;border:1px solid #bfe3cd;border-radius:8px;background:#eef9f2;color:#428164;font-size:9px;font-weight:800;cursor:pointer}.path-assigned-approve:disabled{cursor:not-allowed;opacity:.55}.path-assigned-check{margin:0 7px 0 0;accent-color:#7c3aed}@media(max-width:1080px){.path-assigned-layout{grid-template-columns:1fr}.path-assigned-detail{min-height:0}}@media(max-width:780px){.path-assigned-body{padding:20px 16px}.path-assigned-hero{align-items:flex-start;flex-direction:column;min-height:0;padding:22px 18px}.path-assigned-hero-actions{width:100%;justify-content:space-between}.path-assigned-metrics{grid-template-columns:1fr 1fr;gap:9px}.path-assigned-metric{min-height:95px;padding:12px}.path-assigned-controls{align-items:stretch;flex-wrap:wrap}.path-assigned-search{width:100%}.path-assigned-count{width:100%;margin-left:0}.path-assigned-head{display:none}.path-assigned-row{grid-template-columns:minmax(0,1fr) minmax(96px,.56fr);gap:8px}.path-assigned-task{grid-column:1;grid-row:1}.path-assigned-owner{grid-column:1;grid-row:2}.path-assigned-state{grid-column:2;grid-row:1;justify-self:end}.path-assigned-due{grid-column:2;grid-row:2;align-items:flex-end}.path-assigned-due strong,.path-assigned-due small{text-align:right;white-space:normal}.path-assigned-register-head{align-items:flex-start;flex-direction:column}.path-assigned-register-head p{text-align:left}}@media(max-width:470px){.path-assigned-hero-actions{align-items:stretch;flex-direction:column}.path-assigned-primary{width:100%}.path-assigned-metrics{grid-template-columns:1fr}.path-assigned-filter{flex:1}.path-assigned-filter select{width:100%}.path-assigned-info-grid{grid-template-columns:1fr}}
+        .path-assigned-filter input[type="date"]{min-width:0;width:132px;border:0;outline:0;background:transparent;color:#73647e;font-size:11px!important;font-weight:700}.path-assigned-filter input[type="date"]::-webkit-datetime-edit,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-fields-wrapper,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-text,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-month-field,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-day-field,.path-assigned-filter input[type="date"]::-webkit-datetime-edit-year-field{font-size:11px!important;font-weight:700}
+        .path-assigned-shell{display:flex;height:100vh;overflow:hidden;background:#f8f7ff;color:#51405e;font-family:'DM Sans',sans-serif}.path-assigned-shell *{box-sizing:border-box}.path-assigned-shell button,.path-assigned-shell input,.path-assigned-shell select,.path-assigned-shell textarea{font-family:inherit}.path-assigned-main{display:flex;min-width:0;flex:1;flex-direction:column;background:#f8f7ff}.path-assigned-body{flex:1;overflow:auto;padding:28px 30px 20px}@media(min-width:1100px){.path-assigned-body{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}.path-assigned-content{max-width:none;margin:0 auto}.path-assigned-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:148px;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.path-assigned-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size:12px;font-weight:700;letter-spacing:.12em}.path-assigned-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.path-assigned-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope,sans-serif;letter-spacing:-.045em}.path-assigned-hero p{max-width:650px;margin:0;color:#83778b;font-size:14px;line-height:1.4}.path-assigned-hero-actions{display:flex;align-items:center;gap:10px}.path-assigned-live{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid #e7dfee;border-radius:9px;background:#fff;color:#8c7c97;font-size:12px;font-weight:700}.path-assigned-live i{width:7px;height:7px;border-radius:50%;background:#d49145}.path-assigned-live i.online{background:#4da276;box-shadow:0 0 0 3px #e4f6ec}.path-assigned-primary,.path-assigned-open{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 9px 18px rgba(124,58,237,.2)}.path-assigned-primary{min-height:38px;padding:0 13px}.path-assigned-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:21px}.path-assigned-metric{position:relative;display:flex;gap:11px;min-height:108px;overflow:hidden;padding:15px;border:1px solid #e8e0ee;border-radius:12px;background:#fff;box-shadow:0 10px 24px rgba(58,35,90,.04)}.path-assigned-metric:after{position:absolute;right:-27px;top:-31px;width:92px;height:92px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.28),transparent 69%);content:''}.path-assigned-metric>span{position:relative;z-index:1;display:grid;width:31px;height:31px;flex:0 0 auto;place-items:center;border-radius:9px;background:#eee7fd;color:#744ab2;font-size:16px;font-weight:800}.path-assigned-metric.review>span{background:#fff4dc;color:#a97826}.path-assigned-metric.submitted>span{background:#e9f1ff;color:#557dc4}.path-assigned-metric.risk>span{background:#fff0ed;color:#b45d52}.path-assigned-metric small{display:block;color:#9b8ea2;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-assigned-metric strong{display:block;margin-top:7px;color:#4c3857;font:800 23px Manrope,sans-serif;letter-spacing:-.06em}.path-assigned-metric p{margin:5px 0 0;color:#9b8fa1;font-size:11px}.path-assigned-controls{display:flex;align-items:center;gap:9px;margin-top:20px;padding:12px 14px;border:1px solid #e8e1ee;border-radius:11px;background:#fff}.path-assigned-search,.path-assigned-filter{display:flex;align-items:center;gap:7px;border:1px solid #e8e1ed;border-radius:7px;color:#93869d}.path-assigned-search{width:260px;padding:8px 10px}.path-assigned-search input{width:100%;border:0;outline:0;background:transparent;color:#5e4b69;font-size:12px}.path-assigned-filter{padding:0 8px}.path-assigned-filter select{min-height:31px;border:0;outline:0;background:#fff;color:#73647e;font-size:11px;font-weight:700;cursor:pointer}.path-assigned-count{margin-left:auto;color:#978b9e;font-size:11px;font-weight:700}.path-assigned-layout{display:grid;grid-template-columns:minmax(0,1.56fr) minmax(294px,.64fr);align-items:start;gap:16px;margin-top:15px}.path-assigned-panel{overflow:hidden;border:1px solid #e7dfed;border-radius:12px;background:#fff;box-shadow:0 12px 28px rgba(58,36,88,.045)}.path-assigned-register-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:17px 18px}.path-assigned-register-head span,.path-assigned-selected-label{display:block;color:#a195a7;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.path-assigned-register-head h2,.path-assigned-detail h2{margin:5px 0 0;color:#4a3756;font:800 18px Manrope,sans-serif;letter-spacing:-.045em}.path-assigned-register-head p{max-width:215px;margin:0;color:#9b90a0;font-size:11px;line-height:1.5;text-align:right}.path-assigned-head,.path-assigned-row{display:grid;grid-template-columns:minmax(185px,1.45fr) minmax(126px,1fr) minmax(105px,.78fr) minmax(100px,.72fr);gap:10px;align-items:center}.path-assigned-head{padding:10px 18px;border-top:1px solid #f1edf3;border-bottom:1px solid #f1edf3;background:#fbfafe;color:#a79dac;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}.path-assigned-row{width:100%;min-height:73px;padding:10px 18px;border:0;border-bottom:1px solid #f1edf4;background:#fff;color:inherit;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.path-assigned-row:hover,.path-assigned-row.selected{background:#fcfaff}.path-assigned-row.selected{box-shadow:inset 3px 0 #7c3aed}.path-assigned-task{display:flex;min-width:0;align-items:center;gap:9px}.path-assigned-priority{display:grid;width:25px;height:25px;flex:0 0 25px;place-items:center;border-radius:7px;background:#eee7fa;color:#7448b2;font-size:12px;font-style:normal;font-weight:800}.path-assigned-priority.high{background:#fff0ed;color:#b45d52}.path-assigned-priority.medium{background:#fff4dc;color:#aa7727}.path-assigned-task-copy,.path-assigned-owner-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.path-assigned-task-copy strong,.path-assigned-owner-copy strong{overflow:hidden;color:#55405f;font:800 12px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.path-assigned-task-copy small,.path-assigned-owner-copy small{overflow:hidden;color:#9d91a2;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.path-assigned-owner{display:flex;min-width:0;align-items:center;gap:8px}.path-assigned-avatar{display:grid;width:27px;height:27px;flex:0 0 auto;place-items:center;border-radius:8px;background:#efe8fc;color:#7044ae;font-size:11px;font-weight:800}.path-assigned-state{display:flex;min-width:0;align-items:center;gap:5px;color:#765d85;font-size:11px;font-weight:800;white-space:nowrap}.path-assigned-state i,.path-assigned-selected-label i{width:6px;height:6px;flex:0 0 auto;border-radius:50%;background:#8b5cf6}.path-assigned-state i.review,.path-assigned-selected-label i.review{background:#6192d4}.path-assigned-state i.approved,.path-assigned-selected-label i.approved{background:#58a17b}.path-assigned-state i.returned,.path-assigned-selected-label i.returned{background:#d78660}.path-assigned-state i.risk,.path-assigned-selected-label i.risk{background:#cf6656}.path-assigned-due{display:flex;min-width:0;flex-direction:column;gap:3px}.path-assigned-due strong,.path-assigned-due small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-assigned-due strong{color:#74657c;font-size:11px}.path-assigned-due small{color:#579172;font-size:11px;font-weight:700}.path-assigned-due small.late{color:#b76757}.path-assigned-pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;color:#9b8fa2;font-size:11px}.path-assigned-pagination div{display:flex;gap:5px}.path-assigned-pagination button{display:grid;width:25px;height:25px;place-items:center;border:1px solid #e6deeb;border-radius:6px;background:#fff;color:#76548c;cursor:pointer}.path-assigned-pagination button:disabled{cursor:not-allowed;opacity:.4}.path-assigned-empty{display:flex;min-height:250px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:28px;color:#9e92a3;text-align:center}.path-assigned-empty strong{color:#695a72;font:800 13px Manrope,sans-serif}.path-assigned-empty span{font-size:12px}.path-assigned-empty button{margin-top:5px;border:0;border-radius:7px;padding:7px 9px;background:#efe7fb;color:#7044ac;font-size:11px;font-weight:800;cursor:pointer}.path-assigned-detail{padding:18px}.path-assigned-selected-label{display:flex;align-items:center;justify-content:space-between}.path-assigned-detail h2{margin-top:11px;font-size:21px;line-height:1.18}.path-assigned-detail>p{margin:8px 0 0;color:#988b9d;font-size:12px;line-height:1.5}.path-assigned-owner-card{display:flex;align-items:center;gap:9px;margin-top:16px;padding:10px;border:1px solid #e8e0ee;border-radius:9px;background:#fbf9fe}.path-assigned-owner-card>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:3px}.path-assigned-owner-card small{color:#9d91a2;font-size:11px}.path-assigned-owner-card strong{color:#5c4867;font-size:12px}.path-assigned-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 10px;margin-top:17px}.path-assigned-info-grid span{display:block;color:#a397a8;font-size:11px}.path-assigned-info-grid strong{display:block;overflow:hidden;margin-top:4px;color:#66536f;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.path-assigned-return-box{display:grid;gap:7px;margin-top:15px;padding:10px;border:1px solid #edcfbf;border-radius:9px;background:#fff9f4}.path-assigned-return-box label{color:#93653c;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.path-assigned-return-box textarea{width:100%;min-height:58px;resize:vertical;border:1px solid #e6d8ce;border-radius:7px;padding:8px;color:#5e4a3f;font-size:12px;outline:0}.path-assigned-return-actions{display:flex;justify-content:flex-end;gap:7px}.path-assigned-return-actions button{border-radius:6px;padding:6px 8px;font-size:11px;font-weight:800;cursor:pointer}.path-assigned-return-actions button:first-child{border:1px solid #e1d5ca;background:#fff;color:#8c7969}.path-assigned-return-actions button:last-child{border:1px solid #ad6047;background:#ad6047;color:#fff}.path-assigned-detail-actions{display:grid;gap:8px;margin-top:15px}.path-assigned-open{width:100%;min-height:34px}.path-assigned-secondary{min-height:32px;border:1px solid #dcd2e6;border-radius:8px;background:#fff;color:#745589;font-size:12px;font-weight:800;cursor:pointer}.path-assigned-approve{min-height:32px;border:1px solid #bfe3cd;border-radius:8px;background:#eef9f2;color:#428164;font-size:12px;font-weight:800;cursor:pointer}.path-assigned-approve:disabled{cursor:not-allowed;opacity:.55}.path-assigned-check{margin:0 7px 0 0;accent-color:#7c3aed}@media(max-width:1080px){.path-assigned-layout{grid-template-columns:1fr}.path-assigned-detail{min-height:0}}@media(max-width:780px){.path-assigned-body{padding:20px 16px}.path-assigned-hero{align-items:flex-start;flex-direction:column;min-height:0;padding:22px 18px}.path-assigned-hero-actions{width:100%;justify-content:space-between}.path-assigned-metrics{grid-template-columns:1fr 1fr;gap:9px}.path-assigned-metric{min-height:95px;padding:12px}.path-assigned-controls{align-items:stretch;flex-wrap:wrap}.path-assigned-search{width:100%}.path-assigned-count{width:100%;margin-left:0}.path-assigned-head{display:none}.path-assigned-row{grid-template-columns:minmax(0,1fr) minmax(96px,.56fr);gap:8px}.path-assigned-task{grid-column:1;grid-row:1}.path-assigned-owner{grid-column:1;grid-row:2}.path-assigned-state{grid-column:2;grid-row:1;justify-self:end}.path-assigned-due{grid-column:2;grid-row:2;align-items:flex-end}.path-assigned-due strong,.path-assigned-due small{text-align:right;white-space:normal}.path-assigned-register-head{align-items:flex-start;flex-direction:column}.path-assigned-register-head p{text-align:left}}@media(max-width:470px){.path-assigned-hero-actions{align-items:stretch;flex-direction:column}.path-assigned-primary{width:100%}.path-assigned-metrics{grid-template-columns:1fr}.path-assigned-filter{flex:1}.path-assigned-filter select{width:100%}.path-assigned-info-grid{grid-template-columns:1fr}}
       `}</style>
       <Toast toasts={toasts} onDismiss={onDismissToast} />
       <main className="path-assigned-main">
@@ -5755,7 +5755,7 @@ function PathTasksAssignedLayout({
                             size={27}
                             background="#efe8fc"
                             color="#7044ae"
-                            fontSize={8}
+                            fontSize={11}
                             style={{ borderRadius: 8 }}
                           />
                           <span className="path-assigned-owner-copy">
@@ -5843,7 +5843,7 @@ function PathTasksAssignedLayout({
                         size={27}
                         background="#efe8fc"
                         color="#7044ae"
-                        fontSize={8}
+                        fontSize={11}
                         style={{ borderRadius: 8 }}
                       />
                       <span>
@@ -5852,7 +5852,7 @@ function PathTasksAssignedLayout({
                           {selected.assigned_to_name || "Unassigned"}
                         </strong>
                       </span>
-                      <span style={{ color: "#8d67c4", fontSize: 15 }}>⌁</span>
+                      <span style={{ color: "#8d67c4", fontSize: 16 }}>⌁</span>
                     </div>
                     <div className="path-assigned-info-grid">
                       <InfoCell

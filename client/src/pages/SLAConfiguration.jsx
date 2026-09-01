@@ -153,7 +153,7 @@ const REVIEWER_ROLES = ["Program Chair", "Admin", "Faculty"];
 function StatusDot({ status }) {
   const active = status === "Active";
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 600, color: active ? "#059669" : "#9ca3af" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 14, fontWeight: 600, color: active ? "#059669" : "#9ca3af" }}>
       <span style={{ width: 7, height: 7, borderRadius: "50%", background: active ? "#22c55e" : "#d1d5db" }} />
       {status}
     </span>
@@ -171,8 +171,8 @@ function SectionCard({ title, subtitle, icon: Icn, action, children, style }) {
             </div>
           )}
           <div>
-            <p style={{ fontSize: 13.5, fontWeight: 700, color: "#111827" }}>{title}</p>
-            {subtitle && <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>{subtitle}</p>}
+            <p style={{ fontSize: 14.5, fontWeight: 700, color: "#111827" }}>{title}</p>
+            {subtitle && <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 1 }}>{subtitle}</p>}
           </div>
         </div>
         {action}
@@ -221,7 +221,7 @@ function HourChipsInput({ value, onChange, placeholder = "Add hours…" }) {
           style={{
             display: "inline-flex", alignItems: "center", gap: 5,
             padding: "5px 8px 5px 12px", borderRadius: 999,
-            background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 600,
+            background: "#7c3aed", color: "#fff", fontSize: 13, fontWeight: 600,
           }}
         >
           {h} h
@@ -256,7 +256,7 @@ function HourChipsInput({ value, onChange, placeholder = "Add hours…" }) {
           onBlur={addDraft}
           style={{
             width: 60, padding: "5px 8px", borderRadius: 999,
-            border: "1px solid #c4b5fd", background: "#faf5ff", fontSize: 12,
+            border: "1px solid #c4b5fd", background: "#faf5ff", fontSize: 13,
             color: "#111827", outline: "none", boxSizing: "border-box",
           }}
         />
@@ -268,7 +268,7 @@ function HourChipsInput({ value, onChange, placeholder = "Add hours…" }) {
             display: "inline-flex", alignItems: "center", gap: 4,
             padding: "5px 10px", borderRadius: 999,
             border: "1px dashed #c4b5fd", background: "#faf5ff",
-            color: "#7c3aed", fontSize: 12, fontWeight: 600, cursor: "pointer",
+            color: "#7c3aed", fontSize: 13, fontWeight: 600, cursor: "pointer",
           }}
         >
           + {placeholder}
@@ -626,7 +626,7 @@ export default function SLAConfiguration() {
               value={ruleForm.reminderStageDays}
               onChange={v => set("reminderStageDays", v)}
             />
-            <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 6 }}>
+            <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 6 }}>
               Hours before the deadline to remind faculty and the reviewer. "Due today" always fires in addition to these.
             </p>
           </div>
@@ -639,7 +639,7 @@ export default function SLAConfiguration() {
               onChange={e => set("overdueIntervalDays", e.target.value)}
               style={{ ...inpStyle, marginTop: 5 }}
             />
-            <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>
+            <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>
               How often (in hours) to repeat "still overdue" nags once the deadline has passed.
             </p>
           </div>
@@ -669,8 +669,8 @@ export default function SLAConfiguration() {
     return (
       <div style={{ ...drawerCardStyle, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>Rule Status</p>
-          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>{active ? "Active" : "Paused"}</p>
+          <p style={{ fontSize: 13.5, fontWeight: 700, color: "#111827" }}>Rule Status</p>
+          <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 1 }}>{active ? "Active" : "Paused"}</p>
         </div>
         <div
           onClick={() => set("status", active ? "Paused" : "Active")}
@@ -688,8 +688,8 @@ export default function SLAConfiguration() {
         <h3 style={drawerCardTitleStyle}>Escalation Settings</h3>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0 10px", borderBottom: "1px solid #f5f5f8", marginBottom: 10 }}>
           <div style={{ paddingRight: 10 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>Auto-Escalation</p>
-            <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>Automatically reassign to senior management if SLA fails.</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>Auto-Escalation</p>
+            <p style={{ fontSize: 12.5, color: "#9ca3af", marginTop: 2 }}>Automatically reassign to senior management if SLA fails.</p>
           </div>
           <div
             onClick={toggleAutoEscalation}
@@ -699,14 +699,14 @@ export default function SLAConfiguration() {
           </div>
         </div>
 
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Reminder Notifications</p>
+        <p style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Reminder Notifications</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {[
             { key: "email", label: "Email Notifications", field: "notify_email" },
             { key: "dashboard", label: "In-App Dashboard Alerts", field: "notify_dashboard" },
             { key: "sms", label: "Mobile SMS (Urgent Only)", field: "notify_sms" },
           ].map(o => (
-            <label key={o.key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11.5, color: "#374151", cursor: "pointer" }}>
+            <label key={o.key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#374151", cursor: "pointer" }}>
               <input
                 type="checkbox"
                 checked={!!escalation[o.field]}
@@ -731,25 +731,25 @@ export default function SLAConfiguration() {
     return (
       <div className="sla-preview-surface" style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: BOX_RADIUS, padding: 16, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: 0, left: 0, width: 4, height: "100%", background: "#7c3aed" }} />
-        <h3 style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 12 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 12 }}>
           Configuration Preview
         </h3>
         <div className="sla-preview-facts" style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 11, color: "#6b7280" }}>Document</span>
-            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.docType}</span>
+            <span style={{ fontSize: 13, color: "#6b7280" }}>Document</span>
+            <span style={{ fontSize: 13.5, fontWeight: 600, color: "#111827" }}>{ruleForm.docType}</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 11, color: "#6b7280" }}>Turnaround</span>
-            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.turnaroundHours} Hours</span>
+            <span style={{ fontSize: 13, color: "#6b7280" }}>Turnaround</span>
+            <span style={{ fontSize: 13.5, fontWeight: 600, color: "#111827" }}>{ruleForm.turnaroundHours} Hours</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 11, color: "#6b7280" }}>Reviewer</span>
-            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{ruleForm.reviewerRole || "—"}</span>
+            <span style={{ fontSize: 13, color: "#6b7280" }}>Reviewer</span>
+            <span style={{ fontSize: 13.5, fontWeight: 600, color: "#111827" }}>{ruleForm.reviewerRole || "—"}</span>
           </div>
         </div>
           <div className="sla-preview-timeline" style={{ borderTop: "1px solid rgba(124,58,237,0.15)", paddingTop: 12 }}>
-          <h4 style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, marginBottom: 8 }}>Escalation Timeline</h4>
+          <h4 style={{ fontSize: 13, color: "#6b7280", fontWeight: 600, marginBottom: 8 }}>Escalation Timeline</h4>
           <div style={{ position: "relative", borderLeft: "2px solid #ddd6fe", marginLeft: 6, display: "flex", flexDirection: "column", gap: 10 }}>
             {(ruleForm.reminderStageDays || "")
               .split(",")
@@ -759,21 +759,21 @@ export default function SLAConfiguration() {
               .map(hours => (
                 <div key={hours} className="sla-preview-timeline-item" style={{ position: "relative", paddingLeft: 14 }}>
                   <div style={{ position: "absolute", width: 10, height: 10, background: "#faf5ff", border: "2px solid #a78bfa", borderRadius: "50%", left: -7, top: 2 }} />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#7c3aed", display: "block" }}>
                     {hours} Hour{hours === 1 ? "" : "s"} Before Deadline
                   </span>
-                  <span style={{ fontSize: 10.5, color: "#9ca3af" }}>Reminder to faculty + reviewer</span>
+                  <span style={{ fontSize: 12.5, color: "#9ca3af" }}>Reminder to faculty + reviewer</span>
                 </div>
               ))}
             <div className="sla-preview-timeline-item due" style={{ position: "relative", paddingLeft: 14 }}>
               <div style={{ position: "absolute", width: 10, height: 10, background: "#f5f3ff", border: "2px solid #7c3aed", borderRadius: "50%", left: -7, top: 2 }} />
-              <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", display: "block" }}>Due in {ruleForm.turnaroundHours} Hours</span>
-              <span style={{ fontSize: 10.5, color: "#9ca3af" }}>Turnaround deadline</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#7c3aed", display: "block" }}>Due in {ruleForm.turnaroundHours} Hours</span>
+              <span style={{ fontSize: 12.5, color: "#9ca3af" }}>Turnaround deadline</span>
             </div>
             <div className="sla-preview-timeline-item overdue" style={{ position: "relative", paddingLeft: 14 }}>
               <div style={{ position: "absolute", width: 10, height: 10, background: "#fef2f2", border: "2px solid #ef4444", borderRadius: "50%", left: -7, top: 2 }} />
-              <span style={{ fontSize: 11, fontWeight: 600, color: "#ef4444", display: "block" }}>Overdue (+{ruleForm.escalationHours}h)</span>
-              <span style={{ fontSize: 10.5, color: "#9ca3af" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#ef4444", display: "block" }}>Overdue (+{ruleForm.escalationHours}h)</span>
+              <span style={{ fontSize: 12.5, color: "#9ca3af" }}>
                 {activeChannels.length ? `Alert via ${activeChannels.join(", ")}` : "Escalate to Chair"} · repeats every {ruleForm.overdueIntervalDays || 24}h
               </span>
             </div>
@@ -854,7 +854,7 @@ export default function SLAConfiguration() {
   const statAccent = { "Total Rules": COLORS.primary, "Active Rules": COLORS.success, "Near Deadline": COLORS.warning, "Overdue": COLORS.danger };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary, background: COLORS.surface }}>
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: COLORS.textPrimary, background: COLORS.surface }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
 
         .sla-row { transition: background-color 0.15s; }
@@ -867,42 +867,42 @@ export default function SLAConfiguration() {
 .panel-card { border: 1px solid #e7e2ef; border-radius: 10px; background: #fff; box-shadow: 0 10px 28px rgba(57,36,93,.04); }
 .date-kicker,.section-kicker { display:flex; align-items:center; gap:8px; color:#8f879c; font:10px "DM Sans",sans-serif; letter-spacing:.08em; text-transform:uppercase; }
 .date-kicker { margin-bottom:12px; }
-.section-kicker { gap:7px; margin-bottom:7px; color:#9d95a8; font-size:9px; }
+.section-kicker { gap:7px; margin-bottom:7px; color:#9d95a8; font-size:12px; }
 .section-kicker::before { width:5px; height:5px; border-radius:1px; background:#c4b5fd; content:""; transform:rotate(45deg); }
 .live-dot { width:6px; height:6px; border-radius:50%; background:#7c3aed; box-shadow:0 0 0 4px #eee8ff; }
 .task-avatar,.tracking-detail-avatar { display:grid; flex:0 0 auto; place-items:center; border-radius:7px; background:#eee7ff; color:#7547c9; font:900 8px "DM Sans",sans-serif; }
 .task-avatar { width:25px; height:25px; }
-.tracking-detail-avatar { width:48px; height:48px; font-size:12px; }
+.tracking-detail-avatar { width:48px; height:48px; font-size:13px; }
 .icon-button { position:relative; display:grid; width:34px; height:34px; place-items:center; border:1px solid transparent; border-radius:9px; background:transparent; color:#817a8d; cursor:pointer; }
 .icon-button.compact { width:28px; height:28px; }
 .primary-action { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; border:0; border-radius:9px; background:#7c3aed; color:#fff; cursor:pointer; box-shadow:0 7px 17px rgba(124,58,237,.2); font:800 11px "DM Sans",sans-serif; }
 .text-action { border:0; background:transparent; color:#7c3aed; cursor:pointer; }
 .people-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:220px; color:#a39aa9; text-align:center; }
-.people-empty strong { color:#62566c; font-size:13px; }
-.people-empty span { font-size:10px; }
+.people-empty strong { color:#62566c; font-size:14px; }
+.people-empty span { font-size:12px; }
 .sla-list-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-top:1px solid #f0edf4; color:#9d93a4; font:9px "DM Sans",sans-serif; }
 .sla-list-footer>div { display:flex; gap:8px; }
 .sla-list-footer button { padding:7px 11px; border:1px solid #e3dceb; border-radius:7px; background:#fff; color:#766a80; font:10px "DM Sans",sans-serif; cursor:pointer; }
 .sla-list-footer button:disabled { opacity:.45; cursor:default; }
 .sla-preserved-editor-controls { display:flex; flex-direction:column; gap:12px; }
 .sla-preserved-editor-controls > div { padding:14px !important; border:1px solid #eee8f4; border-radius:8px; background:#fff; }
-.sla-delete-document { width:100%; margin:0 0 14px; padding:9px; color:#dc2626; font-size:10px; }
+.sla-delete-document { width:100%; margin:0 0 14px; padding:9px; color:#dc2626; font-size:12px; }
 @media (max-width:900px) { .sla-config-view { max-width:none; } }
 /* Per-document SLA management */
 .sla-document-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.sla-document-stats article{padding:16px 17px;border:1px solid #e5deed;border-radius:9px;background:#fff;box-shadow:0 10px 25px rgba(57,36,93,.04)}.sla-document-stats span{display:block;color:#958b9d;font:9px "DM Sans",sans-serif}.sla-document-stats strong{display:block;margin:8px 0 3px;color:#332c3e;font:700 25px Manrope,sans-serif}.sla-document-stats small{color:#a49aa9;font:9px "DM Sans",sans-serif}.sla-document-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.72fr);gap:15px;align-items:start}.sla-document-list,.sla-document-detail{border-color:#e5deed;box-shadow:0 12px 30px rgba(57,36,93,.045)}.sla-list-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:20px 21px 16px;border-bottom:1px solid #f0edf4}.sla-list-heading h2{margin:7px 0 4px;color:#3b3245;font:700 18px Manrope,sans-serif}.sla-list-heading h2 span{display:inline-grid;width:23px;height:19px;margin-left:4px;place-items:center;border-radius:5px;background:#eee7fd;color:#7044c5;font:800 9px "DM Sans",sans-serif;vertical-align:middle}.sla-list-heading p{margin:0;color:#9a90a2;font:10px "DM Sans",sans-serif}.sla-list-heading select{height:34px;padding:0 9px;border:1px solid #e3dceb;border-radius:7px;background:#fff;color:#766a80;font:10px "DM Sans",sans-serif}.sla-document-table-head{display:grid;grid-template-columns:minmax(220px,1.7fr) minmax(110px,1fr) 58px 95px 112px;gap:12px;padding:10px 18px;background:#faf8fd;color:#9d93a4;font:800 8px "DM Sans",sans-serif;letter-spacing:.08em;text-transform:uppercase}.sla-document-row{display:grid;grid-template-columns:minmax(220px,1.7fr) minmax(110px,1fr) 58px 95px 112px;align-items:center;gap:12px;width:100%;min-height:69px;padding:11px 18px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.sla-document-row:hover,.sla-document-row.selected{background:#fbf9ff;box-shadow:inset 3px 0 #8b5cf6}.sla-document-cell{display:flex;align-items:center;gap:9px;min-width:0}.sla-document-cell>span:last-child{display:flex;min-width:0;flex-direction:column;gap:4px}.sla-document-cell strong{overflow:hidden;color:#51465b;font:700 10px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.sla-document-cell small,.sla-owner-cell,.sla-due-cell{overflow:hidden;color:#9e94a4;font:9px "DM Sans",sans-serif;text-overflow:ellipsis;white-space:nowrap}.sla-target-cell{color:#63429c;font:800 11px Manrope,sans-serif}.sla-state{display:inline-flex;align-items:center;gap:5px;width:max-content;padding:5px 7px;border-radius:5px;font:800 8px "DM Sans",sans-serif;white-space:nowrap}.sla-state i{width:5px;height:5px;border-radius:50%;background:currentColor}.sla-state.healthy{background:#eaf6ee;color:#4c9b70}.sla-state.risk{background:#fbefda;color:#ae7a1f}.sla-state.closed{background:#efedf1;color:#8c8392}.sla-document-detail{padding:20px}.sla-document-detail .panel-topline{margin-bottom:20px}.sla-selected-document{display:flex;align-items:center;gap:10px;margin-bottom:19px}.sla-selected-document>div{display:flex;min-width:0;flex-direction:column;gap:4px}.sla-selected-document strong{overflow:hidden;color:#50445b;font:700 13px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.sla-selected-document small{color:#a097a7;font:9px "DM Sans",sans-serif}.sla-detail-progress{margin-bottom:20px}.sla-detail-progress>div:first-child{height:7px;overflow:hidden;border-radius:9px;background:#eee8f5}.sla-detail-progress>div:first-child span{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#9b74e8,#7c3aed)}.sla-detail-progress>div:last-child{display:flex;justify-content:space-between;margin-top:7px;color:#9b91a2;font:9px "DM Sans",sans-serif}.sla-document-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:17px}.sla-detail-setting{display:flex;align-items:center;gap:9px;padding:13px 0;border-top:1px solid #f0edf4;border-bottom:1px solid #f0edf4}.sla-detail-setting>span:nth-child(2){display:flex;min-width:0;flex:1;flex-direction:column;gap:4px}.sla-detail-setting strong{color:#62566c;font:700 10px Manrope,sans-serif}.sla-detail-setting small{color:#9b91a2;font:9px "DM Sans",sans-serif;line-height:1.35}.sla-detail-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 0}.sla-detail-facts div{display:flex;flex-direction:column;gap:5px}.sla-detail-facts span{color:#9d93a4;font:8px "DM Sans",sans-serif;text-transform:uppercase}.sla-detail-facts strong{overflow:hidden;color:#62566c;font:700 10px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.sla-save-document{justify-content:center;width:100%;margin-bottom:15px}.sla-document-detail .sla-preview-callout{margin-top:0}.sla-document-detail .sla-state{margin-left:auto}
 @media (max-width:900px){.sla-document-stats{grid-template-columns:repeat(2,1fr)}.sla-document-layout{grid-template-columns:1fr}.sla-document-table-head{display:none}.sla-document-row{grid-template-columns:minmax(0,1fr) auto auto;gap:10px}.sla-owner-cell{display:none}.sla-target-cell{grid-column:2}.sla-state{grid-column:3}.sla-due-cell{grid-column:1/-1;padding-left:40px}.sla-list-heading{align-items:stretch;flex-direction:column}.sla-list-heading select{width:max-content}}
-@media (max-width:560px){.sla-document-stats{gap:8px}.sla-document-stats article{padding:13px}.sla-document-stats strong{font-size:21px}.sla-list-heading,.sla-document-detail{padding:16px}.sla-document-row{padding:12px 14px}.sla-document-cell strong{font-size:9px}.sla-document-fields{grid-template-columns:1fr}.sla-due-cell{padding-left:0}.sla-selected-document strong{font-size:11px}}
+@media (max-width:560px){.sla-document-stats{gap:8px}.sla-document-stats article{padding:13px}.sla-document-stats strong{font-size:21px}.sla-list-heading,.sla-document-detail{padding:16px}.sla-document-row{padding:12px 14px}.sla-document-cell strong{font-size:12px}.sla-document-fields{grid-template-columns:1fr}.sla-due-cell{padding-left:0}.sla-selected-document strong{font-size:13px}}
 
 /* Document-type SLA policy catalog */
 .sla-policy-table-head{display:grid;grid-template-columns:minmax(220px,1.45fr) minmax(150px,1fr) 58px minmax(130px,1fr) 82px;gap:12px;padding:10px 18px;background:#faf8fd;color:#9d93a4;font:800 8px "DM Sans",sans-serif;letter-spacing:.08em;text-transform:uppercase}.sla-policy-row{display:grid;grid-template-columns:minmax(220px,1.45fr) minmax(150px,1fr) 58px minmax(130px,1fr) 82px;align-items:center;gap:12px;width:100%;min-height:72px;padding:11px 18px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.sla-policy-row:hover,.sla-policy-row.selected{background:#fbf9ff;box-shadow:inset 3px 0 #8b5cf6}.sla-category-cell{overflow:hidden;color:#897d92;font:9px "DM Sans",sans-serif;text-overflow:ellipsis;white-space:nowrap}.sla-coverage-cell{display:flex;flex-direction:column;gap:3px}.sla-coverage-cell strong{color:#63429c;font:800 13px Manrope,sans-serif}.sla-coverage-cell small{color:#a39aa9;font:8px "DM Sans",sans-serif}.sla-inheritance-banner{display:flex;gap:9px;margin-bottom:18px;padding:11px;border:1px solid #e1d5f4;border-radius:8px;background:#faf7ff;color:#7750b8}.sla-inheritance-banner svg{flex:none}.sla-inheritance-banner div{display:flex;flex-direction:column;gap:4px}.sla-inheritance-banner strong{color:#685080;font:700 10px Manrope,sans-serif}.sla-inheritance-banner small{color:#9b91a2;font:9px "DM Sans",sans-serif;line-height:1.4}.sla-owner-select{margin-bottom:17px}.sla-owner-select select{height:39px;padding:0 10px;border:1px solid #e3dceb;border-radius:7px;background:#fff;color:#5d5167;font:10px "DM Sans",sans-serif}.sla-owner-select select:focus{border-color:#b99af1;box-shadow:0 0 0 3px #eee7fd;outline:0}
 @media (max-width:900px){.sla-policy-table-head{display:none}.sla-policy-row{grid-template-columns:minmax(0,1fr) auto auto;gap:8px}.sla-category-cell,.sla-owner-cell{display:none}.sla-target-cell{grid-column:2}.sla-coverage-cell{grid-column:3}.sla-policy-row .sla-document-cell{grid-column:1}}
-@media (max-width:560px){.sla-policy-row{min-height:70px;padding:11px 14px}.sla-policy-row .sla-document-cell strong{font-size:9px}.sla-inheritance-banner{margin-bottom:15px}}
+@media (max-width:560px){.sla-policy-row{min-height:70px;padding:11px 14px}.sla-policy-row .sla-document-cell strong{font-size:12px}.sla-inheritance-banner{margin-bottom:15px}}
 
 /* Policy row reminder and escalation columns */
-.sla-policy-table-head,.sla-policy-row{grid-template-columns:minmax(205px,1.45fr) minmax(135px,1fr) 52px 70px 75px minmax(115px,1fr) 70px}.sla-policy-reminder,.sla-policy-escalation{font:800 9px "DM Sans",sans-serif;white-space:nowrap}.sla-policy-reminder.enabled{color:#4c9b70}.sla-policy-reminder.disabled{color:#aaa0ad}.sla-policy-escalation{color:#63429c}.sla-policy-row .sla-owner-cell{grid-column:auto}.sla-policy-row .sla-coverage-cell{grid-column:auto}@media (max-width:1100px) and (min-width:901px){.sla-policy-table-head,.sla-policy-row{grid-template-columns:minmax(180px,1.4fr) 95px 45px 58px 60px 95px 58px}.sla-category-cell,.sla-owner-cell{font-size:8px}}@media (max-width:900px){.sla-policy-table-head{display:none}.sla-policy-row{grid-template-columns:minmax(0,1fr) auto auto;gap:8px}.sla-policy-row .sla-category-cell,.sla-policy-row .sla-owner-cell{display:none}.sla-policy-row .sla-target-cell{grid-column:2}.sla-policy-row .sla-policy-reminder,.sla-policy-row .sla-policy-escalation{display:inline-flex;grid-column:3}.sla-policy-row .sla-coverage-cell{grid-column:3}.sla-policy-row .sla-policy-escalation{display:none}.sla-policy-row .sla-document-cell{grid-column:1}.sla-policy-row .sla-coverage-cell{grid-column:3}}@media (max-width:560px){.sla-policy-row{min-height:70px;padding:11px 14px}.sla-policy-row .sla-target-cell{font-size:10px}}
+.sla-policy-table-head,.sla-policy-row{grid-template-columns:minmax(205px,1.45fr) minmax(135px,1fr) 52px 70px 75px minmax(115px,1fr) 70px}.sla-policy-reminder,.sla-policy-escalation{font:800 9px "DM Sans",sans-serif;white-space:nowrap}.sla-policy-reminder.enabled{color:#4c9b70}.sla-policy-reminder.disabled{color:#aaa0ad}.sla-policy-escalation{color:#63429c}.sla-policy-row .sla-owner-cell{grid-column:auto}.sla-policy-row .sla-coverage-cell{grid-column:auto}@media (max-width:1100px) and (min-width:901px){.sla-policy-table-head,.sla-policy-row{grid-template-columns:minmax(180px,1.4fr) 95px 45px 58px 60px 95px 58px}.sla-category-cell,.sla-owner-cell{font-size:11px}}@media (max-width:900px){.sla-policy-table-head{display:none}.sla-policy-row{grid-template-columns:minmax(0,1fr) auto auto;gap:8px}.sla-policy-row .sla-category-cell,.sla-policy-row .sla-owner-cell{display:none}.sla-policy-row .sla-target-cell{grid-column:2}.sla-policy-row .sla-policy-reminder,.sla-policy-row .sla-policy-escalation{display:inline-flex;grid-column:3}.sla-policy-row .sla-coverage-cell{grid-column:3}.sla-policy-row .sla-policy-escalation{display:none}.sla-policy-row .sla-document-cell{grid-column:1}.sla-policy-row .sla-coverage-cell{grid-column:3}}@media (max-width:560px){.sla-policy-row{min-height:70px;padding:11px 14px}.sla-policy-row .sla-target-cell{font-size:12px}}
 
 @media (max-width:900px){.sla-policy-row{grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center}.sla-policy-row .sla-target-cell{grid-column:2}.sla-policy-row .sla-policy-reminder{grid-column:3}.sla-policy-row .sla-policy-escalation{display:inline-flex;grid-column:4}.sla-policy-row .sla-coverage-cell{grid-column:4;grid-row:2}.sla-policy-row .sla-document-cell{grid-column:1;grid-row:1 / span 2}.sla-policy-row .sla-target-cell,.sla-policy-row .sla-policy-reminder,.sla-policy-row .sla-policy-escalation{align-self:start;margin-top:4px}.sla-policy-row .sla-policy-reminder:before{content:"R ";font-weight:400;color:#a39aa9}.sla-policy-row .sla-policy-escalation:before{content:"E ";font-weight:400;color:#a39aa9}}
-@media (max-width:560px){.sla-policy-row{grid-template-columns:minmax(0,1fr) auto auto auto;gap:5px}.sla-policy-row .sla-target-cell{font-size:9px}.sla-policy-row .sla-policy-reminder,.sla-policy-row .sla-policy-escalation{font-size:8px}.sla-policy-row .sla-coverage-cell{font-size:8px}}
+@media (max-width:560px){.sla-policy-row{grid-template-columns:minmax(0,1fr) auto auto auto;gap:5px}.sla-policy-row .sla-target-cell{font-size:12px}.sla-policy-row .sla-policy-reminder,.sla-policy-row .sla-policy-escalation{font-size:11px}.sla-policy-row .sla-coverage-cell{font-size:11px}}
 
 /* SLA reminder schedule and configuration preview */
 .sla-reminder-schedule{margin:0 0 18px;padding:14px;border:1px solid #dfd5e8;border-radius:10px;background:#fff}.sla-subsection-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.sla-subsection-heading>div{display:flex;flex-direction:column;gap:4px}.sla-subsection-heading strong{color:#4d4059;font:700 11px Manrope,sans-serif}.sla-subsection-heading small{color:#9d93a4;font:9px "DM Sans",sans-serif}.sla-subsection-heading>svg{color:#8b5cf6}.sla-field-label{display:block;margin-bottom:8px;color:#766a80;font:800 9px "DM Sans",sans-serif}.sla-reminder-chips{display:flex;flex-wrap:wrap;gap:7px}.sla-reminder-chips button{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border:0;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#6d35d7);color:#fff;font:800 9px "DM Sans",sans-serif;cursor:pointer}.sla-reminder-chips button svg{opacity:.7}.sla-reminder-chips .add-reminder-chip{border:1px dashed #bba3e9;background:#faf7ff;color:#7c3aed}.sla-helper-copy{margin:9px 0 15px;color:#a198a8;font:9px "DM Sans",sans-serif;line-height:1.45}.sla-config-preview-card{margin:17px 0;padding:14px;border-left:3px solid #8b5cf6;border-radius:0 10px 10px 0;background:linear-gradient(135deg,#fbf9ff,#f4efff)}.sla-preview-card-kicker{margin-bottom:13px;color:#7c3aed;font:900 9px "DM Sans",sans-serif;letter-spacing:.07em;text-transform:uppercase}.sla-preview-summary{display:grid;gap:8px}.sla-preview-summary>div{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.sla-preview-summary span{color:#897f93;font:9px "DM Sans",sans-serif}.sla-preview-summary strong{max-width:70%;overflow:hidden;color:#4a3e55;font:700 10px Manrope,sans-serif;text-align:right;text-overflow:ellipsis;white-space:nowrap}.sla-preview-divider{height:1px;margin:13px 0;border-top:1px solid #ded5ea}.sla-preview-timeline-title{margin-bottom:11px;color:#8a7e96;font:900 9px "DM Sans",sans-serif;text-transform:capitalize}.sla-config-timeline{position:relative;padding-left:8px}.sla-config-timeline:before{position:absolute;top:4px;bottom:7px;left:4px;border-left:1px solid #cbb8e9;content:""}.sla-config-timeline-item{position:relative;display:flex;gap:10px;min-height:43px}.sla-config-timeline-item>i{z-index:1;width:9px;height:9px;flex:none;margin-top:3px;border:2px solid #a78bfa;border-radius:50%;background:#fff}.sla-config-timeline-item>div{display:flex;flex-direction:column;gap:4px}.sla-config-timeline-item strong{color:#7b4dc7;font:700 10px Manrope,sans-serif}.sla-config-timeline-item small{color:#a49aa9;font:9px "DM Sans",sans-serif}.sla-config-timeline-item.due>i{border-color:#8b5cf6}.sla-config-timeline-item.due strong{color:#7c3aed}.sla-config-timeline-item.overdue>i{border-color:#e05a5a}.sla-config-timeline-item.overdue strong{color:#db5d5d}.sla-config-timeline-item.overdue:before{display:none}.sla-document-detail .sla-reminder-schedule .sla-form-field{gap:7px}.sla-document-detail .sla-reminder-schedule .sla-form-field small{line-height:1.4}
@@ -1061,8 +1061,8 @@ export default function SLAConfiguration() {
         .sla-side-panel .sla-reminder-setting { align-items:flex-start !important; }
         .sla-side-panel .sla-reminder-editor { display:flex !important; flex:1 1 auto !important; min-width:0 !important; flex-direction:column !important; gap:5px !important; }
         .sla-side-panel .sla-reminder-editor > div { margin-top:0 !important; gap:6px !important; }
-        .sla-side-panel .sla-reminder-editor > div button { font-size:10px !important; padding:5px 8px !important; }
-        .sla-side-panel .sla-reminder-editor > div span { font-size:10px !important; }
+        .sla-side-panel .sla-reminder-editor > div button { font-size:12px !important; padding:5px 8px !important; }
+        .sla-side-panel .sla-reminder-editor > div span { font-size:12px !important; }
         .sla-side-panel .sla-reminder-editor .sla-chip-remove { display:grid !important; flex:none !important; width:17px !important; min-width:17px !important; height:17px !important; min-height:17px !important; place-items:center !important; padding:0 !important; box-sizing:border-box !important; border:0 !important; border-radius:50% !important; background:rgba(255,255,255,.26) !important; color:#fff !important; line-height:0 !important; opacity:1 !important; }
         .sla-side-panel .sla-reminder-editor .sla-chip-remove svg { display:block !important; width:10px !important; height:10px !important; color:#fff !important; stroke:#fff !important; opacity:1 !important; }
         .sla-side-panel .sla-reminder-editor > small { margin-top:1px !important; }
@@ -1124,7 +1124,7 @@ export default function SLAConfiguration() {
         .sla-create-primary:hover { background:#6d28d9 !important; box-shadow:0 8px 18px rgba(124,58,237,.18); }
         .sla-create-secondary:hover { background:#faf8fd !important; }
         .sla-create-primary:active, .sla-create-secondary:active, .sla-create-close:active { transform:scale(.98); }
-        @media (max-width:560px) { .sla-create-header { padding:19px 18px 16px; } .sla-create-title { font-size:19px; } .sla-create-subtitle { font-size:10.5px; } .sla-create-body { padding:17px 18px 19px; } .sla-create-fields { grid-template-columns:1fr; gap:14px; } .sla-create-fields > div { grid-column:1 / -1 !important; } .sla-create-actions { padding:12px 18px 16px; } }
+        @media (max-width:560px) { .sla-create-header { padding:19px 18px 16px; } .sla-create-title { font-size:20px; } .sla-create-subtitle { font-size:12.5px; } .sla-create-body { padding:17px 18px 19px; } .sla-create-fields { grid-template-columns:1fr; gap:14px; } .sla-create-fields > div { grid-column:1 / -1 !important; } .sla-create-actions { padding:12px 18px 16px; } }
       `}</style>
 
 
@@ -1135,17 +1135,17 @@ export default function SLAConfiguration() {
         <div className="sla-page-content" style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
           {loading && (
-            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#f5f3ff", color: "#6d28d9", fontSize: 12.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#f5f3ff", color: "#6d28d9", fontSize: 13.5 }}>
               Loading SLA data…
             </div>
           )}
           {error && (
-            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#fef2f2", color: "#991b1b", fontSize: 12.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#fef2f2", color: "#991b1b", fontSize: 13.5 }}>
               {error}
             </div>
           )}
           {toast && (
-            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#ecfdf5", color: "#065f46", fontSize: 12.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#ecfdf5", color: "#065f46", fontSize: 13.5 }}>
               {toast}
             </div>
           )}
@@ -1246,8 +1246,8 @@ export default function SLAConfiguration() {
                   <Clock style={{ width: 15, height: 15, color: "#7c3aed" }} />
                 </div>
                 <div>
-                  <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>Recent Activity</p>
-                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>{activity.length} event{activity.length === 1 ? "" : "s"}</p>
+                  <p style={{ fontSize: 15.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>Recent Activity</p>
+                  <p style={{ fontSize: 12.5, color: "#9ca3af", marginTop: 2 }}>{activity.length} event{activity.length === 1 ? "" : "s"}</p>
                 </div>
               </div>
               <X
@@ -1270,25 +1270,25 @@ export default function SLAConfiguration() {
                   >
                     <div style={{
                       width: 30, height: 30, borderRadius: "50%", background: "#ede9fe", color: "#6d28d9",
-                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10.5, fontWeight: 800,
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 800,
                       flexShrink: 0, marginTop: 1,
                     }}>
                       {initials}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 12, color: "#374151", lineHeight: 1.5, margin: 0 }}>
+                      <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.5, margin: 0 }}>
                         <strong style={{ color: "#111827" }}>{a.name}</strong> {a.action.toLowerCase()}{" "}
                         <span style={{ color: "#6d28d9", fontWeight: 700 }}>{a.target}</span>
                       </p>
                     </div>
-                    <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#9ca3af", whiteSpace: "nowrap", flexShrink: 0, marginTop: 2 }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#9ca3af", whiteSpace: "nowrap", flexShrink: 0, marginTop: 2 }}>
                       <Clock style={{ width: 10, height: 10 }} />
                       {timeAgo(a.created_at)}
                     </span>
                   </div>
                 );
               })}
-              {!activity.length && <p style={{ fontSize: 11.5, color: "#9ca3af", padding: "10px 8px" }}>No recent activity.</p>}
+              {!activity.length && <p style={{ fontSize: 12.5, color: "#9ca3af", padding: "10px 8px" }}>No recent activity.</p>}
             </div>
           </div>
         </div>
@@ -1311,8 +1311,8 @@ export default function SLAConfiguration() {
                   <AlertTriangle style={{ width: 15, height: 15, color: "#dc2626" }} />
                 </div>
                 <div>
-                  <p style={{ fontSize: 14.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>System Alerts</p>
-                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 2 }}>{alerts.length} open alert{alerts.length === 1 ? "" : "s"}</p>
+                  <p style={{ fontSize: 15.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>System Alerts</p>
+                  <p style={{ fontSize: 12.5, color: "#9ca3af", marginTop: 2 }}>{alerts.length} open alert{alerts.length === 1 ? "" : "s"}</p>
                 </div>
               </div>
               <X
@@ -1343,9 +1343,9 @@ export default function SLAConfiguration() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                        <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827", margin: 0 }}>{cleanTitle}</p>
+                        <p style={{ fontSize: 13.5, fontWeight: 700, color: "#111827", margin: 0 }}>{cleanTitle}</p>
                         <span style={{
-                          fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.3,
+                          fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.3,
                           padding: "1.5px 6px", borderRadius: 20,
                           color: critical ? "#991b1b" : "#92400e",
                           background: critical ? "#fee2e2" : "#fef3c7",
@@ -1353,12 +1353,12 @@ export default function SLAConfiguration() {
                           {critical ? "Critical" : "Warning"}
                         </span>
                       </div>
-                      <p style={{ fontSize: 11.5, color: "#6b7280", marginTop: 4, marginBottom: 0, lineHeight: 1.5 }}>{a.message}</p>
+                      <p style={{ fontSize: 12.5, color: "#6b7280", marginTop: 4, marginBottom: 0, lineHeight: 1.5 }}>{a.message}</p>
                     </div>
                   </div>
                 );
               })}
-              {!alerts.length && <p style={{ fontSize: 11.5, color: "#9ca3af", padding: "10px 8px" }}>No open alerts.</p>}
+              {!alerts.length && <p style={{ fontSize: 12.5, color: "#9ca3af", padding: "10px 8px" }}>No open alerts.</p>}
             </div>
           </div>
         </div>
@@ -1389,7 +1389,7 @@ export default function SLAConfiguration() {
               <div className="sla-create-section-label">Policy details</div>
               <div className="sla-create-fields">
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Document Type</label>
                 <select
                   value={createForm.docType}
                   onChange={e => setCreate("docType", e.target.value)}
@@ -1404,18 +1404,18 @@ export default function SLAConfiguration() {
                   ))}
                 </select>
                 {docTypesError && (
-                  <p style={{ fontSize: 10.5, color: "#dc2626", marginTop: 5 }}>
+                  <p style={{ fontSize: 12.5, color: "#dc2626", marginTop: 5 }}>
                     Couldn't load document types: {docTypesError}
                   </p>
                 )}
                 {!loadingDocTypes && !docTypesError && documentTypes.length === 0 && (
-                  <p style={{ fontSize: 10.5, color: "#9ca3af", marginTop: 5 }}>
+                  <p style={{ fontSize: 12.5, color: "#9ca3af", marginTop: 5 }}>
                     No active document types found. Add one in Document Categories first.
                   </p>
                 )}
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Assigned Reviewer Role</label>
                 <select
                   value={createForm.reviewerRole}
                   onChange={e => setCreate("reviewerRole", e.target.value)}
@@ -1428,25 +1428,25 @@ export default function SLAConfiguration() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Turnaround Time (Hours)</label>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Turnaround Time (Hours)</label>
                 <input type="number" value={createForm.turnaroundHours} onChange={e => setCreate("turnaroundHours", e.target.value)} style={inpStyle} />
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Escalation Trigger (Hours After Due)</label>
                 <input type="number" value={createForm.escalationHours} onChange={e => setCreate("escalationHours", e.target.value)} style={inpStyle} />
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Reminder Hours Before Deadline</label>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Reminder Hours Before Deadline</label>
                 <HourChipsInput
                   value={createForm.reminderStageDays}
                   onChange={v => setCreate("reminderStageDays", v)}
                 />
-                <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 6 }}>
+                <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 6 }}>
                   Hours before the deadline to remind faculty and the reviewer. "Due today" always fires too.
                 </p>
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Overdue Reminder Interval (Hours)</label>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Overdue Reminder Interval (Hours)</label>
                 <input
                   type="number"
                   min={1}
@@ -1456,7 +1456,7 @@ export default function SLAConfiguration() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
                 <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
               </div>
 
@@ -1466,7 +1466,7 @@ export default function SLAConfiguration() {
                   disabled={creating}
                   onClick={handleCreateRule}
                   className="sla-create-primary"
-                  style={{ flex: 1, padding: "11px 14px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: creating ? "default" : "pointer", opacity: creating ? 0.7 : 1 }}
+                  style={{ flex: 1, padding: "11px 14px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 13, fontWeight: 700, cursor: creating ? "default" : "pointer", opacity: creating ? 0.7 : 1 }}
                 >
                   {creating ? "Creating…" : "Create Rule"}
                 </button>
@@ -1474,7 +1474,7 @@ export default function SLAConfiguration() {
                   disabled={creating}
                   onClick={() => setShowCreateModal(false)}
                   className="sla-create-secondary"
-                  style={{ flex: 1, padding: "11px 14px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  style={{ flex: 1, padding: "11px 14px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                 >
                   Cancel
                 </button>
@@ -1489,7 +1489,7 @@ export default function SLAConfiguration() {
 
 const inpStyle = {
   width: "100%", marginTop: 5, padding: "9px 11px", borderRadius: 6,
-  border: "1px solid #cbc3d7", background: "#fcf8ff", fontSize: 13,
+  border: "1px solid #cbc3d7", background: "#fcf8ff", fontSize: 14,
   fontFamily: "'DM Sans', sans-serif", color: "#181445", outline: "none", boxSizing: "border-box",
 };
 
@@ -1502,9 +1502,9 @@ const drawerCardStyle = {
 };
 
 const drawerCardTitleStyle = {
-  fontSize: 11.5, fontWeight: 700, color: "#181445", marginBottom: 12,
+  fontSize: 12.5, fontWeight: 700, color: "#181445", marginBottom: 12,
 };
 
 const drawerLabelStyle = {
-  fontSize: 11, fontWeight: 600, color: "#6b7280",
+  fontSize: 13, fontWeight: 600, color: "#6b7280",
 };
