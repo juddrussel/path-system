@@ -3370,28 +3370,72 @@ export default function Dashboard() {
                 className="path-hero"
                 style={{
                   position: "relative",
+                  overflow: "hidden",
                   display: "flex",
                   alignItems: "flex-end",
                   justifyContent: "space-between",
                   gap: 24,
                   flexWrap: "wrap",
-                  background: "#fbfaff",
-                  border: "1px solid #ebe4f4",
-                  padding: "25px 28px",
+                  background:
+                    "linear-gradient(135deg, #2A1857 0%, #4C2889 48%, #7C3AED 100%)",
+                  padding: "30px 32px",
                   margin: 0,
-                  borderRadius: 16,
+                  borderRadius: 20,
+                  boxShadow: "0 20px 40px rgba(76,29,149,.25)",
                 }}
               >
-                <div style={{ minWidth: 0 }}>
+                {/* decorative texture — dot grid + soft color glows */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage:
+                      "radial-gradient(rgba(255,255,255,.14) 1.5px, transparent 1.5px)",
+                    backgroundSize: "16px 16px",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -60,
+                    right: -40,
+                    width: 220,
+                    height: 220,
+                    borderRadius: "50%",
+                    background: "#FF6B4C",
+                    opacity: 0.35,
+                    filter: "blur(60px)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: -70,
+                    left: 120,
+                    width: 180,
+                    height: 180,
+                    borderRadius: "50%",
+                    background: "#F5A623",
+                    opacity: 0.25,
+                    filter: "blur(70px)",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                <div style={{ position: "relative", minWidth: 0 }}>
                   <span
                     style={{
                       display: "inline-block",
                       fontSize: 12,
-                      fontWeight: 700,
-                      padding: "4px 10px",
-                      borderRadius: 6,
-                      background: "#f0eaff",
-                      color: "#4c2d8f",
+                      fontWeight: 800,
+                      padding: "5px 12px",
+                      borderRadius: 7,
+                      background: "#F5A623",
+                      color: "#3D2506",
+                      transform: "rotate(-2deg)",
+                      boxShadow: "0 4px 10px rgba(0,0,0,.18)",
                     }}
                   >
                     {dateStr}
@@ -3400,16 +3444,23 @@ export default function Dashboard() {
                     style={{
                       fontSize: 34,
                       fontWeight: 800,
-                      color: "#27213a",
+                      color: "#fff",
                       lineHeight: 1.15,
                       letterSpacing: "-0.03em",
-                      margin: "14px 0 6px",
+                      margin: "16px 0 6px",
                       fontFamily: "Manrope, 'DM Sans', sans-serif",
                     }}
                   >
                     Good morning, {displayName}.
                   </h1>
-                  <p style={{ fontSize: 14, color: "#615a6d", margin: 0 }}>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      color: "#D9CBFF",
+                      margin: 0,
+                      maxWidth: 480,
+                    }}
+                  >
                     {pendingApprovalsCount} submission
                     {pendingApprovalsCount === 1 ? "" : "s"} need
                     {pendingApprovalsCount === 1 ? "s" : ""} review, and{" "}
@@ -3417,59 +3468,101 @@ export default function Dashboard() {
                     {BOTTLENECK_ALERTS.length === 1 ? "is" : "are"} at risk of
                     missing SLA today.
                   </p>
-                  <div style={{ display: "none" }}>
-                    <ShieldAlert style={{ width: 13, height: 13 }} />
-                    <span style={{ fontSize: 11, fontWeight: 600 }}>
-                      PATH Administrator
-                    </span>
-                  </div>
                 </div>
 
                 <div
                   style={{
+                    position: "relative",
                     display: "flex",
                     alignItems: "center",
-                    gap: 24,
+                    gap: 14,
                     flexShrink: 0,
+                    flexWrap: "wrap",
                   }}
                 >
                   <div
                     style={{
                       display: "flex",
-                      gap: 20,
-                      paddingRight: 24,
-                      borderRight: "1px solid #ebe4f4",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 14px",
+                      borderRadius: 12,
+                      background: "rgba(255,255,255,.1)",
+                      border: "1px solid rgba(255,255,255,.16)",
                     }}
                   >
+                    <span
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 9,
+                        background: "rgba(245,166,35,.22)",
+                        color: "#FFC96B",
+                        display: "grid",
+                        placeItems: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <ClipboardList size={16} />
+                    </span>
                     <div>
                       <strong
                         style={{
                           display: "block",
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: 800,
-                          color: "#27213a",
+                          color: "#fff",
                           fontFamily: "Manrope, 'DM Sans', sans-serif",
+                          lineHeight: 1,
                         }}
                       >
                         {pendingApprovalsCount}
                       </strong>
-                      <span style={{ fontSize: 11, color: "#948a9e" }}>
+                      <span style={{ fontSize: 10, color: "#C9B8EE" }}>
                         Awaiting review
                       </span>
                     </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 14px",
+                      borderRadius: 12,
+                      background: "rgba(255,255,255,.1)",
+                      border: "1px solid rgba(255,255,255,.16)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 9,
+                        background: "rgba(255,107,76,.22)",
+                        color: "#FF9B85",
+                        display: "grid",
+                        placeItems: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <AlertTriangle size={16} />
+                    </span>
                     <div>
                       <strong
                         style={{
                           display: "block",
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: 800,
-                          color: "#b45309",
+                          color: "#fff",
                           fontFamily: "Manrope, 'DM Sans', sans-serif",
+                          lineHeight: 1,
                         }}
                       >
                         {BOTTLENECK_ALERTS.length}
                       </strong>
-                      <span style={{ fontSize: 11, color: "#948a9e" }}>
+                      <span style={{ fontSize: 10, color: "#C9B8EE" }}>
                         At risk
                       </span>
                     </div>
@@ -3484,13 +3577,13 @@ export default function Dashboard() {
                       alignItems: "center",
                       gap: 7,
                       border: 0,
-                      borderRadius: 8,
-                      padding: "12px 16px",
-                      background: "#7c3aed",
-                      color: "#fff",
+                      borderRadius: 10,
+                      padding: "13px 18px",
+                      background: "#F5A623",
+                      color: "#3D2506",
                       fontSize: 12,
                       fontWeight: 800,
-                      boxShadow: "0 8px 16px rgba(124,58,237,.18)",
+                      boxShadow: "0 10px 20px rgba(245,166,35,.35)",
                       cursor: "pointer",
                       whiteSpace: "nowrap",
                     }}
