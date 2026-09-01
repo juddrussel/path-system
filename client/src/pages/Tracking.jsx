@@ -58,7 +58,7 @@ function StatusBadge({ status }) {
   const key = status?.toLowerCase() || "";
   const s = STATUS_STYLES[key] || { bg: "#f3f4f6", color: "#374151", dot: "#9ca3af" };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, fontSize: 12, fontWeight: 700, padding: "3px 9px", borderRadius: 20, textTransform: "capitalize", whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, fontSize: 14, fontWeight: 700, padding: "3px 9px", borderRadius: 20, textTransform: "capitalize", whiteSpace: "nowrap" }}>
       <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
       {status}
     </span>
@@ -146,14 +146,14 @@ function FilterPill({ label, active, count, onClick }) {
   return (
     <button onClick={onClick} style={{
       display: "inline-flex", alignItems: "center", gap: 5,
-      padding: "6px 13px", borderRadius: 20, border: active ? "none" : "1px solid #E9D5FF", cursor: "pointer", fontSize: 13, fontWeight: active ? 700 : 500,
+      padding: "6px 13px", borderRadius: 20, border: active ? "none" : "1px solid #E9D5FF", cursor: "pointer", fontSize: 15, fontWeight: active ? 700 : 500,
       background: active ? "#8B5CF6" : "white",
       color: active ? "white" : "#494454",
       transition: "all 0.15s",
     }}>
       {label}
       {count != null && (
-        <span style={{ background: active ? "rgba(255,255,255,0.25)" : "#f3f4f6", color: active ? "white" : "#374151", borderRadius: 20, padding: "1px 6px", fontSize: 12, fontWeight: 700 }}>
+        <span style={{ background: active ? "rgba(255,255,255,0.25)" : "#f3f4f6", color: active ? "white" : "#374151", borderRadius: 20, padding: "1px 6px", fontSize: 14, fontWeight: 700 }}>
           {count}
         </span>
       )}
@@ -167,7 +167,7 @@ function TypeBadge({ type }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 3,
-      fontSize: 12, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
+      fontSize: 14, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
       background: isTask ? "#ede9fe" : "#dbeafe",
       color: isTask ? "#6d28d9" : "#1e40af",
       textTransform: "uppercase", letterSpacing: 0.4,
@@ -364,8 +364,8 @@ function DetailDrawer({ doc, onClose }) {
         style={{ position: "relative", width: "min(92vw, 1100px)", height: "min(90vh, 820px)", background: "#f8f7ff", borderRadius: 18, boxShadow: "0 24px 80px rgba(0,0,0,0.22)", display: "flex", flexDirection: "column", overflow: "hidden", animation: "detailIn 0.22s ease" }}>
 
       {/* ── Top breadcrumb bar ── */}
-      <div style={{ background: "white", borderBottom: "1px solid #f0f0f0", padding: "10px 28px", display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#9ca3af", flexShrink: 0 }}>
-        <button onClick={onClose} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f3f4f6", border: "none", borderRadius: 7, padding: "5px 12px", cursor: "pointer", color: "#374151", fontSize: 13, fontWeight: 600 }}>
+      <div style={{ background: "white", borderBottom: "1px solid #f0f0f0", padding: "10px 28px", display: "flex", alignItems: "center", gap: 8, fontSize: 15, color: "#9ca3af", flexShrink: 0 }}>
+        <button onClick={onClose} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f3f4f6", border: "none", borderRadius: 7, padding: "5px 12px", cursor: "pointer", color: "#374151", fontSize: 15, fontWeight: 600 }}>
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" width="12" height="12"><path d="M10 4L6 8l4 4" strokeLinecap="round"/></svg>
           Back to Documents
         </button>
@@ -384,16 +384,16 @@ function DetailDrawer({ doc, onClose }) {
       {/* ── Document hero header ── */}
       <div style={{ background: "white", borderBottom: "1px solid #f0f0f0", padding: "16px 28px", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-          <span style={{ background: "#ede9fe", color: "#7c3aed", fontSize: 12, fontWeight: 800, padding: "3px 9px", borderRadius: 6, letterSpacing: 0.5 }}>{doc.document_id}</span>
+          <span style={{ background: "#ede9fe", color: "#7c3aed", fontSize: 14, fontWeight: 800, padding: "3px 9px", borderRadius: 6, letterSpacing: 0.5 }}>{doc.document_id}</span>
           <StatusBadge status={doc.status} />
           <div style={{ marginLeft: "auto" }}>
-            <span style={{ background: "#f3f4f6", color: "#6b7280", fontSize: 13, fontWeight: 600, padding: "4px 12px", borderRadius: 7, display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ background: "#f3f4f6", color: "#6b7280", fontSize: 15, fontWeight: 600, padding: "4px 12px", borderRadius: 7, display: "flex", alignItems: "center", gap: 5 }}>
               <Icon.Eye /> View Only
             </span>
           </div>
         </div>
-        <h1 style={{ fontSize: 21, fontWeight: 800, color: "#111", margin: "0 0 8px" }}>{doc.title}</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: "#6b7280", flexWrap: "wrap" }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: "0 0 8px" }}>{doc.title}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 15, color: "#6b7280", flexWrap: "wrap" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 14V6l6-4 6 4v8H10V9H6v5H2z"/></svg>
             {doc.department}
@@ -425,10 +425,10 @@ function DetailDrawer({ doc, onClose }) {
             { eyebrow: "LAST UPDATED",    icon: <svg viewBox="0 0 16 16" fill="none" stroke="#f59e0b" strokeWidth="1.5" width="14" height="14"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v4M11 1v4M2 7h12"/></svg>, value: doc.updated_at ? new Date(doc.updated_at).toLocaleDateString("en-US",{month:"long",day:"numeric"}) : (doc.submitted_at ? new Date(doc.submitted_at).toLocaleDateString("en-US",{month:"long",day:"numeric"}) : "—"), bg: "#fffbeb" },
           ].map(({ eyebrow, icon, value, bg }) => (
             <div key={eyebrow} style={{ background: bg, border: "1px solid #f0f0f0", borderRadius: 10, padding: "12px 14px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, marginBottom: 6, textTransform: "uppercase" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, marginBottom: 6, textTransform: "uppercase" }}>
                 {icon} {eyebrow}
               </div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>{value}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: "#111" }}>{value}</div>
             </div>
           ))}
         </div>
@@ -444,7 +444,7 @@ function DetailDrawer({ doc, onClose }) {
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 background: "none", border: "none", cursor: "pointer", padding: "12px 18px",
-                fontSize: 14, fontWeight: tab === t.id ? 700 : 500,
+                fontSize: 16, fontWeight: tab === t.id ? 700 : 500,
                 color: tab === t.id ? "#7c3aed" : "#6b7280",
                 borderBottom: tab === t.id ? "2px solid #7c3aed" : "2px solid transparent",
                 marginBottom: -1, transition: "all 0.15s",
@@ -463,8 +463,8 @@ function DetailDrawer({ doc, onClose }) {
                     <Icon.Doc />
                   </div>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>Document Summary</div>
-                    <div style={{ fontSize: 13, color: "#9ca3af" }}>Complete metadata for this document</div>
+                    <div style={{ fontSize: 17, fontWeight: 700, color: "#111" }}>Document Summary</div>
+                    <div style={{ fontSize: 15, color: "#9ca3af" }}>Complete metadata for this document</div>
                   </div>
                 </div>
 
@@ -495,8 +495,8 @@ function DetailDrawer({ doc, onClose }) {
                   <div key={ri} style={{ display: "grid", gridTemplateColumns: row.length === 2 ? "1fr 1fr" : "1fr", borderBottom: "1px solid #f9f9f9", padding: "12px 0" }}>
                     {row.map(f => (
                       <div key={f.label} style={{ paddingRight: 16 }}>
-                        <div style={{ fontSize: 12, color: "#9ca3af", fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 4 }}>{f.label}</div>
-                        <div style={{ fontSize: 14, color: f.bold ? "#7c3aed" : "#111", fontWeight: f.bold ? 700 : 500 }}>{f.value || "—"}</div>
+                        <div style={{ fontSize: 14, color: "#9ca3af", fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 4 }}>{f.label}</div>
+                        <div style={{ fontSize: 16, color: f.bold ? "#7c3aed" : "#111", fontWeight: f.bold ? 700 : 500 }}>{f.value || "—"}</div>
                       </div>
                     ))}
                   </div>
@@ -507,7 +507,7 @@ function DetailDrawer({ doc, onClose }) {
             {/* ─── Routing Timeline tab ─── */}
             {tab === "routing" && (
               <div style={{ background: "white", borderRadius: 14, border: "1px solid #f0f0f0", padding: 24, maxWidth: 600 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#111", marginBottom: 18 }}>Routing Timeline</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: "#111", marginBottom: 18 }}>Routing Timeline</div>
                 {timeline.map((step, i) => {
                   const isLast      = i === timeline.length - 1;
                   const isActive    = step.active;
@@ -548,22 +548,22 @@ function DetailDrawer({ doc, onClose }) {
                         {!isLast && <div style={{ width: 2, flex: 1, minHeight: 28, background: lineBg, margin: "3px 0" }} />}
                       </div>
                       <div style={{ paddingBottom: 22 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: step.done || isActive || isRetStep ? "#111" : "#9ca3af" }}>{step.stage}</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: step.done || isActive || isRetStep ? "#111" : "#9ca3af" }}>{step.stage}</div>
                         {step.actor && (
-                          <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 2 }}>
+                          <div style={{ fontSize: 15, color: "#9ca3af", marginTop: 2 }}>
                             <span style={{ fontWeight: 600, color: step.done || isActive || isRetStep ? "#6b7280" : "#bbb" }}>{step.roleTag}:</span>{" "}
                             <span style={{ color: step.done || isActive || isRetStep ? "#374151" : "#bbb" }}>{step.actor}</span>
                           </div>
                         )}
                         {step.date
-                          ? <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 2 }}>{fmtDate(step.date)}</div>
+                          ? <div style={{ fontSize: 15, color: "#9ca3af", marginTop: 2 }}>{fmtDate(step.date)}</div>
                           : isRetStep
-                            ? <div style={{ fontSize: 13, color: "#f97316", marginTop: 2, fontWeight: 600 }}>Awaiting resubmission</div>
+                            ? <div style={{ fontSize: 15, color: "#f97316", marginTop: 2, fontWeight: 600 }}>Awaiting resubmission</div>
                             : isActive
-                              ? <div style={{ fontSize: 13, color: "#7c3aed", marginTop: 2, fontWeight: 600 }}>In progress</div>
+                              ? <div style={{ fontSize: 15, color: "#7c3aed", marginTop: 2, fontWeight: 600 }}>In progress</div>
                               : step.done
-                                ? <div style={{ fontSize: 13, color: "#10b981", marginTop: 2, fontWeight: 600 }}>Completed</div>
-                                : <div style={{ fontSize: 13, color: "#d1d5db", marginTop: 2 }}>Pending</div>
+                                ? <div style={{ fontSize: 15, color: "#10b981", marginTop: 2, fontWeight: 600 }}>Completed</div>
+                                : <div style={{ fontSize: 15, color: "#d1d5db", marginTop: 2 }}>Pending</div>
                         }
                       </div>
                     </div>
@@ -575,31 +575,31 @@ function DetailDrawer({ doc, onClose }) {
             {/* ─── Activity History tab ─── */}
             {tab === "activity" && (
               <div style={{ background: "white", borderRadius: 14, border: "1px solid #f0f0f0", padding: 24, maxWidth: 600 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#111", marginBottom: 18 }}>Activity History</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: "#111", marginBottom: 18 }}>Activity History</div>
                 {[
                   { action: "Document submitted",       actor: doc.submitted_by,    date: doc.submitted_at, color: "#7c3aed", icon: "📄" },
                   { action: "Assigned to handler",      actor: doc.current_handler, date: doc.submitted_at, color: "#3b82f6", icon: "👤" },
                   { action: `Status set to ${doc.status}`, actor: "System",         date: doc.updated_at || doc.submitted_at, color: "#10b981", icon: "✅" },
                 ].filter(a => a.actor && a.date).map((a, i) => (
                   <div key={i} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${a.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>{a.icon}</div>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${a.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{a.icon}</div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "#111" }}>{a.action}</div>
-                      <div style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>by {a.actor}</div>
-                      <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 1 }}>{fmtDateTime(a.date)}</div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: "#111" }}>{a.action}</div>
+                      <div style={{ fontSize: 15, color: "#6b7280", marginTop: 2 }}>by {a.actor}</div>
+                      <div style={{ fontSize: 15, color: "#9ca3af", marginTop: 1 }}>{fmtDateTime(a.date)}</div>
                     </div>
                   </div>
                 ))}
                 {doc.attachments?.length > 0 && (
                   <div style={{ marginTop: 8, paddingTop: 16, borderTop: "1px solid #f0f0f0" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 10 }}>Attachments</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#374151", marginBottom: 10 }}>Attachments</div>
                     {doc.attachments.map((att, i) => (
                       <a key={i} href={att.file_url || att.url || "#"} target="_blank" rel="noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#fafafa", border: "1px solid #f0f0f0", marginBottom: 6, textDecoration: "none", color: "#374151" }}>
                         <div style={{ width: 30, height: 30, borderRadius: 6, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon.Doc /></div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.file_name || att.name}</div>
-                          {att.size > 0 && <div style={{ fontSize: 12, color: "#9ca3af" }}>{(att.size / 1024).toFixed(1)} KB</div>}
+                          <div style={{ fontSize: 15, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.file_name || att.name}</div>
+                          {att.size > 0 && <div style={{ fontSize: 14, color: "#9ca3af" }}>{(att.size / 1024).toFixed(1)} KB</div>}
                         </div>
                         <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="13" height="13"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
                       </a>
@@ -616,7 +616,7 @@ function DetailDrawer({ doc, onClose }) {
 
           {/* Status Overview card */}
           <div style={{ border: "1px solid #f0f0f0", borderRadius: 12, overflow: "visible" }}>
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "#111" }}>
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 8, fontSize: 16, fontWeight: 700, color: "#111" }}>
               <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2" strokeLinecap="round"/></svg>
               Status Overview
             </div>
@@ -637,12 +637,12 @@ function DetailDrawer({ doc, onClose }) {
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: prog.color, marginBottom: 2, textTransform: "capitalize" }}>{doc.status}</div>
-              <div style={{ fontSize: 13, color: "#9ca3af" }}>Current Status</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: prog.color, marginBottom: 2, textTransform: "capitalize" }}>{doc.status}</div>
+              <div style={{ fontSize: 15, color: "#9ca3af" }}>Current Status</div>
 
               {/* Progress bar */}
               <div style={{ width: "100%", marginTop: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, fontSize: 13, color: "#6b7280" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, fontSize: 15, color: "#6b7280" }}>
                   <span>Workflow Progress</span>
                   <span style={{ fontWeight: 700, color: "#111" }}>{prog.pct}%</span>
                 </div>
@@ -653,16 +653,16 @@ function DetailDrawer({ doc, onClose }) {
 
               {/* Status reference list */}
               <div style={{ width: "100%", marginTop: 12 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>STATUS REFERENCE</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>STATUS REFERENCE</div>
                 {STATUS_REF.map(s => {
                   const isCurrentStatus = doc.status?.toLowerCase() === s.label.toLowerCase();
                   return (
-                    <div key={s.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4, fontSize: 13 }}>
+                    <div key={s.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4, fontSize: 15 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                         <div style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
                         <span style={{ color: isCurrentStatus ? "#111" : "#6b7280", fontWeight: isCurrentStatus ? 700 : 400 }}>{s.label}</span>
                       </div>
-                      {isCurrentStatus && <span style={{ fontSize: 12, color: "#7c3aed", fontWeight: 700, flexShrink: 0 }}>◆ Current</span>}
+                      {isCurrentStatus && <span style={{ fontSize: 14, color: "#7c3aed", fontWeight: 700, flexShrink: 0 }}>◆ Current</span>}
                     </div>
                   );
                 })}
@@ -673,11 +673,11 @@ function DetailDrawer({ doc, onClose }) {
           {/* Document Preview card */}
           <div style={{ border: "1px solid #f0f0f0", borderRadius: 12, overflow: "visible" }}>
             <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "#111" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16, fontWeight: 700, color: "#111" }}>
                 <Icon.Eye />
                 Document Preview
               </div>
-              <div style={{ fontSize: 12, color: "#9ca3af", fontWeight: 400, marginTop: 2 }}>Uploaded file attachment</div>
+              <div style={{ fontSize: 14, color: "#9ca3af", fontWeight: 400, marginTop: 2 }}>Uploaded file attachment</div>
             </div>
             <div style={{ padding: 16 }}>
               {/* File preview box */}
@@ -685,17 +685,17 @@ function DetailDrawer({ doc, onClose }) {
                 <div style={{ width: 44, height: 44, borderRadius: 10, background: "white", border: "1px solid #ede9fe", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: "0 2px 6px rgba(124,58,237,0.08)" }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="22" height="22"><path d="M4 4h10l5 5v11a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M14 4v5h5M8 13h8M8 17h5" strokeLinecap="round"/></svg>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#374151", textAlign: "center", wordBreak: "break-word" }}>{fileName}</div>
-                <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 3 }}>{fileExt} · {fileSize}{filePages ? ` · ${filePages}` : ""}</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: "#374151", textAlign: "center", wordBreak: "break-word" }}>{fileName}</div>
+                <div style={{ fontSize: 14, color: "#9ca3af", marginTop: 3 }}>{fileExt} · {fileSize}{filePages ? ` · ${filePages}` : ""}</div>
               </div>
-              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "#7c3aed", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 8 }}>
+              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "#7c3aed", color: "white", borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: "none", marginBottom: 8 }}>
                 <Icon.Eye /> View Document
               </a>
-              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "white", color: "#374151", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none", border: "1px solid #e5e7eb" }}>
+              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "white", color: "#374151", borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: "none", border: "1px solid #e5e7eb" }}>
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
                 Download Copy
               </a>
-              <div style={{ marginTop: 10, display: "flex", alignItems: "flex-start", gap: 5, color: "#9ca3af", fontSize: 12 }}>
+              <div style={{ marginTop: 10, display: "flex", alignItems: "flex-start", gap: 5, color: "#9ca3af", fontSize: 14 }}>
                 <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11" style={{ marginTop: 1, flexShrink: 0 }}><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5.5v.5" stroke="white" strokeWidth="1.5"/></svg>
                 Read-only access. Download subject to your permission level.
               </div>
