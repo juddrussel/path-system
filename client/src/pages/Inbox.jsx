@@ -1547,20 +1547,9 @@ export default function Inbox() {
   // RENDER
   // ════════════════════════════════════════════════════════════════════════════
   return (
-    <div className="path-inbox-app" style={{ display: "flex", height: "100vh", maxHeight: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+    <div className="path-inbox-app" style={{ display: "flex", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
-
-        /* ── Lock the whole page: only inner panels (sidebar, message list, etc.) scroll ── */
-        html, body {
-          overflow: hidden;
-          height: 100%;
-          margin: 0;
-        }
-        #root {
-          height: 100%;
-          overflow: hidden;
-        }
 
         /* ── Themed scrollbars ── */
         .path-inbox-app * {
@@ -1590,7 +1579,7 @@ export default function Inbox() {
       `}</style>
 
       {/* ── Main content area ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "white" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0, overflow: "hidden", background: "white" }}>
 
         {/* ── Inbox Body ── */}
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
