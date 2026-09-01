@@ -1144,93 +1144,148 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
   );
 }
 
+// ─── LIVE CLOCK ───────────────────────────────────────────────────────────────
+function LiveClock() {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const date = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px", minWidth: 86 }}>
+      <span style={{ fontSize: "12.5px", fontWeight: 700, color: "#ede9fe", letterSpacing: "0.03em", fontVariantNumeric: "tabular-nums", lineHeight: 1.2 }}>{time}</span>
+      <span style={{ fontSize: "10px", fontWeight: 500, color: "rgba(237,233,254,0.6)", letterSpacing: "0.02em", lineHeight: 1 }}>{date}</span>
+    </div>
+  );
+}
+
+// ─── PAGE TITLE MAP ───────────────────────────────────────────────────────────
+const PAGE_META = {
+  "/dashboard":           { label: "Dashboard",           sub: "Overview of your workspace" },
+  "/tasks":               { label: "My Tasks",            sub: "Track your assigned work" },
+  "/task-assigned":       { label: "Tasks",               sub: "Assigned task list" },
+  "/tracking":            { label: "Tracking",            sub: "Document & task tracking" },
+  "/inbox":               { label: "Inbox",               sub: "Messages & conversations" },
+  "/notifications":       { label: "Notifications",       sub: "Recent activity" },
+  "/workflow":            { label: "Workflow",             sub: "Process designer" },
+  "/workflow-dashboard":  { label: "Workflow Dashboard",  sub: "Monitor live workflows" },
+  "/document-review":     { label: "Document Review",     sub: "Review pending documents" },
+  "/document-categories": { label: "Document Categories", sub: "Manage categories" },
+  "/forms":               { label: "Forms",               sub: "Submitted forms" },
+  "/reports":             { label: "Reports",             sub: "Analytics & exports" },
+  "/audit":               { label: "Audit Trail",         sub: "System activity log" },
+  "/users":               { label: "User Management",     sub: "Manage accounts & roles" },
+  "/sla":                 { label: "SLA Configuration",   sub: "Service level settings" },
+};
+function usePageMeta(pathname) {
+  const key = Object.keys(PAGE_META).find(k => pathname === k || pathname.startsWith(k + "/"));
+  return key ? PAGE_META[key] : { label: "PATH System", sub: "Document workflow platform" };
+}
+
 // ─── HARDENED STYLE TOKENS ────────────────────────────────────────────────────
-// Explicit px + hex values instead of Tailwind classes for anything that
-// defines this bar's box model, typography, or color. Tailwind utility
-// classes are `rem`-based (so they shift if a host page changes the root
-// <html> font-size) and are low-specificity (so a host page's own CSS can
-// override them, or — in a multi-build setup — the classes may not even be
-// generated if that page's Tailwind content-scan misses this file). Inline
-// styles are immune to all three: they don't reference the root font-size,
-// they beat any external stylesheet rule, and they never depend on Tailwind
-// having compiled a particular class. Hover/transition effects are left as
-// Tailwind classes since they're cosmetic, not structural.
 const TB = {
   bar: {
-    display: "flex", alignItems: "center", gap: "14px",
-    padding: "10px 24px 10px 20px",
-    borderBottom: "1px solid #e9e6de",
-    background: "linear-gradient(180deg, #fbfaf7 0%, #ffffff 55%)",
-    boxShadow: "0 1px 0 rgba(20, 18, 14, 0.03), 0 6px 18px -10px rgba(15, 94, 82, 0.16)",
+    display: "flex", alignItems: "center", gap: "0",
+    padding: "0",
+    borderBottom: "none",
+    background: "linear-gradient(135deg, #3b0764 0%, #4c1d95 30%, #5b21b6 60%, #6d28d9 85%, #7c3aed 100%)",
+    boxShadow: "0 4px 24px -4px rgba(109,40,217,0.45), 0 1px 0 rgba(255,255,255,0.06) inset",
     position: "sticky", top: 0, zIndex: 10,
     fontFamily: "'DM Sans', sans-serif",
     fontSize: "16px", lineHeight: "normal", boxSizing: "border-box",
+    minHeight: "60px",
   },
-  // thin solid rule glued to the very bottom edge — a quiet ledger-line touch
-  // instead of a decorative animated sweep
-  topAccent: {
-    position: "absolute", left: 0, right: 0, bottom: "-1px", height: "2px",
-    background: "#0f766e", opacity: 0.35,
+  // left accent bar — deep violet stripe on the far left edge
+  leftAccent: {
+    position: "absolute", left: 0, top: 0, bottom: 0, width: "3px",
+    background: "linear-gradient(180deg, #c4b5fd 0%, #a78bfa 50%, #c4b5fd 100%)",
+    opacity: 0.7,
   },
+  // bottom shimmer line
+  bottomAccent: {
+    position: "absolute", left: 0, right: 0, bottom: 0, height: "1px",
+    background: "linear-gradient(90deg, transparent 0%, rgba(196,181,253,0.4) 30%, rgba(196,181,253,0.4) 70%, transparent 100%)",
+  },
+  inner: {
+    display: "flex", alignItems: "center", gap: "14px",
+    width: "100%", padding: "0 24px 0 22px", minHeight: "60px", boxSizing: "border-box",
+  },
+  // page title + subtitle block (left side, before children)
+  pageMeta: {
+    display: "flex", flexDirection: "column", gap: "1px",
+    borderRight: "1px solid rgba(196,181,253,0.2)",
+    paddingRight: "18px", marginRight: "4px",
+    flexShrink: 0,
+  },
+  pageLabel: { fontSize: "14px", fontWeight: 800, color: "#ede9fe", lineHeight: 1.15, margin: 0, letterSpacing: "-0.01em" },
+  pageSub:   { fontSize: "10px", fontWeight: 400, color: "rgba(237,233,254,0.55)", lineHeight: 1, margin: 0 },
   childrenSlot: { flex: "1 1 0%", minWidth: 0 },
-  rightGroup: { display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 },
+  rightGroup: { display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 },
   divider: {
-    width: "1px", height: "24px", flexShrink: 0,
-    background: "linear-gradient(180deg, transparent 0%, #e2ded2 50%, transparent 100%)",
+    width: "1px", height: "22px", flexShrink: 0, margin: "0 8px",
+    background: "linear-gradient(180deg, transparent 0%, rgba(196,181,253,0.35) 50%, transparent 100%)",
   },
   bellWrap: { position: "relative" },
   iconBtn: {
-    position: "relative", width: "36px", height: "36px", borderRadius: "9999px",
+    position: "relative", width: "38px", height: "38px", borderRadius: "10px",
     display: "flex", alignItems: "center", justifyContent: "center",
-    color: "#6b6f76", background: "#f6f6f2", border: "1px solid #e8e6de", padding: 0,
+    color: "rgba(237,233,254,0.75)", background: "rgba(255,255,255,0.07)",
+    border: "1px solid rgba(196,181,253,0.18)", padding: 0,
     cursor: "pointer", boxSizing: "border-box",
-    transition: "background-color .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease",
+    transition: "background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease",
   },
   badge: {
-    position: "absolute", top: "-2px", right: "-2px", minWidth: "17px", height: "17px",
-    borderRadius: "9999px", background: "linear-gradient(135deg, #f472b6 0%, #db2777 100%)",
-    color: "#ffffff", boxShadow: "0 0 0 2px #ffffff, 0 1px 4px rgba(219,39,119,0.45)",
-    fontSize: "9px", fontWeight: 700, display: "flex", alignItems: "center",
+    position: "absolute", top: "2px", right: "2px", minWidth: "15px", height: "15px",
+    borderRadius: "9999px", background: "linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)",
+    color: "#ffffff", boxShadow: "0 0 0 1.5px rgba(91,33,182,0.9), 0 2px 5px rgba(225,29,72,0.5)",
+    fontSize: "8px", fontWeight: 800, display: "flex", alignItems: "center",
     justifyContent: "center", lineHeight: 1, boxSizing: "border-box", padding: "0 3px",
+    letterSpacing: "-0.01em",
   },
   badgePulse: {
-    position: "absolute", top: "-2px", right: "-2px", width: "17px", height: "17px",
-    borderRadius: "9999px", background: "#ec4899", opacity: 0.55,
+    position: "absolute", top: "2px", right: "2px", width: "15px", height: "15px",
+    borderRadius: "9999px", background: "#f43f5e", opacity: 0.45,
   },
   profileWrap: { position: "relative" },
   profileBtn: {
     display: "flex", alignItems: "center", gap: "10px",
-    padding: "4px 12px 4px 4px", borderRadius: "9999px",
-    background: "#f6f6f2", border: "1px solid #e8e6de", cursor: "pointer", boxSizing: "border-box",
-    transition: "background-color .15s ease, box-shadow .15s ease",
+    padding: "4px 10px 4px 4px", borderRadius: "12px",
+    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(196,181,253,0.22)",
+    cursor: "pointer", boxSizing: "border-box",
+    transition: "background .15s ease, border-color .15s ease, box-shadow .15s ease",
   },
   avatarRing: {
-    position: "relative", width: "32px", height: "32px", borderRadius: "9999px", padding: "2px",
+    position: "relative", width: "34px", height: "34px", borderRadius: "9px", padding: "2px",
     display: "flex", alignItems: "center", justifyContent: "center",
     flexShrink: 0, boxSizing: "border-box",
+    background: "linear-gradient(135deg, #a78bfa, #7c3aed)",
   },
   avatarImg: {
-    width: "100%", height: "100%", borderRadius: "9999px", objectFit: "cover",
-    border: "1.5px solid #ffffff", boxSizing: "border-box", display: "block",
+    width: "100%", height: "100%", borderRadius: "7px", objectFit: "cover",
+    border: "1.5px solid rgba(255,255,255,0.85)", boxSizing: "border-box", display: "block",
   },
   avatarFallback: {
-    width: "100%", height: "100%", borderRadius: "9999px", display: "flex",
-    alignItems: "center", justifyContent: "center", fontSize: "10.5px",
-    fontWeight: 700, border: "1.5px solid #ffffff", boxSizing: "border-box",
+    width: "100%", height: "100%", borderRadius: "7px", display: "flex",
+    alignItems: "center", justifyContent: "center", fontSize: "11px",
+    fontWeight: 800, border: "1.5px solid rgba(255,255,255,0.85)", boxSizing: "border-box",
   },
   statusDot: {
-    position: "absolute", bottom: "-1px", right: "-1px", width: "9px", height: "9px",
-    borderRadius: "9999px", background: "#10b981", border: "2px solid #ffffff",
+    position: "absolute", bottom: "-2px", right: "-2px", width: "9px", height: "9px",
+    borderRadius: "9999px", background: "#22c55e",
+    border: "2px solid #5b21b6",
     boxSizing: "border-box",
+    boxShadow: "0 0 0 1px rgba(34,197,94,0.4)",
   },
   nameBlock: { textAlign: "left", display: "flex", flexDirection: "column", gap: "2px" },
-  name: { fontSize: "12.5px", fontWeight: 700, color: "#211d33", lineHeight: 1.1, margin: 0 },
+  name: { fontSize: "12.5px", fontWeight: 700, color: "#ede9fe", lineHeight: 1.15, margin: 0 },
   role: {
-    fontSize: "9.5px", fontWeight: 700, lineHeight: 1,
-    margin: 0, borderRadius: "9999px",
-    padding: "2px 7px", width: "fit-content", letterSpacing: "0.01em",
+    fontSize: "9px", fontWeight: 700, lineHeight: 1,
+    margin: 0, borderRadius: "5px",
+    padding: "2.5px 6px", width: "fit-content", letterSpacing: "0.04em", textTransform: "uppercase",
   },
-  chevron: { color: "#9a978d", flexShrink: 0, transition: "transform .18s ease" },
+  chevron: { color: "rgba(196,181,253,0.6)", flexShrink: 0, transition: "transform .2s ease" },
 };
 
 // ─── MAIN TOPBAR ─────────────────────────────────────────────────────────────
@@ -1390,96 +1445,111 @@ export default function TopBar({ children, onLogout }) {
   const unreadCount = notifications.filter(n => n.unread).length;
   const [bg, fg] = avatarBg(profile?.full_name || "");
   const rc = roleColors(profile?.role);
+  const pageMeta = usePageMeta(location.pathname);
 
   return (
     <>
-      <div style={{ ...TB.bar, position: "sticky" }}>
-        <div style={TB.topAccent} />
+      <div style={TB.bar}>
+        <div style={TB.leftAccent} />
+        <div style={TB.bottomAccent} />
+        <div style={TB.inner}>
 
-        <div style={TB.childrenSlot}>{children}</div>
-
-        <div style={TB.rightGroup}>
-
-          {/* Notification Bell */}
-          <div style={TB.bellWrap} ref={notifRef}>
-            <button
-              onClick={() => { setShowNotif(v => !v); setShowDropdown(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#e8f5f2"; e.currentTarget.style.color = "#0f766e"; e.currentTarget.style.borderColor = "#b2ddd6"; e.currentTarget.style.boxShadow = "0 2px 8px -2px rgba(15,118,110,0.20)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#5c6068"; e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.boxShadow = "none"; }}
-              style={TB.iconBtn}
-              title="Notifications"
-            >
-              <BellIcon />
-              {unreadCount > 0 && (
-                <>
-                  <span style={TB.badgePulse} className="tb-badge-pulse" />
-                  <span style={TB.badge}>{unreadCount > 9 ? "9+" : unreadCount}</span>
-                </>
-              )}
-            </button>
-            {showNotif && (
-              <NotificationPanel
-                notifications={notifications}
-                loading={notifLoading}
-                onMarkAllRead={markAllRead}
-                onSelect={handleSelectNotification}
-                onViewAll={handleViewAll}
-                onClose={() => setShowNotif(false)}
-              />
-            )}
+          {/* Page title + subtitle */}
+          <div style={TB.pageMeta}>
+            <p style={TB.pageLabel}>{pageMeta.label}</p>
+            <p style={TB.pageSub}>{pageMeta.sub}</p>
           </div>
 
-          <div style={TB.divider} />
+          <div style={TB.childrenSlot}>{children}</div>
 
-          {/* Profile Avatar Button */}
-          <div style={TB.profileWrap} ref={dropRef}>
-            <button
-              onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#e8f5f2"; e.currentTarget.style.borderColor = "#b2ddd6"; e.currentTarget.style.boxShadow = "0 2px 8px -2px rgba(15,118,110,0.18)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.boxShadow = "none"; }}
-              style={TB.profileBtn}
-              title="Account menu"
-            >
-              <span style={{ ...TB.avatarRing, background: rc.ring }}>
-                {profile?.avatar_url ? (
-                  <img src={fullAvatarUrl(profile.avatar_url)} alt="" style={TB.avatarImg} />
-                ) : (
-                  <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
-                    {initials(profile?.full_name)}
-                  </span>
+          <div style={TB.rightGroup}>
+
+            {/* Live clock */}
+            <LiveClock />
+
+            <div style={TB.divider} />
+
+            {/* Notification Bell */}
+            <div style={TB.bellWrap} ref={notifRef}>
+              <button
+                onClick={() => { setShowNotif(v => !v); setShowDropdown(false); }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(196,181,253,0.18)"; e.currentTarget.style.color = "#ede9fe"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.4)"; e.currentTarget.style.boxShadow = "0 2px 10px -2px rgba(109,40,217,0.4)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "rgba(237,233,254,0.75)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.18)"; e.currentTarget.style.boxShadow = "none"; }}
+                style={TB.iconBtn}
+                title="Notifications"
+              >
+                <BellIcon />
+                {unreadCount > 0 && (
+                  <>
+                    <span style={TB.badgePulse} className="tb-badge-pulse" />
+                    <span style={TB.badge}>{unreadCount > 9 ? "9+" : unreadCount}</span>
+                  </>
                 )}
-                <span style={TB.statusDot} title="Online" />
-              </span>
-              <div className="hidden sm:flex" style={TB.nameBlock}>
-                <p style={TB.name}>
-                  {profile?.full_name || profile?.username || "User"}
-                </p>
-                <span style={{ ...TB.role, color: rc.fg, background: rc.bg }}>{formatRole(profile?.role)}</span>
-              </div>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
-                <path d="M2 4l4 4 4-4" strokeLinecap="round" />
-              </svg>
-            </button>
+              </button>
+              {showNotif && (
+                <NotificationPanel
+                  notifications={notifications}
+                  loading={notifLoading}
+                  onMarkAllRead={markAllRead}
+                  onSelect={handleSelectNotification}
+                  onViewAll={handleViewAll}
+                  onClose={() => setShowNotif(false)}
+                />
+              )}
+            </div>
 
-            {showDropdown && (
-              <ProfileDropdown
-                profile={profile}
-                onViewProfile={() => setShowProfile(true)}
-                onLogout={onLogout}
-                onClose={() => setShowDropdown(false)}
-              />
-            )}
+            <div style={TB.divider} />
+
+            {/* Profile Avatar Button */}
+            <div style={TB.profileWrap} ref={dropRef}>
+              <button
+                onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(196,181,253,0.18)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.45)"; e.currentTarget.style.boxShadow = "0 2px 10px -2px rgba(109,40,217,0.4)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.22)"; e.currentTarget.style.boxShadow = "none"; }}
+                style={TB.profileBtn}
+                title="Account menu"
+              >
+                <span style={TB.avatarRing}>
+                  {profile?.avatar_url ? (
+                    <img src={fullAvatarUrl(profile.avatar_url)} alt="" style={TB.avatarImg} />
+                  ) : (
+                    <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
+                      {initials(profile?.full_name)}
+                    </span>
+                  )}
+                  <span style={TB.statusDot} title="Online" />
+                </span>
+                <div className="hidden sm:flex" style={TB.nameBlock}>
+                  <p style={TB.name}>
+                    {profile?.full_name || profile?.username || "User"}
+                  </p>
+                  <span style={{ ...TB.role, color: rc.fg, background: "rgba(237,233,254,0.15)", border: "1px solid rgba(196,181,253,0.3)" }}>{formatRole(profile?.role)}</span>
+                </div>
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
+                  <path d="M2 4l4 4 4-4" strokeLinecap="round" />
+                </svg>
+              </button>
+
+              {showDropdown && (
+                <ProfileDropdown
+                  profile={profile}
+                  onViewProfile={() => setShowProfile(true)}
+                  onLogout={onLogout}
+                  onClose={() => setShowDropdown(false)}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       <style>{`
         @keyframes tb-pulse {
-          0%   { transform: scale(1);   opacity: 0.55; }
-          70%  { transform: scale(1.9); opacity: 0; }
-          100% { transform: scale(1.9); opacity: 0; }
+          0%   { transform: scale(1);   opacity: 0.5; }
+          70%  { transform: scale(2.1); opacity: 0; }
+          100% { transform: scale(2.1); opacity: 0; }
         }
-        .tb-badge-pulse { animation: tb-pulse 2.2s ease-out infinite; }
+        .tb-badge-pulse { animation: tb-pulse 2.4s ease-out infinite; }
       `}</style>
 
       {showProfile && (
