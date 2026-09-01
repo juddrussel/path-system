@@ -3245,7 +3245,7 @@ export default function Dashboard() {
 .path-overview-shell table tbody tr{border-bottom-color:#f0eaf5!important}
 .path-overview-shell table th{color:#8b7c96!important;font-weight:700!important;font-size:10px!important;letter-spacing:.08em!important}
 .path-overview-shell table td{color:#51465e!important}
-.path-hero{background:linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)!important}
+.path-hero{background:#fbfaff!important}
 .path-stat-grid{grid-template-columns:1.18fr .92fr 1.08fr .92fr!important}
 .path-stat-card strong{letter-spacing:-.04em}
 .path-content-area{max-width:1500px;width:100%;margin:0 auto;box-sizing:border-box}
@@ -3315,7 +3315,7 @@ export default function Dashboard() {
         }
       `}</style>
       <style>{`
-        .path-overview-shell .dashboard-workspace-canvas{padding:28px 48px 44px 64px!important;background:#f8f7ff!important}@media(min-width:1100px){.path-overview-shell .dashboard-workspace-canvas{padding-left:clamp(64px,5vw,84px)!important;padding-right:clamp(48px,5vw,84px)!important}}.path-overview-shell .dashboard-workspace-canvas .path-hero{min-height:146px!important;padding:25px 22px!important;margin:0!important;border-left:2px solid #bca5ef!important;border-bottom:1px solid #e6dfee!important;border-radius:16px!important;background:linear-gradient(105deg,#fbf9ff,#f4efff)!important}.path-overview-shell .dashboard-workspace-canvas .path-hero h1{margin:9px 0 7px!important;font-size:clamp(30px,3vw,42px)!important;line-height:1!important;letter-spacing:-.06em!important}.path-overview-shell .dashboard-workspace-canvas .path-hero p{font-size:11px!important;line-height:1.6!important;color:#8f8398!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:13px!important;margin-top:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card{min-height:105px!important;padding:15px!important;border-radius:11px!important;box-shadow:0 9px 22px rgba(54,36,87,.04)!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:first-child>span:first-child{font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card strong{margin-top:14px!important;font-size:26px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:last-child{margin-top:8px!important;font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-content-area{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading>div:first-child>div{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading h2{margin-top:5px!important;font-size:17px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading button{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{border-radius:11px!important;box-shadow:0 12px 30px rgba(57,36,93,.045)!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button{min-height:67px!important;padding:11px 19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button strong{font-family:Manrope,'DM Sans',sans-serif!important;font-size:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button small{font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:last-child{padding:10px 19px!important;font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:nth-child(2),.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{padding:19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid h3,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid h3{margin-top:5px!important;font-size:17px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child>div>div:first-child{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child button{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2){margin-top:15px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div{padding:11px 0!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div strong{font-size:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div small{font-size:9px!important}@media(max-width:900px){.path-overview-shell .dashboard-workspace-canvas{padding:18px 20px 30px!important}.path-overview-shell .dashboard-workspace-canvas .path-hero{padding:22px 18px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:10px!important}}
+        .path-overview-shell .dashboard-workspace-canvas{padding:28px 48px 44px 64px!important;background:#f8f7ff!important}@media(min-width:1100px){.path-overview-shell .dashboard-workspace-canvas{padding-left:clamp(64px,5vw,84px)!important;padding-right:clamp(48px,5vw,84px)!important}}.path-overview-shell .dashboard-workspace-canvas .path-hero{min-height:146px!important;padding:25px 28px!important;margin:0!important;border:1px solid #ebe4f4!important;border-radius:16px!important;background:#fbfaff!important}.path-overview-shell .dashboard-workspace-canvas .path-hero h1{margin:14px 0 6px!important;font-size:clamp(28px,3vw,34px)!important;line-height:1.15!important;letter-spacing:-.03em!important}.path-overview-shell .dashboard-workspace-canvas .path-hero p{font-size:14px!important;line-height:1.5!important;color:#615a6d!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:13px!important;margin-top:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card{min-height:105px!important;padding:15px!important;border-radius:11px!important;box-shadow:0 9px 22px rgba(54,36,87,.04)!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:first-child>span:first-child{font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card strong{margin-top:14px!important;font-size:26px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-card>div:last-child{margin-top:8px!important;font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-content-area{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading>div:first-child>div{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading h2{margin-top:5px!important;font-size:17px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-overview-heading button{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:16px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{border-radius:11px!important;box-shadow:0 12px 30px rgba(57,36,93,.045)!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button{min-height:67px!important;padding:11px 19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button strong{font-family:Manrope,'DM Sans',sans-serif!important;font-size:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:first-child>button small{font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:first-child>div:last-child{padding:10px 19px!important;font-size:8px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid>article:nth-child(2),.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article{padding:19px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid h3,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid h3{margin-top:5px!important;font-size:17px!important;letter-spacing:-.04em!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child>div>div:first-child{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:first-child button{font-size:9px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2){margin-top:15px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div{padding:11px 0!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div strong{font-size:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-lower-grid>article>div:nth-child(2)>div small{font-size:9px!important}@media(max-width:900px){.path-overview-shell .dashboard-workspace-canvas{padding:18px 20px 30px!important}.path-overview-shell .dashboard-workspace-canvas .path-hero{padding:22px 18px!important}.path-overview-shell .dashboard-workspace-canvas .path-stat-grid{gap:10px!important}.path-overview-shell .dashboard-workspace-canvas .path-main-grid,.path-overview-shell .dashboard-workspace-canvas .path-lower-grid{gap:10px!important}}
       `}</style>
       <style>{`
         .path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-hero h1,.path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-focus h2,.path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-list h2{font-weight:800!important}
@@ -3373,58 +3373,49 @@ export default function Dashboard() {
                   display: "flex",
                   alignItems: "flex-end",
                   justifyContent: "space-between",
-                  gap: 16,
+                  gap: 24,
                   flexWrap: "wrap",
-                  background:
-                    "linear-gradient(135deg,#fbfaff 0%,#f8f7ff 58%,#f2ebff 100%)",
-                  borderBottom: "1px solid #ebe4f4",
-                  borderLeft: "2px solid #c9b5f8",
-                  padding: "25px 22px",
+                  background: "#fbfaff",
+                  border: "1px solid #ebe4f4",
+                  padding: "25px 28px",
                   margin: 0,
                   borderRadius: 16,
                 }}
               >
-                <div>
-                  <div
-                    className="path-kicker"
+                <div style={{ minWidth: 0 }}>
+                  <span
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      color: "#a59aac",
-                      fontSize: 10,
-                      fontWeight: 800,
-                      letterSpacing: ".13em",
-                      textTransform: "uppercase",
+                      display: "inline-block",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      background: "#f0eaff",
+                      color: "#4c2d8f",
                     }}
                   >
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: 7,
-                        height: 7,
-                        borderRadius: "50%",
-                        background: "#8c4be7",
-                        flexShrink: 0,
-                      }}
-                    />
                     {dateStr}
-                  </div>
+                  </span>
                   <h1
                     style={{
-                      fontSize: 36,
+                      fontSize: 34,
                       fontWeight: 800,
                       color: "#27213a",
-                      lineHeight: 1.12,
-                      letterSpacing: "-0.035em",
-                      margin: "14px 0 8px",
+                      lineHeight: 1.15,
+                      letterSpacing: "-0.03em",
+                      margin: "14px 0 6px",
                       fontFamily: "Manrope, 'DM Sans', sans-serif",
                     }}
                   >
                     Good morning, {displayName}.
                   </h1>
-                  <p style={{ fontSize: 14, color: "#484555", margin: 0 }}>
-                    Here’s what needs your attention across the department.
+                  <p style={{ fontSize: 14, color: "#615a6d", margin: 0 }}>
+                    {pendingApprovalsCount} submission
+                    {pendingApprovalsCount === 1 ? "" : "s"} need
+                    {pendingApprovalsCount === 1 ? "s" : ""} review, and{" "}
+                    {BOTTLENECK_ALERTS.length}{" "}
+                    {BOTTLENECK_ALERTS.length === 1 ? "is" : "are"} at risk of
+                    missing SLA today.
                   </p>
                   <div style={{ display: "none" }}>
                     <ShieldAlert style={{ width: 13, height: 13 }} />
@@ -3434,28 +3425,79 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <button
-                  className="path-primary-button"
-                  type="button"
-                  onClick={() => navigate("/forms?tab=submit")}
+                <div
                   style={{
-                    display: "inline-flex",
+                    display: "flex",
                     alignItems: "center",
-                    gap: 7,
-                    border: 0,
-                    borderRadius: 8,
-                    padding: "12px 16px",
-                    background: "#7c3aed",
-                    color: "#fff",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    boxShadow: "0 8px 16px rgba(124,58,237,.18)",
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
+                    gap: 24,
+                    flexShrink: 0,
                   }}
                 >
-                  <Plus size={14} /> Start a submission
-                </button>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 20,
+                      paddingRight: 24,
+                      borderRight: "1px solid #ebe4f4",
+                    }}
+                  >
+                    <div>
+                      <strong
+                        style={{
+                          display: "block",
+                          fontSize: 22,
+                          fontWeight: 800,
+                          color: "#27213a",
+                          fontFamily: "Manrope, 'DM Sans', sans-serif",
+                        }}
+                      >
+                        {pendingApprovalsCount}
+                      </strong>
+                      <span style={{ fontSize: 11, color: "#948a9e" }}>
+                        Awaiting review
+                      </span>
+                    </div>
+                    <div>
+                      <strong
+                        style={{
+                          display: "block",
+                          fontSize: 22,
+                          fontWeight: 800,
+                          color: "#b45309",
+                          fontFamily: "Manrope, 'DM Sans', sans-serif",
+                        }}
+                      >
+                        {BOTTLENECK_ALERTS.length}
+                      </strong>
+                      <span style={{ fontSize: 11, color: "#948a9e" }}>
+                        At risk
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    className="path-primary-button"
+                    type="button"
+                    onClick={() => navigate("/forms?tab=submit")}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 7,
+                      border: 0,
+                      borderRadius: 8,
+                      padding: "12px 16px",
+                      background: "#7c3aed",
+                      color: "#fff",
+                      fontSize: 12,
+                      fontWeight: 800,
+                      boxShadow: "0 8px 16px rgba(124,58,237,.18)",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <Plus size={14} /> Start a submission
+                  </button>
+                </div>
               </div>
 
               {/* PATH Overview stat strip */}
