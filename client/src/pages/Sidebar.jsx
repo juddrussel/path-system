@@ -1,5 +1,6 @@
 import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import logoImg from "../assets/logo.png";
 
 const API = import.meta.env.VITE_API_URL || "";
 const API_BASE = `${API}/api`;
