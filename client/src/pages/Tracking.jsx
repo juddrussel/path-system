@@ -58,7 +58,7 @@ function StatusBadge({ status }) {
   const key = status?.toLowerCase() || "";
   const s = STATUS_STYLES[key] || { bg: "#f3f4f6", color: "#374151", dot: "#9ca3af" };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, textTransform: "capitalize", whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, fontSize: 12, fontWeight: 700, padding: "3px 9px", borderRadius: 20, textTransform: "capitalize", whiteSpace: "nowrap" }}>
       <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
       {status}
     </span>
@@ -146,14 +146,14 @@ function FilterPill({ label, active, count, onClick }) {
   return (
     <button onClick={onClick} style={{
       display: "inline-flex", alignItems: "center", gap: 5,
-      padding: "6px 13px", borderRadius: 20, border: active ? "none" : "1px solid #E9D5FF", cursor: "pointer", fontSize: 12, fontWeight: active ? 700 : 500,
+      padding: "6px 13px", borderRadius: 20, border: active ? "none" : "1px solid #E9D5FF", cursor: "pointer", fontSize: 13, fontWeight: active ? 700 : 500,
       background: active ? "#8B5CF6" : "white",
       color: active ? "white" : "#494454",
       transition: "all 0.15s",
     }}>
       {label}
       {count != null && (
-        <span style={{ background: active ? "rgba(255,255,255,0.25)" : "#f3f4f6", color: active ? "white" : "#374151", borderRadius: 20, padding: "1px 6px", fontSize: 10, fontWeight: 700 }}>
+        <span style={{ background: active ? "rgba(255,255,255,0.25)" : "#f3f4f6", color: active ? "white" : "#374151", borderRadius: 20, padding: "1px 6px", fontSize: 12, fontWeight: 700 }}>
           {count}
         </span>
       )}
@@ -167,7 +167,7 @@ function TypeBadge({ type }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 3,
-      fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
+      fontSize: 12, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
       background: isTask ? "#ede9fe" : "#dbeafe",
       color: isTask ? "#6d28d9" : "#1e40af",
       textTransform: "uppercase", letterSpacing: 0.4,
@@ -364,8 +364,8 @@ function DetailDrawer({ doc, onClose }) {
         style={{ position: "relative", width: "min(92vw, 1100px)", height: "min(90vh, 820px)", background: "#f8f7ff", borderRadius: 18, boxShadow: "0 24px 80px rgba(0,0,0,0.22)", display: "flex", flexDirection: "column", overflow: "hidden", animation: "detailIn 0.22s ease" }}>
 
       {/* ── Top breadcrumb bar ── */}
-      <div style={{ background: "white", borderBottom: "1px solid #f0f0f0", padding: "10px 28px", display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#9ca3af", flexShrink: 0 }}>
-        <button onClick={onClose} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f3f4f6", border: "none", borderRadius: 7, padding: "5px 12px", cursor: "pointer", color: "#374151", fontSize: 12, fontWeight: 600 }}>
+      <div style={{ background: "white", borderBottom: "1px solid #f0f0f0", padding: "10px 28px", display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#9ca3af", flexShrink: 0 }}>
+        <button onClick={onClose} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f3f4f6", border: "none", borderRadius: 7, padding: "5px 12px", cursor: "pointer", color: "#374151", fontSize: 13, fontWeight: 600 }}>
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" width="12" height="12"><path d="M10 4L6 8l4 4" strokeLinecap="round"/></svg>
           Back to Documents
         </button>
@@ -384,16 +384,16 @@ function DetailDrawer({ doc, onClose }) {
       {/* ── Document hero header ── */}
       <div style={{ background: "white", borderBottom: "1px solid #f0f0f0", padding: "16px 28px", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-          <span style={{ background: "#ede9fe", color: "#7c3aed", fontSize: 10, fontWeight: 800, padding: "3px 9px", borderRadius: 6, letterSpacing: 0.5 }}>{doc.document_id}</span>
+          <span style={{ background: "#ede9fe", color: "#7c3aed", fontSize: 12, fontWeight: 800, padding: "3px 9px", borderRadius: 6, letterSpacing: 0.5 }}>{doc.document_id}</span>
           <StatusBadge status={doc.status} />
           <div style={{ marginLeft: "auto" }}>
-            <span style={{ background: "#f3f4f6", color: "#6b7280", fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 7, display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ background: "#f3f4f6", color: "#6b7280", fontSize: 13, fontWeight: 600, padding: "4px 12px", borderRadius: 7, display: "flex", alignItems: "center", gap: 5 }}>
               <Icon.Eye /> View Only
             </span>
           </div>
         </div>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: "#111", margin: "0 0 8px" }}>{doc.title}</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 12, color: "#6b7280", flexWrap: "wrap" }}>
+        <h1 style={{ fontSize: 21, fontWeight: 800, color: "#111", margin: "0 0 8px" }}>{doc.title}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: "#6b7280", flexWrap: "wrap" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M2 14V6l6-4 6 4v8H10V9H6v5H2z"/></svg>
             {doc.department}
@@ -425,10 +425,10 @@ function DetailDrawer({ doc, onClose }) {
             { eyebrow: "LAST UPDATED",    icon: <svg viewBox="0 0 16 16" fill="none" stroke="#f59e0b" strokeWidth="1.5" width="14" height="14"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v4M11 1v4M2 7h12"/></svg>, value: doc.updated_at ? new Date(doc.updated_at).toLocaleDateString("en-US",{month:"long",day:"numeric"}) : (doc.submitted_at ? new Date(doc.submitted_at).toLocaleDateString("en-US",{month:"long",day:"numeric"}) : "—"), bg: "#fffbeb" },
           ].map(({ eyebrow, icon, value, bg }) => (
             <div key={eyebrow} style={{ background: bg, border: "1px solid #f0f0f0", borderRadius: 10, padding: "12px 14px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, marginBottom: 6, textTransform: "uppercase" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, marginBottom: 6, textTransform: "uppercase" }}>
                 {icon} {eyebrow}
               </div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>{value}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>{value}</div>
             </div>
           ))}
         </div>
@@ -444,7 +444,7 @@ function DetailDrawer({ doc, onClose }) {
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 background: "none", border: "none", cursor: "pointer", padding: "12px 18px",
-                fontSize: 13, fontWeight: tab === t.id ? 700 : 500,
+                fontSize: 14, fontWeight: tab === t.id ? 700 : 500,
                 color: tab === t.id ? "#7c3aed" : "#6b7280",
                 borderBottom: tab === t.id ? "2px solid #7c3aed" : "2px solid transparent",
                 marginBottom: -1, transition: "all 0.15s",
@@ -463,8 +463,8 @@ function DetailDrawer({ doc, onClose }) {
                     <Icon.Doc />
                   </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>Document Summary</div>
-                    <div style={{ fontSize: 11, color: "#9ca3af" }}>Complete metadata for this document</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>Document Summary</div>
+                    <div style={{ fontSize: 13, color: "#9ca3af" }}>Complete metadata for this document</div>
                   </div>
                 </div>
 
@@ -495,8 +495,8 @@ function DetailDrawer({ doc, onClose }) {
                   <div key={ri} style={{ display: "grid", gridTemplateColumns: row.length === 2 ? "1fr 1fr" : "1fr", borderBottom: "1px solid #f9f9f9", padding: "12px 0" }}>
                     {row.map(f => (
                       <div key={f.label} style={{ paddingRight: 16 }}>
-                        <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 4 }}>{f.label}</div>
-                        <div style={{ fontSize: 13, color: f.bold ? "#7c3aed" : "#111", fontWeight: f.bold ? 700 : 500 }}>{f.value || "—"}</div>
+                        <div style={{ fontSize: 12, color: "#9ca3af", fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 4 }}>{f.label}</div>
+                        <div style={{ fontSize: 14, color: f.bold ? "#7c3aed" : "#111", fontWeight: f.bold ? 700 : 500 }}>{f.value || "—"}</div>
                       </div>
                     ))}
                   </div>
@@ -507,7 +507,7 @@ function DetailDrawer({ doc, onClose }) {
             {/* ─── Routing Timeline tab ─── */}
             {tab === "routing" && (
               <div style={{ background: "white", borderRadius: 14, border: "1px solid #f0f0f0", padding: 24, maxWidth: 600 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#111", marginBottom: 18 }}>Routing Timeline</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#111", marginBottom: 18 }}>Routing Timeline</div>
                 {timeline.map((step, i) => {
                   const isLast      = i === timeline.length - 1;
                   const isActive    = step.active;
@@ -548,22 +548,22 @@ function DetailDrawer({ doc, onClose }) {
                         {!isLast && <div style={{ width: 2, flex: 1, minHeight: 28, background: lineBg, margin: "3px 0" }} />}
                       </div>
                       <div style={{ paddingBottom: 22 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: step.done || isActive || isRetStep ? "#111" : "#9ca3af" }}>{step.stage}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: step.done || isActive || isRetStep ? "#111" : "#9ca3af" }}>{step.stage}</div>
                         {step.actor && (
-                          <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+                          <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 2 }}>
                             <span style={{ fontWeight: 600, color: step.done || isActive || isRetStep ? "#6b7280" : "#bbb" }}>{step.roleTag}:</span>{" "}
                             <span style={{ color: step.done || isActive || isRetStep ? "#374151" : "#bbb" }}>{step.actor}</span>
                           </div>
                         )}
                         {step.date
-                          ? <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{fmtDate(step.date)}</div>
+                          ? <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 2 }}>{fmtDate(step.date)}</div>
                           : isRetStep
-                            ? <div style={{ fontSize: 11, color: "#f97316", marginTop: 2, fontWeight: 600 }}>Awaiting resubmission</div>
+                            ? <div style={{ fontSize: 13, color: "#f97316", marginTop: 2, fontWeight: 600 }}>Awaiting resubmission</div>
                             : isActive
-                              ? <div style={{ fontSize: 11, color: "#7c3aed", marginTop: 2, fontWeight: 600 }}>In progress</div>
+                              ? <div style={{ fontSize: 13, color: "#7c3aed", marginTop: 2, fontWeight: 600 }}>In progress</div>
                               : step.done
-                                ? <div style={{ fontSize: 11, color: "#10b981", marginTop: 2, fontWeight: 600 }}>Completed</div>
-                                : <div style={{ fontSize: 11, color: "#d1d5db", marginTop: 2 }}>Pending</div>
+                                ? <div style={{ fontSize: 13, color: "#10b981", marginTop: 2, fontWeight: 600 }}>Completed</div>
+                                : <div style={{ fontSize: 13, color: "#d1d5db", marginTop: 2 }}>Pending</div>
                         }
                       </div>
                     </div>
@@ -575,31 +575,31 @@ function DetailDrawer({ doc, onClose }) {
             {/* ─── Activity History tab ─── */}
             {tab === "activity" && (
               <div style={{ background: "white", borderRadius: 14, border: "1px solid #f0f0f0", padding: 24, maxWidth: 600 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#111", marginBottom: 18 }}>Activity History</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#111", marginBottom: 18 }}>Activity History</div>
                 {[
                   { action: "Document submitted",       actor: doc.submitted_by,    date: doc.submitted_at, color: "#7c3aed", icon: "📄" },
                   { action: "Assigned to handler",      actor: doc.current_handler, date: doc.submitted_at, color: "#3b82f6", icon: "👤" },
                   { action: `Status set to ${doc.status}`, actor: "System",         date: doc.updated_at || doc.submitted_at, color: "#10b981", icon: "✅" },
                 ].filter(a => a.actor && a.date).map((a, i) => (
                   <div key={i} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${a.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>{a.icon}</div>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${a.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>{a.icon}</div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{a.action}</div>
-                      <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>by {a.actor}</div>
-                      <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>{fmtDateTime(a.date)}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#111" }}>{a.action}</div>
+                      <div style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>by {a.actor}</div>
+                      <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 1 }}>{fmtDateTime(a.date)}</div>
                     </div>
                   </div>
                 ))}
                 {doc.attachments?.length > 0 && (
                   <div style={{ marginTop: 8, paddingTop: 16, borderTop: "1px solid #f0f0f0" }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 10 }}>Attachments</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 10 }}>Attachments</div>
                     {doc.attachments.map((att, i) => (
                       <a key={i} href={att.file_url || att.url || "#"} target="_blank" rel="noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#fafafa", border: "1px solid #f0f0f0", marginBottom: 6, textDecoration: "none", color: "#374151" }}>
                         <div style={{ width: 30, height: 30, borderRadius: 6, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon.Doc /></div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 12, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.file_name || att.name}</div>
-                          {att.size > 0 && <div style={{ fontSize: 10, color: "#9ca3af" }}>{(att.size / 1024).toFixed(1)} KB</div>}
+                          <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.file_name || att.name}</div>
+                          {att.size > 0 && <div style={{ fontSize: 12, color: "#9ca3af" }}>{(att.size / 1024).toFixed(1)} KB</div>}
                         </div>
                         <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="13" height="13"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
                       </a>
@@ -616,7 +616,7 @@ function DetailDrawer({ doc, onClose }) {
 
           {/* Status Overview card */}
           <div style={{ border: "1px solid #f0f0f0", borderRadius: 12, overflow: "visible" }}>
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: "#111" }}>
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "#111" }}>
               <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2" strokeLinecap="round"/></svg>
               Status Overview
             </div>
@@ -637,12 +637,12 @@ function DetailDrawer({ doc, onClose }) {
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: prog.color, marginBottom: 2, textTransform: "capitalize" }}>{doc.status}</div>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>Current Status</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: prog.color, marginBottom: 2, textTransform: "capitalize" }}>{doc.status}</div>
+              <div style={{ fontSize: 13, color: "#9ca3af" }}>Current Status</div>
 
               {/* Progress bar */}
               <div style={{ width: "100%", marginTop: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, fontSize: 11, color: "#6b7280" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, fontSize: 13, color: "#6b7280" }}>
                   <span>Workflow Progress</span>
                   <span style={{ fontWeight: 700, color: "#111" }}>{prog.pct}%</span>
                 </div>
@@ -653,16 +653,16 @@ function DetailDrawer({ doc, onClose }) {
 
               {/* Status reference list */}
               <div style={{ width: "100%", marginTop: 12 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>STATUS REFERENCE</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>STATUS REFERENCE</div>
                 {STATUS_REF.map(s => {
                   const isCurrentStatus = doc.status?.toLowerCase() === s.label.toLowerCase();
                   return (
-                    <div key={s.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4, fontSize: 11 }}>
+                    <div key={s.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4, fontSize: 13 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                         <div style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
                         <span style={{ color: isCurrentStatus ? "#111" : "#6b7280", fontWeight: isCurrentStatus ? 700 : 400 }}>{s.label}</span>
                       </div>
-                      {isCurrentStatus && <span style={{ fontSize: 10, color: "#7c3aed", fontWeight: 700, flexShrink: 0 }}>◆ Current</span>}
+                      {isCurrentStatus && <span style={{ fontSize: 12, color: "#7c3aed", fontWeight: 700, flexShrink: 0 }}>◆ Current</span>}
                     </div>
                   );
                 })}
@@ -673,11 +673,11 @@ function DetailDrawer({ doc, onClose }) {
           {/* Document Preview card */}
           <div style={{ border: "1px solid #f0f0f0", borderRadius: 12, overflow: "visible" }}>
             <div style={{ padding: "12px 16px", borderBottom: "1px solid #f0f0f0" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: "#111" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "#111" }}>
                 <Icon.Eye />
                 Document Preview
               </div>
-              <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 400, marginTop: 2 }}>Uploaded file attachment</div>
+              <div style={{ fontSize: 12, color: "#9ca3af", fontWeight: 400, marginTop: 2 }}>Uploaded file attachment</div>
             </div>
             <div style={{ padding: 16 }}>
               {/* File preview box */}
@@ -685,17 +685,17 @@ function DetailDrawer({ doc, onClose }) {
                 <div style={{ width: 44, height: 44, borderRadius: 10, background: "white", border: "1px solid #ede9fe", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: "0 2px 6px rgba(124,58,237,0.08)" }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="22" height="22"><path d="M4 4h10l5 5v11a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M14 4v5h5M8 13h8M8 17h5" strokeLinecap="round"/></svg>
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#374151", textAlign: "center", wordBreak: "break-word" }}>{fileName}</div>
-                <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 3 }}>{fileExt} · {fileSize}{filePages ? ` · ${filePages}` : ""}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#374151", textAlign: "center", wordBreak: "break-word" }}>{fileName}</div>
+                <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 3 }}>{fileExt} · {fileSize}{filePages ? ` · ${filePages}` : ""}</div>
               </div>
-              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "#7c3aed", color: "white", borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: "none", marginBottom: 8 }}>
+              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "#7c3aed", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 8 }}>
                 <Icon.Eye /> View Document
               </a>
-              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "white", color: "#374151", borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: "none", border: "1px solid #e5e7eb" }}>
+              <a href={fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", padding: "9px 0", background: "white", color: "#374151", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none", border: "1px solid #e5e7eb" }}>
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="12" height="12"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
                 Download Copy
               </a>
-              <div style={{ marginTop: 10, display: "flex", alignItems: "flex-start", gap: 5, color: "#9ca3af", fontSize: 10 }}>
+              <div style={{ marginTop: 10, display: "flex", alignItems: "flex-start", gap: 5, color: "#9ca3af", fontSize: 12 }}>
                 <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11" style={{ marginTop: 1, flexShrink: 0 }}><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5.5v.5" stroke="white" strokeWidth="1.5"/></svg>
                 Read-only access. Download subject to your permission level.
               </div>
@@ -913,7 +913,7 @@ export default function Tracking() {
   return (
     <div className="path-tracking-shell">
       <style>{
-        "@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');.path-tracking-shell{display:flex;height:100vh;min-width:0;overflow:hidden;background:#f8f7ff;color:#2c2537;font-family:'DM Sans',sans-serif}.path-tracking-main{display:flex;flex:1;min-width:0;flex-direction:column;overflow:hidden}.path-tracking-content{flex:1;overflow-y:auto;padding:26px 28px 36px;background:linear-gradient(180deg,#faf9ff 0%,#f8f7ff 100%);box-sizing:border-box}@media(min-width:1100px){.path-tracking-content{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}.tracking-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;max-width:none;min-height:148px;margin:0 auto 20px;box-sizing:border-box;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff)}.tracking-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope,sans-serif;letter-spacing:-.045em}.tracking-hero p{margin:0;color:#83778b;font:400 13px/1.4 'DM Sans',sans-serif}.tracking-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.tracking-primary-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 15px;border:0;border-radius:8px;background:#7c3aed;color:#fff;box-shadow:0 8px 18px rgba(124,58,237,.16);font:700 11px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-primary-action:hover{background:#6d28d9}.tracking-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;width:100%;max-width:none;margin:0 auto 20px;box-sizing:border-box}.tracking-stat-card{display:flex;min-height:136px;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:23px 20px 20px;border:1px solid #e5deed;border-radius:9px;background:#fff;box-shadow:0 8px 20px rgba(57,36,93,.035);box-sizing:border-box}.tracking-stat-card>span{display:block;color:#8f8797;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-stat-card>strong{display:block;margin:18px 0 10px;color:#332c3e;font:700 34px/1 Manrope,sans-serif;letter-spacing:-.045em}.tracking-stat-card>small{color:#a49aa9;font:400 10px/1.3 'DM Sans',sans-serif}.tracking-stat-card small .positive{color:#3d9270;font-weight:700}.tracking-stat-card small .negative{color:#b87b55;font-weight:700}.tracking-stat-card .positive{color:#3d9270;font-weight:700}.tracking-stat-card .negative{color:#b87b55;font-weight:700}.tracking-panel{border:1px solid #e5deed!important;border-radius:12px!important;background:#fff!important;box-shadow:0 12px 30px rgba(57,36,93,.045)!important}.tracking-panel-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:19px 21px 16px;border-bottom:1px solid #f0edf4}.tracking-panel-topline h3{margin:6px 0 0;color:#393341;font:700 16px/1.15 Manrope,sans-serif;letter-spacing:-.025em}.tracking-panel-topline .section-kicker{color:#9d96a5;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-live{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid #dcefe4;border-radius:7px;background:#f4fcf7;color:#4c9b70;font:700 9px/1 'DM Sans',sans-serif}.tracking-live .live-dot{width:6px;height:6px;border-radius:50%;background:#4c9b70}.tracking-pipeline{width:100%;max-width:none;margin:0 auto 20px;box-sizing:border-box;overflow:hidden}.tracking-pipeline-body{padding:22px 21px 24px}.pipeline-steps{display:flex;align-items:flex-start;width:100%;gap:0}.pipeline-step{display:flex;min-width:92px;flex:0 0 auto;flex-direction:column;align-items:center;gap:7px;text-align:center}.pipeline-step>span{display:grid;width:28px;height:28px;place-items:center;border:1px solid #e6dff0;border-radius:50%;background:#fff;color:#a297aa;font:700 10px/1 'DM Sans',sans-serif}.pipeline-step.complete>span{border-color:#bde5ca;background:#effaf2;color:#4c9b70}.pipeline-step.active>span{border-color:#a78bfa;background:#7c3aed;color:#fff;box-shadow:0 0 0 5px #eee8ff}.pipeline-step strong{color:#675a70;font:700 10px/1.2 Manrope,sans-serif}.pipeline-step small{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.pipeline-line{height:1px;flex:1;margin:14px 8px 0;background:#e9e2f0}.pipeline-line.complete{background:#b9dec6}.pipeline-line.active{background:linear-gradient(90deg,#b9dec6,#a78bfa)}.tracking-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr);gap:14px;align-items:start;width:100%;max-width:none;margin:0 auto;box-sizing:border-box}.tracking-table{min-width:0;overflow:hidden}.tracking-table-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:20px 21px 16px;border-bottom:1px solid #f0edf4}.tracking-table-heading h3{margin:6px 0 4px;color:#393341;font:700 17px/1.15 Manrope,sans-serif;letter-spacing:-.025em}.tracking-table-heading p{margin:0;color:#9b91a3;font:400 10px/1.35 'DM Sans',sans-serif}.tracking-filter-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}.tracking-filter-row button{padding:7px 10px;border:1px solid #e7ddf1;border-radius:999px;background:#fff;color:#776b83;font:600 9px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-filter-row button.active{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 5px 12px rgba(124,58,237,.14)}.tracking-table-head{display:grid;grid-template-columns:minmax(250px,1.6fr) minmax(135px,.9fr) minmax(135px,.9fr) minmax(150px,1fr) 120px;gap:16px;padding:11px 18px;background:#fcfaff;color:#93879b;font:800 8px/1 'DM Sans',sans-serif;letter-spacing:.09em;text-transform:uppercase}.tracking-records{background:#fff}.tracking-record{display:grid;grid-template-columns:minmax(250px,1.6fr) minmax(135px,.9fr) minmax(135px,.9fr) minmax(150px,1fr) 120px;gap:16px;align-items:center;width:100%;min-height:78px;padding:13px 18px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer}.tracking-record:hover,.tracking-record.selected{background:#fbf9ff;box-shadow:inset 3px 0 #8b5cf6}.tracking-document,.tracking-owner,.tracking-assignee,.tracking-stage{display:flex;align-items:center;min-width:0;gap:10px}.tracking-document>div{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:4px}.tracking-assignee{gap:8px}.tracking-assignee>span{overflow:hidden;color:#685b72;font:500 10px/1.2 'DM Sans',sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-stage{flex-direction:column;align-items:flex-start;gap:4px}.tracking-record-id{color:#7c3aed;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.05em}.tracking-document strong{display:block;max-width:100%;overflow:hidden;color:#40364b;font:700 11px/1.25 Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-document>div>span:last-child,.tracking-stage>span:last-child{color:#a49aa9;font:400 9px/1.25 'DM Sans',sans-serif}.tracking-owner>span:last-child{overflow:hidden;color:#685b72;font:500 10px/1.2 'DM Sans',sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-sla{display:inline-flex;align-items:center;gap:7px;color:#4c9b70;font:700 10px/1.2 'DM Sans',sans-serif}.tracking-sla i{width:6px;height:6px;border-radius:50%;background:currentColor}.tracking-sla.risk{color:#bd7c2b}.tracking-sla.closed{color:#98909e}.tracking-detail{display:flex;min-height:550px;flex-direction:column;padding:20px 21px 22px}.tracking-detail .tracking-panel-topline{padding:0 0 16px}.tracking-detail-title{display:flex;align-items:center;gap:11px;padding:18px 0 18px;border-bottom:1px solid #f0edf4}.tracking-detail-title>div{display:flex;min-width:0;flex-direction:column;gap:4px}.tracking-detail-title strong{display:block;overflow:hidden;color:#40364b;font:700 14px/1.2 Manrope,sans-serif;letter-spacing:-.01em;text-overflow:ellipsis;white-space:nowrap}.tracking-detail-title>div>span{color:#a49aa9;font:500 9px/1.3 'DM Sans',sans-serif}.tracking-detail-avatar{display:grid;width:35px;height:35px;flex:none;place-items:center;border-radius:11px;background:#f0eaff;color:#7c3aed;font:800 10px/1 'DM Sans',sans-serif;overflow:hidden}.tracking-detail-status-card{display:flex;flex-direction:column;gap:8px;margin-top:18px;padding:16px;border:1px solid #e7e0ee;border-radius:8px;background:#fbfaff}.tracking-detail-status-card .section-kicker{color:#9d96a5;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-detail-status-card strong{color:#7040ba;font:700 19px/1 Manrope,sans-serif}.tracking-detail-status-card>span:last-child{color:#8f8499;font:400 10px/1.4 'DM Sans',sans-serif}.tracking-mini-timeline{position:relative;display:flex;flex-direction:column;gap:0;padding:22px 0 26px}.tracking-mini-timeline:before{position:absolute;top:30px;bottom:32px;left:10px;width:1px;background:#e6e0ed;content:''}.tracking-mini-timeline>div{position:relative;display:flex;align-items:flex-start;gap:11px;min-height:49px}.tracking-mini-timeline>div>span{position:relative;z-index:1;display:grid;width:20px;height:20px;flex:none;place-items:center;border:1px solid #e4dcef;border-radius:50%;background:#fff;color:#a297aa;font:700 9px/1 'DM Sans',sans-serif;box-shadow:0 0 0 3px #fff}.tracking-mini-timeline>div.complete>span{border-color:#bde5ca;background:#effaf2;color:#4c9b70}.tracking-mini-timeline>div.current>span{border-color:#a78bfa;background:#7c3aed;color:#fff;box-shadow:0 0 0 3px #eee8ff}.tracking-mini-timeline>div.complete strong{color:#675a70}.tracking-mini-timeline>div.current strong{color:#6d35b9}.tracking-mini-timeline>div>div{display:flex;flex-direction:column;gap:4px;padding-top:2px}.tracking-mini-timeline strong{color:#675a70;font:700 10px/1.2 Manrope,sans-serif}.tracking-mini-timeline small{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.tracking-detail .text-action{display:inline-flex;align-items:center;gap:7px;margin-top:auto;padding:10px 0 0;border:0;background:none;color:#7c3aed;font:700 10px/1.2 'DM Sans',sans-serif;cursor:pointer}.tracking-pagination{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-top:1px solid #f0edf4;color:#a49aa9;font:400 9px/1 'DM Sans',sans-serif}.tracking-page-buttons{display:flex;gap:6px}.tracking-page-buttons button{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e7ddf1;border-radius:7px;background:#fff;color:#887c92;font:600 10px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-page-buttons button.active{border-color:#7c3aed;background:#7c3aed;color:#fff}.tracking-page-buttons button:disabled{background:#faf9fc;color:#d1cbd7;cursor:default}.tracking-empty{display:flex;align-items:center;flex-direction:column;gap:6px;padding:48px 20px;color:#a49aa9;text-align:center}.tracking-detail>.tracking-empty{flex:1;justify-content:center;padding:32px 18px}.tracking-empty strong{color:#675a70;font:700 12px/1.2 Manrope,sans-serif}.tracking-empty span{font:400 10px/1.35 'DM Sans',sans-serif}@media(max-width:1100px){.tracking-layout{grid-template-columns:1fr}.tracking-detail{order:-1}.tracking-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.path-tracking-content{padding:17px 14px 28px}.tracking-hero{align-items:flex-start;flex-direction:column;gap:18px;min-height:0;padding:22px 18px}.tracking-hero h1{font-size:27px}.tracking-hero .tracking-primary-action{width:100%}.tracking-stat-grid{gap:8px}.tracking-stat-card{min-height:112px;padding:18px 15px}.tracking-stat-card>strong{margin:14px 0 8px;font-size:27px}.tracking-pipeline-body{overflow-x:auto}.pipeline-steps{min-width:560px}.tracking-table-heading{align-items:stretch;flex-direction:column;gap:13px}.tracking-filter-row{justify-content:flex-start}.tracking-table-head{display:none}.tracking-record{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:14px}.tracking-owner,.tracking-assignee{display:none}.tracking-stage{grid-column:2;grid-row:1;align-items:flex-end}.tracking-sla{grid-column:1/-1;padding-left:0}.tracking-pagination{align-items:flex-start;flex-direction:column}.tracking-page-buttons{align-self:flex-end}}"
+        "@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');.path-tracking-shell{display:flex;height:100vh;min-width:0;overflow:hidden;background:#f8f7ff;color:#2c2537;font-family:'DM Sans',sans-serif}.path-tracking-main{display:flex;flex:1;min-width:0;flex-direction:column;overflow:hidden}.path-tracking-content{flex:1;overflow-y:auto;padding:26px 28px 36px;background:linear-gradient(180deg,#faf9ff 0%,#f8f7ff 100%);box-sizing:border-box}@media(min-width:1100px){.path-tracking-content{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}.tracking-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;max-width:none;min-height:148px;margin:0 auto 20px;box-sizing:border-box;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff)}.tracking-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope,sans-serif;letter-spacing:-.045em}.tracking-hero p{margin:0;color:#83778b;font:400 13px/1.4 'DM Sans',sans-serif}.tracking-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.tracking-primary-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 15px;border:0;border-radius:8px;background:#7c3aed;color:#fff;box-shadow:0 8px 18px rgba(124,58,237,.16);font:700 11px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-primary-action:hover{background:#6d28d9}.tracking-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;width:100%;max-width:none;margin:0 auto 20px;box-sizing:border-box}.tracking-stat-card{display:flex;min-height:136px;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:23px 20px 20px;border:1px solid #e5deed;border-radius:9px;background:#fff;box-shadow:0 8px 20px rgba(57,36,93,.035);box-sizing:border-box}.tracking-stat-card>span{display:block;color:#8f8797;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-stat-card>strong{display:block;margin:18px 0 10px;color:#332c3e;font:700 34px/1 Manrope,sans-serif;letter-spacing:-.045em}.tracking-stat-card>small{color:#a49aa9;font:400 10px/1.3 'DM Sans',sans-serif}.tracking-stat-card small .positive{color:#3d9270;font-weight:700}.tracking-stat-card small .negative{color:#b87b55;font-weight:700}.tracking-stat-card .positive{color:#3d9270;font-weight:700}.tracking-stat-card .negative{color:#b87b55;font-weight:700}.tracking-panel{border:1px solid #e5deed!important;border-radius:12px!important;background:#fff!important;box-shadow:0 12px 30px rgba(57,36,93,.045)!important}.tracking-panel-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:19px 21px 16px;border-bottom:1px solid #f0edf4}.tracking-panel-topline h3{margin:6px 0 0;color:#393341;font:700 16px/1.15 Manrope,sans-serif;letter-spacing:-.025em}.tracking-panel-topline .section-kicker{color:#9d96a5;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-live{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid #dcefe4;border-radius:7px;background:#f4fcf7;color:#4c9b70;font:700 9px/1 'DM Sans',sans-serif}.tracking-live .live-dot{width:6px;height:6px;border-radius:50%;background:#4c9b70}.tracking-pipeline{width:100%;max-width:none;margin:0 auto 20px;box-sizing:border-box;overflow:hidden}.tracking-pipeline-body{padding:22px 21px 24px}.pipeline-steps{display:flex;align-items:flex-start;width:100%;gap:0}.pipeline-step{display:flex;min-width:92px;flex:0 0 auto;flex-direction:column;align-items:center;gap:7px;text-align:center}.pipeline-step>span{display:grid;width:28px;height:28px;place-items:center;border:1px solid #e6dff0;border-radius:50%;background:#fff;color:#a297aa;font:700 10px/1 'DM Sans',sans-serif}.pipeline-step.complete>span{border-color:#bde5ca;background:#effaf2;color:#4c9b70}.pipeline-step.active>span{border-color:#a78bfa;background:#7c3aed;color:#fff;box-shadow:0 0 0 5px #eee8ff}.pipeline-step strong{color:#675a70;font:700 10px/1.2 Manrope,sans-serif}.pipeline-step small{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.pipeline-line{height:1px;flex:1;margin:14px 8px 0;background:#e9e2f0}.pipeline-line.complete{background:#b9dec6}.pipeline-line.active{background:linear-gradient(90deg,#b9dec6,#a78bfa)}.tracking-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr);gap:14px;align-items:start;width:100%;max-width:none;margin:0 auto;box-sizing:border-box}.tracking-table{min-width:0;overflow:hidden}.tracking-table-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:20px 21px 16px;border-bottom:1px solid #f0edf4}.tracking-table-heading h3{margin:6px 0 4px;color:#393341;font:700 17px/1.15 Manrope,sans-serif;letter-spacing:-.025em}.tracking-table-heading p{margin:0;color:#9b91a3;font:400 10px/1.35 'DM Sans',sans-serif}.tracking-filter-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}.tracking-filter-row button{padding:7px 10px;border:1px solid #e7ddf1;border-radius:999px;background:#fff;color:#776b83;font:600 9px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-filter-row button.active{border-color:#7c3aed;background:#7c3aed;color:#fff;box-shadow:0 5px 12px rgba(124,58,237,.14)}.tracking-table-head{display:grid;grid-template-columns:minmax(250px,1.6fr) minmax(135px,.9fr) minmax(135px,.9fr) minmax(150px,1fr) 120px;gap:16px;padding:11px 18px;background:#fcfaff;color:#93879b;font:800 8px/1 'DM Sans',sans-serif;letter-spacing:.09em;text-transform:uppercase}.tracking-records{background:#fff}.tracking-record{display:grid;grid-template-columns:minmax(250px,1.6fr) minmax(135px,.9fr) minmax(135px,.9fr) minmax(150px,1fr) 120px;gap:16px;align-items:center;width:100%;min-height:78px;padding:13px 18px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer}.tracking-record:hover,.tracking-record.selected{background:#fbf9ff;box-shadow:inset 3px 0 #8b5cf6}.tracking-document,.tracking-owner,.tracking-assignee,.tracking-stage{display:flex;align-items:center;min-width:0;gap:10px}.tracking-document>div{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:4px}.tracking-assignee{gap:8px}.tracking-assignee>span{overflow:hidden;color:#685b72;font:500 10px/1.2 'DM Sans',sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-stage{flex-direction:column;align-items:flex-start;gap:4px}.tracking-record-id{color:#7c3aed;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.05em}.tracking-document strong{display:block;max-width:100%;overflow:hidden;color:#40364b;font:700 11px/1.25 Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-document>div>span:last-child,.tracking-stage>span:last-child{color:#a49aa9;font:400 9px/1.25 'DM Sans',sans-serif}.tracking-owner>span:last-child{overflow:hidden;color:#685b72;font:500 10px/1.2 'DM Sans',sans-serif;text-overflow:ellipsis;white-space:nowrap}.tracking-sla{display:inline-flex;align-items:center;gap:7px;color:#4c9b70;font:700 10px/1.2 'DM Sans',sans-serif}.tracking-sla i{width:6px;height:6px;border-radius:50%;background:currentColor}.tracking-sla.risk{color:#bd7c2b}.tracking-sla.closed{color:#98909e}.tracking-detail{display:flex;min-height:550px;flex-direction:column;padding:20px 21px 22px}.tracking-detail .tracking-panel-topline{padding:0 0 16px}.tracking-detail-title{display:flex;align-items:center;gap:11px;padding:18px 0 18px;border-bottom:1px solid #f0edf4}.tracking-detail-title>div{display:flex;min-width:0;flex-direction:column;gap:4px}.tracking-detail-title strong{display:block;overflow:hidden;color:#40364b;font:700 14px/1.2 Manrope,sans-serif;letter-spacing:-.01em;text-overflow:ellipsis;white-space:nowrap}.tracking-detail-title>div>span{color:#a49aa9;font:500 9px/1.3 'DM Sans',sans-serif}.tracking-detail-avatar{display:grid;width:35px;height:35px;flex:none;place-items:center;border-radius:11px;background:#f0eaff;color:#7c3aed;font:800 10px/1 'DM Sans',sans-serif;overflow:hidden}.tracking-detail-status-card{display:flex;flex-direction:column;gap:8px;margin-top:18px;padding:16px;border:1px solid #e7e0ee;border-radius:8px;background:#fbfaff}.tracking-detail-status-card .section-kicker{color:#9d96a5;font:700 9px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase}.tracking-detail-status-card strong{color:#7040ba;font:700 19px/1 Manrope,sans-serif}.tracking-detail-status-card>span:last-child{color:#8f8499;font:400 10px/1.4 'DM Sans',sans-serif}.tracking-mini-timeline{position:relative;display:flex;flex-direction:column;gap:0;padding:22px 0 26px}.tracking-mini-timeline:before{position:absolute;top:30px;bottom:32px;left:10px;width:1px;background:#e6e0ed;content:''}.tracking-mini-timeline>div{position:relative;display:flex;align-items:flex-start;gap:11px;min-height:49px}.tracking-mini-timeline>div>span{position:relative;z-index:1;display:grid;width:20px;height:20px;flex:none;place-items:center;border:1px solid #e4dcef;border-radius:50%;background:#fff;color:#a297aa;font:700 9px/1 'DM Sans',sans-serif;box-shadow:0 0 0 3px #fff}.tracking-mini-timeline>div.complete>span{border-color:#bde5ca;background:#effaf2;color:#4c9b70}.tracking-mini-timeline>div.current>span{border-color:#a78bfa;background:#7c3aed;color:#fff;box-shadow:0 0 0 3px #eee8ff}.tracking-mini-timeline>div.complete strong{color:#675a70}.tracking-mini-timeline>div.current strong{color:#6d35b9}.tracking-mini-timeline>div>div{display:flex;flex-direction:column;gap:4px;padding-top:2px}.tracking-mini-timeline strong{color:#675a70;font:700 10px/1.2 Manrope,sans-serif}.tracking-mini-timeline small{color:#a49aa9;font:400 9px/1.2 'DM Sans',sans-serif}.tracking-detail .text-action{display:inline-flex;align-items:center;gap:7px;margin-top:auto;padding:10px 0 0;border:0;background:none;color:#7c3aed;font:700 10px/1.2 'DM Sans',sans-serif;cursor:pointer}.tracking-pagination{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-top:1px solid #f0edf4;color:#a49aa9;font:400 9px/1 'DM Sans',sans-serif}.tracking-page-buttons{display:flex;gap:6px}.tracking-page-buttons button{display:grid;width:29px;height:29px;place-items:center;border:1px solid #e7ddf1;border-radius:7px;background:#fff;color:#887c92;font:600 10px/1 'DM Sans',sans-serif;cursor:pointer}.tracking-page-buttons button.active{border-color:#7c3aed;background:#7c3aed;color:#fff}.tracking-page-buttons button:disabled{background:#faf9fc;color:#d1cbd7;cursor:default}.tracking-empty{display:flex;align-items:center;flex-direction:column;gap:6px;padding:48px 20px;color:#a49aa9;text-align:center}.tracking-detail>.tracking-empty{flex:1;justify-content:center;padding:32px 18px}.tracking-empty strong{color:#675a70;font:700 12px/1.2 Manrope,sans-serif}.tracking-empty span{font:400 10px/1.35 'DM Sans',sans-serif}@media(max-width:1100px){.tracking-layout{grid-template-columns:1fr}.tracking-detail{order:-1}.tracking-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.path-tracking-content{padding:17px 14px 28px}.tracking-hero{align-items:flex-start;flex-direction:column;gap:18px;min-height:0;padding:22px 18px}.tracking-hero h1{font-size: 27px}.tracking-hero .tracking-primary-action{width:100%}.tracking-stat-grid{gap:8px}.tracking-stat-card{min-height:112px;padding:18px 15px}.tracking-stat-card>strong{margin:14px 0 8px;font-size: 27px}.tracking-pipeline-body{overflow-x:auto}.pipeline-steps{min-width:560px}.tracking-table-heading{align-items:stretch;flex-direction:column;gap:13px}.tracking-filter-row{justify-content:flex-start}.tracking-table-head{display:none}.tracking-record{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:14px}.tracking-owner,.tracking-assignee{display:none}.tracking-stage{grid-column:2;grid-row:1;align-items:flex-end}.tracking-sla{grid-column:1/-1;padding-left:0}.tracking-pagination{align-items:flex-start;flex-direction:column}.tracking-page-buttons{align-self:flex-end}}"
       }</style>
       <div className="path-tracking-main">
         
