@@ -162,8 +162,8 @@ const styles = `
     gap: 20px;
     padding: 24px 16px 20px;
     border-right: none;
-    background: linear-gradient(170deg, #3b0764 0%, #4c1d95 35%, #5b21b6 65%, #6d28d9 100%);
-    box-shadow: 4px 0 24px -4px rgba(109,40,217,0.35), 1px 0 0 rgba(196,181,253,0.1);
+    background: linear-gradient(170deg, #1a0533 0%, #2d0a5e 35%, #4a1272 65%, #6b21a8 100%);
+    box-shadow: 4px 0 24px -4px rgba(107,33,168,0.45), 1px 0 0 rgba(216,180,254,0.12);
     color: #ede9fe;
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     position: sticky;
@@ -177,8 +177,8 @@ const styles = `
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 20% 0%, rgba(196,181,253,0.18) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 100%, rgba(109,40,217,0.25) 0%, transparent 55%);
+    background: radial-gradient(ellipse at 20% 0%, rgba(216,180,254,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(107,33,168,0.3) 0%, transparent 55%);
     pointer-events: none;
   }
   .path-sidebar *, .path-sidebar *::before, .path-sidebar *::after { box-sizing: border-box; }
