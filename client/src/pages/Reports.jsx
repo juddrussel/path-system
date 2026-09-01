@@ -29,29 +29,29 @@ const PATH_REPORTS_CSS = `
   @media (min-width:1100px) { .path-reports-content { padding-left:clamp(48px,5vw,84px) !important; padding-right:clamp(48px,5vw,84px) !important; } }
   .path-reports-hero { min-height:148px; padding:28px 24px !important; border:1px solid #e4dbf2; border-left:2px solid #c4b5fd; border-radius:12px; background:linear-gradient(112deg,#fcfaff 0%,#f5efff 100%); }
   .path-reports-hero h1 { margin:9px 0 7px !important; color:#302638 !important; font-family:'Manrope',sans-serif !important; font-size:clamp(30px,4vw,43px) !important; letter-spacing:-.06em; }
-  .path-reports-hero p { color:#91859d !important; font-size:12px !important; }
+  .path-reports-hero p { color:#91859d !important; font-size:15px !important; }
   .path-reports-filter { padding:15px 18px !important; border:1px solid #e6e0ec !important; border-radius:10px !important; box-shadow:0 7px 20px rgba(67,44,89,.035) !important; }
   .path-report-tabs { gap:26px !important; overflow-x:auto; padding:0 0 10px !important; border-bottom:1px solid #e3ddec !important; scrollbar-width:none; }
-  .path-report-tabs button { position:relative; padding:0 0 9px !important; color:#8d8297 !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; font-weight:800 !important; }
+  .path-report-tabs button { position:relative; padding:0 0 9px !important; color:#8d8297 !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; font-weight:800 !important; }
   .path-report-tabs button::after { position:absolute; right:0; bottom:-11px; left:0; height:2px; border-radius:2px; background:transparent; content:''; }
   .path-report-tabs button:hover,.path-report-tabs button.path-tab-active { color:#6d28d9 !important; border-bottom-color:transparent !important; }
   .path-report-tabs button.path-tab-active::after { background:#7c3aed; }
   .path-report-card { border:1px solid #e6e0eb !important; border-radius:10px 10px 18px 10px !important; box-shadow:0 7px 20px rgba(67,44,89,.035) !important; }
   .path-report-card-head { padding:15px 17px !important; border-bottom-color:#f0edf4 !important; }
-  .path-report-card-head p { color:#46384f !important; font-family:'Manrope',sans-serif !important; font-size:13px !important; letter-spacing:-.025em; }
-  .path-report-card-head p + p { margin-top:3px !important; color:#9b91a3 !important; font-family:'DM Sans',sans-serif !important; font-size:8px !important; }
+  .path-report-card-head p { color:#46384f !important; font-family:'Manrope',sans-serif !important; font-size:16px !important; letter-spacing:-.025em; }
+  .path-report-card-head p + p { margin-top:3px !important; color:#9b91a3 !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; }
   .path-report-card-body { padding:16px 17px !important; }
   .path-report-card-foot { padding:10px 17px !important; border-top-color:#f0edf4 !important; }
   .path-kpi-card { border:1px solid #e6e0eb !important; border-radius:10px 10px 18px 10px !important; box-shadow:0 7px 20px rgba(67,44,89,.035) !important; }
   .path-kpi-card p { color:#43344e !important; font-family:'Manrope',sans-serif !important; font-size:26px !important; letter-spacing:-.055em; }
-  .path-kpi-card p + p { color:#9e95a5 !important; font-family:'DM Sans',sans-serif !important; font-size:9px !important; letter-spacing:0 !important; }
-  .path-filter-label { color:#9b91a3 !important; font-family:'DM Sans',sans-serif !important; font-size:8px !important; font-weight:800 !important; letter-spacing:.08em; text-transform:uppercase; }
-  .path-filter-select { height:38px; border-color:#e4dced !important; border-radius:8px !important; color:#645970 !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; font-weight:700 !important; }
-  .path-export-buttons button { border-radius:8px !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; }
+  .path-kpi-card p + p { color:#9e95a5 !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; letter-spacing:0 !important; }
+  .path-filter-label { color:#9b91a3 !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; font-weight:800 !important; letter-spacing:.08em; text-transform:uppercase; }
+  .path-filter-select { height:38px; border-color:#e4dced !important; border-radius:8px !important; color:#645970 !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; font-weight:700 !important; }
+  .path-export-buttons button { border-radius:8px !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; }
   .path-reports-content table thead tr { background:#faf8fd !important; border-bottom-color:#eeeaf3 !important; }
-  .path-reports-content table th { color:#a098a6 !important; font-family:'DM Sans',sans-serif !important; font-size:8px !important; letter-spacing:.08em !important; }
+  .path-reports-content table th { color:#a098a6 !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; letter-spacing:.08em !important; }
   .path-reports-content table td { color:#62536b; font-family:'DM Sans',sans-serif; }
-  @media (max-width:760px) { .path-reports-content { padding:20px 15px 32px !important; }.path-reports-hero { padding:22px 18px !important; }.path-reports-filter { overflow-x:auto; }.path-report-tabs { gap:18px !important; }.path-report-tabs button { font-size:9px !important; }.path-report-card-head { align-items:flex-start !important; }.path-export-buttons { width:100%; }.path-export-buttons button { flex:1; justify-content:center; } }
+  @media (max-width:760px) { .path-reports-content { padding:20px 15px 32px !important; }.path-reports-hero { padding:22px 18px !important; }.path-reports-filter { overflow-x:auto; }.path-report-tabs { gap:18px !important; }.path-report-tabs button { font-size:14px !important; }.path-report-card-head { align-items:flex-start !important; }.path-export-buttons { width:100%; }.path-export-buttons button { flex:1; justify-content:center; } }
 `;
 
 const PATH_REPORTS_EXACT_CSS = `
@@ -60,7 +60,7 @@ const PATH_REPORTS_EXACT_CSS = `
   .path-kpi-card { min-height:116px !important; padding:17px 18px !important; }
   .path-kpi-card > div:first-child { margin-bottom:12px !important; }
   .path-kpi-card > div:first-child > div:first-child { width:25px !important; height:25px !important; border-radius:7px !important; }
-  .path-kpi-card > div:first-child > span { font-family:'DM Sans',sans-serif !important; font-size:8px !important; font-weight:800 !important; letter-spacing:.1em !important; text-transform:uppercase !important; }
+  .path-kpi-card > div:first-child > span { font-family:'DM Sans',sans-serif !important; font-size:14px !important; font-weight:800 !important; letter-spacing:.1em !important; text-transform:uppercase !important; }
   .path-overview-chart-grid { display:grid !important; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr) !important; gap:14px !important; }
   .path-overview-chart-grid > :last-child { grid-column:1 / -1; }
   .path-overview-detail-grid { display:grid !important; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr) !important; gap:14px !important; }
@@ -78,48 +78,48 @@ const PATH_REPORTS_EXACT_CSS = `
   .path-reports-content .path-report-card-body-no-pad { overflow-x:auto; }
   .path-reports-content .path-report-card-body:not(.path-report-card-body-no-pad) .recharts-wrapper { margin-top:4px; }
   .path-reports-content .recharts-cartesian-grid-horizontal line,.path-reports-content .recharts-cartesian-grid-vertical line { stroke:#f0edf4 !important; }
-  .path-reports-content .recharts-text { fill:#a097a7 !important; font-family:'DM Sans',sans-serif !important; font-size:9px !important; }
-  .path-reports-content .recharts-legend-item-text { color:#82758b !important; font-family:'DM Sans',sans-serif !important; font-size:9px !important; }
-  .path-reports-content .recharts-tooltip-wrapper { font-family:'DM Sans',sans-serif; font-size:10px; }
+  .path-reports-content .recharts-text { fill:#a097a7 !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; }
+  .path-reports-content .recharts-legend-item-text { color:#82758b !important; font-family:'DM Sans',sans-serif !important; font-size:14px !important; }
+  .path-reports-content .recharts-tooltip-wrapper { font-family:'DM Sans',sans-serif; font-size:14px; }
   @media (max-width:1100px) { .path-overview-chart-grid,.path-overview-detail-grid { grid-template-columns:1fr !important; }.path-overview-chart-grid > :last-child { grid-column:auto; }.path-transactions-visuals { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }.path-transactions-visuals > :last-child { grid-column:1 / -1; }.path-returned-chart-grid { grid-template-columns:1fr !important; } }
   @media (max-width:760px) { .path-kpi-grid,.path-transactions-kpi-grid,.path-processing-summary-grid,.path-returned-summary-grid { grid-template-columns:1fr !important; gap:8px !important; }.path-kpi-card { min-height:96px !important; padding:14px !important; }.path-transactions-visuals { grid-template-columns:1fr !important; }.path-transactions-visuals > :last-child { grid-column:auto; }.path-transactions-visuals .path-report-card { min-height:305px; }.path-bottleneck-grid { grid-template-columns:1fr !important; }.path-returned-chart-grid { grid-template-columns:1fr !important; }.path-reports-content .path-report-card-body-no-pad table { min-width:640px; } }
 `;
 
 const PATH_REPORTS_LIVE_CSS = `
-  .path-chart-empty { display:grid; min-height:176px; place-items:center; margin:0; color:#9e94a5; font-family:'DM Sans',sans-serif; font-size:10px; text-align:center; }
-  .path-status-ledger { display:flex; flex-direction:column; gap:17px; padding-top:5px; }.path-status-total { display:flex; align-items:baseline; gap:9px; padding:13px 14px; border-left:3px solid #8b5cf6; border-radius:0 10px 10px 0; background:#f6f1ff; }.path-status-total strong { color:#4a3566; font-family:'Manrope',sans-serif; font-size:30px; letter-spacing:-.07em; }.path-status-total span { color:#968aa0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-status-ledger-rows { display:flex; flex-direction:column; gap:10px; }.path-status-ledger-row > div { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; color:#73657d; font-family:'DM Sans',sans-serif; font-size:8px; }.path-status-ledger-row > div strong { color:#524160; font-size:9px; }.path-status-ledger-row > i { display:block; overflow:hidden; height:7px; border-radius:999px; background:#f0ecf5; }.path-status-ledger-row > i b { display:block; min-width:4px; height:100%; border-radius:inherit; }
-  .path-rank-bars { display:flex; flex-direction:column; gap:14px; padding-top:8px; }.path-rank-row > div { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }.path-rank-row span { overflow:hidden; color:#71647b; font-family:'DM Sans',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-rank-row strong { color:#554361; font-family:'Manrope',sans-serif; font-size:10px; }.path-rank-row > i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f2eef7; }.path-rank-row > i b { display:block; min-width:4px; height:100%; border-radius:inherit; }
-  .path-trend { position:relative; min-height:220px; padding:6px 0 0 26px; }.path-trend-scale { position:absolute; top:9px; bottom:38px; left:0; display:flex; flex-direction:column; justify-content:space-between; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-trend-plot { height:174px; border-bottom:1px solid #eeeaf3; background:repeating-linear-gradient(to bottom,transparent 0,transparent 32.5%,#f0edf4 33%,transparent 33.5%); }.path-trend-plot svg { width:100%; height:100%; overflow:visible; filter:drop-shadow(0 3px 3px rgba(124,58,237,.08)); }.path-trend-labels { display:flex; justify-content:space-between; padding-top:7px; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-chart-legend { display:flex; flex-wrap:wrap; justify-content:center; gap:11px; padding-top:12px; }.path-chart-legend span { display:inline-flex; align-items:center; gap:5px; color:#82758b; font-family:'DM Sans',sans-serif; font-size:8px; }.path-chart-legend i { display:inline-block; width:6px; height:6px; border-radius:50%; }
-  .path-processing-ranges { display:flex; flex-direction:column; gap:14px; padding-top:9px; }.path-range-scale { display:flex; justify-content:space-between; margin-left:174px; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:8px; }.path-range-row { display:grid; grid-template-columns:158px minmax(0,1fr); gap:16px; align-items:center; min-height:43px; }.path-range-row > strong { overflow:hidden; color:#4b3b55; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-range-row > div { position:relative; height:14px; border-radius:999px; background:repeating-linear-gradient(to right,#f2eef7 0,#f2eef7 calc(25% - 1px),#e7e0ef 25%); }.path-range-row > div > i { position:absolute; top:4px; height:6px; border-radius:999px; background:linear-gradient(90deg,#c4b5fd,#8b5cf6); }.path-range-row > div > b { position:absolute; top:1px; width:12px; height:12px; transform:translateX(-50%); border:2px solid #fff; border-radius:50%; box-shadow:0 2px 6px rgba(67,44,89,.18); }.path-range-fast { background:#159d77; }.path-range-average { z-index:2; background:#7c3aed; }.path-range-slow { background:#d64550; }.path-range-row > div > span { position:absolute; top:-18px; transform:translateX(-50%); color:#6b3fc2; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }
-  .path-faculty-pulse { display:flex; flex-direction:column; gap:16px; padding-top:7px; }.path-faculty-pulse-row { display:grid; grid-template-columns:180px minmax(0,1fr) 30px; gap:14px; align-items:center; }.path-faculty-pulse-row > div { display:flex; min-width:0; align-items:center; gap:8px; }.path-faculty-pulse-row > div strong { overflow:hidden; color:#51415b; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-faculty-pulse-row section { display:flex; flex-direction:column; gap:5px; }.path-faculty-pulse-row section > i { display:flex; overflow:hidden; height:10px; border-radius:999px; background:#f1edf6; }.path-faculty-pulse-row section b,.path-faculty-pulse-row section em { display:block; height:100%; min-width:0; }.path-faculty-pulse-row section b { background:#159d77; }.path-faculty-pulse-row section em { background:#d58a00; }.path-faculty-pulse-row section small { color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:8px; }.path-faculty-pulse-row > span { color:#76687e; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; text-align:right; }
-  @media (max-width:760px) { .path-trend { min-height:205px; }.path-range-scale { margin-left:121px; }.path-range-row { grid-template-columns:108px minmax(0,1fr); gap:10px; }.path-range-row > strong { font-size:8px; white-space:normal; }.path-faculty-pulse-row { grid-template-columns:112px minmax(110px,1fr) 23px; gap:8px; }.path-faculty-pulse-row > div strong { font-size:8px; white-space:normal; }.path-faculty-pulse-row section small { font-size:7px; } }
+  .path-chart-empty { display:grid; min-height:176px; place-items:center; margin:0; color:#9e94a5; font-family:'DM Sans',sans-serif; font-size:14px; text-align:center; }
+  .path-status-ledger { display:flex; flex-direction:column; gap:17px; padding-top:5px; }.path-status-total { display:flex; align-items:baseline; gap:9px; padding:13px 14px; border-left:3px solid #8b5cf6; border-radius:0 10px 10px 0; background:#f6f1ff; }.path-status-total strong { color:#4a3566; font-family:'Manrope',sans-serif; font-size:30px; letter-spacing:-.07em; }.path-status-total span { color:#968aa0; font-family:'DM Sans',sans-serif; font-size:14px; }.path-status-ledger-rows { display:flex; flex-direction:column; gap:10px; }.path-status-ledger-row > div { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; color:#73657d; font-family:'DM Sans',sans-serif; font-size:14px; }.path-status-ledger-row > div strong { color:#524160; font-size:14px; }.path-status-ledger-row > i { display:block; overflow:hidden; height:7px; border-radius:999px; background:#f0ecf5; }.path-status-ledger-row > i b { display:block; min-width:4px; height:100%; border-radius:inherit; }
+  .path-rank-bars { display:flex; flex-direction:column; gap:14px; padding-top:8px; }.path-rank-row > div { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }.path-rank-row span { overflow:hidden; color:#71647b; font-family:'DM Sans',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-rank-row strong { color:#554361; font-family:'Manrope',sans-serif; font-size:14px; }.path-rank-row > i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f2eef7; }.path-rank-row > i b { display:block; min-width:4px; height:100%; border-radius:inherit; }
+  .path-trend { position:relative; min-height:220px; padding:6px 0 0 26px; }.path-trend-scale { position:absolute; top:9px; bottom:38px; left:0; display:flex; flex-direction:column; justify-content:space-between; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:14px; }.path-trend-plot { height:174px; border-bottom:1px solid #eeeaf3; background:repeating-linear-gradient(to bottom,transparent 0,transparent 32.5%,#f0edf4 33%,transparent 33.5%); }.path-trend-plot svg { width:100%; height:100%; overflow:visible; filter:drop-shadow(0 3px 3px rgba(124,58,237,.08)); }.path-trend-labels { display:flex; justify-content:space-between; padding-top:7px; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:14px; }.path-chart-legend { display:flex; flex-wrap:wrap; justify-content:center; gap:11px; padding-top:12px; }.path-chart-legend span { display:inline-flex; align-items:center; gap:5px; color:#82758b; font-family:'DM Sans',sans-serif; font-size:14px; }.path-chart-legend i { display:inline-block; width:6px; height:6px; border-radius:50%; }
+  .path-processing-ranges { display:flex; flex-direction:column; gap:14px; padding-top:9px; }.path-range-scale { display:flex; justify-content:space-between; margin-left:174px; color:#aaa0b0; font-family:'DM Sans',sans-serif; font-size:14px; }.path-range-row { display:grid; grid-template-columns:158px minmax(0,1fr); gap:16px; align-items:center; min-height:43px; }.path-range-row > strong { overflow:hidden; color:#4b3b55; font-family:'Manrope',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-range-row > div { position:relative; height:14px; border-radius:999px; background:repeating-linear-gradient(to right,#f2eef7 0,#f2eef7 calc(25% - 1px),#e7e0ef 25%); }.path-range-row > div > i { position:absolute; top:4px; height:6px; border-radius:999px; background:linear-gradient(90deg,#c4b5fd,#8b5cf6); }.path-range-row > div > b { position:absolute; top:1px; width:12px; height:12px; transform:translateX(-50%); border:2px solid #fff; border-radius:50%; box-shadow:0 2px 6px rgba(67,44,89,.18); }.path-range-fast { background:#159d77; }.path-range-average { z-index:2; background:#7c3aed; }.path-range-slow { background:#d64550; }.path-range-row > div > span { position:absolute; top:-18px; transform:translateX(-50%); color:#6b3fc2; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }
+  .path-faculty-pulse { display:flex; flex-direction:column; gap:16px; padding-top:7px; }.path-faculty-pulse-row { display:grid; grid-template-columns:180px minmax(0,1fr) 30px; gap:14px; align-items:center; }.path-faculty-pulse-row > div { display:flex; min-width:0; align-items:center; gap:8px; }.path-faculty-pulse-row > div strong { overflow:hidden; color:#51415b; font-family:'Manrope',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-faculty-pulse-row section { display:flex; flex-direction:column; gap:5px; }.path-faculty-pulse-row section > i { display:flex; overflow:hidden; height:10px; border-radius:999px; background:#f1edf6; }.path-faculty-pulse-row section b,.path-faculty-pulse-row section em { display:block; height:100%; min-width:0; }.path-faculty-pulse-row section b { background:#159d77; }.path-faculty-pulse-row section em { background:#d58a00; }.path-faculty-pulse-row section small { color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:14px; }.path-faculty-pulse-row > span { color:#76687e; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; text-align:right; }
+  @media (max-width:760px) { .path-trend { min-height:205px; }.path-range-scale { margin-left:121px; }.path-range-row { grid-template-columns:108px minmax(0,1fr); gap:10px; }.path-range-row > strong { font-size:14px; white-space:normal; }.path-faculty-pulse-row { grid-template-columns:112px minmax(110px,1fr) 23px; gap:8px; }.path-faculty-pulse-row > div strong { font-size:14px; white-space:normal; }.path-faculty-pulse-row section small { font-size:13px; } }
 `;
 
 const PATH_OVERVIEW_CSS = `
-  .path-overview-workspace { display:flex; flex-direction:column; gap:14px; }.path-overview-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }.path-overview-metric { min-height:116px; padding:17px 18px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-overview-metric > div { display:flex; align-items:center; justify-content:space-between; color:#9b91a1; }.path-overview-metric > div span,.path-overview-panel header > div > span { font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-overview-metric > div svg { width:25px; height:25px; padding:5px; border-radius:7px; background:#f1ebff; color:#7c3aed; }.path-overview-metric.green > div svg { background:#e5f8ef; color:#32926c; }.path-overview-metric.blue > div svg { background:#e9f2ff; color:#4b7fc4; }.path-overview-metric.amber > div svg { background:#fff4dc; color:#bd8130; }.path-overview-metric strong { display:block; margin-top:14px; color:#3e3248; font-family:'Manrope',sans-serif; font-size:27px; letter-spacing:-.055em; }.path-overview-metric small { display:block; margin-top:6px; color:#9e95a5; font-family:'DM Sans',sans-serif; font-size:9px; }
-  .path-overview-main-grid,.path-overview-bottom-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr); gap:14px; }.path-overview-panel { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-overview-panel header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }.path-overview-panel header h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:16px; letter-spacing:-.035em; }.path-overview-panel header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; line-height:1.45; }.path-overview-panel header > button { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#7c3aed; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-overview-panel header > button svg { width:13px; height:13px; }.path-flow-total { display:flex; align-items:baseline; gap:9px; margin:24px 0 18px; }.path-flow-total strong { color:#3d2d4b; font-family:'Manrope',sans-serif; font-size:34px; letter-spacing:-.07em; }.path-flow-total span { color:#887c92; font-family:'DM Sans',sans-serif; font-size:10px; }.path-flow-bars { display:flex; flex-direction:column; gap:14px; }.path-flow-bars > div > div { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; color:#82758b; font-family:'DM Sans',sans-serif; font-size:9px; }.path-flow-bars > div > div strong { color:#5d4c68; font-size:9px; }.path-flow-bars i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f0ecf5; }.path-flow-bars b { display:block; min-width:4px; height:100%; border-radius:inherit; }
-  .path-health-state { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border-radius:999px; background:#e8f8ef; color:#3b9675; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-health-state i { width:5px; height:5px; border-radius:50%; background:#4aae83; }.path-health-main { display:flex; align-items:center; gap:18px; margin:24px 0 22px; }.path-health-ring { display:flex; width:92px; height:92px; flex:0 0 auto; align-items:center; justify-content:center; flex-direction:column; border-radius:50%; background:conic-gradient(#7c3aed calc(var(--health) * 1%),#e8e0fa 0); position:relative; }.path-health-ring::after { position:absolute; width:76px; height:76px; border-radius:50%; background:#fff; content:''; }.path-health-ring strong,.path-health-ring small { position:relative; z-index:1; }.path-health-ring strong { color:#5d32a7; font-family:'Manrope',sans-serif; font-size:21px; letter-spacing:-.06em; }.path-health-ring small { color:#9a8fac; font-family:'DM Sans',sans-serif; font-size:8px; }.path-health-main > div:last-child { min-width:0; }.path-health-main > div:last-child > strong { color:#4b3a57; font-family:'Manrope',sans-serif; font-size:12px; }.path-health-main p { margin:6px 0 8px; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; line-height:1.45; }.path-health-main button { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#6d28d9; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-health-main button svg { width:12px; height:12px; }.path-health-panel footer { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding-top:16px; border-top:1px solid #f0edf4; }.path-health-panel footer div { display:flex; flex-direction:column; gap:4px; }.path-health-panel footer span { color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:8px; }.path-health-panel footer strong { color:#55445f; font-family:'Manrope',sans-serif; font-size:17px; letter-spacing:-.04em; }.path-health-panel footer small { color:#a79cab; font-family:'DM Sans',sans-serif; font-size:8px; }
-  .path-category-table { margin-top:22px; }.path-category-head,.path-category-row { display:grid; grid-template-columns:minmax(0,1.7fr) 80px 80px 70px; gap:12px; align-items:center; }.path-category-head { padding:0 0 9px; border-bottom:1px solid #eeeaf3; color:#a096a6; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }.path-category-row { min-height:49px; border-bottom:1px solid #f1eef4; color:#65576d; font-family:'DM Sans',sans-serif; font-size:9px; }.path-category-row > strong { display:flex; align-items:center; gap:8px; min-width:0; color:#4d4057; font-family:'Manrope',sans-serif; font-size:10px; }.path-category-row > strong i { width:7px; height:7px; flex:0 0 auto; border-radius:50%; background:#8b5cf6; }.path-category-row > strong i.dot-1 { background:#6d9fe0; }.path-category-row > strong i.dot-2 { background:#edbb59; }.path-category-row > strong i.dot-3 { background:#58b78d; }.path-category-row > span { color:#61536a; font-family:'Manrope',sans-serif; font-size:10px; }.path-category-row em { color:#399273; font-style:normal; font-weight:800; }.path-category-row em:not(:empty) { color:#399273; }
-  .path-library-panel { display:flex; flex-direction:column; }.path-library-list { display:flex; flex-direction:column; margin-top:16px; }.path-library-list > button { display:grid; grid-template-columns:30px minmax(0,1fr) auto 14px; gap:9px; align-items:center; padding:12px 0; border:0; border-bottom:1px solid #f1eef4; background:transparent; color:inherit; cursor:pointer; text-align:left; }.path-library-list > button:hover { background:#fbf9ff; }.path-library-icon { display:grid; width:29px; height:29px; place-items:center; border-radius:8px; background:#f0eaff; color:#7c3aed; }.path-library-icon.item-1 { background:#eaf2ff; color:#4c80c4; }.path-library-icon.item-2 { background:#fff3dc; color:#bd8130; }.path-library-icon svg { width:14px; height:14px; }.path-library-list > button > span { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-library-list strong { overflow:hidden; color:#55465f; font-family:'Manrope',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-library-list small { overflow:hidden; color:#a097a7; font-family:'DM Sans',sans-serif; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.path-library-list em { padding:4px 7px; border-radius:999px; background:#e7f7ee; color:#3c9675; font-family:'DM Sans',sans-serif; font-size:8px; font-style:normal; font-weight:800; }.path-library-list > button > svg { color:#b1a8b8; width:14px; height:14px; }.path-library-create { align-self:flex-start; margin-top:auto; padding:8px 10px; border:1px solid #e6def1; border-radius:8px; background:#faf8ff; color:#67428f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }
+  .path-overview-workspace { display:flex; flex-direction:column; gap:14px; }.path-overview-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }.path-overview-metric { min-height:116px; padding:17px 18px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-overview-metric > div { display:flex; align-items:center; justify-content:space-between; color:#9b91a1; }.path-overview-metric > div span,.path-overview-panel header > div > span { font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-overview-metric > div svg { width:25px; height:25px; padding:5px; border-radius:7px; background:#f1ebff; color:#7c3aed; }.path-overview-metric.green > div svg { background:#e5f8ef; color:#32926c; }.path-overview-metric.blue > div svg { background:#e9f2ff; color:#4b7fc4; }.path-overview-metric.amber > div svg { background:#fff4dc; color:#bd8130; }.path-overview-metric strong { display:block; margin-top:14px; color:#3e3248; font-family:'Manrope',sans-serif; font-size:27px; letter-spacing:-.055em; }.path-overview-metric small { display:block; margin-top:6px; color:#9e95a5; font-family:'DM Sans',sans-serif; font-size:14px; }
+  .path-overview-main-grid,.path-overview-bottom-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr); gap:14px; }.path-overview-panel { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-overview-panel header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }.path-overview-panel header h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:19px; letter-spacing:-.035em; }.path-overview-panel header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.45; }.path-overview-panel header > button { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#7c3aed; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-overview-panel header > button svg { width:13px; height:13px; }.path-flow-total { display:flex; align-items:baseline; gap:9px; margin:24px 0 18px; }.path-flow-total strong { color:#3d2d4b; font-family:'Manrope',sans-serif; font-size:34px; letter-spacing:-.07em; }.path-flow-total span { color:#887c92; font-family:'DM Sans',sans-serif; font-size:14px; }.path-flow-bars { display:flex; flex-direction:column; gap:14px; }.path-flow-bars > div > div { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; color:#82758b; font-family:'DM Sans',sans-serif; font-size:14px; }.path-flow-bars > div > div strong { color:#5d4c68; font-size:14px; }.path-flow-bars i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f0ecf5; }.path-flow-bars b { display:block; min-width:4px; height:100%; border-radius:inherit; }
+  .path-health-state { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border-radius:999px; background:#e8f8ef; color:#3b9675; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-health-state i { width:5px; height:5px; border-radius:50%; background:#4aae83; }.path-health-main { display:flex; align-items:center; gap:18px; margin:24px 0 22px; }.path-health-ring { display:flex; width:92px; height:92px; flex:0 0 auto; align-items:center; justify-content:center; flex-direction:column; border-radius:50%; background:conic-gradient(#7c3aed calc(var(--health) * 1%),#e8e0fa 0); position:relative; }.path-health-ring::after { position:absolute; width:76px; height:76px; border-radius:50%; background:#fff; content:''; }.path-health-ring strong,.path-health-ring small { position:relative; z-index:1; }.path-health-ring strong { color:#5d32a7; font-family:'Manrope',sans-serif; font-size:22px; letter-spacing:-.06em; }.path-health-ring small { color:#9a8fac; font-family:'DM Sans',sans-serif; font-size:14px; }.path-health-main > div:last-child { min-width:0; }.path-health-main > div:last-child > strong { color:#4b3a57; font-family:'Manrope',sans-serif; font-size:15px; }.path-health-main p { margin:6px 0 8px; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.45; }.path-health-main button { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#6d28d9; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-health-main button svg { width:12px; height:12px; }.path-health-panel footer { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding-top:16px; border-top:1px solid #f0edf4; }.path-health-panel footer div { display:flex; flex-direction:column; gap:4px; }.path-health-panel footer span { color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:14px; }.path-health-panel footer strong { color:#55445f; font-family:'Manrope',sans-serif; font-size:20px; letter-spacing:-.04em; }.path-health-panel footer small { color:#a79cab; font-family:'DM Sans',sans-serif; font-size:14px; }
+  .path-category-table { margin-top:22px; }.path-category-head,.path-category-row { display:grid; grid-template-columns:minmax(0,1.7fr) 80px 80px 70px; gap:12px; align-items:center; }.path-category-head { padding:0 0 9px; border-bottom:1px solid #eeeaf3; color:#a096a6; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }.path-category-row { min-height:49px; border-bottom:1px solid #f1eef4; color:#65576d; font-family:'DM Sans',sans-serif; font-size:14px; }.path-category-row > strong { display:flex; align-items:center; gap:8px; min-width:0; color:#4d4057; font-family:'Manrope',sans-serif; font-size:14px; }.path-category-row > strong i { width:7px; height:7px; flex:0 0 auto; border-radius:50%; background:#8b5cf6; }.path-category-row > strong i.dot-1 { background:#6d9fe0; }.path-category-row > strong i.dot-2 { background:#edbb59; }.path-category-row > strong i.dot-3 { background:#58b78d; }.path-category-row > span { color:#61536a; font-family:'Manrope',sans-serif; font-size:14px; }.path-category-row em { color:#399273; font-style:normal; font-weight:800; }.path-category-row em:not(:empty) { color:#399273; }
+  .path-library-panel { display:flex; flex-direction:column; }.path-library-list { display:flex; flex-direction:column; margin-top:16px; }.path-library-list > button { display:grid; grid-template-columns:30px minmax(0,1fr) auto 14px; gap:9px; align-items:center; padding:12px 0; border:0; border-bottom:1px solid #f1eef4; background:transparent; color:inherit; cursor:pointer; text-align:left; }.path-library-list > button:hover { background:#fbf9ff; }.path-library-icon { display:grid; width:29px; height:29px; place-items:center; border-radius:8px; background:#f0eaff; color:#7c3aed; }.path-library-icon.item-1 { background:#eaf2ff; color:#4c80c4; }.path-library-icon.item-2 { background:#fff3dc; color:#bd8130; }.path-library-icon svg { width:14px; height:14px; }.path-library-list > button > span { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-library-list strong { overflow:hidden; color:#55465f; font-family:'Manrope',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-library-list small { overflow:hidden; color:#a097a7; font-family:'DM Sans',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-library-list em { padding:4px 7px; border-radius:999px; background:#e7f7ee; color:#3c9675; font-family:'DM Sans',sans-serif; font-size:14px; font-style:normal; font-weight:800; }.path-library-list > button > svg { color:#b1a8b8; width:14px; height:14px; }.path-library-create { align-self:flex-start; margin-top:auto; padding:8px 10px; border:1px solid #e6def1; border-radius:8px; background:#faf8ff; color:#67428f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }
   @media (max-width:1100px) { .path-overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }.path-overview-main-grid,.path-overview-bottom-grid { grid-template-columns:1fr; } }.path-overview-metrics + .path-overview-main-grid { margin-top:0; } @media (max-width:760px) { .path-overview-metrics { gap:8px; }.path-overview-metric { min-height:106px; padding:15px 14px; }.path-overview-metric strong { font-size:23px; }.path-overview-main-grid,.path-overview-bottom-grid { gap:10px; }.path-overview-panel { padding:17px 15px; }.path-health-main { align-items:flex-start; flex-direction:column; }.path-category-head,.path-category-row { grid-template-columns:minmax(0,1fr) 55px 55px; }.path-category-head span:last-child,.path-category-row em { display:none; }.path-library-list > button { grid-template-columns:30px minmax(0,1fr) 14px; }.path-library-list em { display:none; } }
 `;
 
 const PATH_TRANSACTION_REGISTER_CSS = `
   .path-transactions-kpi-grid { grid-template-columns:repeat(7,minmax(0,1fr)) !important; }.path-transactions-kpi-grid .path-kpi-card { min-width:0; min-height:108px !important; padding:15px 14px !important; }.path-transactions-kpi-grid .path-kpi-card p { font-size:23px !important; }.path-transactions-kpi-grid .path-kpi-card p + p { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .path-delay-register { overflow:hidden; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-delay-register > header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:18px 18px 15px; border-bottom:1px solid #eeeaf3; }.path-delay-register > header > div:first-child > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-delay-register h2 { margin:7px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:15px; letter-spacing:-.035em; }.path-delay-register p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; }.path-delay-header-actions { display:flex; align-items:flex-start; gap:9px; }.path-delay-header-actions > aside { display:flex; min-width:68px; align-items:flex-end; flex-direction:column; padding:7px 9px; border-radius:8px; background:#fff4e7; }.path-delay-header-actions > aside strong { color:#bd7020; font-family:'Manrope',sans-serif; font-size:16px; }.path-delay-header-actions > aside small { color:#a47c54; font-family:'DM Sans',sans-serif; font-size:8px; white-space:nowrap; }.path-delay-table-wrap { overflow-x:auto; }.path-delay-table { display:grid; grid-template-columns:minmax(100px,.75fr) minmax(220px,1.7fr) minmax(180px,1.45fr) minmax(120px,.9fr) minmax(155px,1.15fr) minmax(90px,.65fr); gap:14px; align-items:center; min-width:930px; }.path-delay-head { min-height:34px; padding:0 18px; color:#a098a6; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }.path-delay-row { min-height:58px; padding:0 18px; border-top:1px solid #f0edf4; }.path-delay-row > strong { color:#6740a4; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-delay-title { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-delay-title b { overflow:hidden; color:#493950; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-title small { color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:8px; }.path-delay-faculty { display:flex; min-width:0; align-items:center; gap:8px; overflow:hidden; color:#5e5068; font-family:'DM Sans',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-status { justify-self:start; padding:6px 8px; border-radius:7px; background:#f2eff6; color:#665a70; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-delay-status.delayed { background:#fff5df; color:#b67829; }.path-delay-status.overdue { background:#fff0ef; color:#c33e43; }.path-delay-stage { overflow:hidden; color:#74677d; font-family:'DM Sans',sans-serif; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-days { display:flex; align-items:center; gap:7px; color:#bd7020; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; }.path-delay-days i { width:7px; height:7px; border:1px solid currentColor; border-radius:50%; }.path-delay-days.overdue { color:#c9343b; }.path-delay-days.overdue i { background:#c9343b; box-shadow:0 0 0 3px #ffe1e1; }.path-delay-empty { display:grid; min-height:105px; place-items:center; margin:0; color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:10px; text-align:center; }.path-delay-register > footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 18px; border-top:1px solid #f0edf4; color:#a097a7; font-family:'DM Sans',sans-serif; font-size:8px; }.path-delay-pagination { display:flex; align-items:center; gap:5px; }.path-delay-pagination button { display:grid; width:27px; height:27px; place-items:center; border:1px solid #e6dfef; border-radius:7px; background:#fff; color:#796b84; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-delay-pagination button svg { width:13px; height:13px; }.path-delay-pagination button.active { border-color:#7c3aed; background:#7c3aed; color:#fff; }.path-delay-pagination button:disabled { cursor:not-allowed; opacity:.42; }
+  .path-delay-register { overflow:hidden; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-delay-register > header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:18px 18px 15px; border-bottom:1px solid #eeeaf3; }.path-delay-register > header > div:first-child > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-delay-register h2 { margin:7px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:18px; letter-spacing:-.035em; }.path-delay-register p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:14px; }.path-delay-header-actions { display:flex; align-items:flex-start; gap:9px; }.path-delay-header-actions > aside { display:flex; min-width:68px; align-items:flex-end; flex-direction:column; padding:7px 9px; border-radius:8px; background:#fff4e7; }.path-delay-header-actions > aside strong { color:#bd7020; font-family:'Manrope',sans-serif; font-size:19px; }.path-delay-header-actions > aside small { color:#a47c54; font-family:'DM Sans',sans-serif; font-size:14px; white-space:nowrap; }.path-delay-table-wrap { overflow-x:auto; }.path-delay-table { display:grid; grid-template-columns:minmax(100px,.75fr) minmax(220px,1.7fr) minmax(180px,1.45fr) minmax(120px,.9fr) minmax(155px,1.15fr) minmax(90px,.65fr); gap:14px; align-items:center; min-width:930px; }.path-delay-head { min-height:34px; padding:0 18px; color:#a098a6; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }.path-delay-row { min-height:58px; padding:0 18px; border-top:1px solid #f0edf4; }.path-delay-row > strong { color:#6740a4; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-delay-title { display:flex; min-width:0; flex-direction:column; gap:4px; }.path-delay-title b { overflow:hidden; color:#493950; font-family:'Manrope',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-title small { color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:14px; }.path-delay-faculty { display:flex; min-width:0; align-items:center; gap:8px; overflow:hidden; color:#5e5068; font-family:'DM Sans',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-status { justify-self:start; padding:6px 8px; border-radius:7px; background:#f2eff6; color:#665a70; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-delay-status.delayed { background:#fff5df; color:#b67829; }.path-delay-status.overdue { background:#fff0ef; color:#c33e43; }.path-delay-stage { overflow:hidden; color:#74677d; font-family:'DM Sans',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-delay-days { display:flex; align-items:center; gap:7px; color:#bd7020; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; }.path-delay-days i { width:7px; height:7px; border:1px solid currentColor; border-radius:50%; }.path-delay-days.overdue { color:#c9343b; }.path-delay-days.overdue i { background:#c9343b; box-shadow:0 0 0 3px #ffe1e1; }.path-delay-empty { display:grid; min-height:105px; place-items:center; margin:0; color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:14px; text-align:center; }.path-delay-register > footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 18px; border-top:1px solid #f0edf4; color:#a097a7; font-family:'DM Sans',sans-serif; font-size:14px; }.path-delay-pagination { display:flex; align-items:center; gap:5px; }.path-delay-pagination button { display:grid; width:27px; height:27px; place-items:center; border:1px solid #e6dfef; border-radius:7px; background:#fff; color:#796b84; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-delay-pagination button svg { width:13px; height:13px; }.path-delay-pagination button.active { border-color:#7c3aed; background:#7c3aed; color:#fff; }.path-delay-pagination button:disabled { cursor:not-allowed; opacity:.42; }
   @media (max-width:1320px) { .path-transactions-kpi-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; } } @media (max-width:760px) { .path-transactions-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }.path-delay-register > header { align-items:stretch; flex-direction:column; }.path-delay-header-actions { align-items:stretch; justify-content:space-between; }.path-delay-header-actions .path-export-buttons { width:auto; }.path-delay-table { min-width:830px; }.path-delay-register > footer { align-items:flex-start; flex-direction:column; }.path-delay-pagination { align-self:flex-end; } }
 `;
 
 const PATH_BOTTLENECK_CSS = `
-  .path-bottleneck-workspace { display:flex; flex-direction:column; gap:14px; }.path-bn-signals { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }.path-bn-signal { display:flex; min-height:86px; align-items:flex-start; gap:13px; padding:16px 18px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-bn-signal > svg { width:27px; height:27px; padding:6px; border-radius:7px; background:#fff0ef; color:#d64550; }.path-bn-signal.amber > svg { background:#fff4df; color:#c48224; }.path-bn-signal.violet > svg { background:#f0eaff; color:#7c3aed; }.path-bn-signal div { display:flex; flex-direction:column; gap:4px; }.path-bn-signal span,.path-bn-panel header > div > span,.path-bn-priority header > div > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-bn-signal strong { color:#47354e; font-family:'Manrope',sans-serif; font-size:24px; letter-spacing:-.06em; }.path-bn-signal small { color:#a197a7; font-family:'DM Sans',sans-serif; font-size:8px; }.path-bn-main-grid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr); gap:14px; }.path-bn-panel,.path-bn-priority { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-bn-panel header,.path-bn-priority header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0edf4; }.path-bn-panel h2,.path-bn-priority h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:15px; letter-spacing:-.035em; }.path-bn-panel header p,.path-bn-priority header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; }.path-bn-panel header > button,.path-bn-priority header > button,.path-bn-open-plan { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#6d28d9; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:9px; font-weight:800; }.path-bn-panel header > button svg,.path-bn-priority header > button svg,.path-bn-open-plan svg { width:13px; height:13px; }.path-bn-stage-list { display:flex; flex-direction:column; gap:18px; padding-top:20px; }.path-bn-stage > div { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }.path-bn-stage > div strong { color:#4b3b55; font-family:'Manrope',sans-serif; font-size:10px; }.path-bn-stage > div em { padding:4px 7px; border-radius:999px; font-family:'DM Sans',sans-serif; font-size:7px; font-style:normal; font-weight:800; }.path-bn-stage > div em.critical { background:#fff0ef; color:#c23c43; }.path-bn-stage > div em.high { background:#fff4df; color:#bd7e25; }.path-bn-stage > div em.medium,.path-bn-stage > div em.healthy { background:#e8f8ef; color:#3b9675; }.path-bn-stage section i { position:relative; display:block; overflow:visible; height:8px; border-radius:999px; background:#f0edf4; }.path-bn-stage section b { display:block; min-width:4px; height:100%; border-radius:inherit; }.path-bn-stage section b.critical { background:#d64550; }.path-bn-stage section b.high { background:#d58a00; }.path-bn-stage section b.medium,.path-bn-stage section b.healthy { background:#169b77; }.path-bn-stage section u { position:absolute; top:-3px; width:2px; height:14px; background:#3f3147; text-decoration:none; }.path-bn-stage footer { display:flex; justify-content:space-between; padding-top:6px; color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:8px; }.path-bn-stage footer small { color:#a79dab; font-size:8px; }.path-bn-lead { display:flex; gap:11px; margin-top:23px; padding:15px 14px; border:1px solid #f0dfe2; border-radius:9px; background:#fff8fa; }.path-bn-lead > i { width:8px; height:8px; flex:0 0 auto; margin-top:4px; border-radius:50%; background:#d64550; box-shadow:0 0 0 3px #ffe1e4; }.path-bn-lead.high { background:#fffaf0; border-color:#f4e5c3; }.path-bn-lead.high > i { background:#d58a00; box-shadow:0 0 0 3px #ffefd0; }.path-bn-lead.medium,.path-bn-lead.healthy { background:#f3fbf7; border-color:#d8eee1; }.path-bn-lead.medium > i,.path-bn-lead.healthy > i { background:#169b77; box-shadow:0 0 0 3px #ddf5e8; }.path-bn-lead strong { color:#4e3d58; font-family:'Manrope',sans-serif; font-size:11px; }.path-bn-lead p { margin:6px 0 0; color:#8f8399; font-family:'DM Sans',sans-serif; font-size:9px; line-height:1.5; }.path-bn-impact { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:19px 0; }.path-bn-impact div { display:flex; flex-direction:column; gap:6px; }.path-bn-impact span { color:#a097a7; font-family:'DM Sans',sans-serif; font-size:8px; }.path-bn-impact strong { color:#4c3b56; font-family:'Manrope',sans-serif; font-size:17px; letter-spacing:-.04em; }.path-bn-open-plan { padding-top:13px; border-top:1px solid #f0edf4; }
-  .path-bn-priority { padding-bottom:0; }.path-bn-priority-list { display:flex; flex-direction:column; }.path-bn-priority-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 55px 94px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-bn-priority-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-bn-priority-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-bn-priority-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#fff0ef; color:#c83c43; font-family:'DM Sans',sans-serif; font-size:8px; font-style:normal; font-weight:800; }.path-bn-priority-list article > em.high { background:#fff4df; color:#bd7e25; }.path-bn-priority-list article > span { display:flex; align-items:center; flex-direction:column; color:#be3a41; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; }.path-bn-priority-list article > span small { color:#a69cac; font-family:'DM Sans',sans-serif; font-size:7px; font-weight:400; }.path-bn-priority-list article > button { padding:7px 8px; border:1px solid #e3dbea; border-radius:7px; background:#fff; color:#6a4a7f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-bn-priority-list article > button:hover { border-color:#bda6e2; background:#fbf8ff; }
+  .path-bottleneck-workspace { display:flex; flex-direction:column; gap:14px; }.path-bn-signals { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }.path-bn-signal { display:flex; min-height:86px; align-items:flex-start; gap:13px; padding:16px 18px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-bn-signal > svg { width:27px; height:27px; padding:6px; border-radius:7px; background:#fff0ef; color:#d64550; }.path-bn-signal.amber > svg { background:#fff4df; color:#c48224; }.path-bn-signal.violet > svg { background:#f0eaff; color:#7c3aed; }.path-bn-signal div { display:flex; flex-direction:column; gap:4px; }.path-bn-signal span,.path-bn-panel header > div > span,.path-bn-priority header > div > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-bn-signal strong { color:#47354e; font-family:'Manrope',sans-serif; font-size:24px; letter-spacing:-.06em; }.path-bn-signal small { color:#a197a7; font-family:'DM Sans',sans-serif; font-size:14px; }.path-bn-main-grid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr); gap:14px; }.path-bn-panel,.path-bn-priority { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-bn-panel header,.path-bn-priority header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0edf4; }.path-bn-panel h2,.path-bn-priority h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:18px; letter-spacing:-.035em; }.path-bn-panel header p,.path-bn-priority header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:14px; }.path-bn-panel header > button,.path-bn-priority header > button,.path-bn-open-plan { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#6d28d9; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-bn-panel header > button svg,.path-bn-priority header > button svg,.path-bn-open-plan svg { width:13px; height:13px; }.path-bn-stage-list { display:flex; flex-direction:column; gap:18px; padding-top:20px; }.path-bn-stage > div { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }.path-bn-stage > div strong { color:#4b3b55; font-family:'Manrope',sans-serif; font-size:14px; }.path-bn-stage > div em { padding:4px 7px; border-radius:999px; font-family:'DM Sans',sans-serif; font-size:13px; font-style:normal; font-weight:800; }.path-bn-stage > div em.critical { background:#fff0ef; color:#c23c43; }.path-bn-stage > div em.high { background:#fff4df; color:#bd7e25; }.path-bn-stage > div em.medium,.path-bn-stage > div em.healthy { background:#e8f8ef; color:#3b9675; }.path-bn-stage section i { position:relative; display:block; overflow:visible; height:8px; border-radius:999px; background:#f0edf4; }.path-bn-stage section b { display:block; min-width:4px; height:100%; border-radius:inherit; }.path-bn-stage section b.critical { background:#d64550; }.path-bn-stage section b.high { background:#d58a00; }.path-bn-stage section b.medium,.path-bn-stage section b.healthy { background:#169b77; }.path-bn-stage section u { position:absolute; top:-3px; width:2px; height:14px; background:#3f3147; text-decoration:none; }.path-bn-stage footer { display:flex; justify-content:space-between; padding-top:6px; color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:14px; }.path-bn-stage footer small { color:#a79dab; font-size:14px; }.path-bn-lead { display:flex; gap:11px; margin-top:23px; padding:15px 14px; border:1px solid #f0dfe2; border-radius:9px; background:#fff8fa; }.path-bn-lead > i { width:8px; height:8px; flex:0 0 auto; margin-top:4px; border-radius:50%; background:#d64550; box-shadow:0 0 0 3px #ffe1e4; }.path-bn-lead.high { background:#fffaf0; border-color:#f4e5c3; }.path-bn-lead.high > i { background:#d58a00; box-shadow:0 0 0 3px #ffefd0; }.path-bn-lead.medium,.path-bn-lead.healthy { background:#f3fbf7; border-color:#d8eee1; }.path-bn-lead.medium > i,.path-bn-lead.healthy > i { background:#169b77; box-shadow:0 0 0 3px #ddf5e8; }.path-bn-lead strong { color:#4e3d58; font-family:'Manrope',sans-serif; font-size:15px; }.path-bn-lead p { margin:6px 0 0; color:#8f8399; font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.5; }.path-bn-impact { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:19px 0; }.path-bn-impact div { display:flex; flex-direction:column; gap:6px; }.path-bn-impact span { color:#a097a7; font-family:'DM Sans',sans-serif; font-size:14px; }.path-bn-impact strong { color:#4c3b56; font-family:'Manrope',sans-serif; font-size:20px; letter-spacing:-.04em; }.path-bn-open-plan { padding-top:13px; border-top:1px solid #f0edf4; }
+  .path-bn-priority { padding-bottom:0; }.path-bn-priority-list { display:flex; flex-direction:column; }.path-bn-priority-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 55px 94px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-bn-priority-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-bn-priority-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-bn-priority-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#fff0ef; color:#c83c43; font-family:'DM Sans',sans-serif; font-size:14px; font-style:normal; font-weight:800; }.path-bn-priority-list article > em.high { background:#fff4df; color:#bd7e25; }.path-bn-priority-list article > span { display:flex; align-items:center; flex-direction:column; color:#be3a41; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; }.path-bn-priority-list article > span small { color:#a69cac; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:400; }.path-bn-priority-list article > button { padding:7px 8px; border:1px solid #e3dbea; border-radius:7px; background:#fff; color:#6a4a7f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-bn-priority-list article > button:hover { border-color:#bda6e2; background:#fbf8ff; }
   @media (max-width:1000px) { .path-bn-main-grid { grid-template-columns:1fr; } }.path-bn-signals { grid-template-columns:repeat(3,minmax(0,1fr)); } @media (max-width:760px) { .path-bn-signals { grid-template-columns:1fr; gap:8px; }.path-bn-panel,.path-bn-priority { padding:17px 15px; }.path-bn-priority-list { overflow-x:auto; }.path-bn-priority-list article { min-width:640px; }.path-bn-stage footer { gap:8px; }.path-bn-stage footer small { text-align:right; } }
 `;
 
 const PATH_FOLLOWUP_CSS = `
-  .path-followup-workspace { display:flex; flex-direction:column; gap:14px; }.path-followup-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }.path-followup-cards article { min-height:89px; padding:15px 17px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-cards article > div { display:flex; align-items:center; gap:8px; }.path-followup-cards article > div svg { width:25px; height:25px; padding:5px; border-radius:7px; background:#f0eaff; color:#7c3aed; }.path-followup-cards article.red > div svg { background:#fff0ef; color:#d64550; }.path-followup-cards article.green > div svg { background:#e8f8ef; color:#169b77; }.path-followup-cards article.amber > div svg { background:#fff4df; color:#c48224; }.path-followup-cards span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }.path-followup-cards strong { display:block; margin-top:12px; color:#483650; font-family:'Manrope',sans-serif; font-size:24px; letter-spacing:-.06em; }.path-followup-cards small { display:block; margin-top:5px; color:#9f95a6; font-family:'DM Sans',sans-serif; font-size:8px; }
-  .path-followup-top-grid { display:grid; grid-template-columns:minmax(0,.98fr) minmax(0,1.02fr); gap:14px; }.path-followup-panel,.path-followup-records { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-panel header,.path-followup-records header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0edf4; }.path-followup-panel header > div > span,.path-followup-records header > div > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-followup-panel h2,.path-followup-records h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:15px; letter-spacing:-.035em; }.path-followup-panel header p,.path-followup-records header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:9px; }.path-followup-panel > header > svg { width:14px; height:14px; color:#8c7b9d; }.path-followup-reason-list { display:flex; flex-direction:column; gap:17px; padding-top:21px; }.path-followup-reason-list > div > div { display:flex; justify-content:space-between; gap:10px; margin-bottom:7px; }.path-followup-reason-list strong { color:#55445e; font-family:'Manrope',sans-serif; font-size:10px; }.path-followup-reason-list small { color:#a097a7; font-family:'DM Sans',sans-serif; font-size:8px; }.path-followup-reason-list i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f0edf4; }.path-followup-reason-list b { display:block; min-width:4px; height:100%; border-radius:inherit; }.path-followup-pulse .path-trend { min-height:200px; padding-top:12px; }.path-followup-pulse .path-trend-plot { height:150px; }.path-followup-pulse .path-chart-legend { padding-top:9px; }
-  .path-followup-records { padding-bottom:0; }.path-followup-records header > div:last-child { display:flex; flex-wrap:wrap; justify-content:flex-end; }.path-followup-list { display:flex; flex-direction:column; }.path-followup-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 58px 100px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-followup-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-followup-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-followup-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#f1ebff; color:#6d42ba; font-family:'DM Sans',sans-serif; font-size:8px; font-style:normal; font-weight:800; }.path-followup-list article > em.rejected { background:#fff0ef; color:#c83c43; }.path-followup-list article > span { color:#94899c; font-family:'DM Sans',sans-serif; font-size:8px; text-align:center; }.path-followup-list article > button { padding:7px 8px; border:1px solid #e3dbea; border-radius:7px; background:#fff; color:#6a4a7f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:8px; font-weight:800; }.path-followup-list article > button:hover { border-color:#bda6e2; background:#fbf8ff; }
+  .path-followup-workspace { display:flex; flex-direction:column; gap:14px; }.path-followup-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }.path-followup-cards article { min-height:89px; padding:15px 17px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-cards article > div { display:flex; align-items:center; gap:8px; }.path-followup-cards article > div svg { width:25px; height:25px; padding:5px; border-radius:7px; background:#f0eaff; color:#7c3aed; }.path-followup-cards article.red > div svg { background:#fff0ef; color:#d64550; }.path-followup-cards article.green > div svg { background:#e8f8ef; color:#169b77; }.path-followup-cards article.amber > div svg { background:#fff4df; color:#c48224; }.path-followup-cards span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }.path-followup-cards strong { display:block; margin-top:12px; color:#483650; font-family:'Manrope',sans-serif; font-size:24px; letter-spacing:-.06em; }.path-followup-cards small { display:block; margin-top:5px; color:#9f95a6; font-family:'DM Sans',sans-serif; font-size:14px; }
+  .path-followup-top-grid { display:grid; grid-template-columns:minmax(0,.98fr) minmax(0,1.02fr); gap:14px; }.path-followup-panel,.path-followup-records { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-panel header,.path-followup-records header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0edf4; }.path-followup-panel header > div > span,.path-followup-records header > div > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-followup-panel h2,.path-followup-records h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:18px; letter-spacing:-.035em; }.path-followup-panel header p,.path-followup-records header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:14px; }.path-followup-panel > header > svg { width:14px; height:14px; color:#8c7b9d; }.path-followup-reason-list { display:flex; flex-direction:column; gap:17px; padding-top:21px; }.path-followup-reason-list > div > div { display:flex; justify-content:space-between; gap:10px; margin-bottom:7px; }.path-followup-reason-list strong { color:#55445e; font-family:'Manrope',sans-serif; font-size:14px; }.path-followup-reason-list small { color:#a097a7; font-family:'DM Sans',sans-serif; font-size:14px; }.path-followup-reason-list i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f0edf4; }.path-followup-reason-list b { display:block; min-width:4px; height:100%; border-radius:inherit; }.path-followup-pulse .path-trend { min-height:200px; padding-top:12px; }.path-followup-pulse .path-trend-plot { height:150px; }.path-followup-pulse .path-chart-legend { padding-top:9px; }
+  .path-followup-records { padding-bottom:0; }.path-followup-records header > div:last-child { display:flex; flex-wrap:wrap; justify-content:flex-end; }.path-followup-list { display:flex; flex-direction:column; }.path-followup-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 58px 100px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-followup-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-followup-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-followup-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#f1ebff; color:#6d42ba; font-family:'DM Sans',sans-serif; font-size:14px; font-style:normal; font-weight:800; }.path-followup-list article > em.rejected { background:#fff0ef; color:#c83c43; }.path-followup-list article > span { color:#94899c; font-family:'DM Sans',sans-serif; font-size:14px; text-align:center; }.path-followup-list article > button { padding:7px 8px; border:1px solid #e3dbea; border-radius:7px; background:#fff; color:#6a4a7f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:800; }.path-followup-list article > button:hover { border-color:#bda6e2; background:#fbf8ff; }
   @media (max-width:1000px) { .path-followup-top-grid { grid-template-columns:1fr; } }.path-followup-cards { grid-template-columns:repeat(4,minmax(0,1fr)); } @media (max-width:760px) { .path-followup-cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }.path-followup-cards article { padding:13px; }.path-followup-panel,.path-followup-records { padding:17px 15px; }.path-followup-list { overflow-x:auto; }.path-followup-list article { min-width:620px; } }
 `;
 
@@ -133,8 +133,8 @@ function SectionCard({ title, subtitle, icon: IconCmp, children, action, noPad, 
             <IconCmp style={{ width: 14, height: 14, color: "#7c3aed" }} />
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{title}</p>
-            {subtitle && <p style={{ fontSize: 11, color: "#6b7280" }}>{subtitle}</p>}
+            <p style={{ fontSize: 16, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{title}</p>
+            {subtitle && <p style={{ fontSize: 15, color: "#6b7280" }}>{subtitle}</p>}
           </div>
         </div>
         {action}
@@ -157,7 +157,7 @@ const STATUS_CFG = {
 function StatusBadge({ s }) {
   const cfg = STATUS_CFG[s?.toLowerCase()] ?? { color: "#374151", bg: "#f3f4f6" };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 15, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
       {s}
     </span>
   );
@@ -174,7 +174,7 @@ function TypeBadge({ type }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 3,
-      fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
+      fontSize: 14, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
       background: cfg.bg, color: cfg.color,
       textTransform: "uppercase", letterSpacing: 0.4, flexShrink: 0,
     }}>
@@ -192,7 +192,7 @@ const SEVERITY_CFG = {
 function SeverityBadge({ level }) {
   const cfg = SEVERITY_CFG[level] ?? SEVERITY_CFG.Low;
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 15, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: cfg.bg, color: cfg.color, whiteSpace: "nowrap" }}>
       {level === "Critical" && <AlertTriangle style={{ width: 10, height: 10 }} />}{level}
     </span>
   );
@@ -269,7 +269,7 @@ function classifyReason(raw) {
 /* Flat rounded-rect badge for role/category-style values (e.g. table pills). */
 function Pill({ text, color, bg }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: bg, color, whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 15, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: bg, color, whiteSpace: "nowrap" }}>
       {text}
     </span>
   );
@@ -309,7 +309,7 @@ function Avatar({ name, size = 28, pictureUrl }) {
   }
   const cfg = AVATAR_PALETTE[hashStr(name) % AVATAR_PALETTE.length];
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: "50%", background: cfg.bg, color: cfg.color, fontSize: size * 0.36, fontWeight: 700, flexShrink: 0 }}>
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: "50%", background: cfg.bg, color: cfg.color, fontSize: size * 0.4, fontWeight: 700, flexShrink: 0 }}>
       {initials(name)}
     </span>
   );
@@ -320,18 +320,18 @@ function NameCell({ name, sub, pictureUrl }) {
       <Avatar name={name} pictureUrl={pictureUrl} />
       <div>
         <div style={{ fontWeight: 500, color: "#1f2937" }}>{name}</div>
-        {sub && <div style={{ fontSize: 10, color: "#9ca3af" }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 14, color: "#9ca3af" }}>{sub}</div>}
       </div>
     </div>
   );
 }
 
 /* Shared table header/footer styling so every table in this file matches. */
-const TH_STYLE = { padding: "10px 16px", fontSize: 10, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5 };
-const TD_STYLE = { padding: "10px 16px", fontSize: 12 };
+const TH_STYLE = { padding: "10px 16px", fontSize: 14, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5 };
+const TD_STYLE = { padding: "10px 16px", fontSize: 15 };
 function TableFoot({ count, total, label }) {
   return (
-    <div style={{ padding: "10px 16px", fontSize: 12, color: "#9ca3af" }}>
+    <div style={{ padding: "10px 16px", fontSize: 15, color: "#9ca3af" }}>
       Showing {count} of {total} {label}
     </div>
   );
@@ -340,12 +340,12 @@ function TableFoot({ count, total, label }) {
 function FilterSelect({ label, value, onChange, options }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <label className="path-filter-label" style={{ fontSize: 10, fontWeight: 600, color: "#6b7280" }}>{label}</label>
+      <label className="path-filter-label" style={{ fontSize: 14, fontWeight: 600, color: "#6b7280" }}>{label}</label>
       <select
         className="path-filter-select"
         value={value}
         onChange={onChange}
-        style={{ fontSize: 12, padding: "7px 10px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#111827", cursor: "pointer", minWidth: 140 }}
+        style={{ fontSize: 15, padding: "7px 10px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#111827", cursor: "pointer", minWidth: 140 }}
       >
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -361,13 +361,13 @@ function KpiCard({ label, value, icon: IconCmp, color, delta, up }) {
           <IconCmp style={{ width: 15, height: 15, color }} />
         </div>
         {delta && (
-          <span style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 10, fontWeight: 700, color: up ? "#059669" : "#dc2626" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 14, fontWeight: 700, color: up ? "#059669" : "#dc2626" }}>
             {up ? <TrendingUp style={{ width: 11, height: 11 }} /> : <TrendingDown style={{ width: 11, height: 11 }} />}{delta}
           </span>
         )}
       </div>
       <p style={{ fontSize: 22, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{typeof value === "number" ? value.toLocaleString() : value}</p>
-      <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{label}</p>
+      <p style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>{label}</p>
     </div>
   );
 }
@@ -1614,7 +1614,7 @@ export default function Reports() {
   };
 
   return (
-    <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+    <div className="path-reports-shell" style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "#111", background: "#f4f4f8" }}>
       <style>{`${PATH_REPORTS_CSS}${PATH_REPORTS_EXACT_CSS}${PATH_REPORTS_LIVE_CSS}${PATH_OVERVIEW_CSS}${PATH_TRANSACTION_REGISTER_CSS}${PATH_BOTTLENECK_CSS}${PATH_FOLLOWUP_CSS}`}</style>
 
 
@@ -1628,20 +1628,20 @@ export default function Reports() {
             {/* ── 1. Header: title + export (no card) ── */}
             <div className="path-reports-hero" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
               <div>
-                <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b5cf6" }}>Decision support · reporting workspace</div>
-                <h1 style={{ fontSize: 19, fontWeight: 800, color: "#111827" }}>Reports</h1>
-                <p style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>Turn document activity into a clear view of throughput, service levels, and department performance.</p>
+                <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b5cf6" }}>Decision support · reporting workspace</div>
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111827" }}>Reports</h1>
+                <p style={{ fontSize: 15, color: "#6b7280", marginTop: 2 }}>Turn document activity into a clear view of throughput, service levels, and department performance.</p>
               </div>
               <ExportButtons onExport={(fmt) => handleExport("Full Analytics Report", fmt)} />
             </div>
 
             {(itemsLoading || facultyLoading || delayedLoading) && (
-              <div style={{ fontSize: 11, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 8, padding: "8px 14px" }}>
+              <div style={{ fontSize: 15, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 8, padding: "8px 14px" }}>
                 Loading live report data…
               </div>
             )}
             {auditUnavailable && activeTab === "Audit Trail" && (
-              <div style={{ fontSize: 11, color: "#9a3412", background: "#ffedd5", border: "1px solid #fed7aa", borderRadius: 8, padding: "8px 14px" }}>
+              <div style={{ fontSize: 15, color: "#9a3412", background: "#ffedd5", border: "1px solid #fed7aa", borderRadius: 8, padding: "8px 14px" }}>
                 Couldn't reach the audit-log endpoint (/api/audit). Check that the API is reachable and the token has admin/program_chair access.
               </div>
             )}
@@ -1671,7 +1671,7 @@ export default function Reports() {
                     border: "none",
                     cursor: "pointer",
                     padding: "0 0 10px",
-                    fontSize: 12.5,
+                    fontSize: 16,
                     fontWeight: 700,
                     color: activeTab === t ? "#7c3aed" : "#6b7280",
                     borderBottom: activeTab === t ? "2px solid #7c3aed" : "2px solid transparent",
@@ -1707,7 +1707,7 @@ export default function Reports() {
                 subtitle="Total transactions per month"
                 icon={TrendingUp}
                 action={OVERVIEW_TREND_GROWTH !== null && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: OVERVIEW_TREND_GROWTH >= 0 ? "#059669" : "#dc2626", background: OVERVIEW_TREND_GROWTH >= 0 ? "#d1fae5" : "#fee2e2", padding: "3px 8px", borderRadius: 6 }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 15, fontWeight: 700, color: OVERVIEW_TREND_GROWTH >= 0 ? "#059669" : "#dc2626", background: OVERVIEW_TREND_GROWTH >= 0 ? "#d1fae5" : "#fee2e2", padding: "3px 8px", borderRadius: 6 }}>
                     {OVERVIEW_TREND_GROWTH >= 0 ? <TrendingUp style={{ width: 11, height: 11 }} /> : <TrendingDown style={{ width: 11, height: 11 }} />}
                     {Math.abs(OVERVIEW_TREND_GROWTH)}%
                   </span>
@@ -1722,10 +1722,10 @@ export default function Reports() {
               <SectionCard title="Faculty Workload Snapshot" subtitle="Top faculty by assigned transaction volume" icon={Users} noPad
                 footer={
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12, color: "#9ca3af" }}>Showing {FACULTY_SNAPSHOT.length} of {FACULTY_WORKLOAD.length} faculty</span>
+                    <span style={{ fontSize: 15, color: "#9ca3af" }}>Showing {FACULTY_SNAPSHOT.length} of {FACULTY_WORKLOAD.length} faculty</span>
                     <button
                       onClick={() => setActiveTab("Faculty Workload")}
-                      style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                      style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
                     >
                       View Full Report <ChevronRight style={{ width: 12, height: 12 }} />
                     </button>
@@ -1751,7 +1751,7 @@ export default function Reports() {
                             <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
                               <div style={{ height: 5, borderRadius: 3, width: `${f.rate}%`, background: f.rate >= 75 ? "#059669" : f.rate >= 60 ? "#d97706" : "#dc2626" }} />
                             </div>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{f.rate}%</span>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>{f.rate}%</span>
                           </div>
                         </td>
                       </tr>
@@ -1767,7 +1767,7 @@ export default function Reports() {
                 footer={
                   <button
                     onClick={() => setActiveTab("Bottleneck")}
-                    style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, width: "100%", padding: "7px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, width: "100%", padding: "7px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
                   >
                     View Full Bottleneck Report <ChevronRight style={{ width: 12, height: 12 }} />
                   </button>
@@ -1776,14 +1776,14 @@ export default function Reports() {
                   {BOTTLENECK_SNAPSHOT.map(b => (
                     <div key={b.stage} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderRadius: 10, background: "#f8f8fb", border: "1px solid rgba(0,0,0,0.05)" }}>
                       <div>
-                        <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{b.stage}</p>
-                        <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{b.waiting} waiting · {b.avgWait}d avg wait</p>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>{b.stage}</p>
+                        <p style={{ fontSize: 15, color: "#6b7280", marginTop: 2 }}>{b.waiting} waiting · {b.avgWait}d avg wait</p>
                       </div>
                       <SeverityBadge level={b.severity} />
                     </div>
                   ))}
                   {BOTTLENECK_SNAPSHOT.length === 0 && (
-                    <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "20px 0" }}>No active bottlenecks — everything is moving smoothly.</p>
+                    <p style={{ fontSize: 15, color: "#9ca3af", textAlign: "center", padding: "20px 0" }}>No active bottlenecks — everything is moving smoothly.</p>
                   )}
                 </div>
               </SectionCard>
@@ -1791,34 +1791,34 @@ export default function Reports() {
 
             {/* ── Processing Performance ── */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Processing Performance</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Processing Performance</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                 <SectionCard title="Fastest Processing Time" icon={TrendingUp}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
                     <p style={{ fontSize: 26, fontWeight: 800, color: "#059669" }}>{PROCESSING_SUMMARY.fastest.toFixed(1)}d</p>
-                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 700, color: "#059669", background: "#d1fae5", padding: "3px 8px", borderRadius: 6 }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 14, fontWeight: 700, color: "#059669", background: "#d1fae5", padding: "3px 8px", borderRadius: 6 }}>
                       <TrendingUp style={{ width: 10, height: 10 }} /> Best
                     </span>
                   </div>
-                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
+                  <p style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
                 </SectionCard>
                 <SectionCard title="Average Processing Time" icon={Gauge}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
                     <p style={{ fontSize: 26, fontWeight: 800, color: "#7c3aed" }}>{PROCESSING_SUMMARY.avg.toFixed(1)}d</p>
-                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 700, color: "#7c3aed", background: "#ede9fe", padding: "3px 8px", borderRadius: 6 }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 14, fontWeight: 700, color: "#7c3aed", background: "#ede9fe", padding: "3px 8px", borderRadius: 6 }}>
                       <Activity style={{ width: 10, height: 10 }} /> Typical
                     </span>
                   </div>
-                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
+                  <p style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
                 </SectionCard>
                 <SectionCard title="Slowest Processing Time" icon={Clock}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
                     <p style={{ fontSize: 26, fontWeight: 800, color: "#dc2626" }}>{PROCESSING_SUMMARY.slowest.toFixed(1)}d</p>
-                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 700, color: "#dc2626", background: "#fee2e2", padding: "3px 8px", borderRadius: 6 }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 14, fontWeight: 700, color: "#dc2626", background: "#fee2e2", padding: "3px 8px", borderRadius: 6 }}>
                       <TrendingDown style={{ width: 10, height: 10 }} /> Watch
                     </span>
                   </div>
-                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Worst-case turnaround recorded</p>
+                  <p style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>Worst-case turnaround recorded</p>
                 </SectionCard>
               </div>
             </div>
@@ -1827,10 +1827,10 @@ export default function Reports() {
             <SectionCard title="Recent Activity Feed" subtitle="Latest submissions, approvals, rejections, and workflow updates" icon={ListTodo} noPad
               footer={
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 12, color: "#9ca3af" }}>Showing {RECENT_ACTIVITY.length} of {AUDIT_TRAIL.length} log entries</span>
+                  <span style={{ fontSize: 15, color: "#9ca3af" }}>Showing {RECENT_ACTIVITY.length} of {AUDIT_TRAIL.length} log entries</span>
                   <button
                     onClick={() => navigate("/audit")}
-                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
                   >
                     Open Audit Trail <ChevronRight style={{ width: 12, height: 12 }} />
                   </button>
@@ -1842,13 +1842,13 @@ export default function Reports() {
                     <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
                       <NameCell name={a.user} />
                       <Pill text={a.action.label} bg={a.action.bg} color={a.action.color} />
-                      <span style={{ fontFamily: "monospace", fontSize: 11, color: "#374151" }}>{a.transaction}</span>
+                      <span style={{ fontFamily: "monospace", fontSize: 15, color: "#374151" }}>{a.transaction}</span>
                     </div>
-                    <span style={{ fontFamily: "monospace", fontSize: 11, color: "#9ca3af", whiteSpace: "nowrap" }}>{a.date}</span>
+                    <span style={{ fontFamily: "monospace", fontSize: 15, color: "#9ca3af", whiteSpace: "nowrap" }}>{a.date}</span>
                   </div>
                 ))}
                 {RECENT_ACTIVITY.length === 0 && (
-                  <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No recent activity to show yet.</p>
+                  <p style={{ fontSize: 15, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No recent activity to show yet.</p>
                 )}
               </div>
             </SectionCard>
@@ -1920,19 +1920,19 @@ export default function Reports() {
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>
                   {PROCESSING_TIME_DATA.length ? (PROCESSING_TIME_DATA.reduce((a, b) => a + b.avg, 0) / PROCESSING_TIME_DATA.length).toFixed(1) : "0.0"} days
                 </p>
-                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
+                <p style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>Across all document types</p>
               </SectionCard>
               <SectionCard title="Fastest Processing Time" icon={TrendingUp}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#059669" }}>
                   {PROCESSING_TIME_DATA.length ? Math.min(...PROCESSING_TIME_DATA.map(d => d.fastest)).toFixed(1) : "0.0"} days
                 </p>
-                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
+                <p style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>Best-case turnaround recorded</p>
               </SectionCard>
               <SectionCard title="Slowest Processing Time" icon={Clock}>
                 <p style={{ fontSize: 28, fontWeight: 800, color: "#dc2626" }}>
                   {PROCESSING_TIME_DATA.length ? Math.max(...PROCESSING_TIME_DATA.map(d => d.slowest)).toFixed(1) : "0.0"} days
                 </p>
-                <p style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>Worst-case turnaround recorded</p>
+                <p style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>Worst-case turnaround recorded</p>
               </SectionCard>
             </div>
 
@@ -2000,7 +2000,7 @@ export default function Reports() {
                           <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f3f4f6" }}>
                             <div style={{ height: 5, borderRadius: 3, width: `${f.rate}%`, background: f.rate >= 75 ? "#059669" : f.rate >= 60 ? "#d97706" : "#dc2626" }} />
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{f.rate}%</span>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>{f.rate}%</span>
                         </div>
                       </td>
                     </tr>
@@ -2018,7 +2018,7 @@ export default function Reports() {
             <div className="path-bottleneck-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 18, alignItems: "stretch" }}>
             <SectionCard title="Bottleneck & Alerts" subtitle="Items requiring immediate attention" icon={Shield} noPad>
               {BOTTLENECK_ALERTS.length === 0 ? (
-                <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 18px" }}>No active alerts — everything is moving smoothly.</p>
+                <p style={{ fontSize: 15, color: "#9ca3af", textAlign: "center", padding: "24px 18px" }}>No active alerts — everything is moving smoothly.</p>
               ) : (
                 <>
                   <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 18px" }}>
@@ -2039,14 +2039,14 @@ export default function Reports() {
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                              <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{a.title}</p>
+                              <p style={{ fontSize: 16, fontWeight: 700, color: "#111827" }}>{a.title}</p>
                               {cfg.showPill && (
-                                <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9.5, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
+                                <span style={{ display: "inline-flex", alignItems: "center", fontSize: 15, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
                                   CRITICAL
                                 </span>
                               )}
                             </div>
-                            <p style={{ fontSize: 11.5, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                            <p style={{ fontSize: 15, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
                           </div>
                         </div>
                       );
@@ -2056,7 +2056,7 @@ export default function Reports() {
                     <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", padding: "10px 18px", textAlign: "center" }}>
                       <button
                         onClick={() => setAlertsModalOpen(true)}
-                        style={{ background: "none", border: "none", color: "#dc2626", fontSize: 11.5, fontWeight: 700, letterSpacing: 0.3, cursor: "pointer" }}
+                        style={{ background: "none", border: "none", color: "#dc2626", fontSize: 15, fontWeight: 700, letterSpacing: 0.3, cursor: "pointer" }}
                       >
                         {`VIEW ALL ALERTS (${BOTTLENECK_ALERTS.length})`}
                       </button>
@@ -2088,8 +2088,8 @@ export default function Reports() {
                       return (
                         <div key={b.stage} style={{ opacity: isEmpty ? 0.55 : 1 }}>
                           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
-                            <p style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>{b.label}</p>
-                            <p style={{ fontSize: 11, color: "#6b7280", whiteSpace: "nowrap", flexShrink: 0 }}>
+                            <p style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>{b.label}</p>
+                            <p style={{ fontSize: 15, color: "#6b7280", whiteSpace: "nowrap", flexShrink: 0 }}>
                               {isEmpty ? "Nothing waiting" : (<><span style={{ fontWeight: 800, color: "#111827" }}>{b.waiting}</span> waiting · {b.avgWait}d avg</>)}
                             </p>
                           </div>
@@ -2172,7 +2172,7 @@ export default function Reports() {
                   <tbody>
                     {RR_ALL.slice(0, 12).map((r, i, arr) => (
                       <tr key={r.id} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                        <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 11, whiteSpace: "nowrap" }}>{r.id}</td>
+                        <td style={{ ...TD_STYLE, fontFamily: "monospace", fontWeight: 700, color: "#7c3aed", fontSize: 15, whiteSpace: "nowrap" }}>{r.id}</td>
                         <td style={{ ...TD_STYLE, color: "#374151" }}>{r.docType}</td>
                         <td style={TD_STYLE}>{r.person}</td>
                         <td style={TD_STYLE}>{r.person}</td>
@@ -2184,7 +2184,7 @@ export default function Reports() {
                         <td style={TD_STYLE}>
                           <button
                             onClick={() => setRrSelected(r)}
-                            style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 10.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+                            style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 15, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
                           >
                             <Eye style={{ width: 11, height: 11 }} /> View Details
                           </button>
@@ -2244,12 +2244,12 @@ export default function Reports() {
             <SectionCard title="Audit Trail" subtitle="Immutable log of all system actions and document state changes" icon={Shield} noPad
               footer={
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 12, color: "#9ca3af" }}>
+                  <span style={{ fontSize: 15, color: "#9ca3af" }}>
                     Showing {Math.min(AUDIT_TRAIL.length, AUDIT_PREVIEW_LIMIT)} of {AUDIT_TRAIL.length} log entries
                   </span>
                   <button
                     onClick={() => navigate("/audit")}
-                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
                   >
                     View More <ChevronRight style={{ width: 12, height: 12 }} />
                   </button>
@@ -2266,10 +2266,10 @@ export default function Reports() {
                 <tbody>
                   {AUDIT_TRAIL.slice(0, AUDIT_PREVIEW_LIMIT).map((a, i, arr) => (
                     <tr key={i} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#6b7280", whiteSpace: "nowrap", fontSize: 11 }}>{a.date}</td>
+                      <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#6b7280", whiteSpace: "nowrap", fontSize: 15 }}>{a.date}</td>
                       <td style={TD_STYLE}><NameCell name={a.user} /></td>
                       <td style={TD_STYLE}><Pill text={a.action.label} bg={a.action.bg} color={a.action.color} /></td>
-                      <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#374151", fontSize: 11 }}>{a.transaction}</td>
+                      <td style={{ ...TD_STYLE, fontFamily: "monospace", color: "#374151", fontSize: 15 }}>{a.transaction}</td>
                       <td style={{ ...TD_STYLE, color: "#6b7280" }}>{a.remarks}</td>
                     </tr>
                   ))}
@@ -2289,7 +2289,7 @@ export default function Reports() {
 
             {/* ── Quick Report Center ── */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Quick Report Center</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Quick Report Center</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
                 {QUICK_REPORTS.map(r => (
                   <div key={r.title} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: 16, boxShadow: "0 1px 4px rgba(91,33,182,0.05)", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -2297,26 +2297,26 @@ export default function Reports() {
                       <r.icon style={{ width: 16, height: 16, color: r.color }} />
                     </div>
                     <div>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: "#111827", lineHeight: 1.3 }}>{r.title}</p>
-                      <p style={{ fontSize: 10.5, color: "#6b7280", marginTop: 3, lineHeight: 1.4 }}>{r.desc}</p>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: "#111827", lineHeight: 1.3 }}>{r.title}</p>
+                      <p style={{ fontSize: 15, color: "#6b7280", marginTop: 3, lineHeight: 1.4 }}>{r.desc}</p>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: "auto" }}>
                       <button
                         onClick={() => handleExport(r.title, "View")}
-                        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, padding: "6px 10px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 10, fontWeight: 700, cursor: "pointer" }}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, padding: "6px 10px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
                       >
                         <Eye style={{ width: 11, height: 11 }} /> View Report
                       </button>
                       <div style={{ display: "flex", gap: 6 }}>
                         <button
                           onClick={() => handleExport(r.title, "PDF")}
-                          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
+                          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
                         >
                           <PdfFileIcon size={12} /> PDF
                         </button>
                         <button
                           onClick={() => handleExport(r.title, "Excel")}
-                          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
+                          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 8px", borderRadius: 7, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
                         >
                           <ExcelFileIcon size={12} /> Excel
                         </button>
@@ -2335,7 +2335,7 @@ export default function Reports() {
 
       {/* ── Export toast ── */}
       {exportToast && (
-        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "#111827", color: "#fff", padding: "10px 18px", borderRadius: 10, fontSize: 12, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 2000, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "#111827", color: "#fff", padding: "10px 18px", borderRadius: 10, fontSize: 15, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 2000, display: "flex", alignItems: "center", gap: 8 }}>
           <FileText style={{ width: 13, height: 13 }} />{exportToast}
         </div>
       )}
@@ -2353,8 +2353,8 @@ export default function Reports() {
             {/* Header */}
             <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
               <div>
-                <p style={{ fontSize: 15, fontWeight: 800, color: "#111827" }}>All Alerts</p>
-                <p style={{ fontSize: 11.5, color: "#6b7280" }}>{BOTTLENECK_ALERTS.length} items requiring immediate attention</p>
+                <p style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>All Alerts</p>
+                <p style={{ fontSize: 15, color: "#6b7280" }}>{BOTTLENECK_ALERTS.length} items requiring immediate attention</p>
               </div>
               <button
                 onClick={() => { setAlertsModalOpen(false); setAlertsTierFilter("all"); setAlertsSearch(""); }}
@@ -2379,7 +2379,7 @@ export default function Reports() {
                   style={{
                     display: "flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999,
                     border: alertsTierFilter === t.key ? `1.5px solid ${t.color}` : "1.5px solid transparent",
-                    background: t.bg, color: t.color, fontSize: 11.5, fontWeight: 700, cursor: "pointer",
+                    background: t.bg, color: t.color, fontSize: 15, fontWeight: 700, cursor: "pointer",
                     opacity: alertsTierFilter === t.key ? 1 : 0.55, transition: "opacity 0.15s",
                   }}
                 >
@@ -2392,14 +2392,14 @@ export default function Reports() {
                   value={alertsSearch}
                   onChange={e => setAlertsSearch(e.target.value)}
                   placeholder="Search task ID or type…"
-                  style={{ width: "100%", boxSizing: "border-box", fontSize: 11.5, padding: "6px 10px 6px 28px", borderRadius: 8, border: "1px solid rgba(0,0,0,0.1)", outline: "none" }}
+                  style={{ width: "100%", boxSizing: "border-box", fontSize: 15, padding: "6px 10px 6px 28px", borderRadius: 8, border: "1px solid rgba(0,0,0,0.1)", outline: "none" }}
                 />
               </div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 22px", maxHeight: "70vh", overflowY: "auto" }}>
               {FILTERED_ALERTS.length === 0 && (
-                <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No alerts match this filter.</p>
+                <p style={{ fontSize: 15, color: "#9ca3af", textAlign: "center", padding: "24px 0" }}>No alerts match this filter.</p>
               )}
               {FILTERED_ALERTS.map(a => {
                 const cfg = ALERT_TIER_CFG[a.tier];
@@ -2418,14 +2418,14 @@ export default function Reports() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <p style={{ fontSize: 12.5, fontWeight: 700, color: "#111827" }}>{a.title}</p>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: "#111827" }}>{a.title}</p>
                         {cfg.showPill && (
-                          <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9.5, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", fontSize: 15, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#dc2626", color: "#fff", letterSpacing: 0.3 }}>
                             CRITICAL
                           </span>
                         )}
                       </div>
-                      <p style={{ fontSize: 11.5, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
+                      <p style={{ fontSize: 15, color: "#4b5563", marginTop: 3, lineHeight: 1.4 }}>{a.message}</p>
                     </div>
                   </div>
                 );
@@ -2448,8 +2448,8 @@ export default function Reports() {
             {/* Header */}
             <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
-                <p style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5 }}>Transaction Detail</p>
-                <p style={{ fontSize: 15, fontWeight: 800, color: "#111827", fontFamily: "monospace" }}>{rrSelected.id}</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5 }}>Transaction Detail</p>
+                <p style={{ fontSize: 18, fontWeight: 800, color: "#111827", fontFamily: "monospace" }}>{rrSelected.id}</p>
               </div>
               <button
                 onClick={() => setRrSelected(null)}
@@ -2462,7 +2462,7 @@ export default function Reports() {
             <div style={{ padding: "18px 22px", display: "flex", flexDirection: "column", gap: 18, maxHeight: "70vh", overflowY: "auto" }}>
               {/* Transaction Information */}
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Transaction Information</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Transaction Information</p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {[
                     ["Document Type", rrSelected.docType],
@@ -2473,57 +2473,57 @@ export default function Reports() {
                     ["Date Returned/Rejected", rrSelected.actionDate],
                   ].map(([label, val]) => (
                     <div key={label}>
-                      <p style={{ fontSize: 10, color: "#9ca3af" }}>{label}</p>
-                      <p style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{val}</p>
+                      <p style={{ fontSize: 14, color: "#9ca3af" }}>{label}</p>
+                      <p style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>{val}</p>
                     </div>
                   ))}
                   <div>
-                    <p style={{ fontSize: 10, color: "#9ca3af" }}>Status</p>
+                    <p style={{ fontSize: 14, color: "#9ca3af" }}>Status</p>
                     <StatusBadge s={rrSelected.status} />
                   </div>
                   <div>
-                    <p style={{ fontSize: 10, color: "#9ca3af" }}>Current Workflow Stage</p>
-                    <p style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>{rrSelected.stage}</p>
+                    <p style={{ fontSize: 14, color: "#9ca3af" }}>Current Workflow Stage</p>
+                    <p style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>{rrSelected.stage}</p>
                   </div>
                 </div>
               </div>
 
               {/* Return / Rejection Reason + Reviewer Remarks */}
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Return / Rejection Reason</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Return / Rejection Reason</p>
                 <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px" }}>
                   <Pill text={rrSelected.reasonCategory} color={REASON_CATEGORIES.find(c => c.name === rrSelected.reasonCategory)?.color || "#6b7280"} bg="#fff" />
-                  <p style={{ fontSize: 12, color: "#374151", marginTop: 8 }}>{rrSelected.reasonRaw || "No specific reason text was recorded for this transaction."}</p>
+                  <p style={{ fontSize: 15, color: "#374151", marginTop: 8 }}>{rrSelected.reasonRaw || "No specific reason text was recorded for this transaction."}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 7, marginTop: 10 }}>
                   <MessageSquare style={{ width: 13, height: 13, color: "#9ca3af", marginTop: 2, flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontSize: 10, color: "#9ca3af" }}>Reviewer Remarks</p>
-                    <p style={{ fontSize: 12, color: "#374151" }}>{rrSelected.reviewerRemarks || "No additional remarks left by the reviewer."}</p>
+                    <p style={{ fontSize: 14, color: "#9ca3af" }}>Reviewer Remarks</p>
+                    <p style={{ fontSize: 15, color: "#374151" }}>{rrSelected.reviewerRemarks || "No additional remarks left by the reviewer."}</p>
                   </div>
                 </div>
               </div>
 
               {/* Supporting Documents */}
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Supporting Documents</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Supporting Documents</p>
                 {rrSelected.attachments && rrSelected.attachments.length > 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {rrSelected.attachments.map((a, idx) => (
-                      <div key={idx} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "#374151" }}>
+                      <div key={idx} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 15, color: "#374151" }}>
                         <Paperclip style={{ width: 12, height: 12, color: "#9ca3af" }} />
                         {typeof a === "string" ? a : (a.name || a.filename || `Attachment ${idx + 1}`)}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p style={{ fontSize: 12, color: "#9ca3af" }}>No supporting documents on record.</p>
+                  <p style={{ fontSize: 15, color: "#9ca3af" }}>No supporting documents on record.</p>
                 )}
               </div>
 
               {/* Complete Workflow History */}
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Complete Workflow History</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Complete Workflow History</p>
                 {rrWorkflowHistory(rrSelected).length > 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {rrWorkflowHistory(rrSelected).map((h, idx) => (
@@ -2535,15 +2535,15 @@ export default function Reports() {
                         <div style={{ paddingBottom: 6 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                             <Pill text={h.action.label} bg={h.action.bg} color={h.action.color} />
-                            <span style={{ fontSize: 10.5, color: "#9ca3af" }}>{h.date}</span>
+                            <span style={{ fontSize: 15, color: "#9ca3af" }}>{h.date}</span>
                           </div>
-                          <p style={{ fontSize: 11.5, color: "#6b7280", marginTop: 3 }}>{h.user} — {h.remarks}</p>
+                          <p style={{ fontSize: 15, color: "#6b7280", marginTop: 3 }}>{h.user} — {h.remarks}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "#9ca3af" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 15, color: "#9ca3af" }}>
                     <History style={{ width: 13, height: 13 }} /> No detailed workflow history available for this transaction.
                   </div>
                 )}
@@ -2553,7 +2553,7 @@ export default function Reports() {
             <div style={{ padding: "14px 22px", borderTop: "1px solid rgba(0,0,0,0.07)", display: "flex", justifyContent: "flex-end", gap: 8 }}>
               <button
                 onClick={() => setRrSelected(null)}
-                style={{ padding: "8px 16px", borderRadius: 8, background: "#f3f4f6", color: "#374151", border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                style={{ padding: "8px 16px", borderRadius: 8, background: "#f3f4f6", color: "#374151", border: "none", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
               >
                 Close
               </button>
