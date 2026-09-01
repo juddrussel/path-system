@@ -3641,115 +3641,132 @@ export default function Dashboard() {
                     value: trackedItems.length,
                     change: "Live queue",
                     detail: "across the department",
-                    color: "#7c3aed",
-                      icon: FileText,
-                    },
-                    {
-                      label: "Awaiting review",
-                      value: pendingApprovalsCount,
-                      change: "Needs attention",
-                      detail: "awaiting a decision",
-                      color: "#d97706",
-                      icon: Clock,
-                    },
-                    {
-                      label: "On-time completion",
-                      value: `${onTimeCompletionRate}%`,
-                      change:
-                        onTimeCompletionRate >= 90
-                          ? "Healthy"
-                          : "Needs attention",
-                      detail: "across active workflows",
-                      color: "#059669",
-                      icon: CheckCircle2,
-                    },
-                    {
-                      label: "Active faculty",
-                      value: activeFacultyCount,
-                      change: "Live directory",
-                      detail: "across the department",
-                      color: "#0284c7",
-                      icon: Users,
-                    },
-                  ].map((stat) => {
-                    const StatIcon = stat.icon;
-                    return (
-                      <article
-                        className="path-stat-card"
-                        key={stat.label}
+                    accent: "#7C3AED",
+                    tint: "#F1EBFF",
+                    icon: FileText,
+                  },
+                  {
+                    label: "Awaiting review",
+                    value: pendingApprovalsCount,
+                    change: "Needs attention",
+                    detail: "awaiting a decision",
+                    accent: "#F5A623",
+                    tint: "#FFF3DE",
+                    icon: Clock,
+                  },
+                  {
+                    label: "On-time completion",
+                    value: `${onTimeCompletionRate}%`,
+                    change:
+                      onTimeCompletionRate >= 90
+                        ? "Healthy"
+                        : "Needs attention",
+                    detail: "across active workflows",
+                    accent: "#14B8A6",
+                    tint: "#E3FBF6",
+                    icon: CheckCircle2,
+                  },
+                  {
+                    label: "Active faculty",
+                    value: activeFacultyCount,
+                    change: "Live directory",
+                    detail: "across the department",
+                    accent: "#FF6B4C",
+                    tint: "#FFEDE7",
+                    icon: Users,
+                  },
+                ].map((stat) => {
+                  const StatIcon = stat.icon;
+                  return (
+                    <article
+                      className="path-stat-card-vivid"
+                      key={stat.label}
+                      style={{
+                        position: "relative",
+                        overflow: "hidden",
+                        background: "#fff",
+                        border: "1px solid #ece5f7",
+                        borderRadius: 16,
+                        padding: "20px 20px 18px",
+                        boxShadow: "0 10px 24px rgba(45,24,90,.06)",
+                      }}
+                    >
+                      <div
                         style={{
-                          background: "#fff",
-                          border: "1px solid #ebe4f4",
-                          borderRadius: 16,
-                          padding: "18px 18px 17px",
-                          boxShadow: "0 8px 22px rgba(76,29,149,.06)",
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: 4,
+                          background: stat.accent,
+                        }}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          justifyContent: "space-between",
+                          gap: 10,
                         }}
                       >
-                        <div
+                        <span
                           style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: 10,
-                          }}
-                        >
-                          <span
-                            style={{
-                              color: "#776b83",
-                              fontSize: 10,
-                              fontWeight: 800,
-                              letterSpacing: ".1em",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            {stat.label}
-                          </span>
-                          <span
-                            style={{
-                              width: 30,
-                              height: 30,
-                              borderRadius: 9,
-                              background: stat.color + "18",
-                              color: stat.color,
-                              display: "grid",
-                              placeItems: "center",
-                            }}
-                          >
-                            <StatIcon size={15} />
-                          </span>
-                        </div>
-                        <strong
-                          style={{
-                            display: "block",
-                            marginTop: 13,
-                            color: "#2f2738",
-                            fontFamily: "Manrope, 'DM Sans', sans-serif",
-                            fontSize: 27,
+                            color: "#776b83",
+                            fontSize: 10,
                             fontWeight: 800,
-                            letterSpacing: "-0.03em",
-                            lineHeight: 1,
+                            letterSpacing: ".08em",
+                            textTransform: "uppercase",
                           }}
                         >
-                          {kpisLoading ? "—" : stat.value}
-                        </strong>
-                        <div
+                          {stat.label}
+                        </span>
+                        <span
                           style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 7,
-                            marginTop: 10,
-                            color: "#8d8196",
-                            fontSize: 11,
+                            width: 34,
+                            height: 34,
+                            borderRadius: 10,
+                            background: stat.tint,
+                            color: stat.accent,
+                            display: "grid",
+                            placeItems: "center",
+                            flexShrink: 0,
                           }}
                         >
-                          <span style={{ color: stat.color, fontWeight: 800 }}>
-                            {stat.change}
-                          </span>
-                          <span>{stat.detail}</span>
-                        </div>
-                      </article>
-                    );
-                  })}
+                          <StatIcon size={16} />
+                        </span>
+                      </div>
+                      <strong
+                        style={{
+                          display: "block",
+                          marginTop: 14,
+                          color: "#241a3d",
+                          fontFamily: "Manrope, 'DM Sans', sans-serif",
+                          fontSize: 30,
+                          fontWeight: 800,
+                          letterSpacing: "-0.03em",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {kpisLoading ? "—" : stat.value}
+                      </strong>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 7,
+                          marginTop: 10,
+                          color: "#8d8196",
+                          fontSize: 11,
+                        }}
+                      >
+                        <span style={{ color: stat.accent, fontWeight: 800 }}>
+                          {stat.change}
+                        </span>
+                        <span>{stat.detail}</span>
+                      </div>
+                    </article>
+                  );
+                })}
                 </div>
 
               {/* Notification dropdown */}
