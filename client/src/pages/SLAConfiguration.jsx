@@ -861,7 +861,7 @@ export default function SLAConfiguration() {
         .sla-row:hover { background-color: rgba(246,242,255,0.6); }
 
 * { box-sizing: border-box; }
-.sla-config-view { width: 100%; max-width: 1380px; margin: 0 auto; }
+.sla-config-view { width: 100%; max-width: none; margin: 0 auto; }
 .panel-card { border: 1px solid #e7e2ef; border-radius: 10px; background: #fff; box-shadow: 0 10px 28px rgba(57,36,93,.04); }
 .date-kicker,.section-kicker { display:flex; align-items:center; gap:8px; color:#8f879c; font:10px "DM Sans",sans-serif; letter-spacing:.08em; text-transform:uppercase; }
 .date-kicker { margin-bottom:12px; }
@@ -911,7 +911,7 @@ export default function SLAConfiguration() {
 @media (max-width:720px){.sla-side-panel{top:46px;right:0;bottom:0;width:min(100vw,430px);border-radius:16px 0 0 0}.sla-side-panel:before{position:fixed;z-index:-1;top:0;right:100%;bottom:0;width:100vw;background:rgba(33,18,49,.22);content:""}.sla-side-panel .panel-topline{padding-top:14px}.sla-side-panel .sla-config-preview-card{margin-bottom:12px}}
 
         /* Canonical PATH page composition: full-width canvas and catalog, compact editorial rhythm. */
-        .sla-config-view { width: 100%; max-width: 1380px !important; padding: 16px 18px 48px; margin: 0 auto; }
+        .sla-config-view { width: 100%; max-width: none !important; padding: 16px 18px 48px; margin: 0 auto; }
         .sla-config-hero { min-height: 146px; margin-bottom: 22px !important; padding: 30px 24px 28px !important; border: 1px solid #e6ddf5 !important; border-left: 2px solid #c4b5fd !important; border-radius: 12px !important; background: linear-gradient(118deg,#fbf9ff,#f4edff) !important; }
         .sla-config-hero h1 { margin: 9px 0 6px !important; font: 700 32px Manrope,sans-serif !important; color: #2c2537 !important; letter-spacing: -.045em !important; }
         .sla-config-hero p { margin: 0 !important; color: #83778b !important; font: 13px "DM Sans",sans-serif !important; }
@@ -929,7 +929,7 @@ export default function SLAConfiguration() {
         @media (max-width: 560px) { .sla-config-view { padding: 8px 8px 28px; } .sla-document-stats { grid-template-columns: 1fr 1fr !important; gap: 8px !important; } .sla-document-stats article { min-height: 96px; padding: 13px !important; } }
 
         /* Final reference alignment: match the PATH canvas and keep the action in the eighth desktop column instead of creating a second row. */
-        .sla-config-view { max-width: 1380px !important; padding: 24px 0 48px; font-family: "DM Sans", sans-serif; }
+        .sla-config-view { max-width: none !important; padding: 24px 0 48px; font-family: "DM Sans", sans-serif; }
         .sla-config-hero { min-height: 106px; margin-bottom: 22px !important; }
         .sla-document-stats article { min-height: 104px; }
         .sla-document-layout { grid-template-columns: minmax(0, 912px) minmax(0, 1fr) !important; }
@@ -954,7 +954,7 @@ export default function SLAConfiguration() {
           .sla-policy-row .sla-row-edit { grid-column: 4; grid-row: 1 / span 2; justify-self: end; }
         }
       /* Canonical PATH reference wins over all earlier legacy overrides. */
-        .sla-config-view { width: 100% !important; max-width: 1380px !important; padding: 16px 18px 48px !important; margin: 0 auto !important; }
+        .sla-config-view { width: 100% !important; max-width: none !important; padding: 16px 18px 48px !important; margin: 0 auto !important; }
         .sla-config-hero { min-height: 146px !important; padding: 30px 24px 28px !important; margin-bottom: 22px !important; }
         .sla-document-stats { grid-template-columns: repeat(4,minmax(0,1fr)) !important; gap: 12px !important; margin-bottom: 18px !important; }
         .sla-document-stats article { min-height: 116px !important; padding: 18px 17px !important; }
@@ -988,7 +988,7 @@ export default function SLAConfiguration() {
         .sla-policy-status small { color:#9b91a3 !important; font:400 9px/1.2 "DM Sans",sans-serif !important; white-space:nowrap !important; }
         @media (max-width:700px) { .sla-config-hero { align-items:flex-start !important; flex-direction:column !important; gap:18px !important; padding:22px 18px !important; } .sla-policy-status { width:100% !important; min-width:0 !important; margin-left:0 !important; } .sla-config-hero h1 { font-size:26px !important; } }
       /* Final PATH sizing scale: match the canonical SLA Configuration page. */
-        .sla-config-view { width:100% !important; max-width:1380px !important; margin:0 auto !important; padding:16px 0 48px !important; }
+        .sla-config-view { width:100% !important; max-width:none !important; margin:0 auto !important; padding:16px 0 48px !important; }
         .sla-config-hero { width:100% !important; min-height:148px !important; height:148px !important; padding:29px 24px 27px !important; margin:0 0 22px !important; }
         .sla-document-stats { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:12px !important; margin:0 0 18px !important; }
         .sla-document-stats article { min-height:116px !important; height:116px !important; padding:18px 17px !important; }
