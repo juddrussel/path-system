@@ -185,11 +185,9 @@ const styles = `
 
   /* ── Brand ── */
   .path-sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; position: relative; }
-  .path-sidebar__mark {
-    display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; flex-shrink: 0;
-    background: linear-gradient(135deg, #a78bfa, #7c3aed);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(109,40,217,0.55), 0 1px 0 rgba(255,255,255,0.2) inset;
+  .path-sidebar__logo {
+    width: 36px; height: 36px; object-fit: contain; flex-shrink: 0;
+    filter: drop-shadow(0 3px 8px rgba(107,33,168,0.5));
   }
   .path-sidebar__name { color: #f5f3ff; font-size: 14.5px; font-weight: 800; letter-spacing: .06em; line-height: 1; }
   .path-sidebar__subname { display: block; margin-top: 3px; color: rgba(216,180,254,0.85); font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
@@ -408,7 +406,7 @@ export default function Sidebar({ activePage }) {
       <aside className="path-sidebar" aria-label="Main navigation">
         {/* Brand */}
         <div className="path-sidebar__brand">
-          <span className="path-sidebar__mark"><Icon.Mark /></span>
+          <img src="/src/assets/logo.png" alt="DS PATH Logo" className="path-sidebar__logo" />
           <span>
             <span className="path-sidebar__name">DS PATH</span>
             <span className="path-sidebar__subname">Processing &amp; Tracking Hub</span>
