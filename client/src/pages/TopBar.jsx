@@ -255,16 +255,16 @@ function formatRole(role) {
 // Distinct accent per role so the badge (and avatar ring) carry real
 // meaning at a glance instead of every role looking the same violet.
 const ROLE_COLORS = {
-  admin:         { fg: "#7c3aed", bg: "#f4f0fe", ring: "linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%)", dot: "#8b5cf6" },
-  program_chair: { fg: "#1d4ed8", bg: "#eaf1ff", ring: "linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%)", dot: "#3b82f6" },
-  user:          { fg: "#047857", bg: "#e8faf3", ring: "linear-gradient(135deg, #34d399 0%, #047857 100%)", dot: "#10b981" },
-  guest:         { fg: "#6b6478", bg: "#f1f0f6", ring: "linear-gradient(135deg, #c7c2d6 0%, #8d87a3 100%)", dot: "#9691a8" },
+  admin:         { fg: "#4c3f78", bg: "#edebf6", ring: "#4c3f78", dot: "#6f5fa3" },
+  program_chair: { fg: "#1e4d8f", bg: "#e8f0fb", ring: "#1e4d8f", dot: "#3a6ea8" },
+  user:          { fg: "#0f5c52", bg: "#e3f5f1", ring: "#0f5c52", dot: "#10a37f" },
+  guest:         { fg: "#6b6f76", bg: "#eeece6", ring: "#8d8f83", dot: "#9a9690" },
 };
 function roleColors(role) {
   return ROLE_COLORS[role] || ROLE_COLORS.guest;
 }
 const AVATAR_COLORS = [
-  ["#ede9fe", "#5b21b6"], ["#dbeafe", "#1d4ed8"], ["#d1fae5", "#065f46"],
+  ["#ccfbf1", "#115e59"], ["#dbeafe", "#1d4ed8"], ["#d1fae5", "#065f46"],
   ["#fef3c7", "#92400e"], ["#fce7f3", "#9d174d"], ["#e0f2fe", "#0369a1"],
 ];
 function avatarBg(name = "") {
@@ -385,7 +385,7 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
         {/* ── Crop viewport ── */}
         <div className="flex items-center justify-center py-5">
           <div
-            className="relative overflow-hidden rounded-full border-2 border-violet-200 shadow-inner bg-gray-100 select-none"
+            className="relative overflow-hidden rounded-full border-2 border-teal-200 shadow-inner bg-gray-100 select-none"
             style={{ width: CROP_SIZE, height: CROP_SIZE, cursor: draggingRef.current ? "grabbing" : "grab", touchAction: "none" }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -423,7 +423,7 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
             step={0.01}
             value={zoom}
             onChange={e => setZoom(parseFloat(e.target.value))}
-            className="flex-1 accent-violet-600"
+            className="flex-1 accent-teal-600"
           />
           <span className="text-gray-400"><ZoomInIcon /></span>
         </div>
@@ -439,7 +439,7 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
           <button
             onClick={handleConfirm}
             disabled={!naturalSize || exporting}
-            className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
           >
             {exporting ? <><Spinner /> Applying…</> : <><CheckIcon2 /> Use Photo</>}
           </button>
@@ -644,7 +644,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
                 src={displayAvatar}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover shadow-lg border-[3px] border-white"
-                style={{ outline: pendingPreview ? "3px solid #7c3aed" : "none", outlineOffset: 2 }}
+                style={{ outline: pendingPreview ? "3px solid #0f766e" : "none", outlineOffset: 2 }}
               />
             ) : (
               <span
@@ -666,7 +666,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-md hover:bg-violet-700 transition-colors border-2 border-white"
+              className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors border-2 border-white"
             >
               <CameraIcon />
             </button>
@@ -684,20 +684,20 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
             {profile?.full_name}
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">@{profile?.username}</p>
-          <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700 capitalize">
+          <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700 capitalize">
             {formatRole(profile?.role)}
           </span>
 
           {pendingPreview && (
-            <div className="mt-3 w-full bg-white/90 backdrop-blur rounded-xl px-4 py-2.5 flex items-center gap-2 shadow border border-violet-200">
-              <span className="text-[11px] text-violet-700 font-bold flex-1">New photo selected — upload it?</span>
+            <div className="mt-3 w-full bg-white/90 backdrop-blur rounded-xl px-4 py-2.5 flex items-center gap-2 shadow border border-teal-200">
+              <span className="text-[11px] text-teal-700 font-bold flex-1">New photo selected — upload it?</span>
               <button onClick={handleCancelPhoto} className="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-gray-200 text-gray-500 hover:bg-gray-100 transition-colors">
                 Cancel
               </button>
               <button
                 onClick={handleUploadPhoto}
                 disabled={uploadingPhoto}
-                className="px-3 py-1 rounded-lg text-[11px] font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center gap-1.5 transition-colors"
+                className="px-3 py-1 rounded-lg text-[11px] font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60 flex items-center gap-1.5 transition-colors"
               >
                 {uploadingPhoto ? <><Spinner /> Uploading…</> : <><CheckIcon2 /> Upload</>}
               </button>
@@ -767,7 +767,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
+                className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
               >
                 {saving ? <><Spinner /> Saving…</> : <><CheckIcon2 /> Save Changes</>}
               </button>
@@ -775,7 +775,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
           ) : (
             <button
               onClick={() => setEditing(true)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition-colors"
             >
               <EditIcon /> Edit Profile
             </button>
@@ -804,7 +804,7 @@ function PField({ label, children }) {
         return (
           <child.type
             {...child.props}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-900 bg-white outline-none focus:border-violet-500 transition-colors"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-900 bg-white outline-none focus:border-teal-500 transition-colors"
           />
         );
       })()}
@@ -894,13 +894,13 @@ function MessageToast({ m, onDismiss, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group pointer-events-auto relative w-[340px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl border border-violet-100 px-4 py-3.5 flex items-start gap-3 cursor-pointer animate-[msg-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
-      style={{ fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 20px -4px rgba(124,58,237,0.12), 0 2px 6px -2px rgba(0,0,0,0.06)" }}
+      className="group pointer-events-auto relative w-[340px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl border border-teal-100 px-4 py-3.5 flex items-start gap-3 cursor-pointer animate-[msg-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
+      style={{ fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 20px -4px rgba(15,118,110,0.14), 0 2px 6px -2px rgba(0,0,0,0.06)" }}
     >
       {m.photoUrl ? (
         <img src={m.photoUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
       ) : (
-        <span className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-violet-100 text-violet-700">
+        <span className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-teal-100 text-teal-700">
           {initials(m.name)}
         </span>
       )}
@@ -951,8 +951,8 @@ const NOTIF_FILTERS = [
 // type -> { icon, bg, fg } used for the round icon chip on the left of each row.
 // Keys match the `type` column notify() writes in task.routes.js.
 const NOTIF_TYPE_STYLE = {
-  task_assigned:         { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
-  task_status_changed:   { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#7c3aed" }, // violet
+  task_assigned:         { Icon: CheckCircleIcon, bg: "#ccfbf1", fg: "#0f766e" }, // teal
+  task_status_changed:   { Icon: CheckCircleIcon, bg: "#ccfbf1", fg: "#0f766e" }, // teal
   task_submitted:        { Icon: CheckCircleIcon, bg: "#d1fae5", fg: "#065f46" }, // green
   task_comment_added:    { Icon: MessageIcon,     bg: "#dbeafe", fg: "#2563eb" }, // blue
   task_attachment_added: { Icon: DocumentIcon,    bg: "#dbeafe", fg: "#2563eb" }, // blue
@@ -1017,14 +1017,14 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
         <div className="flex items-center gap-2">
           <span className="text-[15px] font-extrabold text-gray-900">Notifications</span>
           {unreadCount > 0 && (
-            <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full">
               {unreadCount} Unread
             </span>
           )}
         </div>
         <button
           onClick={onMarkAllRead}
-          className="text-[11px] font-semibold text-gray-400 hover:text-violet-600 transition-colors"
+          className="text-[11px] font-semibold text-gray-400 hover:text-teal-600 transition-colors"
         >
           Mark all as read
         </button>
@@ -1039,7 +1039,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                active ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                active ? "bg-teal-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
               }`}
             >
               {f.label}
@@ -1065,7 +1065,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
             <div
               key={n.id}
               onClick={() => onSelect(n)}
-              className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-violet-50/30" : ""}`}
+              className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-teal-50/30" : ""}`}
             >
               <span
                 className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
@@ -1075,7 +1075,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
               </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
-                  <p className={`text-xs leading-snug ${n.unread ? "font-bold text-violet-700" : "font-bold text-gray-800"}`}>
+                  <p className={`text-xs leading-snug ${n.unread ? "font-bold text-teal-700" : "font-bold text-gray-800"}`}>
                     {n.title}
                   </p>
                   <span className="flex items-center gap-0.5 text-[10px] text-gray-400 shrink-0 mt-0.5">
@@ -1094,7 +1094,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
       <div className="px-4 py-3 border-t border-gray-100 text-center">
         <button
           onClick={onViewAll}
-          className="inline-flex items-center gap-1 text-xs text-violet-600 font-bold hover:text-violet-700 transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-teal-600 font-bold hover:text-teal-700 transition-colors"
         >
           View All Notifications
           <ChevronRightIcon />
@@ -1159,31 +1159,30 @@ const TB = {
   bar: {
     display: "flex", alignItems: "center", gap: "14px",
     padding: "10px 24px 10px 20px",
-    borderBottom: "1px solid #efe9fb",
-    background: "linear-gradient(180deg, #fdfcff 0%, #ffffff 55%)",
-    boxShadow: "0 1px 0 rgba(20, 16, 40, 0.03), 0 6px 18px -10px rgba(109, 40, 217, 0.14)",
+    borderBottom: "1px solid #e9e6de",
+    background: "linear-gradient(180deg, #fbfaf7 0%, #ffffff 55%)",
+    boxShadow: "0 1px 0 rgba(20, 18, 14, 0.03), 0 6px 18px -10px rgba(15, 94, 82, 0.16)",
     position: "sticky", top: 0, zIndex: 10,
     fontFamily: "'DM Sans', sans-serif",
     fontSize: "16px", lineHeight: "normal", boxSizing: "border-box",
   },
-  // thin gradient hairline glued to the very bottom edge — a small signature
-  // touch so the bar doesn't just end on a flat grey border
+  // thin solid rule glued to the very bottom edge — a quiet ledger-line touch
+  // instead of a decorative animated sweep
   topAccent: {
     position: "absolute", left: 0, right: 0, bottom: "-1px", height: "2px",
-    background: "linear-gradient(90deg, #a78bfa 0%, #7c3aed 22%, #3b82f6 50%, #10b981 78%, #a78bfa 100%)",
-    backgroundSize: "200% 100%", opacity: 0.55,
+    background: "#0f766e", opacity: 0.35,
   },
   childrenSlot: { flex: "1 1 0%", minWidth: 0 },
   rightGroup: { display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 },
   divider: {
     width: "1px", height: "24px", flexShrink: 0,
-    background: "linear-gradient(180deg, transparent 0%, #e3ddf3 50%, transparent 100%)",
+    background: "linear-gradient(180deg, transparent 0%, #e2ded2 50%, transparent 100%)",
   },
   bellWrap: { position: "relative" },
   iconBtn: {
     position: "relative", width: "36px", height: "36px", borderRadius: "9999px",
     display: "flex", alignItems: "center", justifyContent: "center",
-    color: "#6b6478", background: "#f8f7fc", border: "1px solid #f0eefa", padding: 0,
+    color: "#6b6f76", background: "#f6f6f2", border: "1px solid #e8e6de", padding: 0,
     cursor: "pointer", boxSizing: "border-box",
     transition: "background-color .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease",
   },
@@ -1202,7 +1201,7 @@ const TB = {
   profileBtn: {
     display: "flex", alignItems: "center", gap: "10px",
     padding: "4px 12px 4px 4px", borderRadius: "9999px",
-    background: "#f8f7fc", border: "1px solid #f0eefa", cursor: "pointer", boxSizing: "border-box",
+    background: "#f6f6f2", border: "1px solid #e8e6de", cursor: "pointer", boxSizing: "border-box",
     transition: "background-color .15s ease, box-shadow .15s ease",
   },
   avatarRing: {
@@ -1231,7 +1230,7 @@ const TB = {
     margin: 0, borderRadius: "9999px",
     padding: "2px 7px", width: "fit-content", letterSpacing: "0.01em",
   },
-  chevron: { color: "#a79fc0", flexShrink: 0, transition: "transform .18s ease" },
+  chevron: { color: "#9a978d", flexShrink: 0, transition: "transform .18s ease" },
 };
 
 // ─── MAIN TOPBAR ─────────────────────────────────────────────────────────────
@@ -1395,7 +1394,7 @@ export default function TopBar({ children, onLogout }) {
   return (
     <>
       <div style={{ ...TB.bar, position: "sticky" }}>
-        <div style={TB.topAccent} className="tb-accent-sweep" />
+        <div style={TB.topAccent} />
 
         <div style={TB.childrenSlot}>{children}</div>
 
@@ -1405,8 +1404,8 @@ export default function TopBar({ children, onLogout }) {
           <div style={TB.bellWrap} ref={notifRef}>
             <button
               onClick={() => { setShowNotif(v => !v); setShowDropdown(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; e.currentTarget.style.color = "#6d28d9"; e.currentTarget.style.borderColor = "#e6ddfb"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(109,40,217,0.25)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f8f7fc"; e.currentTarget.style.color = "#6b6478"; e.currentTarget.style.borderColor = "#f0eefa"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#eaf5f2"; e.currentTarget.style.color = "#0f5c52"; e.currentTarget.style.borderColor = "#bfe3da"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(15,94,82,0.28)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f6f6f2"; e.currentTarget.style.color = "#6b6f76"; e.currentTarget.style.borderColor = "#e8e6de"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
               style={TB.iconBtn}
               title="Notifications"
             >
@@ -1436,8 +1435,8 @@ export default function TopBar({ children, onLogout }) {
           <div style={TB.profileWrap} ref={dropRef}>
             <button
               onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(109,40,217,0.2)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f8f7fc"; e.currentTarget.style.boxShadow = "none"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#eaf5f2"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(15,94,82,0.22)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f6f6f2"; e.currentTarget.style.boxShadow = "none"; }}
               style={TB.profileBtn}
               title="Account menu"
             >
@@ -1481,11 +1480,6 @@ export default function TopBar({ children, onLogout }) {
           100% { transform: scale(1.9); opacity: 0; }
         }
         .tb-badge-pulse { animation: tb-pulse 2.2s ease-out infinite; }
-        @keyframes tb-accent-sweep {
-          0%   { background-position: 0% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .tb-accent-sweep { animation: tb-accent-sweep 6s linear infinite; }
       `}</style>
 
       {showProfile && (
