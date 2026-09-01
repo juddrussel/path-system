@@ -1404,8 +1404,8 @@ export default function TopBar({ children, onLogout }) {
           <div style={TB.bellWrap} ref={notifRef}>
             <button
               onClick={() => { setShowNotif(v => !v); setShowDropdown(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#eaf5f2"; e.currentTarget.style.color = "#0f5c52"; e.currentTarget.style.borderColor = "#bfe3da"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(15,94,82,0.28)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f6f6f2"; e.currentTarget.style.color = "#6b6f76"; e.currentTarget.style.borderColor = "#e8e6de"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#e8f5f2"; e.currentTarget.style.color = "#0f766e"; e.currentTarget.style.borderColor = "#b2ddd6"; e.currentTarget.style.boxShadow = "0 2px 8px -2px rgba(15,118,110,0.20)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#5c6068"; e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.boxShadow = "none"; }}
               style={TB.iconBtn}
               title="Notifications"
             >
@@ -1435,8 +1435,8 @@ export default function TopBar({ children, onLogout }) {
           <div style={TB.profileWrap} ref={dropRef}>
             <button
               onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#eaf5f2"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(15,94,82,0.22)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f6f6f2"; e.currentTarget.style.boxShadow = "none"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#e8f5f2"; e.currentTarget.style.borderColor = "#b2ddd6"; e.currentTarget.style.boxShadow = "0 2px 8px -2px rgba(15,118,110,0.18)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.boxShadow = "none"; }}
               style={TB.profileBtn}
               title="Account menu"
             >
@@ -1448,7 +1448,7 @@ export default function TopBar({ children, onLogout }) {
                     {initials(profile?.full_name)}
                   </span>
                 )}
-                <span style={{ ...TB.statusDot, background: rc.dot }} title="Online" />
+                <span style={TB.statusDot} title="Online" />
               </span>
               <div className="hidden sm:flex" style={TB.nameBlock}>
                 <p style={TB.name}>
