@@ -252,6 +252,17 @@ const ROLE_LABELS = {
 function formatRole(role) {
   return ROLE_LABELS[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : "User");
 }
+// Distinct accent per role so the badge (and avatar ring) carry real
+// meaning at a glance instead of every role looking the same violet.
+const ROLE_COLORS = {
+  admin:         { fg: "#7c3aed", bg: "#f4f0fe", ring: "linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%)", dot: "#8b5cf6" },
+  program_chair: { fg: "#1d4ed8", bg: "#eaf1ff", ring: "linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%)", dot: "#3b82f6" },
+  user:          { fg: "#047857", bg: "#e8faf3", ring: "linear-gradient(135deg, #34d399 0%, #047857 100%)", dot: "#10b981" },
+  guest:         { fg: "#6b6478", bg: "#f1f0f6", ring: "linear-gradient(135deg, #c7c2d6 0%, #8d87a3 100%)", dot: "#9691a8" },
+};
+function roleColors(role) {
+  return ROLE_COLORS[role] || ROLE_COLORS.guest;
+}
 const AVATAR_COLORS = [
   ["#ede9fe", "#5b21b6"], ["#dbeafe", "#1d4ed8"], ["#d1fae5", "#065f46"],
   ["#fef3c7", "#92400e"], ["#fce7f3", "#9d174d"], ["#e0f2fe", "#0369a1"],
@@ -1146,46 +1157,56 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
 // Tailwind classes since they're cosmetic, not structural.
 const TB = {
   bar: {
-    display: "flex", alignItems: "center", gap: "10px",
-    padding: "11px 24px",
-    borderBottom: "1px solid #f1f0f6",
-    background: "#ffffff",
-    boxShadow: "0 1px 0 rgba(20, 16, 40, 0.03), 0 2px 10px -6px rgba(20, 16, 40, 0.08)",
+    display: "flex", alignItems: "center", gap: "14px",
+    padding: "10px 24px 10px 20px",
+    borderBottom: "1px solid #efe9fb",
+    background: "linear-gradient(180deg, #fdfcff 0%, #ffffff 55%)",
+    boxShadow: "0 1px 0 rgba(20, 16, 40, 0.03), 0 6px 18px -10px rgba(109, 40, 217, 0.14)",
     position: "sticky", top: 0, zIndex: 10,
     fontFamily: "'DM Sans', sans-serif",
     fontSize: "16px", lineHeight: "normal", boxSizing: "border-box",
   },
+  // thin gradient hairline glued to the very bottom edge — a small signature
+  // touch so the bar doesn't just end on a flat grey border
+  topAccent: {
+    position: "absolute", left: 0, right: 0, bottom: "-1px", height: "2px",
+    background: "linear-gradient(90deg, #a78bfa 0%, #7c3aed 22%, #3b82f6 50%, #10b981 78%, #a78bfa 100%)",
+    backgroundSize: "200% 100%", opacity: 0.55,
+  },
   childrenSlot: { flex: "1 1 0%", minWidth: 0 },
-  rightGroup: { display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 },
-  divider: { width: "1px", height: "22px", background: "#eeecf5", flexShrink: 0 },
+  rightGroup: { display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 },
+  divider: {
+    width: "1px", height: "24px", flexShrink: 0,
+    background: "linear-gradient(180deg, transparent 0%, #e3ddf3 50%, transparent 100%)",
+  },
   bellWrap: { position: "relative" },
   iconBtn: {
-    position: "relative", width: "34px", height: "34px", borderRadius: "9999px",
+    position: "relative", width: "36px", height: "36px", borderRadius: "9999px",
     display: "flex", alignItems: "center", justifyContent: "center",
-    color: "#6b6478", background: "transparent", border: "none", padding: 0,
-    cursor: "pointer", boxSizing: "border-box", transition: "background-color .15s ease, color .15s ease",
+    color: "#6b6478", background: "#f8f7fc", border: "1px solid #f0eefa", padding: 0,
+    cursor: "pointer", boxSizing: "border-box",
+    transition: "background-color .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease",
   },
   badge: {
-    position: "absolute", top: "3px", right: "3px", minWidth: "16px", height: "16px",
-    borderRadius: "9999px", background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
-    color: "#ffffff", boxShadow: "0 0 0 2px #ffffff",
+    position: "absolute", top: "-2px", right: "-2px", minWidth: "17px", height: "17px",
+    borderRadius: "9999px", background: "linear-gradient(135deg, #f472b6 0%, #db2777 100%)",
+    color: "#ffffff", boxShadow: "0 0 0 2px #ffffff, 0 1px 4px rgba(219,39,119,0.45)",
     fontSize: "9px", fontWeight: 700, display: "flex", alignItems: "center",
     justifyContent: "center", lineHeight: 1, boxSizing: "border-box", padding: "0 3px",
   },
   badgePulse: {
-    position: "absolute", top: "3px", right: "3px", width: "16px", height: "16px",
-    borderRadius: "9999px", background: "#8b5cf6", opacity: 0.55,
+    position: "absolute", top: "-2px", right: "-2px", width: "17px", height: "17px",
+    borderRadius: "9999px", background: "#ec4899", opacity: 0.55,
   },
   profileWrap: { position: "relative" },
   profileBtn: {
-    display: "flex", alignItems: "center", gap: "9px",
-    padding: "4px 10px 4px 4px", borderRadius: "9999px",
-    background: "transparent", border: "none", cursor: "pointer", boxSizing: "border-box",
-    transition: "background-color .15s ease",
+    display: "flex", alignItems: "center", gap: "10px",
+    padding: "4px 12px 4px 4px", borderRadius: "9999px",
+    background: "#f8f7fc", border: "1px solid #f0eefa", cursor: "pointer", boxSizing: "border-box",
+    transition: "background-color .15s ease, box-shadow .15s ease",
   },
   avatarRing: {
-    width: "30px", height: "30px", borderRadius: "9999px", padding: "2px",
-    background: "linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)",
+    position: "relative", width: "32px", height: "32px", borderRadius: "9999px", padding: "2px",
     display: "flex", alignItems: "center", justifyContent: "center",
     flexShrink: 0, boxSizing: "border-box",
   },
@@ -1195,15 +1216,20 @@ const TB = {
   },
   avatarFallback: {
     width: "100%", height: "100%", borderRadius: "9999px", display: "flex",
-    alignItems: "center", justifyContent: "center", fontSize: "10px",
+    alignItems: "center", justifyContent: "center", fontSize: "10.5px",
     fontWeight: 700, border: "1.5px solid #ffffff", boxSizing: "border-box",
+  },
+  statusDot: {
+    position: "absolute", bottom: "-1px", right: "-1px", width: "9px", height: "9px",
+    borderRadius: "9999px", background: "#10b981", border: "2px solid #ffffff",
+    boxSizing: "border-box",
   },
   nameBlock: { textAlign: "left", display: "flex", flexDirection: "column", gap: "2px" },
   name: { fontSize: "12.5px", fontWeight: 700, color: "#211d33", lineHeight: 1.1, margin: 0 },
   role: {
-    fontSize: "9.5px", fontWeight: 600, color: "#7c3aed", lineHeight: 1,
-    margin: 0, background: "#f4f0fe", borderRadius: "9999px",
-    padding: "2px 7px", width: "fit-content",
+    fontSize: "9.5px", fontWeight: 700, lineHeight: 1,
+    margin: 0, borderRadius: "9999px",
+    padding: "2px 7px", width: "fit-content", letterSpacing: "0.01em",
   },
   chevron: { color: "#a79fc0", flexShrink: 0, transition: "transform .18s ease" },
 };
@@ -1364,10 +1390,13 @@ export default function TopBar({ children, onLogout }) {
 
   const unreadCount = notifications.filter(n => n.unread).length;
   const [bg, fg] = avatarBg(profile?.full_name || "");
+  const rc = roleColors(profile?.role);
 
   return (
     <>
-      <div style={TB.bar}>
+      <div style={{ ...TB.bar, position: "sticky" }}>
+        <div style={TB.topAccent} className="tb-accent-sweep" />
+
         <div style={TB.childrenSlot}>{children}</div>
 
         <div style={TB.rightGroup}>
@@ -1376,9 +1405,10 @@ export default function TopBar({ children, onLogout }) {
           <div style={TB.bellWrap} ref={notifRef}>
             <button
               onClick={() => { setShowNotif(v => !v); setShowDropdown(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; e.currentTarget.style.color = "#6d28d9"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#6b6478"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; e.currentTarget.style.color = "#6d28d9"; e.currentTarget.style.borderColor = "#e6ddfb"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(109,40,217,0.25)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f8f7fc"; e.currentTarget.style.color = "#6b6478"; e.currentTarget.style.borderColor = "#f0eefa"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
               style={TB.iconBtn}
+              title="Notifications"
             >
               <BellIcon />
               {unreadCount > 0 && (
@@ -1406,11 +1436,12 @@ export default function TopBar({ children, onLogout }) {
           <div style={TB.profileWrap} ref={dropRef}>
             <button
               onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; e.currentTarget.style.boxShadow = "0 4px 10px -4px rgba(109,40,217,0.2)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f8f7fc"; e.currentTarget.style.boxShadow = "none"; }}
               style={TB.profileBtn}
+              title="Account menu"
             >
-              <span style={TB.avatarRing}>
+              <span style={{ ...TB.avatarRing, background: rc.ring }}>
                 {profile?.avatar_url ? (
                   <img src={fullAvatarUrl(profile.avatar_url)} alt="" style={TB.avatarImg} />
                 ) : (
@@ -1418,12 +1449,13 @@ export default function TopBar({ children, onLogout }) {
                     {initials(profile?.full_name)}
                   </span>
                 )}
+                <span style={{ ...TB.statusDot, background: rc.dot }} title="Online" />
               </span>
               <div className="hidden sm:flex" style={TB.nameBlock}>
                 <p style={TB.name}>
                   {profile?.full_name || profile?.username || "User"}
                 </p>
-                <span style={TB.role}>{formatRole(profile?.role)}</span>
+                <span style={{ ...TB.role, color: rc.fg, background: rc.bg }}>{formatRole(profile?.role)}</span>
               </div>
               <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
                 <path d="M2 4l4 4 4-4" strokeLinecap="round" />
@@ -1449,6 +1481,11 @@ export default function TopBar({ children, onLogout }) {
           100% { transform: scale(1.9); opacity: 0; }
         }
         .tb-badge-pulse { animation: tb-pulse 2.2s ease-out infinite; }
+        @keyframes tb-accent-sweep {
+          0%   { background-position: 0% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .tb-accent-sweep { animation: tb-accent-sweep 6s linear infinite; }
       `}</style>
 
       {showProfile && (
