@@ -1147,47 +1147,65 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
 const TB = {
   bar: {
     display: "flex", alignItems: "center", gap: "10px",
-    padding: "10px 20px",
-    borderBottom: "1px solid #f3f4f6",
+    padding: "11px 24px",
+    borderBottom: "1px solid #f1f0f6",
     background: "#ffffff",
+    boxShadow: "0 1px 0 rgba(20, 16, 40, 0.03), 0 2px 10px -6px rgba(20, 16, 40, 0.08)",
     position: "sticky", top: 0, zIndex: 10,
     fontFamily: "'DM Sans', sans-serif",
     fontSize: "16px", lineHeight: "normal", boxSizing: "border-box",
   },
   childrenSlot: { flex: "1 1 0%", minWidth: 0 },
-  rightGroup: { display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 },
+  rightGroup: { display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 },
+  divider: { width: "1px", height: "22px", background: "#eeecf5", flexShrink: 0 },
   bellWrap: { position: "relative" },
   iconBtn: {
-    position: "relative", width: "32px", height: "32px", borderRadius: "8px",
+    position: "relative", width: "34px", height: "34px", borderRadius: "9999px",
     display: "flex", alignItems: "center", justifyContent: "center",
-    color: "#6b7280", background: "transparent", border: "none", padding: 0,
-    cursor: "pointer", boxSizing: "border-box",
+    color: "#6b6478", background: "transparent", border: "none", padding: 0,
+    cursor: "pointer", boxSizing: "border-box", transition: "background-color .15s ease, color .15s ease",
   },
   badge: {
-    position: "absolute", top: "4px", right: "4px", width: "16px", height: "16px",
-    borderRadius: "9999px", background: "#7c3aed", color: "#ffffff",
+    position: "absolute", top: "3px", right: "3px", minWidth: "16px", height: "16px",
+    borderRadius: "9999px", background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+    color: "#ffffff", boxShadow: "0 0 0 2px #ffffff",
     fontSize: "9px", fontWeight: 700, display: "flex", alignItems: "center",
-    justifyContent: "center", lineHeight: 1, boxSizing: "border-box",
+    justifyContent: "center", lineHeight: 1, boxSizing: "border-box", padding: "0 3px",
+  },
+  badgePulse: {
+    position: "absolute", top: "3px", right: "3px", width: "16px", height: "16px",
+    borderRadius: "9999px", background: "#8b5cf6", opacity: 0.55,
   },
   profileWrap: { position: "relative" },
   profileBtn: {
-    display: "flex", alignItems: "center", gap: "8px",
-    padding: "4px 8px 4px 4px", borderRadius: "8px",
+    display: "flex", alignItems: "center", gap: "9px",
+    padding: "4px 10px 4px 4px", borderRadius: "9999px",
     background: "transparent", border: "none", cursor: "pointer", boxSizing: "border-box",
+    transition: "background-color .15s ease",
+  },
+  avatarRing: {
+    width: "30px", height: "30px", borderRadius: "9999px", padding: "2px",
+    background: "linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    flexShrink: 0, boxSizing: "border-box",
   },
   avatarImg: {
-    width: "28px", height: "28px", borderRadius: "9999px", objectFit: "cover",
-    border: "1px solid #e5e7eb", boxSizing: "border-box",
+    width: "100%", height: "100%", borderRadius: "9999px", objectFit: "cover",
+    border: "1.5px solid #ffffff", boxSizing: "border-box", display: "block",
   },
   avatarFallback: {
-    width: "28px", height: "28px", borderRadius: "9999px", display: "flex",
+    width: "100%", height: "100%", borderRadius: "9999px", display: "flex",
     alignItems: "center", justifyContent: "center", fontSize: "10px",
-    fontWeight: 700, border: "1px solid #e5e7eb", boxSizing: "border-box",
+    fontWeight: 700, border: "1.5px solid #ffffff", boxSizing: "border-box",
   },
-  nameBlock: { textAlign: "left" },
-  name: { fontSize: "12px", fontWeight: 700, color: "#1f2937", lineHeight: 1.2, margin: 0 },
-  role: { fontSize: "10px", color: "#9ca3af", lineHeight: 1.2, margin: "0" },
-  chevron: { color: "#9ca3af", flexShrink: 0 },
+  nameBlock: { textAlign: "left", display: "flex", flexDirection: "column", gap: "2px" },
+  name: { fontSize: "12.5px", fontWeight: 700, color: "#211d33", lineHeight: 1.1, margin: 0 },
+  role: {
+    fontSize: "9.5px", fontWeight: 600, color: "#7c3aed", lineHeight: 1,
+    margin: 0, background: "#f4f0fe", borderRadius: "9999px",
+    padding: "2px 7px", width: "fit-content",
+  },
+  chevron: { color: "#a79fc0", flexShrink: 0, transition: "transform .18s ease" },
 };
 
 // ─── MAIN TOPBAR ─────────────────────────────────────────────────────────────
@@ -1358,14 +1376,16 @@ export default function TopBar({ children, onLogout }) {
           <div style={TB.bellWrap} ref={notifRef}>
             <button
               onClick={() => { setShowNotif(v => !v); setShowDropdown(false); }}
-              className="hover:bg-gray-100 transition-colors"
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; e.currentTarget.style.color = "#6d28d9"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#6b6478"; }}
               style={TB.iconBtn}
             >
               <BellIcon />
               {unreadCount > 0 && (
-                <span style={TB.badge}>
-                  {unreadCount}
-                </span>
+                <>
+                  <span style={TB.badgePulse} className="tb-badge-pulse" />
+                  <span style={TB.badge}>{unreadCount > 9 ? "9+" : unreadCount}</span>
+                </>
               )}
             </button>
             {showNotif && (
@@ -1380,27 +1400,32 @@ export default function TopBar({ children, onLogout }) {
             )}
           </div>
 
+          <div style={TB.divider} />
+
           {/* Profile Avatar Button */}
           <div style={TB.profileWrap} ref={dropRef}>
             <button
               onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
-              className="hover:bg-gray-100 transition-colors"
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#f6f4fc"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
               style={TB.profileBtn}
             >
-              {profile?.avatar_url ? (
-                <img src={fullAvatarUrl(profile.avatar_url)} alt="" style={TB.avatarImg} />
-              ) : (
-                <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
-                  {initials(profile?.full_name)}
-                </span>
-              )}
-              <div className="hidden sm:block" style={TB.nameBlock}>
+              <span style={TB.avatarRing}>
+                {profile?.avatar_url ? (
+                  <img src={fullAvatarUrl(profile.avatar_url)} alt="" style={TB.avatarImg} />
+                ) : (
+                  <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
+                    {initials(profile?.full_name)}
+                  </span>
+                )}
+              </span>
+              <div className="hidden sm:flex" style={TB.nameBlock}>
                 <p style={TB.name}>
                   {profile?.full_name || profile?.username || "User"}
                 </p>
-                <p style={TB.role}>{formatRole(profile?.role)}</p>
+                <span style={TB.role}>{formatRole(profile?.role)}</span>
               </div>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px" }}>
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
                 <path d="M2 4l4 4 4-4" strokeLinecap="round" />
               </svg>
             </button>
@@ -1416,6 +1441,15 @@ export default function TopBar({ children, onLogout }) {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes tb-pulse {
+          0%   { transform: scale(1);   opacity: 0.55; }
+          70%  { transform: scale(1.9); opacity: 0; }
+          100% { transform: scale(1.9); opacity: 0; }
+        }
+        .tb-badge-pulse { animation: tb-pulse 2.2s ease-out infinite; }
+      `}</style>
 
       {showProfile && (
         <ProfileModal
