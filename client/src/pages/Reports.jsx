@@ -28,7 +28,7 @@ const PATH_REPORTS_CSS = `
   .path-reports-content { width:100%; margin:0 auto; padding:28px 30px 42px !important; gap:18px !important; }
   @media (min-width:1100px) { .path-reports-content { padding-left:clamp(48px,5vw,84px) !important; padding-right:clamp(48px,5vw,84px) !important; } }
   .path-reports-hero { min-height:148px; padding:28px 24px !important; border:1px solid #e4dbf2; border-left:2px solid #c4b5fd; border-radius:12px; background:linear-gradient(112deg,#fcfaff 0%,#f5efff 100%); }
-  .path-reports-hero h1 { margin:9px 0 7px !important; color:#302638 !important; font-family:'Manrope',sans-serif !important; font-size:clamp(30px,4vw,43px) !important; letter-spacing:-.06em; }
+  .path-reports-hero h1 { margin:9px 0 7px !important; color:#302638 !important; font-family:'Manrope',sans-serif !important; font-size:31px !important; letter-spacing:-.06em; }
   .path-reports-hero p { color:#91859d !important; font-size:13px !important; }
   .path-reports-filter { padding:15px 18px !important; border:1px solid #e6e0ec !important; border-radius:10px !important; box-shadow:0 7px 20px rgba(67,44,89,.035) !important; }
   .path-report-tabs { gap:26px !important; overflow-x:auto; padding:0 0 10px !important; border-bottom:1px solid #e3ddec !important; scrollbar-width:none; }
