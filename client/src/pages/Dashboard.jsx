@@ -3333,6 +3333,38 @@ export default function Dashboard() {
           margin: 0 !important;
         }
       `}</style>
+      <style>{`
+        #path-hero-vivid {
+          background: linear-gradient(135deg, #2A1857 0%, #4C2889 48%, #7C3AED 100%) !important;
+          border: none !important;
+          padding: 30px 32px !important;
+          border-radius: 20px !important;
+          box-shadow: 0 20px 40px rgba(76,29,149,.25) !important;
+          margin: 0 !important;
+        }
+        #path-hero-vivid h1 {
+          color: #fff !important;
+          font-size: 34px !important;
+        }
+        #path-hero-vivid p {
+          color: #D9CBFF !important;
+          font-size: 14px !important;
+        }
+        #path-hero-vivid > div:last-child > div {
+          background: rgba(255,255,255,.1) !important;
+          border: 1px solid rgba(255,255,255,.16) !important;
+          box-shadow: none !important;
+          border-radius: 12px !important;
+        }
+        @media (max-width: 900px) {
+          #path-hero-vivid { padding: 22px 18px !important; }
+          #path-hero-vivid h1 { font-size: 26px !important; }
+        }
+        @media (max-width: 640px) {
+          #path-hero-vivid { display: block !important; }
+          #path-hero-vivid > div:last-child { margin-top: 20px !important; }
+        }
+      `}</style>
 
       {/* ── Main ── */}
       <div
@@ -3367,7 +3399,7 @@ export default function Dashboard() {
             <>
               {/* ── Welcome Header ── */}
               <div
-                className="path-hero"
+                id="path-hero-vivid"
                 style={{
                   position: "relative",
                   overflow: "hidden",
