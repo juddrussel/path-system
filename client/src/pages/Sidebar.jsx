@@ -192,7 +192,7 @@ const styles = `
     box-shadow: 0 4px 14px rgba(109,40,217,0.55), 0 1px 0 rgba(255,255,255,0.2) inset;
   }
   .path-sidebar__name { color: #f5f3ff; font-size: 14.5px; font-weight: 800; letter-spacing: .06em; line-height: 1; }
-  .path-sidebar__subname { display: block; margin-top: 3px; color: rgba(196,181,253,0.6); font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .path-sidebar__subname { display: block; margin-top: 3px; color: rgba(216,180,254,0.85); font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 
   /* thin divider after brand */
   .path-sidebar__divider {
@@ -209,7 +209,7 @@ const styles = `
   .path-sidebar__group + .path-sidebar__group { margin-top: 20px; }
   .path-sidebar__group-label {
     display: block; margin: 0 8px 8px;
-    color: rgba(196,181,253,0.5); font-size: 9.5px; font-weight: 800;
+    color: rgba(216,180,254,0.75); font-size: 9.5px; font-weight: 800;
     letter-spacing: .14em; text-transform: uppercase;
   }
   .path-sidebar__items { display: flex; flex-direction: column; gap: 2px; }
@@ -217,9 +217,9 @@ const styles = `
     width: 100%; display: flex; align-items: center; gap: 10px;
     min-height: 36px; border: 1px solid transparent; border-radius: 10px;
     padding: 0 10px;
-    background: transparent; color: rgba(237,233,254,0.65);
+    background: transparent; color: rgba(245,240,255,0.82);
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-    font-size: 13px !important; font-weight: 500 !important; line-height: normal !important;
+    font-size: 13px !important; font-weight: 600 !important; line-height: normal !important;
     text-align: left; cursor: pointer;
     transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
   }
@@ -236,7 +236,7 @@ const styles = `
     box-shadow: 0 2px 12px -4px rgba(109,40,217,0.5);
   }
   .path-sidebar__item--active:hover { background: rgba(255,255,255,0.16); }
-  .path-sidebar__item-icon { display: grid; width: 16px; height: 16px; flex: 0 0 auto; place-items: center; opacity: .7; }
+  .path-sidebar__item-icon { display: grid; width: 16px; height: 16px; flex: 0 0 auto; place-items: center; opacity: .85; }
   .path-sidebar__item--active .path-sidebar__item-icon,
   .path-sidebar__item:hover .path-sidebar__item-icon { opacity: 1; }
   .path-sidebar__item-label { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
