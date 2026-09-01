@@ -592,7 +592,7 @@ function StatusBadge({ status }) {
         border: `1px solid ${s.border}`,
         padding: "3px 10px 3px 8px",
         borderRadius: 20,
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: 600,
       }}
     >
@@ -739,7 +739,7 @@ function StatCard({
       >
         <span
           style={{
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 500,
             color: "#494454",
             textTransform: "uppercase",
@@ -774,7 +774,7 @@ function StatCard({
               alignItems: "center",
               gap: 4,
               marginTop: 8,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 500,
               color: deltaColor,
             }}
@@ -855,7 +855,7 @@ function Modal({ title, onClose, children, width = 520 }) {
           }}
         >
           <h3
-            style={{ fontSize: 16, fontWeight: 800, color: "#111", margin: 0 }}
+            style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: 0 }}
           >
             {title}
           </h3>
@@ -906,7 +906,7 @@ function Toast({ toasts, onDismiss }) {
             color: "white",
             borderRadius: 10,
             padding: "12px 16px",
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: 600,
             boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
             display: "flex",
@@ -917,7 +917,7 @@ function Toast({ toasts, onDismiss }) {
             animation: "slideIn 0.2s ease",
           }}
         >
-          <span style={{ fontSize: 16 }}>
+          <span style={{ fontSize: 17 }}>
             {t.type === "success" ? "✓" : t.type === "info" ? "🔔" : "✕"}
           </span>
           <span style={{ flex: 1, lineHeight: 1.4 }}>{t.message}</span>
@@ -928,7 +928,7 @@ function Toast({ toasts, onDismiss }) {
               border: "none",
               color: "rgba(255,255,255,0.7)",
               cursor: "pointer",
-              fontSize: 16,
+              fontSize: 17,
               lineHeight: 1,
             }}
           >
@@ -1005,7 +1005,7 @@ function FacultySubmissionsWorkspace({
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
-        *{box-sizing:border-box}.faculty-submissions-shell{display:flex;min-height:100vh;background:#f8f7ff;color:#46394f;font-family:'DM Sans',sans-serif}.faculty-submissions-main{min-width:0;flex:1}.faculty-submissions-page{max-width:1360px;margin:0 auto;padding:30px 28px 48px}.faculty-submissions-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:148px;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.faculty-submissions-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.faculty-submissions-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.faculty-submissions-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope,sans-serif;letter-spacing:-.045em}.faculty-submissions-hero p{max-width:620px;margin:0;color:#83778b;font-size:13px;line-height:1.4}.faculty-submissions-insight{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #e9e0f2;border-radius:10px;background:#fff}.faculty-submissions-insight>i{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee6fc;color:#7543c7;font-style:normal}.faculty-submissions-insight strong,.faculty-submissions-insight small{display:block}.faculty-submissions-insight strong{color:#5d4e66;font-size:9px;font-weight:800}.faculty-submissions-insight small{margin-top:3px;color:#9e92a4;font-size:8px}.faculty-submissions-start{display:inline-flex;min-height:36px;align-items:center;gap:7px;border:0;border-radius:8px;padding:0 13px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;box-shadow:0 8px 16px rgba(124,58,237,.22);cursor:pointer}.faculty-submissions-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}.faculty-submissions-stat{position:relative;min-height:105px;overflow:hidden;border:1px solid #e6dfee;border-radius:11px;padding:15px;background:#fff;box-shadow:0 9px 22px rgba(54,36,87,.04)}.faculty-submissions-stat:after{position:absolute;right:-24px;top:-29px;width:88px;height:88px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.42),rgba(196,181,253,.08) 58%,transparent 70%);content:''}.faculty-submissions-stat.returned:after{background:radial-gradient(circle,rgba(224,168,104,.32),rgba(255,239,210,.1) 58%,transparent 70%)}.faculty-submissions-stat span{display:block;color:#988d9f;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.faculty-submissions-stat strong{display:block;margin-top:16px;color:#3e3047;font:800 26px Manrope,sans-serif;letter-spacing:-.06em}.faculty-submissions-stat small{display:block;margin-top:5px;color:#8f8399;font-size:8px}.faculty-submissions-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:21px;padding:18px 20px;border:1px solid #e6dfee;border-radius:11px;background:#fff}.faculty-submissions-toolbar-label{color:#978b9e;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.faculty-submissions-toolbar h2{margin:5px 0 0;color:#44354d;font:800 18px Manrope,sans-serif;letter-spacing:-.04em}.faculty-submissions-toolbar h2 span{display:inline-grid;min-width:20px;height:18px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font:800 8px 'DM Sans',sans-serif;vertical-align:middle}.faculty-submissions-toolbar p{margin:5px 0 0;color:#9c92a3;font-size:9px}.faculty-submissions-controls{display:flex;align-items:center;gap:9px}.faculty-submissions-search{display:flex;width:205px;align-items:center;gap:7px;padding:8px 10px;border:1px solid #ebe5f0;border-radius:7px;color:#8b8292}.faculty-submissions-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size:9px}.faculty-submissions-filters{display:flex;gap:4px}.faculty-submissions-filters button{min-height:30px;border:1px solid #e8e2ed;border-radius:6px;padding:0 8px;background:#fff;color:#978c9e;font-size:8px;font-weight:700;cursor:pointer}.faculty-submissions-filters button.active{border-color:#d9c8f4;background:#faf8fe;color:#7543c7}.faculty-submissions-layout{display:grid;grid-template-columns:minmax(0,1.58fr) minmax(285px,.72fr);gap:16px;margin-top:16px}.faculty-submissions-ledger,.faculty-submissions-detail{overflow:hidden;border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.faculty-submissions-table-head,.faculty-submission-row{display:grid;grid-template-columns:minmax(220px,1.35fr) minmax(110px,.66fr) 120px 18px;gap:12px;align-items:center}.faculty-submissions-table-head{padding:10px 19px;border-bottom:1px solid #f0edf4;background:#fbf9fd;color:#aaa0ad;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.faculty-submission-row{width:100%;min-height:79px;padding:12px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.faculty-submission-row:hover,.faculty-submission-row.selected{background:#fbf9ff}.faculty-submission-row.selected{box-shadow:inset 2px 0 #7c3aed}.faculty-submission-document{display:flex;min-width:0;align-items:center;gap:10px}.faculty-submission-icon{display:grid;flex:0 0 auto;width:32px;height:32px;place-items:center;border-radius:9px;background:#eee8fb;color:#7750c4;font-size:14px}.faculty-submission-icon.returned{background:#fff1e9;color:#c2745a}.faculty-submission-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.faculty-submission-copy strong{overflow:hidden;color:#51405a;font:800 10px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.faculty-submission-copy small{overflow:hidden;color:#a097a6;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.faculty-submission-copy small i{font-style:normal;color:#7a4bc1}.faculty-submission-status{display:flex;flex-direction:column;gap:5px}.faculty-submission-status b{width:max-content;border-radius:5px;padding:4px 6px;font-size:7px}.faculty-submission-status b.review{background:#f0e9fc;color:#7543c7}.faculty-submission-status b.returned{background:#fff4df;color:#a2762c}.faculty-submission-status b.approved{background:#e9f6ef;color:#4b8e70}.faculty-submission-status b.rejected{background:#fff0ed;color:#b5685d}.faculty-submission-status b.draft{background:#f1eef4;color:#7d7187}.faculty-submission-status small{color:#a095a5;font-size:8px}.faculty-submission-next strong{display:block;color:#6a5c73;font-size:9px}.faculty-submission-next small{display:block;margin-top:4px;color:#a198a5;font-size:8px}.faculty-submission-chevron{color:#a797b0;font-size:15px}.faculty-submissions-empty{display:flex;min-height:205px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:25px;color:#9d92a2;text-align:center}.faculty-submissions-empty strong{color:#6a5d73;font:800 12px Manrope,sans-serif}.faculty-submissions-empty span{font-size:9px}.faculty-submissions-detail{padding:19px}.faculty-submissions-detail-head{display:flex;align-items:flex-start;justify-content:space-between}.faculty-submissions-detail h3{margin:6px 0 0;color:#44354d;font:800 17px Manrope,sans-serif;letter-spacing:-.04em}.faculty-submissions-detail>p{margin:9px 0 0;color:#9c92a3;font-size:9px;line-height:1.5}.faculty-submissions-title{display:flex;align-items:center;gap:10px;margin-top:18px;padding-bottom:15px;border-bottom:1px solid #eee9f1}.faculty-submissions-avatar{display:grid;width:31px;height:31px;place-items:center;border-radius:9px;background:#eee7fd;color:#7543c7;font-size:8px;font-weight:800}.faculty-submissions-title strong{display:block;color:#51405a;font:800 10px Manrope,sans-serif}.faculty-submissions-title span{display:block;margin-top:3px;color:#9c92a3;font-size:8px}.faculty-submissions-status-card{margin-top:14px;padding:12px;border:1px solid #e8dff0;border-radius:8px;background:#fbf9ff}.faculty-submissions-status-card span{display:block;color:#a198a6;font-size:8px}.faculty-submissions-status-card strong{display:block;margin-top:5px;color:#614f6b;font:800 12px Manrope,sans-serif}.faculty-submissions-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.faculty-submissions-meta span{display:block;color:#aaa0ad;font-size:8px}.faculty-submissions-meta strong{display:block;margin-top:4px;overflow:hidden;color:#695b72;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.faculty-submissions-note{display:flex;gap:8px;margin-top:15px;padding:10px;border:1px solid #e3d8f3;border-radius:8px;background:#fbf9ff;color:#7543c7}.faculty-submissions-note i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#eee7fd;font-style:normal}.faculty-submissions-note strong{display:block;color:#6a5c73;font-size:9px}.faculty-submissions-note span{display:block;margin-top:3px;color:#958b9d;font-size:8px;line-height:1.4}.faculty-submissions-actions{display:flex;flex-direction:column;gap:7px;margin-top:16px}.faculty-submissions-actions button{min-height:32px;border:1px solid #e2d7ee;border-radius:7px;background:#fff;color:#725f7e;font-size:9px;font-weight:800;cursor:pointer}.faculty-submissions-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}.faculty-submissions-actions button.return{border-color:#edd9c0;background:#fffdf8;color:#a47b3a}@media(max-width:1050px){.faculty-submissions-layout{grid-template-columns:1fr}.faculty-submissions-detail{min-height:0}}@media(max-width:760px){.faculty-submissions-page{padding:22px 14px 34px}.faculty-submissions-hero{align-items:flex-start;flex-direction:column;min-height:0;padding:22px 18px}.faculty-submissions-insight{max-width:100%}.faculty-submissions-stats{grid-template-columns:1fr 1fr;gap:9px}.faculty-submissions-stat{min-height:96px;padding:12px}.faculty-submissions-stat strong{margin-top:11px;font-size:23px}.faculty-submissions-toolbar{align-items:stretch;flex-direction:column}.faculty-submissions-controls{flex-wrap:wrap}.faculty-submissions-search{width:100%}.faculty-submissions-filters{overflow-x:auto;padding-bottom:2px}.faculty-submissions-table-head{display:none}.faculty-submission-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.faculty-submission-status{grid-column:2;grid-row:1}.faculty-submission-next{grid-column:1}.faculty-submission-chevron{display:none}}
+        *{box-sizing:border-box}.faculty-submissions-shell{display:flex;min-height:100vh;background:#f8f7ff;color:#46394f;font-family:'DM Sans',sans-serif}.faculty-submissions-main{min-width:0;flex:1}.faculty-submissions-page{max-width:1360px;margin:0 auto;padding:30px 28px 48px}.faculty-submissions-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:148px;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.faculty-submissions-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size: 12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.faculty-submissions-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.faculty-submissions-hero h1{margin:9px 0 7px;color:#2c2537;font:700 31px/1.12 Manrope,sans-serif;letter-spacing:-.045em}.faculty-submissions-hero p{max-width:620px;margin:0;color:#83778b;font-size: 14px;line-height:1.4}.faculty-submissions-insight{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #e9e0f2;border-radius:10px;background:#fff}.faculty-submissions-insight>i{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee6fc;color:#7543c7;font-style:normal}.faculty-submissions-insight strong,.faculty-submissions-insight small{display:block}.faculty-submissions-insight strong{color:#5d4e66;font-size: 12px;font-weight:800}.faculty-submissions-insight small{margin-top:3px;color:#9e92a4;font-size: 11px}.faculty-submissions-start{display:inline-flex;min-height:36px;align-items:center;gap:7px;border:0;border-radius:8px;padding:0 13px;background:#7c3aed;color:#fff;font-size: 12px;font-weight:800;box-shadow:0 8px 16px rgba(124,58,237,.22);cursor:pointer}.faculty-submissions-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}.faculty-submissions-stat{position:relative;min-height:105px;overflow:hidden;border:1px solid #e6dfee;border-radius:11px;padding:15px;background:#fff;box-shadow:0 9px 22px rgba(54,36,87,.04)}.faculty-submissions-stat:after{position:absolute;right:-24px;top:-29px;width:88px;height:88px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.42),rgba(196,181,253,.08) 58%,transparent 70%);content:''}.faculty-submissions-stat.returned:after{background:radial-gradient(circle,rgba(224,168,104,.32),rgba(255,239,210,.1) 58%,transparent 70%)}.faculty-submissions-stat span{display:block;color:#988d9f;font-size: 11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.faculty-submissions-stat strong{display:block;margin-top:16px;color:#3e3047;font:800 26px Manrope,sans-serif;letter-spacing:-.06em}.faculty-submissions-stat small{display:block;margin-top:5px;color:#8f8399;font-size: 11px}.faculty-submissions-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:21px;padding:18px 20px;border:1px solid #e6dfee;border-radius:11px;background:#fff}.faculty-submissions-toolbar-label{color:#978b9e;font-size: 11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.faculty-submissions-toolbar h2{margin:5px 0 0;color:#44354d;font:800 18px Manrope,sans-serif;letter-spacing:-.04em}.faculty-submissions-toolbar h2 span{display:inline-grid;min-width:20px;height:18px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font:800 8px 'DM Sans',sans-serif;vertical-align:middle}.faculty-submissions-toolbar p{margin:5px 0 0;color:#9c92a3;font-size: 12px}.faculty-submissions-controls{display:flex;align-items:center;gap:9px}.faculty-submissions-search{display:flex;width:205px;align-items:center;gap:7px;padding:8px 10px;border:1px solid #ebe5f0;border-radius:7px;color:#8b8292}.faculty-submissions-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size: 12px}.faculty-submissions-filters{display:flex;gap:4px}.faculty-submissions-filters button{min-height:30px;border:1px solid #e8e2ed;border-radius:6px;padding:0 8px;background:#fff;color:#978c9e;font-size: 11px;font-weight:700;cursor:pointer}.faculty-submissions-filters button.active{border-color:#d9c8f4;background:#faf8fe;color:#7543c7}.faculty-submissions-layout{display:grid;grid-template-columns:minmax(0,1.58fr) minmax(285px,.72fr);gap:16px;margin-top:16px}.faculty-submissions-ledger,.faculty-submissions-detail{overflow:hidden;border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.faculty-submissions-table-head,.faculty-submission-row{display:grid;grid-template-columns:minmax(220px,1.35fr) minmax(110px,.66fr) 120px 18px;gap:12px;align-items:center}.faculty-submissions-table-head{padding:10px 19px;border-bottom:1px solid #f0edf4;background:#fbf9fd;color:#aaa0ad;font-size: 11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.faculty-submission-row{width:100%;min-height:79px;padding:12px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.faculty-submission-row:hover,.faculty-submission-row.selected{background:#fbf9ff}.faculty-submission-row.selected{box-shadow:inset 2px 0 #7c3aed}.faculty-submission-document{display:flex;min-width:0;align-items:center;gap:10px}.faculty-submission-icon{display:grid;flex:0 0 auto;width:32px;height:32px;place-items:center;border-radius:9px;background:#eee8fb;color:#7750c4;font-size: 15px}.faculty-submission-icon.returned{background:#fff1e9;color:#c2745a}.faculty-submission-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.faculty-submission-copy strong{overflow:hidden;color:#51405a;font:800 10px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}.faculty-submission-copy small{overflow:hidden;color:#a097a6;font-size: 11px;text-overflow:ellipsis;white-space:nowrap}.faculty-submission-copy small i{font-style:normal;color:#7a4bc1}.faculty-submission-status{display:flex;flex-direction:column;gap:5px}.faculty-submission-status b{width:max-content;border-radius:5px;padding:4px 6px;font-size: 10px}.faculty-submission-status b.review{background:#f0e9fc;color:#7543c7}.faculty-submission-status b.returned{background:#fff4df;color:#a2762c}.faculty-submission-status b.approved{background:#e9f6ef;color:#4b8e70}.faculty-submission-status b.rejected{background:#fff0ed;color:#b5685d}.faculty-submission-status b.draft{background:#f1eef4;color:#7d7187}.faculty-submission-status small{color:#a095a5;font-size: 11px}.faculty-submission-next strong{display:block;color:#6a5c73;font-size: 12px}.faculty-submission-next small{display:block;margin-top:4px;color:#a198a5;font-size: 11px}.faculty-submission-chevron{color:#a797b0;font-size: 16px}.faculty-submissions-empty{display:flex;min-height:205px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:25px;color:#9d92a2;text-align:center}.faculty-submissions-empty strong{color:#6a5d73;font:800 12px Manrope,sans-serif}.faculty-submissions-empty span{font-size: 12px}.faculty-submissions-detail{padding:19px}.faculty-submissions-detail-head{display:flex;align-items:flex-start;justify-content:space-between}.faculty-submissions-detail h3{margin:6px 0 0;color:#44354d;font:800 17px Manrope,sans-serif;letter-spacing:-.04em}.faculty-submissions-detail>p{margin:9px 0 0;color:#9c92a3;font-size: 12px;line-height:1.5}.faculty-submissions-title{display:flex;align-items:center;gap:10px;margin-top:18px;padding-bottom:15px;border-bottom:1px solid #eee9f1}.faculty-submissions-avatar{display:grid;width:31px;height:31px;place-items:center;border-radius:9px;background:#eee7fd;color:#7543c7;font-size: 11px;font-weight:800}.faculty-submissions-title strong{display:block;color:#51405a;font:800 10px Manrope,sans-serif}.faculty-submissions-title span{display:block;margin-top:3px;color:#9c92a3;font-size: 11px}.faculty-submissions-status-card{margin-top:14px;padding:12px;border:1px solid #e8dff0;border-radius:8px;background:#fbf9ff}.faculty-submissions-status-card span{display:block;color:#a198a6;font-size: 11px}.faculty-submissions-status-card strong{display:block;margin-top:5px;color:#614f6b;font:800 12px Manrope,sans-serif}.faculty-submissions-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.faculty-submissions-meta span{display:block;color:#aaa0ad;font-size: 11px}.faculty-submissions-meta strong{display:block;margin-top:4px;overflow:hidden;color:#695b72;font-size: 12px;text-overflow:ellipsis;white-space:nowrap}.faculty-submissions-note{display:flex;gap:8px;margin-top:15px;padding:10px;border:1px solid #e3d8f3;border-radius:8px;background:#fbf9ff;color:#7543c7}.faculty-submissions-note i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#eee7fd;font-style:normal}.faculty-submissions-note strong{display:block;color:#6a5c73;font-size: 12px}.faculty-submissions-note span{display:block;margin-top:3px;color:#958b9d;font-size: 11px;line-height:1.4}.faculty-submissions-actions{display:flex;flex-direction:column;gap:7px;margin-top:16px}.faculty-submissions-actions button{min-height:32px;border:1px solid #e2d7ee;border-radius:7px;background:#fff;color:#725f7e;font-size: 12px;font-weight:800;cursor:pointer}.faculty-submissions-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}.faculty-submissions-actions button.return{border-color:#edd9c0;background:#fffdf8;color:#a47b3a}@media(max-width:1050px){.faculty-submissions-layout{grid-template-columns:1fr}.faculty-submissions-detail{min-height:0}}@media(max-width:760px){.faculty-submissions-page{padding:22px 14px 34px}.faculty-submissions-hero{align-items:flex-start;flex-direction:column;min-height:0;padding:22px 18px}.faculty-submissions-insight{max-width:100%}.faculty-submissions-stats{grid-template-columns:1fr 1fr;gap:9px}.faculty-submissions-stat{min-height:96px;padding:12px}.faculty-submissions-stat strong{margin-top:11px;font-size: 23px}.faculty-submissions-toolbar{align-items:stretch;flex-direction:column}.faculty-submissions-controls{flex-wrap:wrap}.faculty-submissions-search{width:100%}.faculty-submissions-filters{overflow-x:auto;padding-bottom:2px}.faculty-submissions-table-head{display:none}.faculty-submission-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.faculty-submission-status{grid-column:2;grid-row:1}.faculty-submission-next{grid-column:1}.faculty-submission-chevron{display:none}}
       `}</style>
       {embedded && (
         <style>{`
@@ -1013,7 +1013,7 @@ function FacultySubmissionsWorkspace({
           .faculty-submissions-shell.is-embedded .faculty-submissions-page{max-width:none;padding:0}
           .faculty-submissions-shell.is-embedded .faculty-submissions-main{width:100%}
           .faculty-submissions-shell.is-embedded .faculty-submissions-table-head,.faculty-submissions-shell.is-embedded .faculty-submission-row{grid-template-columns:minmax(190px,1.28fr) minmax(88px,.55fr) minmax(108px,.66fr) 118px 18px}
-          .faculty-submission-submitter{display:flex;align-items:center;gap:7px;min-width:0;color:#796c82;font-size:8px}.faculty-submission-submitter i{display:grid;flex:0 0 auto;width:22px;height:22px;place-items:center;border-radius:7px;background:#eef1ff;color:#6c57bb;font-size:7px;font-style:normal;font-weight:800}.faculty-submission-submitter span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+          .faculty-submission-submitter{display:flex;align-items:center;gap:7px;min-width:0;color:#796c82;font-size: 11px}.faculty-submission-submitter i{display:grid;flex:0 0 auto;width:22px;height:22px;place-items:center;border-radius:7px;background:#eef1ff;color:#6c57bb;font-size: 10px;font-style:normal;font-weight:800}.faculty-submission-submitter span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
           @media(max-width:760px){.faculty-submissions-shell.is-embedded .faculty-submission-row{grid-template-columns:minmax(0,1fr) auto}.faculty-submissions-shell.is-embedded .faculty-submission-submitter{display:none}}
         `}</style>
       )}
@@ -1330,7 +1330,7 @@ function FacultySubmissionsWorkspace({
               >
                 Previous
               </button>
-              <span style={{ fontSize: 10, color: "#85798e", paddingTop: 8 }}>
+              <span style={{ fontSize: 12, color: "#85798e", paddingTop: 8 }}>
                 Page {page} of {totalPages}
               </span>
               <button
@@ -1922,7 +1922,7 @@ export default function Forms() {
       ...fieldBase,
       padding: "8px 12px",
       borderRadius: 7,
-      fontSize: 12.5,
+      fontSize: 14,
       color: "#111",
     };
     const hint = isChoiceCheckbox
@@ -1981,7 +1981,7 @@ export default function Forms() {
                   borderRadius: 5,
                   background: "#e5e7eb",
                   color: "#6b7280",
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 700,
                   display: "inline-flex",
                   alignItems: "center",
@@ -1991,12 +1991,12 @@ export default function Forms() {
               >
                 {isFile ? <Icon.AttachFile size={12} /> : idx + 1}
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>
                 {f.name}
               </span>
               <span
                 style={{
-                  fontSize: 9,
+                  fontSize: 12,
                   fontWeight: 700,
                   padding: "1px 8px",
                   borderRadius: 20,
@@ -2010,7 +2010,7 @@ export default function Forms() {
             </div>
             <div
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 color: "#9ca3af",
                 marginTop: 2,
                 marginLeft: 26,
@@ -2091,7 +2091,7 @@ export default function Forms() {
                       >
                         <span
                           style={{
-                            fontSize: 11.5,
+                            fontSize: 13.5,
                             color: "#111",
                             fontWeight: 600,
                             whiteSpace: "nowrap",
@@ -2102,7 +2102,7 @@ export default function Forms() {
                         >
                           {doc.file?.name}
                         </span>
-                        <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                        <span style={{ fontSize: 12, color: "#9ca3af" }}>
                           {formatFileSize(doc.file?.size)}
                         </span>
                       </div>
@@ -2152,7 +2152,7 @@ export default function Forms() {
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
-                          fontSize: 10,
+                          fontSize: 12,
                           color: "#888",
                           marginBottom: 3,
                         }}
@@ -2186,7 +2186,7 @@ export default function Forms() {
                         border: "1px solid #e5e7eb",
                         borderRadius: 8,
                         padding: "7px 12px",
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         color: "#374151",
                         cursor: "pointer",
@@ -2225,7 +2225,7 @@ export default function Forms() {
                   }}
                 >
                   <Icon.CloudUpload size={20} />
-                  <span style={{ fontSize: 11, color: "#6b7280", flex: 1 }}>
+                  <span style={{ fontSize: 13, color: "#6b7280", flex: 1 }}>
                     Attach a file
                   </span>
                   <button
@@ -2238,7 +2238,7 @@ export default function Forms() {
                       border: "1px solid #e5e7eb",
                       borderRadius: 8,
                       padding: "7px 12px",
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: 700,
                       color: "#374151",
                       cursor: "pointer",
@@ -2361,7 +2361,7 @@ export default function Forms() {
                           display: "flex",
                           alignItems: "center",
                           gap: 6,
-                          fontSize: 12,
+                          fontSize: 13,
                           color: "#374151",
                           cursor: "pointer",
                         }}
@@ -2398,7 +2398,7 @@ export default function Forms() {
                         display: "flex",
                         alignItems: "center",
                         gap: 6,
-                        fontSize: 12,
+                        fontSize: 13,
                         color: "#374151",
                         cursor: "pointer",
                       }}
@@ -2426,7 +2426,7 @@ export default function Forms() {
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  fontSize: 12,
+                  fontSize: 13,
                   color: "#374151",
                   cursor: "pointer",
                 }}
@@ -2490,7 +2490,7 @@ export default function Forms() {
         display: "flex",
         minHeight: "100vh",
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 13,
+        fontSize: 14,
         color: "#181445",
         background: "#fcf8ff",
       }}
@@ -2498,8 +2498,8 @@ export default function Forms() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap');
-        .path-forms-shell{background:#f8f7ff!important;color:#40344b!important}.path-forms-main{background:#f8f7ff!important}.path-forms-page{background:#f8f7ff!important;padding:24px 28px 34px!important;gap:18px!important}.path-forms-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;min-height:156px;padding:25px 27px;border:1px solid #e3d8f2;border-left:2px solid #bda7ef;border-radius:12px;background:linear-gradient(118deg,#fbf9ff,#f2ecff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.path-forms-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.path-forms-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.path-forms-hero h1{margin:9px 0 7px;color:#2c2537;font-family:'Manrope',sans-serif;font-size:31px;font-weight:700;line-height:1.12;letter-spacing:-.045em}.path-forms-hero p{max-width:610px;margin:0;color:#83778b;font-size:13px;line-height:1.4}.path-forms-health{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid #e2d7f2;border-radius:8px;background:#fff;color:#6e45b9}.path-forms-health>i{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;font-style:normal}.path-forms-health span{display:flex;flex-direction:column;gap:2px}.path-forms-health strong{color:#5b4f64;font-family:'Manrope',sans-serif;font-size:10px}.path-forms-health small{color:#9a90a2;font-size:8px}.path-forms-hero-actions{display:flex;align-items:center;gap:10px}.path-forms-hero-cta{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 16px;border:0;border-radius:8px;background:#7c3aed;color:#fff;box-shadow:0 8px 18px rgba(124,58,237,.16);font:700 11px/1 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}.path-forms-hero-cta:hover{background:#6d28d9}.path-forms-tabbar{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:#efebff;align-self:flex-start}.path-forms-tabbar button{position:relative;padding:6px 16px;border:0;border-radius:8px;background:transparent;color:#7b7486;font-size:12px;font-weight:700;cursor:pointer}.path-forms-tabbar button.active{background:#fff;color:#6d3bd7;box-shadow:0 1px 4px rgba(109,59,215,.1)}.path-forms-tabbar-badge{margin-left:6px;padding:1px 6px;border-radius:20px;background:#dc2626;color:#fff;font-size:9px;font-weight:800;animation:pulse 1.5s infinite}.path-review-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.path-review-stat{min-height:108px;padding:18px 19px;border:1px solid #e7e2ec;border-radius:10px;background:#fff;box-shadow:0 8px 23px rgba(57,36,93,.035)}.path-review-stat>span{display:flex;align-items:center;justify-content:space-between;color:#a098a7;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-review-stat>span i{font-style:normal;color:#8b62d2}.path-review-stat strong{display:block;margin-top:10px;color:#40344b;font-family:'Manrope',sans-serif;font-size:29px;line-height:1;letter-spacing:-.06em}.path-review-stat small{display:block;margin-top:6px;color:#9b91a3;font-size:9px}.path-review-stat.risk strong{color:#9a6534}.path-review-stat.complete strong{color:#397d65}.path-review-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 20px;border:1px solid #e6dfee;border-radius:11px;background:#fff}.path-review-toolbar h2{margin:5px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size:18px;letter-spacing:-.04em}.path-review-toolbar h2 span{display:inline-grid;min-width:20px;height:18px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font-family:'DM Sans',sans-serif;font-size:8px;vertical-align:middle}.path-review-toolbar p{margin:5px 0 0;color:#9c92a3;font-size:9px}.path-review-controls{display:flex;align-items:center;gap:9px}.path-review-search{display:flex;width:205px;align-items:center;gap:7px;padding:8px 10px;border:1px solid #ebe5f0;border-radius:7px;color:#8b8292}.path-review-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size:9px}.path-review-filter{min-height:31px;border:1px solid #e8e2ed;border-radius:6px;padding:0 8px;background:#fff;color:#978c9e;font-size:8px;font-weight:700;cursor:pointer}.path-review-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(295px,.72fr);gap:16px;align-items:start}.path-review-ledger,.path-review-detail{overflow:hidden;border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.path-review-table-head,.path-review-row{display:grid;grid-template-columns:minmax(235px,1.35fr) minmax(120px,.68fr) 112px 110px 18px;gap:12px;align-items:center}.path-review-table-head{padding:10px 19px;border-bottom:1px solid #f0edf4;background:#fbf9fd;color:#aaa0ad;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.path-review-row{width:100%;min-height:80px;padding:13px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.path-review-row:hover,.path-review-row.selected{background:#fbf9ff}.path-review-row.selected{box-shadow:inset 2px 0 #7c3aed}.path-review-doc{display:flex;min-width:0;align-items:center;gap:10px}.path-review-doc-icon{display:grid;flex:0 0 auto;width:32px;height:32px;place-items:center;border-radius:9px;background:#eee8fb;color:#7750c4}.path-review-doc-icon.risk{background:#fff1ec;color:#c2745a}.path-review-doc-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.path-review-doc-copy strong{overflow:hidden;color:#51405a;font-family:'Manrope',sans-serif;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small{overflow:hidden;color:#a097a6;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small i{font-style:normal;color:#7a4bc1}.path-review-owner{display:flex;min-width:0;align-items:center;gap:7px;color:#75697d;font-size:9px}.path-review-owner i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#e8f1fc;color:#527fae;font-size:7px;font-style:normal;font-weight:800}.path-review-owner span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-review-status{display:flex;flex-direction:column;gap:5px}.path-review-status b{width:max-content;padding:4px 6px;border-radius:5px;background:#f0e9fc;color:#7543c7;font-size:7px}.path-review-status small{color:#a095a5;font-size:8px}.path-review-sla{display:flex;align-items:center;gap:5px;color:#579176;font-size:8px;font-weight:800}.path-review-sla i{width:6px;height:6px;border-radius:50%;background:currentColor}.path-review-sla.risk{color:#c47a52}.path-review-chevron{color:#a797b0;font-size:15px}.path-review-empty{display:flex;min-height:200px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:25px;color:#9d92a2;text-align:center}.path-review-empty strong{color:#6a5d73;font-family:'Manrope',sans-serif;font-size:12px}.path-review-empty span{font-size:9px}.path-review-detail{padding:19px}.path-review-detail-head{display:flex;align-items:flex-start;justify-content:space-between}.path-review-detail-head h3{margin:6px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size:17px;letter-spacing:-.04em}.path-review-detail p{margin:9px 0 0;color:#9c92a3;font-size:9px;line-height:1.5}.path-review-detail-title{display:flex;align-items:center;gap:10px;margin-top:18px;padding-bottom:15px;border-bottom:1px solid #eee9f1}.path-review-detail-avatar{display:grid;width:31px;height:31px;place-items:center;border-radius:9px;background:#eee7fd;color:#7543c7;font-size:8px;font-weight:800}.path-review-detail-title strong{display:block;color:#51405a;font-family:'Manrope',sans-serif;font-size:10px}.path-review-detail-title span{display:block;margin-top:3px;color:#9c92a3;font-size:8px}.path-review-deadline{margin-top:14px;padding:12px;border:1px solid #e8dff0;border-radius:8px;background:#fbf9ff}.path-review-deadline span{display:block;color:#a198a6;font-size:8px}.path-review-deadline strong{display:block;margin-top:5px;color:#614f6b;font-family:'Manrope',sans-serif;font-size:12px}.path-review-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.path-review-meta span{display:block;color:#aaa0ad;font-size:8px}.path-review-meta strong{display:block;margin-top:4px;overflow:hidden;color:#695b72;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.path-review-focus{display:flex;gap:8px;margin-top:15px;padding:10px;border:1px solid #e3d8f3;border-radius:8px;background:#fbf9ff;color:#7543c7}.path-review-focus i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#eee7fd;font-style:normal}.path-review-focus strong{display:block;font-size:9px}.path-review-focus span{display:block;margin-top:3px;color:#958b9d;font-size:8px;line-height:1.4}.path-review-actions{display:flex;flex-direction:column;gap:7px;margin-top:16px}.path-review-actions button{min-height:32px;border:1px solid #e2d7ee;border-radius:7px;background:#fff;color:#725f7e;font-size:9px;font-weight:800;cursor:pointer}.path-review-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-review-actions button.return{border-color:#edd9c0;background:#fffdf8;color:#a47b3a}@media(max-width:1050px){.path-review-layout{grid-template-columns:1fr}.path-review-detail{min-height:0}}
-        @media(max-width:760px){.path-forms-page{padding:16px 14px 26px!important}.path-forms-hero{align-items:flex-start;flex-direction:column;padding:22px 18px}.path-forms-hero h1{font-size:27px}.path-forms-hero-actions{width:100%;flex-direction:column;align-items:stretch}.path-review-stats{grid-template-columns:1fr 1fr;gap:9px}.path-review-toolbar{align-items:stretch;flex-direction:column}.path-review-controls{flex-wrap:wrap}.path-review-search{width:100%}.path-review-table-head{display:none}.path-review-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.path-review-owner{grid-column:1}.path-review-status{grid-column:2;grid-row:1}.path-review-sla,.path-review-chevron{display:none}}
+        .path-forms-shell{background:#f8f7ff!important;color:#40344b!important}.path-forms-main{background:#f8f7ff!important}.path-forms-page{background:#f8f7ff!important;padding:24px 28px 34px!important;gap:18px!important}.path-forms-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;min-height:156px;padding:25px 27px;border:1px solid #e3d8f2;border-left:2px solid #bda7ef;border-radius:12px;background:linear-gradient(118deg,#fbf9ff,#f2ecff);box-shadow:0 12px 30px rgba(57,36,93,.04)}.path-forms-kicker{display:flex;align-items:center;gap:8px;color:#8e8499;font-size: 12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.path-forms-kicker i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}.path-forms-hero h1{margin:9px 0 7px;color:#2c2537;font-family:'Manrope',sans-serif;font-size: 31px;font-weight:700;line-height:1.12;letter-spacing:-.045em}.path-forms-hero p{max-width:610px;margin:0;color:#83778b;font-size: 14px;line-height:1.4}.path-forms-health{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid #e2d7f2;border-radius:8px;background:#fff;color:#6e45b9}.path-forms-health>i{display:grid;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee7fd;font-style:normal}.path-forms-health span{display:flex;flex-direction:column;gap:2px}.path-forms-health strong{color:#5b4f64;font-family:'Manrope',sans-serif;font-size: 12px}.path-forms-health small{color:#9a90a2;font-size: 11px}.path-forms-hero-actions{display:flex;align-items:center;gap:10px}.path-forms-hero-cta{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 16px;border:0;border-radius:8px;background:#7c3aed;color:#fff;box-shadow:0 8px 18px rgba(124,58,237,.16);font:700 11px/1 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}.path-forms-hero-cta:hover{background:#6d28d9}.path-forms-tabbar{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:#efebff;align-self:flex-start}.path-forms-tabbar button{position:relative;padding:6px 16px;border:0;border-radius:8px;background:transparent;color:#7b7486;font-size: 13px;font-weight:700;cursor:pointer}.path-forms-tabbar button.active{background:#fff;color:#6d3bd7;box-shadow:0 1px 4px rgba(109,59,215,.1)}.path-forms-tabbar-badge{margin-left:6px;padding:1px 6px;border-radius:20px;background:#dc2626;color:#fff;font-size: 12px;font-weight:800;animation:pulse 1.5s infinite}.path-review-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.path-review-stat{min-height:108px;padding:18px 19px;border:1px solid #e7e2ec;border-radius:10px;background:#fff;box-shadow:0 8px 23px rgba(57,36,93,.035)}.path-review-stat>span{display:flex;align-items:center;justify-content:space-between;color:#a098a7;font-size: 12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.path-review-stat>span i{font-style:normal;color:#8b62d2}.path-review-stat strong{display:block;margin-top:10px;color:#40344b;font-family:'Manrope',sans-serif;font-size: 29px;line-height:1;letter-spacing:-.06em}.path-review-stat small{display:block;margin-top:6px;color:#9b91a3;font-size: 12px}.path-review-stat.risk strong{color:#9a6534}.path-review-stat.complete strong{color:#397d65}.path-review-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 20px;border:1px solid #e6dfee;border-radius:11px;background:#fff}.path-review-toolbar h2{margin:5px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size: 19px;letter-spacing:-.04em}.path-review-toolbar h2 span{display:inline-grid;min-width:20px;height:18px;margin-left:5px;place-items:center;border-radius:5px;background:#f0e9fc;color:#7543c7;font-family:'DM Sans',sans-serif;font-size: 11px;vertical-align:middle}.path-review-toolbar p{margin:5px 0 0;color:#9c92a3;font-size: 12px}.path-review-controls{display:flex;align-items:center;gap:9px}.path-review-search{display:flex;width:205px;align-items:center;gap:7px;padding:8px 10px;border:1px solid #ebe5f0;border-radius:7px;color:#8b8292}.path-review-search input{width:100%;border:0;outline:0;background:transparent;color:#5d5265;font-size: 12px}.path-review-filter{min-height:31px;border:1px solid #e8e2ed;border-radius:6px;padding:0 8px;background:#fff;color:#978c9e;font-size: 11px;font-weight:700;cursor:pointer}.path-review-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(295px,.72fr);gap:16px;align-items:start}.path-review-ledger,.path-review-detail{overflow:hidden;border:1px solid #e5deed;border-radius:11px;background:#fff;box-shadow:0 12px 30px rgba(57,36,93,.045)}.path-review-table-head,.path-review-row{display:grid;grid-template-columns:minmax(235px,1.35fr) minmax(120px,.68fr) 112px 110px 18px;gap:12px;align-items:center}.path-review-table-head{padding:10px 19px;border-bottom:1px solid #f0edf4;background:#fbf9fd;color:#aaa0ad;font-size: 11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.path-review-row{width:100%;min-height:80px;padding:13px 19px;border:0;border-bottom:1px solid #f0edf4;background:#fff;text-align:left;cursor:pointer;transition:background .16s ease,box-shadow .16s ease}.path-review-row:hover,.path-review-row.selected{background:#fbf9ff}.path-review-row.selected{box-shadow:inset 2px 0 #7c3aed}.path-review-doc{display:flex;min-width:0;align-items:center;gap:10px}.path-review-doc-icon{display:grid;flex:0 0 auto;width:32px;height:32px;place-items:center;border-radius:9px;background:#eee8fb;color:#7750c4}.path-review-doc-icon.risk{background:#fff1ec;color:#c2745a}.path-review-doc-copy{display:flex;min-width:0;flex-direction:column;gap:4px}.path-review-doc-copy strong{overflow:hidden;color:#51405a;font-family:'Manrope',sans-serif;font-size: 12px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small{overflow:hidden;color:#a097a6;font-size: 11px;text-overflow:ellipsis;white-space:nowrap}.path-review-doc-copy small i{font-style:normal;color:#7a4bc1}.path-review-owner{display:flex;min-width:0;align-items:center;gap:7px;color:#75697d;font-size: 12px}.path-review-owner i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#e8f1fc;color:#527fae;font-size: 10px;font-style:normal;font-weight:800}.path-review-owner span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.path-review-status{display:flex;flex-direction:column;gap:5px}.path-review-status b{width:max-content;padding:4px 6px;border-radius:5px;background:#f0e9fc;color:#7543c7;font-size: 10px}.path-review-status small{color:#a095a5;font-size: 11px}.path-review-sla{display:flex;align-items:center;gap:5px;color:#579176;font-size: 11px;font-weight:800}.path-review-sla i{width:6px;height:6px;border-radius:50%;background:currentColor}.path-review-sla.risk{color:#c47a52}.path-review-chevron{color:#a797b0;font-size: 16px}.path-review-empty{display:flex;min-height:200px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:25px;color:#9d92a2;text-align:center}.path-review-empty strong{color:#6a5d73;font-family:'Manrope',sans-serif;font-size: 13px}.path-review-empty span{font-size: 12px}.path-review-detail{padding:19px}.path-review-detail-head{display:flex;align-items:flex-start;justify-content:space-between}.path-review-detail-head h3{margin:6px 0 0;color:#44354d;font-family:'Manrope',sans-serif;font-size: 18px;letter-spacing:-.04em}.path-review-detail p{margin:9px 0 0;color:#9c92a3;font-size: 12px;line-height:1.5}.path-review-detail-title{display:flex;align-items:center;gap:10px;margin-top:18px;padding-bottom:15px;border-bottom:1px solid #eee9f1}.path-review-detail-avatar{display:grid;width:31px;height:31px;place-items:center;border-radius:9px;background:#eee7fd;color:#7543c7;font-size: 11px;font-weight:800}.path-review-detail-title strong{display:block;color:#51405a;font-family:'Manrope',sans-serif;font-size: 12px}.path-review-detail-title span{display:block;margin-top:3px;color:#9c92a3;font-size: 11px}.path-review-deadline{margin-top:14px;padding:12px;border:1px solid #e8dff0;border-radius:8px;background:#fbf9ff}.path-review-deadline span{display:block;color:#a198a6;font-size: 11px}.path-review-deadline strong{display:block;margin-top:5px;color:#614f6b;font-family:'Manrope',sans-serif;font-size: 13px}.path-review-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.path-review-meta span{display:block;color:#aaa0ad;font-size: 11px}.path-review-meta strong{display:block;margin-top:4px;overflow:hidden;color:#695b72;font-size: 12px;text-overflow:ellipsis;white-space:nowrap}.path-review-focus{display:flex;gap:8px;margin-top:15px;padding:10px;border:1px solid #e3d8f3;border-radius:8px;background:#fbf9ff;color:#7543c7}.path-review-focus i{display:grid;flex:0 0 auto;width:23px;height:23px;place-items:center;border-radius:7px;background:#eee7fd;font-style:normal}.path-review-focus strong{display:block;font-size: 12px}.path-review-focus span{display:block;margin-top:3px;color:#958b9d;font-size: 11px;line-height:1.4}.path-review-actions{display:flex;flex-direction:column;gap:7px;margin-top:16px}.path-review-actions button{min-height:32px;border:1px solid #e2d7ee;border-radius:7px;background:#fff;color:#725f7e;font-size: 12px;font-weight:800;cursor:pointer}.path-review-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}.path-review-actions button.return{border-color:#edd9c0;background:#fffdf8;color:#a47b3a}@media(max-width:1050px){.path-review-layout{grid-template-columns:1fr}.path-review-detail{min-height:0}}
+        @media(max-width:760px){.path-forms-page{padding:16px 14px 26px!important}.path-forms-hero{align-items:flex-start;flex-direction:column;padding:22px 18px}.path-forms-hero h1{font-size: 27px}.path-forms-hero-actions{width:100%;flex-direction:column;align-items:stretch}.path-review-stats{grid-template-columns:1fr 1fr;gap:9px}.path-review-toolbar{align-items:stretch;flex-direction:column}.path-review-controls{flex-wrap:wrap}.path-review-search{width:100%}.path-review-table-head{display:none}.path-review-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.path-review-owner{grid-column:1}.path-review-status{grid-column:2;grid-row:1}.path-review-sla,.path-review-chevron{display:none}}
         * { box-sizing: border-box; }
         input, select, textarea { font-family: 'DM Sans', sans-serif; }
         input:focus, select:focus, textarea:focus { border-color: #7c3aed !important; outline: none; }
@@ -2512,14 +2512,14 @@ export default function Forms() {
         .path-forms-page{padding:26px 28px 36px!important;gap:20px!important}
         .path-forms-queue-active .path-forms-page{max-width:none;margin:0 auto;width:100%}
         .path-forms-queue-active .path-forms-hero{min-height:148px;padding:29px 24px;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff);box-shadow:0 12px 30px rgba(57,36,93,.045)}
-        .path-forms-queue-active .path-forms-hero h1{font-size:31px;font-weight:700;line-height:1.12;letter-spacing:-.045em}
-        .path-forms-queue-active .path-forms-hero p{max-width:610px;font-size:13px;line-height:1.4}
-        .path-forms-queue-active .path-forms-kicker{font-size:9px;letter-spacing:.12em}
+        .path-forms-queue-active .path-forms-hero h1{font-size: 31px;font-weight:700;line-height:1.12;letter-spacing:-.045em}
+        .path-forms-queue-active .path-forms-hero p{max-width:610px;font-size: 14px;line-height:1.4}
+        .path-forms-queue-active .path-forms-kicker{font-size: 12px;letter-spacing:.12em}
         .path-forms-queue-active .path-review-stats{gap:14px}
         .path-forms-queue-active .path-review-stat{min-height:106px;padding:17px 18px}
-        .path-forms-queue-active .path-review-stat strong{font-size:29px}
+        .path-forms-queue-active .path-review-stat strong{font-size: 29px}
         .path-forms-queue-active .path-review-toolbar{padding:17px 19px}
-        .path-forms-queue-active .path-review-toolbar h2{font-size:18px}
+        .path-forms-queue-active .path-review-toolbar h2{font-size: 19px}
         .path-forms-queue-active .path-review-layout{gap:14px}
         .path-forms-queue-active .path-review-ledger,.path-forms-queue-active .path-review-detail{border-radius:10px}
         .path-forms-queue-active .path-review-row{min-height:78px;padding:12px 18px}
@@ -2527,18 +2527,18 @@ export default function Forms() {
         /* Preserve the generous quiet margin from the supplied reference on wide review workspaces. */
         .path-forms-allsubs-active .path-forms-page{max-width:none;margin:0 auto;width:100%}
         @media(min-width:1100px){.path-forms-queue-active .path-forms-page,.path-forms-allsubs-active .path-forms-page{padding-left:clamp(48px,5vw,84px)!important;padding-right:clamp(48px,5vw,84px)!important}}
-        @media(max-width:760px){.path-forms-page{padding:17px 14px 28px!important;gap:14px!important}.path-forms-queue-active .path-forms-hero{min-height:auto;padding:22px 18px}.path-forms-queue-active .path-forms-hero h1{font-size:27px}.path-forms-queue-active .path-review-stats{gap:10px}.path-forms-queue-active .path-review-toolbar{padding:15px}.path-forms-queue-active .path-review-row{padding:12px 14px}}
+        @media(max-width:760px){.path-forms-page{padding:17px 14px 28px!important;gap:14px!important}.path-forms-queue-active .path-forms-hero{min-height:auto;padding:22px 18px}.path-forms-queue-active .path-forms-hero h1{font-size: 27px}.path-forms-queue-active .path-review-stats{gap:10px}.path-forms-queue-active .path-review-toolbar{padding:15px}.path-forms-queue-active .path-review-row{padding:12px 14px}}
       `}</style>
 
       <style>{`
         .path-forms-start-active .path-forms-default-stats{display:none!important}
         .path-forms-start-active .path-forms-page{gap:16px!important;padding:29px clamp(28px,5vw,84px) 50px!important}
         .path-forms-start-active .path-forms-default-header{min-height:148px;padding:29px 24px!important;border:1px solid #e6ddf5;border-left:2px solid #c4b5fd;border-radius:12px;background:linear-gradient(112deg,#fcfaff,#f5efff);box-shadow:0 12px 30px rgba(57,36,93,.04);align-items:center!important}
-        .path-forms-start-active .path-forms-default-header h1{margin:9px 0 7px!important;color:#2c2537!important;font-family:'Manrope',sans-serif!important;font-size:31px!important;font-weight:700!important;letter-spacing:-.045em!important;line-height:1.12!important}
-        .path-forms-start-active .path-forms-default-header p{max-width:610px;margin:0!important;color:#83778b!important;font-size:13px!important;line-height:1.4!important}
-        .path-start-back{display:inline-flex;align-items:center;gap:6px;border:0;padding:0;background:transparent;color:#7543c7;font:800 10px 'DM Sans',sans-serif;cursor:pointer}.path-start-back span{font-size:15px;line-height:1}
-        .path-forms-start-active .path-start-breadcrumb{display:flex;align-items:center;gap:8px;margin-top:19px!important;color:#8e8499!important;font-size:9px!important;font-weight:700!important;letter-spacing:.12em;text-transform:uppercase}.path-forms-start-active .path-start-breadcrumb i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}
-        .path-start-traceability{display:flex;max-width:270px;gap:10px;padding:12px;border:1px solid #e9e0f2;border-radius:10px;background:#fff;box-shadow:0 6px 18px rgba(57,36,93,.04)}.path-start-traceability>span{display:grid;flex:0 0 auto;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee6fc;color:#7543c7}.path-start-traceability>span svg{width:16px;height:16px}.path-start-traceability strong,.path-start-traceability small{display:block}.path-start-traceability strong{color:#5d4e66;font-size:9px;font-weight:800}.path-start-traceability small{margin-top:3px;color:#9e92a4;font-size:8px;line-height:1.45}
+        .path-forms-start-active .path-forms-default-header h1{margin:9px 0 7px!important;color:#2c2537!important;font-family:'Manrope',sans-serif!important;font-size: 31px!important;font-weight:700!important;letter-spacing:-.045em!important;line-height:1.12!important}
+        .path-forms-start-active .path-forms-default-header p{max-width:610px;margin:0!important;color:#83778b!important;font-size: 14px!important;line-height:1.4!important}
+        .path-start-back{display:inline-flex;align-items:center;gap:6px;border:0;padding:0;background:transparent;color:#7543c7;font:800 10px 'DM Sans',sans-serif;cursor:pointer}.path-start-back span{font-size: 16px;line-height:1}
+        .path-forms-start-active .path-start-breadcrumb{display:flex;align-items:center;gap:8px;margin-top:19px!important;color:#8e8499!important;font-size: 12px!important;font-weight:700!important;letter-spacing:.12em;text-transform:uppercase}.path-forms-start-active .path-start-breadcrumb i{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px #eee8ff}
+        .path-start-traceability{display:flex;max-width:270px;gap:10px;padding:12px;border:1px solid #e9e0f2;border-radius:10px;background:#fff;box-shadow:0 6px 18px rgba(57,36,93,.04)}.path-start-traceability>span{display:grid;flex:0 0 auto;width:29px;height:29px;place-items:center;border-radius:8px;background:#eee6fc;color:#7543c7}.path-start-traceability>span svg{width:16px;height:16px}.path-start-traceability strong,.path-start-traceability small{display:block}.path-start-traceability strong{color:#5d4e66;font-size: 12px;font-weight:800}.path-start-traceability small{margin-top:3px;color:#9e92a4;font-size: 11px;line-height:1.45}
         .path-faculty-start-shell{width:100%}
         .path-faculty-start-shell>div{gap:18px!important}
         .path-faculty-start-shell h2{font-family:'Manrope',sans-serif!important;letter-spacing:-.04em}
@@ -2549,22 +2549,22 @@ export default function Forms() {
         .path-faculty-intake-step.is-muted{background:#fdfcff!important}
         .path-faculty-intake-step>div:first-child{display:flex!important;align-items:flex-start!important;gap:11px!important;margin:0 0 17px!important;padding:0!important;border:0!important}
         .path-faculty-intake-step>div:first-child>svg{display:none!important}
-        .path-faculty-intake-step>div:first-child h3{display:flex!important;align-items:center!important;gap:11px!important;margin:0!important;color:#4a3a54!important;font-family:Manrope,sans-serif!important;font-size:15px!important;font-weight:800!important;letter-spacing:-.04em!important;line-height:25px!important}
+        .path-faculty-intake-step>div:first-child h3{display:flex!important;align-items:center!important;gap:11px!important;margin:0!important;color:#4a3a54!important;font-family:Manrope,sans-serif!important;font-size: 16px!important;font-weight:800!important;letter-spacing:-.04em!important;line-height:25px!important}
         .path-faculty-intake-step>div:first-child h3:before{display:grid;width:25px;height:25px;place-items:center;flex:0 0 auto;border-radius:50%;background:#7c3aed;color:#fff;font:800 9px Manrope,sans-serif;box-shadow:0 0 0 5px #f2ecff;content:"01"}
         .path-faculty-intake-step>div:nth-child(2){display:block!important}
         .path-faculty-intake-step>div:nth-child(2)>div:first-child{display:none!important}
         .path-faculty-intake-step>div:nth-child(2)>div:last-child{width:100%!important}
-        .path-faculty-intake-step>div:nth-child(2)>div:last-child>p:first-child{margin:4px 0 17px 36px!important;color:#928699!important;font-size:9px!important;line-height:1.5!important}
+        .path-faculty-intake-step>div:nth-child(2)>div:last-child>p:first-child{margin:4px 0 17px 36px!important;color:#928699!important;font-size: 12px!important;line-height:1.5!important}
         .path-faculty-step-02>div:first-child h3:before{content:"02"}
         .path-faculty-step-03>div:first-child h3:before{content:"03"}
         .path-faculty-step-04>div:first-child h3:before{content:"04"}
         .path-faculty-intake-step select{height:41px!important;border:1px solid #e2d9ea!important;border-radius:8px!important;color:#5f5069!important;font:700 10px 'DM Sans',sans-serif!important;box-shadow:none!important}
-        .path-faculty-intake-step label{color:#66576f!important;font-size:9px!important;font-weight:800!important}
+        .path-faculty-intake-step label{color:#66576f!important;font-size: 12px!important;font-weight:800!important}
         .path-faculty-step-01>div:nth-child(2)>div:last-child>label{display:none!important}
         .path-faculty-step-01>div:nth-child(2)>div:last-child>div{margin-top:0!important}
         .path-faculty-intake-step textarea{min-height:98px!important;border-color:#e2d9ea!important;border-radius:8px!important;color:#5f5069!important;font:500 10px 'DM Sans',sans-serif!important}
         .path-faculty-intake-step [style*="border: 1px dashed"]{display:flex!important;min-height:72px;align-items:center!important;justify-content:center!important;background:#fdfcff!important;border-color:#e5ddea!important;border-radius:8px!important}
-        .path-faculty-intake-step [style*="border: 1px dashed"] p{display:flex;align-items:center;justify-content:center;gap:9px;margin:0!important;color:#a094a8!important;font-size:10px!important}
+        .path-faculty-intake-step [style*="border: 1px dashed"] p{display:flex;align-items:center;justify-content:center;gap:9px;margin:0!important;color:#a094a8!important;font-size: 12px!important}
         .path-faculty-intake-step [style*="border: 1px dashed"] svg{width:17px;color:#a982e9}
         .path-faculty-details-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
         .path-faculty-dynamic-field:not(.is-file){padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
@@ -2572,10 +2572,10 @@ export default function Forms() {
         .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child{min-width:0!important;margin:0 0 6px!important}
         .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child{gap:5px!important}
         .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:first-child{display:none!important}
-        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:nth-child(2){color:#66576f!important;font-size:9px!important;font-weight:800!important}
-        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:last-child{padding:0!important;border-radius:0!important;background:transparent!important;color:#b56a68!important;font-size:7px!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:nth-child(2){color:#66576f!important;font-size: 12px!important;font-weight:800!important}
+        .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:first-child>span:last-child{padding:0!important;border-radius:0!important;background:transparent!important;color:#b56a68!important;font-size: 10px!important}
         .path-faculty-dynamic-field:not(.is-file)>div:first-child>div:first-child>div:last-child{display:none!important}
-        .path-faculty-dynamic-field:not(.is-file) input:not([type=checkbox]):not([type=radio]),.path-faculty-dynamic-field:not(.is-file) select,.path-faculty-dynamic-field:not(.is-file) textarea{width:100%!important;min-height:34px!important;border-color:#dfd8e6!important;border-radius:7px!important;background:#fff!important;color:#5f5069!important;font-size:9px!important;box-shadow:none!important}
+        .path-faculty-dynamic-field:not(.is-file) input:not([type=checkbox]):not([type=radio]),.path-faculty-dynamic-field:not(.is-file) select,.path-faculty-dynamic-field:not(.is-file) textarea{width:100%!important;min-height:34px!important;border-color:#dfd8e6!important;border-radius:7px!important;background:#fff!important;color:#5f5069!important;font-size: 12px!important;box-shadow:none!important}
         .path-faculty-dynamic-field.is-choice{grid-column:1/-1!important;padding:0!important;border:0!important;background:transparent!important}
         .path-faculty-dynamic-field.is-choice>div:first-child{display:block!important}
         .path-faculty-dynamic-field.is-choice>div:first-child>div:first-child{min-width:0!important;margin:0 0 7px!important}
@@ -2586,33 +2586,33 @@ export default function Forms() {
         .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child{align-items:center!important;gap:12px!important}
         .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child{min-width:0!important}
         .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:first-child{width:25px!important;height:25px!important;border-radius:7px!important;background:#f1ebff!important;color:#8656d3!important}
-        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:nth-child(2){color:#5f5069!important;font-size:9px!important}
-        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:last-child{padding:0!important;border-radius:0!important;background:transparent!important;color:#b56a68!important;font-size:7px!important}
-        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:last-child{margin:2px 0 0 33px!important;color:#998e9e!important;font-size:7px!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:nth-child(2){color:#5f5069!important;font-size: 12px!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:first-child>span:last-child{padding:0!important;border-radius:0!important;background:transparent!important;color:#b56a68!important;font-size: 10px!important}
+        .path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child>div:first-child>div:last-child{margin:2px 0 0 33px!important;color:#998e9e!important;font-size: 10px!important}
         .path-faculty-step-03 .path-faculty-file-attach-trigger{min-width:auto!important;flex:0 0 auto!important;padding:7px 10px!important;border:1px solid #e0d9e8!important;border-radius:6px!important;background:#fff!important;color:#7346c4!important}
         .path-faculty-step-03 .path-faculty-file-attach-trigger svg{width:15px!important;color:#8757d4!important}
-        .path-faculty-step-03 .path-faculty-file-attach-trigger>span{color:#7346c4!important;font-size:8px!important;font-weight:800!important}
+        .path-faculty-step-03 .path-faculty-file-attach-trigger>span{color:#7346c4!important;font-size: 11px!important;font-weight:800!important}
         .path-faculty-step-03 .path-faculty-file-attach-trigger button{display:none!important}
         .path-faculty-support-dropzone{display:flex;min-height:88px;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:14px;border:1px dashed #cfc4db;border-radius:8px;background:#fdfcff;color:#7f648f;text-align:center;cursor:pointer}
-        .path-faculty-support-dropzone svg{color:#8a5bd7}.path-faculty-support-dropzone strong{font-size:9px}.path-faculty-support-dropzone span{color:#9c91a1;font-size:7px}.path-faculty-support-dropzone b{color:#7747c7;font-size:8px}.path-faculty-support-dropzone.is-complete{cursor:default;opacity:.72}
+        .path-faculty-support-dropzone svg{color:#8a5bd7}.path-faculty-support-dropzone strong{font-size: 12px}.path-faculty-support-dropzone span{color:#9c91a1;font-size: 10px}.path-faculty-support-dropzone b{color:#7747c7;font-size: 11px}.path-faculty-support-dropzone.is-complete{cursor:default;opacity:.72}
         .path-faculty-summary-aside{align-self:start!important}
         .path-faculty-summary-card{border-color:#e6dfee!important;border-radius:12px!important;box-shadow:0 10px 26px rgba(54,36,87,.04)!important}
-        .path-faculty-summary-kicker{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px;color:#978c9e;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-        .path-faculty-summary-kicker b{border-radius:4px;padding:4px 7px;background:#fff4d9;color:#a57524;font-size:8px;letter-spacing:0;text-transform:none}
-        .path-faculty-summary-card>h3{margin:0 0 9px!important;color:#4a3a54!important;font-family:Manrope,sans-serif!important;font-size:16px!important;font-weight:800!important;letter-spacing:-.045em!important}
-        .path-faculty-summary-card>p{margin:0 0 13px!important;padding-bottom:13px;border-bottom:1px solid #eee8f3;color:#9b90a2!important;font-size:9px!important;line-height:1.5!important}
+        .path-faculty-summary-kicker{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px;color:#978c9e;font-size: 11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+        .path-faculty-summary-kicker b{border-radius:4px;padding:4px 7px;background:#fff4d9;color:#a57524;font-size: 11px;letter-spacing:0;text-transform:none}
+        .path-faculty-summary-card>h3{margin:0 0 9px!important;color:#4a3a54!important;font-family:Manrope,sans-serif!important;font-size: 17px!important;font-weight:800!important;letter-spacing:-.045em!important}
+        .path-faculty-summary-card>p{margin:0 0 13px!important;padding-bottom:13px;border-bottom:1px solid #eee8f3;color:#9b90a2!important;font-size: 12px!important;line-height:1.5!important}
         .path-faculty-summary-card [style*="padding: 8px 0"]{padding:10px 0!important;border-color:#eee8f3!important}
-        .path-faculty-summary-card [style*="padding: 8px 0"]>span:first-child{color:#928699!important;font-size:9px!important}
-        .path-faculty-missing-note{display:flex;align-items:center;gap:7px;margin:5px 0 16px;color:#9d711f;font-size:9px;font-weight:800}
+        .path-faculty-summary-card [style*="padding: 8px 0"]>span:first-child{color:#928699!important;font-size: 12px!important}
+        .path-faculty-missing-note{display:flex;align-items:center;gap:7px;margin:5px 0 16px;color:#9d711f;font-size: 12px;font-weight:800}
         .path-faculty-missing-note i{width:6px;height:6px;border-radius:50%;background:#a97724}
-        .path-faculty-summary-card button{border-radius:7px!important;font-family:'DM Sans',sans-serif!important;font-size:10px!important}
+        .path-faculty-summary-card button{border-radius:7px!important;font-family:'DM Sans',sans-serif!important;font-size: 12px!important}
         .path-faculty-summary-card .path-faculty-submit-button{background:#a976e7!important;box-shadow:none!important}
         .path-faculty-summary-card .path-faculty-draft-button,.path-faculty-summary-card .path-faculty-cancel-button{background:#fff!important;border-color:#e5dfea!important;box-shadow:none!important}
         .path-faculty-summary-card button:active{transform:scale(.97)}
         .path-faculty-summary-aside>div:last-child{margin-top:12px!important;padding:12px 0 0!important;border:0!important;border-top:1px solid #eee8f3!important;border-radius:0!important;background:transparent!important}
         .path-faculty-summary-aside>div:last-child>svg{width:15px!important;height:15px!important;padding:3px!important;border-radius:50%;background:#f3edff!important;color:#8555d4!important}
-        .path-faculty-summary-aside>div:last-child div:first-child{color:#6c5e75!important;font-size:9px!important;letter-spacing:0!important;text-transform:none!important}
-        .path-faculty-summary-aside>div:last-child div:last-child{color:#9b90a2!important;font-size:8px!important;cursor:default!important}
+        .path-faculty-summary-aside>div:last-child div:first-child{color:#6c5e75!important;font-size: 12px!important;letter-spacing:0!important;text-transform:none!important}
+        .path-faculty-summary-aside>div:last-child div:last-child{color:#9b90a2!important;font-size: 11px!important;cursor:default!important}
         .path-forms-register-active .path-forms-default-header,.path-forms-register-active .path-forms-default-stats{display:none!important}
         .path-forms-allsubs-active .path-forms-default-header,.path-forms-allsubs-active .path-forms-default-stats{display:none!important}
         .path-forms-allsubs-active .path-forms-hero{align-items:center;min-height:148px}
@@ -2799,7 +2799,7 @@ export default function Forms() {
                   ? "Start a submission"
                   : "Forms Management"}
               </h1>
-              <p style={{ fontSize: 14, color: "#494454", margin: "8px 0 0" }}>
+              <p style={{ fontSize: 15, color: "#494454", margin: "8px 0 0" }}>
                 {activeTab === "submit" && !isProgramChair
                   ? "Prepare the right document, add the required context, and send it into your department's review workflow."
                   : isProgramChair
@@ -2933,7 +2933,7 @@ export default function Forms() {
                 >
                   <h2
                     style={{
-                      fontSize: 18,
+                      fontSize: 19,
                       fontWeight: 800,
                       color: "#111",
                       margin: "0 0 4px",
@@ -2941,7 +2941,7 @@ export default function Forms() {
                   >
                     Start a submission
                   </h2>
-                  <p style={{ fontSize: 12, color: "#888", margin: 0 }}>
+                  <p style={{ fontSize: 13, color: "#888", margin: 0 }}>
                     Select a form type and upload the required documents to
                     begin your request.
                   </p>
@@ -2955,7 +2955,7 @@ export default function Forms() {
                       border: "1px solid #6ee7b7",
                       borderRadius: 8,
                       padding: "10px 14px",
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: 700,
                       color: "#065f46",
                       display: "flex",
@@ -2993,7 +2993,7 @@ export default function Forms() {
                     <Icon.InfoCircle />
                     <h3
                       style={{
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: 700,
                         color: "#111",
                         margin: 0,
@@ -3019,7 +3019,7 @@ export default function Forms() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: 800,
                         flexShrink: 0,
                       }}
@@ -3029,7 +3029,7 @@ export default function Forms() {
                     <div style={{ flex: 1 }}>
                       <p
                         style={{
-                          fontSize: 12,
+                          fontSize: 13,
                           color: "#888",
                           margin: "0 0 16px",
                         }}
@@ -3041,7 +3041,7 @@ export default function Forms() {
                       <label
                         style={{
                           display: "block",
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           color: "#374151",
                           marginBottom: 6,
@@ -3069,7 +3069,7 @@ export default function Forms() {
                             width: "100%",
                             padding: "10px 34px 10px 12px",
                             borderRadius: 8,
-                            fontSize: 13,
+                            fontSize: 14,
                             color: wizardFormType ? "#111" : "#9ca3af",
                             appearance: "none",
                             WebkitAppearance: "none",
@@ -3108,7 +3108,7 @@ export default function Forms() {
                       {selectedCategory?.description && (
                         <p
                           style={{
-                            fontSize: 11,
+                            fontSize: 13,
                             color: "#9ca3af",
                             margin: "8px 0 0",
                           }}
@@ -3145,7 +3145,7 @@ export default function Forms() {
                     <Icon.DynamicForm />
                     <h3
                       style={{
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: 700,
                         color: "#111",
                         margin: 0,
@@ -3171,7 +3171,7 @@ export default function Forms() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: 800,
                         flexShrink: 0,
                       }}
@@ -3181,7 +3181,7 @@ export default function Forms() {
                     <div style={{ flex: 1 }}>
                       <p
                         style={{
-                          fontSize: 12,
+                          fontSize: 13,
                           color: "#888",
                           margin: "0 0 18px",
                         }}
@@ -3201,7 +3201,7 @@ export default function Forms() {
                             textAlign: "center",
                           }}
                         >
-                          <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
+                          <p style={{ fontSize: 14, color: "#9ca3af" }}>
                             No form type selected yet.
                           </p>
                         </div>
@@ -3217,7 +3217,7 @@ export default function Forms() {
                             textAlign: "center",
                           }}
                         >
-                          <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
+                          <p style={{ fontSize: 14, color: "#9ca3af" }}>
                             This form type has no fields defined yet. Add some
                             in Document Categories.
                           </p>
@@ -3249,7 +3249,7 @@ export default function Forms() {
                               textAlign: "center",
                             }}
                           >
-                            <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
+                            <p style={{ fontSize: 14, color: "#9ca3af" }}>
                               All fields for this form type are required
                               attachments — see the panel below.
                             </p>
@@ -3271,7 +3271,7 @@ export default function Forms() {
                           <Icon.Tip />
                           <p
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "#6b7280",
                               margin: 0,
                               lineHeight: 1.6,
@@ -3313,7 +3313,7 @@ export default function Forms() {
                     <Icon.AttachFile />
                     <h3
                       style={{
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: 700,
                         color: "#111",
                         margin: 0,
@@ -3339,7 +3339,7 @@ export default function Forms() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: 800,
                         flexShrink: 0,
                       }}
@@ -3349,7 +3349,7 @@ export default function Forms() {
                     <div style={{ flex: 1 }}>
                       <p
                         style={{
-                          fontSize: 12,
+                          fontSize: 13,
                           color: "#888",
                           margin: "0 0 18px",
                         }}
@@ -3369,7 +3369,7 @@ export default function Forms() {
                             textAlign: "center",
                           }}
                         >
-                          <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
+                          <p style={{ fontSize: 14, color: "#9ca3af" }}>
                             No form type selected yet.
                           </p>
                         </div>
@@ -3385,7 +3385,7 @@ export default function Forms() {
                             textAlign: "center",
                           }}
                         >
-                          <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
+                          <p style={{ fontSize: 14, color: "#9ca3af" }}>
                             This form type has no required attachments.
                           </p>
                         </div>
@@ -3462,7 +3462,7 @@ export default function Forms() {
                     <Icon.Notes />
                     <h3
                       style={{
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: 700,
                         color: "#111",
                         margin: 0,
@@ -3488,7 +3488,7 @@ export default function Forms() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: 800,
                         flexShrink: 0,
                       }}
@@ -3498,7 +3498,7 @@ export default function Forms() {
                     <div style={{ flex: 1 }}>
                       <p
                         style={{
-                          fontSize: 12,
+                          fontSize: 13,
                           color: "#888",
                           margin: "0 0 16px",
                         }}
@@ -3511,7 +3511,7 @@ export default function Forms() {
                         <label
                           style={{
                             display: "block",
-                            fontSize: 11,
+                            fontSize: 13,
                             fontWeight: 700,
                             color: "#374151",
                             marginBottom: 5,
@@ -3536,7 +3536,7 @@ export default function Forms() {
                             width: "100%",
                             padding: "8px 12px",
                             borderRadius: 7,
-                            fontSize: 13,
+                            fontSize: 14,
                             color: "#111",
                             resize: "vertical",
                             fontFamily: "'DM Sans',sans-serif",
@@ -3573,7 +3573,7 @@ export default function Forms() {
                   </div>
                   <h3
                     style={{
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: 700,
                       color: "#111",
                       margin: "0 0 2px",
@@ -3582,7 +3582,7 @@ export default function Forms() {
                     Ready when you are
                   </h3>
                   <p
-                    style={{ fontSize: 11, color: "#888", margin: "0 0 14px" }}
+                    style={{ fontSize: 13, color: "#888", margin: "0 0 14px" }}
                   >
                     Complete the required details and attachments to send this
                     document into review.
@@ -3604,12 +3604,12 @@ export default function Forms() {
                         borderBottom: "1px solid #f3f4f6",
                       }}
                     >
-                      <span style={{ fontSize: 11, color: "#6b7280" }}>
+                      <span style={{ fontSize: 13, color: "#6b7280" }}>
                         Form type
                       </span>
                       <span
                         style={{
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: 700,
                           color: wizardFormType ? "#7c3aed" : "#9ca3af",
                         }}
@@ -3630,7 +3630,7 @@ export default function Forms() {
                           alignItems: "center",
                           padding: "8px 0",
                           borderBottom: "1px solid #f3f4f6",
-                          fontSize: 12,
+                          fontSize: 13,
                         }}
                       >
                         <span style={{ color: "#6b7280" }}>{label}</span>
@@ -3672,7 +3672,7 @@ export default function Forms() {
                         color: "white",
                         border: "none",
                         borderRadius: 8,
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: 700,
                         cursor: wizardSubmitting ? "not-allowed" : "pointer",
                         boxShadow: "0 2px 6px rgba(124,58,237,0.25)",
@@ -3693,7 +3693,7 @@ export default function Forms() {
                           color: "#374151",
                           border: "1px solid #e5e7eb",
                           borderRadius: 8,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: 700,
                           cursor: wizardSubmitting ? "not-allowed" : "pointer",
                         }}
@@ -3710,7 +3710,7 @@ export default function Forms() {
                           color: "#9ca3af",
                           border: "1px solid #e5e7eb",
                           borderRadius: 8,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: 700,
                           cursor: "pointer",
                         }}
@@ -3747,7 +3747,7 @@ export default function Forms() {
                   <div>
                     <div
                       style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: "#5b21b6",
                         textTransform: "uppercase",
@@ -3759,7 +3759,7 @@ export default function Forms() {
                     </div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 13,
                         color: "#7c3aed",
                         cursor: "pointer",
                       }}
@@ -4048,7 +4048,7 @@ export default function Forms() {
             <div
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14,
+                fontSize: 15,
               }}
             >
               <section className="path-forms-hero">
@@ -4253,7 +4253,7 @@ export default function Forms() {
                       fontFamily: "'DM Sans', sans-serif",
                     }}
                   >
-                    <span style={{ fontSize: 14, color: "#494454" }}>
+                    <span style={{ fontSize: 15, color: "#494454" }}>
                       Showing page {allFormsPage} of {allFormsTotalPages}
                     </span>
                     <div
@@ -4270,7 +4270,7 @@ export default function Forms() {
                           borderRadius: 8,
                           background: "white",
                           cursor: "pointer",
-                          fontSize: 12,
+                          fontSize: 13,
                           color: "#494454",
                           fontFamily: "'DM Sans', sans-serif",
                         }}
@@ -4293,7 +4293,7 @@ export default function Forms() {
                               allFormsPage === n ? "#6d3bd7" : "white",
                             color: allFormsPage === n ? "white" : "#494454",
                             cursor: "pointer",
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: 700,
                             fontFamily: "'DM Sans', sans-serif",
                           }}
@@ -4314,7 +4314,7 @@ export default function Forms() {
                           borderRadius: 8,
                           background: "white",
                           cursor: "pointer",
-                          fontSize: 12,
+                          fontSize: 13,
                           color: "#494454",
                           fontFamily: "'DM Sans', sans-serif",
                         }}
@@ -4332,7 +4332,7 @@ export default function Forms() {
           <div
             style={{
               textAlign: "center",
-              fontSize: 11,
+              fontSize: 13,
               color: "#ccc",
               paddingTop: 8,
             }}
@@ -4361,7 +4361,7 @@ export default function Forms() {
             >
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "#92400e",
                   marginBottom: 4,
@@ -4371,7 +4371,7 @@ export default function Forms() {
               >
                 Revision Instructions from Program Chair
               </div>
-              <div style={{ fontSize: 13, color: "#78350f", lineHeight: 1.5 }}>
+              <div style={{ fontSize: 14, color: "#78350f", lineHeight: 1.5 }}>
                 {resubmitForm.review_note ||
                   "Please update and resubmit your form."}
               </div>
@@ -4381,7 +4381,7 @@ export default function Forms() {
             {resubmitForm.file_name && (
               <div
                 style={{
-                  fontSize: 12,
+                  fontSize: 13,
                   color: "#666",
                   background: "#f9fafb",
                   padding: "8px 12px",
@@ -4397,7 +4397,7 @@ export default function Forms() {
               <label
                 style={{
                   display: "block",
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: 700,
                   color: "#374151",
                   marginBottom: 6,
@@ -4425,12 +4425,12 @@ export default function Forms() {
                 />
                 {resubmitFile ? (
                   <div
-                    style={{ color: "#7c3aed", fontWeight: 700, fontSize: 13 }}
+                    style={{ color: "#7c3aed", fontWeight: 700, fontSize: 14 }}
                   >
                     ✓ {resubmitFile.name}
                   </div>
                 ) : (
-                  <div style={{ color: "#888", fontSize: 12 }}>
+                  <div style={{ color: "#888", fontSize: 13 }}>
                     Click to select a new file (PDF, JPG, PNG — max 10MB)
                   </div>
                 )}
@@ -4480,7 +4480,7 @@ export default function Forms() {
                   color: "white",
                   border: "none",
                   borderRadius: 8,
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: 700,
                   cursor: "pointer",
                 }}
@@ -4495,7 +4495,7 @@ export default function Forms() {
                   color: "#555",
                   border: "1px solid #e5e7eb",
                   borderRadius: 8,
-                  fontSize: 13,
+                  fontSize: 14,
                   cursor: "pointer",
                 }}
               >
