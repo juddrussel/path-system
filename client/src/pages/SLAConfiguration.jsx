@@ -862,6 +862,8 @@ export default function SLAConfiguration() {
 
 * { box-sizing: border-box; }
 .sla-config-view { width: 100%; max-width: none; margin: 0 auto; }
+.sla-page-content { padding: 32px; }
+@media (min-width:1100px) { .sla-page-content { padding-left:clamp(48px,5vw,84px); padding-right:clamp(48px,5vw,84px); } }
 .panel-card { border: 1px solid #e7e2ef; border-radius: 10px; background: #fff; box-shadow: 0 10px 28px rgba(57,36,93,.04); }
 .date-kicker,.section-kicker { display:flex; align-items:center; gap:8px; color:#8f879c; font:10px "DM Sans",sans-serif; letter-spacing:.08em; text-transform:uppercase; }
 .date-kicker { margin-bottom:12px; }
@@ -989,7 +991,6 @@ export default function SLAConfiguration() {
         @media (max-width:700px) { .sla-config-hero { align-items:flex-start !important; flex-direction:column !important; gap:18px !important; padding:22px 18px !important; } .sla-policy-status { width:100% !important; min-width:0 !important; margin-left:0 !important; } .sla-config-hero h1 { font-size:26px !important; } }
       /* Final PATH sizing scale: match the canonical SLA Configuration page. */
         .sla-config-view { width:100% !important; max-width:none !important; margin:0 auto !important; padding:16px 0 48px !important; }
-        @media (min-width:1100px) { .sla-config-view { padding-left:clamp(48px,5vw,84px) !important; padding-right:clamp(48px,5vw,84px) !important; } }
         .sla-config-hero { width:100% !important; min-height:148px !important; height:148px !important; padding:29px 24px 27px !important; margin:0 0 22px !important; }
         .sla-document-stats { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:12px !important; margin:0 0 18px !important; }
         .sla-document-stats article { min-height:116px !important; height:116px !important; padding:18px 17px !important; }
@@ -1131,7 +1132,7 @@ export default function SLAConfiguration() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
 
         {/* ── Content ── */}
-        <div style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div className="sla-page-content" style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
           {loading && (
             <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#f5f3ff", color: "#6d28d9", fontSize: 12.5 }}>
