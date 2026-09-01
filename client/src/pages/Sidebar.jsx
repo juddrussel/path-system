@@ -159,42 +159,142 @@ const styles = `
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 28px 20px 20px;
-    border-right: 1px solid #ebe5f0;
-    background: #f8f7fc;
-    color: #40354a;
+    gap: 20px;
+    padding: 24px 16px 20px;
+    border-right: none;
+    background: linear-gradient(170deg, #3b0764 0%, #4c1d95 35%, #5b21b6 65%, #6d28d9 100%);
+    box-shadow: 4px 0 24px -4px rgba(109,40,217,0.35), 1px 0 0 rgba(196,181,253,0.1);
+    color: #ede9fe;
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     position: sticky;
     top: 0;
     height: 100vh;
     flex-shrink: 0;
+    overflow: hidden;
+  }
+  /* subtle noise/shimmer overlay */
+  .path-sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 0%, rgba(196,181,253,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(109,40,217,0.25) 0%, transparent 55%);
+    pointer-events: none;
   }
   .path-sidebar *, .path-sidebar *::before, .path-sidebar *::after { box-sizing: border-box; }
-  .path-sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 0 9px; }
-  .path-sidebar__mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 9px; background: #7c3aed; color: #fff; box-shadow: 0 8px 17px rgba(124, 58, 237, .18); }
-  .path-sidebar__name { color: #111827; font-size: 15px; font-weight: 700; letter-spacing: .1em; line-height: 1; }
-  .path-sidebar__subname { display: block; margin-top: 4px; color: #a196aa; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-  .path-sidebar__navigation { flex: 1; overflow-y: auto; padding-right: 2px; }
-  .path-sidebar__group + .path-sidebar__group { margin-top: 22px; }
-  .path-sidebar__group-label { display: block; margin: 0 9px 10px; color: #b1a7b7; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-  .path-sidebar__items { display: flex; flex-direction: column; gap: 3px; }
-  .path-sidebar__item { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 35px; border: 0; border-radius: 9px; padding: 0 11px; background: transparent; color: #6b7280; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; font-size: 13px !important; font-weight: 500 !important; line-height: normal !important; text-align: left; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
-  .path-sidebar__item:hover { background: rgba(124,58,237,0.06); color: #7c3aed; }
-  .path-sidebar__item--active { background: linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05)); color: #7c3aed; font-weight: 600 !important; }
-  .path-sidebar__item--active:hover { background: linear-gradient(90deg, rgba(124,58,237,0.16), rgba(124,58,237,0.05)); }
-  .path-sidebar__item-icon { display: grid; width: 16px; height: 16px; flex: 0 0 auto; place-items: center; opacity: .85; }
-  .path-sidebar__item--active .path-sidebar__item-icon, .path-sidebar__item:hover .path-sidebar__item-icon { opacity: 1; }
+
+  /* ── Brand ── */
+  .path-sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; position: relative; }
+  .path-sidebar__mark {
+    display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(109,40,217,0.55), 0 1px 0 rgba(255,255,255,0.2) inset;
+  }
+  .path-sidebar__name { color: #f5f3ff; font-size: 14.5px; font-weight: 800; letter-spacing: .06em; line-height: 1; }
+  .path-sidebar__subname { display: block; margin-top: 3px; color: rgba(196,181,253,0.6); font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+  /* thin divider after brand */
+  .path-sidebar__divider {
+    height: 1px; margin: 0 8px;
+    background: linear-gradient(90deg, transparent, rgba(196,181,253,0.25) 40%, rgba(196,181,253,0.25) 60%, transparent);
+    flex-shrink: 0;
+  }
+
+  /* ── Navigation ── */
+  .path-sidebar__navigation { flex: 1; overflow-y: auto; padding-right: 2px; position: relative; }
+  .path-sidebar__navigation::-webkit-scrollbar { width: 3px; }
+  .path-sidebar__navigation::-webkit-scrollbar-track { background: transparent; }
+  .path-sidebar__navigation::-webkit-scrollbar-thumb { background: rgba(196,181,253,0.25); border-radius: 99px; }
+  .path-sidebar__group + .path-sidebar__group { margin-top: 20px; }
+  .path-sidebar__group-label {
+    display: block; margin: 0 8px 8px;
+    color: rgba(196,181,253,0.5); font-size: 9.5px; font-weight: 800;
+    letter-spacing: .14em; text-transform: uppercase;
+  }
+  .path-sidebar__items { display: flex; flex-direction: column; gap: 2px; }
+  .path-sidebar__item {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    min-height: 36px; border: 1px solid transparent; border-radius: 10px;
+    padding: 0 10px;
+    background: transparent; color: rgba(237,233,254,0.65);
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 13px !important; font-weight: 500 !important; line-height: normal !important;
+    text-align: left; cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+  .path-sidebar__item:hover {
+    background: rgba(255,255,255,0.09);
+    color: #ede9fe;
+    border-color: rgba(196,181,253,0.2);
+  }
+  .path-sidebar__item--active {
+    background: rgba(255,255,255,0.14);
+    color: #f5f3ff;
+    font-weight: 700 !important;
+    border-color: rgba(196,181,253,0.3);
+    box-shadow: 0 2px 12px -4px rgba(109,40,217,0.5);
+  }
+  .path-sidebar__item--active:hover { background: rgba(255,255,255,0.16); }
+  .path-sidebar__item-icon { display: grid; width: 16px; height: 16px; flex: 0 0 auto; place-items: center; opacity: .7; }
+  .path-sidebar__item--active .path-sidebar__item-icon,
+  .path-sidebar__item:hover .path-sidebar__item-icon { opacity: 1; }
   .path-sidebar__item-label { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .path-sidebar__badge { display: grid; min-width: 18px; height: 16px; place-items: center; border-radius: 99px; padding: 0 4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; }
-  .path-sidebar__profile { display: flex; align-items: center; gap: 9px; border-top: 1px solid #ebe5f0; padding: 17px 8px 0; }
-  .path-sidebar__profile-avatar { display: grid; width: 31px; height: 31px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e9ddff; color: #7134d6; font-size: 10px; font-weight: 900; overflow: hidden; }
+
+  /* active left accent pip */
+  .path-sidebar__item--active .path-sidebar__item-label::before {
+    content: '';
+    display: inline-block; width: 5px; height: 5px;
+    border-radius: 99px; margin-right: 7px; vertical-align: middle;
+    background: #c4b5fd;
+  }
+
+  .path-sidebar__badge {
+    display: grid; min-width: 18px; height: 16px; place-items: center;
+    border-radius: 99px; padding: 0 4px;
+    background: linear-gradient(135deg, #f43f5e, #e11d48);
+    color: #fff; font-size: 9.5px; font-weight: 800;
+    box-shadow: 0 2px 6px rgba(225,29,72,0.45);
+  }
+
+  /* ── Profile footer ── */
+  .path-sidebar__profile {
+    display: flex; align-items: center; gap: 9px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(196,181,253,0.2);
+    border-radius: 12px;
+    padding: 10px 11px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .path-sidebar__profile-avatar {
+    display: grid; width: 32px; height: 32px; flex: 0 0 auto;
+    place-items: center; border-radius: 8px;
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    color: #fff; font-size: 11px; font-weight: 800; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(109,40,217,0.4);
+    border: 1.5px solid rgba(255,255,255,0.2);
+  }
   .path-sidebar__profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .path-sidebar__profile-copy { min-width: 0; flex: 1; }
-  .path-sidebar__profile-name { display: block; overflow: hidden; color: #4c3c56; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-  .path-sidebar__profile-role { display: block; margin-top: 3px; color: #a096a8; font-size: 9px; font-weight: 600; text-transform: capitalize; }
-  .path-sidebar__profile-menu-button { display: grid; width: 26px; height: 26px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 6px; background: transparent; color: #a69bac; cursor: pointer; }
-  .path-sidebar__profile-menu-button:hover { background: #f7f3fb; color: #6d35c8; }
+  .path-sidebar__profile-name { display: block; overflow: hidden; color: #ede9fe; font-size: 11.5px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .path-sidebar__profile-role {
+    display: inline-block; margin-top: 3px;
+    color: #c4b5fd; font-size: 8.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    background: rgba(196,181,253,0.15);
+    border: 1px solid rgba(196,181,253,0.25);
+    border-radius: 5px; padding: 1.5px 5px;
+  }
+  .path-sidebar__profile-menu-button {
+    display: grid; width: 27px; height: 27px; flex: 0 0 auto;
+    place-items: center; border: 1px solid rgba(196,181,253,0.2);
+    border-radius: 7px; background: rgba(255,255,255,0.07); color: rgba(196,181,253,0.7); cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+  .path-sidebar__profile-menu-button:hover {
+    background: rgba(244,63,94,0.15); color: #fca5a5; border-color: rgba(244,63,94,0.3);
+  }
 `;
 
 // Maps a URL path to the nav key it should highlight as active.
@@ -315,6 +415,8 @@ export default function Sidebar({ activePage }) {
           </span>
         </div>
 
+        <div className="path-sidebar__divider" />
+
         {/* Nav */}
         <nav className="path-sidebar__navigation">
           {navGroups.map(group => {
@@ -353,7 +455,7 @@ export default function Sidebar({ activePage }) {
           const [bg, fg] = avatarBg(profile?.full_name || "");
           return (
             <div className="path-sidebar__profile">
-              <span className="path-sidebar__profile-avatar" style={!profile?.avatar_url ? { background: bg, color: fg } : undefined}>
+              <span className="path-sidebar__profile-avatar">
                 {profile?.avatar_url ? (
                   <img src={fullAvatarUrl(profile.avatar_url)} alt="" />
                 ) : (
