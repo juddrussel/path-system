@@ -575,6 +575,18 @@ const ALERT_TIER_CFG = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function timeSince(dateObj) {
+  if (!dateObj) return "Recently";
+  const secs = Math.floor((Date.now() - dateObj.getTime()) / 1000);
+  if (secs < 60)   return "Just now";
+  if (secs < 3600) return `${Math.floor(secs / 60)} min ago`;
+  if (secs < 86400) return `${Math.floor(secs / 3600)} hr ago`;
+  const days = Math.floor(secs / 86400);
+  if (days === 1)  return "Yesterday";
+  if (days < 7)    return `${days} days ago`;
+  return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 function StatusBadge({ s }) {
   const cfg = STATUS_CFG[s?.toLowerCase()] ?? {
     color: "#374151",
@@ -3136,26 +3148,33 @@ export default function Dashboard() {
     .slice(0, 8)
     .map((t) => {
       const preset = ACTIVITY_PRESET_BY_STATUS[t.status];
-      const action = preset
-        ? preset.action
-        : t.sourceType === "task"
-          ? "Assigned task"
-          : "Submitted form";
       const type = preset
         ? preset.type
         : t.sourceType === "task"
           ? "assigned"
           : "submitted";
+      const cfg = ACTIVITY_CFG[type] || ACTIVITY_CFG.workflow;
+      // Human-readable action label
+      const action = preset
+        ? preset.action
+        : t.sourceType === "task"
+          ? "Task assigned"
+          : "Form submitted";
+      // Short target title — strip the tracking ID suffix for display
+      const targetTitle = t.title || t.id || "Untitled";
       return {
-        id: `${t.sourceType}-${t.id}`,
-        time: t.dateObj.toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-        }),
-        actor: t.person || "—",
-        action,
-        target: t.title ? `${t.title}${t.id ? ` — ${t.id}` : ""}` : t.id,
+        id:       `${t.sourceType}-${t.id}`,
+        title:    action,
+        subtitle: `${t.person || "Unknown"} · ${timeSince(t.dateObj)}`,
+        detail:   targetTitle,
+        relTime:  timeSince(t.dateObj),
+        actor:    t.person || "—",
+        trackId:  t.id,
         type,
+        icon:     cfg.icon,
+        bg:       cfg.bg,
+        color:    cfg.color,
+        dateObj:  t.dateObj,
       };
     });
 
@@ -4544,52 +4563,77 @@ export default function Dashboard() {
                         Open audit trail <ArrowUpRight size={13} />
                       </button>
                     </div>
-                    <div style={{ marginTop: 18 }}>
-                      {recentActivityData.slice(0, 4).map((activity) => {
+                    <div style={{ marginTop: 14 }}>
+                      {recentActivityData.slice(0, 6).map((activity, idx) => {
                         const ActivityIcon = activity.icon || Activity;
+                        const isLast = idx === Math.min(recentActivityData.length, 6) - 1;
                         return (
                           <div
-                            key={activity.id || activity.key || activity.title}
+                            key={activity.id}
                             style={{
                               display: "flex",
-                              alignItems: "center",
+                              alignItems: "flex-start",
                               gap: 12,
-                              padding: "13px 0",
-                              borderBottom: "1px solid #f0eaf5",
+                              padding: "11px 0",
+                              borderBottom: isLast ? "none" : "1px solid #f0eaf5",
                             }}
                           >
+                            {/* Icon chip */}
                             <div
                               style={{
-                                width: 30,
-                                height: 30,
-                                borderRadius: 9,
-                                background: activity.bg || "#f1ebff",
-                                color: activity.color || "#7c3aed",
+                                width: 34,
+                                height: 34,
+                                borderRadius: 10,
+                                background: activity.bg,
+                                color: activity.color,
                                 display: "grid",
                                 placeItems: "center",
                                 flexShrink: 0,
+                                marginTop: 1,
                               }}
                             >
-                              <ActivityIcon size={14} />
+                              <ActivityIcon size={15} />
                             </div>
+
+                            {/* Text block */}
                             <div style={{ minWidth: 0, flex: 1 }}>
-                              <strong
-                                style={{
-                                  display: "block",
-                                  color: "#3b3045",
-                                  fontSize: 13,
-                                }}
-                              >
-                                {activity.title ||
-                                  activity.text ||
-                                  "Workflow activity"}
-                              </strong>
-                              <small style={{ color: "#94879c", fontSize: 13 }}>
-                                {activity.subtitle ||
-                                  activity.description ||
-                                  activity.time ||
-                                  "Recently"}
-                              </small>
+                              {/* Action label + relative time on same row */}
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                                <strong style={{ color: "#27213a", fontSize: 13, fontWeight: 700, lineHeight: 1.25 }}>
+                                  {activity.title}
+                                </strong>
+                                <span style={{ color: "#b0a3ba", fontSize: 11, fontWeight: 500, flexShrink: 0, whiteSpace: "nowrap" }}>
+                                  {activity.relTime}
+                                </span>
+                              </div>
+                              {/* Target document / task title */}
+                              <div style={{ color: "#6b5f76", fontSize: 12, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {activity.detail}
+                              </div>
+                              {/* Actor name + tracking id */}
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+                                <span style={{ color: "#9e91aa", fontSize: 11 }}>
+                                  {activity.actor}
+                                </span>
+                                {activity.trackId && (
+                                  <>
+                                    <span style={{ color: "#d4cade", fontSize: 10 }}>·</span>
+                                    <span
+                                      style={{
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        color: activity.color,
+                                        background: activity.bg,
+                                        borderRadius: 5,
+                                        padding: "1px 6px",
+                                        letterSpacing: "0.02em",
+                                      }}
+                                    >
+                                      {activity.trackId}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
                         );
