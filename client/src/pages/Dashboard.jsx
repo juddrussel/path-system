@@ -3279,6 +3279,12 @@ export default function Dashboard() {
           margin-right: 48px !important;
           padding: 28px 0 44px !important;
         }
+        @media (min-width: 1100px) {
+          .path-overview-shell .faculty-dashboard-canvas {
+            margin-left: clamp(64px, 5vw, 84px) !important;
+            margin-right: clamp(48px, 5vw, 84px) !important;
+          }
+        }
         .path-overview-shell .faculty-dashboard-canvas .faculty-dashboard-hero {
           margin: 0 !important;
           border-left: 0 !important;
