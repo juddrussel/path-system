@@ -1190,18 +1190,12 @@ const TB = {
     display: "flex", alignItems: "center", gap: "0",
     padding: "0",
     borderBottom: "none",
-    background: "linear-gradient(135deg, #3b0764 0%, #4c1d95 30%, #5b21b6 60%, #6d28d9 85%, #7c3aed 100%)",
-    boxShadow: "0 4px 24px -4px rgba(109,40,217,0.45), 0 1px 0 rgba(255,255,255,0.06) inset",
+    background: "linear-gradient(135deg, #2d0a5e 0%, #4a1272 35%, #6b21a8 70%, #7e22ce 100%)",
+    boxShadow: "0 4px 24px -4px rgba(107,33,168,0.55), 0 1px 0 rgba(255,255,255,0.06) inset",
     position: "sticky", top: 0, zIndex: 10,
     fontFamily: "'DM Sans', sans-serif",
     fontSize: "16px", lineHeight: "normal", boxSizing: "border-box",
     minHeight: "60px",
-  },
-  // left accent bar — deep violet stripe on the far left edge
-  leftAccent: {
-    position: "absolute", left: 0, top: 0, bottom: 0, width: "3px",
-    background: "linear-gradient(180deg, #c4b5fd 0%, #a78bfa 50%, #c4b5fd 100%)",
-    opacity: 0.7,
   },
   // bottom shimmer line
   bottomAccent: {
@@ -1450,7 +1444,6 @@ export default function TopBar({ children, onLogout }) {
   return (
     <>
       <div style={TB.bar}>
-        <div style={TB.leftAccent} />
         <div style={TB.bottomAccent} />
         <div style={TB.inner}>
 
