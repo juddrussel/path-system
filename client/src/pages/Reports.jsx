@@ -409,7 +409,7 @@ function PathFacultyPulse({ data }) {
 function PathOverview({ items, processing, bottlenecks, quickReports, onSelectTab, onExport, onNavigate }) {
   const completed = items.filter((item) => item.done);
   const onTime = completed.length ? Math.round((completed.filter((item) => !item.overdue).length / completed.length) * 1000) / 10 : 0;
-  const returned = items.filter((item) => item.status === "Returned").length;
+  const returned = items.filter((item) => item.wasReturned || item.status === "Returned").length;
   const approved = items.filter((item) => item.status === "Approved" || item.status === "Completed").length;
   const reviewing = items.filter((item) => item.status === "Under Review" || item.status === "For Approval").length;
   const atRisk = items.filter((item) => item.overdue || item.status === "Delayed").length;
@@ -474,7 +474,7 @@ function PathBottleneckWorkspace({ items, bottlenecks, alerts, onOpenAlerts, onE
 }
 
 function PathFollowUpWorkspace({ records, reasons, trend, resolutions, onExport, onSelect, formatId }) {
-  const returned = records.filter((item) => item.status === "Returned").length;
+  const returned = records.filter((item) => item.wasReturned || item.status === "Returned").length;
   const rejected = records.filter((item) => item.status === "Rejected").length;
   const resolutionRate = records.length ? Math.round((resolutions.stats.resolved / records.length) * 100) : 0;
   const visibleReasons = reasons.filter((item) => item.value > 0);
@@ -785,6 +785,7 @@ export default function Reports() {
             const overdue = t.deadline && new Date(t.deadline) < now && !done;
             const relabelDelayed = overdue && !alreadySubmitted && status !== "Returned";
             const reasonRaw = t.rejection_reason || t.return_reason || t.reason || t.remarks || t.review_note || null;
+            const wasReturned = !!reasonRaw || status === "Returned";
             const actionDateRaw = t.reviewed_at || t.updated_at || rawDate;
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
@@ -798,6 +799,7 @@ export default function Reports() {
               days: daysSince(rawDate),
               stage: relabelDelayed ? "Delayed" : status,
               overdue,
+              wasReturned,
               reasonRaw, reasonCategory: classifyReason(reasonRaw),
               actionDate: fmtDate(actionDateRaw),
               reviewerRemarks: t.reviewer_remarks || t.remarks || null,
@@ -823,6 +825,7 @@ export default function Reports() {
               (f.faculty_id ? nameOf(f.faculty_id) : null) ||
               "—";
             const reasonRaw = f.rejection_reason || f.return_reason || f.reason || f.remarks || f.review_note || null;
+            const wasReturned = !!reasonRaw || status === "Returned";
             const actionDateRaw = f.reviewed_at || f.updated_at || rawDate;
             merged.push({
               id: f.tracking_id || `FRM-${f.id}`,
@@ -835,6 +838,7 @@ export default function Reports() {
               status, done: DONE.includes(status),
               days: daysSince(rawDate),
               stage: status,
+              wasReturned,
               reasonRaw, reasonCategory: classifyReason(reasonRaw),
               actionDate: fmtDate(actionDateRaw),
               reviewerRemarks: f.reviewer_remarks || f.remarks || null,
@@ -1207,7 +1211,7 @@ export default function Reports() {
      ════════════════════════════════════════════════════════════════ */
 
   const RR_ALL = useMemo(() => (
-    rawItems.filter(i => i.status === "Returned" || i.status === "Rejected")
+    rawItems.filter(i => i.status === "Returned" || i.status === "Rejected" || i.wasReturned)
   ), [rawItems]);
 
   // ── KPI summary: totals + rates + most common reason (computed off the
@@ -1215,7 +1219,7 @@ export default function Reports() {
   //    read as department-wide health metrics while the table below can
   //    still be sliced by the filter row). ──
   const RR_KPI = useMemo(() => {
-    const totalReturned = RR_ALL.filter(i => i.status === "Returned").length;
+    const totalReturned = RR_ALL.filter(i => i.wasReturned || i.status === "Returned").length;
     const totalRejected = RR_ALL.filter(i => i.status === "Rejected").length;
     const totalAll = rawItems.length || 1;
     const reasonCounts = {};
