@@ -1217,7 +1217,8 @@ router.patch("/:id/return", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
-    await db.query("UPDATE tasks SET status = 'Returned', updated_at = NOW() WHERE id = ?", [req.params.id]);
+    const instruction = req.body?.instruction || "";
+    await db.query("UPDATE tasks SET status = 'Returned', return_reason = ?, updated_at = NOW() WHERE id = ?", [instruction || null, req.params.id]);
     await writeLog({ userId: req.user.id, action: "TASK_RETURN", detail: `Returned task ${rows[0].tracking_id}`, ipAddress: req.ip });
 
     const io = req.app.get("io");

@@ -233,6 +233,7 @@ export default function TaskDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
   const [returnInstruction, setReturnInstruction] = useState("");
+  const [returnReason, setReturnReason] = useState("");
   const [returnError, setReturnError] = useState("");
   const [deciding, setDeciding] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
@@ -405,6 +406,10 @@ export default function TaskDetail() {
   const returnTask = async (event) => {
     event.preventDefault();
     if (!canReturn || deciding) return;
+    if (!returnReason) {
+      setReturnError("Select a reason before continuing.");
+      return;
+    }
     if (returnInstruction.trim().length < 12) {
       setReturnError(
         "Add at least 12 characters of guidance before returning this task.",
@@ -413,13 +418,15 @@ export default function TaskDetail() {
     }
     setDeciding(true);
     setReturnError("");
+    const structuredInstruction = `Reason: ${returnReason}\n\nReviewer direction: ${returnInstruction.trim()}`;
     try {
-      await postStatus("/return", { instruction: returnInstruction.trim() });
+      await postStatus("/return", { instruction: structuredInstruction });
       updateTask({
         status: "Returned for revision",
-        revision_instruction: returnInstruction.trim(),
+        revision_instruction: structuredInstruction,
       });
       setReturnInstruction("");
+      setReturnReason("");
       setReturnOpen(false);
       await loadTask();
     } catch (decisionError) {
@@ -1407,6 +1414,23 @@ export default function TaskDetail() {
                   )}
                   {!isFacultyView && returnOpen && (
                     <form className="td-return-form" onSubmit={returnTask}>
+                      <label htmlFor="td-return-reason">
+                        Reason <em style={{ color: "#dc2626", fontStyle: "normal", fontWeight: 700 }}>required</em>
+                      </label>
+                      <select
+                        id="td-return-reason"
+                        value={returnReason}
+                        onChange={(event) => { setReturnReason(event.target.value); setReturnError(""); }}
+                        required
+                        style={{ width: "100%", padding: "8px 10px", border: "1px solid #e2dbe9", borderRadius: 8, fontSize: 12, fontFamily: "inherit", color: returnReason ? "#44354f" : "#9a8fa3", background: "#fff", outline: "none", marginBottom: 10, cursor: "pointer" }}
+                      >
+                        <option value="" disabled>Select a reason</option>
+                        <option>Missing information or supporting document</option>
+                        <option>Template or format correction required</option>
+                        <option>Content needs clarification</option>
+                        <option>Required approval or endorsement is missing</option>
+                        <option>Other revision needed</option>
+                      </select>
                       <label htmlFor="td-return-instruction">
                         Instructions for faculty
                       </label>
@@ -1429,6 +1453,8 @@ export default function TaskDetail() {
                           onClick={() => {
                             setReturnOpen(false);
                             setReturnError("");
+                            setReturnReason("");
+                            setReturnInstruction("");
                           }}
                         >
                           Cancel
