@@ -355,6 +355,14 @@ const BADGE = {
 // an "Approved" label regardless of the raw status string ("Received").
 const APPROVED_STATUSES = ["received"];
 
+// Maps a raw status value to the label shown to the user. The underlying
+// value (e.g. "received") is still what's used for filtering/API calls —
+// only the displayed text changes, so "Received" reads as "Approved".
+function statusDisplayLabel(status) {
+  const key = (status || "").toLowerCase();
+  return APPROVED_STATUSES.includes(key) ? "Approved" : status;
+}
+
 function Badge({ label }) {
   const key = label?.toLowerCase();
   const isApproved = APPROVED_STATUSES.includes(key);
@@ -858,7 +866,9 @@ function PathTasksWorkspace({
                   onChange={(event) => setStatusFilter(event.target.value)}
                 >
                   {statusOptions.map((option) => (
-                    <option key={option}>{option}</option>
+                    <option key={option} value={option}>
+                      {option === "All" ? option : statusDisplayLabel(option)}
+                    </option>
                   ))}
                 </select>
                 <select
@@ -1390,7 +1400,9 @@ function PathAssignedWorkspace({
                   onChange={(event) => setStatusFilter(event.target.value)}
                 >
                   {statusOptions.map((option) => (
-                    <option key={option}>{option}</option>
+                    <option key={option} value={option}>
+                      {option === "All" ? option : statusDisplayLabel(option)}
+                    </option>
                   ))}
                 </select>
               </label>
