@@ -414,6 +414,25 @@ export default function DocumentReview() {
     };
   }, [id]);
 
+  // ── Fetch matching SLA rule for this form's category ─────────────────────
+  const [slaRule, setSlaRule] = useState(null);
+  useEffect(() => {
+    if (!form) return;
+    const formCategory = form.category || form.document_type;
+    if (!formCategory) return;
+    (async () => {
+      try {
+        const res = await fetch(`${API}/api/sla/rules`, { headers });
+        if (!res.ok) return;
+        const rules = await res.json();
+        const match = (Array.isArray(rules) ? rules : []).find(
+          (r) => r.document_type?.toLowerCase() === formCategory.toLowerCase()
+        );
+        setSlaRule(match || null);
+      } catch {}
+    })();
+  }, [form?.category, form?.document_type]);
+
   const decision = async (
     action,
     requiredNote,
@@ -962,7 +981,17 @@ export default function DocumentReview() {
   const status = displayStatus(rawStatus);
   const category = form.category || form.document_type || "Academic form";
   const submitted = form.filing_date || form.date || form.created_at;
-  const deadline = form.review_due || form.deadline || form.due_date;
+  // Use the stored deadline first; if absent, compute from the SLA rule's turnaround_hours
+  const slaDeadlineComputed = slaRule?.turnaround_hours && submitted
+    ? new Date(new Date(submitted).getTime() + Number(slaRule.turnaround_hours) * 3600 * 1000).toISOString()
+    : null;
+  const deadline = form.review_due || form.deadline || form.due_date || slaDeadlineComputed;
+  // Human-readable SLA target label derived from the rule (e.g. "2 business days" or "48 hours")
+  const slaTargetLabel = slaRule
+    ? slaRule.turnaround_hours % 24 === 0
+      ? `${slaRule.turnaround_hours / 24} business day${slaRule.turnaround_hours / 24 === 1 ? "" : "s"}`
+      : `${slaRule.turnaround_hours} hours`
+    : form.sla_target || null;
   const submittedFileValue =
     form.file_url ||
     form.file_path ||
@@ -1609,14 +1638,34 @@ export default function DocumentReview() {
                 <div className="doc-sla-top">
                   <div>
                     <Label>SLA tracking</Label>
-                    <h2>{deadline ? "On track" : "No deadline"}</h2>
+                    <h2>
+                      {deadline
+                        ? rejected
+                          ? "Rejected"
+                          : approved
+                            ? "Completed"
+                            : elapsed >= 100
+                              ? "Overdue"
+                              : "On track"
+                        : slaRule
+                          ? "Computing…"
+                          : "No SLA rule"}
+                    </h2>
                   </div>
                   <span className="doc-live">● Live</span>
                 </div>
-                <h3>{deadline ? stamp(deadline) : "Not set"}</h3>
-                <p>{deadline ? "Review deadline" : "Set a review deadline"}</p>
+                <h3>{deadline ? stamp(deadline) : slaRule ? "—" : "Not configured"}</h3>
+                <p>
+                  {deadline
+                    ? elapsed >= 100
+                      ? "Deadline has passed"
+                      : "Review deadline"
+                    : slaRule
+                      ? `Rule: ${slaTargetLabel}`
+                      : "No matching SLA rule found"}
+                </p>
                 <div className="doc-progress">
-                  <i style={{ width: `${elapsed}%` }} />
+                  <i style={{ width: `${elapsed}%`, background: elapsed >= 100 ? "#ef4444" : elapsed >= 75 ? "#f97316" : undefined }} />
                 </div>
                 <div className="doc-progress-meta">
                   <span>Started {stamp(submitted, "recently")}</span>
@@ -1625,12 +1674,28 @@ export default function DocumentReview() {
                 <div className="doc-sla-grid">
                   <div>
                     <span>Target</span>
-                    <strong>{form.sla_target || "2 business days"}</strong>
+                    <strong>{slaTargetLabel || "2 business days"}</strong>
                   </div>
                   <div>
                     <span>Current state</span>
                     <strong>{status}</strong>
                   </div>
+                  {slaRule?.escalation_hours && (
+                    <div>
+                      <span>Escalates after</span>
+                      <strong>
+                        {slaRule.escalation_hours % 24 === 0
+                          ? `${slaRule.escalation_hours / 24}d overdue`
+                          : `${slaRule.escalation_hours}h overdue`}
+                      </strong>
+                    </div>
+                  )}
+                  {slaRule?.reviewer_role && (
+                    <div>
+                      <span>Reviewer role</span>
+                      <strong>{slaRule.reviewer_role}</strong>
+                    </div>
+                  )}
                 </div>
               </Panel>
               <Panel className="doc-owners">
