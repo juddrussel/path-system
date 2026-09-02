@@ -1717,15 +1717,6 @@ export default function DocumentReview() {
                     <span>Current reviewer</span>
                   </div>
                 </div>
-                <div className="doc-owner-line">
-                  <span className="doc-owner-avatar">AP</span>
-                  <div className="doc-owner-copy">
-                    <strong>
-                      {form.final_approver_name || "Academic Provost"}
-                    </strong>
-                    <span>Next approver</span>
-                  </div>
-                </div>
               </Panel>
               {fields.length > 0 && (
                 <Panel className="doc-fields">
