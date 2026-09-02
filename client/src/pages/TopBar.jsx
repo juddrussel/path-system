@@ -1276,7 +1276,7 @@ const TB = {
   name: { fontSize: "12.5px", fontWeight: 700, color: "#ede9fe", lineHeight: 1.15, margin: 0 },
   role: {
     fontSize: "9.5px", fontWeight: 800, lineHeight: 1,
-    margin: 0, borderRadius: "5px",
+    margin: 0, borderRadius: "5px", alignSelf: "flex-start",
     padding: "2.5px 7px", width: "fit-content", letterSpacing: "0.06em", textTransform: "uppercase",
   },
   chevron: { color: "rgba(196,181,253,0.6)", flexShrink: 0, transition: "transform .2s ease" },

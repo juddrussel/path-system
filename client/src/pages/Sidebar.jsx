@@ -278,7 +278,7 @@ const styles = `
   .path-sidebar__profile-copy { min-width: 0; flex: 1; }
   .path-sidebar__profile-name { display: block; overflow: hidden; color: #ede9fe; font-size: 11.5px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
   .path-sidebar__profile-role {
-    display: inline-block; margin-top: 3px;
+    display: inline-block; margin-top: 3px; align-self: flex-start;
     color: #fff; font-size: 9.5px; font-weight: 800;
     text-transform: uppercase; letter-spacing: 0.07em;
     background: rgba(255,255,255,0.18);
