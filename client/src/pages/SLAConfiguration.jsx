@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown, Pencil,
@@ -853,6 +853,77 @@ export default function SLAConfiguration() {
 
   const statAccent = { "Total Rules": COLORS.primary, "Active Rules": COLORS.success, "Near Deadline": COLORS.warning, "Overdue": COLORS.danger };
 
+  if (loading) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`
+        @keyframes sla-sk-shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+        @keyframes sla-sk-fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes sla-sk-spin { to { transform: rotate(360deg); } }
+        .sla-sk { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
+        .sla-sk-dark { background: linear-gradient(90deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.22) 45%,rgba(255,255,255,0.1) 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
+        .sla-sk-wrap { width: min(900px,94vw); display: flex; flex-direction: column; gap: 16px; animation: sla-sk-fadein 0.3s ease both; }
+        .sla-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); border-radius:14px; padding:26px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+        .sla-sk-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+        .sla-sk-card { background:#fff; border:1px solid #e8e1f5; border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:10px; box-shadow:0 4px 14px rgba(76,29,149,0.06); }
+        .sla-sk-table { background:#fff; border:1px solid #e8e1f5; border-radius:14px; overflow:hidden; box-shadow:0 4px 14px rgba(76,29,149,0.05); }
+        .sla-sk-thead { background:#f8f6ff; padding:12px 20px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr 80px; gap:16px; align-items:center; border-bottom:1px solid #ede9fe; }
+        .sla-sk-row { padding:14px 20px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr 80px; gap:16px; align-items:center; border-bottom:1px solid #f4f0fc; }
+        .sla-sk-row:last-child { border-bottom:none; }
+        .sla-sk-spin { width:16px; height:16px; border-radius:50%; flex-shrink:0; border:2px solid rgba(255,255,255,0.2); border-top-color:#c4b5fd; animation:sla-sk-spin 0.75s linear infinite; }
+      `}</style>
+      <div className="sla-sk-wrap">
+        <div className="sla-sk-hero">
+          <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <div className="sla-sk-spin" />
+              <span style={{ color:"rgba(196,181,253,0.7)", fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase" }}>Loading SLA configuration</span>
+            </div>
+            <div className="sla-sk-dark" style={{ height:22, width:"45%" }} />
+            <div className="sla-sk-dark" style={{ height:12, width:"30%" }} />
+          </div>
+          <div style={{ display:"flex", gap:8 }}>
+            <div className="sla-sk-dark" style={{ height:34, width:110, borderRadius:8 }} />
+            <div className="sla-sk-dark" style={{ height:34, width:80, borderRadius:8 }} />
+          </div>
+        </div>
+        <div className="sla-sk-stats">
+          {[["60%","80%","55%"],["50%","70%","45%"],["65%","75%","50%"]].map((w,i) => (
+            <div className="sla-sk-card" key={i}>
+              <div className="sla-sk" style={{ height:10, width:w[0] }} />
+              <div className="sla-sk" style={{ height:28, width:w[1] }} />
+              <div className="sla-sk" style={{ height:10, width:w[2] }} />
+            </div>
+          ))}
+        </div>
+        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+          <div className="sla-sk" style={{ height:34, flex:1, borderRadius:8 }} />
+          <div className="sla-sk" style={{ height:34, width:130, borderRadius:8 }} />
+          <div className="sla-sk" style={{ height:34, width:100, borderRadius:8 }} />
+        </div>
+        <div className="sla-sk-table">
+          <div className="sla-sk-thead">
+            {["45%","60%","55%","50%","70%"].map((w,i) => <div key={i} className="sla-sk" style={{ height:10, width:w }} />)}
+          </div>
+          {[0,1,2,3,4].map(row => (
+            <div className="sla-sk-row" key={row}>
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                <div className="sla-sk" style={{ height:12, width:"70%" }} />
+                <div className="sla-sk" style={{ height:9, width:"45%" }} />
+              </div>
+              <div className="sla-sk" style={{ height:11, width:"60%" }} />
+              <div className="sla-sk" style={{ height:11, width:"55%" }} />
+              <div className="sla-sk" style={{ height:22, width:60, borderRadius:99 }} />
+              <div style={{ display:"flex", gap:6 }}>
+                <div className="sla-sk" style={{ height:26, width:26, borderRadius:7 }} />
+                <div className="sla-sk" style={{ height:26, width:26, borderRadius:7 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: COLORS.textPrimary, background: COLORS.surface }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
@@ -1134,130 +1205,6 @@ export default function SLAConfiguration() {
         {/* ── Content ── */}
         <div className="sla-page-content" style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
-          {loading && (
-            <div style={{ padding: "32px 0", fontFamily: "'DM Sans', sans-serif" }}>
-              <style>{`
-                @keyframes sla-sk-shimmer {
-                  0%   { background-position: -600px 0; }
-                  100% { background-position:  600px 0; }
-                }
-                @keyframes sla-sk-fadein {
-                  from { opacity: 0; transform: translateY(8px); }
-                  to   { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes sla-sk-spin { to { transform: rotate(360deg); } }
-                .sla-sk {
-                  background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 45%, #ede9fe 90%);
-                  background-size: 600px 100%;
-                  animation: sla-sk-shimmer 1.5s ease-in-out infinite;
-                  border-radius: 7px;
-                }
-                .sla-sk-wrap {
-                  display: flex; flex-direction: column; gap: 18px;
-                  animation: sla-sk-fadein 0.3s ease both;
-                }
-                .sla-sk-hero {
-                  background: linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%);
-                  border-radius: 14px; padding: 26px 28px;
-                  display: flex; align-items: center; justify-content: space-between; gap: 20px;
-                }
-                .sla-sk-dark {
-                  background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.22) 45%, rgba(255,255,255,0.1) 90%);
-                  background-size: 600px 100%;
-                  animation: sla-sk-shimmer 1.5s ease-in-out infinite;
-                  border-radius: 7px;
-                }
-                .sla-sk-stats {
-                  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-                }
-                .sla-sk-card {
-                  background: #fff; border: 1px solid #e8e1f5; border-radius: 12px;
-                  padding: 18px; display: flex; flex-direction: column; gap: 10px;
-                  box-shadow: 0 4px 14px rgba(76,29,149,0.06);
-                }
-                .sla-sk-table {
-                  background: #fff; border: 1px solid #e8e1f5; border-radius: 14px;
-                  overflow: hidden; box-shadow: 0 4px 14px rgba(76,29,149,0.05);
-                }
-                .sla-sk-thead {
-                  background: #f8f6ff; padding: 12px 20px;
-                  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 80px; gap: 16px; align-items: center;
-                  border-bottom: 1px solid #ede9fe;
-                }
-                .sla-sk-row {
-                  padding: 14px 20px;
-                  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 80px; gap: 16px; align-items: center;
-                  border-bottom: 1px solid #f4f0fc;
-                }
-                .sla-sk-row:last-child { border-bottom: none; }
-                .sla-sk-spin {
-                  width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
-                  border: 2px solid rgba(255,255,255,0.2); border-top-color: #c4b5fd;
-                  animation: sla-sk-spin 0.75s linear infinite;
-                }
-              `}</style>
-              <div className="sla-sk-wrap">
-
-                {/* Hero */}
-                <div className="sla-sk-hero">
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div className="sla-sk-spin" />
-                      <span style={{ color: "rgba(196,181,253,0.7)", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Loading SLA configuration</span>
-                    </div>
-                    <div className="sla-sk-dark" style={{ height: 22, width: "45%" }} />
-                    <div className="sla-sk-dark" style={{ height: 12, width: "30%" }} />
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <div className="sla-sk-dark" style={{ height: 34, width: 110, borderRadius: 8 }} />
-                    <div className="sla-sk-dark" style={{ height: 34, width: 80, borderRadius: 8 }} />
-                  </div>
-                </div>
-
-                {/* Stat cards */}
-                <div className="sla-sk-stats">
-                  {[["60%","80%","55%"], ["50%","70%","45%"], ["65%","75%","50%"]].map((widths, i) => (
-                    <div className="sla-sk-card" key={i}>
-                      <div className="sla-sk" style={{ height: 10, width: widths[0] }} />
-                      <div className="sla-sk" style={{ height: 28, width: widths[1] }} />
-                      <div className="sla-sk" style={{ height: 10, width: widths[2] }} />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Toolbar skeleton */}
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <div className="sla-sk" style={{ height: 34, flex: 1, borderRadius: 8 }} />
-                  <div className="sla-sk" style={{ height: 34, width: 130, borderRadius: 8 }} />
-                  <div className="sla-sk" style={{ height: 34, width: 100, borderRadius: 8 }} />
-                </div>
-
-                {/* Rules table */}
-                <div className="sla-sk-table">
-                  <div className="sla-sk-thead">
-                    {["45%","60%","55%","50%","70%"].map((w, i) => (
-                      <div key={i} className="sla-sk" style={{ height: 10, width: w }} />
-                    ))}
-                  </div>
-                  {[0,1,2,3,4].map((row) => (
-                    <div className="sla-sk-row" key={row}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <div className="sla-sk" style={{ height: 12, width: "70%" }} />
-                        <div className="sla-sk" style={{ height: 9, width: "45%" }} />
-                      </div>
-                      <div className="sla-sk" style={{ height: 11, width: "60%" }} />
-                      <div className="sla-sk" style={{ height: 11, width: "55%" }} />
-                      <div className="sla-sk" style={{ height: 22, width: 60, borderRadius: 99 }} />
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <div className="sla-sk" style={{ height: 26, width: 26, borderRadius: 7 }} />
-                        <div className="sla-sk" style={{ height: 26, width: 26, borderRadius: 7 }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            </div>
           )}
           {error && (
             <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#fef2f2", color: "#991b1b", fontSize: 13.5 }}>
