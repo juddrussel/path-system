@@ -1976,7 +1976,7 @@ function QuickActionsPanel({ navigate, actions = ADMIN_QUICK_ACTIONS }) {
   );
 }
 
-function FacultyDashboardOverview({ displayName, forms, loading, navigate }) {
+function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tasksAll = [], tasksLoading, tasksPage, tasksTotalPages, setTasksPage, navigate }) {
   const statusOf = (row) => String(row.status || "").toLowerCase();
   const inReview = forms.filter((row) => /review|pending/.test(statusOf(row)));
   const returned = forms.filter((row) =>
@@ -2023,6 +2023,13 @@ function FacultyDashboardOverview({ displayName, forms, loading, navigate }) {
       detail: "Approved records",
       icon: CheckCircle2,
       color: "#27805d",
+    },
+    {
+      label: "Tasks assigned",
+      value: tasksAll.length,
+      detail: "Assigned to you",
+      icon: ClipboardList,
+      color: "#0284c7",
     },
   ];
   return (
@@ -2176,6 +2183,85 @@ function FacultyDashboardOverview({ displayName, forms, loading, navigate }) {
           <p className="faculty-list-empty">
             You have no active submissions. Start a new document to begin.
           </p>
+        )}
+      </section>
+
+      {/* ── Your Tasks ── */}
+      <section className="faculty-dashboard-list" style={{ marginTop: 24 }}>
+        <header>
+          <div>
+            <span className="faculty-kicker">Assigned to you</span>
+            <h2>Your tasks</h2>
+          </div>
+          <button type="button" onClick={() => navigate("/task-assigned")}>
+            Open Tasks <ArrowUpRight size={14} />
+          </button>
+        </header>
+
+        {tasksLoading ? (
+          <p className="faculty-list-empty">Loading your tasks…</p>
+        ) : tasks.length === 0 ? (
+          <p className="faculty-list-empty">
+            No tasks have been assigned to you yet.
+          </p>
+        ) : (
+          tasks.map((task) => {
+            const isOverdue = task.status === "Overdue";
+            const isDone   = ["Approved", "Completed", "Archived"].includes(task.status);
+            return (
+              <button
+                type="button"
+                className="faculty-document-row"
+                key={task.id}
+                onClick={() => navigate("/task-assigned")}
+              >
+                <i style={{ color: isOverdue ? "#dc2626" : isDone ? "#27805d" : "#0284c7", background: isOverdue ? "#fef2f2" : isDone ? "#dcfce7" : "#e0f2fe" }}>
+                  <ClipboardList size={15} />
+                </i>
+                <span>
+                  <strong>{task.title || "Untitled task"}</strong>
+                  <small>
+                    {task.id} · Due {task.date}
+                    {isOverdue && (
+                      <span style={{ color: "#dc2626", fontWeight: 700, marginLeft: 6 }}>
+                        · Overdue
+                      </span>
+                    )}
+                  </small>
+                </span>
+                <StatusBadge s={task.status} />
+                <ArrowUpRight size={15} color="#b3a6bd" />
+              </button>
+            );
+          })
+        )}
+
+        {/* Pagination */}
+        {!tasksLoading && tasksTotalPages > 1 && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0 2px", fontSize: 12, color: "#9080a0" }}>
+            <span>{tasksAll.length} task{tasksAll.length !== 1 ? "s" : ""} total</span>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => setTasksPage(p => Math.max(1, p - 1))}
+                disabled={tasksPage === 1}
+                style={{ border: "1px solid #e2dbe9", borderRadius: 6, padding: "3px 10px", background: "#fff", color: "#7c3aed", fontWeight: 700, fontSize: 12, cursor: tasksPage === 1 ? "not-allowed" : "pointer", opacity: tasksPage === 1 ? 0.4 : 1 }}
+              >
+                ‹
+              </button>
+              <span style={{ padding: "3px 8px", background: "#f0e9fc", borderRadius: 6, color: "#7c3aed", fontWeight: 700 }}>
+                {tasksPage} / {tasksTotalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setTasksPage(p => Math.min(tasksTotalPages, p + 1))}
+                disabled={tasksPage === tasksTotalPages}
+                style={{ border: "1px solid #e2dbe9", borderRadius: 6, padding: "3px 10px", background: "#fff", color: "#7c3aed", fontWeight: 700, fontSize: 12, cursor: tasksPage === tasksTotalPages ? "not-allowed" : "pointer", opacity: tasksPage === tasksTotalPages ? 0.4 : 1 }}
+              >
+                ›
+              </button>
+            </div>
+          </div>
         )}
       </section>
     </div>
