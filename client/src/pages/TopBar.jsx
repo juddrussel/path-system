@@ -894,13 +894,13 @@ function MessageToast({ m, onDismiss, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group pointer-events-auto relative w-[340px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl border border-teal-100 px-4 py-3.5 flex items-start gap-3 cursor-pointer animate-[msg-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
+      className="group pointer-events-auto relative w-[340px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl border border-violet-100 px-4 py-3.5 flex items-start gap-3 cursor-pointer animate-[msg-toast-in_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
       style={{ fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 20px -4px rgba(15,118,110,0.14), 0 2px 6px -2px rgba(0,0,0,0.06)" }}
     >
       {m.photoUrl ? (
         <img src={m.photoUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
       ) : (
-        <span className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-teal-100 text-teal-700">
+        <span className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-violet-100 text-violet-700">
           {initials(m.name)}
         </span>
       )}
@@ -951,8 +951,8 @@ const NOTIF_FILTERS = [
 // type -> { icon, bg, fg } used for the round icon chip on the left of each row.
 // Keys match the `type` column notify() writes in task.routes.js.
 const NOTIF_TYPE_STYLE = {
-  task_assigned:         { Icon: CheckCircleIcon, bg: "#ccfbf1", fg: "#0f766e" }, // teal
-  task_status_changed:   { Icon: CheckCircleIcon, bg: "#ccfbf1", fg: "#0f766e" }, // teal
+  task_assigned:         { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#6d28d9" }, // violet
+  task_status_changed:   { Icon: CheckCircleIcon, bg: "#ede9fe", fg: "#6d28d9" }, // violet
   task_submitted:        { Icon: CheckCircleIcon, bg: "#d1fae5", fg: "#065f46" }, // green
   task_comment_added:    { Icon: MessageIcon,     bg: "#dbeafe", fg: "#2563eb" }, // blue
   task_attachment_added: { Icon: DocumentIcon,    bg: "#dbeafe", fg: "#2563eb" }, // blue
@@ -1017,14 +1017,14 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
         <div className="flex items-center gap-2">
           <span className="text-[15px] font-extrabold text-gray-900">Notifications</span>
           {unreadCount > 0 && (
-            <span className="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
               {unreadCount} Unread
             </span>
           )}
         </div>
         <button
           onClick={onMarkAllRead}
-          className="text-[11px] font-semibold text-gray-400 hover:text-teal-600 transition-colors"
+          className="text-[11px] font-semibold text-gray-400 hover:text-violet-600 transition-colors"
         >
           Mark all as read
         </button>
@@ -1039,7 +1039,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                active ? "bg-teal-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                active ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
               }`}
             >
               {f.label}
@@ -1065,7 +1065,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
             <div
               key={n.id}
               onClick={() => onSelect(n)}
-              className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-teal-50/30" : ""}`}
+              className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-violet-50/30" : ""}`}
             >
               <span
                 className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
@@ -1075,7 +1075,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
               </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
-                  <p className={`text-xs leading-snug ${n.unread ? "font-bold text-teal-700" : "font-bold text-gray-800"}`}>
+                  <p className={`text-xs leading-snug ${n.unread ? "font-bold text-violet-700" : "font-bold text-gray-800"}`}>
                     {n.title}
                   </p>
                   <span className="flex items-center gap-0.5 text-[10px] text-gray-400 shrink-0 mt-0.5">
@@ -1094,7 +1094,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
       <div className="px-4 py-3 border-t border-gray-100 text-center">
         <button
           onClick={onViewAll}
-          className="inline-flex items-center gap-1 text-xs text-teal-600 font-bold hover:text-teal-700 transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-violet-600 font-bold hover:text-violet-700 transition-colors"
         >
           View All Notifications
           <ChevronRightIcon />
@@ -1275,10 +1275,10 @@ const TB = {
   nameBlock: { textAlign: "left", display: "flex", flexDirection: "column", gap: "2px" },
   name: { fontSize: "12.5px", fontWeight: 700, color: "#ede9fe", lineHeight: 1.15, margin: 0 },
   role: {
-    fontSize: "11px", fontWeight: 700, lineHeight: 1.4,
-    margin: 0, borderRadius: "999px", alignSelf: "flex-start",
-    padding: "3px 7px", width: "fit-content", letterSpacing: "0.02em",
-    textTransform: "uppercase", whiteSpace: "nowrap", fontStyle: "normal",
+    fontSize: "9px", fontWeight: 800, lineHeight: 1.4,
+    margin: 0, borderRadius: "99px", alignSelf: "flex-start",
+    padding: "2px 8px", width: "fit-content", letterSpacing: "0.08em",
+    textTransform: "uppercase", whiteSpace: "nowrap",
     display: "inline-flex", alignItems: "center",
   },
   chevron: { color: "rgba(196,181,253,0.6)", flexShrink: 0, transition: "transform .2s ease" },
@@ -1518,7 +1518,7 @@ export default function TopBar({ children, onLogout }) {
                   <p style={TB.name}>
                     {profile?.full_name || profile?.username || "User"}
                   </p>
-                  <span style={{ ...TB.role, color: "#7c3aed", background: "#f5f0ff", border: "none" }}>{formatRole(profile?.role)}</span>
+                  <span style={{ ...TB.role, color: "#fff", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)" }}>{formatRole(profile?.role)}</span>
                 </div>
                 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
                   <path d="M2 4l4 4 4-4" strokeLinecap="round" />
