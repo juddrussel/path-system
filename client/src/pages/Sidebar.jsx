@@ -280,11 +280,10 @@ const styles = `
   .path-sidebar__profile-role {
     display: inline-flex; align-items: center; justify-content: center;
     margin-top: 3px; align-self: flex-start;
-    color: #fff; font-size: 9px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 99px; padding: 2px 8px; line-height: 1.4;
+    color: #7c3aed; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.02em; font-style: normal;
+    background: #f5f0ff;
+    border-radius: 999px; padding: 3px 7px; line-height: 1.4;
     white-space: nowrap;
   }
   .path-sidebar__profile-menu-button {

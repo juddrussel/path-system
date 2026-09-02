@@ -1275,10 +1275,10 @@ const TB = {
   nameBlock: { textAlign: "left", display: "flex", flexDirection: "column", gap: "2px" },
   name: { fontSize: "12.5px", fontWeight: 700, color: "#ede9fe", lineHeight: 1.15, margin: 0 },
   role: {
-    fontSize: "9px", fontWeight: 800, lineHeight: 1.4,
-    margin: 0, borderRadius: "99px", alignSelf: "flex-start",
-    padding: "2px 8px", width: "fit-content", letterSpacing: "0.08em",
-    textTransform: "uppercase", whiteSpace: "nowrap",
+    fontSize: "11px", fontWeight: 700, lineHeight: 1.4,
+    margin: 0, borderRadius: "999px", alignSelf: "flex-start",
+    padding: "3px 7px", width: "fit-content", letterSpacing: "0.02em",
+    textTransform: "uppercase", whiteSpace: "nowrap", fontStyle: "normal",
     display: "inline-flex", alignItems: "center",
   },
   chevron: { color: "rgba(196,181,253,0.6)", flexShrink: 0, transition: "transform .2s ease" },
@@ -1518,7 +1518,7 @@ export default function TopBar({ children, onLogout }) {
                   <p style={TB.name}>
                     {profile?.full_name || profile?.username || "User"}
                   </p>
-                  <span style={{ ...TB.role, color: "#fff", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)" }}>{formatRole(profile?.role)}</span>
+                  <span style={{ ...TB.role, color: "#7c3aed", background: "#f5f0ff", border: "none" }}>{formatRole(profile?.role)}</span>
                 </div>
                 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
                   <path d="M2 4l4 4 4-4" strokeLinecap="round" />
