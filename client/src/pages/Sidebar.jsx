@@ -302,10 +302,14 @@ const styles = `
 const NAV_ITEMS = [
   { key: "dashboard", icon: Icon.Grid, label: "Dashboard", path: "/dashboard" },
   { key: "inbox", icon: Icon.Inbox, label: "Inbox", path: "/inbox" },
-  { key: "tasks", icon: Icon.Tasks, label: "My Tasks", path: "/tasks" },
   { key: "forms", icon: Icon.Forms, label: "Forms", path: "/forms" },
   { key: "tracking", icon: Icon.Tracking, label: "Tracking", path: "/tracking" },
   { key: "notifications", icon: Icon.Bell, label: "Notifications", path: "/notifications" },
+];
+
+// Faculty-only nav items (not shown to admin/program_chair)
+const FACULTY_NAV_ITEMS = [
+  { key: "tasks", icon: Icon.Tasks, label: "My Tasks", path: "/tasks" },
 ];
 
 const ADMIN_NAV_ITEMS = [
@@ -399,7 +403,7 @@ export default function Sidebar({ activePage }) {
   ];
 
   const navGroups = [
-    { label: "Workspace", items: NAV_ITEMS },
+    { label: "Workspace", items: [...NAV_ITEMS, ...(canViewAdminNav ? [] : FACULTY_NAV_ITEMS)] },
     { label: "Manage", items: manageItems },
   ];
 

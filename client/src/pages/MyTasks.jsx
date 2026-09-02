@@ -1770,6 +1770,10 @@ export default function MyTasks() {
       navigate("/login");
       return;
     }
+    if (canViewAdminNav) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
     fetchTasks();
   }, [search, statusFilter, priorityFilter, docTypeFilter, dateRange]);
 
