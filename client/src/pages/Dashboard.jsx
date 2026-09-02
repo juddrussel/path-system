@@ -3232,6 +3232,155 @@ export default function Dashboard() {
         ) / 10
       : null;
 
+  if (kpisLoading) {
+    return (
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "center",
+        height: "calc(100vh - 60px)", background: "#f8f7ff",
+        fontFamily: "'DM Sans', sans-serif",
+      }}>
+        <style>{`
+          @keyframes db-shimmer {
+            0%   { background-position: -600px 0; }
+            100% { background-position:  600px 0; }
+          }
+          @keyframes db-fadein {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes db-spin { to { transform: rotate(360deg); } }
+          .db-skel {
+            background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 45%, #ede9fe 90%);
+            background-size: 600px 100%;
+            animation: db-shimmer 1.5s ease-in-out infinite;
+            border-radius: 8px;
+          }
+          .db-skel-dark {
+            background: linear-gradient(90deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.12) 90%);
+            background-size: 600px 100%;
+            animation: db-shimmer 1.5s ease-in-out infinite;
+            border-radius: 8px;
+          }
+          .db-load-wrap {
+            width: min(860px, 94vw);
+            display: flex; flex-direction: column; gap: 16px;
+            animation: db-fadein 0.3s ease both;
+          }
+          .db-load-hero {
+            background: linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%);
+            border-radius: 16px;
+            padding: 28px 30px;
+            display: flex; align-items: center; justify-content: space-between; gap: 24px;
+          }
+          .db-load-kpi-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+          }
+          .db-load-kpi {
+            background: #fff;
+            border: 1px solid #e8e1f5;
+            border-radius: 12px;
+            padding: 20px 18px;
+            display: flex; flex-direction: column; gap: 10px;
+            box-shadow: 0 4px 14px rgba(76,29,149,0.06);
+          }
+          .db-load-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+          }
+          .db-load-card {
+            background: #fff;
+            border: 1px solid #e8e1f5;
+            border-radius: 14px;
+            padding: 20px;
+            display: flex; flex-direction: column; gap: 12px;
+            box-shadow: 0 4px 14px rgba(76,29,149,0.05);
+          }
+          .db-spin-ring {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: #c4b5fd;
+            animation: db-spin 0.75s linear infinite;
+            flex-shrink: 0;
+          }
+        `}</style>
+
+        <div className="db-load-wrap">
+
+          {/* Hero banner skeleton */}
+          <div className="db-load-hero">
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                <div className="db-spin-ring" />
+                <span style={{ color: "rgba(196,181,253,0.75)", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                  Loading dashboard
+                </span>
+              </div>
+              <div className="db-skel-dark" style={{ height: 26, width: "50%" }} />
+              <div className="db-skel-dark" style={{ height: 13, width: "35%" }} />
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <div className="db-skel-dark" style={{ height: 36, width: 90, borderRadius: 9 }} />
+              <div className="db-skel-dark" style={{ height: 36, width: 36, borderRadius: 9 }} />
+            </div>
+          </div>
+
+          {/* KPI strip */}
+          <div className="db-load-kpi-row">
+            {[55, 45, 60, 50].map((w, i) => (
+              <div className="db-load-kpi" key={i}>
+                <div className="db-skel" style={{ height: 10, width: "60%" }} />
+                <div className="db-skel" style={{ height: 28, width: `${w}%` }} />
+                <div className="db-skel" style={{ height: 10, width: "75%" }} />
+              </div>
+            ))}
+          </div>
+
+          {/* Two-column content cards */}
+          <div className="db-load-grid">
+            {/* Activity card */}
+            <div className="db-load-card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div className="db-skel" style={{ height: 14, width: "40%" }} />
+                <div className="db-skel" style={{ height: 12, width: "20%", borderRadius: 99 }} />
+              </div>
+              {[75, 60, 80, 55, 70].map((w, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 8, borderTop: i > 0 ? "1px solid #f4f0fc" : "none" }}>
+                  <div className="db-skel" style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0 }} />
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
+                    <div className="db-skel" style={{ height: 12, width: `${w}%` }} />
+                    <div className="db-skel" style={{ height: 10, width: `${w * 0.65}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Stats / chart card */}
+            <div className="db-load-card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div className="db-skel" style={{ height: 14, width: "45%" }} />
+                <div className="db-skel" style={{ height: 12, width: "18%", borderRadius: 99 }} />
+              </div>
+              {/* Bar chart skeleton */}
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 80, paddingTop: 8 }}>
+                {[55, 75, 45, 90, 60, 80, 50].map((h, i) => (
+                  <div key={i} className="db-skel" style={{ flex: 1, height: `${h}%`, borderRadius: "5px 5px 0 0" }} />
+                ))}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+                {[70, 55, 80].map((w, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div className="db-skel" style={{ height: 11, width: `${w}%` }} />
+                    <div className="db-skel" style={{ height: 11, width: "15%" }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="path-overview-shell path-dashboard"
