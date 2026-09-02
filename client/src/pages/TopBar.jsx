@@ -1016,7 +1016,6 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
       style={{
         width: 360,
         background: "#fff",
-        border: "1px solid #ede9fe",
         borderRadius: 18,
         boxShadow: "0 20px 60px -10px rgba(109,40,217,0.18), 0 4px 16px -4px rgba(0,0,0,0.08)",
         fontFamily: "'DM Sans', sans-serif",
