@@ -502,19 +502,19 @@ const PRIORITY_CFG = {
 // Dot-style status palette — mirrors Tracking.jsx's STATUS_STYLES, extended
 // with the extra statuses used across forms, tasks, and documents here.
 const STATUS_CFG = {
-  pending: { color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
-  "pending review": { color: "#481bc6", bg: "#e6deff", dot: "#5e3bdb" },
-  "under review": { color: "#0369a1", bg: "#f0f9ff", dot: "#38bdf8" },
-  "for approval": { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
-  "in progress": { color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
-  "not started": { color: "#6b7280", bg: "#f9fafb", dot: "#9ca3af" },
-  overdue: { color: "#991b1b", bg: "#fef2f2", dot: "#ef4444" },
-  completed: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  approved: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  received: { color: "#065f46", bg: "#d1fae5", dot: "#10b981" },
-  rejected: { color: "#991b1b", bg: "#fee2e2", dot: "#ef4444" },
-  returned: { color: "#9a3412", bg: "#ffedd5", dot: "#f97316" },
-  archived: { color: "#6b7280", bg: "#f3f4f6", dot: "#9ca3af" },
+  pending:        { color: "#92400e", bg: "#fffbeb", border: "#fde68a", dot: "#f59e0b" },
+  "pending review": { color: "#4c1d95", bg: "#f5f3ff", border: "#ddd6fe", dot: "#7c3aed" },
+  "under review": { color: "#075985", bg: "#f0f9ff", border: "#bae6fd", dot: "#0ea5e9" },
+  "for approval": { color: "#1e3a8a", bg: "#eff6ff", border: "#bfdbfe", dot: "#3b82f6" },
+  "in progress":  { color: "#1e3a8a", bg: "#eff6ff", border: "#bfdbfe", dot: "#3b82f6" },
+  "not started":  { color: "#4b5563", bg: "#f9fafb", border: "#e5e7eb", dot: "#9ca3af" },
+  overdue:        { color: "#991b1b", bg: "#fff1f2", border: "#fecdd3", dot: "#f43f5e" },
+  completed:      { color: "#14532d", bg: "#f0fdf4", border: "#bbf7d0", dot: "#22c55e" },
+  approved:       { color: "#14532d", bg: "#f0fdf4", border: "#bbf7d0", dot: "#22c55e" },
+  received:       { color: "#14532d", bg: "#f0fdf4", border: "#bbf7d0", dot: "#22c55e" },
+  rejected:       { color: "#7f1d1d", bg: "#fff1f2", border: "#fecaca", dot: "#ef4444" },
+  returned:       { color: "#7c2d12", bg: "#fff7ed", border: "#fed7aa", dot: "#f97316" },
+  archived:       { color: "#374151", bg: "#f9fafb", border: "#e5e7eb", dot: "#6b7280" },
 };
 
 // Type badge — same Task/Form pattern as Tracking.jsx, extended with Document
@@ -590,7 +590,8 @@ function timeSince(dateObj) {
 function StatusBadge({ s }) {
   const cfg = STATUS_CFG[s?.toLowerCase()] ?? {
     color: "#374151",
-    bg: "#f3f4f6",
+    bg: "#f9fafb",
+    border: "#e5e7eb",
     dot: "#9ca3af",
   };
   return (
@@ -599,13 +600,16 @@ function StatusBadge({ s }) {
         display: "inline-flex",
         alignItems: "center",
         gap: 5,
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: 700,
-        padding: "3px 9px",
-        borderRadius: 20,
+        letterSpacing: "0.03em",
+        padding: "3px 8px 3px 7px",
+        borderRadius: 6,
+        border: `1px solid ${cfg.border}`,
         background: cfg.bg,
         color: cfg.color,
         whiteSpace: "nowrap",
+        textTransform: "capitalize",
       }}
     >
       <span
@@ -615,6 +619,7 @@ function StatusBadge({ s }) {
           borderRadius: "50%",
           background: cfg.dot,
           flexShrink: 0,
+          boxShadow: `0 0 0 2px ${cfg.bg}`,
         }}
       />
       {s}
