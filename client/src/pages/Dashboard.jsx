@@ -2193,7 +2193,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
             <span className="faculty-kicker">Assigned to you</span>
             <h2>Your tasks</h2>
           </div>
-          <button type="button" onClick={() => navigate("/task-assigned")}>
+          <button type="button" onClick={() => navigate("/tasks")}>
             Open Tasks <ArrowUpRight size={14} />
           </button>
         </header>
@@ -2213,7 +2213,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
                 type="button"
                 className="faculty-document-row"
                 key={task.id}
-                onClick={() => navigate("/task-assigned")}
+                onClick={() => navigate("/tasks")}
               >
                 <i style={{ color: isOverdue ? "#dc2626" : isDone ? "#27805d" : "#0284c7", background: isOverdue ? "#fef2f2" : isDone ? "#dcfce7" : "#e0f2fe" }}>
                   <ClipboardList size={15} />
