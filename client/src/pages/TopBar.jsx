@@ -255,10 +255,10 @@ function formatRole(role) {
 // Distinct accent per role so the badge (and avatar ring) carry real
 // meaning at a glance instead of every role looking the same violet.
 const ROLE_COLORS = {
-  admin:         { fg: "#4c3f78", bg: "#edebf6", ring: "#4c3f78", dot: "#6f5fa3" },
-  program_chair: { fg: "#1e4d8f", bg: "#e8f0fb", ring: "#1e4d8f", dot: "#3a6ea8" },
-  user:          { fg: "#0f5c52", bg: "#e3f5f1", ring: "#0f5c52", dot: "#10a37f" },
-  guest:         { fg: "#6b6f76", bg: "#eeece6", ring: "#8d8f83", dot: "#9a9690" },
+  admin:         { fg: "#fff",    bg: "rgba(255,255,255,0.22)", border: "rgba(255,255,255,0.35)", ring: "#a78bfa", dot: "#c4b5fd" },
+  program_chair: { fg: "#fef9c3", bg: "rgba(253,224,71,0.22)",  border: "rgba(253,224,71,0.4)",   ring: "#a78bfa", dot: "#c4b5fd" },
+  user:          { fg: "#bbf7d0", bg: "rgba(34,197,94,0.18)",   border: "rgba(34,197,94,0.35)",   ring: "#a78bfa", dot: "#c4b5fd" },
+  guest:         { fg: "#e2e8f0", bg: "rgba(255,255,255,0.1)",  border: "rgba(255,255,255,0.2)",  ring: "#a78bfa", dot: "#c4b5fd" },
 };
 function roleColors(role) {
   return ROLE_COLORS[role] || ROLE_COLORS.guest;
@@ -1275,9 +1275,9 @@ const TB = {
   nameBlock: { textAlign: "left", display: "flex", flexDirection: "column", gap: "2px" },
   name: { fontSize: "12.5px", fontWeight: 700, color: "#ede9fe", lineHeight: 1.15, margin: 0 },
   role: {
-    fontSize: "9px", fontWeight: 700, lineHeight: 1,
+    fontSize: "9.5px", fontWeight: 800, lineHeight: 1,
     margin: 0, borderRadius: "5px",
-    padding: "2.5px 6px", width: "fit-content", letterSpacing: "0.04em", textTransform: "uppercase",
+    padding: "2.5px 7px", width: "fit-content", letterSpacing: "0.06em", textTransform: "uppercase",
   },
   chevron: { color: "rgba(196,181,253,0.6)", flexShrink: 0, transition: "transform .2s ease" },
 };
@@ -1516,7 +1516,7 @@ export default function TopBar({ children, onLogout }) {
                   <p style={TB.name}>
                     {profile?.full_name || profile?.username || "User"}
                   </p>
-                  <span style={{ ...TB.role, color: rc.fg, background: "rgba(237,233,254,0.15)", border: "1px solid rgba(196,181,253,0.3)" }}>{formatRole(profile?.role)}</span>
+                  <span style={{ ...TB.role, color: rc.fg, background: rc.bg, border: `1px solid ${rc.border}` }}>{formatRole(profile?.role)}</span>
                 </div>
                 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
                   <path d="M2 4l4 4 4-4" strokeLinecap="round" />
