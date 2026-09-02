@@ -278,12 +278,14 @@ const styles = `
   .path-sidebar__profile-copy { min-width: 0; flex: 1; }
   .path-sidebar__profile-name { display: block; overflow: hidden; color: #ede9fe; font-size: 11.5px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
   .path-sidebar__profile-role {
-    display: inline-block; margin-top: 3px; align-self: flex-start;
-    color: #fff; font-size: 9.5px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.07em;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-top: 3px; align-self: flex-start;
+    color: #fff; font-size: 9px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
     background: rgba(255,255,255,0.18);
     border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 5px; padding: 2px 7px;
+    border-radius: 99px; padding: 2px 8px; line-height: 1.4;
+    white-space: nowrap;
   }
   .path-sidebar__profile-menu-button {
     display: grid; width: 27px; height: 27px; flex: 0 0 auto;
