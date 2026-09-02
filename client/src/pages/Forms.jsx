@@ -4328,17 +4328,6 @@ export default function Forms() {
             </div>
           )}
 
-          {/* Footer */}
-          <div
-            style={{
-              textAlign: "center",
-              fontSize: 13,
-              color: "#ccc",
-              paddingTop: 8,
-            }}
-          >
-            © 2026 PATH Document Management System. All Rights Reserved.
-          </div>
         </div>
       </div>
 
