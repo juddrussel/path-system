@@ -554,6 +554,7 @@ function PathTasksWorkspace({
   user,
   canViewAdminNav,
   tasks,
+  allStatuses,
   stats,
   loading,
   search,
@@ -642,12 +643,14 @@ function PathTasksWorkspace({
     return "todo";
   };
   const priorityClass = (task) => (task.priority || "medium").toLowerCase();
-  // Build the status filter from whatever statuses actually exist on the
-  // tasks returned by the API, instead of a hardcoded list that can drift
-  // out of sync with real backend status values.
+  // Build the status filter from the accumulated set of statuses the app has
+  // seen (allStatuses), NOT from the currently-loaded `tasks`. `tasks` only
+  // holds the server's already-filtered results, so deriving options from it
+  // caused the dropdown to collapse to just "All" + whatever status was
+  // selected (e.g. only "All, Pending" after filtering by Pending).
   const statusOptions = [
     "All",
-    ...Array.from(new Set(tasks.map((task) => task.status).filter(Boolean))),
+    ...Array.from(new Set(allStatuses.filter(Boolean))),
   ];
   const openFile = (attachment) => {
     const name = attachment.file_name || attachment.name || "file";
@@ -1192,6 +1195,7 @@ function PathTasksWorkspace({
 function PathAssignedWorkspace({
   user,
   tasks,
+  allStatuses,
   stats,
   loading,
   search,
@@ -1240,13 +1244,13 @@ function PathAssignedWorkspace({
     "All",
     ...Array.from(new Set(tasks.map((task) => task.doc_type).filter(Boolean))),
   ];
-  // Same approach as docTypes: derive the status filter's options from the
-  // real status values present on the tasks, so the dropdown never shows a
-  // status that doesn't actually exist in the system (and never hides one
-  // that does).
+  // Derive the status filter's options from allStatuses (every status value
+  // seen across fetches so far), not from `tasks` — `tasks` only holds the
+  // server's current, already-filtered results, so building options from it
+  // made the dropdown shrink to just the active filter's status once applied.
   const statusOptions = [
     "All",
-    ...Array.from(new Set(tasks.map((task) => task.status).filter(Boolean))),
+    ...Array.from(new Set(allStatuses.filter(Boolean))),
   ];
   const openTask = (task) => {
     if (!task?.id) return;
@@ -1710,6 +1714,14 @@ export default function MyTasks() {
   const [docTypeFilter, setDocTypeFilter] = useState("All");
   const [dateRange, setDateRange] = useState("");
   const [tasks, setTasks] = useState([]);
+  // Full set of status values seen across fetches, independent of the
+  // currently-applied status filter. `tasks` only ever holds the filtered
+  // results from the server, so deriving the dropdown's options from it
+  // caused the list to shrink to whatever statuses happened to be in the
+  // last filtered response (e.g. just "Pending" after filtering by it).
+  // We instead accumulate every status we've ever seen here, so the
+  // dropdown always offers every option regardless of the active filter.
+  const [allStatuses, setAllStatuses] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
     dueToday: 0,
@@ -1781,6 +1793,14 @@ export default function MyTasks() {
       const data = await res.json();
       const newTasks = Array.isArray(data.tasks) ? data.tasks : [];
       setTasks(newTasks);
+      // Accumulate (never shrink) the set of known status values so the
+      // filter dropdown keeps showing every option even while `tasks` is
+      // narrowed down to just the currently-selected status.
+      setAllStatuses((prev) => {
+        const seen = new Set(prev);
+        newTasks.forEach((t) => t.status && seen.add(t.status));
+        return Array.from(seen);
+      });
       setStats(
         data.stats || { total: 0, dueToday: 0, overdue: 0, pendingApproval: 0 },
       );
@@ -2323,6 +2343,7 @@ export default function MyTasks() {
       <PathAssignedWorkspace
         user={user}
         tasks={tasks}
+        allStatuses={allStatuses}
         stats={stats}
         loading={loading}
         search={search}
@@ -2352,6 +2373,7 @@ export default function MyTasks() {
       user={user}
       canViewAdminNav={canViewAdminNav}
       tasks={tasks}
+      allStatuses={allStatuses}
       stats={stats}
       loading={loading}
       search={search}
