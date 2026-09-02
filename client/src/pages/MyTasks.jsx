@@ -1404,11 +1404,12 @@ function PathAssignedWorkspace({
                 </select>
               </label>
               <input
-                className="path-assigned-date"
+                className="path-assigned-date-filter"
                 type="date"
                 value={dateRange}
                 onChange={(event) => setDateRange(event.target.value)}
                 aria-label="Filter assigned tasks by date"
+                style={{ colorScheme: "light", color: "#4c3e57", cursor: "pointer" }}
               />
             </section>
             <section className="path-assigned-workspace">
@@ -2686,12 +2687,11 @@ export default function MyTasks() {
                   value={dateRange}
                   onChange={(e) => setDateRange(e.target.value)}
                   style={{
-                    border: "none",
-                    background: "transparent",
+                    colorScheme: "light",
                     fontSize: 13,
                     outline: "none",
                     cursor: "pointer",
-                    color: "#374151",
+                    color: "#4c3e57",
                   }}
                 />
               </div>
