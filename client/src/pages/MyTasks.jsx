@@ -1403,14 +1403,40 @@ function PathAssignedWorkspace({
                   ))}
                 </select>
               </label>
-              <input
-                className="path-assigned-date"
-                type="date"
-                value={dateRange}
-                onChange={(event) => setDateRange(event.target.value)}
-                aria-label="Filter assigned tasks by date"
-                style={{ colorScheme: "light", color: "#4c3e57", cursor: "pointer" }}
-              />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  height: 36,
+                  maxWidth: 142,
+                  padding: "0 8px",
+                  border: "1px solid #e2dbe9",
+                  borderRadius: 8,
+                  background: "#fff",
+                }}
+              >
+                <input
+                  className="path-assigned-date"
+                  type="date"
+                  value={dateRange}
+                  onChange={(event) => setDateRange(event.target.value)}
+                  aria-label="Filter assigned tasks by date"
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    colorScheme: "light",
+                    fontSize: 12,
+                    outline: "none",
+                    cursor: "pointer",
+                    color: "#4c3e57",
+                    width: "100%",
+                    height: "100%",
+                    padding: 0,
+                    maxWidth: "none",
+                  }}
+                />
+              </div>
             </section>
             <section className="path-assigned-workspace">
               <aside className="path-assigned-feed">
