@@ -1404,7 +1404,7 @@ function PathAssignedWorkspace({
                 </select>
               </label>
               <input
-                className="path-assigned-date-filter"
+                className="path-assigned-date"
                 type="date"
                 value={dateRange}
                 onChange={(event) => setDateRange(event.target.value)}
