@@ -634,6 +634,13 @@ function PathTasksWorkspace({
     return "todo";
   };
   const priorityClass = (task) => (task.priority || "medium").toLowerCase();
+  // Build the status filter from whatever statuses actually exist on the
+  // tasks returned by the API, instead of a hardcoded list that can drift
+  // out of sync with real backend status values.
+  const statusOptions = [
+    "All",
+    ...Array.from(new Set(tasks.map((task) => task.status).filter(Boolean))),
+  ];
   const openFile = (attachment) => {
     const name = attachment.file_name || attachment.name || "file";
     const ext = name.split(".").pop()?.toLowerCase();
@@ -850,13 +857,7 @@ function PathTasksWorkspace({
                   value={statusFilter}
                   onChange={(event) => setStatusFilter(event.target.value)}
                 >
-                  {[
-                    "All",
-                    "Pending Approval",
-                    "In Progress",
-                    "Done",
-                    "Overdue",
-                  ].map((option) => (
+                  {statusOptions.map((option) => (
                     <option key={option}>{option}</option>
                   ))}
                 </select>
@@ -1229,6 +1230,14 @@ function PathAssignedWorkspace({
     "All",
     ...Array.from(new Set(tasks.map((task) => task.doc_type).filter(Boolean))),
   ];
+  // Same approach as docTypes: derive the status filter's options from the
+  // real status values present on the tasks, so the dropdown never shows a
+  // status that doesn't actually exist in the system (and never hides one
+  // that does).
+  const statusOptions = [
+    "All",
+    ...Array.from(new Set(tasks.map((task) => task.status).filter(Boolean))),
+  ];
   const openTask = (task) => {
     if (!task?.id) return;
     fetchSelectedTask(task.id);
@@ -1380,13 +1389,7 @@ function PathAssignedWorkspace({
                   value={statusFilter}
                   onChange={(event) => setStatusFilter(event.target.value)}
                 >
-                  {[
-                    "All",
-                    "Pending Approval",
-                    "In Progress",
-                    "Done",
-                    "Overdue",
-                  ].map((option) => (
+                  {statusOptions.map((option) => (
                     <option key={option}>{option}</option>
                   ))}
                 </select>
