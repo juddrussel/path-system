@@ -1205,7 +1205,6 @@ export default function SLAConfiguration() {
         {/* ── Content ── */}
         <div className="sla-page-content" style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
-          )}
           {error && (
             <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#fef2f2", color: "#991b1b", fontSize: 13.5 }}>
               {error}
