@@ -781,6 +781,12 @@ export default function AuditTrail() {
           </div>
         )}
         <footer className="path-audit-footer">
+          <span>
+            © 2026 PATH Document Management System. All rights reserved.
+          </span>
+          <span>
+            <i /> System operational
+          </span>
         </footer>
       </main>
     </div>

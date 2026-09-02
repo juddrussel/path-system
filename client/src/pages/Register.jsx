@@ -904,17 +904,6 @@ export default function Register() {
             <a style={s.footerLink} href="#">Terms of Use</a>
             <a style={s.footerLink} href="#">Help Desk</a>
           </div>
-          <div style={s.footerBar}>
-            <span style={s.footerStatus}>
-              <i style={s.footerDot} /> Systems online
-            </span>
-            <span style={s.footerDivider}>|</span>
-            <span style={s.footerMuted}>V 2.8.4-stable</span>
-            <span style={s.footerDivider}>|</span>
-            <a style={s.footerLink} href="#">Privacy Policy</a>
-            <a style={s.footerLink} href="#">Terms of Use</a>
-            <a style={s.footerLink} href="#">Help Desk</a>
-          </div>
         </div>
       </section>
 

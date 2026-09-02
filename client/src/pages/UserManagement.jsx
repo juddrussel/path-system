@@ -2131,6 +2131,21 @@ export default function UserManagement() {
         </div>
 
         <footer className="flex justify-between items-center px-5 py-2.5 border-t border-gray-100 text-[10px] text-gray-400 bg-white">
+          <span>
+            © 2024 PATH Document Management System. All rights reserved.
+          </span>
+          <div className="flex items-center gap-4">
+            <span>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1" />
+              System Operational
+            </span>
+            <a href="#" className="hover:text-gray-600">
+              Privacy Policy
+            </a>
+            <a href="#" className="hover:text-gray-600">
+              Terms of Service
+            </a>
+          </div>
         </footer>
       </main>
 
