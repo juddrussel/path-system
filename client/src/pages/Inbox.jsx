@@ -1547,7 +1547,7 @@ export default function Inbox() {
   // RENDER
   // ════════════════════════════════════════════════════════════════════════════
   return (
-    <div className="path-inbox-app" style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
+    <div className="path-inbox-app" style={{ display: "flex", height: "calc(100vh - 60px)", overflow: "hidden", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#111", background: "#f4f4f8" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
