@@ -623,6 +623,8 @@ export default function Reports() {
     "in review":      "Under Review",
     "for approval":   "For Approval",
     "returned":       "Returned",
+    "revision":       "Returned",
+    "returned for revision": "Returned",
     "received":       "Approved",
     "approved":       "Approved",
     "rejected":       "Rejected",
@@ -781,7 +783,7 @@ export default function Reports() {
             // count toward Overdue KPIs and tables.
             const alreadySubmitted = ["For Approval", "Under Review"].includes(status);
             const overdue = t.deadline && new Date(t.deadline) < now && !done;
-            const relabelDelayed = overdue && !alreadySubmitted;
+            const relabelDelayed = overdue && !alreadySubmitted && status !== "Returned";
             const reasonRaw = t.rejection_reason || t.return_reason || t.reason || t.remarks || t.review_note || null;
             const actionDateRaw = t.reviewed_at || t.updated_at || rawDate;
             merged.push({
