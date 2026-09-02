@@ -1011,90 +1011,158 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
   });
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[150] overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-3.5 pb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[15px] font-extrabold text-gray-900">Notifications</span>
-          {unreadCount > 0 && (
-            <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
-              {unreadCount} Unread
-            </span>
-          )}
+    <div
+      className="absolute right-0 top-full mt-2 z-[150] overflow-hidden"
+      style={{
+        width: 360,
+        background: "#fff",
+        border: "1px solid #ede9fe",
+        borderRadius: 18,
+        boxShadow: "0 20px 60px -10px rgba(109,40,217,0.18), 0 4px 16px -4px rgba(0,0,0,0.08)",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      {/* ── Header ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%)",
+        padding: "16px 18px 14px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 15, fontWeight: 800, color: "#f5f3ff", letterSpacing: "-0.02em" }}>Notifications</span>
+            {unreadCount > 0 && (
+              <span style={{
+                fontSize: 10, fontWeight: 800, color: "#fff",
+                background: "#e11d48", borderRadius: 99,
+                padding: "2px 7px", letterSpacing: "0.03em",
+                boxShadow: "0 2px 6px rgba(225,29,72,0.4)",
+              }}>
+                {unreadCount} new
+              </span>
+            )}
+          </div>
+          <button
+            onClick={onMarkAllRead}
+            style={{ fontSize: 11, fontWeight: 600, color: "rgba(216,180,254,0.8)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            onMouseEnter={e => e.currentTarget.style.color = "#f5f3ff"}
+            onMouseLeave={e => e.currentTarget.style.color = "rgba(216,180,254,0.8)"}
+          >
+            Mark all read
+          </button>
         </div>
-        <button
-          onClick={onMarkAllRead}
-          className="text-[11px] font-semibold text-gray-400 hover:text-violet-600 transition-colors"
-        >
-          Mark all as read
-        </button>
+
+        {/* Filter pills */}
+        <div style={{ display: "flex", gap: 6 }}>
+          {NOTIF_FILTERS.map(f => {
+            const active = filter === f.key;
+            return (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                style={{
+                  padding: "4px 12px", borderRadius: 99, fontSize: 11, fontWeight: 700,
+                  border: "1px solid",
+                  borderColor: active ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.15)",
+                  background: active ? "rgba(255,255,255,0.2)" : "transparent",
+                  color: active ? "#fff" : "rgba(216,180,254,0.7)",
+                  cursor: "pointer", transition: "all 0.15s",
+                }}
+                onMouseEnter={e => { if (!active) { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#ede9fe"; } }}
+                onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(216,180,254,0.7)"; } }}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Filter pills */}
-      <div className="flex items-center gap-1.5 px-4 pb-3">
-        {NOTIF_FILTERS.map(f => {
-          const active = filter === f.key;
-          return (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                active ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* List */}
-      <div className="max-h-80 overflow-y-auto">
+      {/* ── List ── */}
+      <div style={{ maxHeight: 320, overflowY: "auto" }}>
         {loading && (
-          <div className="px-4 py-8 flex items-center justify-center text-gray-400">
+          <div style={{ padding: "36px 16px", display: "flex", alignItems: "center", justifyContent: "center", color: "#a78bfa" }}>
             <Spinner />
           </div>
         )}
         {!loading && visible.length === 0 && (
-          <div className="px-4 py-8 text-center text-xs text-gray-400">No notifications</div>
+          <div style={{ padding: "36px 16px", textAlign: "center", fontSize: 12, color: "#a09ab0" }}>
+            No notifications to show
+          </div>
         )}
-        {!loading && visible.map(n => {
+        {!loading && visible.map((n, i) => {
           const style = NOTIF_TYPE_STYLE[n.type] || NOTIF_TYPE_STYLE.task_assigned;
           const { Icon } = style;
           return (
             <div
               key={n.id}
               onClick={() => onSelect(n)}
-              className={`flex gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${n.unread ? "bg-violet-50/30" : ""}`}
+              style={{
+                display: "flex", gap: 12, padding: "13px 18px",
+                borderBottom: i < visible.length - 1 ? "1px solid #f4f0fc" : "none",
+                background: n.unread ? "linear-gradient(90deg, #faf8ff, #fff)" : "#fff",
+                cursor: "pointer", transition: "background 0.15s",
+                position: "relative",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "#faf8ff"}
+              onMouseLeave={e => e.currentTarget.style.background = n.unread ? "linear-gradient(90deg, #faf8ff, #fff)" : "#fff"}
             >
-              <span
-                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: style.bg, color: style.fg }}
-              >
+              {/* Unread left pip */}
+              {n.unread && (
+                <div style={{
+                  position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
+                  width: 3, height: 28, borderRadius: "0 3px 3px 0",
+                  background: "linear-gradient(180deg, #7c3aed, #a78bfa)",
+                }} />
+              )}
+
+              {/* Icon chip */}
+              <span style={{
+                width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: style.bg, color: style.fg,
+              }}>
                 <Icon />
               </span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className={`text-xs leading-snug ${n.unread ? "font-bold text-violet-700" : "font-bold text-gray-800"}`}>
+
+              {/* Text */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                  <p style={{
+                    fontSize: 12, fontWeight: n.unread ? 800 : 600,
+                    color: n.unread ? "#3b1f6b" : "#4b3f66",
+                    lineHeight: 1.3, margin: 0,
+                    overflow: "hidden", textOverflow: "ellipsis",
+                    display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                  }}>
                     {n.title}
                   </p>
-                  <span className="flex items-center gap-0.5 text-[10px] text-gray-400 shrink-0 mt-0.5">
-                    <span className="scale-[0.65] origin-right"><ClockIconSm /></span>
+                  <span style={{ fontSize: 10, color: "#b0a3ba", flexShrink: 0, marginTop: 1, whiteSpace: "nowrap" }}>
                     {n.time}
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">{n.text}</p>
+                <p style={{ fontSize: 11, color: "#9b8fb0", marginTop: 3, lineHeight: 1.45 }}>
+                  {n.text}
+                </p>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Footer */}
-      <div className="px-4 py-3 border-t border-gray-100 text-center">
+      {/* ── Footer ── */}
+      <div style={{
+        padding: "12px 18px", borderTop: "1px solid #f0eafc",
+        background: "#faf8ff", textAlign: "center",
+      }}>
         <button
           onClick={onViewAll}
-          className="inline-flex items-center gap-1 text-xs text-violet-600 font-bold hover:text-violet-700 transition-colors"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 4,
+            fontSize: 12, fontWeight: 800, color: "#7c3aed",
+            background: "none", border: "none", cursor: "pointer", padding: 0,
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = "#5b21b6"}
+          onMouseLeave={e => e.currentTarget.style.color = "#7c3aed"}
         >
           View All Notifications
           <ChevronRightIcon />
