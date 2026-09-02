@@ -374,7 +374,7 @@ export default function TaskDetail() {
   const updateTask = (patch) =>
     setTask((current) => (current ? { ...current, ...patch } : current));
 
-  const goBack = () => navigate(location.state?.returnTo || "/tasks");
+  const goBack = () => navigate(location.state?.returnTo || "/task-assigned");
 
   const postStatus = async (endpoint, body) => {
     const response = await fetch(`${api}/api/tasks/${task.id}${endpoint}`, {
