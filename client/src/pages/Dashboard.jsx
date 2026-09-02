@@ -3412,6 +3412,12 @@ export default function Dashboard() {
               displayName={displayName}
               forms={myFormsData}
               loading={myFormsDataLoading}
+              tasksLoading={itemsLoading}
+              tasks={myTasksPageItems}
+              tasksAll={myTasksFaculty}
+              tasksPage={myTasksPage}
+              tasksTotalPages={myTasksTotalPages}
+              setTasksPage={setMyTasksPage}
               navigate={navigate}
             />
           ) : (
