@@ -745,12 +745,184 @@ export default function DocumentReview() {
 
   if (loading)
     return (
-      <div className="doc-shell">
-  
-        <main className="doc-main">
-         
-          <div className="doc-state">Loading document details…</div>
-        </main>
+      <div style={{ height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif", display: "flex", flexDirection: "column" }}>
+        <style>{`
+          @keyframes dr-shimmer {
+            0%   { background-position: -600px 0; }
+            100% { background-position:  600px 0; }
+          }
+          @keyframes dr-fadein {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes dr-spin { to { transform: rotate(360deg); } }
+          .dr-skel {
+            background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 45%, #ede9fe 90%);
+            background-size: 600px 100%;
+            animation: dr-shimmer 1.5s ease-in-out infinite;
+            border-radius: 7px;
+          }
+          .dr-skel-dark {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.22) 45%, rgba(255,255,255,0.1) 90%);
+            background-size: 600px 100%;
+            animation: dr-shimmer 1.5s ease-in-out infinite;
+            border-radius: 7px;
+          }
+          .dr-load-wrap {
+            flex: 1; overflow: hidden;
+            padding: 28px clamp(28px,4vw,64px) 36px;
+            display: flex; flex-direction: column; gap: 14px;
+            animation: dr-fadein 0.3s ease both;
+          }
+          .dr-load-hero {
+            background: linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%);
+            border-radius: 14px;
+            padding: 24px 28px;
+            display: flex; align-items: center; gap: 18px;
+          }
+          .dr-load-file {
+            width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+            background: rgba(255,255,255,0.15);
+            display: grid; place-items: center;
+          }
+          .dr-load-meta-bar {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            background: #fff; border: 1px solid #e8e1f5; border-top: none;
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+          }
+          .dr-load-meta-cell {
+            padding: 13px 16px; border-right: 1px solid #f0eafc;
+            display: flex; flex-direction: column; gap: 7px;
+          }
+          .dr-load-meta-cell:last-child { border-right: none; }
+          .dr-load-layout {
+            display: grid; grid-template-columns: minmax(0,1.62fr) minmax(280px,.78fr);
+            gap: 14px; flex: 1; min-height: 0;
+          }
+          .dr-load-card {
+            background: #fff; border: 1px solid #e5deed; border-radius: 12px;
+            padding: 20px; display: flex; flex-direction: column; gap: 12px;
+            box-shadow: 0 6px 18px rgba(57,36,93,.04);
+          }
+          .dr-spin-ring {
+            width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.2); border-top-color: #c4b5fd;
+            animation: dr-spin 0.75s linear infinite;
+          }
+        `}</style>
+
+        <div className="dr-load-wrap">
+
+          {/* Back link skeleton */}
+          <div className="dr-skel" style={{ height: 12, width: 120 }} />
+
+          {/* Hero banner */}
+          <div className="dr-load-hero">
+            <div className="dr-load-file">
+              <svg viewBox="0 0 20 20" fill="rgba(255,255,255,0.5)" width="22" height="22">
+                <path d="M4 2h8l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/>
+              </svg>
+            </div>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div className="dr-spin-ring" />
+                <span style={{ color: "rgba(196,181,253,0.7)", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                  Loading document
+                </span>
+              </div>
+              <div className="dr-skel-dark" style={{ height: 22, width: "55%" }} />
+              <div className="dr-skel-dark" style={{ height: 12, width: "35%" }} />
+            </div>
+            <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+              <div className="dr-skel-dark" style={{ height: 32, width: 90, borderRadius: 8 }} />
+              <div className="dr-skel-dark" style={{ height: 32, width: 32, borderRadius: 8 }} />
+            </div>
+          </div>
+
+          {/* Meta bar */}
+          <div className="dr-load-meta-bar" style={{ marginTop: -14 }}>
+            {[45, 55, 40, 60].map((w, i) => (
+              <div className="dr-load-meta-cell" key={i}>
+                <div className="dr-skel" style={{ height: 9, width: "60%" }} />
+                <div className="dr-skel" style={{ height: 13, width: `${w}%` }} />
+              </div>
+            ))}
+          </div>
+
+          {/* Two-column layout */}
+          <div className="dr-load-layout">
+            {/* Main — document preview */}
+            <div className="dr-load-card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div className="dr-skel" style={{ height: 14, width: "40%" }} />
+                <div style={{ display: "flex", gap: 6 }}>
+                  <div className="dr-skel" style={{ height: 26, width: 60, borderRadius: 7 }} />
+                  <div className="dr-skel" style={{ height: 26, width: 26, borderRadius: 7 }} />
+                </div>
+              </div>
+              {/* Document paper mockup */}
+              <div style={{ background: "#f5f2f8", borderRadius: 8, padding: "20px 24px", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+                <div style={{ background: "#fff", borderRadius: 6, padding: "24px 28px", display: "flex", flexDirection: "column", gap: 10, boxShadow: "0 4px 12px rgba(45,29,66,0.08)" }}>
+                  <div className="dr-skel" style={{ height: 10, width: "30%", alignSelf: "flex-end" }} />
+                  <div className="dr-skel" style={{ height: 18, width: "60%", marginTop: 8 }} />
+                  <div className="dr-skel" style={{ height: 10, width: "40%" }} />
+                  <div style={{ height: 1, background: "#ede8f3", margin: "6px 0" }} />
+                  {[95, 88, 70, 82, 55].map((w, i) => (
+                    <div key={i} className="dr-skel" style={{ height: 9, width: `${w}%` }} />
+                  ))}
+                  <div style={{ marginTop: 8, padding: "10px 12px", borderLeft: "2px solid #c4b5fd", background: "#faf8fe", borderRadius: "0 6px 6px 0", display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div className="dr-skel" style={{ height: 9, width: "80%" }} />
+                    <div className="dr-skel" style={{ height: 9, width: "65%" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {/* Status card */}
+              <div className="dr-load-card">
+                <div className="dr-skel" style={{ height: 10, width: "50%" }} />
+                <div className="dr-skel" style={{ height: 20, width: "70%" }} />
+                {/* Timeline dots */}
+                <div style={{ display: "flex", alignItems: "center", gap: 0, marginTop: 4 }}>
+                  {[0,1,2,3,4].map((i) =>
+                    i % 2 === 0
+                      ? <div key={i} className="dr-skel" style={{ width: 24, height: 24, borderRadius: "50%", flexShrink: 0 }} />
+                      : <div key={i} className="dr-skel" style={{ flex: 1, height: 4, borderRadius: 0 }} />
+                  )}
+                </div>
+              </div>
+
+              {/* Decision card */}
+              <div className="dr-load-card">
+                <div className="dr-skel" style={{ height: 14, width: "55%" }} />
+                <div className="dr-skel" style={{ height: 10, width: "80%" }} />
+                <div className="dr-skel" style={{ height: 70, width: "100%", borderRadius: 8 }} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  <div className="dr-skel" style={{ height: 34, borderRadius: 8 }} />
+                  <div className="dr-skel" style={{ height: 34, borderRadius: 8 }} />
+                </div>
+              </div>
+
+              {/* SLA card */}
+              <div className="dr-load-card">
+                <div className="dr-skel" style={{ height: 10, width: "40%" }} />
+                <div className="dr-skel" style={{ height: 7, width: "100%", borderRadius: 99 }} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {[55, 70, 45, 60].map((w, i) => (
+                    <div key={i} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                      <div className="dr-skel" style={{ height: 9, width: `${w}%` }} />
+                      <div className="dr-skel" style={{ height: 12, width: `${w + 15}%` }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     );
   if (loadError || !form)
