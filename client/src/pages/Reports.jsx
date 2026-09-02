@@ -250,16 +250,19 @@ function formatAuditAction(raw) {
    against keywords and sorted into one of these categories. Anything that
    doesn't match, or has no reason text at all, falls into "Other Reasons". */
 const REASON_CATEGORIES = [
-  { name: "Missing Requirements",              color: "#dc2626", keywords: ["missing", "requirement", "lacking", "not attached", "not submitted"] },
-  { name: "Incomplete Information",            color: "#d97706", keywords: ["incomplete", "information", "detail", "field", "unfilled", "blank"] },
-  { name: "Incorrect Document Format",         color: "#7c3aed", keywords: ["format", "template", "layout", "wrong file", "file type"] },
-  { name: "Invalid Supporting Documents",      color: "#0284c7", keywords: ["supporting document", "attachment", "invalid document", "proof", "unreadable", "expired document"] },
-  { name: "Policy/Guideline Non-Compliance",   color: "#c2410c", keywords: ["policy", "guideline", "non-compliance", "noncompliant", "violat", "not compliant"] },
-  { name: "Other Reasons",                     color: "#6b7280", keywords: [] },
+  { name: "Missing Requirements",              color: "#dc2626", keywords: ["missing", "requirement", "lacking", "not attached", "not submitted", "required evidence is missing"] },
+  { name: "Incomplete Information",            color: "#d97706", keywords: ["incomplete", "information", "detail", "field", "unfilled", "blank", "missing information", "content needs clarification", "clarification"] },
+  { name: "Incorrect Document Format",         color: "#7c3aed", keywords: ["format", "template", "layout", "wrong file", "file type", "template or format correction"] },
+  { name: "Invalid Supporting Documents",      color: "#0284c7", keywords: ["supporting document", "attachment", "invalid document", "proof", "unreadable", "expired document", "approval or endorsement", "endorsement is missing"] },
+  { name: "Policy/Guideline Non-Compliance",   color: "#c2410c", keywords: ["policy", "guideline", "non-compliance", "noncompliant", "violat", "not compliant", "eligibility", "does not meet eligibility", "outside the scope", "scope of this request", "duplicate", "superseded"] },
+  { name: "Other Reasons",                     color: "#6b7280", keywords: ["other rejection reason", "other revision needed"] },
 ];
 function classifyReason(raw) {
   if (!raw) return "Other Reasons";
-  const s = String(raw).toLowerCase();
+  // The review_note is stored as "Reason: <label>\n\nReviewer direction: <text>"
+  // Extract just the reason label part if present
+  const reasonMatch = String(raw).match(/^Reason:\s*(.+?)(?:\n|$)/i);
+  const s = (reasonMatch ? reasonMatch[1] : String(raw)).toLowerCase().trim();
   for (const cat of REASON_CATEGORIES) {
     if (cat.keywords.some(k => s.includes(k))) return cat.name;
   }
@@ -736,7 +739,7 @@ export default function Reports() {
           (Array.isArray(documents) ? documents : []).forEach(d => {
             const rawDate = d.submitted_at || d.created_at;
             const status = displayStatus(d.status);
-            const reasonRaw = d.rejection_reason || d.return_reason || d.reason || d.remarks || d.notes || null;
+            const reasonRaw = d.rejection_reason || d.return_reason || d.reason || d.remarks || d.notes || d.review_note || null;
             const actionDateRaw = d.reviewed_at || d.action_date || d.updated_at || rawDate;
             merged.push({
               id: d.tracking_id || d.document_id || `DOC-${d.id}`,
@@ -779,7 +782,7 @@ export default function Reports() {
             const alreadySubmitted = ["For Approval", "Under Review"].includes(status);
             const overdue = t.deadline && new Date(t.deadline) < now && !done;
             const relabelDelayed = overdue && !alreadySubmitted;
-            const reasonRaw = t.rejection_reason || t.return_reason || t.reason || t.remarks || null;
+            const reasonRaw = t.rejection_reason || t.return_reason || t.reason || t.remarks || t.review_note || null;
             const actionDateRaw = t.reviewed_at || t.updated_at || rawDate;
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
@@ -817,7 +820,7 @@ export default function Reports() {
               (f.user_id    ? nameOf(f.user_id)    : null) ||
               (f.faculty_id ? nameOf(f.faculty_id) : null) ||
               "—";
-            const reasonRaw = f.rejection_reason || f.return_reason || f.reason || f.remarks || null;
+            const reasonRaw = f.rejection_reason || f.return_reason || f.reason || f.remarks || f.review_note || null;
             const actionDateRaw = f.reviewed_at || f.updated_at || rawDate;
             merged.push({
               id: f.tracking_id || `FRM-${f.id}`,
