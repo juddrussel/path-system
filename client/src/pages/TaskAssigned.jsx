@@ -5557,7 +5557,7 @@ function PathTasksAssignedLayout({
     !/approved|done|received/i.test(task.status || "");
   const openTask = (task) =>
     navigate(`/task-details/${task.id}`, {
-      state: { task, returnTo: "/tasks-assigned" },
+      state: { task, returnTo: "/task-assigned" },
     });
 
   return (
