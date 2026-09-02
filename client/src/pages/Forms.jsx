@@ -2616,7 +2616,7 @@ export default function Forms() {
         .path-forms-register-active .path-forms-default-header,.path-forms-register-active .path-forms-default-stats{display:none!important}
         .path-forms-allsubs-active .path-forms-default-header,.path-forms-allsubs-active .path-forms-default-stats{display:none!important}
         .path-forms-allsubs-active .path-forms-hero{align-items:center;min-height:148px}
-        .path-forms-register-active .path-forms-page{gap:0!important;padding:29px clamp(28px,5vw,84px) 50px!important}
+        .path-forms-register-active .path-forms-page{gap:18px!important;padding:29px clamp(28px,5vw,84px) 50px!important}
         @media(max-width:900px){.path-faculty-start-shell{grid-template-columns:1fr!important}.path-faculty-summary-aside{position:static!important}.path-faculty-intake-step{padding:17px!important}.path-faculty-details-grid{grid-template-columns:1fr 1fr!important}}
         @media(max-width:620px){.path-forms-start-active .path-forms-page,.path-forms-register-active .path-forms-page{padding:20px 14px 32px!important}.path-faculty-details-grid{grid-template-columns:1fr!important}.path-faculty-step-03 .path-faculty-dynamic-field.is-file>div:first-child{align-items:flex-start!important;flex-direction:column!important}.path-faculty-step-03 .path-faculty-file-attach-trigger{width:100%;justify-content:center!important}}
       `}</style>
