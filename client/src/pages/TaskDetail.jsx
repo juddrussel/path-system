@@ -547,7 +547,7 @@ export default function TaskDetail() {
 
   if (loading) {
     return (
-      <div className="td-shell">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
         <style>{`
           @keyframes td-spin { to { transform: rotate(360deg); } }
           @keyframes td-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
@@ -564,22 +564,20 @@ export default function TaskDetail() {
             animation: td-pulse 1.4s ease-in-out infinite;
           }
         `}</style>
-        <main className="td-main">
-          <div className="td-loading">
-            <div className="td-spinner" />
-            <strong>Loading task details</strong>
-            <span>Fetching the latest data, just a moment…</span>
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 10, width: 320 }}>
-              <div className="td-skel" style={{ height: 16, width: "70%" }} />
-              <div className="td-skel" style={{ height: 12, width: "50%" }} />
-              <div className="td-skel" style={{ height: 12, width: "85%" }} />
-              <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-                <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
-                <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
-              </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+          <div className="td-spinner" />
+          <strong style={{ color: "#3b2a52", font: "800 18px Manrope,sans-serif", marginTop: 4 }}>Loading task details</strong>
+          <span style={{ color: "#a095ab", fontSize: 12 }}>Fetching the latest data, just a moment…</span>
+          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 10, width: 320 }}>
+            <div className="td-skel" style={{ height: 16, width: "70%" }} />
+            <div className="td-skel" style={{ height: 12, width: "50%" }} />
+            <div className="td-skel" style={{ height: 12, width: "85%" }} />
+            <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+              <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
+              <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
             </div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
