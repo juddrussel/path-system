@@ -822,57 +822,6 @@ function PathTasksWorkspace({
                 </div>
               </article>
             </section>
-            {supportingTasks.length > 0 && (
-              <section className="path-task-support">
-                <div className="path-task-support-head">
-                  <div>
-                    <div className="path-task-section-label">
-                      <i /> Keep moving
-                    </div>
-                    <h2>More handoffs in your queue</h2>
-                  </div>
-                  <button
-                    className="path-task-text-btn"
-                    type="button"
-                    onClick={() =>
-                      document
-                        .getElementById("path-task-register")
-                        ?.scrollIntoView({ behavior: "smooth" })
-                    }
-                  >
-                    View all ↗
-                  </button>
-                </div>
-                {supportingTasks.map((task) => (
-                  <button
-                    key={task.id}
-                    className="path-task-support-row"
-                    type="button"
-                    onClick={() => onOpenTaskDetails(task)}
-                  >
-                    <span className={`path-task-file ${priorityClass(task)}`}>
-                      <Icon.Forms />
-                    </span>
-                    <span className="path-task-copy">
-                      <strong>{task.title || "Untitled task"}</strong>
-                      <small>
-                        {task.tracking_id || "Task"} ·{" "}
-                        {task.doc_type || "Workflow task"}
-                      </small>
-                    </span>
-                    <span className={`path-task-badge ${statusClass(task)}`}>
-                      {task.status || "To do"}
-                    </span>
-                    <span
-                      className={`path-task-sla ${riskTask(task) ? "risk" : ""}`}
-                    >
-                      {task.deadline ? fmtDate(task.deadline) : "No due date"}
-                    </span>
-                    <span>↗</span>
-                  </button>
-                ))}
-              </section>
-            )}
             <section className="path-task-register" id="path-task-register">
               <header className="path-task-register-head">
                 <div>
