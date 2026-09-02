@@ -649,7 +649,7 @@ function PathTasksWorkspace({
     <div className="path-task-shell" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-        .path-task-date,.path-assigned-date{font-size: 12px!important}.path-task-date::-webkit-datetime-edit,.path-task-date::-webkit-datetime-edit-fields-wrapper,.path-task-date::-webkit-datetime-edit-text,.path-task-date::-webkit-datetime-edit-month-field,.path-task-date::-webkit-datetime-edit-day-field,.path-task-date::-webkit-datetime-edit-year-field,.path-assigned-date::-webkit-datetime-edit,.path-assigned-date::-webkit-datetime-edit-fields-wrapper,.path-assigned-date::-webkit-datetime-edit-text,.path-assigned-date::-webkit-datetime-edit-month-field,.path-assigned-date::-webkit-datetime-edit-day-field,.path-assigned-date::-webkit-datetime-edit-year-field{font-size: 12px!important}
+        .path-task-date,.path-assigned-date{font-size: 12px!important;color:#4c3e57!important;color-scheme:light}.path-task-date::-webkit-datetime-edit,.path-task-date::-webkit-datetime-edit-fields-wrapper,.path-task-date::-webkit-datetime-edit-text,.path-task-date::-webkit-datetime-edit-month-field,.path-task-date::-webkit-datetime-edit-day-field,.path-task-date::-webkit-datetime-edit-year-field,.path-assigned-date::-webkit-datetime-edit,.path-assigned-date::-webkit-datetime-edit-fields-wrapper,.path-assigned-date::-webkit-datetime-edit-text,.path-assigned-date::-webkit-datetime-edit-month-field,.path-assigned-date::-webkit-datetime-edit-day-field,.path-assigned-date::-webkit-datetime-edit-year-field{font-size: 12px!important;color:#4c3e57!important}.path-task-date::-webkit-calendar-picker-indicator,.path-assigned-date::-webkit-calendar-picker-indicator{cursor:pointer;opacity:0.7}
         .path-task-shell .path-task-support-head .path-task-text-btn{font-size: 12px!important;line-height:1.1!important}
         /* PATH typography: editorial Manrope display with compact DM Sans operational UI. */
         .path-task-shell{font-family:'DM Sans',sans-serif;font-weight:500;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
@@ -888,6 +888,7 @@ function PathTasksWorkspace({
                   type="date"
                   value={dateRange}
                   onChange={(event) => setDateRange(event.target.value)}
+                  style={{ colorScheme: "light", color: "#4c3e57", cursor: "pointer" }}
                 />
               </div>
               <div className="path-task-table">
