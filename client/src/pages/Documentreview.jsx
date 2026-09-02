@@ -1060,6 +1060,7 @@ export default function DocumentReview() {
     ? form.comments || form.review_comments
     : [];
   const approved = /approved/i.test(status);
+  const rejected = /rejected/i.test(status);
   const reviewStep = approved ? 3 : 2;
   const elapsed =
     deadline && submitted
@@ -1837,7 +1838,7 @@ export default function DocumentReview() {
                 <Panel className="doc-decision" id="review-decision">
                   <Label>Reviewer decision</Label>
                   <h2>
-                    {approved ? "Document approved" : "Choose the next step"}
+                    {approved ? "Document approved" : rejected ? "Submission rejected" : "Choose the next step"}
                   </h2>
                   {approved ? (
                     <div className="doc-approved-notice doc-approved-reviewer">
@@ -1849,6 +1850,25 @@ export default function DocumentReview() {
                           {shortTime(form.updated_at, "recently")}. Reviewer
                           actions are now locked.
                         </p>
+                      </div>
+                    </div>
+                  ) : rejected ? (
+                    <div className="doc-approved-notice" style={{ borderColor: "#fecaca", background: "#fff1f2" }}>
+                      <span style={{ color: "#dc2626" }}>×</span>
+                      <div>
+                        <strong style={{ color: "#991b1b" }}>Form already rejected</strong>
+                        <p>
+                          This submission was rejected{" "}
+                          {shortTime(form.updated_at, "recently")}. No further
+                          reviewer actions can be taken on this form.
+                        </p>
+                        {form.review_note && (
+                          <div className="doc-decision-note" style={{ marginTop: 10 }}>
+                            <strong>Rejection reason</strong>
+                            <br />
+                            {form.review_note}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ) : (
