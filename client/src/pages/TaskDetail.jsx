@@ -550,31 +550,112 @@ export default function TaskDetail() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
         <style>{`
           @keyframes td-spin { to { transform: rotate(360deg); } }
-          @keyframes td-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
-          .td-spinner {
-            width: 44px; height: 44px; border-radius: 50%;
-            border: 3px solid #ede9fe;
-            border-top-color: #7c3aed;
-            animation: td-spin 0.8s linear infinite;
+          @keyframes td-shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position:  400px 0; }
+          }
+          @keyframes td-fadein {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
           }
           .td-skel {
-            background: linear-gradient(90deg, #ede9fe 25%, #f5f3ff 50%, #ede9fe 75%);
-            background-size: 200% 100%;
-            border-radius: 8px;
-            animation: td-pulse 1.4s ease-in-out infinite;
+            background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 40%, #ede9fe 80%);
+            background-size: 400px 100%;
+            animation: td-shimmer 1.4s ease-in-out infinite;
+            border-radius: 7px;
+          }
+          .td-load-card {
+            background: #fff;
+            border: 1px solid #e8e1f5;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(76,29,149,0.09);
+            width: min(580px, 92vw);
+            overflow: hidden;
+            animation: td-fadein 0.35s ease both;
+          }
+          .td-load-header {
+            background: linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%);
+            padding: 28px 28px 24px;
+            display: flex; flex-direction: column; gap: 14px;
+          }
+          .td-load-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+          .td-load-row  { display: flex; gap: 10px; align-items: center; }
+          .td-skel-light {
+            background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.3) 40%, rgba(255,255,255,0.15) 80%);
+            background-size: 400px 100%;
+            animation: td-shimmer 1.4s ease-in-out infinite;
+            border-radius: 7px;
+          }
+          .td-load-spinner-wrap {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 4px;
+          }
+          .td-spin-ring {
+            width: 20px; height: 20px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.25);
+            border-top-color: #c4b5fd;
+            animation: td-spin 0.75s linear infinite;
+            flex-shrink: 0;
           }
         `}</style>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-          <div className="td-spinner" />
-          <strong style={{ color: "#3b2a52", font: "800 18px Manrope,sans-serif", marginTop: 4 }}>Loading task details</strong>
-          <span style={{ color: "#a095ab", fontSize: 12 }}>Fetching the latest data, just a moment…</span>
-          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 10, width: 320 }}>
-            <div className="td-skel" style={{ height: 16, width: "70%" }} />
-            <div className="td-skel" style={{ height: 12, width: "50%" }} />
-            <div className="td-skel" style={{ height: 12, width: "85%" }} />
-            <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-              <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
-              <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
+
+        <div className="td-load-card">
+          {/* Header — mimics the violet task header */}
+          <div className="td-load-header">
+            <div className="td-load-spinner-wrap">
+              <div className="td-spin-ring" />
+              <span style={{ color: "rgba(196,181,253,0.8)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                Loading task details
+              </span>
+            </div>
+            {/* Title skeleton */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="td-skel-light" style={{ height: 22, width: "65%" }} />
+              <div className="td-skel-light" style={{ height: 13, width: "45%" }} />
+            </div>
+            {/* Chips row */}
+            <div className="td-load-row" style={{ gap: 8 }}>
+              <div className="td-skel-light" style={{ height: 24, width: 72, borderRadius: 99 }} />
+              <div className="td-skel-light" style={{ height: 24, width: 88, borderRadius: 99 }} />
+              <div className="td-skel-light" style={{ height: 24, width: 60, borderRadius: 99 }} />
+            </div>
+          </div>
+
+          {/* Body — mimics the description + meta sections */}
+          <div className="td-load-body">
+            {/* Avatar + name row */}
+            <div className="td-load-row">
+              <div className="td-skel" style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                <div className="td-skel" style={{ height: 13, width: "55%" }} />
+                <div className="td-skel" style={{ height: 11, width: "35%" }} />
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: 1, background: "#f0eafc" }} />
+
+            {/* Description lines */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="td-skel" style={{ height: 12, width: "90%" }} />
+              <div className="td-skel" style={{ height: 12, width: "80%" }} />
+              <div className="td-skel" style={{ height: 12, width: "60%" }} />
+            </div>
+
+            {/* Meta grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {[80, 65, 70, 55].map((w, i) => (
+                <div key={i} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                  <div className="td-skel" style={{ height: 10, width: `${w * 0.6}%` }} />
+                  <div className="td-skel" style={{ height: 14, width: `${w}%` }} />
+                </div>
+              ))}
+            </div>
+
+            {/* Action buttons */}
+            <div className="td-load-row" style={{ marginTop: 4 }}>
+              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
+              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
             </div>
           </div>
         </div>
