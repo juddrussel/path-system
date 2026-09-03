@@ -462,9 +462,9 @@ function NotificationsSection({ profile, onToast }) {
       </SettingRow>
 
       <div style={{ borderTop: "2px solid #f4f1f7" }}>
-        <SectionHeading title="In-App Notifications" subtitle="Control alerts that appear inside the PATH platform." />
+        <SectionHeading title="In-App Notifications" subtitle="Control the real-time popup toast. Notifications always remain visible in your bell panel and Notifications page." />
       </div>
-      <SettingRow icon={Bell} title="Enable in-app notifications" description="Show real-time alerts and updates within PATH.">
+      <SettingRow icon={Bell} title="Enable in-app notifications" description="Show real-time popup alerts within PATH. Notifications still appear in your bell panel and Notifications page.">
         <Toggle
           checked={get("inapp")}
           onChange={() => save("inapp", !get("inapp"))}

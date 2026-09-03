@@ -152,11 +152,9 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
       if (rows.length && rows[0].preferences) prefs = { ...prefs, ...JSON.parse(rows[0].preferences) };
     } catch { /* non-fatal — default to sending */ }
 
-    // Respect in-app master toggle
-    if (prefs.inapp === false) return null;
-    // Respect approval toggle
+    // Respect approval toggle — skip DB insert entirely for approval types
     if (prefs.approval === false && APPROVAL_TYPES.has(type)) return null;
-    // Respect document updates toggle
+    // Respect document updates toggle — skip DB insert entirely for doc update types
     if (prefs.docUpdates === false && DOC_UPDATE_TYPES.has(type)) return null;
 
     const [result] = await db.query(
@@ -175,7 +173,8 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
       is_read: 0,
       created_at: new Date().toISOString(),
     };
-    if (io) io.to(`user_${userId}`).emit("notification", payload);
+    // Only emit the socket event (which triggers the popup toast) if inapp is enabled
+    if (io && prefs.inapp !== false) io.to(`user_${userId}`).emit("notification", payload);
     return payload;
   } catch (err) {
     console.error("notify() failed to persist notification:", err);

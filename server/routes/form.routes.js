@@ -93,7 +93,6 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
       if (rows.length && rows[0].preferences) prefs = { ...prefs, ...JSON.parse(rows[0].preferences) };
     } catch { /* non-fatal */ }
 
-    if (prefs.inapp === false) return null;
     if (prefs.approval === false && APPROVAL_TYPES_FORM.has(type)) return null;
     if (prefs.docUpdates === false && DOC_UPDATE_TYPES_FORM.has(type)) return null;
     const [result] = await db.query(
@@ -112,7 +111,9 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
       is_read: 0,
       created_at: new Date().toISOString(),
     };
-    if (io) io.to(`user_${userId}`).emit("notification", payload);
+    // Only emit the socket event (popup toast) if inapp is enabled.
+    // The DB row is always inserted so it appears in the bell panel and Notifications page.
+    if (io && prefs.inapp !== false) io.to(`user_${userId}`).emit("notification", payload);
     return payload;
   } catch (err) {
     console.error("notify() failed to persist notification:", err);
