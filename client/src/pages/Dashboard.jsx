@@ -2085,7 +2085,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
             Faculty workspace · your document flow
           </span>
           <h1 style={{ margin: "10px 0 8px", color: "#f5f3ff", fontSize: "clamp(28px,3vw,40px)", fontFamily: "Manrope,'DM Sans',sans-serif", fontWeight: 800, letterSpacing: "-0.055em", lineHeight: 1 }}>
-            Good morning, {displayName}.
+            {getGreeting()}, {displayName}.
           </h1>
           <p style={{ margin: 0, color: "rgba(216,180,254,0.7)", fontSize: 13, lineHeight: 1.6, maxWidth: 520 }}>
             Keep your submissions moving, respond to review requests, and see each handoff in one place.
@@ -3689,7 +3689,7 @@ export default function Dashboard() {
                       fontFamily: "Manrope, 'DM Sans', sans-serif",
                     }}
                   >
-                    Good morning, {displayName}.
+                    {getGreeting()}, {displayName}.
                   </h1>
                   <p
                     style={{
