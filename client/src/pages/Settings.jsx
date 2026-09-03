@@ -220,16 +220,12 @@ function GeneralSection({ profile, onSaved, onToast }) {
 // ─── NOTIFICATIONS SECTION ────────────────────────────────────────────────────
 function NotificationsSection({ onToast }) {
   const [emailAlerts, setEmailAlerts] = useState(true);
-  const [slaAlerts,   setSlaAlerts]   = useState(true);
   const [digest,      setDigest]      = useState(false);
 
   return (
     <>
       <SettingRow icon={Mail} title="Email workflow alerts" description="Receive updates when a document changes status.">
         <Toggle checked={emailAlerts} onChange={() => setEmailAlerts(v => !v)} label="Toggle email workflow alerts" />
-      </SettingRow>
-      <SettingRow icon={Bell} title="SLA risk notifications" description="Be alerted when a submission approaches its deadline.">
-        <Toggle checked={slaAlerts} onChange={() => setSlaAlerts(v => !v)} label="Toggle SLA risk notifications" />
       </SettingRow>
       <SettingRow icon={FileText} title="Weekly activity digest" description="Receive a concise summary of workspace activity each Monday.">
         <Toggle checked={digest} onChange={() => setDigest(v => !v)} label="Toggle weekly activity digest" />
