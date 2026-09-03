@@ -1573,13 +1573,6 @@ function PathAccessManagement({ users, onManageRoles }) {
         </div>
         <b>{roleCount("admin")}</b>
       </div>
-      <button
-        type="button"
-        className="path-um-role-action"
-        onClick={onManageRoles}
-      >
-        Manage role permissions ↗
-      </button>
     </aside>
   );
 }
