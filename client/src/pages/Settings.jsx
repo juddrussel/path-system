@@ -466,7 +466,7 @@ export default function Settings() {
     <main className="path-settings-page">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-        .path-settings-page{--violet:#7c3aed;--violet-2:#8b5cf6;--violet-soft:#f4efff;--ink:#30283b;--muted:#91889d;--line:#ece7f3;min-height:100%;padding:42px 48px 58px;color:var(--ink);background:#f8f7ff;font-family:"Manrope","DM Sans",Arial,sans-serif;}
+        .path-settings-page{--violet:#7c3aed;--violet-2:#8b5cf6;--violet-soft:#f4efff;--ink:#30283b;--muted:#91889d;--line:#ece7f3;height:calc(100vh - 60px);overflow-y:auto;padding:42px 48px 58px;color:var(--ink);background:#f8f7ff;font-family:"Manrope","DM Sans",Arial,sans-serif;}
         .path-settings-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;max-width:1180px;margin:0 auto 28px;}
         .path-settings-kicker{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--violet);font-family:"DM Sans",Arial,sans-serif;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;}
         .path-settings-kicker i{display:block;width:7px;height:7px;border:2px solid #ddd0ff;border-radius:50%;background:var(--violet-2);box-shadow:0 0 0 3px rgba(124,58,237,.08);}
