@@ -24,6 +24,7 @@ import SLAConfiguration from "./pages/SLAConfiguration";
 import Notifications from "./pages/Notifications";
 import DocumentReview from "./pages/Documentreview";
 import TaskDetail from "./pages/TaskDetail";
+import Settings from "./pages/Settings";
 
 // Separated so useLocation works inside BrowserRouter
 function AppRoutes() {
@@ -85,6 +86,7 @@ function AppRoutes() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/document-review/:id" element={<DocumentReview />} />
         <Route path="/task-details/:id" element={<TaskDetail />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
     </Routes>
   );

@@ -439,4 +439,54 @@ router.delete("/:id", requireAuth, requireAdminOrChair, async (req, res) => {
   }
 });
 
+// ─── POST /api/users/:id/change-password ──────────────────────────────────────
+// Allows a user to change their own password (or an admin to change anyone's).
+router.post("/:id/change-password", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const isSelf  = parseInt(id) === req.user.id;
+  const isAdmin = req.user.role === "admin";
+
+  if (!isSelf && !isAdmin) {
+    return res.status(403).json({ message: "Forbidden." });
+  }
+
+  const { current_password, new_password } = req.body;
+
+  if (!new_password || new_password.length < 8) {
+    return res.status(400).json({ message: "New password must be at least 8 characters." });
+  }
+
+  try {
+    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
+    if (!rows.length) return res.status(404).json({ message: "User not found." });
+
+    const user = rows[0];
+
+    // Self-changes require the current password; admins can skip this check.
+    if (isSelf) {
+      if (!current_password) {
+        return res.status(400).json({ message: "Current password is required." });
+      }
+      const match = await bcrypt.compare(current_password, user.password);
+      if (!match) {
+        return res.status(401).json({ message: "Current password is incorrect." });
+      }
+    }
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    await db.query("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?", [hashed, id]);
+    await writeLog({
+      userId: req.user.id,
+      action: "USER_PASSWORD_CHANGE",
+      detail: `Password changed for user ID ${id} (${user.username})`,
+      ipAddress: req.ip,
+    });
+
+    return res.json({ message: "Password updated successfully." });
+  } catch (err) {
+    console.error("POST /users/:id/change-password error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = router;

@@ -399,7 +399,7 @@ export default function Sidebar({ activePage }) {
 
   const manageItems = [
     ...(canViewAdminNav ? ADMIN_NAV_ITEMS : []),
-    { key: "settings", icon: Icon.Settings, label: "Settings", path: null },
+    { key: "settings", icon: Icon.Settings, label: "Settings", path: "/settings" },
   ];
 
   const navGroups = [
