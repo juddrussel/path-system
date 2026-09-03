@@ -1990,14 +1990,27 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
     ...tasksAll.map(t => ({ ...t, _isTask: true })),
   ];
 
-  const inReview = allItems.filter((row) => /for approval|under review|review|pending/.test(statusOf(row)));
+  // In review = "For Approval" or "Under Review" status
+  const inReview = allItems.filter((row) =>
+    /for approval|under review/.test(statusOf(row))
+  );
+  // Needs revision = "Returned" or "Revision" status
   const returned = allItems.filter((row) =>
-    /returned|revision/.test(statusOf(row)),
+    /^returned$|^revision$|returned for revision/.test(statusOf(row))
   );
   const drafts = forms.filter((row) => /draft/.test(statusOf(row)));
+  // Completed = "Approved", "Received", or "Completed"
   const approved = allItems.filter((row) =>
-    /approved|received|completed/.test(statusOf(row)),
+    /^approved$|^received$|^completed$/.test(statusOf(row))
   );
+  // Overdue = tasks past deadline and not done
+  const now = new Date();
+  const overdueCount = tasksAll.filter(t => {
+    const s = statusOf(t);
+    const done = /approved|completed|archived|received/.test(s);
+    return t.deadline && new Date(t.deadline) < now && !done;
+  }).length;
+
   const active = forms.filter(
     (row) => !/approved|received|rejected|archived/.test(statusOf(row)),
   );
@@ -2031,11 +2044,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
     },
     {
       label: "Overdue",
-      value: tasksAll.filter(t => {
-        const s = String(t.status || "").toLowerCase();
-        const done = /approved|completed|archived|received/.test(s);
-        return t.deadline && new Date(t.deadline) < new Date() && !done;
-      }).length,
+      value: overdueCount,
       detail: "Past their deadline",
       icon: AlertTriangle,
       color: "#dc2626",
@@ -2364,6 +2373,29 @@ export default function Dashboard() {
   const [myFormsData, setMyFormsData] = useState([]);
   const [myFormsDataLoading, setMyFormsDataLoading] = useState(true);
 
+  // ── Faculty tasks fetched directly from /api/tasks ───────────────────────
+  // The server returns only tasks where faculty_id = req.user.id for
+  // non-admin users, so this is always scoped to the logged-in faculty.
+  const [myTasksData, setMyTasksData] = useState([]);
+  const [myTasksDataLoading, setMyTasksDataLoading] = useState(true);
+
+  const fetchMyTasks = useCallback(async () => {
+    setMyTasksDataLoading(true);
+    try {
+      const authH = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API}/api/tasks`, { headers: authH });
+      if (res.ok) {
+        const data = await res.json();
+        const tasks = data.tasks ?? data ?? [];
+        setMyTasksData(Array.isArray(tasks) ? tasks : []);
+      }
+    } catch (err) {
+      console.error("My tasks fetch error:", err);
+    } finally {
+      setMyTasksDataLoading(false);
+    }
+  }, [token]);
+
   const fetchMyForms = useCallback(async () => {
     setMyFormsDataLoading(true);
     try {
@@ -2643,12 +2675,14 @@ export default function Dashboard() {
     fetchFacultyPerformance();
     fetchDelayedDocuments();
     fetchMyForms();
+    fetchMyTasks();
   }, [
     token,
     fetchTrackedItems,
     fetchFacultyPerformance,
     fetchDelayedDocuments,
     fetchMyForms,
+    fetchMyTasks,
   ]);
 
   // Reset to page 1 whenever the tracked list is refreshed/changes size
@@ -3507,11 +3541,11 @@ export default function Dashboard() {
               displayName={displayName}
               forms={myFormsData}
               loading={myFormsDataLoading}
-              tasksLoading={itemsLoading}
-              tasks={myTasksPageItems}
-              tasksAll={myTasksFaculty}
+              tasksLoading={myTasksDataLoading}
+              tasks={myTasksData.slice(0, 5)}
+              tasksAll={myTasksData}
               tasksPage={myTasksPage}
-              tasksTotalPages={myTasksTotalPages}
+              tasksTotalPages={Math.max(1, Math.ceil(myTasksData.length / 5))}
               setTasksPage={setMyTasksPage}
               navigate={navigate}
             />
