@@ -2283,15 +2283,34 @@ export default function MyTasks() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
-  const filteredTasks = tasks.filter((t) => {
-    const q = search.toLowerCase();
-    return (
-      !q ||
-      `${t.tracking_id} ${t.title} ${t.assigned_by_name}`
-        .toLowerCase()
-        .includes(q)
-    );
-  });
+  const now = new Date();
+  const isTaskOverdue = (t) => {
+    const s = (t.status || "").toLowerCase();
+    const done = /approved|completed|received|archived|rejected/.test(s);
+    return t.deadline && new Date(t.deadline) < now && !done;
+  };
+
+  const filteredTasks = tasks
+    .filter((t) => {
+      const q = search.toLowerCase();
+      return (
+        !q ||
+        `${t.tracking_id} ${t.title} ${t.assigned_by_name}`
+          .toLowerCase()
+          .includes(q)
+      );
+    })
+    .sort((a, b) => {
+      const aOverdue = isTaskOverdue(a);
+      const bOverdue = isTaskOverdue(b);
+      // Overdue first
+      if (aOverdue && !bOverdue) return -1;
+      if (!aOverdue && bOverdue) return 1;
+      // Within same group, sort by deadline ascending (soonest first)
+      const aDate = a.deadline ? new Date(a.deadline) : new Date(9999, 0);
+      const bDate = b.deadline ? new Date(b.deadline) : new Date(9999, 0);
+      return aDate - bDate;
+    });
 
   const fmtDate = (d) =>
     d
