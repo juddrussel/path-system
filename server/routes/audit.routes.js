@@ -75,7 +75,7 @@ router.get("/", requireAuth, requireAdmin, async (req, res) => {
     }
     if (action)  { conditions.push("al.action = ?");           params.push(action); }
     if (user_id) { conditions.push("al.user_id = ?");          params.push(user_id); }
-    if (date)    { conditions.push("DATE(al.timestamp) = ?");   params.push(date); }
+    if (date)    { conditions.push("DATE(CONVERT_TZ(al.timestamp, '+00:00', '+08:00')) = ?");   params.push(date); }
 
     const where  = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
     const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -140,7 +140,7 @@ router.get("/", requireAuth, requireAdmin, async (req, res) => {
 router.get("/stats", requireAuth, requireAdmin, async (req, res) => {
   try {
     const [[{ total }]]        = await db.query("SELECT COUNT(*) AS total FROM audit_log");
-    const [[{ today }]]        = await db.query("SELECT COUNT(*) AS today FROM audit_log WHERE DATE(timestamp) = CURDATE()");
+    const [[{ today }]]        = await db.query("SELECT COUNT(*) AS today FROM audit_log WHERE DATE(CONVERT_TZ(timestamp, '+00:00', '+08:00')) = DATE(CONVERT_TZ(NOW(), '+00:00', '+08:00'))");
     const [[{ this_week }]]    = await db.query("SELECT COUNT(*) AS this_week FROM audit_log WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
     const [[{ this_month }]]   = await db.query("SELECT COUNT(*) AS this_month FROM audit_log WHERE MONTH(timestamp) = MONTH(NOW()) AND YEAR(timestamp) = YEAR(NOW())");
     const [[{ unique_users }]] = await db.query("SELECT COUNT(DISTINCT user_id) AS unique_users FROM audit_log WHERE user_id IS NOT NULL");
@@ -148,7 +148,7 @@ router.get("/stats", requireAuth, requireAdmin, async (req, res) => {
     const [topActions] = await db.query(
       `SELECT action, COUNT(*) AS count
        FROM audit_log
-       WHERE DATE(timestamp) = CURDATE()
+       WHERE DATE(CONVERT_TZ(timestamp, '+00:00', '+08:00')) = DATE(CONVERT_TZ(NOW(), '+00:00', '+08:00'))
        GROUP BY action
        ORDER BY count DESC
        LIMIT 1`
