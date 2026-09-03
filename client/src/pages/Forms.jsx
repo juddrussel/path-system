@@ -3796,7 +3796,7 @@ export default function Forms() {
                       placeholder="Search forms or submitters"
                     />
                   </label>
-                  {["All", "Pending", "Reviewing"].map((filter) => (
+                  {["All", "Pending"].map((filter) => (
                     <button
                       key={filter}
                       className="path-review-filter"
