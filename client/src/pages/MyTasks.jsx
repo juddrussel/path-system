@@ -550,6 +550,12 @@ function Toast({ toasts, onDismiss }) {
   );
 }
 
+function isTaskOverdue(t) {
+  const s = (t.status || "").toLowerCase();
+  const done = /approved|completed|received|archived|rejected/.test(s);
+  return t.deadline && new Date(t.deadline) < new Date() && !done;
+}
+
 function PathTasksWorkspace({
   user,
   canViewAdminNav,
@@ -2298,11 +2304,6 @@ export default function MyTasks() {
     );
 
   const now = new Date();
-  const isTaskOverdue = (t) => {
-    const s = (t.status || "").toLowerCase();
-    const done = /approved|completed|received|archived|rejected/.test(s);
-    return t.deadline && new Date(t.deadline) < now && !done;
-  };
 
   const filteredTasks = tasks
     .filter((t) => {
