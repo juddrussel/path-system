@@ -466,8 +466,8 @@ export default function Settings() {
     <main className="path-settings-page">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-        .path-settings-page{--violet:#7c3aed;--violet-2:#8b5cf6;--violet-soft:#f4efff;--ink:#30283b;--muted:#91889d;--line:#ece7f3;height:calc(100vh - 60px);overflow-y:auto;padding:42px 48px 28px;color:var(--ink);background:#f8f7ff;font-family:"DM Sans",Arial,sans-serif;}
-        .path-settings-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;max-width:1170px;margin:0 auto 28px;}
+        .path-settings-page{--violet:#7c3aed;--violet-2:#8b5cf6;--violet-soft:#f4efff;--ink:#30283b;--muted:#91889d;--line:#ece7f3;height:calc(100vh - 60px);overflow-y:auto;padding:28px 48px 44px 64px;color:var(--ink);background:#f8f7ff;font-family:"DM Sans",Arial,sans-serif;box-sizing:border-box;}
+        .path-settings-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;max-width:none;margin:0 0 28px;}
         .path-settings-kicker{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--violet);font-family:"DM Sans",Arial,sans-serif;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;}
         .path-settings-kicker i{display:block;width:7px;height:7px;border:2px solid #ddd0ff;border-radius:50%;background:var(--violet-2);box-shadow:0 0 0 3px rgba(124,58,237,.08);}
         .path-settings-header h1{margin:0;color:var(--ink);font-family:Manrope,"DM Sans",Arial,sans-serif;font-size:clamp(26px,3vw,36px);font-weight:800;letter-spacing:-.045em;line-height:1.05;}
@@ -476,7 +476,7 @@ export default function Settings() {
         .path-settings-save:hover{background:#6d28d9;}
         .path-settings-save:active{transform:scale(.97);}
         .path-settings-save.saved{background:#16835c;border-color:#16835c;}
-        .path-settings-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;max-width:1170px;margin:0 auto;}
+        .path-settings-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;max-width:none;margin:0;}
         .path-settings-nav,.path-settings-card{border:1px solid rgba(231,225,241,.9);border-radius:14px;background:rgba(255,255,255,.88);box-shadow:0 8px 24px rgba(59,39,88,.04);}
         .path-settings-nav{align-self:start;padding:8px;}
         .path-settings-nav-label{padding:9px 10px 7px;color:#aaa0b6;font-family:"DM Sans",Arial,sans-serif;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;}
@@ -527,7 +527,7 @@ export default function Settings() {
         .path-settings-help button{border:0;background:transparent;color:var(--violet);cursor:pointer;font-family:"DM Sans",Arial,sans-serif;font-size:12px;font-weight:800;white-space:nowrap;}
         @keyframes sett-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes sett-pulse{0%,100%{opacity:.5}50%{opacity:1}}
-        @media(max-width:1040px){.path-settings-page{padding-left:28px;padding-right:28px;}.path-settings-header,.path-settings-layout{max-width:none;}}
+        @media(max-width:1040px){.path-settings-page{padding-left:28px;padding-right:28px;}}
         @media(max-width:820px){.path-settings-page{padding:24px 16px 32px;}.path-settings-header{align-items:flex-start;flex-direction:column;}.path-settings-layout{grid-template-columns:1fr;}.path-settings-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}.path-settings-nav-label{grid-column:1/-1;}}
         @media(max-width:560px){.path-settings-nav{grid-template-columns:1fr;}.path-settings-metrics{grid-template-columns:1fr;padding:12px 16px 16px;}.path-settings-help{align-items:flex-start;flex-direction:column;}.path-settings-profile{grid-template-columns:auto minmax(0,1fr);}.path-settings-profile-badge{display:none;}}
       `}</style>
