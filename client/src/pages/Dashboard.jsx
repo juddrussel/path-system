@@ -2188,7 +2188,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
                   })),
               ]
                 .sort((a, b) => b.daysOverdue - a.daysOverdue)
-                .slice(0, 5)
+                .slice(0, 2)
                 .map((item, i, arr) => (
                   <div key={item.id} style={{
                     display: "flex", alignItems: "center", gap: 10,
@@ -2220,6 +2220,15 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
                   </div>
                 ))
               }
+              {overdueCount > 2 && (
+                <button
+                  type="button"
+                  onClick={() => navigate("/tasks")}
+                  style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 10, border: "none", background: "none", color: "#7c3aed", fontSize: 12, fontWeight: 800, cursor: "pointer", padding: 0 }}
+                >
+                  View {overdueCount - 2} more <ArrowUpRight size={13} />
+                </button>
+              )}
             </div>
           )}
           <div className="faculty-health-meta" style={{ marginTop: overdueCount > 0 ? 12 : 20 }}>
