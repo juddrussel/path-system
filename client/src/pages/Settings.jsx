@@ -457,9 +457,6 @@ function PrivacySection({ profile }) {
           { label: "Username",    value: `@${profile?.username || "—"}` },
           { label: "Email",       value: profile?.email      || "—" },
           { label: "Phone",       value: profile?.phone      || "—" },
-          { label: "Department",  value: profile?.department || "—" },
-          { label: "Role",        value: profile?.role?.replace(/_/g, " ") || "—" },
-          { label: "Account ID",  value: `#${profile?.id || "—"}` },
         ].map(({ label, value }) => (
           <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f4f1f7" }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: "#6b5f76", fontFamily: "'DM Sans',sans-serif", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
