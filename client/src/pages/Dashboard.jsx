@@ -4243,14 +4243,28 @@ export default function Dashboard() {
                     <div>
                       {itemsLoading ? (
                         <p
-                          style={{
-                            padding: 36,
-                            color: "#776b83",
-                            textAlign: "center",
-                          }}
-                        >
-                          Loading priority queue…
-                        </p>
+                        <div style={{ padding: "32px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                          <style>{`
+                            @keyframes db-q-shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+                            @keyframes db-q-spin { to { transform: rotate(360deg); } }
+                            .db-q-skel { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:400px 100%; animation: db-q-shimmer 1.4s ease-in-out infinite; border-radius:7px; }
+                          `}</style>
+                          <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid #ede9fe", borderTopColor: "#7c3aed", animation: "db-q-spin 0.75s linear infinite" }} />
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#9080a0" }}>Loading priority queue…</span>
+                          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+                            {[0,1,2].map(i => (
+                              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f4f0fc" }}>
+                                <div className="db-q-skel" style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0 }} />
+                                <div className="db-q-skel" style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0 }} />
+                                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                                  <div className="db-q-skel" style={{ height: 11, width: `${70 - i * 10}%` }} />
+                                  <div className="db-q-skel" style={{ height: 9, width: `${50 - i * 8}%` }} />
+                                </div>
+                                <div className="db-q-skel" style={{ width: 50, height: 20, borderRadius: 99 }} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       ) : (
                         trackedPageItems.slice(0, 5).map((row, index) => (
                           <button
