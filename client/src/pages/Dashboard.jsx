@@ -2149,15 +2149,82 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
           )}
         </div>
         <article>
-          <span className="faculty-kicker">Your workflow health</span>
-          <h2>Every handoff is traceable</h2>
-          <p>
-            Your draft, file, reviewer notes, and status updates remain linked
-            through PATH.
-          </p>
-          <div className="faculty-health-meta">
-            <span>
-              <ShieldCheck size={14} /> {inReview.length} records in review
+          <span className="faculty-kicker">Overdue items</span>
+          <h2>{overdueCount > 0 ? `${overdueCount} item${overdueCount !== 1 ? "s" : ""} overdue` : "All on track"}</h2>
+          {overdueCount === 0 ? (
+            <p className="faculty-empty-copy">
+              No tasks or forms are past their deadline. Keep it up!
+            </p>
+          ) : (
+            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 0 }}>
+              {[
+                // Overdue tasks
+                ...tasksAll
+                  .filter(t => {
+                    const s = String(t.status || "").toLowerCase();
+                    const done = /approved|completed|archived|received/.test(s);
+                    return t.deadline && new Date(t.deadline) < now && !done;
+                  })
+                  .map(t => ({
+                    id: t.tracking_id || `TSK-${t.id}`,
+                    title: t.title || "Untitled task",
+                    deadline: t.deadline,
+                    type: "Task",
+                    daysOverdue: Math.floor((now - new Date(t.deadline)) / 86400000),
+                  })),
+                // Overdue forms (those with a due_date)
+                ...forms
+                  .filter(f => {
+                    const s = String(f.status || "").toLowerCase();
+                    const done = /approved|received|completed|rejected/.test(s);
+                    return f.due_date && new Date(f.due_date) < now && !done;
+                  })
+                  .map(f => ({
+                    id: f.id || `FRM-${f.id}`,
+                    title: f.title || f.category || "Form submission",
+                    deadline: f.due_date,
+                    type: "Form",
+                    daysOverdue: Math.floor((now - new Date(f.due_date)) / 86400000),
+                  })),
+              ]
+                .sort((a, b) => b.daysOverdue - a.daysOverdue)
+                .slice(0, 5)
+                .map((item, i, arr) => (
+                  <div key={item.id} style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "9px 0",
+                    borderBottom: i < arr.length - 1 ? "1px solid #f0edf4" : "none",
+                  }}>
+                    <span style={{
+                      width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                      background: "#fff1f2", color: "#dc2626",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <AlertTriangle size={13} />
+                    </span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <strong style={{ display: "block", fontSize: 12, color: "#44354d", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {item.title}
+                      </strong>
+                      <small style={{ fontSize: 11, color: "#a095ab" }}>
+                        {item.id} · {item.type} · {item.daysOverdue}d overdue
+                      </small>
+                    </span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 800, color: "#dc2626",
+                      background: "#fff1f2", border: "1px solid #fecdd3",
+                      borderRadius: 99, padding: "2px 7px", whiteSpace: "nowrap",
+                    }}>
+                      Overdue
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          )}
+          <div className="faculty-health-meta" style={{ marginTop: overdueCount > 0 ? 12 : 20 }}>
+            <span style={{ color: overdueCount > 0 ? "#dc2626" : undefined }}>
+              <ShieldCheck size={14} /> {inReview.length} record{inReview.length !== 1 ? "s" : ""} in review
             </span>
             <span>Live data</span>
           </div>
