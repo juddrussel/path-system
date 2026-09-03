@@ -575,6 +575,14 @@ const ALERT_TIER_CFG = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h >= 5  && h < 12) return "Good morning";
+  if (h >= 12 && h < 13) return "Good noon";
+  if (h >= 13 && h < 18) return "Good afternoon";
+  return "Good evening";
+}
+
 function timeSince(dateObj) {
   if (!dateObj) return "Recently";
   const secs = Math.floor((Date.now() - dateObj.getTime()) / 1000);
