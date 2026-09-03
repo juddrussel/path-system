@@ -129,7 +129,7 @@ function timeSince(iso) {
 
 function fmtDate(iso) {
   if (!iso) return "—";
-  return `${new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })} UTC`;
+  return `${new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Manila" })} PHT`;
 }
 
 function getPageList(current, total) {
