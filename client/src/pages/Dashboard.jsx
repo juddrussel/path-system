@@ -2090,152 +2090,101 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
         })}
       </section>
       <section className="faculty-dashboard-focus">
-        <div className="faculty-attention-stack">
-          <article>
-            {returnedForm ? (
+        {/* ── Left: Next Action ── */}
+        <article style={{ display: "flex", flexDirection: "column" }}>
+          <span className="faculty-kicker">↑ Next action</span>
+          {(() => {
+            // Pick the most urgent overdue task, else most urgent active task
+            const overdueItems = tasksAll.filter(t => {
+              const s = String(t.status || "").toLowerCase();
+              const done = /approved|completed|archived|received/.test(s);
+              return t.deadline && new Date(t.deadline) < now && !done;
+            }).sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+            const nextTask = overdueItems[0] || tasksAll.filter(t => {
+              const s = String(t.status || "").toLowerCase();
+              return !/approved|completed|archived|received|rejected/.test(s);
+            }).sort((a, b) => new Date(a.deadline || 9999999999999) - new Date(b.deadline || 9999999999999))[0];
+
+            if (!nextTask) return (
               <>
-                <span className="faculty-kicker">Needs your attention</span>
-                <div className="faculty-return-title">
-                  <i>
-                    <RotateCcw size={17} />
-                  </i>
-                  <div>
-                    <h2>{returnedForm.title}</h2>
-                    <p>Returned for revision · {returnedForm.date}</p>
-                  </div>
-                </div>
-                <div className="faculty-return-note">
-                  Review the requested updates, attach the revised file, and
-                  resubmit it for the next handoff.
-                </div>
-                <button type="button" onClick={() => navigate("/forms")}>
-                  Review request <ArrowUpRight size={14} />
-                </button>
+                <h2 style={{ marginTop: 8 }}>You're all caught up</h2>
+                <p className="faculty-empty-copy" style={{ marginTop: 6 }}>No pending tasks right now.</p>
               </>
-            ) : (
+            );
+
+            const isOverdue = overdueItems[0]?.id === nextTask.tracking_id || overdueItems.some(t => (t.tracking_id || `TSK-${t.id}`) === (nextTask.tracking_id || `TSK-${nextTask.id}`));
+            return (
               <>
-                <span className="faculty-kicker">Your workflow</span>
-                <h2>Everything is on track</h2>
-                <p className="faculty-empty-copy">
-                  No submissions currently need a revision from you.
-                </p>
-              </>
-            )}
-          </article>
-          {supportingAttentionItems.length > 0 && (
-            <div
-              className="faculty-attention-list"
-              aria-label="Additional submissions needing attention"
-            >
-              {supportingAttentionItems.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() => navigate("/forms")}
-                >
-                  <i>
-                    <FileText size={13} />
-                  </i>
-                  <span>
-                    <strong>{item.title}</strong>
-                    <small>
-                      {item.status} · {item.date}
-                    </small>
-                  </span>
-                  <ArrowUpRight size={13} />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <article>
-          <span className="faculty-kicker">Overdue items</span>
-          <h2>{overdueCount > 0 ? `${overdueCount} item${overdueCount !== 1 ? "s" : ""} overdue` : "All on track"}</h2>
-          {overdueCount === 0 ? (
-            <p className="faculty-empty-copy">
-              No tasks or forms are past their deadline. Keep it up!
-            </p>
-          ) : (
-            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 0 }}>
-              {[
-                // Overdue tasks
-                ...tasksAll
-                  .filter(t => {
-                    const s = String(t.status || "").toLowerCase();
-                    const done = /approved|completed|archived|received/.test(s);
-                    return t.deadline && new Date(t.deadline) < now && !done;
-                  })
-                  .map(t => ({
-                    id: t.tracking_id || `TSK-${t.id}`,
-                    title: t.title || "Untitled task",
-                    deadline: t.deadline,
-                    type: "Task",
-                    daysOverdue: Math.floor((now - new Date(t.deadline)) / 86400000),
-                  })),
-                // Overdue forms (those with a due_date)
-                ...forms
-                  .filter(f => {
-                    const s = String(f.status || "").toLowerCase();
-                    const done = /approved|received|completed|rejected/.test(s);
-                    return f.due_date && new Date(f.due_date) < now && !done;
-                  })
-                  .map(f => ({
-                    id: f.id || `FRM-${f.id}`,
-                    title: f.title || f.category || "Form submission",
-                    deadline: f.due_date,
-                    type: "Form",
-                    daysOverdue: Math.floor((now - new Date(f.due_date)) / 86400000),
-                  })),
-              ]
-                .sort((a, b) => b.daysOverdue - a.daysOverdue)
-                .slice(0, 2)
-                .map((item, i, arr) => (
-                  <div key={item.id} style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    padding: "9px 0",
-                    borderBottom: i < arr.length - 1 ? "1px solid #f0edf4" : "none",
+                {/* Task card */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+                  <span style={{
+                    width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+                    background: isOverdue ? "#fff1f2" : "#f0e9fc",
+                    color: isOverdue ? "#dc2626" : "#7c3aed",
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <span style={{
-                      width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-                      background: "#fff1f2", color: "#dc2626",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <AlertTriangle size={13} />
-                    </span>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <strong style={{ display: "block", fontSize: 12, color: "#44354d", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {item.title}
-                      </strong>
-                      <small style={{ fontSize: 11, color: "#a095ab" }}>
-                        {item.id} · {item.type} · {item.daysOverdue}d overdue
-                      </small>
-                    </span>
-                    <span style={{
-                      fontSize: 10, fontWeight: 800, color: "#dc2626",
-                      background: "#fff1f2", border: "1px solid #fecdd3",
-                      borderRadius: 99, padding: "2px 7px", whiteSpace: "nowrap",
-                    }}>
-                      Overdue
-                    </span>
+                    {isOverdue ? <AlertTriangle size={14} /> : <FileText size={14} />}
+                  </span>
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ display: "block", fontSize: 14, color: "#27213a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "Manrope,'DM Sans',sans-serif", letterSpacing: "-0.03em" }}>
+                      {nextTask.title || "Untitled task"}
+                    </strong>
+                    <small style={{ fontSize: 11, color: "#9080a0" }}>
+                      {nextTask.tracking_id || `TSK-${nextTask.id}`} · {nextTask.doc_type || nextTask.category || "Proposal"}
+                    </small>
                   </div>
-                ))
-              }
-              {overdueCount > 2 && (
+                </div>
+
+                {/* Highlight note */}
+                <div style={{
+                  marginTop: 14, padding: "10px 13px",
+                  background: isOverdue ? "#fff8f0" : "#fdf9ee",
+                  border: `1px solid ${isOverdue ? "#fde68a" : "#fde68a"}`,
+                  borderRadius: 8, fontSize: 12,
+                  color: isOverdue ? "#92400e" : "#92400e",
+                  fontStyle: "italic",
+                }}>
+                  {isOverdue
+                    ? `This task is ${Math.floor((now - new Date(nextTask.deadline)) / 86400000)}d past its deadline — needs your immediate attention.`
+                    : "This handoff carries the strongest deadline signal in your current task list."
+                  }
+                </div>
+
+                {/* CTA */}
                 <button
                   type="button"
                   onClick={() => navigate("/tasks")}
-                  style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 10, border: "none", background: "none", color: "#7c3aed", fontSize: 12, fontWeight: 800, cursor: "pointer", padding: 0 }}
+                  style={{
+                    marginTop: 14, width: "100%", minHeight: 38,
+                    border: 0, borderRadius: 9,
+                    background: "linear-gradient(135deg, #4c1d95, #7c3aed)",
+                    color: "#fff", fontSize: 13, fontWeight: 800,
+                    cursor: "pointer", display: "flex", alignItems: "center",
+                    justifyContent: "center", gap: 6,
+                    boxShadow: "0 4px 14px rgba(124,58,237,0.3)",
+                  }}
                 >
-                  View {overdueCount - 2} more <ArrowUpRight size={13} />
+                  Open task details <ArrowUpRight size={14} />
                 </button>
-              )}
-            </div>
-          )}
-          <div className="faculty-health-meta" style={{ marginTop: overdueCount > 0 ? 12 : 20 }}>
-            <span style={{ color: overdueCount > 0 ? "#dc2626" : undefined }}>
-              <ShieldCheck size={14} /> {inReview.length} record{inReview.length !== 1 ? "s" : ""} in review
+              </>
+            );
+          })()}
+        </article>
+
+        {/* ── Right: Workflow Health ── */}
+        <article style={{ display: "flex", flexDirection: "column" }}>
+          <span className="faculty-kicker">↑ Your workflow health</span>
+          <h2 style={{ marginTop: 8 }}>Every handoff is visible</h2>
+          <p style={{ margin: "6px 0 0", color: "#8f8398", fontSize: 12, lineHeight: 1.55 }}>
+            Task ownership, review notes, and document status stay connected throughout the workflow.
+          </p>
+          <div className="faculty-health-meta" style={{ marginTop: "auto", paddingTop: 16 }}>
+            <span>
+              <ShieldCheck size={14} /> {tasksAll.filter(t => !/approved|completed|archived|received|rejected/.test(String(t.status || "").toLowerCase())).length} active handoffs
             </span>
-            <span>Live data</span>
+            <span style={{ color: overdueCount > 0 ? "#dc2626" : "#6e9b80", fontWeight: 700 }}>
+              {overdueCount > 0 ? `${overdueCount} needs follow-up` : "On track"}
+            </span>
           </div>
         </article>
       </section>
