@@ -940,6 +940,7 @@ function PathTasksWorkspace({
                       key={task.id}
                       className={`path-task-table-row ${selected?.id === task.id ? "active" : ""}`}
                       onClick={() => onOpenTaskDetails(task)}
+                      style={isTaskOverdue(task) ? { borderLeft: "3px solid #ef4444", background: "#fff8f8" } : undefined}
                     >
                       <div className="path-task-row-main">
                         <span
@@ -948,7 +949,20 @@ function PathTasksWorkspace({
                           <Icon.Forms />
                         </span>
                         <span>
-                          <strong>{task.title || "Untitled task"}</strong>
+                          <strong style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            {task.title || "Untitled task"}
+                            {isTaskOverdue(task) && (
+                              <span style={{
+                                fontSize: 9, fontWeight: 800, color: "#dc2626",
+                                background: "#fff1f2", border: "1px solid #fecdd3",
+                                borderRadius: 99, padding: "1px 6px",
+                                letterSpacing: "0.04em", textTransform: "uppercase",
+                                flexShrink: 0,
+                              }}>
+                                Overdue
+                              </span>
+                            )}
+                          </strong>
                           <small>
                             {task.tracking_id || "Task"} ·{" "}
                             {task.doc_type || "Workflow task"}
