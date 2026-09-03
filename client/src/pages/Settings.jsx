@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Bell, Check, ChevronRight, CircleHelp, Clock3,
   Eye, FileText, Globe2, KeyRound, LockKeyhole, Mail,
-  Monitor, Palette, Save, Settings as SettingsIcon,
+  Monitor, Save, Settings as SettingsIcon,
   ShieldCheck, Smartphone, UserRound,
 } from "lucide-react";
 
@@ -66,7 +66,6 @@ const SECTIONS = [
   { id: "general",      label: "General",         description: "Workspace identity",  icon: SettingsIcon },
   { id: "notifications",label: "Notifications",   description: "Alerts and updates",  icon: Bell },
   { id: "security",     label: "Security & access",description: "Sign-in protection", icon: ShieldCheck },
-  { id: "appearance",   label: "Appearance",      description: "Display preferences", icon: Palette },
 ];
 
 // ─── PROFILE SECTION ──────────────────────────────────────────────────────────
@@ -369,68 +368,6 @@ function SecuritySection({ profile, onToast }) {
   );
 }
 
-// ─── APPEARANCE SECTION ───────────────────────────────────────────────────────
-const ACCENT_COLORS = [
-  { label: "Violet", value: "#7c3aed", dark: "#4c1d95" },
-  { label: "Indigo", value: "#4f46e5", dark: "#312e81" },
-  { label: "Blue",   value: "#2563eb", dark: "#1e3a8a" },
-  { label: "Teal",   value: "#0d9488", dark: "#134e4a" },
-  { label: "Rose",   value: "#e11d48", dark: "#881337" },
-  { label: "Amber",  value: "#d97706", dark: "#78350f" },
-];
-
-function AppearanceSection({ onToast }) {
-  const [prefs, setPrefs] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("path_prefs") || "{}"); } catch { return {}; }
-  });
-  const save = (key, val) => {
-    const next = { ...prefs, [key]: val };
-    setPrefs(next);
-    localStorage.setItem("path_prefs", JSON.stringify(next));
-    onToast("Preference saved!", "success");
-  };
-  const accent   = prefs.accent   || "#7c3aed";
-  const density  = prefs.density  || "comfortable";
-  const presence = prefs.presence !== undefined ? prefs.presence : true;
-
-  return (
-    <>
-      <SettingRow icon={Palette} title="Accent color" description="Used across buttons, active states, and highlights.">
-        <div style={{ display: "flex", gap: 7 }}>
-          {ACCENT_COLORS.map(c => (
-            <button
-              key={c.value}
-              onClick={() => save("accent", c.value)}
-              title={c.label}
-              style={{
-                width: 22, height: 22, borderRadius: 7, border: "none", cursor: "pointer",
-                background: `linear-gradient(135deg,${c.dark},${c.value})`,
-                boxShadow: accent === c.value ? `0 0 0 2px #fff,0 0 0 4px ${c.value}` : "none",
-                transform: accent === c.value ? "scale(1.2)" : "scale(1)",
-                transition: "all 0.15s",
-              }}
-            />
-          ))}
-        </div>
-      </SettingRow>
-      <SettingRow icon={Monitor} title="Interface density" description="Control how much information appears in lists and tables.">
-        <select
-          value={density}
-          onChange={e => save("density", e.target.value)}
-          aria-label="Interface density"
-        >
-          <option value="comfortable">Comfortable</option>
-          <option value="compact">Compact</option>
-          <option value="spacious">Spacious</option>
-        </select>
-      </SettingRow>
-      <SettingRow icon={UserRound} title="Show presence indicators" description="Display when collaborators are active in the workspace.">
-        <Toggle checked={presence} onChange={() => save("presence", !presence)} label="Toggle presence indicators" />
-      </SettingRow>
-    </>
-  );
-}
-
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Settings() {
   const navigate = useNavigate();
@@ -588,7 +525,6 @@ export default function Settings() {
                 {activeSection === "general"       && <GeneralSection       profile={profile} onSaved={setProfile} onToast={showToast} />}
                 {activeSection === "notifications"  && <NotificationsSection onToast={showToast} />}
                 {activeSection === "security"       && <SecuritySection      profile={profile} onToast={showToast} />}
-                {activeSection === "appearance"     && <AppearanceSection    onToast={showToast} />}
               </>
             )}
           </article>
