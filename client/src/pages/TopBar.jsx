@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
 
@@ -385,7 +385,7 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
         {/* ── Crop viewport ── */}
         <div className="flex items-center justify-center py-5">
           <div
-            className="relative overflow-hidden rounded-full border-2 border-teal-200 shadow-inner bg-gray-100 select-none"
+            className="relative overflow-hidden rounded-full border-2 border-violet-200 shadow-inner bg-gray-100 select-none"
             style={{ width: CROP_SIZE, height: CROP_SIZE, cursor: draggingRef.current ? "grabbing" : "grab", touchAction: "none" }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -423,7 +423,7 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
             step={0.01}
             value={zoom}
             onChange={e => setZoom(parseFloat(e.target.value))}
-            className="flex-1 accent-teal-600"
+            className="flex-1 accent-violet-600"
           />
           <span className="text-gray-400"><ZoomInIcon /></span>
         </div>
@@ -439,7 +439,7 @@ function ImageCropModal({ src, onCancel, onConfirm }) {
           <button
             onClick={handleConfirm}
             disabled={!naturalSize || exporting}
-            className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
           >
             {exporting ? <><Spinner /> Applying…</> : <><CheckIcon2 /> Use Photo</>}
           </button>
@@ -666,7 +666,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors border-2 border-white"
+              className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-md hover:bg-violet-700 transition-colors border-2 border-white"
             >
               <CameraIcon />
             </button>
@@ -684,20 +684,20 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
             {profile?.full_name}
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">@{profile?.username}</p>
-          <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700 capitalize">
+          <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700 capitalize">
             {formatRole(profile?.role)}
           </span>
 
           {pendingPreview && (
-            <div className="mt-3 w-full bg-white/90 backdrop-blur rounded-xl px-4 py-2.5 flex items-center gap-2 shadow border border-teal-200">
-              <span className="text-[11px] text-teal-700 font-bold flex-1">New photo selected — upload it?</span>
+            <div className="mt-3 w-full bg-white/90 backdrop-blur rounded-xl px-4 py-2.5 flex items-center gap-2 shadow border border-violet-200">
+              <span className="text-[11px] text-violet-700 font-bold flex-1">New photo selected — upload it?</span>
               <button onClick={handleCancelPhoto} className="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-gray-200 text-gray-500 hover:bg-gray-100 transition-colors">
                 Cancel
               </button>
               <button
                 onClick={handleUploadPhoto}
                 disabled={uploadingPhoto}
-                className="px-3 py-1 rounded-lg text-[11px] font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60 flex items-center gap-1.5 transition-colors"
+                className="px-3 py-1 rounded-lg text-[11px] font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center gap-1.5 transition-colors"
               >
                 {uploadingPhoto ? <><Spinner /> Uploading…</> : <><CheckIcon2 /> Upload</>}
               </button>
@@ -767,7 +767,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
+                className="flex-1 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 flex items-center justify-center gap-1.5 transition-colors"
               >
                 {saving ? <><Spinner /> Saving…</> : <><CheckIcon2 /> Save Changes</>}
               </button>
@@ -775,7 +775,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
           ) : (
             <button
               onClick={() => setEditing(true)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 transition-colors"
             >
               <EditIcon /> Edit Profile
             </button>
@@ -804,7 +804,7 @@ function PField({ label, children }) {
         return (
           <child.type
             {...child.props}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-900 bg-white outline-none focus:border-teal-500 transition-colors"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-900 bg-white outline-none focus:border-violet-500 transition-colors"
           />
         );
       })()}
