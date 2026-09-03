@@ -2030,11 +2030,15 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
       color: "#c26b4d",
     },
     {
-      label: "Completed",
-      value: approved.length,
-      detail: "Approved records",
-      icon: CheckCircle2,
-      color: "#27805d",
+      label: "Overdue",
+      value: tasksAll.filter(t => {
+        const s = String(t.status || "").toLowerCase();
+        const done = /approved|completed|archived|received/.test(s);
+        return t.deadline && new Date(t.deadline) < new Date() && !done;
+      }).length,
+      detail: "Past their deadline",
+      icon: AlertTriangle,
+      color: "#dc2626",
     },
   ];
   return (
