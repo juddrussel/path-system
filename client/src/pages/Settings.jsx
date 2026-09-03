@@ -103,6 +103,7 @@ function AccountSection({ profile, onSaved, onToast }) {
     email:     profile?.email      || "",
     phone:     profile?.phone      || "",
   });
+  const [editing, setEditing]             = useState(false);
   const [saving, setSaving]               = useState(false);
   const [pwForm, setPwForm]               = useState({ current_password: "", new_password: "", confirm_password: "" });
   const [pwSaving, setPwSaving]           = useState(false);
@@ -142,6 +143,7 @@ function AccountSection({ profile, onSaved, onToast }) {
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || "Save failed."); }
       const updated = await res.json();
       onSaved({ ...profile, ...updated });
+      setEditing(false);
       onToast("Profile updated successfully!", "success");
     } catch (err) { onToast(err.message || "Failed to save.", "error"); }
     finally { setSaving(false); }
@@ -204,7 +206,38 @@ function AccountSection({ profile, onSaved, onToast }) {
   return (
     <>
       {/* ── Edit Profile ── */}
-      <SectionHeading title="Edit Profile" subtitle="Update your name, email address, and contact number." />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 22px 16px", borderBottom: "1px solid #f0ecf5" }}>
+        <div>
+          <h2 style={{ margin: 0, color: "#40364b", fontSize: 16, fontWeight: 800, fontFamily: "Manrope,'DM Sans',sans-serif", letterSpacing: "-0.03em" }}>Edit Profile</h2>
+          <p style={{ margin: "4px 0 0", color: "#a096aa", fontSize: 12, lineHeight: 1.5, fontFamily: "'DM Sans',sans-serif" }}>
+            {editing ? "Make your changes below and click Save." : "Update your name, email address, and contact number."}
+          </p>
+        </div>
+        {!editing ? (
+          <button
+            onClick={() => setEditing(true)}
+            className="path-settings-btn-ghost"
+            style={{ display: "inline-flex", alignItems: "center", gap: 5 }}
+          >
+            ✎ Edit
+          </button>
+        ) : (
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => {
+                setForm({ full_name: profile?.full_name || "", email: profile?.email || "", phone: profile?.phone || "" });
+                setEditing(false);
+              }}
+              className="path-settings-btn-ghost"
+            >
+              Cancel
+            </button>
+            <button onClick={handleSaveProfile} disabled={saving} className="path-settings-btn-primary">
+              <Save size={13} /> {saving ? "Saving…" : "Save"}
+            </button>
+          </div>
+        )}
+      </div>
 
       <SettingRow icon={UserRound} title="Full name" description="Your display name across all documents and handoffs.">
         <input
@@ -212,6 +245,8 @@ function AccountSection({ profile, onSaved, onToast }) {
           onChange={e => set("full_name", e.target.value)}
           placeholder="Full name"
           aria-label="Full name"
+          readOnly={!editing}
+          style={!editing ? { color: "#3b2a52", background: "#f9f8fc", cursor: "default" } : undefined}
         />
       </SettingRow>
       <SettingRow icon={Mail} title="Email address" description="Primary address for PATH workflow communication.">
@@ -221,6 +256,8 @@ function AccountSection({ profile, onSaved, onToast }) {
           onChange={e => set("email", e.target.value)}
           placeholder="email@example.com"
           aria-label="Email address"
+          readOnly={!editing}
+          style={!editing ? { color: "#3b2a52", background: "#f9f8fc", cursor: "default" } : undefined}
         />
       </SettingRow>
       <SettingRow icon={Smartphone} title="Contact number" description="Your phone number for account and workflow notifications.">
@@ -229,18 +266,10 @@ function AccountSection({ profile, onSaved, onToast }) {
           onChange={e => set("phone", e.target.value)}
           placeholder="+63 912 345 6789"
           aria-label="Contact number"
+          readOnly={!editing}
+          style={!editing ? { color: "#3b2a52", background: "#f9f8fc", cursor: "default" } : undefined}
         />
       </SettingRow>
-
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "14px 22px", borderTop: "1px solid #f4f1f7" }}>
-        <button
-          onClick={handleSaveProfile}
-          disabled={saving}
-          className="path-settings-btn-primary"
-        >
-          <Save size={13} /> {saving ? "Saving…" : "Save profile"}
-        </button>
-      </div>
 
       {/* ── Change Password ── */}
       <div style={{ borderTop: "2px solid #f4f1f7" }}>
