@@ -106,6 +106,7 @@ function AccountSection({ profile, onSaved, onToast }) {
   const [editing, setEditing]             = useState(false);
   const [saving, setSaving]               = useState(false);
   const [pwForm, setPwForm]               = useState({ current_password: "", new_password: "", confirm_password: "" });
+  const [pwEditing, setPwEditing]         = useState(false);
   const [pwSaving, setPwSaving]           = useState(false);
   const [showPw, setShowPw]               = useState({ current: false, new: false, confirm: false });
   const [avatarFile, setAvatarFile]       = useState(null);
@@ -163,6 +164,7 @@ function AccountSection({ profile, onSaved, onToast }) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "Failed.");
       setPwForm({ current_password: "", new_password: "", confirm_password: "" });
+      setPwEditing(false);
       onToast("Password changed successfully!", "success");
     } catch (err) { onToast(err.message || "Failed.", "error"); }
     finally { setPwSaving(false); }
@@ -272,73 +274,87 @@ function AccountSection({ profile, onSaved, onToast }) {
       </SettingRow>
 
       {/* ── Change Password ── */}
-      <div style={{ borderTop: "2px solid #f4f1f7" }}>
-        <SectionHeading title="Change Password" subtitle="Make sure it's at least 8 characters and hard to guess." />
-      </div>
-
-      <SettingRow icon={LockKeyhole} title="Current password" description="Required to verify your identity.">
-        <div style={{ display: "flex", gap: 6 }}>
-          <input
-            type={showPw.current ? "text" : "password"}
-            value={pwForm.current_password}
-            onChange={e => setPw("current_password", e.target.value)}
-            placeholder="Current password"
-            aria-label="Current password"
-          />
-          <button onClick={() => togglePw("current")} className="path-settings-btn-ghost">
-            {showPw.current ? "Hide" : "Show"}
+      <div style={{ borderTop: "2px solid #f4f1f7", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 22px 16px", borderBottom: "1px solid #f0ecf5" }}>
+        <div>
+          <h2 style={{ margin: 0, color: "#40364b", fontSize: 16, fontWeight: 800, fontFamily: "Manrope,'DM Sans',sans-serif", letterSpacing: "-0.03em" }}>Change Password</h2>
+          <p style={{ margin: "4px 0 0", color: "#a096aa", fontSize: 12, lineHeight: 1.5, fontFamily: "'DM Sans',sans-serif" }}>
+            {pwEditing ? "Enter your current password and choose a new one." : "Make sure it's at least 8 characters and hard to guess."}
+          </p>
+        </div>
+        {!pwEditing ? (
+          <button onClick={() => setPwEditing(true)} className="path-settings-btn-ghost" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+            ✎ Edit
           </button>
-        </div>
-      </SettingRow>
-      <SettingRow icon={KeyRound} title="New password" description="At least 8 characters with letters, numbers, and symbols.">
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
-          <div style={{ display: "flex", gap: 6 }}>
-            <input
-              type={showPw.new ? "text" : "password"}
-              value={pwForm.new_password}
-              onChange={e => setPw("new_password", e.target.value)}
-              placeholder="New password"
-              aria-label="New password"
-            />
-            <button onClick={() => togglePw("new")} className="path-settings-btn-ghost">
-              {showPw.new ? "Hide" : "Show"}
+        ) : (
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => { setPwForm({ current_password: "", new_password: "", confirm_password: "" }); setPwEditing(false); }}
+              className="path-settings-btn-ghost"
+            >
+              Cancel
+            </button>
+            <button onClick={handleChangePassword} disabled={pwSaving} className="path-settings-btn-primary">
+              <KeyRound size={13} /> {pwSaving ? "Updating…" : "Update password"}
             </button>
           </div>
-          {pwForm.new_password.length > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              {[1,2,3,4,5].map(i => (
-                <div key={i} style={{ width: 22, height: 3, borderRadius: 99, background: i <= str ? strColor : "#e2dbe9", transition: "background 0.2s" }} />
-              ))}
-              <span style={{ fontSize: 10, color: strColor, fontWeight: 700, marginLeft: 4 }}>{strLabel}</span>
-            </div>
-          )}
-        </div>
-      </SettingRow>
-      <SettingRow icon={ShieldCheck} title="Confirm new password" description="Re-enter your new password to confirm.">
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}>
-          <div style={{ display: "flex", gap: 6 }}>
-            <input
-              type={showPw.confirm ? "text" : "password"}
-              value={pwForm.confirm_password}
-              onChange={e => setPw("confirm_password", e.target.value)}
-              placeholder="Confirm password"
-              aria-label="Confirm password"
-            />
-            <button onClick={() => togglePw("confirm")} className="path-settings-btn-ghost">
-              {showPw.confirm ? "Hide" : "Show"}
-            </button>
-          </div>
-          {pwForm.confirm_password && pwForm.new_password !== pwForm.confirm_password && (
-            <span style={{ fontSize: 10, color: "#ef4444", fontWeight: 600 }}>Passwords do not match</span>
-          )}
-        </div>
-      </SettingRow>
-
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "14px 22px", borderTop: "1px solid #f4f1f7" }}>
-        <button onClick={handleChangePassword} disabled={pwSaving} className="path-settings-btn-primary">
-          <KeyRound size={13} /> {pwSaving ? "Updating…" : "Update password"}
-        </button>
+        )}
       </div>
+
+      {pwEditing && (
+        <>
+          <SettingRow icon={LockKeyhole} title="Current password" description="Required to verify your identity.">
+            <div style={{ display: "flex", gap: 6 }}>
+              <input
+                type={showPw.current ? "text" : "password"}
+                value={pwForm.current_password}
+                onChange={e => setPw("current_password", e.target.value)}
+                placeholder="Current password"
+                aria-label="Current password"
+              />
+              <button onClick={() => togglePw("current")} className="path-settings-btn-ghost">{showPw.current ? "Hide" : "Show"}</button>
+            </div>
+          </SettingRow>
+          <SettingRow icon={KeyRound} title="New password" description="At least 8 characters with letters, numbers, and symbols.">
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input
+                  type={showPw.new ? "text" : "password"}
+                  value={pwForm.new_password}
+                  onChange={e => setPw("new_password", e.target.value)}
+                  placeholder="New password"
+                  aria-label="New password"
+                />
+                <button onClick={() => togglePw("new")} className="path-settings-btn-ghost">{showPw.new ? "Hide" : "Show"}</button>
+              </div>
+              {pwForm.new_password.length > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} style={{ width: 22, height: 3, borderRadius: 99, background: i <= str ? strColor : "#e2dbe9", transition: "background 0.2s" }} />
+                  ))}
+                  <span style={{ fontSize: 10, color: strColor, fontWeight: 700, marginLeft: 4 }}>{strLabel}</span>
+                </div>
+              )}
+            </div>
+          </SettingRow>
+          <SettingRow icon={ShieldCheck} title="Confirm new password" description="Re-enter your new password to confirm.">
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input
+                  type={showPw.confirm ? "text" : "password"}
+                  value={pwForm.confirm_password}
+                  onChange={e => setPw("confirm_password", e.target.value)}
+                  placeholder="Confirm password"
+                  aria-label="Confirm password"
+                />
+                <button onClick={() => togglePw("confirm")} className="path-settings-btn-ghost">{showPw.confirm ? "Hide" : "Show"}</button>
+              </div>
+              {pwForm.confirm_password && pwForm.new_password !== pwForm.confirm_password && (
+                <span style={{ fontSize: 10, color: "#ef4444", fontWeight: 600 }}>Passwords do not match</span>
+              )}
+            </div>
+          </SettingRow>
+        </>
+      )}
 
       {/* ── Profile Picture ── */}
       <div style={{ borderTop: "2px solid #f4f1f7" }}>
