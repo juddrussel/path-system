@@ -1983,13 +1983,20 @@ function QuickActionsPanel({ navigate, actions = ADMIN_QUICK_ACTIONS }) {
 
 function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tasksAll = [], tasksLoading, tasksPage, tasksTotalPages, setTasksPage, navigate }) {
   const statusOf = (row) => String(row.status || "").toLowerCase();
-  const inReview = forms.filter((row) => /review|pending/.test(statusOf(row)));
-  const returned = forms.filter((row) =>
+
+  // Combine forms + tasks for accurate counts
+  const allItems = [
+    ...forms,
+    ...tasksAll.map(t => ({ ...t, _isTask: true })),
+  ];
+
+  const inReview = allItems.filter((row) => /for approval|under review|review|pending/.test(statusOf(row)));
+  const returned = allItems.filter((row) =>
     /returned|revision/.test(statusOf(row)),
   );
   const drafts = forms.filter((row) => /draft/.test(statusOf(row)));
-  const approved = forms.filter((row) =>
-    /approved|received/.test(statusOf(row)),
+  const approved = allItems.filter((row) =>
+    /approved|received|completed/.test(statusOf(row)),
   );
   const active = forms.filter(
     (row) => !/approved|received|rejected|archived/.test(statusOf(row)),
