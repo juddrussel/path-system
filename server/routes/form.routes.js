@@ -80,9 +80,22 @@ function requireReviewer(req, res, next) {
 // "notification" socket event (see Notifications.jsx) picks this up too,
 // with no changes needed on the frontend. Never throws — a notification
 // failing to save should never take down the request that triggered it.
+const APPROVAL_TYPES_FORM  = new Set(["task_status_changed", "task_submitted", "form_approved", "form_rejected", "form_revision"]);
+const DOC_UPDATE_TYPES_FORM = new Set(["task_assigned", "task_comment_added", "task_attachment_added", "task_deadline_changed", "new_form_submission"]);
+
 async function notify(io, { userId, type, title, message, taskId = null, trackingId = null }) {
   if (userId == null) return null;
   try {
+    // Load recipient preferences (default all ON if not set)
+    let prefs = { inapp: true, approval: true, docUpdates: true };
+    try {
+      const [rows] = await db.query("SELECT preferences FROM users WHERE id = ?", [userId]);
+      if (rows.length && rows[0].preferences) prefs = { ...prefs, ...JSON.parse(rows[0].preferences) };
+    } catch { /* non-fatal */ }
+
+    if (prefs.inapp === false) return null;
+    if (prefs.approval === false && APPROVAL_TYPES_FORM.has(type)) return null;
+    if (prefs.docUpdates === false && DOC_UPDATE_TYPES_FORM.has(type)) return null;
     const [result] = await db.query(
       `INSERT INTO notifications (user_id, type, title, message, task_id, tracking_id, is_read, created_at)
        VALUES (?, ?, ?, ?, ?, ?, 0, NOW())`,

@@ -489,4 +489,43 @@ router.post("/:id/change-password", requireAuth, async (req, res) => {
   }
 });
 
+// ─── GET /api/users/:id/preferences ──────────────────────────────────────────
+router.get("/:id/preferences", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const isSelf = parseInt(id) === req.user.id;
+  const isAdmin = req.user.role === "admin" || req.user.role === "program_chair";
+  if (!isSelf && !isAdmin) return res.status(403).json({ message: "Forbidden." });
+  try {
+    const [rows] = await db.query("SELECT preferences FROM users WHERE id = ?", [id]);
+    if (!rows.length) return res.status(404).json({ message: "User not found." });
+    let prefs = { email: true, inapp: true, approval: true, docUpdates: true };
+    try { if (rows[0].preferences) prefs = { ...prefs, ...JSON.parse(rows[0].preferences) }; } catch {}
+    return res.json(prefs);
+  } catch (err) {
+    console.error("GET /users/:id/preferences error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─── PATCH /api/users/:id/preferences ────────────────────────────────────────
+router.patch("/:id/preferences", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const isSelf = parseInt(id) === req.user.id;
+  const isAdmin = req.user.role === "admin" || req.user.role === "program_chair";
+  if (!isSelf && !isAdmin) return res.status(403).json({ message: "Forbidden." });
+  try {
+    // Merge with existing preferences so a partial update never wipes other keys
+    const [rows] = await db.query("SELECT preferences FROM users WHERE id = ?", [id]);
+    if (!rows.length) return res.status(404).json({ message: "User not found." });
+    let existing = { email: true, inapp: true, approval: true, docUpdates: true };
+    try { if (rows[0].preferences) existing = { ...existing, ...JSON.parse(rows[0].preferences) }; } catch {}
+    const merged = { ...existing, ...req.body };
+    await db.query("UPDATE users SET preferences = ?, updated_at = NOW() WHERE id = ?", [JSON.stringify(merged), id]);
+    return res.json(merged);
+  } catch (err) {
+    console.error("PATCH /users/:id/preferences error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = router;

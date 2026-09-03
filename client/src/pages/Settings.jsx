@@ -58,14 +58,15 @@ const SECTIONS = [
 ];
 
 // ─── Toggle ───────────────────────────────────────────────────────────────────
-function Toggle({ checked, onChange, label }) {
+function Toggle({ checked, onChange, label, disabled }) {
   return (
     <button
       type="button"
       className={`path-settings-toggle ${checked ? "is-on" : ""}`}
-      onClick={onChange}
+      onClick={disabled ? undefined : onChange}
       aria-pressed={checked}
       aria-label={label}
+      style={disabled ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
     >
       <span />
     </button>
@@ -400,44 +401,100 @@ function AccountSection({ profile, onSaved, onToast }) {
 }
 
 // ─── NOTIFICATION SETTINGS ────────────────────────────────────────────────────
-function NotificationsSection({ onToast }) {
-  const [prefs, setPrefs] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("path_notif_prefs") || "{}"); } catch { return {}; }
-  });
-  const save = (key, val) => {
+function NotificationsSection({ profile, onToast }) {
+  const DEFAULT_PREFS = { email: true, inapp: true, approval: true, docUpdates: true };
+  const [prefs, setPrefs]     = useState(DEFAULT_PREFS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(null); // key being saved
+
+  // Load from API on mount
+  useEffect(() => {
+    if (!profile?.id) return;
+    fetch(`${API}/users/${profile.id}/preferences`, { headers: authHeaders() })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setPrefs({ ...DEFAULT_PREFS, ...data }); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [profile?.id]);
+
+  const save = async (key, val) => {
     const next = { ...prefs, [key]: val };
-    setPrefs(next);
-    localStorage.setItem("path_notif_prefs", JSON.stringify(next));
-    onToast("Preference saved!", "success");
+    setPrefs(next); // optimistic
+    setSaving(key);
+    try {
+      const res = await fetch(`${API}/users/${profile.id}/preferences`, {
+        method: "PATCH",
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: val }),
+      });
+      if (!res.ok) throw new Error("Failed to save.");
+      onToast("Preference saved!", "success");
+    } catch {
+      setPrefs(prefs); // revert on error
+      onToast("Failed to save preference.", "error");
+    } finally {
+      setSaving(null);
+    }
   };
-  const get = (key, def = true) => prefs[key] !== undefined ? prefs[key] : def;
+
+  const get = (key) => prefs[key] !== undefined ? prefs[key] : DEFAULT_PREFS[key];
+
+  if (loading) {
+    return (
+      <div style={{ padding: "32px 22px", display: "flex", flexDirection: "column", gap: 12 }}>
+        {[60, 80, 55, 75].map((w, i) => (
+          <div key={i} style={{ height: 12, width: `${w}%`, borderRadius: 7, background: "#ede9fe", animation: "sett-pulse 1.4s ease-in-out infinite" }} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>
       <SectionHeading title="Email Notifications" subtitle="Control which updates are sent to your email address." />
       <SettingRow icon={Mail} title="Enable email notifications" description="Receive PATH workflow updates via email.">
-        <Toggle checked={get("email")} onChange={() => save("email", !get("email"))} label="Toggle email notifications" />
+        <Toggle
+          checked={get("email")}
+          onChange={() => save("email", !get("email"))}
+          label="Toggle email notifications"
+          disabled={saving === "email"}
+        />
       </SettingRow>
 
       <div style={{ borderTop: "2px solid #f4f1f7" }}>
         <SectionHeading title="In-App Notifications" subtitle="Control alerts that appear inside the PATH platform." />
       </div>
       <SettingRow icon={Bell} title="Enable in-app notifications" description="Show real-time alerts and updates within PATH.">
-        <Toggle checked={get("inapp")} onChange={() => save("inapp", !get("inapp"))} label="Toggle in-app notifications" />
+        <Toggle
+          checked={get("inapp")}
+          onChange={() => save("inapp", !get("inapp"))}
+          label="Toggle in-app notifications"
+          disabled={saving === "inapp"}
+        />
       </SettingRow>
 
       <div style={{ borderTop: "2px solid #f4f1f7" }}>
         <SectionHeading title="Approval Status Alerts" subtitle="Get notified when a document or form is approved, rejected, or returned." />
       </div>
       <SettingRow icon={FileText} title="Approval status alerts" description="Notify me when my submissions change status.">
-        <Toggle checked={get("approval")} onChange={() => save("approval", !get("approval"))} label="Toggle approval status alerts" />
+        <Toggle
+          checked={get("approval")}
+          onChange={() => save("approval", !get("approval"))}
+          label="Toggle approval status alerts"
+          disabled={saving === "approval"}
+        />
       </SettingRow>
 
       <div style={{ borderTop: "2px solid #f4f1f7" }}>
         <SectionHeading title="Document Update Alerts" subtitle="Get notified when documents you are involved in are updated." />
       </div>
       <SettingRow icon={FileText} title="Document update alerts" description="Notify me when tracked documents are modified." noBorder>
-        <Toggle checked={get("docUpdates")} onChange={() => save("docUpdates", !get("docUpdates"))} label="Toggle document update alerts" />
+        <Toggle
+          checked={get("docUpdates")}
+          onChange={() => save("docUpdates", !get("docUpdates"))}
+          label="Toggle document update alerts"
+          disabled={saving === "docUpdates"}
+        />
       </SettingRow>
     </>
   );
@@ -603,7 +660,7 @@ export default function Settings() {
           ) : (
             <>
               {activeSection === "account"       && <AccountSection       profile={profile} onSaved={setProfile} onToast={showToast} />}
-              {activeSection === "notifications"  && <NotificationsSection onToast={showToast} />}
+              {activeSection === "notifications"  && <NotificationsSection profile={profile} onToast={showToast} />}
               {activeSection === "privacy"        && <PrivacySection       profile={profile} />}
             </>
           )}

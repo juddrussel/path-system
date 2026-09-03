@@ -134,9 +134,31 @@ function r2KeyFromUrl(url) {
 // emits a generic "notification" event to that user's room with the saved
 // row (real DB id + created_at included). Never throws — a notification
 // failing to save should never take down the request that triggered it.
+//
+// Checks the recipient's notification preferences before sending:
+//   inapp:false    → skip everything (no DB insert, no socket emit)
+//   approval:false → skip approval/rejection/revision/status-change types
+//   docUpdates:false → skip assignment/comment/attachment/deadline types
+const APPROVAL_TYPES  = new Set(["task_status_changed", "task_submitted", "form_approved", "form_rejected", "form_revision"]);
+const DOC_UPDATE_TYPES = new Set(["task_assigned", "task_comment_added", "task_attachment_added", "task_deadline_changed"]);
+
 async function notify(io, { userId, type, title, message, taskId = null, trackingId = null }) {
   if (userId == null) return null;
   try {
+    // Load recipient preferences (default all ON if not set)
+    let prefs = { inapp: true, approval: true, docUpdates: true };
+    try {
+      const [rows] = await db.query("SELECT preferences FROM users WHERE id = ?", [userId]);
+      if (rows.length && rows[0].preferences) prefs = { ...prefs, ...JSON.parse(rows[0].preferences) };
+    } catch { /* non-fatal — default to sending */ }
+
+    // Respect in-app master toggle
+    if (prefs.inapp === false) return null;
+    // Respect approval toggle
+    if (prefs.approval === false && APPROVAL_TYPES.has(type)) return null;
+    // Respect document updates toggle
+    if (prefs.docUpdates === false && DOC_UPDATE_TYPES.has(type)) return null;
+
     const [result] = await db.query(
       `INSERT INTO notifications (user_id, type, title, message, task_id, tracking_id, is_read, created_at)
        VALUES (?, ?, ?, ?, ?, ?, 0, NOW())`,
