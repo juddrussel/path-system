@@ -4242,7 +4242,6 @@ export default function Dashboard() {
                   >
                     <div>
                       {itemsLoading ? (
-                        <p
                         <div style={{ padding: "32px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
                           <style>{`
                             @keyframes db-q-shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
