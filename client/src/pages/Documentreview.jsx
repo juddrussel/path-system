@@ -1227,38 +1227,6 @@ export default function DocumentReview() {
               </div>
             </div>
             <div className="doc-actions">
-              <button
-                type="button"
-                className="doc-btn"
-                onClick={() => setPreview((value) => !value)}
-              >
-                {preview ? "Hide inline" : "Read inline"}
-              </button>
-              {url && (
-                <a
-                  className="doc-btn"
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  download={form.file_name}
-                >
-                  Download
-                </a>
-              )}
-              <button type="button" className="doc-btn" onClick={share}>
-                Share
-              </button>
-              <button
-                type="button"
-                className="doc-solid"
-                onClick={() =>
-                  document
-                    .getElementById("review-decision")
-                    ?.scrollIntoView({ behavior: "smooth", block: "center" })
-                }
-              >
-                Review decision
-              </button>
             </div>
           </section>
           <section className="doc-meta">
