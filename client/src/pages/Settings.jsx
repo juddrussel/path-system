@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bell, Check, ChevronRight, CircleHelp, Clock3,
@@ -57,6 +57,99 @@ const SECTIONS = [
   },
 ];
 
+// ─── Image Crop Modal ─────────────────────────────────────────────────────────
+const CROP_SIZE  = 260;
+const OUTPUT_SIZE = 480;
+const MAX_ZOOM   = 4;
+
+function ImageCropModal({ src, onCancel, onConfirm }) {
+  const [naturalSize, setNaturalSize] = useState(null);
+  const [baseScale, setBaseScale]     = useState(1);
+  const [zoom, setZoom]               = useState(1);
+  const [offset, setOffset]           = useState({ x: 0, y: 0 });
+  const [exporting, setExporting]     = useState(false);
+  const imgRef      = useRef(null);
+  const draggingRef = useRef(false);
+  const lastPt      = useRef({ x: 0, y: 0 });
+
+  const handleImgLoad = () => {
+    const img = imgRef.current;
+    if (!img) return;
+    const cover = Math.max(CROP_SIZE / img.naturalWidth, CROP_SIZE / img.naturalHeight);
+    setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
+    setBaseScale(cover); setZoom(1); setOffset({ x: 0, y: 0 });
+  };
+
+  const scale = baseScale * zoom;
+  const dispW = naturalSize ? naturalSize.w * scale : 0;
+  const dispH = naturalSize ? naturalSize.h * scale : 0;
+
+  const clampOffset = useCallback((o, w = dispW, h = dispH) => {
+    const mx = Math.max(0, (w - CROP_SIZE) / 2);
+    const my = Math.max(0, (h - CROP_SIZE) / 2);
+    return { x: Math.min(mx, Math.max(-mx, o.x)), y: Math.min(my, Math.max(-my, o.y)) };
+  }, [dispW, dispH]);
+
+  useEffect(() => { setOffset(o => clampOffset(o)); }, [zoom, naturalSize]); // eslint-disable-line
+
+  const onPointerDown = (e) => { draggingRef.current = true; lastPt.current = { x: e.clientX, y: e.clientY }; e.currentTarget.setPointerCapture?.(e.pointerId); };
+  const onPointerMove = (e) => { if (!draggingRef.current) return; const dx = e.clientX - lastPt.current.x, dy = e.clientY - lastPt.current.y; lastPt.current = { x: e.clientX, y: e.clientY }; setOffset(o => clampOffset({ x: o.x + dx, y: o.y + dy })); };
+  const onPointerUp   = () => { draggingRef.current = false; };
+  const onWheel       = (e) => { e.preventDefault(); setZoom(z => Math.min(MAX_ZOOM, Math.max(1, +(z + (e.deltaY > 0 ? -0.1 : 0.1)).toFixed(2)))); };
+
+  const handleConfirm = () => {
+    if (!imgRef.current || !naturalSize) return;
+    setExporting(true);
+    const canvas = document.createElement("canvas");
+    canvas.width = OUTPUT_SIZE; canvas.height = OUTPUT_SIZE;
+    const ctx = canvas.getContext("2d");
+    const sW = CROP_SIZE / scale, sH = CROP_SIZE / scale;
+    const sx = (dispW / 2 - CROP_SIZE / 2 - offset.x) / scale;
+    const sy = (dispH / 2 - CROP_SIZE / 2 - offset.y) / scale;
+    ctx.drawImage(imgRef.current, sx, sy, sW, sH, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+    canvas.toBlob((blob) => { setExporting(false); if (blob) onConfirm(blob); }, "image/jpeg", 0.92);
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, fontFamily: "'DM Sans',sans-serif" }}>
+      <div style={{ width: 360, background: "#fff", borderRadius: 18, boxShadow: "0 24px 80px rgba(0,0,0,0.22)", overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px 6px" }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "#1f1533" }}>Adjust your photo</p>
+          <p style={{ margin: "2px 0 0", fontSize: 11, color: "#9080a0" }}>Drag to move, use the slider (or scroll) to zoom</p>
+        </div>
+        {/* Crop circle */}
+        <div style={{ display: "flex", justifyContent: "center", padding: "20px 0" }}>
+          <div
+            style={{ width: CROP_SIZE, height: CROP_SIZE, borderRadius: "50%", border: "2px solid #ddd6fe", overflow: "hidden", background: "#f3f4f6", cursor: "grab", touchAction: "none", position: "relative", userSelect: "none" }}
+            onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp} onWheel={onWheel}
+          >
+            <img
+              ref={imgRef} src={src} alt="Crop preview" onLoad={handleImgLoad} draggable={false}
+              style={{ position: "absolute", top: "50%", left: "50%", width: naturalSize ? naturalSize.w * scale : "auto", height: naturalSize ? naturalSize.h * scale : "auto", maxWidth: "none", maxHeight: "none", transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px))`, pointerEvents: "none" }}
+            />
+            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1)", pointerEvents: "none" }} />
+          </div>
+        </div>
+        {/* Zoom slider */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 24px 8px" }}>
+          <span style={{ color: "#9ca3af", fontSize: 14 }}>−</span>
+          <input type="range" min={1} max={MAX_ZOOM} step={0.01} value={zoom} onChange={e => setZoom(parseFloat(e.target.value))} style={{ flex: 1, accentColor: "#7c3aed" }} />
+          <span style={{ color: "#9ca3af", fontSize: 14 }}>+</span>
+        </div>
+        {/* Footer */}
+        <div style={{ display: "flex", gap: 8, padding: "12px 20px 18px" }}>
+          <button onClick={onCancel} style={{ flex: 1, padding: "9px", borderRadius: 9, border: "1px solid #e5e7eb", background: "#fff", color: "#4b5563", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }}>
+            Cancel
+          </button>
+          <button onClick={handleConfirm} disabled={!naturalSize || exporting} style={{ flex: 1, padding: "9px", borderRadius: 9, border: "none", background: "#7c3aed", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", opacity: (!naturalSize || exporting) ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            ✓ {exporting ? "Applying…" : "Use Photo"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Toggle ───────────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, label, disabled }) {
   return (
@@ -113,6 +206,7 @@ function AccountSection({ profile, onSaved, onToast }) {
   const [avatarFile, setAvatarFile]       = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploading, setUploading]         = useState(false);
+  const [cropSrc, setCropSrc]             = useState(null);
   const fileRef = useRef();
 
   const set   = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -176,9 +270,23 @@ function AccountSection({ profile, onSaved, onToast }) {
     if (!file) return;
     if (!file.type.startsWith("image/")) { onToast("Please select an image file.", "error"); return; }
     if (file.size > 5 * 1024 * 1024)    { onToast("Image must be under 5 MB.", "error"); return; }
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
+    // Open crop modal instead of previewing immediately
+    setCropSrc(URL.createObjectURL(file));
     e.target.value = "";
+  };
+
+  const handleCropConfirm = (blob) => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    const croppedFile = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+    setAvatarFile(croppedFile);
+    setAvatarPreview(URL.createObjectURL(blob));
+  };
+
+  const handleCropCancel = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
   };
 
   const handleUploadPhoto = async () => {
@@ -396,6 +504,13 @@ function AccountSection({ profile, onSaved, onToast }) {
           )}
         </div>
       </div>
+      {cropSrc && (
+        <ImageCropModal
+          src={cropSrc}
+          onCancel={handleCropCancel}
+          onConfirm={handleCropConfirm}
+        />
+      )}
     </>
   );
 }
