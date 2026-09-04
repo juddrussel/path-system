@@ -392,8 +392,8 @@ export default function Sidebar({ activePage }) {
     }
   }, []);
 
-  const currentKey = activePage || [...NAV_ITEMS, ...ADMIN_NAV_ITEMS].find(
-    n => location.pathname.startsWith(n.path)
+  const currentKey = activePage || [...NAV_ITEMS, ...ADMIN_NAV_ITEMS, { key: "settings", path: "/settings" }, { key: "tasks", path: "/task-details" }, { key: "forms", path: "/document-review" }, ...FACULTY_NAV_ITEMS].find(
+    n => n.path && location.pathname.startsWith(n.path)
   )?.key;
 
   const handleLogout = () => {
