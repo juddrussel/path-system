@@ -450,4 +450,37 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+// ─── POST /api/auth/refresh ───────────────────────────────────────────────────
+// Re-issues a fresh JWT from a valid existing token so sessions stay alive
+// without requiring the user to log in again.
+router.post("/refresh", async (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided." });
+  }
+  const token = auth.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Re-fetch the user so the new token has up-to-date role/name
+    const db = require("../config/db");
+    const [rows] = await db.query(
+      "SELECT id, username, role, full_name, status FROM users WHERE id = ?",
+      [decoded.id]
+    );
+    if (!rows.length || rows[0].status !== "approved") {
+      return res.status(401).json({ message: "User not found or inactive." });
+    }
+    const user = rows[0];
+    const newToken = jwt.sign(
+      { id: user.id, username: user.username, role: user.role, full_name: user.full_name },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+    return res.json({ token: newToken });
+  } catch (err) {
+    // Expired or invalid — silently return 401 so the client keeps the old token
+    return res.status(401).json({ message: "Token expired or invalid." });
+  }
+});
+
 module.exports = router;

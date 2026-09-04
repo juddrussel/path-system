@@ -31,6 +31,7 @@ const categoryRoutes = require("./routes/category.routes");
 const workflowRoutes = require("./routes/workflow.routes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const slaRoutes = require("./routes/slaRoutes");
+const trackingRoutes = require("./routes/tracking.routes");
 const startScoreCron = require("./jobs/scoreCron");
 const { startSlaCron } = require("./cron/slaCron");
 const { recalculateAllScores } = require("./services/facultyScoreService");
@@ -128,6 +129,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/workflows", workflowRoutes);
 app.use("/api/faculty", facultyRoutes(db));
 app.use("/api/sla", slaRoutes);
+app.use("/api/tracking", trackingRoutes);
 
 // ── R2 file upload ──
 const uploadRoute = require("./routes/upload");
