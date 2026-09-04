@@ -293,10 +293,11 @@ export default function TaskDetail() {
   const isFacultyView = !isChair;
   const viewerRoleLabel = isChair ? "Program Chair / Admin" : "Faculty";
   const taskOwner =
+    task?.faculty_name ||
     task?.assigned_to_name ||
     task?.assignee_name ||
     task?.assigned_to ||
-    "Faculty review group";
+    "—";
   const taskOwnerInitials = initials(taskOwner);
   const taskIdentifier =
     task?.tracking_id ||
@@ -360,6 +361,7 @@ export default function TaskDetail() {
       ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(latestSubmissionUrl)}`
       : latestSubmissionUrl;
   const hasFacultySubmission = Boolean(latestSubmission);
+  const isUnderReview = /for.?approval|under.?review|in.?review/i.test(task?.status || "");
   const decisionStatus =
     !hasFacultySubmission && isChair
       ? {
@@ -907,6 +909,27 @@ export default function TaskDetail() {
                 </section>
 
                 {isFacultyView && (
+                  isUnderReview ? (
+                    <section className="td-card">
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 20px", textAlign: "center" }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdf4", border: "1.5px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Icon name="shield" size={22} />
+                        </div>
+                        <div>
+                          <strong style={{ display: "block", fontSize: 15, fontWeight: 800, color: "#27213a", marginBottom: 6, fontFamily: "Manrope,'DM Sans',sans-serif" }}>
+                            Your submission is under review
+                          </strong>
+                          <p style={{ margin: 0, fontSize: 12, color: "#6b5f76", lineHeight: 1.6 }}>
+                            The program chair is reviewing your submitted work. You cannot make changes while it is in review. You will be notified once a decision is made.
+                          </p>
+                        </div>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 99, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", fontSize: 11, fontWeight: 800 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 0 3px rgba(34,197,94,0.2)" }} />
+                          Currently in review
+                        </div>
+                      </div>
+                    </section>
+                  ) : (
                   <section className="td-card" ref={submissionPanelRef}>
                     <div className="td-section-title">
                       <span className="td-icon">
@@ -1005,6 +1028,7 @@ export default function TaskDetail() {
                           : "Submit for chair review"}
                     </button>
                   </section>
+                  )
                 )}
 
                 {latestSubmission && (
@@ -1347,14 +1371,17 @@ export default function TaskDetail() {
                         <button
                           className="td-approve"
                           type="button"
+                          disabled={isUnderReview}
+                          title={isUnderReview ? "Your submission is currently under review." : undefined}
                           onClick={() =>
-                            submissionPanelRef.current?.scrollIntoView({
+                            !isUnderReview && submissionPanelRef.current?.scrollIntoView({
                               behavior: "smooth",
                               block: "center",
                             })
                           }
+                          style={isUnderReview ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
                         >
-                          <Icon name="send" size={14} /> Prepare submission
+                          <Icon name="send" size={14} /> {isUnderReview ? "Under review" : "Prepare submission"}
                         </button>
                         <button
                           className="td-return"
