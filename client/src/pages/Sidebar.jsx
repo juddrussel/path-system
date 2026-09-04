@@ -249,11 +249,17 @@ const styles = `
   }
 
   .path-sidebar__badge {
-    display: grid; min-width: 18px; height: 16px; place-items: center;
-    border-radius: 99px; padding: 0 4px;
-    background: linear-gradient(135deg, #f43f5e, #e11d48);
-    color: #fff; font-size: 9.5px; font-weight: 800;
-    box-shadow: 0 2px 6px rgba(225,29,72,0.45);
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px;
+    border-radius: 99px; padding: 0 5px;
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 0.02em;
+    box-shadow: 0 0 0 2px rgba(91,33,182,0.6), 0 2px 8px rgba(225,29,72,0.5);
+    animation: sidebar-badge-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes sidebar-badge-pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
   }
 
   /* ── Profile footer ── */
