@@ -614,19 +614,70 @@ export default function Login() {
               </span>
             </div>
 
-            {alertMsg && (
+            {alertMsg && alertMsg.type === "error" && (
               <p
                 role="status"
                 style={{
                   ...styles.notice,
-                  ...(alertMsg.type === "success"
-                    ? styles.noticeSuccess
-                    : styles.noticeError),
+                  ...styles.noticeError,
                   marginTop: 14,
                 }}
               >
                 {alertMsg.text}
               </p>
+            )}
+
+            {alertMsg && alertMsg.type === "success" && (
+              <div style={{
+                position: "fixed", inset: 0, zIndex: 9999,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "rgba(15,10,30,0.55)", backdropFilter: "blur(4px)",
+                fontFamily: "'DM Sans',sans-serif",
+                animation: "login-overlay-in 0.2s ease both",
+              }}>
+                <div style={{
+                  background: "#fff", borderRadius: 20, padding: "40px 36px",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
+                  boxShadow: "0 28px 70px rgba(76,29,149,0.22)", width: "min(360px,90vw)",
+                  animation: "login-popup-in 0.32s cubic-bezier(0.34,1.56,0.64,1) both",
+                  textAlign: "center",
+                }}>
+                  {/* Animated checkmark */}
+                  <div style={{
+                    width: 64, height: 64, borderRadius: "50%",
+                    background: "linear-gradient(135deg,#a78bfa,#7c3aed)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 8px 24px rgba(124,58,237,0.35)",
+                    animation: "login-check-in 0.4s ease 0.1s both",
+                  }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="28" height="28">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#27213a", letterSpacing: "-0.03em" }}>
+                      Welcome back!
+                    </p>
+                    <p style={{ margin: 0, fontSize: 13, color: "#9080a0", lineHeight: 1.5 }}>
+                      Login successful. Taking you to your dashboard…
+                    </p>
+                  </div>
+                  {/* Progress bar */}
+                  <div style={{ width: "100%", height: 4, borderRadius: 99, background: "#ede9fe", overflow: "hidden" }}>
+                    <div style={{
+                      height: "100%", borderRadius: 99,
+                      background: "linear-gradient(90deg,#a78bfa,#7c3aed)",
+                      animation: "login-progress 1.5s linear forwards",
+                    }} />
+                  </div>
+                </div>
+                <style>{`
+                  @keyframes login-overlay-in { from{opacity:0} to{opacity:1} }
+                  @keyframes login-popup-in { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+                  @keyframes login-check-in { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+                  @keyframes login-progress { from{width:0%} to{width:100%} }
+                `}</style>
+              </div>
             )}
 
             <form style={styles.form} onSubmit={handleSubmit} noValidate>
