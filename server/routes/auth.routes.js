@@ -498,8 +498,8 @@ async function findOrCreateOAuthUser({ email, full_name, provider }) {
 
     if (rows.length) {
       const user = rows[0];
-      if (user.status === "rejected") return { error: "Your account registration was rejected." };
-      // pending users go through setup then wait for approval
+      if (user.status === "rejected") return { error: "Your account registration was rejected. Please contact your administrator." };
+      if (user.status === "pending")  return { error: "PENDING" };
       return { user, isNew: false };
     }
 
@@ -580,6 +580,8 @@ router.get("/google/callback",
       }
       if (!user) {
         const msg = encodeURIComponent((info && info.message) || "Sign-in failed.");
+        const isPending = info && info.message === "PENDING";
+        if (isPending) return res.redirect(`${CLIENT_URL}/login?oauth_pending=1`);
         return res.redirect(`${CLIENT_URL}/login?oauth_error=1&msg=${msg}`);
       }
       try {
@@ -612,6 +614,8 @@ router.get("/microsoft/callback",
       }
       if (!user) {
         const msg = encodeURIComponent((info && info.message) || "Sign-in failed.");
+        const isPending = info && info.message === "PENDING";
+        if (isPending) return res.redirect(`${CLIENT_URL}/login?oauth_pending=1`);
         return res.redirect(`${CLIENT_URL}/login?oauth_error=1&msg=${msg}`);
       }
       try {

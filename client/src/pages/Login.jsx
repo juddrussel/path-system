@@ -508,12 +508,14 @@ export default function Login() {
       localStorage.setItem("token", oauthToken);
       window.history.replaceState({}, "", "/login");
       if (params.get("oauth_new") === "1") {
-        // New account — send to setup flow
         window.location.href = "/setup";
       } else {
         setAlertMsg({ type: "success", text: "Login successful! Redirecting..." });
         setTimeout(() => (window.location.href = "/dashboard"), 1500);
       }
+    } else if (params.get("oauth_pending") === "1") {
+      window.history.replaceState({}, "", "/login");
+      setAlertMsg({ type: "pending", text: "pending" });
     } else if (oauthError) {
       window.history.replaceState({}, "", "/login");
       const msg = params.get("msg");
@@ -556,7 +558,11 @@ export default function Login() {
         setAlertMsg({ type: "success", text: "Login successful! Redirecting..." });
         setTimeout(() => (window.location.href = "/dashboard"), 1500);
       } else {
-        setAlertMsg({ type: "error", text: data.message || "Invalid credentials." });
+        if (data.message?.toLowerCase().includes("pending")) {
+          setAlertMsg({ type: "pending", text: "pending" });
+        } else {
+          setAlertMsg({ type: "error", text: data.message || "Invalid credentials." });
+        }
       }
     } catch {
       setAlertMsg({ type: "error", text: "Server error. Please try again." });
@@ -711,6 +717,66 @@ export default function Login() {
                   }
                   @keyframes login-progress { from{width:0%} to{width:100%} }
                 `}</style>
+              </div>
+            )}
+
+            {alertMsg && alertMsg.type === "pending" && (
+              <div style={{
+                position: "fixed", inset: 0, zIndex: 9999,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "rgba(15,10,30,0.6)", backdropFilter: "blur(4px)",
+                fontFamily: "'DM Sans',sans-serif",
+                animation: "login-overlay-in 0.2s ease both",
+              }}>
+                <div style={{
+                  background: "#fff", borderRadius: 20, padding: "40px 32px 32px",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 0,
+                  boxShadow: "0 28px 70px rgba(76,29,149,0.22)", width: "min(380px,92vw)",
+                  animation: "login-popup-in 0.32s cubic-bezier(0.34,1.56,0.64,1) both",
+                  textAlign: "center",
+                }}>
+                  {/* Pending icon */}
+                  <div style={{
+                    width: 64, height: 64, borderRadius: "50%", marginBottom: 18,
+                    background: "linear-gradient(135deg,#ede9fe,#ddd6fe)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 8px 24px rgba(124,58,237,0.2)",
+                  }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="30" height="30">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                  </div>
+
+                  <p style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 800, color: "#27213a", letterSpacing: "-0.03em" }}>
+                    Account pending approval
+                  </p>
+                  <p style={{ margin: "0 0 6px", fontSize: 13, color: "#9080a0", lineHeight: 1.6 }}>
+                    Your account has been created but is still awaiting administrator approval.
+                  </p>
+                  <p style={{ margin: "0 0 24px", fontSize: 13, color: "#9080a0", lineHeight: 1.6 }}>
+                    Please contact your department administrator or wait for an approval notification.
+                  </p>
+
+                  <div style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "#faf8ff", border: "1px solid #ede9fe", marginBottom: 20 }}>
+                    <p style={{ margin: 0, fontSize: 12, color: "#7c3aed", fontWeight: 700 }}>
+                      📧 dspathsystem@gmail.com
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setAlertMsg(null)}
+                    style={{
+                      width: "100%", padding: "11px", borderRadius: 10,
+                      border: "none", background: "linear-gradient(135deg,#2d0a5e,#7c3aed)",
+                      color: "#fff", fontSize: 13, fontWeight: 800,
+                      cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
+                      boxShadow: "0 4px 14px rgba(124,58,237,0.3)",
+                    }}
+                  >
+                    Got it
+                  </button>
+                </div>
               </div>
             )}
 
