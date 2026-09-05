@@ -4246,6 +4246,9 @@ export default function Dashboard() {
                         fontWeight: 800,
                         fontSize: 13,
                         cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
                       }}
                     >
                       Review all items <ArrowUpRight size={13} />
@@ -4797,6 +4800,9 @@ export default function Dashboard() {
                           fontWeight: 800,
                           fontSize: 13,
                           cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
                         }}
                       >
                         Open audit trail <ArrowUpRight size={13} />
