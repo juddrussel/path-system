@@ -495,29 +495,24 @@ const SERVER_BASE = process.env.APP_BASE_URL
 
 // ── Helper: find or create a user from OAuth profile ──────────────────────────
 async function findOrCreateOAuthUser({ email, full_name, provider }) {
-  // 1. Try to find by email
   const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
 
   if (rows.length) {
     const user = rows[0];
-    // Allow login if approved; block pending/rejected
-    if (user.status === "pending") {
-      return { error: "Your account is pending admin approval." };
-    }
-    if (user.status === "rejected") {
-      return { error: "Your account registration was rejected." };
-    }
-    return { user };
+    if (user.status === "pending") return { error: "Your account is pending admin approval." };
+    if (user.status === "rejected") return { error: "Your account registration was rejected." };
+    return { user, isNew: false };
   }
 
-  // 2. Auto-create with status=pending so admin can approve
+  // Auto-create approved account for OAuth users
   const username = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "") + "_" + Date.now();
   const [result] = await db.query(
     `INSERT INTO users (full_name, email, username, password, department, role, status, is_active, created_at)
-     VALUES (?, ?, ?, '', 'Information Systems', 'user', 'pending', 0, NOW())`,
+     VALUES (?, ?, ?, '', 'Information Systems', 'user', 'approved', 1, NOW())`,
     [full_name, email, username]
   );
-  return { error: "Your account has been created and is awaiting admin approval." };
+  const [newRows] = await db.query("SELECT * FROM users WHERE id = ?", [result.insertId]);
+  return { user: newRows[0], isNew: true };
 }
 
 // ── Passport strategies ───────────────────────────────────────────────────────
@@ -532,7 +527,8 @@ passport.use(new GoogleStrategy({
     if (!email) return done(null, false, { message: "No email from Google." });
     const result = await findOrCreateOAuthUser({ email, full_name, provider: "google" });
     if (result.error) return done(null, false, { message: result.error });
-    return done(null, result.user);
+    const userWithFlag = { ...result.user, _isNew: result.isNew };
+    return done(null, userWithFlag);
   } catch (err) {
     return done(err);
   }
@@ -550,7 +546,8 @@ passport.use(new MicrosoftStrategy({
     if (!email) return done(null, false, { message: "No email from Microsoft." });
     const result = await findOrCreateOAuthUser({ email, full_name, provider: "microsoft" });
     if (result.error) return done(null, false, { message: result.error });
-    return done(null, result.user);
+    const userWithFlag = { ...result.user, _isNew: result.isNew };
+    return done(null, userWithFlag);
   } catch (err) {
     return done(err);
   }
@@ -578,8 +575,8 @@ router.get("/google/callback",
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
-    // Redirect to client with token in query param — client picks it up and stores it
-    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}`);
+    const newFlag = user._isNew ? "&oauth_new=1" : "";
+    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}${newFlag}`);
   }
 );
 
@@ -597,7 +594,8 @@ router.get("/microsoft/callback",
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
-    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}`);
+    const newFlag = user._isNew ? "&oauth_new=1" : "";
+    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}${newFlag}`);
   }
 );
 

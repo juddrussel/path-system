@@ -25,6 +25,7 @@ import Notifications from "./pages/Notifications";
 import DocumentReview from "./pages/Documentreview";
 import TaskDetail from "./pages/TaskDetail";
 import Settings from "./pages/Settings";
+import AccountSetup from "./pages/AccountSetup";
 
 // Separated so useLocation works inside BrowserRouter
 function AppRoutes() {
@@ -65,6 +66,7 @@ function AppRoutes() {
       <Route path="/" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/setup" element={<AccountSetup />} />
 
       {/* Authenticated shell: Sidebar + TopBar mount once here via Layout,
           instead of once per page, so they persist across navigation. */}

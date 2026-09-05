@@ -506,10 +506,14 @@ export default function Login() {
 
     if (oauthToken) {
       localStorage.setItem("token", oauthToken);
-      // Clean up URL then show success popup
       window.history.replaceState({}, "", "/login");
-      setAlertMsg({ type: "success", text: "Login successful! Redirecting..." });
-      setTimeout(() => (window.location.href = "/dashboard"), 1500);
+      if (params.get("oauth_new") === "1") {
+        // New account — send to setup flow
+        window.location.href = "/setup";
+      } else {
+        setAlertMsg({ type: "success", text: "Login successful! Redirecting..." });
+        setTimeout(() => (window.location.href = "/dashboard"), 1500);
+      }
     } else if (oauthError) {
       window.history.replaceState({}, "", "/login");
       setAlertMsg({ type: "error", text: "Sign-in failed or account is pending approval. Please try again." });
