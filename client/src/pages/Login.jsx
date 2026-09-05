@@ -642,17 +642,25 @@ export default function Login() {
                   animation: "login-popup-in 0.32s cubic-bezier(0.34,1.56,0.64,1) both",
                   textAlign: "center",
                 }}>
-                  {/* Animated checkmark */}
-                  <div style={{
-                    width: 64, height: 64, borderRadius: "50%",
-                    background: "linear-gradient(135deg,#a78bfa,#7c3aed)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: "0 8px 24px rgba(124,58,237,0.35)",
-                    animation: "login-check-in 0.4s ease 0.1s both",
-                  }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="28" height="28">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                  {/* PATH logo fill animation */}
+                  <div style={{ position: "relative", width: 80, height: 80, marginBottom: 4 }}>
+                    {/* Dim base logo */}
+                    <img
+                      src={logo}
+                      alt="PATH logo"
+                      style={{ width: 80, height: 80, objectFit: "contain", opacity: 0.18, position: "absolute", inset: 0 }}
+                    />
+                    {/* Filled logo with clip-path reveal bottom → top */}
+                    <img
+                      src={logo}
+                      alt="PATH logo filled"
+                      style={{
+                        width: 80, height: 80, objectFit: "contain",
+                        position: "absolute", inset: 0,
+                        animation: "login-logo-fill 1.2s cubic-bezier(0.4,0,0.2,1) 0.15s both",
+                        filter: "drop-shadow(0 4px 16px rgba(124,58,237,0.45))",
+                      }}
+                    />
                   </div>
                   <div>
                     <p style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#27213a", letterSpacing: "-0.03em" }}>
