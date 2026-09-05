@@ -516,7 +516,8 @@ export default function Login() {
       }
     } else if (oauthError) {
       window.history.replaceState({}, "", "/login");
-      setAlertMsg({ type: "error", text: "Sign-in failed or account is pending approval. Please try again." });
+      const msg = params.get("msg");
+      setAlertMsg({ type: "error", text: msg ? decodeURIComponent(msg) : "Sign-in failed or account is pending approval. Please try again." });
     }
   }, []);
 

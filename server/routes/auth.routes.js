@@ -567,16 +567,29 @@ router.get("/google",
 );
 
 router.get("/google/callback",
-  passport.authenticate("google", { session: false, failureRedirect: `${CLIENT_URL}/login?oauth_error=1` }),
-  (req, res) => {
-    const user  = req.user;
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role, full_name: user.full_name },
-      process.env.JWT_SECRET,
-      { expiresIn: "8h" }
-    );
-    const newFlag = user._isNew ? "&oauth_new=1" : "";
-    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}${newFlag}`);
+  (req, res, next) => {
+    passport.authenticate("google", { session: false }, (err, user, info) => {
+      if (err) {
+        console.error("Google OAuth error:", err);
+        return res.redirect(`${CLIENT_URL}/login?oauth_error=1`);
+      }
+      if (!user) {
+        const msg = encodeURIComponent((info && info.message) || "Sign-in failed.");
+        return res.redirect(`${CLIENT_URL}/login?oauth_error=1&msg=${msg}`);
+      }
+      try {
+        const token = jwt.sign(
+          { id: user.id, username: user.username, role: user.role, full_name: user.full_name },
+          process.env.JWT_SECRET,
+          { expiresIn: "8h" }
+        );
+        const newFlag = user._isNew ? "&oauth_new=1" : "";
+        return res.redirect(`${CLIENT_URL}/login?oauth_token=${token}${newFlag}`);
+      } catch (signErr) {
+        console.error("JWT sign error:", signErr);
+        return res.redirect(`${CLIENT_URL}/login?oauth_error=1`);
+      }
+    })(req, res, next);
   }
 );
 
@@ -586,17 +599,31 @@ router.get("/microsoft",
 );
 
 router.get("/microsoft/callback",
-  passport.authenticate("microsoft", { session: false, failureRedirect: `${CLIENT_URL}/login?oauth_error=1` }),
-  (req, res) => {
-    const user  = req.user;
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role, full_name: user.full_name },
-      process.env.JWT_SECRET,
-      { expiresIn: "8h" }
-    );
-    const newFlag = user._isNew ? "&oauth_new=1" : "";
-    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}${newFlag}`);
+  (req, res, next) => {
+    passport.authenticate("microsoft", { session: false }, (err, user, info) => {
+      if (err) {
+        console.error("Microsoft OAuth error:", err);
+        return res.redirect(`${CLIENT_URL}/login?oauth_error=1`);
+      }
+      if (!user) {
+        const msg = encodeURIComponent((info && info.message) || "Sign-in failed.");
+        return res.redirect(`${CLIENT_URL}/login?oauth_error=1&msg=${msg}`);
+      }
+      try {
+        const token = jwt.sign(
+          { id: user.id, username: user.username, role: user.role, full_name: user.full_name },
+          process.env.JWT_SECRET,
+          { expiresIn: "8h" }
+        );
+        const newFlag = user._isNew ? "&oauth_new=1" : "";
+        return res.redirect(`${CLIENT_URL}/login?oauth_token=${token}${newFlag}`);
+      } catch (signErr) {
+        console.error("JWT sign error:", signErr);
+        return res.redirect(`${CLIENT_URL}/login?oauth_error=1`);
+      }
+    })(req, res, next);
   }
 );
+
 
 module.exports = router;
