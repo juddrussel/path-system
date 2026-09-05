@@ -166,7 +166,7 @@ export default function AccountSetup() {
             { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15"><path d="M8 1.5l5.2 1.9v3.8c0 3.4-2.2 6-5.2 7-3-.9-5.2-3.6-5.2-7V3.4L8 1.5z" strokeLinejoin="round"/><path d="M5.7 8l1.6 1.6 3-3.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, text:"Secure, role-based access control" },
           ].map((f, i) => (
             <div key={i} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:i < 2 ? 14 : 0 }}>
-              <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>
+              <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)", display:"flex", alignItems:"center", justifyContent:"center", color:"rgba(216,180,254,0.85)", flexShrink:0 }}>
                 {f.icon}
               </div>
               <span style={{ fontSize:12, color:"rgba(216,180,254,0.75)", lineHeight:1.5 }}>{f.text}</span>
@@ -280,13 +280,13 @@ export default function AccountSetup() {
               {/* Status tracker */}
               <div style={{ background:"#faf8ff", border:"1px solid #ede9fe", borderRadius:14, overflow:"hidden", marginBottom:24, textAlign:"left" }}>
                 {[
-                  { emoji:"✅", label:"Account created",          sub:"Profile saved successfully",      done:true  },
-                  { emoji:"⏳", label:"Awaiting admin approval",   sub:"Your request is being reviewed",  done:false, active:true },
-                  { emoji:"🚀", label:"Access granted",            sub:"You'll be notified by email",      done:false },
+                  { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14"><path d="M13 4l-7 8-3-3" strokeLinecap="round"/></svg>, iconBg:"linear-gradient(135deg,#a78bfa,#7c3aed)", iconColor:"#fff", label:"Account created",        sub:"Profile saved successfully",      done:true  },
+                  { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6.3"/><path d="M8 4.6v3.6l2.5 1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>, iconBg:"#fff7ed", iconColor:"#c2410c", label:"Awaiting admin approval", sub:"Your request is being reviewed",  done:false, active:true },
+                  { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M8 1.5l5.2 1.9v3.8c0 3.4-2.2 6-5.2 7-3-.9-5.2-3.6-5.2-7V3.4L8 1.5z" strokeLinejoin="round"/></svg>, iconBg:"#f4f0fc", iconColor:"#c4b5d1", label:"Access granted",          sub:"You'll be notified by email",      done:false },
                 ].map((s, i, arr) => (
                   <div key={i} className="as-step-row">
-                    <div className="as-step-dot" style={{ background: s.done ? "linear-gradient(135deg,#a78bfa,#7c3aed)" : s.active ? "#fff7ed" : "#f4f0fc" }}>
-                      {s.emoji}
+                    <div className="as-step-dot" style={{ background: s.iconBg, color: s.iconColor }}>
+                      {s.icon}
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ margin:0, fontSize:13, fontWeight:700, color: s.done ? "#3b2a52" : s.active ? "#92400e" : "#b0a3ba" }}>{s.label}</p>
