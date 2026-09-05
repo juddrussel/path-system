@@ -644,30 +644,25 @@ export default function Login() {
                 }}>
                   {/* PATH logo fill animation */}
                   <div style={{ position: "relative", width: 80, height: 80, marginBottom: 4 }}>
-                    {/* Dim base logo */}
+                    {/* Dim ghost logo underneath */}
+                    <img
+                      src={logo}
+                      alt=""
+                      aria-hidden="true"
+                      style={{ width: 80, height: 80, objectFit: "contain", opacity: 0.15, display: "block" }}
+                    />
+                    {/* Filling logo — scaleY from 0 to 1, origin at bottom */}
                     <img
                       src={logo}
                       alt="PATH logo"
-                      style={{ width: 80, height: 80, objectFit: "contain", opacity: 0.15, position: "absolute", inset: 0 }}
+                      style={{
+                        width: 80, height: 80, objectFit: "contain",
+                        position: "absolute", inset: 0, display: "block",
+                        transformOrigin: "bottom center",
+                        animation: "login-logo-fill 1.1s cubic-bezier(0.22,1,0.36,1) 0.2s both",
+                        filter: "drop-shadow(0 4px 18px rgba(124,58,237,0.55))",
+                      }}
                     />
-                    {/* Filled logo — masked reveal using a gradient overlay trick */}
-                    <div style={{
-                      position: "absolute", inset: 0,
-                      WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 100%)",
-                      WebkitMaskSize: "100% 100%",
-                      WebkitMaskRepeat: "no-repeat",
-                      maskImage: "linear-gradient(to top, transparent 0%, black 100%)",
-                      animation: "login-logo-fill 1.3s cubic-bezier(0.4,0,0.2,1) 0.15s both",
-                    }}>
-                      <img
-                        src={logo}
-                        alt="PATH logo filled"
-                        style={{
-                          width: 80, height: 80, objectFit: "contain",
-                          filter: "drop-shadow(0 4px 16px rgba(124,58,237,0.5))",
-                        }}
-                      />
-                    </div>
                   </div>
                   <div>
                     <p style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#27213a", letterSpacing: "-0.03em" }}>
@@ -691,10 +686,10 @@ export default function Login() {
                   @keyframes login-popup-in { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
                   @keyframes login-check-in { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
                   @keyframes login-logo-fill {
-                    0%   { -webkit-mask-image: linear-gradient(to top, transparent 0%,   transparent 100%); mask-image: linear-gradient(to top, transparent 0%,   transparent 100%); opacity:0; transform:scale(0.75); }
-                    15%  { opacity:1; transform:scale(1.05); }
-                    70%  { -webkit-mask-image: linear-gradient(to top, black 0%, black 100%); mask-image: linear-gradient(to top, black 0%, black 100%); transform:scale(1.05); }
-                    100% { -webkit-mask-image: linear-gradient(to top, black 0%, black 100%); mask-image: linear-gradient(to top, black 0%, black 100%); opacity:1; transform:scale(1); }
+                    0%   { transform: scaleY(0) scaleX(0.8); opacity: 0; }
+                    30%  { opacity: 1; }
+                    80%  { transform: scaleY(1.08) scaleX(1.04); }
+                    100% { transform: scaleY(1) scaleX(1); opacity: 1; }
                   }
                   @keyframes login-progress { from{width:0%} to{width:100%} }
                 `}</style>
