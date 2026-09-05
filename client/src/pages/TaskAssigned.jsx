@@ -1460,6 +1460,7 @@ export default function TaskAssigned() {
         setCheckedIds(checked ? filteredTasks.map((task) => task.id) : []);
       }}
       onArchive={handleArchive}
+      onArchiveSingle={handleArchiveSingle}
       onApprove={handleApprove}
       onSetReturnNote={setReturnNote}
       onToggleReturn={() => setShowReturnBox((value) => !value)}
@@ -5471,6 +5472,7 @@ function PathTasksAssignedLayout({
   onToggleCheck,
   onToggleSelectAll,
   onArchive,
+  onArchiveSingle,
   onApprove,
   onSetReturnNote,
   onToggleReturn,
@@ -5890,11 +5892,20 @@ function PathTasksAssignedLayout({
                       <button
                         className="path-assigned-secondary"
                         type="button"
-                        onClick={onToggleReturn}
+                        onClick={
+                          /approved|received/i.test(selected?.status || "")
+                            ? () => onArchiveSingle(selected.id)
+                            : onToggleReturn
+                        }
+                        disabled={actionLoading === "archive"}
                       >
-                        {showReturnBox
-                          ? "Hide return form"
-                          : "Return for revision"}
+                        {/approved|received/i.test(selected?.status || "")
+                          ? actionLoading === "archive"
+                            ? "Archiving…"
+                            : "Archive task"
+                          : showReturnBox
+                            ? "Hide return form"
+                            : "Return for revision"}
                       </button>
                     </div>
                   </>

@@ -63,6 +63,13 @@ const SECTIONS = [
     icon: Calendar,
     adminOnly: true,
   },
+  {
+    id: "archive",
+    label: "Archived Tasks",
+    description: "Completed & archived",
+    icon: Shield,
+    adminOnly: true,
+  },
 ];
 
 // ─── Image Crop Modal ─────────────────────────────────────────────────────────
@@ -907,6 +914,119 @@ function AcademicSection({ onToast }) {
   );
 }
 
+// ─── ARCHIVE SECTION ─────────────────────────────────────────────────────────
+function ArchiveSection({ onToast }) {
+  const [tasks, setTasks]       = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [restoring, setRestoring] = useState(null);
+  const [search, setSearch]     = useState("");
+
+  const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/tasks`, { headers: authHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        const all = data.tasks ?? data ?? [];
+        setTasks(all.filter(t => /archived/i.test(t.status || "")));
+      }
+    } catch {}
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleRestore = async (id) => {
+    setRestoring(id);
+    try {
+      const res = await fetch(`${API_BASE}/tasks/${id}/status`, {
+        method: "PATCH",
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Pending" }),
+      });
+      if (!res.ok) throw new Error("Restore failed.");
+      onToast("Task restored to Pending.", "success");
+      await load();
+    } catch (e) { onToast(e.message || "Failed.", "error"); }
+    finally { setRestoring(null); }
+  };
+
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+
+  const filtered = tasks.filter(t =>
+    !search.trim() ||
+    `${t.title} ${t.tracking_id} ${t.faculty_name || ""}`.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <>
+      <SectionHeading title="Archived Tasks" subtitle="Tasks that have been archived after completion or review." />
+
+      {/* Search */}
+      <div style={{ padding: "12px 22px 0" }}>
+        <input
+          className="path-settings-input"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search by title, tracking ID, or faculty…"
+        />
+      </div>
+
+      {loading ? (
+        <div style={{ padding: "24px 22px", display: "flex", flexDirection: "column", gap: 10 }}>
+          {[80, 65, 75].map((w, i) => (
+            <div key={i} style={{ height: 12, width: `${w}%`, borderRadius: 7, background: "#ede9fe", animation: "sett-pulse 1.4s ease-in-out infinite" }} />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ padding: "32px 22px", textAlign: "center", color: "#b0a3ba", fontSize: 13 }}>
+          {tasks.length === 0 ? "No archived tasks yet." : "No tasks match your search."}
+        </div>
+      ) : (
+        <div style={{ padding: "12px 22px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+          {filtered.map(t => (
+            <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 10, border: "1px solid #ede9fe", background: "#faf8ff" }}>
+              {/* Icon */}
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f0e9fc", color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15">
+                  <rect x="2" y="2" width="12" height="12" rx="2"/>
+                  <path d="M5 8.3l2 2 4-4.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              {/* Info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#27213a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {t.title || "Untitled task"}
+                </p>
+                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#9080a0" }}>
+                  {t.tracking_id} · {t.faculty_name || "—"} · Archived {fmtDate(t.updated_at)}
+                </p>
+              </div>
+              {/* Status badge */}
+              <span style={{ fontSize: 10, fontWeight: 800, color: "#6b7280", background: "#f4f0fc", border: "1px solid #e8e1f5", borderRadius: 99, padding: "2px 8px", flexShrink: 0 }}>
+                Archived
+              </span>
+              {/* Restore button */}
+              <button
+                onClick={() => handleRestore(t.id)}
+                disabled={restoring === t.id}
+                style={{ padding: "5px 12px", borderRadius: 7, border: "1px solid #c4b5fd", background: "#f5f3ff", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", flexShrink: 0, opacity: restoring === t.id ? 0.5 : 1, fontFamily: "'DM Sans',sans-serif" }}
+              >
+                {restoring === t.id ? "Restoring…" : "Restore"}
+              </button>
+            </div>
+          ))}
+          <p style={{ margin: "4px 0 0", fontSize: 11, color: "#b0a3ba", textAlign: "right" }}>
+            {filtered.length} archived task{filtered.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+      )}
+    </>
+  );
+}
+
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Settings() {
   const navigate = useNavigate();
@@ -1023,6 +1143,7 @@ export default function Settings() {
               {activeSection === "notifications"  && <NotificationsSection profile={profile} onToast={showToast} />}
               {activeSection === "privacy"        && <PrivacySection       profile={profile} />}
               {activeSection === "academic"       && <AcademicSection      onToast={showToast} />}
+              {activeSection === "archive"        && <ArchiveSection       onToast={showToast} />}
             </>
           )}
         </div>
