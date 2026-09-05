@@ -683,6 +683,12 @@ export default function Login() {
                   @keyframes login-overlay-in { from{opacity:0} to{opacity:1} }
                   @keyframes login-popup-in { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
                   @keyframes login-check-in { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+                  @keyframes login-logo-fill {
+                    from { clip-path: inset(100% 0% 0% 0%); opacity: 0; transform: scale(0.7); }
+                    20%  { opacity: 1; transform: scale(1.08); }
+                    60%  { clip-path: inset(0% 0% 0% 0%); transform: scale(1.08); }
+                    100% { clip-path: inset(0% 0% 0% 0%); opacity: 1; transform: scale(1); }
+                  }
                   @keyframes login-progress { from{width:0%} to{width:100%} }
                 `}</style>
               </div>
