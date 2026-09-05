@@ -644,20 +644,13 @@ export default function Login() {
                 }}>
                   {/* PATH logo fill animation */}
                   <div style={{ position: "relative", width: 80, height: 80, marginBottom: 4 }}>
-                    {/* Dim ghost logo underneath */}
-                    <img
-                      src={logo}
-                      alt=""
-                      aria-hidden="true"
-                      style={{ width: 80, height: 80, objectFit: "contain", opacity: 0.15, display: "block" }}
-                    />
                     {/* Filling logo — scaleY from 0 to 1, origin at bottom */}
                     <img
                       src={logo}
                       alt="PATH logo"
                       style={{
                         width: 80, height: 80, objectFit: "contain",
-                        position: "absolute", inset: 0, display: "block",
+                        display: "block",
                         transformOrigin: "bottom center",
                         animation: "login-logo-fill 1.1s cubic-bezier(0.22,1,0.36,1) 0.2s both",
                         filter: "drop-shadow(0 4px 18px rgba(124,58,237,0.55))",
