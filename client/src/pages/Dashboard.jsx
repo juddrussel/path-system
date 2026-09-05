@@ -4563,7 +4563,7 @@ export default function Dashboard() {
                         >
                           {avgApprovalDays.toFixed(1)} days
                         </strong>
-                        <small style={{ color: "#059669", fontSize: 12 }}>
+                        <small style={{ color: "#059669", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 2 }}>
                           <ArrowUpRight size={11} /> 18% faster
                         </small>
                       </div>
@@ -4809,9 +4809,9 @@ export default function Dashboard() {
                       </button>
                     </div>
                     <div style={{ marginTop: 14 }}>
-                      {recentActivityData.slice(0, 6).map((activity, idx) => {
+                      {recentActivityData.slice(0, 3).map((activity, idx) => {
                         const ActivityIcon = activity.icon || Activity;
-                        const isLast = idx === Math.min(recentActivityData.length, 6) - 1;
+                        const isLast = idx === Math.min(recentActivityData.length, 3) - 1;
                         return (
                           <div
                             key={activity.id}
