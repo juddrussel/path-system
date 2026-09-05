@@ -20,6 +20,8 @@ console.log("ENV CHECK:", {
 });
 
 const authRoutes = require("./routes/auth.routes");
+const passport   = require("passport");
+// Passport strategies are registered inside auth.routes.js on require
 const userRoutes = require("./routes/user.routes");
 const chatRoutes = require("./routes/chat.routes");
 
@@ -95,6 +97,7 @@ const upload = multer({
 // ── Middleware ──
 app.use(cors({ origin: CLIENT_URL }));
 app.use(express.json());
+app.use(passport.initialize());
 app.use("/uploads", express.static("./uploads"));
 
 // ── DEBUG: log every incoming request ──

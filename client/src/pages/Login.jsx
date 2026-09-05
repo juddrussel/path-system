@@ -498,6 +498,26 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // ── Handle OAuth callback: pick up ?oauth_token= or ?oauth_error= ──────────
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthToken = params.get("oauth_token");
+    const oauthError = params.get("oauth_error");
+
+    if (oauthToken) {
+      localStorage.setItem("token", oauthToken);
+      // Clean up URL then show success popup
+      window.history.replaceState({}, "", "/login");
+      setAlertMsg({ type: "success", text: "Login successful! Redirecting..." });
+      setTimeout(() => (window.location.href = "/dashboard"), 1500);
+    } else if (oauthError) {
+      window.history.replaceState({}, "", "/login");
+      setAlertMsg({ type: "error", text: "Sign-in failed or account is pending approval. Please try again." });
+    }
+  }, []);
+
+  const BACKEND = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
@@ -773,10 +793,12 @@ export default function Login() {
               <i style={styles.dividerLine} />
             </div>
             <div style={styles.providers}>
-              <button style={styles.provider} type="button">
+              <button style={styles.provider} type="button"
+                onClick={() => window.location.href = `${BACKEND}/api/auth/google`}>
                 <span style={styles.google}>G</span> Google
               </button>
-              <button style={styles.provider} type="button">
+              <button style={styles.provider} type="button"
+                onClick={() => window.location.href = `${BACKEND}/api/auth/microsoft`}>
                 <span style={styles.microsoft} aria-hidden="true">
                   <i style={{ ...styles.square, background: "#f35325" }} />
                   <i style={{ ...styles.square, background: "#81bc06" }} />

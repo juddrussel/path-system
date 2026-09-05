@@ -483,4 +483,122 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
+// ─── GOOGLE & MICROSOFT OAUTH ─────────────────────────────────────────────────
+const passport        = require("passport");
+const GoogleStrategy  = require("passport-google-oauth20").Strategy;
+const MicrosoftStrategy = require("passport-microsoft").Strategy;
+
+const CLIENT_URL  = process.env.CLIENT_URL  || "https://path-system.vercel.app";
+const SERVER_BASE = process.env.APP_BASE_URL
+  ? process.env.APP_BASE_URL.replace(/\/$/, "")
+  : "https://path-system-backend.onrender.com";
+
+// ── Helper: find or create a user from OAuth profile ──────────────────────────
+async function findOrCreateOAuthUser({ email, full_name, provider }) {
+  // 1. Try to find by email
+  const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+
+  if (rows.length) {
+    const user = rows[0];
+    // Allow login if approved; block pending/rejected
+    if (user.status === "pending") {
+      return { error: "Your account is pending admin approval." };
+    }
+    if (user.status === "rejected") {
+      return { error: "Your account registration was rejected." };
+    }
+    return { user };
+  }
+
+  // 2. Auto-create with status=pending so admin can approve
+  const username = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "") + "_" + Date.now();
+  const [result] = await db.query(
+    `INSERT INTO users (full_name, email, username, password, department, role, status, is_active, created_at)
+     VALUES (?, ?, ?, '', 'Information Systems', 'user', 'pending', 0, NOW())`,
+    [full_name, email, username]
+  );
+  return { error: "Your account has been created and is awaiting admin approval." };
+}
+
+// ── Passport strategies ───────────────────────────────────────────────────────
+passport.use(new GoogleStrategy({
+  clientID:     process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL:  `${SERVER_BASE}/api/auth/google/callback`,
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    const email     = profile.emails?.[0]?.value;
+    const full_name = profile.displayName || email;
+    if (!email) return done(null, false, { message: "No email from Google." });
+    const result = await findOrCreateOAuthUser({ email, full_name, provider: "google" });
+    if (result.error) return done(null, false, { message: result.error });
+    return done(null, result.user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+
+passport.use(new MicrosoftStrategy({
+  clientID:     process.env.MICROSOFT_CLIENT_ID,
+  clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+  callbackURL:  `${SERVER_BASE}/api/auth/microsoft/callback`,
+  scope:        ["user.read"],
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    const email     = profile.emails?.[0]?.value || profile._json?.mail || profile._json?.userPrincipalName;
+    const full_name = profile.displayName || email;
+    if (!email) return done(null, false, { message: "No email from Microsoft." });
+    const result = await findOrCreateOAuthUser({ email, full_name, provider: "microsoft" });
+    if (result.error) return done(null, false, { message: result.error });
+    return done(null, result.user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser(async (id, done) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
+    done(null, rows[0] || null);
+  } catch (err) { done(err); }
+});
+
+// ── Google routes ─────────────────────────────────────────────────────────────
+router.get("/google",
+  passport.authenticate("google", { scope: ["profile", "email"], session: false })
+);
+
+router.get("/google/callback",
+  passport.authenticate("google", { session: false, failureRedirect: `${CLIENT_URL}/login?oauth_error=1` }),
+  (req, res) => {
+    const user  = req.user;
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role, full_name: user.full_name },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+    // Redirect to client with token in query param — client picks it up and stores it
+    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}`);
+  }
+);
+
+// ── Microsoft routes ──────────────────────────────────────────────────────────
+router.get("/microsoft",
+  passport.authenticate("microsoft", { session: false })
+);
+
+router.get("/microsoft/callback",
+  passport.authenticate("microsoft", { session: false, failureRedirect: `${CLIENT_URL}/login?oauth_error=1` }),
+  (req, res) => {
+    const user  = req.user;
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role, full_name: user.full_name },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+    res.redirect(`${CLIENT_URL}/login?oauth_token=${token}`);
+  }
+);
+
 module.exports = router;
