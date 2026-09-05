@@ -161,9 +161,9 @@ export default function AccountSetup() {
         {/* Feature list */}
         <div style={{ position:"relative", zIndex:1 }}>
           {[
-            { icon:"📋", text:"Submit and track academic documents" },
-            { icon:"🔔", text:"Get notified on every handoff" },
-            { icon:"🔒", text:"Secure, role-based access control" },
+            { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15"><path d="M4 1.5h6l3 3V13a1 1 0 01-1 1H4a1 1 0 01-1-1V2.5a1 1 0 011-1z" strokeLinejoin="round"/><path d="M5.5 7.5h5M5.5 10h5M5.5 5h2.5" strokeLinecap="round"/></svg>, text:"Submit and track academic documents" },
+            { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15"><path d="M8 1.8a1 1 0 011 1v.5c2 .4 3.4 2.1 3.4 4.2v2.3l1.1 1.8c.2.3 0 .8-.4.8H2.9c-.4 0-.6-.5-.4-.8L3.6 9.8V7.5c0-2.1 1.4-3.8 3.4-4.2v-.5a1 1 0 011-1z" strokeLinejoin="round"/><path d="M6.3 13.4a1.7 1.7 0 003.4 0" strokeLinecap="round"/></svg>, text:"Get notified on every handoff" },
+            { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15"><path d="M8 1.5l5.2 1.9v3.8c0 3.4-2.2 6-5.2 7-3-.9-5.2-3.6-5.2-7V3.4L8 1.5z" strokeLinejoin="round"/><path d="M5.7 8l1.6 1.6 3-3.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, text:"Secure, role-based access control" },
           ].map((f, i) => (
             <div key={i} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:i < 2 ? 14 : 0 }}>
               <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>
@@ -244,7 +244,9 @@ export default function AccountSetup() {
 
               {error && (
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:16, padding:"10px 13px", borderRadius:9, background:"#fff1f2", border:"1px solid #fecdd3" }}>
-                  <span style={{ color:"#ef4444", fontSize:14 }}>✕</span>
+                  <span style={{ color:"#ef4444", fontSize:14, lineHeight:1 }}>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M12 4L4 12M4 4l8 8" strokeLinecap="round"/></svg>
+                  </span>
                   <span style={{ fontSize:12, color:"#dc2626", fontWeight:600 }}>{error}</span>
                 </div>
               )}
