@@ -32,12 +32,20 @@ export default function AccountSetup() {
     if (!phone.trim())    { setError("Contact number is required."); return; }
     setSaving(true); setError("");
     try {
+      // 1. Save name + phone
       const res = await fetch(`${API}/users/${user.id}`, {
         method: "PATCH",
         headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ full_name: fullName.trim(), phone: phone.trim() }),
       });
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || "Save failed."); }
+
+      // 2. Finalize: upgrade draft → pending so admin can approve
+      await fetch(`${API}/users/${user.id}/finalize-setup`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+
       setPage(2);
     } catch (e) { setError(e.message); }
     finally { setSaving(false); }

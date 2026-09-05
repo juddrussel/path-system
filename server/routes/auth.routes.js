@@ -500,6 +500,8 @@ async function findOrCreateOAuthUser({ email, full_name, provider }) {
       const user = rows[0];
       if (user.status === "rejected") return { error: "Your account registration was rejected. Please contact your administrator." };
       if (user.status === "pending")  return { error: "PENDING" };
+      // draft = account created but setup not completed yet — send to setup
+      if (user.status === "draft")    return { user, isNew: true };
       return { user, isNew: false };
     }
 
@@ -507,7 +509,7 @@ async function findOrCreateOAuthUser({ email, full_name, provider }) {
     const username = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").slice(0,20) + "_" + Date.now();
     const [result] = await db.query(
       `INSERT INTO users (full_name, email, username, password, department, role, status, is_active, created_at)
-       VALUES (?, ?, ?, '', 'Information Systems', 'faculty', 'pending', 0, NOW())`,
+       VALUES (?, ?, ?, '', 'Information Systems', 'faculty', 'draft', 0, NOW())`,
       [full_name || email, email, username]
     );
     const [newRows] = await db.query("SELECT * FROM users WHERE id = ?", [result.insertId]);

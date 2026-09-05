@@ -528,4 +528,25 @@ router.patch("/:id/preferences", requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/users/:id/finalize-setup ───────────────────────────────────────
+// Called when a draft OAuth user completes the account setup form.
+// Upgrades status from 'draft' → 'pending' so admin can approve.
+router.post("/:id/finalize-setup", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const isSelf = parseInt(id) === req.user.id;
+  if (!isSelf) return res.status(403).json({ message: "Forbidden." });
+  try {
+    const [rows] = await db.query("SELECT status FROM users WHERE id = ?", [id]);
+    if (!rows.length) return res.status(404).json({ message: "User not found." });
+    // Only upgrade draft → pending; already-pending/approved accounts are untouched
+    if (rows[0].status === "draft") {
+      await db.query("UPDATE users SET status = 'pending', updated_at = NOW() WHERE id = ?", [id]);
+    }
+    return res.json({ message: "Account submitted for approval." });
+  } catch (err) {
+    console.error("POST /users/:id/finalize-setup error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = router;
