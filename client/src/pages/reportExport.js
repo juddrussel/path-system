@@ -175,13 +175,17 @@ export async function exportReportToPDF({ title, subtitle, meta = [], kpis = [],
       startY: y + 6,
       head: [t.columns],
       body: t.rows.length ? t.rows : [t.columns.map(() => "—")],
-      margin: { left: margin, right: margin, bottom: 40 },
+      margin: { left: margin, right: margin, bottom: 40, top: headerH + 10 },
       styles: { fontSize: 8, cellPadding: 5, textColor: [40, 40, 40] },
       headStyles: { fillColor: [BRAND.r, BRAND.g, BRAND.b], textColor: 255, fontStyle: "bold", fontSize: 8.2 },
       alternateRowStyles: { fillColor: [248, 247, 253] },
       theme: "grid",
-      didDrawPage: () => {
-        if (doc.internal.getCurrentPageInfo().pageNumber > 1) drawHeader();
+      didDrawPage: (data) => {
+        drawHeader();
+        // Push table content below the header on every new page
+        if (data.pageNumber > 1) {
+          data.cursor.y = headerH + 34;
+        }
       },
     });
     y = doc.lastAutoTable.finalY + 24;
