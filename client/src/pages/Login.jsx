@@ -648,19 +648,26 @@ export default function Login() {
                     <img
                       src={logo}
                       alt="PATH logo"
-                      style={{ width: 80, height: 80, objectFit: "contain", opacity: 0.18, position: "absolute", inset: 0 }}
+                      style={{ width: 80, height: 80, objectFit: "contain", opacity: 0.15, position: "absolute", inset: 0 }}
                     />
-                    {/* Filled logo with clip-path reveal bottom → top */}
-                    <img
-                      src={logo}
-                      alt="PATH logo filled"
-                      style={{
-                        width: 80, height: 80, objectFit: "contain",
-                        position: "absolute", inset: 0,
-                        animation: "login-logo-fill 1.2s cubic-bezier(0.4,0,0.2,1) 0.15s both",
-                        filter: "drop-shadow(0 4px 16px rgba(124,58,237,0.45))",
-                      }}
-                    />
+                    {/* Filled logo — masked reveal using a gradient overlay trick */}
+                    <div style={{
+                      position: "absolute", inset: 0,
+                      WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 100%)",
+                      WebkitMaskSize: "100% 100%",
+                      WebkitMaskRepeat: "no-repeat",
+                      maskImage: "linear-gradient(to top, transparent 0%, black 100%)",
+                      animation: "login-logo-fill 1.3s cubic-bezier(0.4,0,0.2,1) 0.15s both",
+                    }}>
+                      <img
+                        src={logo}
+                        alt="PATH logo filled"
+                        style={{
+                          width: 80, height: 80, objectFit: "contain",
+                          filter: "drop-shadow(0 4px 16px rgba(124,58,237,0.5))",
+                        }}
+                      />
+                    </div>
                   </div>
                   <div>
                     <p style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#27213a", letterSpacing: "-0.03em" }}>
@@ -684,10 +691,10 @@ export default function Login() {
                   @keyframes login-popup-in { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
                   @keyframes login-check-in { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
                   @keyframes login-logo-fill {
-                    from { clip-path: inset(100% 0% 0% 0%); opacity: 0; transform: scale(0.7); }
-                    20%  { opacity: 1; transform: scale(1.08); }
-                    60%  { clip-path: inset(0% 0% 0% 0%); transform: scale(1.08); }
-                    100% { clip-path: inset(0% 0% 0% 0%); opacity: 1; transform: scale(1); }
+                    0%   { -webkit-mask-image: linear-gradient(to top, transparent 0%,   transparent 100%); mask-image: linear-gradient(to top, transparent 0%,   transparent 100%); opacity:0; transform:scale(0.75); }
+                    15%  { opacity:1; transform:scale(1.05); }
+                    70%  { -webkit-mask-image: linear-gradient(to top, black 0%, black 100%); mask-image: linear-gradient(to top, black 0%, black 100%); transform:scale(1.05); }
+                    100% { -webkit-mask-image: linear-gradient(to top, black 0%, black 100%); mask-image: linear-gradient(to top, black 0%, black 100%); opacity:1; transform:scale(1); }
                   }
                   @keyframes login-progress { from{width:0%} to{width:100%} }
                 `}</style>
