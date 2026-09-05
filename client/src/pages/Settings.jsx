@@ -4,7 +4,8 @@ import {
   Bell, Check, ChevronRight, CircleHelp, Clock3,
   FileText, KeyRound, LockKeyhole, Mail,
   Save, Settings as SettingsIcon, ShieldCheck,
-  Smartphone, UserRound, Camera, Shield, Info,
+  Smartphone, UserRound, Camera, Shield, Info, Calendar,
+  Plus, Trash2, CheckCircle,
 } from "lucide-react";
 
 const API        = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
@@ -54,6 +55,13 @@ const SECTIONS = [
     description: "Data & personal info",
     icon: Shield,
     items: ["Manage Personal Information", "Data Privacy Notice"],
+  },
+  {
+    id: "academic",
+    label: "Academic Calendar",
+    description: "Semestral periods",
+    icon: Calendar,
+    adminOnly: true,
   },
 ];
 
@@ -665,6 +673,240 @@ function PrivacySection({ profile }) {
   );
 }
 
+// ─── ACADEMIC CALENDAR SECTION ───────────────────────────────────────────────
+function AcademicSection({ onToast }) {
+  const [periods, setPeriods]   = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing]   = useState(null); // period being edited
+  const [saving, setSaving]     = useState(false);
+  const [deleting, setDeleting] = useState(null);
+
+  const EMPTY = { name: "", semester: "1st Semester", academic_year: "", start_date: "", end_date: "", is_active: false };
+  const [form, setForm] = useState(EMPTY);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const load = async () => {
+    try {
+      const res = await fetch(`${API}/academic`, { headers: authHeaders() });
+      if (res.ok) setPeriods(await res.json());
+    } catch {}
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const openAdd = () => { setForm(EMPTY); setEditing(null); setShowForm(true); };
+  const openEdit = (p) => {
+    setForm({
+      name: p.name, semester: p.semester, academic_year: p.academic_year,
+      start_date: p.start_date?.slice(0,10) || "",
+      end_date:   p.end_date?.slice(0,10)   || "",
+      is_active: !!p.is_active,
+    });
+    setEditing(p.id);
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.academic_year.trim() || !form.start_date || !form.end_date) {
+      onToast("Please fill in all required fields.", "error"); return;
+    }
+    if (new Date(form.start_date) >= new Date(form.end_date)) {
+      onToast("End date must be after start date.", "error"); return;
+    }
+    setSaving(true);
+    try {
+      const url    = editing ? `${API}/academic/${editing}` : `${API}/academic`;
+      const method = editing ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || "Save failed."); }
+      onToast(editing ? "Period updated!" : "Period added!", "success");
+      setShowForm(false); setEditing(null);
+      await load();
+    } catch (e) { onToast(e.message, "error"); }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id) => {
+    setDeleting(id);
+    try {
+      const res = await fetch(`${API}/academic/${id}`, { method: "DELETE", headers: authHeaders() });
+      if (!res.ok) throw new Error("Delete failed.");
+      onToast("Period deleted.", "success");
+      await load();
+    } catch (e) { onToast(e.message, "error"); }
+    finally { setDeleting(null); }
+  };
+
+  const handleSetActive = async (id) => {
+    try {
+      await fetch(`${API}/academic/${id}`, {
+        method: "PATCH",
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: true }),
+      });
+      onToast("Active period updated!", "success");
+      await load();
+    } catch { onToast("Failed to update.", "error"); }
+  };
+
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+
+  return (
+    <>
+      <SectionHeading title="Academic Calendar" subtitle="Define semestral periods to scope reports and document workflows." />
+
+      {/* Add button */}
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 22px 0" }}>
+        <button
+          onClick={showForm && !editing ? () => setShowForm(false) : openAdd}
+          className="path-settings-btn-primary"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px" }}
+        >
+          {showForm && !editing
+            ? "Cancel"
+            : <><Plus size={14} /> Add period</>}
+        </button>
+      </div>
+
+      {/* Add / Edit form */}
+      {showForm && (
+        <div style={{ margin: "14px 22px", padding: "18px 20px", background: "#faf8ff", border: "1px solid #ede9fe", borderRadius: 12 }}>
+          <p style={{ margin: "0 0 14px", fontSize: 13, fontWeight: 800, color: "#3b2a52", fontFamily: "Manrope,'DM Sans',sans-serif" }}>
+            {editing ? "Edit period" : "New academic period"}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <label className="as-label" style={{ display:"block", fontSize:11, fontWeight:700, color:"#6b5f76", marginBottom:5, textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                Period name <span style={{color:"#dc2626"}}>*</span>
+              </label>
+              <input className="path-settings-input" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. First Semester 2026" />
+            </div>
+            <div>
+              <label className="as-label" style={{ display:"block", fontSize:11, fontWeight:700, color:"#6b5f76", marginBottom:5, textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                Semester <span style={{color:"#dc2626"}}>*</span>
+              </label>
+              <select className="path-settings-input" value={form.semester} onChange={e => set("semester", e.target.value)}>
+                <option>1st Semester</option>
+                <option>2nd Semester</option>
+                <option>Summer</option>
+              </select>
+            </div>
+            <div>
+              <label className="as-label" style={{ display:"block", fontSize:11, fontWeight:700, color:"#6b5f76", marginBottom:5, textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                Academic year <span style={{color:"#dc2626"}}>*</span>
+              </label>
+              <input className="path-settings-input" value={form.academic_year} onChange={e => set("academic_year", e.target.value)} placeholder="e.g. 2026-2027" />
+            </div>
+            <div style={{ display:"flex", gap:8 }}>
+              <div style={{ flex:1 }}>
+                <label className="as-label" style={{ display:"block", fontSize:11, fontWeight:700, color:"#6b5f76", marginBottom:5, textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                  Start date <span style={{color:"#dc2626"}}>*</span>
+                </label>
+                <input className="path-settings-input" type="date" value={form.start_date} onChange={e => set("start_date", e.target.value)} style={{ colorScheme:"light" }} />
+              </div>
+              <div style={{ flex:1 }}>
+                <label className="as-label" style={{ display:"block", fontSize:11, fontWeight:700, color:"#6b5f76", marginBottom:5, textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                  End date <span style={{color:"#dc2626"}}>*</span>
+                </label>
+                <input className="path-settings-input" type="date" value={form.end_date} onChange={e => set("end_date", e.target.value)} style={{ colorScheme:"light" }} />
+              </div>
+            </div>
+          </div>
+          {/* Set as active toggle */}
+          <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:14 }}>
+            <button
+              type="button"
+              className={`path-settings-toggle ${form.is_active ? "is-on" : ""}`}
+              onClick={() => set("is_active", !form.is_active)}
+              aria-pressed={form.is_active}
+              aria-label="Set as active period"
+            ><span /></button>
+            <span style={{ fontSize:12, color:"#6b5f76", fontWeight:600 }}>Set as active period</span>
+          </div>
+          <div style={{ display:"flex", gap:8, marginTop:16 }}>
+            <button onClick={handleSave} disabled={saving} className="path-settings-btn-primary" style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"8px 20px" }}>
+              <Save size={13} /> {saving ? "Saving…" : editing ? "Update" : "Save period"}
+            </button>
+            <button onClick={() => { setShowForm(false); setEditing(null); }} className="path-settings-btn-ghost" style={{ padding:"8px 16px" }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Periods list */}
+      {loading ? (
+        <div style={{ padding:"24px 22px", display:"flex", flexDirection:"column", gap:10 }}>
+          {[80,65,75].map((w,i) => <div key={i} style={{ height:12, width:`${w}%`, borderRadius:7, background:"#ede9fe", animation:"sett-pulse 1.4s ease-in-out infinite" }} />)}
+        </div>
+      ) : periods.length === 0 ? (
+        <div style={{ padding:"32px 22px", textAlign:"center", color:"#b0a3ba", fontSize:13 }}>
+          No academic periods configured yet. Click <strong>Add period</strong> to get started.
+        </div>
+      ) : (
+        <div style={{ padding:"12px 22px 20px", display:"flex", flexDirection:"column", gap:10 }}>
+          {periods.map(p => (
+            <div key={p.id} style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:12, border:`1.5px solid ${p.is_active ? "#a78bfa" : "#ede9fe"}`, background: p.is_active ? "#faf8ff" : "#fff", transition:"all 0.15s" }}>
+              {/* Active indicator */}
+              <div style={{ width:10, height:10, borderRadius:"50%", flexShrink:0, background: p.is_active ? "#7c3aed" : "#e2dbe9", boxShadow: p.is_active ? "0 0 0 3px rgba(124,58,237,0.2)" : "none" }} />
+              {/* Info */}
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                  <span style={{ fontSize:13, fontWeight:800, color:"#27213a" }}>{p.name}</span>
+                  <span style={{ fontSize:10, fontWeight:700, color: p.is_active ? "#7c3aed" : "#9080a0", background: p.is_active ? "#ede9fe" : "#f4f0fc", borderRadius:99, padding:"2px 8px", border:`1px solid ${p.is_active ? "#c4b5fd" : "#e8e1f5"}` }}>
+                    {p.semester}
+                  </span>
+                  <span style={{ fontSize:10, color:"#b0a3ba" }}>{p.academic_year}</span>
+                  {p.is_active && (
+                    <span style={{ fontSize:10, fontWeight:800, color:"#059669", background:"#f0fdf4", borderRadius:99, padding:"2px 8px", border:"1px solid #bbf7d0" }}>
+                      Active
+                    </span>
+                  )}
+                </div>
+                <p style={{ margin:"3px 0 0", fontSize:11, color:"#9080a0" }}>
+                  {fmtDate(p.start_date)} — {fmtDate(p.end_date)}
+                </p>
+              </div>
+              {/* Actions */}
+              <div style={{ display:"flex", gap:6, flexShrink:0 }}>
+                {!p.is_active && (
+                  <button
+                    onClick={() => handleSetActive(p.id)}
+                    title="Set as active"
+                    style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"5px 10px", borderRadius:7, border:"1px solid #c4b5fd", background:"#f5f3ff", color:"#7c3aed", fontSize:11, fontWeight:700, cursor:"pointer" }}
+                  >
+                    <CheckCircle size={12} /> Set active
+                  </button>
+                )}
+                <button
+                  onClick={() => openEdit(p)}
+                  style={{ padding:"5px 10px", borderRadius:7, border:"1px solid #e8e1f5", background:"#fff", color:"#6b5f76", fontSize:11, fontWeight:700, cursor:"pointer" }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  disabled={deleting === p.id}
+                  title="Delete"
+                  style={{ display:"inline-flex", alignItems:"center", padding:"5px 8px", borderRadius:7, border:"1px solid #fecdd3", background:"#fff1f2", color:"#dc2626", cursor:"pointer", opacity: deleting === p.id ? 0.5 : 1 }}
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Settings() {
   const navigate = useNavigate();
@@ -727,6 +969,9 @@ export default function Settings() {
         .path-settings-btn-primary:disabled{opacity:.6;cursor:not-allowed;}
         .path-settings-btn-ghost{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;background:transparent;color:#7c3aed;border:1px solid #e7e0f0;font-size:11px;font-weight:700;font-family:"DM Sans",Arial,sans-serif;cursor:pointer;transition:background .15s;}
         .path-settings-btn-ghost:hover{background:#f5f0ff;}
+        .path-settings-input{width:100%;padding:9px 12px;border:1.5px solid #e8e1f5;border-radius:9px;font-size:13px;font-family:"DM Sans",Arial,sans-serif;color:#27213a;outline:none;background:#fff;box-sizing:border-box;transition:border-color .15s,box-shadow .15s;}
+        .path-settings-input:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(124,58,237,.12);}
+        select.path-settings-input{cursor:pointer;}
         @keyframes sett-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @media(max-width:1040px){.path-settings-page{padding-left:28px;padding-right:28px;}}
         @media(max-width:820px){.path-settings-page{padding:24px 16px 32px;}.path-settings-layout{grid-template-columns:1fr;}.path-settings-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}.path-settings-nav-label{grid-column:1/-1;}}
@@ -746,7 +991,7 @@ export default function Settings() {
         {/* Nav */}
         <nav className="path-settings-nav" aria-label="Settings sections">
           <div className="path-settings-nav-label">Manage PATH</div>
-          {SECTIONS.map(({ id, label, description, icon: Icon }) => (
+          {SECTIONS.filter(s => !s.adminOnly || ["admin","program_chair"].includes(decoded?.role)).map(({ id, label, description, icon: Icon }) => (
             <button
               key={id}
               type="button"
@@ -777,6 +1022,7 @@ export default function Settings() {
               {activeSection === "account"       && <AccountSection       profile={profile} onSaved={setProfile} onToast={showToast} />}
               {activeSection === "notifications"  && <NotificationsSection profile={profile} onToast={showToast} />}
               {activeSection === "privacy"        && <PrivacySection       profile={profile} />}
+              {activeSection === "academic"       && <AcademicSection      onToast={showToast} />}
             </>
           )}
         </div>
