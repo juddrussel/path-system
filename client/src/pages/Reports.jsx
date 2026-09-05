@@ -1443,9 +1443,41 @@ export default function Reports() {
           meta: activeFilterSummary,
           kpis: OVERVIEW_KPI_DATA.map(k => ({ label: k.label, value: k.value })),
           tables: [
-            { title: "Status Breakdown", columns: ["Status", "Count"], rows: OVERVIEW_STATUS_DONUT.map(s => [s.name, s.value]) },
-            { title: "By Document Type", columns: ["Document Type", "Count"], rows: DOC_TYPE_BAR.map(d => [d.type, d.count]) },
-            { title: "Monthly Trend", columns: ["Month", "Submitted", "Completed", "Delayed"], rows: MONTHLY_TREND.map(m => [m.month, m.submitted, m.completed, m.delayed]) },
+            {
+              title: "KPI Summary",
+              columns: ["Metric", "Value"],
+              rows: OVERVIEW_KPI_DATA.map(k => [k.label, k.value]),
+            },
+            {
+              title: "Status Distribution",
+              columns: ["Status", "Count"],
+              rows: OVERVIEW_STATUS_DONUT.map(s => [s.name, s.value]),
+            },
+            {
+              title: "By Document Type",
+              columns: ["Document Type", "Count"],
+              rows: DOC_TYPE_BAR.map(d => [d.type, d.count]),
+            },
+            {
+              title: "Monthly Transaction Trend",
+              columns: ["Month", "Submitted", "Completed", "Delayed"],
+              rows: MONTHLY_TREND.map(m => [m.month, m.submitted, m.completed, m.delayed]),
+            },
+            {
+              title: "Faculty Workload Snapshot (Top 5)",
+              columns: ["Faculty", "Assigned", "Pending", "Completed", "Delayed", "Completion Rate"],
+              rows: FACULTY_SNAPSHOT.map(f => [f.name, f.assigned, f.pending, f.completed, f.delayed, `${f.rate}%`]),
+            },
+            {
+              title: "Bottleneck Snapshot",
+              columns: ["Stage", "Waiting", "Avg Wait (days)", "Severity"],
+              rows: BOTTLENECK_SNAPSHOT.map(b => [b.label || b.stage, b.waiting, b.avgWait, b.severity]),
+            },
+            {
+              title: "All Transactions",
+              columns: ["ID", "Document Type", "Submitted By", "Status", "Stage", "Date", "Days"],
+              rows: items.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.date, i.days]),
+            },
           ],
         };
 
@@ -1453,17 +1485,34 @@ export default function Reports() {
       case "Delayed Transactions":
         return {
           title: "Delayed Transactions Report",
-          subtitle: "Transactions past SLA thresholds",
+          subtitle: "Transactions past SLA thresholds — requires immediate attention",
           meta: activeFilterSummary,
           kpis: [
             { label: "Total Delayed", value: DELAYED_TRANSACTIONS.length },
-            { label: "Overdue (7+ days)", value: DELAYED_TRANSACTIONS.filter(d => d.overdue).length },
+            { label: "Overdue", value: DELAYED_TRANSACTIONS.filter(d => d.overdue).length },
+            { label: "Total Transactions", value: items.length },
           ],
-          tables: [{
-            title: "Delayed Transactions",
-            columns: ["Transaction ID", "Document Type", "Faculty", "Status", "Stage", "Days Delayed", "Overdue"],
-            rows: DELAYED_TRANSACTIONS.map(d => [formatTxnId(d.id), d.docType, d.faculty, d.status, d.stage, d.days, d.overdue ? "Yes" : "No"]),
-          }],
+          tables: [
+            {
+              title: "Delayed & Overdue Transactions",
+              columns: ["Transaction ID", "Title / Document Type", "Department", "Assigned Faculty", "Status", "Current Stage", "Days Waiting", "Overdue"],
+              rows: DELAYED_TRANSACTIONS.map(d => [
+                formatTxnId(d.id),
+                d.title || d.docType,
+                d.department || "—",
+                d.faculty || "—",
+                d.status,
+                d.stage,
+                d.days,
+                d.overdue ? "Yes" : "No",
+              ]),
+            },
+            {
+              title: "All Transactions (for context)",
+              columns: ["ID", "Document Type", "Submitted By", "Status", "Stage", "Date", "Days"],
+              rows: items.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.date, i.days]),
+            },
+          ],
         };
 
       case "Processing Time Report":
@@ -1473,35 +1522,129 @@ export default function Reports() {
           subtitle: "Average, fastest, and slowest turnaround per document type",
           meta: activeFilterSummary,
           kpis: [
-            { label: "Fastest", value: `${PROCESSING_SUMMARY.fastest}d` },
-            { label: "Average", value: `${PROCESSING_SUMMARY.avg.toFixed(1)}d` },
-            { label: "Slowest", value: `${PROCESSING_SUMMARY.slowest}d` },
+            { label: "Avg Processing Time", value: `${PROCESSING_SUMMARY.avg.toFixed(1)}d` },
+            { label: "Fastest", value: `${PROCESSING_SUMMARY.fastest.toFixed(1)}d` },
+            { label: "Slowest", value: `${PROCESSING_SUMMARY.slowest.toFixed(1)}d` },
+            { label: "Document Types Tracked", value: PROCESSING_TIME_DATA.length },
           ],
-          tables: [{
-            title: "Processing Time by Document Type",
-            columns: ["Document Type", "Avg (days)", "Fastest (days)", "Slowest (days)"],
-            rows: PROCESSING_TIME_DATA.map(p => [p.type, p.avg.toFixed(1), p.fastest, p.slowest]),
-          }],
+          tables: [
+            {
+              title: "Processing Time by Document Type",
+              columns: ["Document Type", "Avg (days)", "Fastest (days)", "Slowest (days)"],
+              rows: PROCESSING_TIME_DATA.map(p => [p.type, p.avg.toFixed(1), p.fastest.toFixed(1), p.slowest.toFixed(1)]),
+            },
+            {
+              title: "Faculty Performance",
+              columns: ["Faculty", "Assigned", "Pending", "Completed", "Delayed", "Completion Rate"],
+              rows: FACULTY_WORKLOAD.map(f => [f.name, f.assigned, f.pending, f.completed, f.delayed, `${f.rate}%`]),
+            },
+          ],
         };
 
       case "Faculty Workload Report":
       case "Faculty Workload":
         return {
           title: "Faculty Workload Report",
-          subtitle: "Per-faculty load and completion rates",
+          subtitle: "Per-faculty assigned transactions, delays, and completion rates",
           meta: activeFilterSummary,
           kpis: [
             { label: "Faculty Tracked", value: FACULTY_WORKLOAD.length },
+            { label: "Avg Completion Rate", value: `${FACULTY_WORKLOAD.length ? Math.round(FACULTY_WORKLOAD.reduce((a, b) => a + b.rate, 0) / FACULTY_WORKLOAD.length) : 0}%` },
+            { label: "Total Assigned", value: FACULTY_WORKLOAD.reduce((s, f) => s + f.assigned, 0) },
+            { label: "Total Delayed", value: FACULTY_WORKLOAD.reduce((s, f) => s + f.delayed, 0) },
+          ],
+          tables: [
             {
-              label: "Avg Completion Rate",
-              value: `${FACULTY_WORKLOAD.length ? Math.round(FACULTY_WORKLOAD.reduce((a, b) => a + b.rate, 0) / FACULTY_WORKLOAD.length) : 0}%`,
+              title: "Faculty Workload Summary",
+              columns: ["Faculty", "Assigned", "Pending", "Completed", "Delayed", "Completion Rate"],
+              rows: FACULTY_WORKLOAD.map(f => [f.name, f.assigned, f.pending, f.completed, f.delayed, `${f.rate}%`]),
+            },
+            {
+              title: "All Transactions by Faculty",
+              columns: ["ID", "Document Type", "Submitted By", "Status", "Stage", "Date", "Days"],
+              rows: items.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.date, i.days]),
             },
           ],
-          tables: [{
-            title: "Faculty Workload",
-            columns: ["Faculty", "Assigned", "Pending", "Completed", "Delayed", "Completion Rate"],
-            rows: FACULTY_WORKLOAD.map(f => [f.name, f.assigned, f.pending, f.completed, f.delayed, `${f.rate}%`]),
-          }],
+        };
+
+      case "Bottleneck Intervention Report":
+      case "Bottleneck": {
+        const priorityBN = items.filter(i => !i.done && (i.overdue || i.days >= 4));
+        return {
+          title: "Bottleneck & Alerts Report",
+          subtitle: "Active workflow bottlenecks requiring intervention",
+          meta: activeFilterSummary,
+          kpis: [
+            { label: "Total Bottleneck Stages", value: BOTTLENECKS.length },
+            { label: "Critical Alerts", value: BOTTLENECK_ALERTS.filter(a => a.tier === "critical").length },
+            { label: "Warning Alerts", value: BOTTLENECK_ALERTS.filter(a => a.tier === "warning").length },
+            { label: "Total Active Alerts", value: BOTTLENECK_ALERTS.length },
+          ],
+          tables: [
+            {
+              title: "Bottleneck by Stage",
+              columns: ["Stage", "Transactions Waiting", "Avg Wait (days)", "Severity"],
+              rows: BOTTLENECKS.map(b => [b.label || b.stage, b.waiting, b.avgWait, b.severity]),
+            },
+            {
+              title: "Active Alerts",
+              columns: ["Severity", "Title", "Details"],
+              rows: BOTTLENECK_ALERTS.map(a => [a.tier.toUpperCase(), a.title, a.message]),
+            },
+            {
+              title: "Priority Items Needing Attention",
+              columns: ["Transaction ID", "Document Type", "Submitted By", "Status", "Stage", "Days Waiting", "Overdue"],
+              rows: priorityBN.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.days, i.overdue ? "Yes" : "No"]),
+            },
+          ],
+        };
+      }
+
+      case "Returned / Rejected Follow-up Report":
+      case "Returned / Rejected":
+        return {
+          title: "Returned / Rejected Transactions Report",
+          subtitle: "Analysis of returned and rejected submissions with reason breakdown",
+          meta: activeFilterSummary,
+          kpis: [
+            { label: "Total Returned", value: RR_KPI.totalReturned },
+            { label: "Total Rejected", value: RR_KPI.totalRejected },
+            { label: "Return Rate", value: `${RR_KPI.returnRate}%` },
+            { label: "Rejection Rate", value: `${RR_KPI.rejectionRate}%` },
+            { label: "Most Common Reason", value: RR_KPI.mostCommonReason },
+          ],
+          tables: [
+            {
+              title: "Returned / Rejected Transactions",
+              columns: ["Transaction ID", "Document Type", "Submitted By", "Department", "Date Submitted", "Date Actioned", "Status", "Reason Category", "Reason Detail"],
+              rows: RR_ALL.map(r => [
+                formatTxnId(r.id),
+                r.docType,
+                r.person,
+                r.department || "—",
+                r.date,
+                r.actionDate || "—",
+                r.status,
+                r.reasonCategory || "Other Reasons",
+                r.reasonRaw || "—",
+              ]),
+            },
+            {
+              title: "Reason Category Breakdown",
+              columns: ["Reason Category", "Count"],
+              rows: RR_REASON_BREAKDOWN.filter(c => c.value > 0).map(c => [c.name, c.value]),
+            },
+            {
+              title: "Monthly Trend (Returned vs Rejected)",
+              columns: ["Month", "Returned", "Rejected", "Combined Rate (%)"],
+              rows: RR_MONTHLY_TREND.map(m => [m.month, m.returned, m.rejected, m.rate]),
+            },
+            {
+              title: "Most Affected Document Types",
+              columns: ["Document Type", "Count"],
+              rows: RR_DOC_TYPE_AFFECTED.map(d => [d.type, d.count]),
+            },
+          ],
         };
 
       case "Transaction Summary":
@@ -1510,11 +1653,18 @@ export default function Reports() {
           subtitle: "Complete overview of all transactions",
           meta: activeFilterSummary,
           kpis: KPI_DATA.map(k => ({ label: k.label, value: k.value })),
-          tables: [{
-            title: "All Transactions",
-            columns: ["ID", "Document Type", "Person", "Status", "Stage", "Date", "Days"],
-            rows: items.map(i => [i.id, i.docType, i.person, i.status, i.stage, i.date, i.days]),
-          }],
+          tables: [
+            {
+              title: "Status Distribution",
+              columns: ["Status", "Count"],
+              rows: STATUS_PIE.filter(s => s.value > 0).map(s => [s.name, s.value]),
+            },
+            {
+              title: "All Transactions",
+              columns: ["ID", "Document Type", "Submitted By", "Status", "Stage", "Date", "Days"],
+              rows: items.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.date, i.days]),
+            },
+          ],
         };
 
       case "Pending Transactions":
@@ -1525,11 +1675,14 @@ export default function Reports() {
           title: reportName,
           subtitle: `All transactions currently ${statusWanted.toLowerCase()}`,
           meta: activeFilterSummary,
-          kpis: [{ label: `Total ${statusWanted}`, value: filtered.length }],
+          kpis: [
+            { label: `Total ${statusWanted}`, value: filtered.length },
+            { label: "% of All Transactions", value: `${items.length ? ((filtered.length / items.length) * 100).toFixed(1) : 0}%` },
+          ],
           tables: [{
             title: reportName,
-            columns: ["ID", "Document Type", "Person", "Status", "Stage", "Date", "Days"],
-            rows: filtered.map(i => [i.id, i.docType, i.person, i.status, i.stage, i.date, i.days]),
+            columns: ["ID", "Document Type", "Submitted By", "Status", "Stage", "Date", "Days"],
+            rows: filtered.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.date, i.days]),
           }],
         };
       }
@@ -1537,13 +1690,13 @@ export default function Reports() {
       case "Audit Trail":
         return {
           title: "Audit Trail",
-          subtitle: "Full system activity log",
+          subtitle: "Immutable system activity log — document, task, and form events",
           meta: activeFilterSummary,
           kpis: [{ label: "Total Log Entries", value: AUDIT_TRAIL.length }],
           tables: [{
             title: "Audit Trail",
             columns: ["Date & Time", "User", "Action", "Transaction", "Remarks"],
-            rows: AUDIT_TRAIL.map(a => [a.date, a.user, a.action.label, a.transaction, a.remarks]),
+            rows: AUDIT_TRAIL.map(a => [a.date, a.user, a.action?.label || a.action, a.transaction, a.remarks]),
           }],
         };
 
@@ -1560,13 +1713,29 @@ export default function Reports() {
               `Department: ${r.department || "—"}`,
               `Date submitted: ${r.date}`,
               `Date ${(r.status || "").toLowerCase()}: ${r.actionDate}`,
+              `Reason category: ${r.reasonCategory || "—"}`,
             ],
             kpis: [],
             tables: [
               {
+                title: "Transaction Details",
+                columns: ["Field", "Value"],
+                rows: [
+                  ["Transaction ID", formatTxnId(r.id)],
+                  ["Document Type", r.docType],
+                  ["Submitted By", r.person],
+                  ["Department", r.department || "—"],
+                  ["Status", r.status],
+                  ["Stage", r.stage || "—"],
+                  ["Date Submitted", r.date],
+                  ["Date Actioned", r.actionDate || "—"],
+                  ["Days Waiting", r.days],
+                ],
+              },
+              {
                 title: "Return / Rejection Reason",
                 columns: ["Category", "Details"],
-                rows: [[r.reasonCategory, r.reasonRaw || "No specific reason text was recorded for this transaction."]],
+                rows: [[r.reasonCategory || "Other Reasons", r.reasonRaw || "No specific reason text was recorded for this transaction."]],
               },
               {
                 title: "Reviewer Remarks",
@@ -1577,7 +1746,7 @@ export default function Reports() {
                 title: "Complete Workflow History",
                 columns: ["Date", "Action", "User", "Remarks"],
                 rows: history.length
-                  ? history.map(h => [h.date, h.action.label, h.user, h.remarks])
+                  ? history.map(h => [h.date, h.action?.label || h.action, h.user, h.remarks])
                   : [["—", "—", "—", "No detailed workflow history available for this transaction."]],
               },
             ],
