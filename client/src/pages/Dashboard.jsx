@@ -2453,6 +2453,16 @@ export default function Dashboard() {
   const [myTasksData, setMyTasksData] = useState([]);
   const [myTasksDataLoading, setMyTasksDataLoading] = useState(true);
 
+  // ── Active academic period ─────────────────────────────────────────────────
+  const [activePeriod, setActivePeriod] = useState(null);
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API}/api/academic/active`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setActivePeriod(data))
+      .catch(() => {});
+  }, [token]);
+
   const fetchMyTasks = useCallback(async () => {
     setMyTasksDataLoading(true);
     try {
@@ -4902,7 +4912,9 @@ export default function Dashboard() {
                             textTransform: "uppercase",
                           }}
                         >
-                          This semester
+                          {activePeriod
+                            ? `${activePeriod.semester} · ${activePeriod.academic_year}`
+                            : "This semester"}
                         </div>
                         <h3
                           style={{

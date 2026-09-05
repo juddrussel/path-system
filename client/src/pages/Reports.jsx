@@ -591,6 +591,15 @@ export default function Reports() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [delayedPage, setDelayedPage] = useState(1);
 
+  // ── Active academic period ─────────────────────────────────────────────────
+  const [activePeriod, setActivePeriod] = useState(null);
+  useEffect(() => {
+    fetch(`${API}/api/academic/active`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setActivePeriod(data))
+      .catch(() => {});
+  }, []);
+
   // ── Returned / Rejected report — detail-view modal state ──
   const [rrSelected, setRrSelected] = useState(null);
   const [alertsModalOpen, setAlertsModalOpen] = useState(false);
@@ -876,9 +885,18 @@ export default function Reports() {
   // Returned) always pass the date filter; only closed/resolved statuses
   // (Approved / Completed / Rejected) get gated by it.
   const RANGE_DAYS = { "Last 7 Days": 7, "Last 30 Days": 30, "This Semester": 120, "This Year": 365 };
+  // If an active academic period is configured, "This Semester" uses its real date range
+  const semesterCutoffDays = useMemo(() => {
+    if (!activePeriod?.start_date) return 120;
+    const start = new Date(activePeriod.start_date);
+    const end   = activePeriod.end_date ? new Date(activePeriod.end_date) : new Date();
+    const now   = new Date();
+    // Use days from start to now (capped at period length)
+    return Math.max(1, Math.ceil((Math.min(now, end) - start) / 86400000));
+  }, [activePeriod]);
   const OPEN_STATUSES = ["Pending", "For Approval", "Under Review", "Delayed", "Returned"];
   const items = useMemo(() => {
-    const cutoffDays = RANGE_DAYS[dateRange];
+    const cutoffDays = dateRange === "This Semester" ? semesterCutoffDays : RANGE_DAYS[dateRange];
     return rawItems.filter(it => {
       const isOpen = OPEN_STATUSES.includes(it.status);
       if (cutoffDays && !isOpen && it.days > cutoffDays) return false;
@@ -1427,6 +1445,9 @@ export default function Reports() {
   // { title, subtitle, meta, kpis, tables } shape that reportExport.js
   // knows how to render into a branded PDF or a multi-sheet workbook.
   const activeFilterSummary = [
+    activePeriod
+      ? `Academic period: ${activePeriod.name} (${activePeriod.semester}, ${activePeriod.academic_year})`
+      : "Academic period: Not configured",
     `Date range: ${dateRange}`,
     `Status: ${statusFilter}`,
     `Document type: ${docTypeFilter}`,
@@ -1809,6 +1830,12 @@ export default function Reports() {
                 <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b5cf6" }}>Decision support · reporting workspace</div>
                 <h1 style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>Reports</h1>
                 <p style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>Turn document activity into a clear view of throughput, service levels, and department performance.</p>
+                {activePeriod && (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 8, padding: "5px 11px", borderRadius: 99, background: "#f5f3ff", border: "1px solid #ddd6fe", fontSize: 12, fontWeight: 700, color: "#7c3aed" }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 0 2px rgba(34,197,94,0.2)" }} />
+                    {activePeriod.name} · {activePeriod.semester} · {activePeriod.academic_year}
+                  </div>
+                )}
               </div>
               <ExportButtons onExport={(fmt) => handleExport("Full Analytics Report", fmt)} />
             </div>
