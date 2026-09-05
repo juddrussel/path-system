@@ -1046,6 +1046,21 @@ export default function TaskAssigned() {
     }
   };
 
+  const handleArchiveSingle = async (taskId) => {
+    setActionLoading("archive");
+    try {
+      await fetch(`${API}/api/tasks/${taskId}/archive`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchTasks();
+    } catch {
+      // non-fatal
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   // Combines the date + time inputs (entered as Philippines local time) into
   // a "YYYY-MM-DD HH:mm:ss" string converted to UTC — same convention as
   // TaskAssignment.jsx's create form, since deadline is stored in UTC and
