@@ -115,49 +115,54 @@ export async function exportReportToPDF({ title, subtitle, meta = [], kpis = [],
 
   drawHeader();
   doc.setTextColor(30, 30, 30);
-  let y = headerH + 26;
+  let y = headerH + 34;
 
   if (subtitle) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10.5);
     doc.setTextColor(75, 75, 85);
     doc.text(subtitle, margin, y);
-    y += 16;
+    y += 18;
   }
 
   if (meta.length) {
     doc.setFontSize(8.5);
     doc.setTextColor(120, 120, 130);
     doc.text(meta.join("    •    "), margin, y, { maxWidth: pageWidth - margin * 2 });
-    y += 20;
+    y += 22;
   }
 
   if (kpis.length) {
-    const gap = 10;
-    const cardW = (pageWidth - margin * 2 - gap * (kpis.length - 1)) / kpis.length;
-    const cardH = 46;
+    const COLS = Math.min(4, kpis.length);
+    const gap  = 10;
+    const cardW = (pageWidth - margin * 2 - gap * (COLS - 1)) / COLS;
+    const cardH = 48;
     kpis.forEach((k, i) => {
-      const x = margin + i * (cardW + gap);
+      const col = i % COLS;
+      const row = Math.floor(i / COLS);
+      const x = margin + col * (cardW + gap);
+      const cy = y + row * (cardH + gap);
       doc.setDrawColor(228, 228, 236);
       doc.setFillColor(248, 247, 253);
-      doc.roundedRect(x, y, cardW, cardH, 5, 5, "FD");
+      doc.roundedRect(x, cy, cardW, cardH, 5, 5, "FD");
       doc.setTextColor(20, 20, 25);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(13.5);
-      doc.text(String(k.value), x + 10, y + 22);
+      doc.setFontSize(13);
+      doc.text(String(k.value), x + 10, cy + 22);
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(7.8);
+      doc.setFontSize(7.5);
       doc.setTextColor(120, 120, 130);
-      doc.text(String(k.label), x + 10, y + 35, { maxWidth: cardW - 18 });
+      doc.text(String(k.label), x + 10, cy + 36, { maxWidth: cardW - 18 });
     });
-    y += cardH + 22;
+    const rows = Math.ceil(kpis.length / COLS);
+    y += rows * (cardH + gap) + 14;
   }
 
   tables.forEach((t, idx) => {
     if (y > pageHeight - 120) {
       doc.addPage();
       drawHeader();
-      y = headerH + 26;
+      y = headerH + 34;
     }
     if (t.title) {
       doc.setFont("helvetica", "bold");
@@ -176,7 +181,6 @@ export async function exportReportToPDF({ title, subtitle, meta = [], kpis = [],
       alternateRowStyles: { fillColor: [248, 247, 253] },
       theme: "grid",
       didDrawPage: () => {
-        // subsequent auto-paginated pages within a long table still need the header
         if (doc.internal.getCurrentPageInfo().pageNumber > 1) drawHeader();
       },
     });
@@ -184,7 +188,7 @@ export async function exportReportToPDF({ title, subtitle, meta = [], kpis = [],
     if (idx < tables.length - 1 && y > pageHeight - 100) {
       doc.addPage();
       drawHeader();
-      y = headerH + 26;
+      y = headerH + 34;
     }
   });
 
