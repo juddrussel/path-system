@@ -336,7 +336,7 @@ const ADMIN_NAV_ITEMS = [
  * Usage: <Sidebar />
  * Optional: <Sidebar activePage="tasks" /> to override auto-detection.
  */
-export default function Sidebar({ activePage }) {
+export default function Sidebar({ activePage, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getUser();
@@ -396,10 +396,10 @@ export default function Sidebar({ activePage }) {
     n => n.path && location.pathname.startsWith(n.path)
   )?.key;
 
-  const handleLogout = () => {
+  const handleLogout = onLogout || (() => {
     localStorage.removeItem("token");
     navigate("/login");
-  };
+  });
 
   const badgeFor = key => (key === "inbox" ? unreadTotal : undefined);
 
