@@ -507,7 +507,7 @@ async function findOrCreateOAuthUser({ email, full_name, provider }) {
     const username = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").slice(0,20) + "_" + Date.now();
     const [result] = await db.query(
       `INSERT INTO users (full_name, email, username, password, department, role, status, is_active, created_at)
-       VALUES (?, ?, ?, '', 'Information Systems', 'user', 'approved', 1, NOW())`,
+       VALUES (?, ?, ?, '', 'Information Systems', 'faculty', 'approved', 1, NOW())`,
       [full_name || email, email, username]
     );
     const [newRows] = await db.query("SELECT * FROM users WHERE id = ?", [result.insertId]);
@@ -527,12 +527,14 @@ passport.use(new GoogleStrategy({
   try {
     const email     = profile.emails?.[0]?.value;
     const full_name = profile.displayName || email;
+    console.log("Google OAuth profile:", { email, full_name, id: profile.id });
     if (!email) return done(null, false, { message: "No email from Google." });
     const result = await findOrCreateOAuthUser({ email, full_name, provider: "google" });
     if (result.error) return done(null, false, { message: result.error });
     const userWithFlag = { ...result.user, _isNew: result.isNew };
     return done(null, userWithFlag);
   } catch (err) {
+    console.error("Google strategy error:", err);
     return done(err);
   }
 }));
