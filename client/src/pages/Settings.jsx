@@ -926,11 +926,10 @@ function ArchiveSection({ onToast }) {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/tasks`, { headers: authHeaders() });
+      const res = await fetch(`${API_BASE}/tasks/archived-by-me`, { headers: authHeaders() });
       if (res.ok) {
         const data = await res.json();
-        const all = data.tasks ?? data ?? [];
-        setTasks(all.filter(t => /archived/i.test(t.status || "")));
+        setTasks(data.tasks ?? []);
       }
     } catch {}
     finally { setLoading(false); }
@@ -941,13 +940,12 @@ function ArchiveSection({ onToast }) {
   const handleRestore = async (id) => {
     setRestoring(id);
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}/status`, {
-        method: "PATCH",
-        headers: { ...authHeaders(), "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Pending" }),
+      const res = await fetch(`${API_BASE}/tasks/${id}/archive-for-me`, {
+        method: "DELETE",
+        headers: authHeaders(),
       });
       if (!res.ok) throw new Error("Restore failed.");
-      onToast("Task restored to Pending.", "success");
+      onToast("Task removed from your archive.", "success");
       await load();
     } catch (e) { onToast(e.message || "Failed.", "error"); }
     finally { setRestoring(null); }
@@ -1014,7 +1012,7 @@ function ArchiveSection({ onToast }) {
                 disabled={restoring === t.id}
                 style={{ padding: "5px 12px", borderRadius: 7, border: "1px solid #c4b5fd", background: "#f5f3ff", color: "#7c3aed", fontSize: 11, fontWeight: 700, cursor: "pointer", flexShrink: 0, opacity: restoring === t.id ? 0.5 : 1, fontFamily: "'DM Sans',sans-serif" }}
               >
-                {restoring === t.id ? "Restoring…" : "Restore"}
+                {restoring === t.id ? "Removing…" : "Remove from archive"}
               </button>
             </div>
           ))}

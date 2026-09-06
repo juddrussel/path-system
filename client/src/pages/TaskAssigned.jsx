@@ -1049,8 +1049,8 @@ export default function TaskAssigned() {
   const handleArchiveSingle = async (taskId) => {
     setActionLoading("archive");
     try {
-      await fetch(`${API}/api/tasks/${taskId}/archive`, {
-        method: "PATCH",
+      await fetch(`${API}/api/tasks/${taskId}/archive-for-me`, {
+        method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTasks();
