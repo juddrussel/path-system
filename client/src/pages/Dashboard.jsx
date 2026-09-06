@@ -2664,6 +2664,7 @@ export default function Dashboard() {
               : daysSince(rawDate);
             merged.push({
               id: t.tracking_id || `TSK-${t.id}`,
+              numericId: t.id,
               sourceType: "task",
               title: t.title,
               person: nameOf(t.faculty_id),
@@ -4304,7 +4305,15 @@ export default function Dashboard() {
                           <button
                             key={row.id}
                             type="button"
-                            onClick={() => navigate("/tracking")}
+                            onClick={() => {
+                              if (row.sourceType === "task") {
+                                navigate(`/task-details/${row.numericId}`, { state: { task: row, returnTo: "/dashboard" } });
+                              } else if (row.sourceType === "form") {
+                                navigate(`/document-review/${row.numericId}`, { state: { form: row } });
+                              } else {
+                                navigate("/tracking", { state: { tracking_id: row.id } });
+                              }
+                            }}
                             style={{
                               width: "100%",
                               display: "grid",
