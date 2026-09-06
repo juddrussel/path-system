@@ -2716,6 +2716,7 @@ export default function Dashboard() {
               "—";
             merged.push({
               id: f.tracking_id || `FRM-${f.id}`,
+              numericId: f.id,
               sourceType: "form",
               title: f.category ? `${f.category} Form` : "Form Submission",
               person: facultySubmitter,
