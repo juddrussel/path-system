@@ -693,6 +693,9 @@ export default function Inbox() {
   const [newGroupMembers, setNewGroupMembers] = useState([]); // array of user objects
   const [groupCreating, setGroupCreating] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
+  const [showGroupMenu, setShowGroupMenu] = useState(false);
+  const [groupMemberSearch, setGroupMemberSearch] = useState("");
+  const groupMenuRef = useRef(null);
   const groupFileRef = useRef(null);
   const groupTypingTimeoutRef = useRef(null);
   const activeGroupRef = useRef(null);
@@ -1049,6 +1052,18 @@ export default function Inbox() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpenConvId]);
 
+  // ── Close the group 3-dot menu when clicking outside it ──
+  useEffect(() => {
+    if (!showGroupMenu) return;
+    function handleClickOutside(e) {
+      if (groupMenuRef.current && !groupMenuRef.current.contains(e.target)) {
+        setShowGroupMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showGroupMenu]);
+
   // ── Per-message action handlers ──
   const handleRemoveMessage = (msg) => {
     if (!window.confirm("Remove this message?")) return;
@@ -1395,6 +1410,52 @@ export default function Inbox() {
     socket?.emit("leave_group", group.id);
     setGroups(prev => prev.filter(g => g.id !== group.id));
     if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
+  };
+
+  const deleteGroup = async (group) => {
+    if (!window.confirm(`Delete "${group.name}" permanently? This cannot be undone.`)) return;
+    const res = await fetch(`${API}/api/chat/groups/${group.id}`, { method: "DELETE", headers: authHeaders });
+    if (res.ok) {
+      socket?.emit("leave_group", group.id);
+      setGroups(prev => prev.filter(g => g.id !== group.id));
+      if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
+    }
+  };
+
+  const archiveGroup = (group) => {
+    // Client-side archive: just remove from the list (same as leave for non-admins)
+    setGroups(prev => prev.filter(g => g.id !== group.id));
+    if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
+  };
+
+  const addGroupMember = async (user) => {
+    if (!activeGroup) return;
+    const res = await fetch(`${API}/api/chat/groups/${activeGroup.id}/members`, {
+      method: "POST",
+      headers: { ...authHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.id }),
+    });
+    if (res.ok) {
+      // Refresh group info to get updated members list
+      const infoRes = await fetch(`${API}/api/chat/groups/${activeGroup.id}`, { headers: authHeaders });
+      if (infoRes.ok) {
+        const updated = await infoRes.json();
+        setActiveGroup(updated);
+        setGroups(prev => prev.map(g => g.id === updated.id ? { ...g, members: updated.members } : g));
+      }
+      setGroupMemberSearch("");
+      socket?.emit("join_group", activeGroup.id); // make sure new member's socket joins when they connect
+    }
+  };
+
+  const removeGroupMember = async (memberId) => {
+    if (!activeGroup) return;
+    if (!window.confirm("Remove this member from the group?")) return;
+    const res = await fetch(`${API}/api/chat/groups/${activeGroup.id}/members/${memberId}`, { method: "DELETE", headers: authHeaders });
+    if (res.ok) {
+      setActiveGroup(prev => prev ? { ...prev, members: prev.members.filter(m => m.user_id !== memberId) } : prev);
+      setGroups(prev => prev.map(g => g.id === activeGroup.id ? { ...g, members: (g.members || []).filter(m => m.user_id !== memberId) } : g));
+    }
   };
 
   const openConversation = async (user) => {
@@ -2566,54 +2627,164 @@ export default function Inbox() {
             {tab === "groups" && activeGroup && (
               <>
                 {/* Group header */}
-                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: "0.5px solid #e5e7eb", background: "white", boxShadow: "0 4px 12px rgba(107,56,212,0.04)", minHeight: 89, boxSizing: "border-box" }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20, fontWeight: 700, color: "white" }}>
-                    {activeGroup.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 16, color: "#181445" }}>{activeGroup.name}</div>
-                    <div style={{ fontSize: 11.5, color: "#7b7486", marginTop: 2 }}>
-                      {(activeGroup.members || []).length} member{(activeGroup.members || []).length !== 1 ? "s" : ""}
-                      {activeGroup.description ? ` · ${activeGroup.description}` : ""}
-                    </div>
-                  </div>
-                  {/* Group info toggle */}
-                  <button
-                    onClick={() => setShowGroupInfo(v => !v)}
-                    title="Group info"
-                    style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: showGroupInfo ? "#ede9fe" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b38d4" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
-                    onMouseLeave={e => e.currentTarget.style.background = showGroupInfo ? "#ede9fe" : "white"}
-                  >
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 3a1 1 0 110 2 1 1 0 010-2zm0 4a1 1 0 011 1v4a1 1 0 11-2 0v-4a1 1 0 011-1z"/></svg>
-                  </button>
-                  {/* Leave group */}
-                  <button
-                    onClick={() => leaveGroup(activeGroup)}
-                    title="Leave group"
-                    style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #fecaca", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#dc2626" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#fff1f2"}
-                    onMouseLeave={e => e.currentTarget.style.background = "white"}
-                  >
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" width="16" height="16"><path d="M13 10H3m0 0l3-3m-3 3l3 3M17 4v12"/></svg>
-                  </button>
-                </div>
-
-                {/* Group info panel */}
-                {showGroupInfo && (
-                  <div style={{ background: "#faf5ff", borderBottom: "0.5px solid #e5e7eb", padding: "12px 20px" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Members</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      {(activeGroup.members || []).map(m => (
-                        <div key={m.user_id} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", borderRadius: 20, padding: "4px 10px", border: "1px solid #ede9fe", fontSize: 12 }}>
-                          <Avatar name={m.full_name} size={22} photoUrl={m.photo ? resolveUrl(m.photo) : null} />
-                          <span style={{ color: "#181445", fontWeight: 500 }}>{m.full_name}</span>
-                          {m.role === "admin" && <span style={{ fontSize: 9, background: "#7c3aed", color: "white", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>ADMIN</span>}
+                {(() => {
+                  const isGroupAdmin = (activeGroup.members || []).some(
+                    m => String(m.user_id) === String(currentUser.id) && m.role === "admin"
+                  );
+                  const addableMember = allUsers.filter(u =>
+                    !(activeGroup.members || []).find(m => String(m.user_id) === String(u.id)) &&
+                    u.full_name.toLowerCase().includes(groupMemberSearch.toLowerCase())
+                  );
+                  return (
+                    <>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: "0.5px solid #e5e7eb", background: "white", boxShadow: "0 4px 12px rgba(107,56,212,0.04)", minHeight: 89, boxSizing: "border-box" }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20, fontWeight: 700, color: "white" }}>
+                          {activeGroup.name.charAt(0).toUpperCase()}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 600, fontSize: 16, color: "#181445" }}>{activeGroup.name}</div>
+                          <div style={{ fontSize: 11.5, color: "#7b7486", marginTop: 2 }}>
+                            {(activeGroup.members || []).length} member{(activeGroup.members || []).length !== 1 ? "s" : ""}
+                            {activeGroup.description ? ` · ${activeGroup.description}` : ""}
+                          </div>
+                        </div>
+
+                        {/* Info toggle */}
+                        <button
+                          onClick={() => setShowGroupInfo(v => !v)}
+                          title="Group members"
+                          style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: showGroupInfo ? "#ede9fe" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b38d4" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+                          onMouseLeave={e => e.currentTarget.style.background = showGroupInfo ? "#ede9fe" : "white"}
+                        >
+                          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 3a1 1 0 110 2 1 1 0 010-2zm0 4a1 1 0 011 1v4a1 1 0 11-2 0v-4a1 1 0 011-1z"/></svg>
+                        </button>
+
+                        {/* 3-dot menu */}
+                        <div style={{ position: "relative" }} ref={groupMenuRef}>
+                          <button
+                            onClick={() => setShowGroupMenu(v => !v)}
+                            title="More options"
+                            style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: showGroupMenu ? "#ede9fe" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b38d4", fontSize: 18, fontWeight: 700 }}
+                            onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+                            onMouseLeave={e => e.currentTarget.style.background = showGroupMenu ? "#ede9fe" : "white"}
+                          >
+                            ⋯
+                          </button>
+                          {showGroupMenu && (
+                            <div style={{ position: "absolute", top: 40, right: 0, zIndex: 999, background: "white", borderRadius: 10, boxShadow: "0 4px 20px rgba(0,0,0,0.12)", border: "1px solid rgba(107,56,212,0.1)", minWidth: 180, overflow: "hidden", animation: "fadeInDown 0.12s ease" }}>
+                              {/* Archive — available to everyone */}
+                              <button
+                                onClick={() => { setShowGroupMenu(false); archiveGroup(activeGroup); }}
+                                style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", border: "none", background: "none", cursor: "pointer", textAlign: "left", fontSize: 13, color: "#374151" }}
+                                onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+                                onMouseLeave={e => e.currentTarget.style.background = "none"}
+                              >
+                                <svg viewBox="0 0 20 20" fill="none" stroke="#6b38d4" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M3 6h14M5 6l1 11h8L15 6M8 10v4M12 10v4M7 6V4h6v2"/></svg>
+                                Archive group
+                              </button>
+                              <div style={{ height: 1, background: "#f3f0ff", margin: "0 10px" }} />
+                              {/* Leave — available to everyone */}
+                              <button
+                                onClick={() => { setShowGroupMenu(false); leaveGroup(activeGroup); }}
+                                style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", border: "none", background: "none", cursor: "pointer", textAlign: "left", fontSize: 13, color: "#374151" }}
+                                onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+                                onMouseLeave={e => e.currentTarget.style.background = "none"}
+                              >
+                                <svg viewBox="0 0 20 20" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" width="16" height="16"><path d="M13 10H3m0 0l3-3m-3 3l3 3M17 4v12"/></svg>
+                                Leave group
+                              </button>
+                              {/* Delete — admin only */}
+                              {isGroupAdmin && (
+                                <>
+                                  <div style={{ height: 1, background: "#f3f0ff", margin: "0 10px" }} />
+                                  <button
+                                    onClick={() => { setShowGroupMenu(false); deleteGroup(activeGroup); }}
+                                    style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", border: "none", background: "none", cursor: "pointer", textAlign: "left", fontSize: 13, color: "#dc2626" }}
+                                    onMouseEnter={e => e.currentTarget.style.background = "#fff1f2"}
+                                    onMouseLeave={e => e.currentTarget.style.background = "none"}
+                                  >
+                                    <svg viewBox="0 0 20 20" fill="none" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M3 6h14M5 6l1 11h8L15 6M8 10v4M12 10v4M7 6V4h6v2"/></svg>
+                                    Delete group
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Group info + manage members panel */}
+                      {showGroupInfo && (
+                        <div style={{ background: "#faf5ff", borderBottom: "0.5px solid #e5e7eb", padding: "14px 20px", maxHeight: 320, overflowY: "auto" }}>
+                          {/* Members list */}
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                            Members ({(activeGroup.members || []).length})
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+                            {(activeGroup.members || []).map(m => (
+                              <div key={m.user_id} style={{ display: "flex", alignItems: "center", gap: 8, background: "white", borderRadius: 10, padding: "7px 10px", border: "1px solid #ede9fe" }}>
+                                <Avatar name={m.full_name} size={28} photoUrl={m.photo ? resolveUrl(m.photo) : null} />
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 12.5, fontWeight: 600, color: "#181445" }}>{m.full_name}</div>
+                                  {m.department && <div style={{ fontSize: 10.5, color: "#7b7486" }}>{m.department}</div>}
+                                </div>
+                                {m.role === "admin" && (
+                                  <span style={{ fontSize: 9, background: "#7c3aed", color: "white", borderRadius: 4, padding: "2px 6px", fontWeight: 700, flexShrink: 0 }}>ADMIN</span>
+                                )}
+                                {/* Remove button — admin only, can't remove yourself this way */}
+                                {isGroupAdmin && String(m.user_id) !== String(currentUser.id) && (
+                                  <button
+                                    onClick={() => removeGroupMember(m.user_id)}
+                                    title="Remove member"
+                                    style={{ width: 22, height: 22, borderRadius: 6, border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#dc2626", flexShrink: 0, fontSize: 14, lineHeight: 1 }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = "#fff1f2"; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+                                  >×</button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Add member — admin only */}
+                          {isGroupAdmin && (
+                            <>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Add Member</div>
+                              <input
+                                placeholder="Search users to add..."
+                                value={groupMemberSearch}
+                                onChange={e => setGroupMemberSearch(e.target.value)}
+                                style={{ width: "100%", boxSizing: "border-box", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, outline: "none", background: "white" }}
+                              />
+                              {groupMemberSearch.trim() && (
+                                <div style={{ marginTop: 6, background: "white", borderRadius: 8, border: "1px solid #ede9fe", overflow: "hidden" }}>
+                                  {addableMember.slice(0, 8).length === 0
+                                    ? <div style={{ padding: "8px 12px", fontSize: 12, color: "#aaa" }}>No users found</div>
+                                    : addableMember.slice(0, 8).map(u => (
+                                        <div key={u.id}
+                                          onClick={() => addGroupMember(u)}
+                                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", cursor: "pointer", borderBottom: "0.5px solid #f5f3ff" }}
+                                          onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+                                          onMouseLeave={e => e.currentTarget.style.background = "white"}
+                                        >
+                                          <Avatar name={u.full_name} size={26} photoUrl={u.photo ? resolveUrl(u.photo) : null} />
+                                          <div>
+                                            <div style={{ fontSize: 12, fontWeight: 600, color: "#181445" }}>{u.full_name}</div>
+                                            <div style={{ fontSize: 10.5, color: "#7b7486" }}>{u.department}</div>
+                                          </div>
+                                          <div style={{ marginLeft: "auto", color: "#7c3aed", fontSize: 18, lineHeight: 1 }}>+</div>
+                                        </div>
+                                      ))
+                                  }
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
 
                 {/* Group messages */}
                 <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 4, background: "#fafafa" }}>
