@@ -397,4 +397,299 @@ router.post("/document/:docId/comments", authMiddleware, upload.single("file"), 
   }
 });
 
+
+// ════════════════════════════════════════════════════════════════════════════
+// GROUP CHAT
+// ════════════════════════════════════════════════════════════════════════════
+
+const GROUP_MSG_SELECT = `
+  SELECT gm.*, u.full_name AS sender_name, u.avatar_url AS sender_photo
+  FROM group_messages gm
+  JOIN users u ON u.id = gm.sender_id
+`;
+
+// POST /api/chat/groups — create a group and add creator + selected members
+router.post("/groups", authMiddleware, async (req, res) => {
+  const { name, description, memberIds } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ message: "Group name is required." });
+
+  const members = Array.isArray(memberIds) ? memberIds.map(Number).filter(Boolean) : [];
+
+  try {
+    const [result] = await db.query(
+      "INSERT INTO chat_groups (name, description, created_by) VALUES (?, ?, ?)",
+      [name.trim(), description || null, req.user.id]
+    );
+    const groupId = result.insertId;
+
+    // Always add the creator as admin
+    const memberSet = [...new Set([req.user.id, ...members])];
+    const memberValues = memberSet.map(uid => [groupId, uid, uid === req.user.id ? "admin" : "member"]);
+    await db.query("INSERT INTO chat_group_members (group_id, user_id, role) VALUES ?", [memberValues]);
+
+    const [group] = await db.query(
+      `SELECT g.*, u.full_name AS creator_name
+       FROM chat_groups g JOIN users u ON u.id = g.created_by
+       WHERE g.id = ?`, [groupId]
+    );
+    const [members_] = await db.query(
+      `SELECT cgm.user_id, cgm.role, u.full_name, u.avatar_url AS photo, u.department
+       FROM chat_group_members cgm JOIN users u ON u.id = cgm.user_id
+       WHERE cgm.group_id = ?`, [groupId]
+    );
+    res.status(201).json({ ...group[0], members: members_, unread_count: 0, last_message: null, last_time: null });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET /api/chat/groups — list all groups the current user belongs to
+router.get("/groups", authMiddleware, async (req, res) => {
+  try {
+    const [groups] = await db.query(`
+      SELECT g.id, g.name, g.description, g.avatar_url, g.created_by, g.created_at,
+             u.full_name AS creator_name,
+             gm_last.content AS last_message,
+             gm_last.created_at AS last_time,
+             gm_last.sender_id AS last_sender_id,
+             gm_last.sender_name AS last_sender_name,
+             COALESCE(unread.cnt, 0) AS unread_count
+      FROM chat_groups g
+      JOIN chat_group_members cgm ON cgm.group_id = g.id AND cgm.user_id = ?
+      JOIN users u ON u.id = g.created_by
+      LEFT JOIN (
+        SELECT gm2.group_id, gm2.content, gm2.created_at, gm2.sender_id, u2.full_name AS sender_name
+        FROM group_messages gm2
+        JOIN users u2 ON u2.id = gm2.sender_id
+        WHERE gm2.id = (
+          SELECT MAX(gm3.id) FROM group_messages gm3 WHERE gm3.group_id = gm2.group_id
+        )
+      ) gm_last ON gm_last.group_id = g.id
+      LEFT JOIN (
+        SELECT gm4.group_id, COUNT(*) AS cnt
+        FROM group_messages gm4
+        WHERE gm4.id NOT IN (
+          SELECT message_id FROM group_message_reads WHERE user_id = ?
+        )
+        AND gm4.sender_id != ?
+        GROUP BY gm4.group_id
+      ) unread ON unread.group_id = g.id
+      ORDER BY COALESCE(gm_last.created_at, g.created_at) DESC
+    `, [req.user.id, req.user.id, req.user.id]);
+
+    // Attach member list to each group
+    const groupIds = groups.map(g => g.id);
+    if (groupIds.length === 0) return res.json([]);
+
+    const [allMembers] = await db.query(`
+      SELECT cgm.group_id, cgm.user_id, cgm.role, u.full_name, u.avatar_url AS photo, u.department
+      FROM chat_group_members cgm
+      JOIN users u ON u.id = cgm.user_id
+      WHERE cgm.group_id IN (?)
+    `, [groupIds]);
+
+    const membersByGroup = {};
+    for (const m of allMembers) {
+      if (!membersByGroup[m.group_id]) membersByGroup[m.group_id] = [];
+      membersByGroup[m.group_id].push(m);
+    }
+
+    res.json(groups.map(g => ({ ...g, members: membersByGroup[g.id] || [] })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET /api/chat/groups/:groupId — single group info + members
+router.get("/groups/:groupId", authMiddleware, async (req, res) => {
+  const groupId = parseInt(req.params.groupId);
+  try {
+    // Verify membership
+    const [[membership]] = await db.query(
+      "SELECT * FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+      [groupId, req.user.id]
+    );
+    if (!membership) return res.status(403).json({ message: "Not a member of this group." });
+
+    const [[group]] = await db.query(
+      `SELECT g.*, u.full_name AS creator_name FROM chat_groups g JOIN users u ON u.id = g.created_by WHERE g.id = ?`,
+      [groupId]
+    );
+    const [members] = await db.query(
+      `SELECT cgm.user_id, cgm.role, u.full_name, u.avatar_url AS photo, u.department, u.email
+       FROM chat_group_members cgm JOIN users u ON u.id = cgm.user_id WHERE cgm.group_id = ?`,
+      [groupId]
+    );
+    res.json({ ...group, members });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET /api/chat/groups/:groupId/messages — fetch messages (marks all as read)
+router.get("/groups/:groupId/messages", authMiddleware, async (req, res) => {
+  const groupId = parseInt(req.params.groupId);
+  try {
+    // Verify membership
+    const [[membership]] = await db.query(
+      "SELECT 1 FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+      [groupId, req.user.id]
+    );
+    if (!membership) return res.status(403).json({ message: "Not a member of this group." });
+
+    const [messages] = await db.query(
+      `${GROUP_MSG_SELECT} WHERE gm.group_id = ? ORDER BY gm.created_at ASC`,
+      [groupId]
+    );
+
+    // Mark all messages in this group as read for the current user
+    if (messages.length > 0) {
+      const unreadIds = messages
+        .filter(m => m.sender_id !== req.user.id)
+        .map(m => m.id);
+      if (unreadIds.length > 0) {
+        const readValues = unreadIds.map(id => [id, req.user.id]);
+        await db.query(
+          "INSERT IGNORE INTO group_message_reads (message_id, user_id) VALUES ?",
+          [readValues]
+        );
+      }
+    }
+
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// POST /api/chat/groups/:groupId/messages — send a group message
+router.post("/groups/:groupId/messages", authMiddleware, upload.single("file"), async (req, res) => {
+  const groupId = parseInt(req.params.groupId);
+  const { content } = req.body;
+
+  if (!content && !req.file) return res.status(400).json({ message: "Message or file required." });
+
+  try {
+    const [[membership]] = await db.query(
+      "SELECT 1 FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+      [groupId, req.user.id]
+    );
+    if (!membership) return res.status(403).json({ message: "Not a member of this group." });
+
+    const fileUrl = await uploadToR2(req.file);
+    const fileName = req.file ? req.file.originalname : null;
+
+    const [result] = await db.query(
+      "INSERT INTO group_messages (group_id, sender_id, content, file_url, file_name) VALUES (?, ?, ?, ?, ?)",
+      [groupId, req.user.id, content || null, fileUrl, fileName]
+    );
+
+    // Mark as read for sender immediately
+    await db.query(
+      "INSERT IGNORE INTO group_message_reads (message_id, user_id) VALUES (?, ?)",
+      [result.insertId, req.user.id]
+    );
+
+    const [[msg]] = await db.query(`${GROUP_MSG_SELECT} WHERE gm.id = ?`, [result.insertId]);
+    res.status(201).json(msg);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// POST /api/chat/groups/:groupId/members — add a member (admin only)
+router.post("/groups/:groupId/members", authMiddleware, async (req, res) => {
+  const groupId = parseInt(req.params.groupId);
+  const { userId } = req.body;
+
+  try {
+    const [[myRole]] = await db.query(
+      "SELECT role FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+      [groupId, req.user.id]
+    );
+    if (!myRole || myRole.role !== "admin") return res.status(403).json({ message: "Only admins can add members." });
+
+    await db.query(
+      "INSERT IGNORE INTO chat_group_members (group_id, user_id, role) VALUES (?, ?, 'member')",
+      [groupId, userId]
+    );
+    res.json({ added: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE /api/chat/groups/:groupId/members/:userId — remove member or leave
+router.delete("/groups/:groupId/members/:userId", authMiddleware, async (req, res) => {
+  const groupId = parseInt(req.params.groupId);
+  const targetUserId = parseInt(req.params.userId);
+  const isSelf = targetUserId === req.user.id;
+
+  try {
+    if (!isSelf) {
+      const [[myRole]] = await db.query(
+        "SELECT role FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+        [groupId, req.user.id]
+      );
+      if (!myRole || myRole.role !== "admin") return res.status(403).json({ message: "Only admins can remove members." });
+    }
+
+    await db.query(
+      "DELETE FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+      [groupId, targetUserId]
+    );
+    res.json({ removed: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// PATCH /api/chat/groups/:groupId — rename group (admin only)
+router.patch("/groups/:groupId", authMiddleware, async (req, res) => {
+  const groupId = parseInt(req.params.groupId);
+  const { name, description } = req.body;
+
+  try {
+    const [[myRole]] = await db.query(
+      "SELECT role FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+      [groupId, req.user.id]
+    );
+    if (!myRole || myRole.role !== "admin") return res.status(403).json({ message: "Only admins can edit this group." });
+
+    await db.query(
+      "UPDATE chat_groups SET name = COALESCE(?, name), description = COALESCE(?, description) WHERE id = ?",
+      [name || null, description || null, groupId]
+    );
+    res.json({ updated: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE /api/chat/groups/:groupId — delete group (admin only)
+router.delete("/groups/:groupId", authMiddleware, async (req, res) => {
+  const groupId = parseInt(req.params.groupId);
+  try {
+    const [[myRole]] = await db.query(
+      "SELECT role FROM chat_group_members WHERE group_id = ? AND user_id = ?",
+      [groupId, req.user.id]
+    );
+    if (!myRole || myRole.role !== "admin") return res.status(403).json({ message: "Only admins can delete this group." });
+
+    await db.query("DELETE FROM chat_groups WHERE id = ?", [groupId]);
+    res.json({ deleted: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;

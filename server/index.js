@@ -154,12 +154,28 @@ const onlineUsers = new Map();
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
-  socket.on("register", (userId) => {
+  socket.on("register", async (userId) => {
     socket.userId = String(userId);   // ← required by setupTypingEvents
     onlineUsers.set(String(userId), socket.id);
     socket.join(`user_${userId}`);
     console.log(`User ${userId} registered, joined user_${userId}`);
     io.emit("online_users", Array.from(onlineUsers.keys()));
+
+    // Auto-join all group rooms this user belongs to so broadcasts reach them
+    try {
+      const [groups] = await db.query(
+        "SELECT group_id FROM chat_group_members WHERE user_id = ?",
+        [userId]
+      );
+      for (const { group_id } of groups) {
+        socket.join(`group_${group_id}`);
+      }
+      if (groups.length > 0) {
+        console.log(`User ${userId} auto-joined ${groups.length} group room(s)`);
+      }
+    } catch (err) {
+      console.error(`Failed to auto-join group rooms for user ${userId}:`, err.message);
+    }
   });
 
   // ── Program chair joins their notification room ──────────────────────────
@@ -275,6 +291,33 @@ io.on("connection", (socket) => {
     if (toSocketId) {
       io.to(toSocketId).emit("call_ended");
     }
+  });
+
+  // ── Group chat ───────────────────────────────────────────────────────────
+  // Explicit join (called when user opens a group — ensures they're in the room
+  // even if the auto-join on register happened before the group was created).
+  socket.on("join_group", (groupId) => {
+    socket.join(`group_${groupId}`);
+    console.log(`Socket ${socket.id} joined group_${groupId}`);
+  });
+
+  socket.on("leave_group", (groupId) => {
+    socket.leave(`group_${groupId}`);
+  });
+
+  // Broadcast a new group message to all online members in the room.
+  // The REST POST already persisted the message; this just delivers it live.
+  socket.on("send_group_message", ({ groupId, message }) => {
+    io.to(`group_${groupId}`).emit("receive_group_message", { groupId, message });
+  });
+
+  // Group typing indicators
+  socket.on("group_typing", ({ groupId, senderId, senderName }) => {
+    socket.to(`group_${groupId}`).emit("group_user_typing", { groupId, senderId, senderName });
+  });
+
+  socket.on("group_stop_typing", ({ groupId, senderId }) => {
+    socket.to(`group_${groupId}`).emit("group_user_stop_typing", { groupId, senderId });
   });
 
   // ── Disconnect ──────────────────────────────────────────────────────────

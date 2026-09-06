@@ -676,8 +676,26 @@ export default function Inbox() {
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(currentUser?.role);
 
   const [activeNav, setActiveNav] = useState("inbox");
-  const [tab, setTab] = useState("dm"); // "dm" | "documents"
+  const [tab, setTab] = useState("dm"); // "dm" | "groups" | "documents"
   const [onlineUserIds, setOnlineUserIds] = useState([]);
+
+  // ── Group chat state ──────────────────────────────────────────────────────
+  const [groups, setGroups] = useState([]);
+  const [activeGroup, setActiveGroup] = useState(null);
+  const [groupMessages, setGroupMessages] = useState([]);
+  const [groupInput, setGroupInput] = useState("");
+  const [groupFile, setGroupFile] = useState(null);
+  const [groupTypingUsers, setGroupTypingUsers] = useState({}); // { groupId: [{senderId,senderName}] }
+  const [showNewGroup, setShowNewGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupDesc, setNewGroupDesc] = useState("");
+  const [newGroupSearch, setNewGroupSearch] = useState("");
+  const [newGroupMembers, setNewGroupMembers] = useState([]); // array of user objects
+  const [groupCreating, setGroupCreating] = useState(false);
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
+  const groupFileRef = useRef(null);
+  const groupTypingTimeoutRef = useRef(null);
+  const activeGroupRef = useRef(null);
 
   // DM state
   const [conversations, setConversations] = useState([]);
@@ -750,6 +768,7 @@ export default function Inbox() {
   // that first render). Keep it in a ref that's always current instead.
   const activeConvRef = useRef(null);
   useEffect(() => { activeConvRef.current = activeConv; }, [activeConv]);
+  useEffect(() => { activeGroupRef.current = activeGroup; }, [activeGroup]);
 
   // ── Socket setup ─────────────────────────────────────────────────────────────
   // Uses the single shared socket (./socket) that TopBar and the rest of the
@@ -897,6 +916,41 @@ export default function Inbox() {
     };
     socket.on("call_ended", onCallEnded);
 
+    // ── Group chat socket listeners ─────────────────────────────────────────
+    const onReceiveGroupMessage = ({ groupId, message }) => {
+      const activeGrp = activeGroupRef.current;
+      if (activeGrp && String(activeGrp.id) === String(groupId)) {
+        setGroupMessages(prev => {
+          if (prev.find(m => m.id === message.id)) return prev;
+          return [...prev, message];
+        });
+      }
+      // Update last message preview in groups list
+      setGroups(prev => prev.map(g =>
+        String(g.id) === String(groupId)
+          ? { ...g, last_message: message.content || "📎 File", last_time: message.created_at, last_sender_id: message.sender_id, last_sender_name: message.sender_name, unread_count: activeGrp && String(activeGrp.id) === String(groupId) ? 0 : (g.unread_count || 0) + 1 }
+          : g
+      ));
+    };
+    socket.on("receive_group_message", onReceiveGroupMessage);
+
+    const onGroupUserTyping = ({ groupId, senderId, senderName }) => {
+      setGroupTypingUsers(prev => {
+        const existing = prev[groupId] || [];
+        if (existing.find(u => String(u.senderId) === String(senderId))) return prev;
+        return { ...prev, [groupId]: [...existing, { senderId, senderName }] };
+      });
+    };
+    socket.on("group_user_typing", onGroupUserTyping);
+
+    const onGroupUserStopTyping = ({ groupId, senderId }) => {
+      setGroupTypingUsers(prev => ({
+        ...prev,
+        [groupId]: (prev[groupId] || []).filter(u => String(u.senderId) !== String(senderId))
+      }));
+    };
+    socket.on("group_user_stop_typing", onGroupUserStopTyping);
+
     // Only remove the listeners this effect added — never disconnect the
     // shared socket, since TopBar and other pages still depend on it.
     return () => {
@@ -913,6 +967,9 @@ export default function Inbox() {
       socket.off("ice_candidate", onIceCandidate);
       socket.off("call_rejected", onCallRejected);
       socket.off("call_ended", onCallEnded);
+      socket.off("receive_group_message", onReceiveGroupMessage);
+      socket.off("group_user_typing", onGroupUserTyping);
+      socket.off("group_user_stop_typing", onGroupUserStopTyping);
     };
   }, []);
 
@@ -932,7 +989,7 @@ export default function Inbox() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, docComments, otherTyping]);
 
-  useEffect(() => { fetchConversations(); fetchAllUsers(); fetchUnreadCount(); fetchDocuments(); }, []);
+  useEffect(() => { fetchConversations(); fetchAllUsers(); fetchUnreadCount(); fetchDocuments(); fetchGroups(); }, []);
 
   // ── Arriving from TopBar's bottom-right "new message" popup ───────────────
   // TopBar navigates here with { openConversationId } in nav state when the
@@ -1257,6 +1314,89 @@ export default function Inbox() {
     if (res.ok) setDocuments(await res.json());
   };
 
+  // ── Group chat helpers ─────────────────────────────────────────────────────
+  const fetchGroups = async () => {
+    const res = await fetch(`${API}/api/chat/groups`, { headers: authHeaders });
+    if (res.ok) setGroups(await res.json());
+  };
+
+  const openGroup = async (group) => {
+    setActiveGroup(group);
+    setActiveConv(null);
+    setActiveDoc(null);
+    setShowGroupInfo(false);
+    setGroupInput("");
+    setGroupFile(null);
+    socket?.emit("join_group", group.id);
+    const res = await fetch(`${API}/api/chat/groups/${group.id}/messages`, { headers: authHeaders });
+    if (res.ok) {
+      const msgs = await res.json();
+      setGroupMessages(msgs);
+      // Clear unread for this group
+      setGroups(prev => prev.map(g => g.id === group.id ? { ...g, unread_count: 0 } : g));
+    }
+  };
+
+  const sendGroupMessage = async () => {
+    if (!activeGroup || (!groupInput.trim() && !groupFile)) return;
+    const fd = new FormData();
+    if (groupInput.trim()) fd.append("content", groupInput.trim());
+    if (groupFile) fd.append("file", groupFile);
+    setGroupInput("");
+    setGroupFile(null);
+    if (groupFileRef.current) groupFileRef.current.value = "";
+    // Stop typing
+    socket?.emit("group_stop_typing", { groupId: activeGroup.id, senderId: currentUser.id });
+    const res = await fetch(`${API}/api/chat/groups/${activeGroup.id}/messages`, {
+      method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd,
+    });
+    if (res.ok) {
+      const msg = await res.json();
+      setGroupMessages(prev => prev.find(m => m.id === msg.id) ? prev : [...prev, msg]);
+      socket?.emit("send_group_message", { groupId: activeGroup.id, message: msg });
+      setGroups(prev => prev.map(g => g.id === activeGroup.id ? { ...g, last_message: msg.content || "📎 File", last_time: msg.created_at, last_sender_id: msg.sender_id } : g));
+    }
+  };
+
+  const handleGroupInput = (val) => {
+    setGroupInput(val);
+    if (!activeGroup) return;
+    socket?.emit("group_typing", { groupId: activeGroup.id, senderId: currentUser.id, senderName: currentUser.full_name || currentUser.username });
+    clearTimeout(groupTypingTimeoutRef.current);
+    groupTypingTimeoutRef.current = setTimeout(() => {
+      socket?.emit("group_stop_typing", { groupId: activeGroup.id, senderId: currentUser.id });
+    }, 1500);
+  };
+
+  const createGroup = async () => {
+    if (!newGroupName.trim()) return;
+    setGroupCreating(true);
+    try {
+      const res = await fetch(`${API}/api/chat/groups`, {
+        method: "POST",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newGroupName.trim(), description: newGroupDesc.trim(), memberIds: newGroupMembers.map(u => u.id) }),
+      });
+      if (res.ok) {
+        const newGroup = await res.json();
+        setGroups(prev => [newGroup, ...prev]);
+        socket?.emit("join_group", newGroup.id);
+        setShowNewGroup(false);
+        setNewGroupName(""); setNewGroupDesc(""); setNewGroupSearch(""); setNewGroupMembers([]);
+        setTab("groups");
+        openGroup(newGroup);
+      }
+    } finally { setGroupCreating(false); }
+  };
+
+  const leaveGroup = async (group) => {
+    if (!window.confirm(`Leave "${group.name}"?`)) return;
+    await fetch(`${API}/api/chat/groups/${group.id}/members/${currentUser.id}`, { method: "DELETE", headers: authHeaders });
+    socket?.emit("leave_group", group.id);
+    setGroups(prev => prev.filter(g => g.id !== group.id));
+    if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
+  };
+
   const openConversation = async (user) => {
     // Conversation-list items are a lightweight preview (id, name, photo, last message, etc.)
     // and may be missing full profile fields like position/email/contact. Merge in the
@@ -1570,6 +1710,14 @@ export default function Inbox() {
     u.username.toLowerCase().includes(userSearch.toLowerCase())
   );
 
+  // Users not yet in the new group member list (for group creation picker)
+  const newGroupFilteredUsers = allUsers.filter(u =>
+    !newGroupMembers.find(m => m.id === u.id) && (
+      u.full_name.toLowerCase().includes(newGroupSearch.toLowerCase()) ||
+      u.username.toLowerCase().includes(newGroupSearch.toLowerCase())
+    )
+  );
+
   const displayName = currentUser.username || "User";
 
   // ── Conversation list: search + filter pills (layout helpers) ──
@@ -1577,6 +1725,11 @@ export default function Inbox() {
     .filter(c => !convSearch.trim() || c.full_name?.toLowerCase().includes(convSearch.trim().toLowerCase()))
     .filter(c => convFilter !== "unread" || c.unread_count > 0)
     .filter(c => convFilter !== "recent" || (c.last_time && (Date.now() - new Date(c.last_time)) < 86400000));
+
+  // ── Group list: search filter ──
+  const visibleGroups = groups.filter(g =>
+    !convSearch.trim() || g.name?.toLowerCase().includes(convSearch.trim().toLowerCase())
+  );
 
   // ════════════════════════════════════════════════════════════════════════════
   // RENDER
@@ -1615,6 +1768,10 @@ export default function Inbox() {
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes typing-dot {
+          0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+          40%            { transform: scale(1);   opacity: 1;   }
+        }
       `}</style>
 
       {/* ── Main content area ── */}
@@ -1638,14 +1795,41 @@ export default function Inbox() {
                   )}
                 </span>
                 <button
-                  onClick={() => setShowNewChat(true)}
-                  title="New message"
+                  onClick={() => tab === "groups" ? setShowNewGroup(true) : setShowNewChat(true)}
+                  title={tab === "groups" ? "New group" : "New message"}
                   style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#494454" }}
                   onMouseEnter={e => e.currentTarget.style.background = "#e9e5ff"}
                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                 >
-                  <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><circle cx="4" cy="10" r="1.6" /><circle cx="10" cy="10" r="1.6" /><circle cx="16" cy="10" r="1.6" /></svg>
+                  {tab === "groups"
+                    ? <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="18" height="18"><path d="M10 4v12M4 10h12" /></svg>
+                    : <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><circle cx="4" cy="10" r="1.6" /><circle cx="10" cy="10" r="1.6" /><circle cx="16" cy="10" r="1.6" /></svg>
+                  }
                 </button>
+              </div>
+
+              {/* Tab bar: DM / Groups / Documents */}
+              <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+                {[{ id: "dm", label: "Direct" }, { id: "groups", label: "Groups" }, { id: "documents", label: "Docs" }].map(t => (
+                  <button key={t.id} onClick={() => { setTab(t.id); setActiveConv(null); setActiveDoc(null); setActiveGroup(null); }}
+                    style={{
+                      flex: 1, padding: "6px 4px", borderRadius: 8, border: "none", cursor: "pointer",
+                      fontSize: 12, fontWeight: 600,
+                      background: tab === t.id ? "#6b38d4" : "transparent",
+                      color: tab === t.id ? "white" : "#7b7486",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseEnter={e => { if (tab !== t.id) e.currentTarget.style.background = "#f0ebff"; }}
+                    onMouseLeave={e => { if (tab !== t.id) e.currentTarget.style.background = "transparent"; }}
+                  >
+                    {t.label}
+                    {t.id === "groups" && groups.reduce((s, g) => s + (g.unread_count || 0), 0) > 0 && (
+                      <span style={{ marginLeft: 5, background: "#ef4444", color: "white", borderRadius: 20, padding: "0 5px", fontSize: 9, fontWeight: 700 }}>
+                        {groups.reduce((s, g) => s + (g.unread_count || 0), 0)}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
 
               {/* Search Bar */}
@@ -1715,9 +1899,120 @@ export default function Inbox() {
               </div>
             )}
 
-            {/* Conversation / Document list */}
+            {/* New Group Creator */}
+            {showNewGroup && (
+              <div style={{ padding: "12px 14px", borderBottom: "0.5px solid #e5e7eb", background: "#faf5ff", maxHeight: 360, overflowY: "auto" }}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: "bold", color: "#6b38d4" }}>New Group</span>
+                  <button onClick={() => { setShowNewGroup(false); setNewGroupName(""); setNewGroupDesc(""); setNewGroupSearch(""); setNewGroupMembers([]); }} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#999", fontSize: 16, lineHeight: 1 }}>×</button>
+                </div>
+                <input
+                  placeholder="Group name *"
+                  value={newGroupName}
+                  onChange={e => setNewGroupName(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, outline: "none", boxSizing: "border-box", marginBottom: 6 }}
+                />
+                <input
+                  placeholder="Description (optional)"
+                  value={newGroupDesc}
+                  onChange={e => setNewGroupDesc(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, outline: "none", boxSizing: "border-box", marginBottom: 8 }}
+                />
+                {/* Selected members chips */}
+                {newGroupMembers.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
+                    {newGroupMembers.map(u => (
+                      <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 4, background: "#ede9fe", borderRadius: 20, padding: "3px 8px", fontSize: 11 }}>
+                        <span style={{ color: "#5b21b6", fontWeight: 600 }}>{u.full_name}</span>
+                        <button onClick={() => setNewGroupMembers(prev => prev.filter(m => m.id !== u.id))} style={{ background: "none", border: "none", cursor: "pointer", color: "#7c3aed", fontSize: 13, lineHeight: 1, padding: 0 }}>×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <input
+                  placeholder="Add members..."
+                  value={newGroupSearch}
+                  onChange={e => setNewGroupSearch(e.target.value)}
+                  style={{ width: "100%", padding: "6px 10px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 12, outline: "none", boxSizing: "border-box", marginBottom: 4 }}
+                />
+                <div style={{ maxHeight: 120, overflowY: "auto" }}>
+                  {newGroupFilteredUsers.slice(0, 20).map(u => (
+                    <div key={u.id} onClick={() => { setNewGroupMembers(prev => [...prev, u]); setNewGroupSearch(""); }}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 4px", cursor: "pointer", borderRadius: 8 }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#ede9fe"}
+                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                    >
+                      <Avatar name={u.full_name} size={26} photoUrl={u.photo ? resolveUrl(u.photo) : null} />
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: "#111" }}>{u.full_name}</div>
+                        <div style={{ fontSize: 10, color: "#888" }}>{u.department}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={createGroup}
+                  disabled={!newGroupName.trim() || groupCreating}
+                  style={{ marginTop: 10, width: "100%", padding: "8px", borderRadius: 8, border: "none", background: newGroupName.trim() ? "#6b38d4" : "#e5e7eb", color: newGroupName.trim() ? "white" : "#aaa", cursor: newGroupName.trim() ? "pointer" : "not-allowed", fontWeight: 600, fontSize: 13 }}
+                >
+                  {groupCreating ? "Creating..." : "Create Group"}
+                </button>
+              </div>
+            )}
+
+            {/* Conversation / Document / Group list */}
             <div style={{ flex: 1, overflowY: "auto", paddingBottom: 72 }}>
-              {tab === "dm" ? (
+              {tab === "groups" ? (
+                visibleGroups.length === 0 ? (
+                  <div style={{ padding: 24, textAlign: "center", color: "#aaa", fontSize: 12 }}>
+                    No groups yet.<br />
+                    <span onClick={() => setShowNewGroup(true)} style={{ color: "#7c3aed", cursor: "pointer", fontWeight: "bold" }}>Create one →</span>
+                  </div>
+                ) : visibleGroups.map(group => {
+                  const isActive = activeGroup?.id === group.id;
+                  const memberCount = group.members?.length || 0;
+                  // Group avatar: initials from name
+                  return (
+                    <div key={group.id} onClick={() => openGroup(group)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 12,
+                        padding: "12px", margin: "4px 8px", borderRadius: 12,
+                        cursor: "pointer", position: "relative",
+                        background: isActive ? "rgba(107,56,212,0.05)" : "transparent",
+                        border: isActive ? "1px solid rgba(107,56,212,0.2)" : "1px solid transparent",
+                        transition: "background 0.12s",
+                      }}
+                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "#f6f2ff"; }}
+                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
+                    >
+                      {/* Group icon */}
+                      <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18, fontWeight: 700, color: "white", boxShadow: "0 2px 8px rgba(107,56,212,0.25)" }}>
+                        {group.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                          <span style={{ fontWeight: 600, fontSize: 13.5, color: "#181445" }}>{group.name}</span>
+                          <span style={{ fontSize: 11, color: isActive ? "#6b38d4" : "#494454", flexShrink: 0 }}>
+                            {group.last_time ? formatTime(group.last_time) : ""}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 11, color: "#7b7486", marginBottom: 2 }}>{memberCount} member{memberCount !== 1 ? "s" : ""}</div>
+                        <div style={{ fontSize: 12.5, color: "#181445", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: (group.unread_count || 0) > 0 ? 600 : 400 }}>
+                          {group.last_message
+                            ? <>{group.last_sender_id === currentUser.id ? "You: " : (group.last_sender_name ? `${group.last_sender_name.split(" ")[0]}: ` : "")}{group.last_message}</>
+                            : <span style={{ color: "#bbb", fontStyle: "italic" }}>No messages yet</span>
+                          }
+                        </div>
+                      </div>
+                      {(group.unread_count || 0) > 0 && (
+                        <div style={{ position: "absolute", right: 12, bottom: 14, minWidth: 20, height: 20, background: "#6b38d4", color: "white", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, padding: "0 5px" }}>
+                          {group.unread_count}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : tab === "dm" ? (
                 conversations.length === 0 ? (
                   <div style={{ padding: 24, textAlign: "center", color: "#aaa", fontSize: 12 }}>
                     No conversations yet.<br />
@@ -1854,11 +2149,11 @@ export default function Inbox() {
               )}
             </div>
 
-            {/* Floating Action Button (New Message) */}
-            {tab === "dm" && (
+            {/* Floating Action Button (New Message / New Group) */}
+            {(tab === "dm" || tab === "groups") && (
               <button
-                onClick={() => setShowNewChat(true)}
-                title="New message"
+                onClick={() => tab === "groups" ? setShowNewGroup(true) : setShowNewChat(true)}
+                title={tab === "groups" ? "New group" : "New message"}
                 style={{
                   position: "absolute", right: 24, bottom: 24, width: 56, height: 56,
                   borderRadius: 16, border: "none", background: "#6b38d4", color: "white",
@@ -1868,9 +2163,10 @@ export default function Inbox() {
                 onMouseEnter={e => { e.currentTarget.style.background = "#5a2fb0"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "#6b38d4"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
-                  <path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                </svg>
+                {tab === "groups"
+                  ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" width="22" height="22"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                  : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" /></svg>
+                }
               </button>
             )}
           </div>
@@ -1879,7 +2175,7 @@ export default function Inbox() {
           <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
 
             {/* No active conversation */}
-            {!activeConv && !activeDoc && (
+            {!activeConv && !activeDoc && !activeGroup && (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#aaa", gap: 10 }}>
                 <svg viewBox="0 0 40 40" fill="none" stroke="#d8b4fe" strokeWidth="2" width="48" height="48">
                   <path d="M5 8h30v20H5zM5 28l7 6v-6" />
@@ -2256,6 +2552,154 @@ export default function Inbox() {
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="20" height="20"><circle cx="12" cy="12" r="9" /><path d="M9 10h.01M15 10h.01M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8" strokeLinecap="round" /></svg>
                     </button>
                     <button onClick={sendDm} disabled={!dmInput.trim() && !dmFile} style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "#6b38d4", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !dmInput.trim() && !dmFile ? 0.5 : 1, boxShadow: "0 2px 6px rgba(107,56,212,0.3)" }}>
+                      <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M1 1l14 7-14 7V9l10-2L1 5V1z" /></svg>
+                    </button>
+                  </div>
+                  <p style={{ textAlign: "center", fontSize: 10.5, color: "#cbc3d7", marginTop: 8, marginBottom: 0 }}>
+                    Press <kbd style={{ padding: "1px 5px", background: "#f6f2ff", border: "1px solid #e3dfff", borderRadius: 4 }}>Enter</kbd> to send, <kbd style={{ padding: "1px 5px", background: "#f6f2ff", border: "1px solid #e3dfff", borderRadius: 4 }}>Shift + Enter</kbd> for new line.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* Group Chat window */}
+            {tab === "groups" && activeGroup && (
+              <>
+                {/* Group header */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: "0.5px solid #e5e7eb", background: "white", boxShadow: "0 4px 12px rgba(107,56,212,0.04)", minHeight: 89, boxSizing: "border-box" }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20, fontWeight: 700, color: "white" }}>
+                    {activeGroup.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: 16, color: "#181445" }}>{activeGroup.name}</div>
+                    <div style={{ fontSize: 11.5, color: "#7b7486", marginTop: 2 }}>
+                      {(activeGroup.members || []).length} member{(activeGroup.members || []).length !== 1 ? "s" : ""}
+                      {activeGroup.description ? ` · ${activeGroup.description}` : ""}
+                    </div>
+                  </div>
+                  {/* Group info toggle */}
+                  <button
+                    onClick={() => setShowGroupInfo(v => !v)}
+                    title="Group info"
+                    style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: showGroupInfo ? "#ede9fe" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b38d4" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+                    onMouseLeave={e => e.currentTarget.style.background = showGroupInfo ? "#ede9fe" : "white"}
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 3a1 1 0 110 2 1 1 0 010-2zm0 4a1 1 0 011 1v4a1 1 0 11-2 0v-4a1 1 0 011-1z"/></svg>
+                  </button>
+                  {/* Leave group */}
+                  <button
+                    onClick={() => leaveGroup(activeGroup)}
+                    title="Leave group"
+                    style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #fecaca", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#dc2626" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#fff1f2"}
+                    onMouseLeave={e => e.currentTarget.style.background = "white"}
+                  >
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" width="16" height="16"><path d="M13 10H3m0 0l3-3m-3 3l3 3M17 4v12"/></svg>
+                  </button>
+                </div>
+
+                {/* Group info panel */}
+                {showGroupInfo && (
+                  <div style={{ background: "#faf5ff", borderBottom: "0.5px solid #e5e7eb", padding: "12px 20px" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#7c3aed", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Members</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {(activeGroup.members || []).map(m => (
+                        <div key={m.user_id} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", borderRadius: 20, padding: "4px 10px", border: "1px solid #ede9fe", fontSize: 12 }}>
+                          <Avatar name={m.full_name} size={22} photoUrl={m.photo ? resolveUrl(m.photo) : null} />
+                          <span style={{ color: "#181445", fontWeight: 500 }}>{m.full_name}</span>
+                          {m.role === "admin" && <span style={{ fontSize: 9, background: "#7c3aed", color: "white", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>ADMIN</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Group messages */}
+                <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 4, background: "#fafafa" }}>
+                  {groupMessages.length === 0 && (
+                    <div style={{ textAlign: "center", color: "#aaa", fontSize: 12, marginTop: 40 }}>No messages yet. Start the conversation!</div>
+                  )}
+                  {groupMessages.map((msg, idx) => {
+                    const isMine = String(msg.sender_id) === String(currentUser.id);
+                    const prevMsg = groupMessages[idx - 1];
+                    const showSender = !isMine && (!prevMsg || String(prevMsg.sender_id) !== String(msg.sender_id));
+                    return (
+                      <div key={msg.id} style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "flex-end", gap: 8, marginTop: showSender ? 10 : 2 }}>
+                        {!isMine && (
+                          <div style={{ width: 32, flexShrink: 0, alignSelf: "flex-end" }}>
+                            {showSender && <Avatar name={msg.sender_name} size={32} photoUrl={msg.sender_photo ? resolveUrl(msg.sender_photo) : null} />}
+                          </div>
+                        )}
+                        <div style={{ maxWidth: "68%" }}>
+                          {showSender && (
+                            <div style={{ fontSize: 11, color: "#7c3aed", fontWeight: 600, marginBottom: 3, marginLeft: 4 }}>{msg.sender_name}</div>
+                          )}
+                          <div style={{
+                            padding: "9px 13px", borderRadius: isMine ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                            background: isMine ? "linear-gradient(135deg,#7c3aed,#6b38d4)" : "white",
+                            color: isMine ? "white" : "#181445",
+                            boxShadow: isMine ? "0 2px 8px rgba(107,56,212,0.25)" : "0 1px 3px rgba(0,0,0,0.06)",
+                            fontSize: 13.5, lineHeight: 1.5, wordBreak: "break-word",
+                          }}>
+                            {msg.file_url
+                              ? <a href={msg.file_url} target="_blank" rel="noreferrer" download={msg.file_name} style={{ display: "flex", alignItems: "center", gap: 6, color: isMine ? "white" : "#6b38d4", textDecoration: "none", fontSize: 12 }}>
+                                  <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M3 2h7l3 3v9H3V2z" /></svg>
+                                  {msg.file_name || "File"}
+                                </a>
+                              : msg.content
+                            }
+                          </div>
+                          <div style={{ fontSize: 10, color: "#bbb", marginTop: 3, textAlign: isMine ? "right" : "left", paddingLeft: 4 }}>
+                            {formatTime(msg.created_at)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {/* Typing indicator */}
+                  {(groupTypingUsers[activeGroup.id] || []).length > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                      <div style={{ display: "flex", gap: 3, padding: "8px 12px", background: "white", borderRadius: 14, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                        {[0,1,2].map(i => (
+                          <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#7c3aed", animation: "typing-dot 1s infinite", animationDelay: `${i * 0.2}s`, opacity: 0.6 }} />
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 11, color: "#7b7486" }}>
+                        {(groupTypingUsers[activeGroup.id] || []).map(u => u.senderName.split(" ")[0]).join(", ")} typing...
+                      </span>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Group message input */}
+                {groupFile && (
+                  <div style={{ padding: "6px 18px", background: "#faf5ff", borderTop: "0.5px solid #e5e7eb", display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+                    <span style={{ color: "#7c3aed" }}>📎 {groupFile.name}</span>
+                    <button onClick={() => { setGroupFile(null); if (groupFileRef.current) groupFileRef.current.value = ""; }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 14 }}>×</button>
+                  </div>
+                )}
+                <div style={{ padding: "16px 24px", borderTop: "0.5px solid #e5e7eb", background: "white" }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: 8, background: "#f6f2ff", border: "1px solid rgba(123,116,134,0.15)", borderRadius: 20, padding: 6 }}>
+                    <input type="file" ref={groupFileRef} style={{ display: "none" }} onChange={e => setGroupFile(e.target.files[0])} />
+                    <button onClick={() => groupFileRef.current.click()} title="Attach file"
+                      style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#7b7486", flexShrink: 0 }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#6b38d4"; e.currentTarget.style.background = "#e3dfff"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "#7b7486"; e.currentTarget.style.background = "transparent"; }}
+                    >
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" width="18" height="18"><path d="M15.5 11.5l-6 6a4 4 0 01-5.6-5.6l7-7a2.5 2.5 0 013.5 3.5l-7 7a1 1 0 01-1.4-1.4l6-6"/></svg>
+                    </button>
+                    <textarea
+                      value={groupInput}
+                      onChange={e => handleGroupInput(e.target.value)}
+                      onKeyDown={e => handleKey(e, sendGroupMessage)}
+                      placeholder="Message group..."
+                      rows={1}
+                      style={{ flex: 1, border: "none", background: "transparent", outline: "none", resize: "none", fontSize: 13.5, color: "#181445", padding: "9px 4px", lineHeight: 1.5, maxHeight: 100, overflowY: "auto", fontFamily: "inherit" }}
+                    />
+                    <button onClick={sendGroupMessage} disabled={!groupInput.trim() && !groupFile}
+                      style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "#6b38d4", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !groupInput.trim() && !groupFile ? 0.5 : 1, boxShadow: "0 2px 6px rgba(107,56,212,0.3)" }}>
                       <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M1 1l14 7-14 7V9l10-2L1 5V1z" /></svg>
                     </button>
                   </div>
