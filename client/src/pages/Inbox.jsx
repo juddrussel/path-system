@@ -725,6 +725,9 @@ export default function Inbox() {
   const [messageSearchOpen, setMessageSearchOpen] = useState(false);
   const [messageSearchQuery, setMessageSearchQuery] = useState("");
   const [convPrefs, setConvPrefs] = useState({}); // { [userId]: { pinned, muted, notifications, muteDuration, theme } }
+  const [hoveredConvId, setHoveredConvId] = useState(null);
+  const [menuOpenConvId, setMenuOpenConvId] = useState(null);
+  const convMenuRef = useRef(null);
   const chatMenuBtnRef = useRef(null);
   const callTimerRef = useRef(null);
   const callStartTimeRef = useRef(null);
@@ -977,6 +980,18 @@ export default function Inbox() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openMsgMenuId]);
 
+  // ── Close the conversation 3-dot menu when clicking outside it ──
+  useEffect(() => {
+    if (!menuOpenConvId) return;
+    function handleClickOutside(e) {
+      if (convMenuRef.current && !convMenuRef.current.contains(e.target)) {
+        setMenuOpenConvId(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpenConvId]);
+
   // ── Per-message action handlers ──
   const handleRemoveMessage = (msg) => {
     if (!window.confirm("Remove this message?")) return;
@@ -1199,6 +1214,26 @@ export default function Inbox() {
         break;
       default:
         break;
+    }
+  };
+
+  // ── Per-conversation 3-dot menu actions (works for any conv row, not just active) ──
+  const handleConvRowAction = async (action, conv, e) => {
+    e.stopPropagation();
+    setMenuOpenConvId(null);
+    if (action === "archive") {
+      try {
+        await fetch(`${API}/api/chat/conversations/${conv.id}/archive`, { method: "POST", headers: authHeaders });
+      } catch (err) { console.error("conv archive:", err); }
+      setConversations(prev => prev.filter(c => c.id !== conv.id));
+      if (activeConv?.id === conv.id) setActiveConv(null);
+    } else if (action === "delete") {
+      if (!window.confirm(`Delete conversation with ${conv.full_name}? This cannot be undone.`)) return;
+      try {
+        await fetch(`${API}/api/chat/messages/${conv.id}/clear`, { method: "DELETE", headers: authHeaders });
+      } catch (err) { console.error("conv delete:", err); }
+      setConversations(prev => prev.filter(c => c.id !== conv.id));
+      if (activeConv?.id === conv.id) { setActiveConv(null); setMessages([]); }
     }
   };
 
@@ -1576,6 +1611,10 @@ export default function Inbox() {
         .path-inbox-app *::-webkit-scrollbar-corner {
           background: transparent;
         }
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
 
       {/* ── Main content area ── */}
@@ -1688,18 +1727,20 @@ export default function Inbox() {
                   <div style={{ padding: 24, textAlign: "center", color: "#aaa", fontSize: 12 }}>No conversations match.</div>
                 ) : visibleConversations.map(conv => {
                   const isActive = activeConv?.id === conv.id;
+                  const isHovered = hoveredConvId === conv.id;
+                  const isMenuOpen = menuOpenConvId === conv.id;
                   return (
                     <div key={conv.id} onClick={() => openConversation(conv)}
                       style={{
                         display: "flex", alignItems: "center", gap: 12,
                         padding: "12px", margin: "4px 8px", borderRadius: 12,
                         cursor: "pointer", position: "relative",
-                        background: isActive ? "rgba(107,56,212,0.05)" : "transparent",
+                        background: isActive ? "rgba(107,56,212,0.05)" : isHovered ? "#f6f2ff" : "transparent",
                         border: isActive ? "1px solid rgba(107,56,212,0.2)" : "1px solid transparent",
                         transition: "background 0.12s",
                       }}
-                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "#f6f2ff"; }}
-                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
+                      onMouseEnter={() => setHoveredConvId(conv.id)}
+                      onMouseLeave={() => { setHoveredConvId(null); }}
                     >
                       <Avatar name={conv.full_name} size={48} online={onlineUserIds.includes(String(conv.id))} photoUrl={conv.photo ? resolveUrl(conv.photo) : null} />
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -1718,7 +1759,77 @@ export default function Inbox() {
                           </span>
                         </div>
                       </div>
-                      {conv.unread_count > 0 && (
+
+                      {/* 3-dot menu button — shown on hover or when menu is open */}
+                      {(isHovered || isMenuOpen) && (
+                        <div style={{ position: "absolute", top: 8, right: 8 }} ref={isMenuOpen ? convMenuRef : null}>
+                          <button
+                            onClick={e => { e.stopPropagation(); setMenuOpenConvId(isMenuOpen ? null : conv.id); }}
+                            title="More options"
+                            style={{
+                              width: 28, height: 28, borderRadius: 8, border: "none",
+                              background: isMenuOpen ? "#ede9fe" : "rgba(107,56,212,0.08)",
+                              color: "#6b38d4", cursor: "pointer",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: 16, fontWeight: 700, lineHeight: 1,
+                              transition: "background 0.12s",
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = "#ede9fe"; }}
+                            onMouseLeave={e => { if (!isMenuOpen) e.currentTarget.style.background = "rgba(107,56,212,0.08)"; }}
+                          >
+                            ⋯
+                          </button>
+                          {/* Dropdown */}
+                          {isMenuOpen && (
+                            <div style={{
+                              position: "absolute", top: 32, right: 0, zIndex: 999,
+                              background: "white", borderRadius: 10,
+                              boxShadow: "0 4px 20px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
+                              border: "1px solid rgba(107,56,212,0.1)",
+                              minWidth: 170, overflow: "hidden",
+                              animation: "fadeInDown 0.12s ease",
+                            }}>
+                              <button
+                                onClick={e => handleConvRowAction("archive", conv, e)}
+                                style={{
+                                  display: "flex", alignItems: "center", gap: 10,
+                                  width: "100%", padding: "10px 14px", border: "none",
+                                  background: "none", cursor: "pointer", textAlign: "left",
+                                  fontSize: 13, color: "#374151",
+                                  transition: "background 0.1s",
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = "#f5f3ff"}
+                                onMouseLeave={e => e.currentTarget.style.background = "none"}
+                              >
+                                <svg viewBox="0 0 20 20" fill="none" stroke="#6b38d4" strokeWidth="1.8" width="16" height="16" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 5h14M4 5l1 12h10L16 5M8 9v5M12 9v5M7 5V3h6v2" />
+                                </svg>
+                                Archive conversation
+                              </button>
+                              <div style={{ height: 1, background: "#f3f0ff", margin: "0 10px" }} />
+                              <button
+                                onClick={e => handleConvRowAction("delete", conv, e)}
+                                style={{
+                                  display: "flex", alignItems: "center", gap: 10,
+                                  width: "100%", padding: "10px 14px", border: "none",
+                                  background: "none", cursor: "pointer", textAlign: "left",
+                                  fontSize: 13, color: "#dc2626",
+                                  transition: "background 0.1s",
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = "#fff1f2"}
+                                onMouseLeave={e => e.currentTarget.style.background = "none"}
+                              >
+                                <svg viewBox="0 0 20 20" fill="none" stroke="#dc2626" strokeWidth="1.8" width="16" height="16" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 5h14M4 5l1 12h10L16 5M8 9v5M12 9v5M7 5V3h6v2" />
+                                </svg>
+                                Delete conversation
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {conv.unread_count > 0 && !isHovered && !isMenuOpen && (
                         <div style={{ position: "absolute", right: 12, bottom: 12, width: 20, height: 20, background: "#6b38d4", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>
                           {conv.unread_count}
                         </div>
