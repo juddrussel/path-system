@@ -740,6 +740,7 @@ export default function Inbox() {
   const [callMuted, setCallMuted] = useState(false);
   const [callCamOff, setCallCamOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [callError, setCallError] = useState(null); // user-facing error string
 
   // ── Chat settings / profile drawer ──
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
@@ -772,6 +773,11 @@ export default function Inbox() {
   const activeConvRef = useRef(null);
   useEffect(() => { activeConvRef.current = activeConv; }, [activeConv]);
   useEffect(() => { activeGroupRef.current = activeGroup; }, [activeGroup]);
+
+  // callStateRef keeps callState accessible from inside socket callbacks
+  // (which close over the mount-time value of callState) without stale closures.
+  const callStateRef = useRef(null);
+  useEffect(() => { callStateRef.current = callState; }, [callState]);
 
   // ── Socket setup ─────────────────────────────────────────────────────────────
   // Uses the single shared socket (./socket) that TopBar and the rest of the
@@ -872,6 +878,12 @@ export default function Inbox() {
         pendingCandidatesRef.current = [];
         setCallState(prev => prev ? { ...prev, type: "active" } : prev);
         callStartTimeRef.current = Date.now(); // ← track when call became active
+        // Now the call is truly connected — send the system message
+        const prev = callStateRef.current;
+        if (prev?.with?.id) {
+          const label = prev.callType === "video" ? "📹 Video call" : "📞 Audio call";
+          sendSystemMessage(prev.with.id, `${label} started`);
+        }
       } catch (e) { console.error("set remote answer:", e); }
     };
     socket.on("call_answer", onCallAnswer);
@@ -888,33 +900,28 @@ export default function Inbox() {
     socket.on("ice_candidate", onIceCandidate);
 
     const onCallRejected = () => {
-      // The person we called rejected — show missed call message
-      setCallState(prev => {
-        if (prev?.with?.id) {
-          const label = prev.callType === "video" ? "📹 Video call" : "📞 Audio call";
-          sendSystemMessage(prev.with.id, `${label} · No answer`);
-        }
-        return prev;
-      });
+      // Read state from ref (not from updater) so the side effect is clean
+      const prev = callStateRef.current;
+      if (prev?.with?.id) {
+        const label = prev.callType === "video" ? "📹 Video call" : "📞 Audio call";
+        sendSystemMessage(prev.with.id, `${label} · No answer`);
+      }
       endCallCleanup();
     };
     socket.on("call_rejected", onCallRejected);
 
     const onCallEnded = () => {
-      // Other side ended — show duration if call was active
-      setCallState(prev => {
-        if (prev?.with?.id) {
-          if (prev.type === "active" && callStartTimeRef.current) {
-            const secs = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
-            const mins = Math.floor(secs / 60);
-            const remainSecs = secs % 60;
-            const duration = mins > 0 ? `${mins}m ${remainSecs}s` : `${remainSecs}s`;
-            const label = prev.callType === "video" ? "📹 Video call" : "📞 Audio call";
-            sendSystemMessage(prev.with.id, `${label} ended · ${duration}`);
-          }
+      const prev = callStateRef.current;
+      if (prev?.with?.id) {
+        if (prev.type === "active" && callStartTimeRef.current) {
+          const secs = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
+          const mins = Math.floor(secs / 60);
+          const remainSecs = secs % 60;
+          const duration = mins > 0 ? `${mins}m ${remainSecs}s` : `${remainSecs}s`;
+          const label = prev.callType === "video" ? "📹 Video call" : "📞 Audio call";
+          sendSystemMessage(prev.with.id, `${label} ended · ${duration}`);
         }
-        return prev;
-      });
+      }
       endCallCleanup();
     };
     socket.on("call_ended", onCallEnded);
@@ -1549,7 +1556,18 @@ export default function Inbox() {
   };
 
   // ── WebRTC helpers ────────────────────────────────────────────────────────
-  const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
+  // ICE servers: STUN for address discovery + free TURN relays so calls work
+  // behind symmetric NAT (common in university/corporate networks).
+  const ICE_SERVERS = {
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      // Free public TURN relays (metered.ca) — covers NAT traversal failures
+      { urls: "turn:a.relay.metered.ca:80",  username: "openrelayproject", credential: "openrelayproject" },
+      { urls: "turn:a.relay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+      { urls: "turn:a.relay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" },
+    ]
+  };
 
   const createPeerConnection = (toId) => {
     const pc = new RTCPeerConnection(ICE_SERVERS);
@@ -1609,6 +1627,7 @@ export default function Inbox() {
 
   const startCall = async (callType) => {
     if (!activeConv || !socket) return;
+    setCallError(null);
     try {
       const stream = await getUserMedia(callType);
       const pc = createPeerConnection(activeConv.id);
@@ -1626,18 +1645,22 @@ export default function Inbox() {
 
       setCallState({ type: "outgoing", callType, with: activeConv });
       setCallMuted(false); setCallCamOff(false); setCallDuration(0);
-
-      // ← system message: call initiated
-      const callTypeLabel = callType === "video" ? "📹 Video call" : "📞 Audio call";
-      await sendSystemMessage(activeConv.id, `${callTypeLabel} started`);
+      // System message is sent only once the callee answers (in onCallAnswer)
     } catch (e) {
       console.error("startCall:", e);
+      const msg = e?.name === "NotAllowedError"
+        ? "Microphone/camera access was denied. Please allow access and try again."
+        : e?.name === "NotFoundError"
+        ? "No microphone or camera found. Please check your devices."
+        : "Could not start call. Please check your devices and try again.";
+      setCallError(msg);
       endCallCleanup();
     }
   };
 
   const answerCall = async () => {
     if (!callState?.remoteSdp || !socket) return;
+    setCallError(null);
     try {
       const stream = await getUserMedia(callState.callType);
       const pc = createPeerConnection(callState.with.id);
@@ -1658,18 +1681,22 @@ export default function Inbox() {
 
       setCallState(prev => ({ ...prev, type: "active" }));
       setCallMuted(false); setCallCamOff(false); setCallDuration(0);
-      callStartTimeRef.current = Date.now(); // ← track when call became active
+      callStartTimeRef.current = Date.now();
     } catch (e) {
       console.error("answerCall:", e);
+      const msg = e?.name === "NotAllowedError"
+        ? "Microphone/camera access was denied. Please allow access and try again."
+        : e?.name === "NotFoundError"
+        ? "No microphone or camera found. Please check your devices."
+        : "Could not answer call. Please check your devices and try again.";
+      setCallError(msg);
       endCallCleanup();
     }
   };
 
   const rejectCall = () => {
     const otherId = callState?.with?.id;
-    const otherName = callState?.with?.full_name || callState?.with?.username || "User";
     socket?.emit("call_rejected", { to: otherId });
-    // system message to both sides
     if (otherId) sendSystemMessage(otherId, `📵 Call declined by ${currentUser.full_name || currentUser.username}`);
     endCallCleanup();
   };
@@ -1712,13 +1739,14 @@ export default function Inbox() {
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
     if (remoteAudioRef.current) remoteAudioRef.current.srcObject = null;
     pendingCandidatesRef.current = [];
-    callStartTimeRef.current = null; // ← reset call start time
+    callStartTimeRef.current = null;
     // Reset UI state
     setCallState(null);
     setCallDuration(0);
     setCallMuted(false);
     setCallCamOff(false);
     clearInterval(callTimerRef.current);
+    // Don't clear callError here — keep the message visible until user dismisses
   };
 
   // Mute toggle: disable/enable audio tracks on the live stream
@@ -3032,6 +3060,15 @@ export default function Inbox() {
         </div>
       )}
 
+      {/* ── Call Error Toast ── */}
+      {callError && (
+        <div style={{ position: "fixed", bottom: 28, left: "50%", transform: "translateX(-50%)", zIndex: 2000, background: "#1e1b2e", color: "white", borderRadius: 12, padding: "14px 20px", boxShadow: "0 8px 30px rgba(0,0,0,0.4)", display: "flex", alignItems: "center", gap: 12, maxWidth: 420, animation: "fadeInDown 0.2s ease" }}>
+          <svg viewBox="0 0 20 20" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" width="20" height="20" flexShrink="0"><circle cx="10" cy="10" r="8"/><path d="M10 6v4M10 14h.01"/></svg>
+          <span style={{ fontSize: 13, flex: 1 }}>{callError}</span>
+          <button onClick={() => setCallError(null)} style={{ background: "none", border: "none", color: "#a78bfa", cursor: "pointer", fontSize: 18, lineHeight: 1, flexShrink: 0 }}>×</button>
+        </div>
+      )}
+
       {/* ── Incoming Call Modal ── */}
       {callState?.type === "incoming" && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -3040,7 +3077,7 @@ export default function Inbox() {
               {initials(callState.with?.full_name || "")}
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ color: "white", fontWeight: "bold", fontSize: 17 }}>{callState.with?.full_name}</div>
+              <div style={{ color: "white", fontWeight: "bold", fontSize: 17 }}>{callState.with?.full_name || callState.with?.username || "Unknown"}</div>
               <div style={{ color: "#a78bfa", fontSize: 12, marginTop: 5 }}>
                 Incoming {callState.callType === "video" ? "📹 Video" : "📞 Audio"} Call…
               </div>
@@ -3077,7 +3114,7 @@ export default function Inbox() {
               {initials(callState.with?.full_name || "")}
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ color: "white", fontWeight: "bold", fontSize: 17 }}>{callState.with?.full_name}</div>
+              <div style={{ color: "white", fontWeight: "bold", fontSize: 17 }}>{callState.with?.full_name || callState.with?.username || "Unknown"}</div>
               <div style={{ color: "#a78bfa", fontSize: 12, marginTop: 5 }}>
                 {callState.callType === "video" ? "📹 Video" : "📞 Audio"} calling…
               </div>
@@ -3110,7 +3147,7 @@ export default function Inbox() {
               <div style={{ width: 100, height: 100, borderRadius: "50%", background: avatarColor(callState.with?.full_name || ""), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40, fontWeight: "bold", color: "white" }}>
                 {initials(callState.with?.full_name || "")}
               </div>
-              <div style={{ color: "white", fontWeight: "bold", fontSize: 20 }}>{callState.with?.full_name}</div>
+              <div style={{ color: "white", fontWeight: "bold", fontSize: 20 }}>{callState.with?.full_name || callState.with?.username || "Unknown"}</div>
               <div style={{ color: "#a78bfa", fontSize: 14 }}>{formatDuration(callDuration)}</div>
             </div>
           )}
@@ -3132,7 +3169,7 @@ export default function Inbox() {
               {initials(callState.with?.full_name || "")}
             </div>
             <div>
-              <div style={{ color: "white", fontWeight: "bold", fontSize: 15 }}>{callState.with?.full_name}</div>
+              <div style={{ color: "white", fontWeight: "bold", fontSize: 15 }}>{callState.with?.full_name || callState.with?.username || "Unknown"}</div>
               <div style={{ color: "#22c55e", fontSize: 12 }}>{formatDuration(callDuration)}</div>
             </div>
           </div>
