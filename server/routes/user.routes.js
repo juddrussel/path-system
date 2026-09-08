@@ -267,7 +267,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
 
   const isAdmin = req.user.role === "admin";
   const isProgramChair = req.user.role === "program_chair";
-  const isSelf = parseInt(id) === req.user.id;
+  const isSelf = String(id) === String(req.user.id);
 
   // Only admin, program_chair, or the user themselves can update
   if (!isAdmin && !isProgramChair && !isSelf) {
@@ -536,7 +536,7 @@ router.patch("/:id/preferences", requireAuth, async (req, res) => {
 //   admin can review and approve normally.
 router.post("/:id/finalize-setup", requireAuth, async (req, res) => {
   const { id } = req.params;
-  const isSelf = parseInt(id) === req.user.id;
+  const isSelf = String(id) === String(req.user.id);
   if (!isSelf) return res.status(403).json({ message: "Forbidden." });
 
   try {

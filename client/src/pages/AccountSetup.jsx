@@ -93,6 +93,14 @@ export default function AccountSetup() {
         return;
       }
 
+      // Fallback: if isInvited but server didn't return autoApproved
+      // (shouldn't happen, but guard against it — still redirect to dashboard)
+      if (isInvited) {
+        if (finalData.token) localStorage.setItem("token", finalData.token);
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
       // Regular OAuth user — show pending screen
       setPage(2);
     } catch (e) {
