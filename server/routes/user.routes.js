@@ -554,7 +554,7 @@ router.post("/:id/finalize-setup", requireAuth, async (req, res) => {
       user.invite_token_expires &&
       new Date(user.invite_token_expires) > new Date();
 
-    if (user.status === "draft" && hasValidInvite) {
+    if ((user.status === "draft" || user.status === "pending") && hasValidInvite) {
       await db.query(
         `UPDATE users
          SET status = 'approved', is_active = 1,
