@@ -312,7 +312,12 @@ router.patch("/:id", requireAuth, async (req, res) => {
 
     // admin and program_chair can additionally change role and is_active,
     // but only when those fields are actually sent in the body.
-    if (isAdmin || isProgramChair) {
+    // Exception: if the caller is patching their OWN record (e.g. during
+    // account setup via an invite JWT), never change the role — the invite
+    // flow already set the correct role at INSERT time and finalize-setup
+    // preserves it. This prevents the invite JWT's role claim from being
+    // misused to escalate/de-escalate the role during self-PATCH.
+    if ((isAdmin || isProgramChair) && !isSelf) {
       const nextRole = role !== undefined ? role : existing.role;
       const nextIsActive = is_active !== undefined ? (is_active ? 1 : 0) : existing.is_active;
 
