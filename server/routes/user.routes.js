@@ -529,20 +529,73 @@ router.patch("/:id/preferences", requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/users/:id/finalize-setup ───────────────────────────────────────
-// Called when a draft OAuth user completes the account setup form.
-// Upgrades status from 'draft' → 'pending' so admin can approve.
+// Called when a draft user completes the account setup form.
+// - If the user has a valid (non-expired) invite_token: auto-approve immediately,
+//   clear the token, and issue a fresh JWT so they can log straight in.
+// - Otherwise (regular OAuth self-registration): upgrade draft → pending so
+//   admin can review and approve normally.
 router.post("/:id/finalize-setup", requireAuth, async (req, res) => {
   const { id } = req.params;
   const isSelf = parseInt(id) === req.user.id;
   if (!isSelf) return res.status(403).json({ message: "Forbidden." });
+
   try {
-    const [rows] = await db.query("SELECT status FROM users WHERE id = ?", [id]);
+    const [rows] = await db.query(
+      "SELECT status, invite_token, invite_token_expires FROM users WHERE id = ?",
+      [id]
+    );
     if (!rows.length) return res.status(404).json({ message: "User not found." });
-    // Only upgrade draft → pending; already-pending/approved accounts are untouched
-    if (rows[0].status === "draft") {
-      await db.query("UPDATE users SET status = 'pending', updated_at = NOW() WHERE id = ?", [id]);
+
+    const user = rows[0];
+
+    // Invited user — auto-approve, no queue
+    const hasValidInvite =
+      user.invite_token &&
+      user.invite_token_expires &&
+      new Date(user.invite_token_expires) > new Date();
+
+    if (user.status === "draft" && hasValidInvite) {
+      await db.query(
+        `UPDATE users
+         SET status = 'approved', is_active = 1,
+             invite_token = NULL, invite_token_expires = NULL,
+             updated_at = NOW()
+         WHERE id = ?`,
+        [id]
+      );
+
+      // Re-fetch the updated user so we can issue a proper JWT
+      const [updated] = await db.query(
+        "SELECT id, username, role, full_name FROM users WHERE id = ?",
+        [id]
+      );
+      const u = updated[0];
+      const jwt = require("jsonwebtoken");
+      const newToken = jwt.sign(
+        { id: u.id, username: u.username, role: u.role, full_name: u.full_name },
+        process.env.JWT_SECRET,
+        { expiresIn: "8h" }
+      );
+
+      await writeLog({
+        userId:    parseInt(id),
+        action:    "USER_INVITE_COMPLETE",
+        detail:    `Invited user completed setup and was auto-approved (ID: ${id})`,
+        ipAddress: req.ip,
+      });
+
+      return res.json({ message: "Account activated.", autoApproved: true, token: newToken });
     }
-    return res.json({ message: "Account submitted for approval." });
+
+    // Regular OAuth draft — upgrade to pending for admin review
+    if (user.status === "draft") {
+      await db.query(
+        "UPDATE users SET status = 'pending', updated_at = NOW() WHERE id = ?",
+        [id]
+      );
+    }
+
+    return res.json({ message: "Account submitted for approval.", autoApproved: false });
   } catch (err) {
     console.error("POST /users/:id/finalize-setup error:", err);
     return res.status(500).json({ message: "Internal server error." });

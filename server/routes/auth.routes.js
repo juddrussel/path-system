@@ -637,4 +637,201 @@ router.get("/microsoft/callback",
 );
 
 
+// ─── POST /api/auth/invite ─────────────────────────────────────────────────────
+// Admin / program_chair sends an email invite to a new user.
+// Creates a placeholder `draft` account (email only), generates a secure
+// invite token, and emails the recipient a link to /setup?invite=<token>.
+// When they complete setup the account is auto-approved (no approval queue).
+router.post("/invite", async (req, res) => {
+  // Inline auth — requires valid JWT with admin or program_chair role
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized." });
+  }
+  let caller;
+  try {
+    caller = jwt.verify(auth.split(" ")[1], process.env.JWT_SECRET);
+  } catch {
+    return res.status(401).json({ message: "Invalid token." });
+  }
+  if (!["admin", "program_chair"].includes(caller.role)) {
+    return res.status(403).json({ message: "Forbidden." });
+  }
+
+  const { email, role } = req.body;
+  if (!email || !email.trim()) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // Basic email format check
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    return res.status(400).json({ message: "Invalid email address." });
+  }
+
+  try {
+    // Check if already registered and approved
+    const [existing] = await db.query(
+      "SELECT id, status, invite_token_expires FROM users WHERE email = ?",
+      [normalizedEmail]
+    );
+
+    if (existing.length > 0) {
+      const u = existing[0];
+      if (u.status === "approved") {
+        return res.status(409).json({ message: "This email is already registered and active." });
+      }
+      // If a pending/draft invite exists and hasn't expired, re-send it
+      if (u.invite_token_expires && new Date(u.invite_token_expires) > new Date()) {
+        return res.status(409).json({ message: "An invite was already sent to this email and is still valid." });
+      }
+      // Expired or pending — fall through to regenerate token below
+    }
+
+    // Generate a secure 48-byte hex token (96 chars) — expires in 72 hours
+    const inviteToken   = crypto.randomBytes(48).toString("hex");
+    const inviteExpires = new Date(Date.now() + 72 * 60 * 60 * 1000);
+
+    // Generate a placeholder username from the email local part
+    const emailLocal  = normalizedEmail.split("@")[0].replace(/[^a-z0-9]/gi, "").toLowerCase();
+    const uniqueSuffix = crypto.randomBytes(3).toString("hex");
+    const username     = `${emailLocal}_${uniqueSuffix}`;
+    const assignedRole = ["admin", "program_chair", "faculty"].includes(role) ? role : "faculty";
+
+    if (existing.length > 0) {
+      // Update the existing draft/pending row with a fresh token
+      await db.query(
+        `UPDATE users
+         SET invite_token = ?, invite_token_expires = ?, role = ?, updated_at = NOW()
+         WHERE email = ?`,
+        [inviteToken, inviteExpires, assignedRole, normalizedEmail]
+      );
+    } else {
+      // Insert a minimal draft placeholder — the user fills in the rest during setup
+      await db.query(
+        `INSERT INTO users
+           (full_name, email, phone, department, username, password, role, status,
+            is_active, invite_token, invite_token_expires, created_at)
+         VALUES (?, ?, '', 'Information Systems', ?, '', ?, 'draft', 0, ?, ?, NOW())`,
+        [normalizedEmail, normalizedEmail, username, assignedRole, inviteToken, inviteExpires]
+      );
+    }
+
+    const inviteLink = `${CLIENT_URL}/setup?invite=${inviteToken}`;
+
+    await sendMail({
+      to: normalizedEmail,
+      subject: "You're invited to DS Path System",
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+        <body style="margin:0;padding:0;background:#f4f0ff;font-family:'Segoe UI',Arial,sans-serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f0ff;padding:40px 0;">
+            <tr><td align="center">
+              <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(107,56,212,0.10);">
+                <!-- Header -->
+                <tr>
+                  <td style="background:linear-gradient(135deg,#4c1d95,#7c3aed);padding:36px 40px 28px;text-align:center;">
+                    <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.03em;">DS PATH</div>
+                    <div style="font-size:13px;color:#c4b5fd;margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;">Document System</div>
+                  </td>
+                </tr>
+                <!-- Body -->
+                <tr>
+                  <td style="padding:36px 40px 24px;">
+                    <p style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1f1533;">You've been invited!</p>
+                    <p style="margin:0 0 24px;font-size:14px;color:#6b7280;line-height:1.6;">
+                      <strong>${caller.full_name || caller.username}</strong> has invited you to join the
+                      <strong>DS Path System</strong>. Click the button below to set up your account.
+                    </p>
+                    <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                      <tr>
+                        <td style="border-radius:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);">
+                          <a href="${inviteLink}"
+                             style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#fff;text-decoration:none;letter-spacing:0.01em;">
+                            Accept Invitation →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:0 0 8px;font-size:13px;color:#9ca3af;line-height:1.6;">
+                      Or copy this link into your browser:
+                    </p>
+                    <p style="margin:0 0 24px;font-size:12px;color:#7c3aed;word-break:break-all;">${inviteLink}</p>
+                    <div style="border-radius:8px;background:#faf5ff;border:1px solid #ede9fe;padding:12px 14px;">
+                      <p style="margin:0;font-size:12px;color:#6b7280;">
+                        ⏳ This invitation link expires in <strong>72 hours</strong>.<br>
+                        If you did not expect this email, you can safely ignore it.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                  <td style="padding:16px 40px 28px;border-top:1px solid #f3f0ff;">
+                    <p style="margin:0;font-size:11px;color:#c4b5fd;text-align:center;">
+                      DS Path System · Information Systems Department
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+          </table>
+        </body>
+        </html>
+      `,
+    });
+
+    await writeLog({
+      userId:    caller.id,
+      action:    "USER_INVITE",
+      detail:    `${caller.username} sent an invite to ${normalizedEmail} (role: ${assignedRole})`,
+      ipAddress: req.ip,
+    });
+
+    return res.status(200).json({ message: `Invite sent to ${normalizedEmail}.` });
+  } catch (err) {
+    console.error("POST /auth/invite error:", err);
+    return res.status(500).json({ message: "Failed to send invite. Please try again." });
+  }
+});
+
+// ─── GET /api/auth/invite/:token ───────────────────────────────────────────────
+// Validates an invite token and returns a short-lived JWT so the invited user
+// can open AccountSetup without having an existing login session.
+router.get("/invite/:token", async (req, res) => {
+  const { token } = req.params;
+  if (!token) return res.status(400).json({ message: "Token required." });
+
+  try {
+    const [rows] = await db.query(
+      `SELECT id, email, role, status, invite_token_expires
+       FROM users
+       WHERE invite_token = ? AND invite_token_expires > NOW()`,
+      [token]
+    );
+
+    if (rows.length === 0) {
+      return res.status(400).json({ message: "This invite link is invalid or has expired." });
+    }
+
+    const user = rows[0];
+
+    // Issue a short-lived JWT (2 hours) so the client can call PATCH /users/:id
+    // and POST /users/:id/finalize-setup during account setup
+    const setupToken = jwt.sign(
+      { id: user.id, username: user.email, role: user.role, full_name: "", invite: true },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    return res.json({ token: setupToken, email: user.email });
+  } catch (err) {
+    console.error("GET /auth/invite/:token error:", err);
+    return res.status(500).json({ message: "Server error." });
+  }
+});
+
+
 module.exports = router;

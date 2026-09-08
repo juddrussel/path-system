@@ -191,76 +191,58 @@ function Toast({ msg, type, onClose }) {
   );
 }
 
-// ─── ADD USER MODAL ────────────────────────────────────────────────────────────
-const addUserModalCss = `
-  .path-add-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: auto; background: rgba(48,35,64,.48); backdrop-filter: blur(4px); }
-  .path-add-modal { width: min(560px, calc(100vw - 32px)); max-height: min(760px, calc(100vh - 32px)); overflow: auto; border: 1px solid #e7dfed; border-radius: 18px; background: #fff; color: #2f2638; box-shadow: 0 28px 80px rgba(49,31,93,.2); }
-  .path-add-header { display: flex; justify-content: space-between; gap: 18px; padding: 22px 24px; border-bottom: 1px solid #eee8f2; }
-  .path-add-kicker { display: flex; align-items: center; color: #9b8eaa; font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-  .path-add-kicker::before { display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: #c4b5fd; content: ""; }
-  .path-add-title { margin: 8px 0 4px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; color: #1f1729; }
-  .path-add-copy { margin: 0; color: #82768a; font-size: 13px; line-height: 1.5; }
-  .path-add-close { width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: #9b8eaa; font-size: 19px; line-height: 1; cursor: pointer; }
-  .path-add-close:hover { background: #f7f3fb; color: #6d35c8; }
-  .path-add-callout { display: flex; gap: 10px; margin: 18px 24px 0; border: 1px solid #e7d7f2; border-radius: 10px; padding: 11px 12px; background: #fbf7ff; color: #6d4b8a; font-size: 13px; line-height: 1.45; }
-  .path-add-callout-mark { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border-radius: 7px; background: #e9ddff; color: #7134d6; font-size: 13px; font-weight: 900; }
-  .path-add-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 14px; padding: 20px 24px; }
-  .path-add-field { display: grid; gap: 7px; min-width: 0; }
-  .path-add-full { grid-column: 1 / -1; }
-  .path-add-label { color: #51405e; font-size: 13px; font-weight: 800; }
-  .path-add-required { margin-left: 7px; color: #7c3aed; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-  .path-add-input, .path-add-select { width: 100%; min-height: 40px; border: 1px solid #ded6e5; border-radius: 9px; padding: 0 12px; outline: 0; background: #fff; color: #3f3448; font-size: 14px; font-weight: 500; }
-  .path-add-input:focus, .path-add-select:focus { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(139,92,246,.12); }
-  .path-add-locked { position: relative; }
-  .path-add-locked .path-add-input { padding-right: 38px; background: #faf7ff; color: #6d5b7c; cursor: not-allowed; }
-  .path-add-lock { position: absolute; right: 12px; bottom: 12px; display: flex; color: #7c3aed; }
-  .path-add-notice { margin: 0 24px 16px; border: 1px solid #f3c9c2; border-radius: 8px; padding: 9px 10px; background: #fdf4f3; color: #b42318; font-size: 13px; line-height: 1.4; }
-  .path-add-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid #eee8f2; padding: 16px 24px; }
-  .path-add-audit { color: #9b8eaa; font-size: 12px; }
-  .path-add-actions { display: flex; gap: 8px; }
-  .path-add-button { min-height: 38px; border-radius: 8px; padding: 0 14px; font-size: 13px; font-weight: 800; cursor: pointer; }
-  .path-add-secondary { border: 1px solid #e2dae8; background: #fff; color: #75677e; }
-  .path-add-primary { display: flex; align-items: center; gap: 6px; border: 0; background: linear-gradient(135deg,#7c3aed,#8439f0); color: #fff; box-shadow: 0 7px 15px rgba(124,58,237,.17); }
-  .path-add-primary:disabled { opacity: .6; cursor: not-allowed; }
-  @media (max-width: 640px) { .path-add-backdrop { align-items: flex-start; padding: 12px; } .path-add-modal { width: 100%; max-height: calc(100vh - 24px); } .path-add-header { padding: 18px; } .path-add-callout { margin: 16px 18px 0; } .path-add-fields { grid-template-columns: 1fr; padding: 18px; } .path-add-full { grid-column: auto; } .path-add-notice { margin-left: 18px; margin-right: 18px; } .path-add-footer { align-items: flex-start; flex-direction: column; padding: 15px 18px; } .path-add-actions { width: 100%; } .path-add-button { flex: 1; } }
+// ─── INVITE USER MODAL ─────────────────────────────────────────────────────────
+const inviteModalCss = `
+  .path-inv-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: auto; background: rgba(48,35,64,.48); backdrop-filter: blur(4px); }
+  .path-inv-modal { width: min(460px, calc(100vw - 32px)); border: 1px solid #e7dfed; border-radius: 18px; background: #fff; color: #2f2638; box-shadow: 0 28px 80px rgba(49,31,93,.2); overflow: hidden; }
+  .path-inv-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; padding: 22px 24px 18px; border-bottom: 1px solid #eee8f2; }
+  .path-inv-kicker { display: flex; align-items: center; color: #9b8eaa; font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; }
+  .path-inv-kicker::before { display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: #c4b5fd; content: ""; }
+  .path-inv-title { margin: 0 0 3px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: #1f1729; }
+  .path-inv-copy { margin: 0; color: #82768a; font-size: 13px; line-height: 1.5; }
+  .path-inv-close { flex-shrink: 0; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: #9b8eaa; font-size: 19px; line-height: 1; cursor: pointer; }
+  .path-inv-close:hover { background: #f7f3fb; color: #6d35c8; }
+  .path-inv-body { padding: 22px 24px; }
+  .path-inv-callout { display: flex; gap: 10px; margin-bottom: 20px; border: 1px solid #e7d7f2; border-radius: 10px; padding: 11px 12px; background: #fbf7ff; color: #6d4b8a; font-size: 13px; line-height: 1.45; }
+  .path-inv-callout-mark { display: grid; width: 20px; height: 20px; flex-shrink: 0; place-items: center; border-radius: 7px; background: #e9ddff; color: #7134d6; font-size: 13px; font-weight: 900; }
+  .path-inv-label { display: block; color: #51405e; font-size: 13px; font-weight: 800; margin-bottom: 7px; }
+  .path-inv-input, .path-inv-select { width: 100%; min-height: 42px; border: 1px solid #ded6e5; border-radius: 9px; padding: 0 13px; outline: 0; background: #fff; color: #3f3448; font-size: 14px; font-weight: 500; box-sizing: border-box; }
+  .path-inv-input:focus, .path-inv-select:focus { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(139,92,246,.12); }
+  .path-inv-field { margin-bottom: 16px; }
+  .path-inv-notice-err { border: 1px solid #f3c9c2; border-radius: 8px; padding: 9px 12px; background: #fdf4f3; color: #b42318; font-size: 13px; line-height: 1.4; margin-bottom: 4px; }
+  .path-inv-notice-ok  { border: 1px solid #bbf7d0; border-radius: 8px; padding: 9px 12px; background: #f0fdf4; color: #166534; font-size: 13px; line-height: 1.4; margin-bottom: 4px; }
+  .path-inv-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; border-top: 1px solid #eee8f2; padding: 14px 24px; }
+  .path-inv-btn { min-height: 38px; border-radius: 8px; padding: 0 16px; font-size: 13px; font-weight: 800; cursor: pointer; }
+  .path-inv-secondary { border: 1px solid #e2dae8; background: #fff; color: #75677e; }
+  .path-inv-primary { display: flex; align-items: center; gap: 6px; border: 0; background: linear-gradient(135deg,#7c3aed,#8439f0); color: #fff; box-shadow: 0 7px 15px rgba(124,58,237,.17); }
+  .path-inv-primary:disabled { opacity: .6; cursor: not-allowed; }
 `;
 
-function AddUserModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({
-    full_name: "",
-    username: "",
-    email: "",
-    phone: "",
-    role: "",
-    password: "",
-    is_active: "1",
-  });
+function InviteUserModal({ onClose, onInvited }) {
+  const [email, setEmail]   = useState("");
+  const [role, setRole]     = useState("faculty");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const [error, setError]   = useState("");
+  const [success, setSuccess] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    if (!email.trim()) { setError("Email address is required."); return; }
+    setLoading(true); setError(""); setSuccess("");
     try {
-      const { full_name, ...rest } = form;
-      const trimmed = full_name.trim();
-      const spaceIdx = trimmed.indexOf(" ");
-      const first_name = spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx);
-      const last_name = spaceIdx === -1 ? "" : trimmed.slice(spaceIdx + 1);
-      const user = await apiFetch("/users", {
-        method: "POST",
-        body: JSON.stringify({
-          ...rest,
-          first_name,
-          last_name,
-          is_active: form.is_active === "1",
-        }),
-      });
-      onCreated(user);
-      onClose();
+      const res = await fetch(
+        `${API_BASE.replace("/api", "")}/api/auth/invite`,
+        {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ email: email.trim(), role }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send invite.");
+      setSuccess(`Invite sent to ${email.trim()}. They will receive an email with a setup link.`);
+      setEmail("");
+      if (onInvited) onInvited(email.trim());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -270,191 +252,96 @@ function AddUserModal({ onClose, onCreated }) {
 
   return (
     <>
-      <style>{addUserModalCss}</style>
+      <style>{inviteModalCss}</style>
       <div
-        className="path-add-backdrop"
+        className="path-inv-backdrop"
         role="presentation"
         onMouseDown={(e) => e.target === e.currentTarget && onClose()}
       >
         <section
-          className="path-add-modal"
+          className="path-inv-modal"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="path-add-title"
+          aria-labelledby="path-inv-title"
         >
-          <header className="path-add-header">
+          <header className="path-inv-header">
             <div>
-              <div className="path-add-kicker">People &amp; management</div>
-              <h2 className="path-add-title" id="path-add-title">
-                Add new user
-              </h2>
-              <p className="path-add-copy">
-                Create a system account and assign a role for the
-                Information Systems team.
+              <div className="path-inv-kicker">People &amp; management</div>
+              <h2 className="path-inv-title" id="path-inv-title">Invite user</h2>
+              <p className="path-inv-copy">
+                Send an email invitation to join DS Path System.
               </p>
             </div>
             <button
-              className="path-add-close"
+              className="path-inv-close"
               type="button"
               onClick={onClose}
-              aria-label="Close Add user panel"
+              aria-label="Close invite panel"
             >
               ×
             </button>
           </header>
 
-          <div className="path-add-callout">
-            <span className="path-add-callout-mark">✦</span>
-            <span>
-              This creates a real account with login credentials — the user
-              can sign in immediately with the password set below.
-            </span>
-          </div>
-
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="path-add-fields">
-              <label className="path-add-field path-add-full">
-                <span className="path-add-label">
-                  Full name <b className="path-add-required">Required</b>
-                </span>
-                <input
-                  className="path-add-input"
-                  required
-                  value={form.full_name}
-                  onChange={(e) => set("full_name", e.target.value)}
-                  placeholder="e.g. Maria Garcia"
-                  autoComplete="name"
-                />
-              </label>
-
-              <label className="path-add-field">
-                <span className="path-add-label">
-                  Username <b className="path-add-required">Required</b>
-                </span>
-                <input
-                  className="path-add-input"
-                  required
-                  value={form.username}
-                  onChange={(e) => set("username", e.target.value)}
-                  placeholder="e.g. mgarcia"
-                  autoComplete="username"
-                />
-              </label>
-
-              <label className="path-add-field">
-                <span className="path-add-label">Work email</span>
-                <input
-                  className="path-add-input"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => set("email", e.target.value)}
-                  placeholder="user@company.com"
-                  autoComplete="email"
-                />
-              </label>
-
-              <label className="path-add-field">
-                <span className="path-add-label">
-                  Contact number <b className="path-add-required">Required</b>
-                </span>
-                <input
-                  className="path-add-input"
-                  required
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => set("phone", e.target.value)}
-                  placeholder="+63 9XX XXX XXXX"
-                  autoComplete="tel"
-                />
-              </label>
-
-              <label className="path-add-field path-add-locked">
-                <span className="path-add-label">Department</span>
-                <input
-                  className="path-add-input"
-                  value="Information Systems"
-                  readOnly
-                  aria-readonly="true"
-                />
-                <span className="path-add-lock" aria-hidden="true">
-                  <LockIcon />
-                </span>
-              </label>
-
-              <label className="path-add-field">
-                <span className="path-add-label">
-                  Role <b className="path-add-required">Required</b>
-                </span>
-                <select
-                  className="path-add-select"
-                  required
-                  value={form.role}
-                  onChange={(e) => set("role", e.target.value)}
-                >
-                  <option value="">Select role…</option>
-                  <option value="admin">Admin</option>
-                  <option value="program_chair">Program Chair</option>
-                  <option value="faculty">Faculty</option>
-                </select>
-              </label>
-
-              <label className="path-add-field">
-                <span className="path-add-label">Status</span>
-                <select
-                  className="path-add-select"
-                  value={form.is_active}
-                  onChange={(e) => set("is_active", e.target.value)}
-                >
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-              </label>
-
-              <label className="path-add-field path-add-full">
-                <span className="path-add-label">
-                  Password <b className="path-add-required">Required</b>
-                </span>
-                <input
-                  className="path-add-input"
-                  required
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => set("password", e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  autoComplete="new-password"
-                />
-              </label>
+          <div className="path-inv-body">
+            <div className="path-inv-callout">
+              <span className="path-inv-callout-mark">✉</span>
+              <span>
+                The invited user will receive an email with a link to set up their
+                account. They will be <strong>automatically approved</strong> once
+                they complete setup — no admin review needed.
+              </span>
             </div>
 
-            {error && (
-              <p className="path-add-notice" role="alert">
-                {error}
-              </p>
-            )}
-
-            <footer className="path-add-footer">
-              <span className="path-add-audit">
-                New accounts are recorded in the workspace audit trail.
-              </span>
-              <div className="path-add-actions">
-                <button
-                  className="path-add-button path-add-secondary"
-                  type="button"
-                  onClick={onClose}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="path-add-button path-add-primary"
-                  type="submit"
-                  disabled={loading}
-                >
-                  {loading ? <Spinner /> : <CheckIcon />}
-                  {loading ? "Creating…" : "Create user account"}
-                </button>
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="path-inv-field">
+                <label className="path-inv-label" htmlFor="inv-email">
+                  Email address <b style={{ color: "#7c3aed", fontSize: 11, marginLeft: 6, textTransform: "uppercase", letterSpacing: ".08em" }}>Required</b>
+                </label>
+                <input
+                  id="inv-email"
+                  className="path-inv-input"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); setSuccess(""); }}
+                  placeholder="user@example.com"
+                  autoComplete="email"
+                  autoFocus
+                />
               </div>
-            </footer>
-          </form>
+
+              <div className="path-inv-field">
+                <label className="path-inv-label" htmlFor="inv-role">Role</label>
+                <select
+                  id="inv-role"
+                  className="path-inv-select"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="faculty">Faculty</option>
+                  <option value="program_chair">Program Chair</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              {error   && <p className="path-inv-notice-err" role="alert">{error}</p>}
+              {success && <p className="path-inv-notice-ok"  role="status">{success}</p>}
+
+              <footer className="path-inv-footer" style={{ margin: "0 -24px -22px", padding: "14px 24px 14px" }}>
+                <button className="path-inv-btn path-inv-secondary" type="button" onClick={onClose}>
+                  {success ? "Close" : "Cancel"}
+                </button>
+                {!success && (
+                  <button className="path-inv-btn path-inv-primary" type="submit" disabled={loading}>
+                    {loading
+                      ? <><Spinner /> Sending…</>
+                      : <><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><path d="M14 2L2 7l4 3 2 4 2-5 4-7z"/></svg> Send invite</>
+                    }
+                  </button>
+                )}
+              </footer>
+            </form>
+          </div>
         </section>
       </div>
     </>
@@ -2127,14 +2014,10 @@ export default function UserManagement() {
       </main>
 
       {showModal && (
-        <AddUserModal
+        <InviteUserModal
           onClose={() => setShowModal(false)}
-          onCreated={(newUser) => {
-            setUsers((u) => [...u, newUser]);
-            setStats((s) => ({ ...s, total: (s.total ?? 0) + 1 }));
-            notify(
-              `${newUser.first_name} ${newUser.last_name} has been created.`,
-            );
+          onInvited={(invitedEmail) => {
+            notify(`Invite sent to ${invitedEmail}.`);
           }}
         />
       )}

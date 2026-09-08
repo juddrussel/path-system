@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import logoImg from "../assets/logo.png";
 import logowhite from "../assets/logowhite.png";
 
@@ -15,41 +15,131 @@ function getUser() {
 }
 
 export default function AccountSetup() {
-  const navigate = useNavigate();
-  const user     = getUser();
-  const [page, setPage]         = useState(1);
-  const [fullName, setFullName] = useState(user.full_name || "");
-  const [phone, setPhone]       = useState("");
-  const [saving, setSaving]     = useState(false);
-  const [error, setError]       = useState("");
+  const navigate        = useNavigate();
+  const [searchParams]  = useSearchParams();
+  const inviteToken     = searchParams.get("invite"); // present when coming from email link
 
+  const [page, setPage]           = useState(1);
+  const [fullName, setFullName]   = useState("");
+  const [phone, setPhone]         = useState("");
+  const [saving, setSaving]       = useState(false);
+  const [error, setError]         = useState("");
+  const [tokenLoading, setTokenLoading] = useState(!!inviteToken);
+  const [tokenError, setTokenError]     = useState("");
+  const [isInvited, setIsInvited]       = useState(false);
+
+  // ── On mount: if ?invite= is in the URL, validate it and bootstrap a session ──
   useEffect(() => {
-    if (!localStorage.getItem("token")) navigate("/login");
-  }, []);
+    if (!inviteToken) {
+      // Regular OAuth flow — must already have a token
+      if (!localStorage.getItem("token")) navigate("/login");
+      else {
+        const u = getUser();
+        setFullName(u.full_name || "");
+      }
+      return;
+    }
+
+    (async () => {
+      try {
+        const res  = await fetch(`${API}/auth/invite/${inviteToken}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Invalid or expired invite link.");
+
+        // Store the setup JWT so authHeaders() works for PATCH + finalize-setup
+        localStorage.setItem("token", data.token);
+        setIsInvited(true);
+
+        // Pre-fill name from email local part (nice-to-have, user can change it)
+        const emailLocal = (data.email || "").split("@")[0].replace(/[._-]/g, " ");
+        setFullName(emailLocal);
+      } catch (e) {
+        setTokenError(e.message);
+      } finally {
+        setTokenLoading(false);
+      }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async () => {
     if (!fullName.trim()) { setError("Full name is required."); return; }
     if (!phone.trim())    { setError("Contact number is required."); return; }
     setSaving(true); setError("");
     try {
+      const user = getUser();
+
       // 1. Save name + phone
-      const res = await fetch(`${API}/users/${user.id}`, {
+      const patchRes = await fetch(`${API}/users/${user.id}`, {
         method: "PATCH",
         headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ full_name: fullName.trim(), phone: phone.trim() }),
       });
-      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || "Save failed."); }
+      if (!patchRes.ok) {
+        const e = await patchRes.json().catch(() => ({}));
+        throw new Error(e.message || "Failed to save profile.");
+      }
 
-      // 2. Finalize: upgrade draft → pending so admin can approve
-      await fetch(`${API}/users/${user.id}/finalize-setup`, {
+      // 2. Finalize setup
+      const finalRes  = await fetch(`${API}/users/${user.id}/finalize-setup`, {
         method: "POST",
         headers: authHeaders(),
       });
+      const finalData = await finalRes.json().catch(() => ({}));
 
+      if (finalData.autoApproved && finalData.token) {
+        // Invited user — swap in the fresh full-access JWT and go straight to dashboard
+        localStorage.setItem("token", finalData.token);
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      // Regular OAuth user — show pending screen
       setPage(2);
-    } catch (e) { setError(e.message); }
-    finally { setSaving(false); }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
   };
+
+  // ── Loading state while validating invite token ──
+  if (tokenLoading) {
+    return (
+      <main style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"100vh", background:"#f8f7ff", fontFamily:"'DM Sans',sans-serif" }}>
+        <div style={{ textAlign:"center" }}>
+          <div style={{ width:48, height:48, border:"3px solid #ede9fe", borderTopColor:"#7c3aed", borderRadius:"50%", animation:"spin 0.7s linear infinite", margin:"0 auto 16px" }} />
+          <p style={{ color:"#7b6f8a", fontSize:14 }}>Validating your invitation…</p>
+          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+        </div>
+      </main>
+    );
+  }
+
+  // ── Invalid / expired invite token error screen ──
+  if (tokenError) {
+    return (
+      <main style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"100vh", background:"#f8f7ff", fontFamily:"'DM Sans',sans-serif", padding:24 }}>
+        <div style={{ width:"min(420px,100%)", textAlign:"center" }}>
+          <div style={{ width:72, height:72, borderRadius:"50%", background:"#fff1f2", border:"2px solid #fecdd3", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 20px" }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" width="32" height="32">
+              <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
+            </svg>
+          </div>
+          <h1 style={{ margin:"0 0 8px", fontSize:22, fontWeight:800, color:"#1f1533" }}>Invite link expired</h1>
+          <p style={{ margin:"0 0 24px", fontSize:14, color:"#7b6f8a", lineHeight:1.6 }}>{tokenError}</p>
+          <p style={{ margin:"0 0 24px", fontSize:13, color:"#9b8eaa" }}>
+            Please ask an administrator to send you a new invite.
+          </p>
+          <button
+            onClick={() => navigate("/login")}
+            style={{ padding:"11px 28px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#4c1d95,#7c3aed)", color:"#fff", fontSize:14, fontWeight:700, cursor:"pointer" }}
+          >
+            Back to login
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
@@ -57,7 +147,6 @@ export default function AccountSetup() {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
         * { box-sizing: border-box; }
 
-        /* ── Aside ── */
         .as-aside {
           position: relative; overflow: hidden;
           width: 420px; flex-shrink: 0;
@@ -66,82 +155,40 @@ export default function AccountSetup() {
           padding: 48px 44px 44px;
         }
         @media (max-width: 820px) { .as-aside { display: none; } }
-
-        .as-orb {
-          position: absolute; border-radius: 50%;
-          background: rgba(167,139,250,0.12); pointer-events: none;
-        }
-
-        /* ── Form side ── */
-        .as-main {
-          flex: 1; display: flex; align-items: center; justify-content: center;
-          background: #f8f7ff; padding: 40px 24px;
-        }
-        .as-card {
-          width: min(440px, 100%);
-          animation: as-in 0.35s ease both;
-        }
+        .as-orb { position: absolute; border-radius: 50%; background: rgba(167,139,250,0.12); pointer-events: none; }
+        .as-main { flex: 1; display: flex; align-items: center; justify-content: center; background: #f8f7ff; padding: 40px 24px; }
+        .as-card { width: min(440px, 100%); animation: as-in 0.35s ease both; }
         @keyframes as-in { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-
-        /* ── Step indicator ── */
         .as-steps { display: flex; align-items: center; gap: 8px; margin-bottom: 32px; }
-        .as-step {
-          width: 32px; height: 32px; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 12px; font-weight: 800; font-family: 'DM Sans', sans-serif;
-          transition: all 0.3s;
-        }
+        .as-step { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; font-family: 'DM Sans', sans-serif; transition: all 0.3s; }
         .as-step.done    { background: linear-gradient(135deg,#a78bfa,#7c3aed); color: #fff; box-shadow: 0 4px 12px rgba(124,58,237,0.35); }
         .as-step.active  { background: linear-gradient(135deg,#4c1d95,#7c3aed); color: #fff; box-shadow: 0 0 0 4px rgba(124,58,237,0.18); }
         .as-step.pending { background: #ede9fe; color: #c4b5fd; }
         .as-connector { flex: 1; height: 2px; border-radius: 99px; transition: background 0.3s; }
         .as-connector.done { background: linear-gradient(90deg,#a78bfa,#7c3aed); }
         .as-connector.pending { background: #ede9fe; }
-
-        /* ── Form elements ── */
         .as-heading { margin: 0 0 4px; font-size: 26px; font-weight: 800; color: #1f1533; font-family: Manrope,'DM Sans',sans-serif; letter-spacing: -0.045em; line-height: 1.1; }
         .as-sub     { margin: 0 0 28px; font-size: 13px; color: #9080a0; line-height: 1.6; }
         .as-label   { display: block; font-size: 11px; font-weight: 800; color: #6b5f76; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.07em; }
-        .as-input   {
-          width: 100%; padding: 12px 14px; border: 1.5px solid #e8e1f5;
-          border-radius: 10px; font-size: 14px; font-family: 'DM Sans',sans-serif;
-          color: #27213a; outline: none; background: #fff;
-          transition: border-color 0.15s, box-shadow 0.15s;
-        }
+        .as-input   { width: 100%; padding: 12px 14px; border: 1.5px solid #e8e1f5; border-radius: 10px; font-size: 14px; font-family: 'DM Sans',sans-serif; color: #27213a; outline: none; background: #fff; transition: border-color 0.15s, box-shadow 0.15s; }
         .as-input:focus { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
         .as-input::placeholder { color: #c4b5d1; }
-        .as-btn {
-          width: 100%; padding: 13px; border-radius: 11px; border: none;
-          background: linear-gradient(135deg,#4c1d95,#7c3aed); color: #fff;
-          font-size: 14px; font-weight: 800; font-family: 'DM Sans',sans-serif;
-          cursor: pointer; box-shadow: 0 6px 20px rgba(124,58,237,0.3);
-          transition: opacity 0.15s, transform 0.12s;
-        }
+        .as-btn { width: 100%; padding: 13px; border-radius: 11px; border: none; background: linear-gradient(135deg,#4c1d95,#7c3aed); color: #fff; font-size: 14px; font-weight: 800; font-family: 'DM Sans',sans-serif; cursor: pointer; box-shadow: 0 6px 20px rgba(124,58,237,0.3); transition: opacity 0.15s, transform 0.12s; }
         .as-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
         .as-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-
-        /* ── Pending card ── */
         @keyframes as-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
         .as-pending-icon { animation: as-pulse 2.5s ease-in-out infinite; }
-        .as-step-row {
-          display: flex; align-items: center; gap: 12px;
-          padding: 13px 16px; border-bottom: 1px solid #f0eafc;
-        }
+        .as-step-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid #f0eafc; }
         .as-step-row:last-child { border-bottom: none; }
-        .as-step-dot {
-          width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-          display: flex; align-items: center; justify-content: center; font-size: 13px;
-        }
+        .as-step-dot { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
       `}</style>
 
       {/* ── Left brand panel ── */}
       <aside className="as-aside">
-        {/* Decorative orbs */}
         <div className="as-orb" style={{ width:280, height:280, top:-80, right:-80 }} />
         <div className="as-orb" style={{ width:180, height:180, bottom:40, left:-60 }} />
         <div style={{ position:"absolute", inset:0, backgroundImage:"radial-gradient(rgba(255,255,255,0.07) 1.5px, transparent 1.5px)", backgroundSize:"18px 18px", pointerEvents:"none" }} />
 
-        {/* Brand */}
         <div style={{ position:"relative", zIndex:1 }}>
           <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:52 }}>
             <div style={{ width:42, height:42, borderRadius:12, background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -159,14 +206,16 @@ export default function AccountSetup() {
           </div>
 
           <h1 style={{ margin:"0 0 14px", fontSize:32, fontWeight:800, color:"#f5f3ff", fontFamily:"Manrope,'DM Sans',sans-serif", letterSpacing:"-0.05em", lineHeight:1.1 }}>
-            Welcome to DS PATH.
+            {isInvited ? "You've been invited!" : "Welcome to DS PATH."}
           </h1>
           <p style={{ margin:0, fontSize:13, color:"rgba(216,180,254,0.7)", lineHeight:1.7 }}>
-            Set up your profile so the department knows who you are. Your account will be reviewed by an administrator before you gain access.
+            {isInvited
+              ? "Complete your profile below to activate your account instantly — no waiting for approval."
+              : "Set up your profile so the department knows who you are. Your account will be reviewed by an administrator before you gain access."
+            }
           </p>
         </div>
 
-        {/* Feature list */}
         <div style={{ position:"relative", zIndex:1 }}>
           {[
             { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" width="15" height="15"><path d="M4 1.5h6l3 3V13a1 1 0 01-1 1H4a1 1 0 01-1-1V2.5a1 1 0 011-1z" strokeLinejoin="round"/><path d="M5.5 7.5h5M5.5 10h5M5.5 5h2.5" strokeLinecap="round"/></svg>, text:"Submit and track academic documents" },
@@ -187,12 +236,6 @@ export default function AccountSetup() {
       <div className="as-main">
         <div className="as-card">
 
-          {/* Mobile logo */}
-          <div style={{ display:"none", alignItems:"center", gap:10, marginBottom:28, justifyContent:"center" }} className="as-mobile-logo">
-            <img src={logoImg} alt="DS PATH" style={{ width:36, height:36 }} />
-            <span style={{ fontSize:15, fontWeight:800, color:"#27213a" }}>DS PATH</span>
-          </div>
-
           {/* Step indicators */}
           <div className="as-steps">
             <div className={`as-step ${page >= 1 ? (page > 1 ? "done" : "active") : "pending"}`}>
@@ -201,19 +244,29 @@ export default function AccountSetup() {
             <div className={`as-connector ${page > 1 ? "done" : "pending"}`} />
             <div className={`as-step ${page >= 2 ? "active" : "pending"}`}>2</div>
             <div style={{ flex:1 }} />
-            <span style={{ fontSize:11, color:"#b0a3ba", fontWeight:600 }}>
-              Step {page} of 2
-            </span>
+            <span style={{ fontSize:11, color:"#b0a3ba", fontWeight:600 }}>Step {page} of 2</span>
           </div>
 
           {/* ── PAGE 1: Profile form ── */}
           {page === 1 && (
             <div style={{ animation:"as-in 0.3s ease both" }}>
               <h1 className="as-heading">Complete your profile</h1>
-              <p className="as-sub">Tell us your name and contact number so we can set up your account.</p>
+              <p className="as-sub">
+                {isInvited
+                  ? "Enter your name and contact number to activate your account."
+                  : "Tell us your name and contact number so we can set up your account."
+                }
+              </p>
+
+              {/* Invited badge */}
+              {isInvited && (
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:20, padding:"9px 13px", borderRadius:9, background:"#f0fdf4", border:"1px solid #bbf7d0" }}>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M13 4l-7 8-3-3"/></svg>
+                  <span style={{ fontSize:12, color:"#166534", fontWeight:600 }}>You were invited — your account will be activated instantly.</span>
+                </div>
+              )}
 
               <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
-                {/* Full name */}
                 <div>
                   <label className="as-label">Full name <span style={{color:"#dc2626"}}>*</span></label>
                   <div style={{ position:"relative" }}>
@@ -231,7 +284,6 @@ export default function AccountSetup() {
                   </div>
                 </div>
 
-                {/* Phone */}
                 <div>
                   <label className="as-label">Contact number <span style={{color:"#dc2626"}}>*</span></label>
                   <div style={{ position:"relative" }}>
@@ -252,27 +304,26 @@ export default function AccountSetup() {
 
               {error && (
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:16, padding:"10px 13px", borderRadius:9, background:"#fff1f2", border:"1px solid #fecdd3" }}>
-                  <span style={{ color:"#ef4444", fontSize:14, lineHeight:1 }}>
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M12 4L4 12M4 4l8 8" strokeLinecap="round"/></svg>
-                  </span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="#ef4444" strokeWidth="2" width="12" height="12" strokeLinecap="round"><path d="M12 4L4 12M4 4l8 8"/></svg>
                   <span style={{ fontSize:12, color:"#dc2626", fontWeight:600 }}>{error}</span>
                 </div>
               )}
 
               <button className="as-btn" style={{ marginTop:28 }} onClick={handleSubmit} disabled={saving}>
-                {saving ? "Saving…" : "Submit & continue →"}
+                {saving ? "Saving…" : isInvited ? "Activate my account →" : "Submit & continue →"}
               </button>
 
-              <p style={{ margin:"16px 0 0", textAlign:"center", fontSize:11, color:"#c4b5d1" }}>
-                Your account will be reviewed by an administrator before activation.
-              </p>
+              {!isInvited && (
+                <p style={{ margin:"16px 0 0", textAlign:"center", fontSize:11, color:"#c4b5d1" }}>
+                  Your account will be reviewed by an administrator before activation.
+                </p>
+              )}
             </div>
           )}
 
-          {/* ── PAGE 2: Pending approval ── */}
+          {/* ── PAGE 2: Pending approval (non-invited OAuth users only) ── */}
           {page === 2 && (
             <div style={{ animation:"as-in 0.3s ease both", textAlign:"center" }}>
-              {/* Animated icon */}
               <div className="as-pending-icon" style={{ width:72, height:72, borderRadius:"50%", margin:"0 auto 20px", background:"linear-gradient(135deg,#ede9fe,#ddd6fe)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 8px 28px rgba(124,58,237,0.18)" }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="32" height="32">
                   <circle cx="12" cy="12" r="10"/>
@@ -285,31 +336,25 @@ export default function AccountSetup() {
                 Your profile has been submitted. An administrator will review and activate your account shortly.
               </p>
 
-              {/* Status tracker */}
               <div style={{ background:"#faf8ff", border:"1px solid #ede9fe", borderRadius:14, overflow:"hidden", marginBottom:24, textAlign:"left" }}>
                 {[
                   { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14"><path d="M13 4l-7 8-3-3" strokeLinecap="round"/></svg>, iconBg:"linear-gradient(135deg,#a78bfa,#7c3aed)", iconColor:"#fff", label:"Account created",        sub:"Profile saved successfully",      done:true  },
                   { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="8" cy="8" r="6.3"/><path d="M8 4.6v3.6l2.5 1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>, iconBg:"#fff7ed", iconColor:"#c2410c", label:"Awaiting admin approval", sub:"Your request is being reviewed",  done:false, active:true },
                   { icon: <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M8 1.5l5.2 1.9v3.8c0 3.4-2.2 6-5.2 7-3-.9-5.2-3.6-5.2-7V3.4L8 1.5z" strokeLinejoin="round"/></svg>, iconBg:"#f4f0fc", iconColor:"#c4b5d1", label:"Access granted",          sub:"You'll be notified by email",      done:false },
-                ].map((s, i, arr) => (
+                ].map((s, i) => (
                   <div key={i} className="as-step-row">
-                    <div className="as-step-dot" style={{ background: s.iconBg, color: s.iconColor }}>
-                      {s.icon}
-                    </div>
+                    <div className="as-step-dot" style={{ background: s.iconBg, color: s.iconColor }}>{s.icon}</div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ margin:0, fontSize:13, fontWeight:700, color: s.done ? "#3b2a52" : s.active ? "#92400e" : "#b0a3ba" }}>{s.label}</p>
                       <p style={{ margin:"2px 0 0", fontSize:11, color: s.done ? "#7c3aed" : s.active ? "#b45309" : "#c4b5d1" }}>{s.sub}</p>
                     </div>
                     {s.active && (
-                      <span style={{ fontSize:10, fontWeight:800, color:"#f97316", background:"#fff7ed", border:"1px solid #fed7aa", borderRadius:99, padding:"2px 9px", flexShrink:0 }}>
-                        Pending
-                      </span>
+                      <span style={{ fontSize:10, fontWeight:800, color:"#f97316", background:"#fff7ed", border:"1px solid #fed7aa", borderRadius:99, padding:"2px 9px", flexShrink:0 }}>Pending</span>
                     )}
                   </div>
                 ))}
               </div>
 
-              {/* Contact info */}
               <div style={{ padding:"12px 14px", borderRadius:10, background:"#f5f3ff", border:"1px solid #ede9fe", marginBottom:24 }}>
                 <p style={{ margin:0, fontSize:12, color:"#7c3aed", fontWeight:700 }}>
                   Need help? Contact your administrator at{" "}
