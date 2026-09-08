@@ -602,4 +602,68 @@ router.post("/:id/finalize-setup", requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/users/:id/set-credentials ──────────────────────────────────────
+// Used by invited users to set their username and password after completing
+// account setup. Only the user themselves may call this, and only while their
+// account is already approved (finalize-setup ran first).
+router.post("/:id/set-credentials", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const isSelf = String(id) === String(req.user.id);
+  if (!isSelf) return res.status(403).json({ message: "Forbidden." });
+
+  const { username, password } = req.body;
+
+  if (!username || !username.trim()) {
+    return res.status(400).json({ message: "Username is required." });
+  }
+  if (!/^[a-z0-9_]+$/.test(username.trim())) {
+    return res.status(400).json({ message: "Username may only contain lowercase letters, numbers, and underscores." });
+  }
+  if (!password || password.length < 8) {
+    return res.status(400).json({ message: "Password must be at least 8 characters." });
+  }
+
+  try {
+    // Check username isn't already taken by another user
+    const [conflict] = await db.query(
+      "SELECT id FROM users WHERE username = ? AND id != ?",
+      [username.trim(), id]
+    );
+    if (conflict.length > 0) {
+      return res.status(409).json({ message: "That username is already taken." });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    await db.query(
+      "UPDATE users SET username = ?, password = ?, updated_at = NOW() WHERE id = ?",
+      [username.trim(), hashed, id]
+    );
+
+    // Re-issue JWT with the real username now set
+    const [rows] = await db.query(
+      "SELECT id, username, role, full_name FROM users WHERE id = ?",
+      [id]
+    );
+    const u = rows[0];
+    const newToken = jwt.sign(
+      { id: u.id, username: u.username, role: u.role, full_name: u.full_name },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+
+    await writeLog({
+      userId:    parseInt(id),
+      action:    "USER_SET_CREDENTIALS",
+      detail:    `User set username and password after invite setup (username: ${username.trim()})`,
+      ipAddress: req.ip,
+    });
+
+    return res.json({ message: "Credentials set successfully.", token: newToken });
+  } catch (err) {
+    console.error("POST /users/:id/set-credentials error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = router;
