@@ -427,7 +427,7 @@ export default function WorkflowDashboard() {
   const [workflows, setWorkflows] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API = "http://localhost:5000/api";
+  const API = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
