@@ -60,11 +60,17 @@ const server = http.createServer(app);
 
 // ── CORS origin (env-driven, falls back to local dev URL) ──
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const ALLOWED_ORIGINS = [
+  CLIENT_URL,
+  "https://path-system.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000"
+];
 
 // ── Socket.IO setup ──
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
+    origin: ALLOWED_ORIGINS,
     methods: ["GET", "POST"],
   },
 });
@@ -96,7 +102,16 @@ const upload = multer({
 });
 
 // ── Middleware ──
-app.use(cors({ origin: CLIENT_URL }));
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(passport.initialize());
 app.use("/uploads", express.static("./uploads"));
