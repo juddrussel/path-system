@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { refreshToken } from "./utils/refreshToken";
 import { connectSocket, disconnectSocket } from "./pages/socket";
 import Layout from "./pages/Layout";
@@ -26,6 +26,20 @@ import DocumentReview from "./pages/Documentreview";
 import TaskDetail from "./pages/TaskDetail";
 import Settings from "./pages/Settings";
 import AccountSetup from "./pages/AccountSetup";
+
+// Root route component — redirect to dashboard if logged in, else login
+function Root() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    } else {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+  return null;
+}
 
 // Separated so useLocation works inside BrowserRouter
 function AppRoutes() {
@@ -63,7 +77,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<Root />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/setup" element={<AccountSetup />} />
