@@ -1758,11 +1758,10 @@ export default function Reports() {
   // Quick Reports "View" jumps straight to the tab that already renders
   // that data live, instead of duplicating the view in a new place.
   const QUICK_REPORT_TAB = {
-    "Processing Time": "Transactions",
-    "Bottleneck": "Transactions",
+    "Processing Time": "Processing Time",
+    "Bottleneck": "Bottleneck",
     "Delayed Transactions": "Transactions",
     "Faculty Workload": "Faculty Workload",
-    "Processing Time": "Processing Time",
     "Monthly / Semestral Report": "Overview",
     "Audit Trail": "Audit Trail",
   };
