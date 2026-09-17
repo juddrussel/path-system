@@ -93,24 +93,7 @@ function MyComponent() {
 
 ---
 
-### 4. **Global CSS Animations & Hover States** ✓ (Auto-enabled)
-
-#### Button Hover States
-All buttons automatically get:
-- Smooth lift effect on hover (translateY -2px)
-- Enhanced shadow
-- Smooth transition (0.2s)
-
-```jsx
-// All buttons automatically have hover effects:
-<button>Primary Button</button>
-<button className="btn-secondary">Secondary</button>
-<button className="btn-danger">Delete</button>
-<button className="btn-text">Text Button</button>
-<button className="icon-btn">🔍</button>
-```
-
-#### Animation Utilities
+## 4. **Global CSS Animations** ✓ (Auto-enabled)
 Add to any element:
 
 ```jsx
@@ -152,16 +135,6 @@ No setup needed - it's wired into `App.jsx`.
 ---
 
 ## CSS Classes Reference
-
-### Hover Effects
-```css
-.btn-primary:hover      /* Purple gradient, lift up, shadow */
-.btn-secondary:hover    /* Gray, lift up, subtle shadow */
-.btn-danger:hover       /* Red, lift up, red shadow */
-.btn-text:hover         /* Subtle purple background */
-.btn-ghost:hover        /* Same as btn-text */
-.icon-btn:hover         /* Scale up 1.05 */
-```
 
 ### Form Elements
 ```css
