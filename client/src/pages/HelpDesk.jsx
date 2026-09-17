@@ -2,16 +2,26 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../assets/logo.png";
 
+const colors = {
+  ink: "#2f2638",
+  muted: "#82768a",
+  faint: "#a095a8",
+  violet: "#7c3aed",
+  violetDark: "#5b21b6",
+  panel: "#f8f7ff",
+  line: "#e9e1f1",
+};
+
 export default function HelpDesk() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("general");
   const [openFaq, setOpenFaq] = useState(null);
 
   const categories = {
-    general: { icon: "❓", color: "#3b82f6", title: "General Questions" },
-    documents: { icon: "📄", color: "#10b981", title: "Documents & Submissions" },
-    workflow: { icon: "⚙️", color: "#f59e0b", title: "Workflow & Tracking" },
-    technical: { icon: "🔧", color: "#ef4444", title: "Technical Support" },
+    general: "General Questions",
+    documents: "Documents & Submissions",
+    workflow: "Workflow & Tracking",
+    technical: "Technical Support",
   };
 
   const faqs = {
@@ -86,41 +96,10 @@ export default function HelpDesk() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #f8f7ff 0%, #f0ebff 100%)", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .faq-item { animation: slideIn 0.6s ease-out forwards; opacity: 0; }
-        .faq-item:nth-child(1) { animation-delay: 0.1s; }
-        .faq-item:nth-child(2) { animation-delay: 0.2s; }
-        .faq-item:nth-child(3) { animation-delay: 0.3s; }
-        .faq-item:nth-child(4) { animation-delay: 0.4s; }
-      `}</style>
-
-      {/* Hero Section */}
-      <div style={{
-        background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-        color: "white",
-        padding: "80px 24px",
-        textAlign: "center",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        <div style={{ position: "absolute", top: -100, left: -100, width: 400, height: 400, borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
-        <div style={{ position: "absolute", bottom: -50, right: -50, width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
-        <div style={{ maxWidth: "700px", margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 12, marginBottom: 20, padding: "10px 20px", background: "rgba(255,255,255,0.15)", borderRadius: 50, backdropFilter: "blur(10px)" }}>
-            <span style={{ fontSize: 20 }}>🆘</span>
-            <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Support Center</span>
-          </div>
-          <h1 style={{ fontSize: 52, fontWeight: 800, marginBottom: 16, letterSpacing: "-0.02em", lineHeight: 1.2 }}>How Can We Help?</h1>
-          <p style={{ fontSize: 18, opacity: 0.95, lineHeight: 1.6, maxWidth: 600, margin: "0 auto" }}>Find answers to common questions or get in touch with our support team.</p>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <header style={{ background: "rgba(255,255,255,0.7)", backdropFilter: "blur(10px)", borderBottom: "1px solid rgba(59,130,246,0.1)", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px" }}>
+    <div style={{ minHeight: "100vh", background: colors.panel, fontFamily: "'DM Sans', sans-serif", color: colors.ink }}>
+      {/* Header */}
+      <header style={{ background: "#fff", borderBottom: `1px solid ${colors.line}`, padding: "16px 24px", position: "sticky", top: 0, zIndex: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <button
             onClick={() => navigate(-1)}
             style={{
@@ -131,30 +110,38 @@ export default function HelpDesk() {
               border: "none",
               cursor: "pointer",
               fontSize: 14,
-              color: "#3b82f6",
+              color: colors.violet,
               fontWeight: 700,
               padding: "8px 12px",
               borderRadius: 8,
               transition: "all 0.2s",
             }}
-            onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
+            onMouseEnter={e => e.currentTarget.style.background = colors.panel}
             onMouseLeave={e => e.currentTarget.style.background = "none"}
           >
             ← Back
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <img src={logoImg} alt="DS PATH" style={{ width: 32, height: 32, borderRadius: 8 }} />
-            <span style={{ fontWeight: 800, color: "#1f1533" }}>DS PATH</span>
+            <span style={{ fontWeight: 800, color: colors.ink, fontSize: 16, letterSpacing: "-0.02em" }}>DS PATH</span>
           </div>
           <div style={{ width: 80 }} />
         </div>
       </header>
 
+      {/* Page Title */}
+      <div style={{ padding: "40px 24px", borderBottom: `1px solid ${colors.line}`, background: "#fff" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h1 style={{ fontSize: 32, fontWeight: 800, color: colors.ink, marginBottom: 8, letterSpacing: "-0.02em" }}>Help Desk</h1>
+          <p style={{ color: colors.muted, fontSize: 14, margin: 0 }}>Find answers to common questions or contact our support team.</p>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "60px 24px" }}>
-        {/* Category Buttons */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 60 }}>
-          {Object.entries(categories).map(([key, cat]) => (
+      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 24px" }}>
+        {/* Category Tabs */}
+        <div style={{ display: "flex", gap: 24, marginBottom: 40, borderBottom: `1px solid ${colors.line}`, paddingBottom: 0 }}>
+          {Object.entries(categories).map(([key, title]) => (
             <button
               key={key}
               onClick={() => {
@@ -162,68 +149,47 @@ export default function HelpDesk() {
                 setOpenFaq(null);
               }}
               style={{
-                padding: "20px 24px",
-                borderRadius: 14,
-                border: "2px solid transparent",
-                background: selectedCategory === key ? cat.color : "#fff",
-                color: selectedCategory === key ? "#fff" : "#1f1533",
-                fontWeight: 700,
+                padding: "12px 0",
+                background: "none",
+                border: "none",
                 cursor: "pointer",
-                transition: "all 0.3s",
-                boxShadow: selectedCategory === key ? `0 8px 24px ${cat.color}40` : "0 2px 8px rgba(0,0,0,0.08)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 10,
-                fontSize: 16,
-              }}
-              onMouseEnter={e => {
-                if (selectedCategory !== key) {
-                  e.currentTarget.style.transform = "translateY(-4px)";
-                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)";
-                }
-              }}
-              onMouseLeave={e => {
-                if (selectedCategory !== key) {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.08)";
-                }
+                fontSize: 14,
+                fontWeight: 700,
+                color: selectedCategory === key ? colors.violet : colors.muted,
+                borderBottom: selectedCategory === key ? `2px solid ${colors.violet}` : "2px solid transparent",
+                transition: "all 0.2s",
+                marginBottom: -1,
               }}
             >
-              <span style={{ fontSize: 32 }}>{cat.icon}</span>
-              <span>{cat.title}</span>
+              {title}
             </button>
           ))}
         </div>
 
         {/* FAQs */}
-        <div style={{ display: "grid", gap: 16, marginBottom: 60 }}>
+        <div style={{ display: "grid", gap: 16, marginBottom: 40 }}>
           {faqs[selectedCategory].map((item, idx) => (
             <div
               key={idx}
-              className="faq-item"
               style={{
-                background: "white",
-                borderRadius: 14,
-                border: "1px solid rgba(59,130,246,0.1)",
+                background: "#fff",
+                borderRadius: 12,
+                border: `1px solid ${colors.line}`,
                 overflow: "hidden",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                transition: "all 0.3s",
+                transition: "all 0.2s",
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = "0 8px 24px rgba(59,130,246,0.15)";
-                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(124,58,237,0.08)";
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
-                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
               <button
                 onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                 style={{
                   width: "100%",
-                  padding: "20px 24px",
+                  padding: "16px 20px",
                   background: "none",
                   border: "none",
                   textAlign: "left",
@@ -232,61 +198,56 @@ export default function HelpDesk() {
                   justifyContent: "space-between",
                   alignItems: "center",
                   gap: 12,
+                  fontFamily: "'DM Sans', sans-serif",
                 }}
               >
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1f1533", margin: 0 }}>{item.q}</h3>
-                <span style={{ fontSize: 20, transition: "transform 0.3s", transform: openFaq === idx ? "rotate(180deg)" : "rotate(0)" }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: colors.ink, margin: 0 }}>{item.q}</h3>
+                <span style={{ fontSize: 16, color: colors.violet, transition: "transform 0.3s", transform: openFaq === idx ? "rotate(180deg)" : "rotate(0)", flexShrink: 0 }}>
                   ▼
                 </span>
               </button>
               {openFaq === idx && (
-                <div style={{ padding: "0 24px 20px", borderTop: "1px solid #f0ebff", animation: "slideIn 0.3s ease-out" }}>
-                  <p style={{ fontSize: 14, color: "#7b6f8a", lineHeight: 1.8, margin: 0 }}>{item.a}</p>
+                <div style={{ padding: "0 20px 16px", borderTop: `1px solid ${colors.line}`, background: colors.panel }}>
+                  <p style={{ fontSize: 13, color: colors.muted, lineHeight: 1.7, margin: 0 }}>{item.a}</p>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        {/* Contact CTA */}
-        <div style={{
-          padding: "48px 32px",
-          background: `linear-gradient(135deg, ${categories[selectedCategory].color}18, ${categories[selectedCategory].color}08)`,
-          borderRadius: 16,
-          border: `2px solid ${categories[selectedCategory].color}30`,
-          textAlign: "center",
-        }}>
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: "#1f1533", marginBottom: 12 }}>Still need help?</h2>
-          <p style={{ fontSize: 15, color: "#7b6f8a", marginBottom: 24, maxWidth: 500, margin: "0 auto 24px" }}>
+        {/* Contact Section */}
+        <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${colors.line}`, padding: "32px 28px", textAlign: "center" }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: colors.ink, marginBottom: 8 }}>Still need help?</h2>
+          <p style={{ fontSize: 14, color: colors.muted, marginBottom: 24, maxWidth: 500, margin: "0 auto 24px" }}>
             Our support team is here to help. We typically respond within 24 hours during business hours.
           </p>
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <a
               href="mailto:support@dspath.com"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                padding: "12px 28px",
-                background: `linear-gradient(135deg, ${categories[selectedCategory].color}, ${categories[selectedCategory].color}cc)`,
+                padding: "10px 24px",
+                background: colors.violet,
                 color: "white",
                 textDecoration: "none",
-                borderRadius: 10,
+                borderRadius: 8,
                 fontWeight: 700,
-                fontSize: 14,
-                transition: "all 0.3s",
-                boxShadow: `0 4px 12px ${categories[selectedCategory].color}40`,
+                fontSize: 13,
+                transition: "all 0.2s",
+                border: `1px solid ${colors.violet}`,
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = `0 8px 24px ${categories[selectedCategory].color}50`;
+                e.currentTarget.style.background = colors.violetDark;
+                e.currentTarget.style.borderColor = colors.violetDark;
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = `0 4px 12px ${categories[selectedCategory].color}40`;
+                e.currentTarget.style.background = colors.violet;
+                e.currentTarget.style.borderColor = colors.violet;
               }}
             >
-              📧 Email Support
+              Email Support
             </a>
             <a
               href="tel:+1234567890"
@@ -294,26 +255,26 @@ export default function HelpDesk() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                padding: "12px 28px",
-                background: "#f3f4f6",
-                color: "#1f1533",
+                padding: "10px 24px",
+                background: "transparent",
+                color: colors.violet,
                 textDecoration: "none",
-                borderRadius: 10,
+                borderRadius: 8,
                 fontWeight: 700,
-                fontSize: 14,
-                transition: "all 0.3s",
-                border: "1px solid #e5e7eb",
+                fontSize: 13,
+                transition: "all 0.2s",
+                border: `1px solid ${colors.line}`,
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = "#e5e7eb";
-                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.background = colors.panel;
+                e.currentTarget.style.borderColor = colors.violet;
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = "#f3f4f6";
-                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = colors.line;
               }}
             >
-              📞 Call Us
+              Call Us
             </a>
           </div>
         </div>
