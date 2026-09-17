@@ -95,9 +95,9 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
           style={{
             background: "#fff",
             borderRadius: 20,
-            maxWidth: 640,
+            maxWidth: 680,
             width: "100%",
-            maxHeight: "85vh",
+            maxHeight: "90vh",
             display: "flex",
             flexDirection: "column",
             boxShadow: "0 20px 60px rgba(124, 58, 237, 0.3)",
@@ -109,7 +109,7 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
           <div
             style={{
               background: "linear-gradient(135deg, #7c3aed 0%, #6b21a8 100%)",
-              padding: "32px 36px 28px",
+              padding: "36px 40px 32px",
               position: "relative",
               overflow: "hidden",
             }}
@@ -118,22 +118,22 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
             <div style={{ position: "absolute", bottom: -30, left: -30, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
             
             <div style={{ position: "relative", zIndex: 1 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: "rgba(255,255,255,0.15)", borderRadius: 18, marginBottom: 14 }}>
-                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#fbbf24" }} />
-                <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>Action Required</span>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", background: "rgba(255,255,255,0.15)", borderRadius: 20, marginBottom: 16 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fbbf24" }} />
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>Action Required</span>
               </div>
               <h2 style={{ 
-                fontSize: 32, 
+                fontSize: 36, 
                 fontWeight: 800, 
                 color: "#fff", 
-                margin: "0 0 10px 0",
+                margin: "0 0 12px 0",
                 letterSpacing: "-0.02em",
                 fontFamily: "'Manrope', sans-serif",
-                lineHeight: 1.2,
+                lineHeight: 1.15,
               }}>
                 Terms & Conditions
               </h2>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.92)", margin: 0, lineHeight: 1.5 }}>
                 Please review and accept our terms to continue
               </p>
             </div>
@@ -146,7 +146,7 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "32px",
+              padding: "36px 40px",
               lineHeight: 1.8,
               color: "#494454",
               fontSize: 13,
@@ -234,7 +234,7 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
           {/* Footer Actions */}
           <div
             style={{
-              padding: "24px 32px",
+              padding: "28px 40px",
               borderTop: "1px solid #e9e1f1",
               background: "#fafafa",
             }}
@@ -244,8 +244,8 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
               style={{
                 display: "flex",
                 alignItems: "flex-start",
-                gap: 12,
-                marginBottom: 20,
+                gap: 14,
+                marginBottom: 22,
                 cursor: hasScrolled ? "pointer" : "not-allowed",
                 userSelect: "none",
                 opacity: hasScrolled ? 1 : 0.5,
@@ -257,15 +257,15 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
                 onChange={handleCheckboxClick}
                 disabled={!hasScrolled}
                 style={{
-                  width: 20,
-                  height: 20,
+                  width: 22,
+                  height: 22,
                   marginTop: 2,
                   cursor: hasScrolled ? "pointer" : "not-allowed",
                   accentColor: "#7c3aed",
                   flexShrink: 0,
                 }}
               />
-              <span style={{ fontSize: 13, color: "#494454", lineHeight: 1.6 }}>
+              <span style={{ fontSize: 14, color: "#494454", lineHeight: 1.6 }}>
                 I have read and agree to the <strong style={{ color: "#2f2638" }}>Terms & Conditions</strong> and <strong style={{ color: "#2f2638" }}>Privacy Policy</strong>
               </span>
             </label>
@@ -290,12 +290,12 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
             )}
 
             {/* Buttons */}
-            <div style={{ display: "flex", gap: 12 }}>
+            <div style={{ display: "flex", gap: 14 }}>
               <button
                 onClick={onDecline}
                 style={{
                   flex: 1,
-                  padding: "12px 24px",
+                  padding: "14px 24px",
                   background: "transparent",
                   color: "#82768a",
                   border: "1px solid #e9e1f1",
@@ -322,7 +322,7 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
                 disabled={!agreed || !hasScrolled}
                 style={{
                   flex: 1,
-                  padding: "12px 24px",
+                  padding: "14px 24px",
                   background: (agreed && hasScrolled) ? "#7c3aed" : "#d1c9e0",
                   color: "#fff",
                   border: "none",
