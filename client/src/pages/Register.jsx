@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import logowhite from "../assets/logowhite.png";
+import TermsModal from "../components/TermsModal";
 
 // Replace with your own site key (get one at https://www.google.com/recaptcha/admin).
 // The key below is Google's shared TEST key — it always passes and works on any domain,
@@ -473,6 +474,8 @@ export default function Register() {
   const captchaWrapperRef = useRef(null);
   const captchaRef = useRef(null);
   const widgetIdRef = useRef(null);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState(null);
 
   // Load the Google reCAPTCHA script once, then render the real widget into captchaRef.
   useEffect(() => {
@@ -600,13 +603,22 @@ export default function Register() {
       setErrors(validationErrors);
       return;
     }
+    
+    // Show Terms & Conditions modal before submitting
+    setPendingFormData({ ...formData, captchaToken });
+    setShowTermsModal(true);
+  };
+
+  const handleTermsAccept = async () => {
+    setShowTermsModal(false);
     setLoading(true);
     setAlertMsg(null);
+    
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, captchaToken }),
+        body: JSON.stringify(pendingFormData),
       });
       const data = await res.json();
       if (res.ok) {
@@ -628,7 +640,14 @@ export default function Register() {
       setCaptchaToken(null);
     } finally {
       setLoading(false);
+      setPendingFormData(null);
     }
+  };
+
+  const handleTermsDecline = () => {
+    setShowTermsModal(false);
+    setPendingFormData(null);
+    setAlertMsg({ type: "error", text: "You must accept the Terms & Conditions to register." });
   };
 
   return (
@@ -956,6 +975,13 @@ export default function Register() {
           </div>
         </div>
       </aside>
+
+      {/* Terms & Conditions Modal */}
+      <TermsModal 
+        isOpen={showTermsModal}
+        onAccept={handleTermsAccept}
+        onDecline={handleTermsDecline}
+      />
     </main>
   );
 }
