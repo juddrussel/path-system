@@ -5,6 +5,9 @@ import { connectSocket, disconnectSocket } from "./pages/socket";
 import ScrollToTop from "./components/ScrollToTop";
 import Layout from "./pages/Layout";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
+import HelpDesk from "./pages/HelpDesk";
 import "../src/styles/ux-improvements.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -84,6 +87,9 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/setup" element={<AccountSetup />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-use" element={<TermsOfUse />} />
+      <Route path="/help-desk" element={<HelpDesk />} />
 
       {/* Authenticated shell: Sidebar + TopBar mount once here via Layout,
           instead of once per page, so they persist across navigation. */}

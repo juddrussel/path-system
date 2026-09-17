@@ -279,16 +279,18 @@ const s = {
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "center",
-    gap: 16,
+    gap: 12,
     marginTop: 24,
     paddingTop: 16,
+    paddingBottom: 8,
     borderTop: `1px solid ${colors.line}`,
+    fontSize: 9,
   },
   footerStatus: { display: "flex", alignItems: "center", gap: 5, fontSize: 9, color: "#22c55e", fontWeight: 800 },
   footerDot: { width: 6, height: 6, borderRadius: "50%", background: "#22c55e" },
-  footerDivider: { fontSize: 9, color: "#dcd5e2" },
-  footerMuted: { fontSize: 9, color: colors.faint, fontWeight: 700 },
-  footerLink: { fontSize: 9, color: colors.faint, fontWeight: 700, textDecoration: "none" },
+  footerDivider: { fontSize: 9, color: "#dcd5e2", margin: "0 4px" },
+  footerMuted: { fontSize: 9, color: colors.faint, fontWeight: 700, whiteSpace: "nowrap" },
+  footerLink: { fontSize: 9, color: colors.faint, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" },
 
   // ── hero (right) ──
   aside: {
@@ -898,11 +900,11 @@ export default function Register() {
               <i style={s.footerDot} /> Systems online
             </span>
             <span style={s.footerDivider}>|</span>
-            <span style={s.footerMuted}>V 2.8.4-stable</span>
+            <span style={s.footerMuted}>V 1.0.0-stable</span>
             <span style={s.footerDivider}>|</span>
-            <a style={s.footerLink} href="#">Privacy Policy</a>
-            <a style={s.footerLink} href="#">Terms of Use</a>
-            <a style={s.footerLink} href="#">Help Desk</a>
+            <a style={s.footerLink} href="/privacy-policy">Privacy Policy</a>
+            <a style={s.footerLink} href="/terms-of-use">Terms of Use</a>
+            <a style={s.footerLink} href="/help-desk">Help Desk</a>
           </div>
         </div>
       </section>
