@@ -21,6 +21,7 @@ export default function TermsOfUse() {
           <small>Processing &amp; Tracking Hub</small>
         </div>
         <nav>
+          <button type="button" onClick={() => navigate("/privacy-policy")}>Privacy</button>
           <button type="button" className="active">Terms</button>
           <button type="button" onClick={handleHelpDesk}>Help desk</button>
         </nav>

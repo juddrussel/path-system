@@ -22,6 +22,7 @@ export default function PrivacyPolicy() {
         </div>
         <nav>
           <button type="button" className="active">Privacy</button>
+          <button type="button" onClick={() => navigate("/terms-of-use")}>Terms</button>
           <button type="button" onClick={handleHelpDesk}>Help desk</button>
         </nav>
         <button className="path-info-back" type="button" onClick={handleBack}>

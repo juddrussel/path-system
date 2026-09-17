@@ -45,6 +45,8 @@ export default function HelpDesk() {
           <small>Processing &amp; Tracking Hub</small>
         </div>
         <nav>
+          <button type="button" onClick={() => navigate("/privacy-policy")}>Privacy</button>
+          <button type="button" onClick={() => navigate("/terms-of-use")}>Terms</button>
           <button type="button" className="active">Help desk</button>
         </nav>
         <button className="path-info-back" type="button" onClick={handleBack}>
