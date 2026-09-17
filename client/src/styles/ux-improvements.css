@@ -1,0 +1,294 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   UX Improvements: Hover states, animations, and transitions
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Global button hover states ─────────────────────────────────────────── */
+button,
+input[type="button"],
+input[type="submit"],
+[role="button"] {
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Primary buttons (purple gradient) */
+button:not(:disabled):hover:not(.btn-text):not(.btn-ghost),
+input[type="submit"]:not(:disabled):hover,
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+}
+
+/* Secondary buttons */
+.btn-secondary:hover:not(:disabled) {
+  opacity: 0.85;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Danger buttons */
+.btn-danger:hover:not(:disabled),
+button.destructive:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+}
+
+/* Text/ghost buttons */
+button.btn-text:hover:not(:disabled),
+button.btn-ghost:hover:not(:disabled),
+.btn-text:hover:not(:disabled),
+.btn-ghost:hover:not(:disabled) {
+  background-color: rgba(124, 58, 237, 0.08);
+  transform: none;
+}
+
+/* Icon buttons */
+button.icon-btn:hover:not(:disabled) {
+  background-color: rgba(124, 58, 237, 0.1);
+  transform: scale(1.05);
+}
+
+/* Disabled state */
+button:disabled,
+input[type="submit"]:disabled,
+input[type="button"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Links styled as buttons */
+a.btn:hover,
+a[role="button"]:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* ── Loading animations ────────────────────────────────────────────────── */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Skeleton loader shimmer effect */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ── Smooth transitions ────────────────────────────────────────────────── */
+* {
+  --transition-fast: 0.15s ease-in-out;
+  --transition-base: 0.2s ease-in-out;
+  --transition-slow: 0.3s ease-in-out;
+}
+
+input,
+textarea,
+select {
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+/* ── Scroll-to-top button styles ────────────────────────────────────────── */
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 40;
+  display: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  animation: fadeIn 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.2s ease-in-out;
+}
+
+.scroll-to-top.show {
+  display: flex;
+}
+
+.scroll-to-top:hover {
+  opacity: 0.9;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+}
+
+.scroll-to-top:active {
+  transform: translateY(-2px);
+}
+
+/* ── Modal backdrop ────────────────────────────────────────────────────── */
+.modal-overlay {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* ── Form feedback animations ──────────────────────────────────────────── */
+.form-error {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.375rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+.form-success {
+  color: #22c55e;
+  font-size: 0.875rem;
+  margin-top: 0.375rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Toast notification animations */
+.toast-enter {
+  animation: slideUp 0.3s ease-out;
+}
+
+.toast-exit {
+  animation: slideUp 0.3s ease-out reverse;
+}
+
+/* ── Focus visible for accessibility ────────────────────────────────────── */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+/* ── Utility classes ────────────────────────────────────────────────────── */
+.transition-fast {
+  transition: all var(--transition-fast);
+}
+
+.transition-base {
+  transition: all var(--transition-base);
+}
+
+.transition-slow {
+  transition: all var(--transition-slow);
+}
+
+.cursor-loading {
+  cursor: wait;
+}
+
+.opacity-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .scroll-to-top {
+    bottom: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}

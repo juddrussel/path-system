@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { refreshToken } from "./utils/refreshToken";
 import { connectSocket, disconnectSocket } from "./pages/socket";
+import ScrollToTop from "./components/ScrollToTop";
 import Layout from "./pages/Layout";
+import NotFound from "./pages/NotFound";
+import "../src/styles/ux-improvements.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -104,6 +107,9 @@ function AppRoutes() {
         <Route path="/task-details/:id" element={<TaskDetail />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
+
+      {/* Catch-all 404 route */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
@@ -112,6 +118,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppRoutes />
+      <ScrollToTop />
     </BrowserRouter>
   );
 }
