@@ -561,11 +561,10 @@ function ExportButtons({ onExport, size = "normal" }) {
 
 
 const QUICK_REPORTS = [
-  { title: "Transaction Summary",         icon: Layers,        desc: "Complete overview of all transactions",       color: "#7c3aed" },
-  { title: "Pending Transactions",        icon: Clock,         desc: "All transactions awaiting action",            color: "#d97706" },
-  { title: "Completed Transactions",      icon: CheckCircle2,  desc: "Successfully processed transactions",         color: "#059669" },
-  { title: "Delayed Transactions",        icon: AlertTriangle, desc: "Transactions past SLA thresholds",            color: "#f97316" },
-  { title: "Faculty Workload",            icon: Users,         desc: "Per-faculty load and completion rates",       color: "#0284c7" },
+  { title: "Processing Time",         icon: Layers,        desc: "Average processing time by stage",       color: "#7c3aed" },
+  { title: "Bottleneck",              icon: Clock,         desc: "Identify workflow bottlenecks",          color: "#d97706" },
+  { title: "Delayed Transactions",    icon: AlertTriangle, desc: "Transactions past SLA thresholds",        color: "#f97316" },
+  { title: "Faculty Workload",        icon: Users,         desc: "Per-faculty load and completion rates",   color: "#0284c7" },
   { title: "Processing Time",             icon: Activity,      desc: "Average times per document type",             color: "#8b5cf6" },
   { title: "Monthly / Semestral Report",  icon: Calendar,      desc: "Aggregated performance by period",            color: "#ec4899" },
   { title: "Audit Trail",                 icon: Shield,        desc: "Full system activity log",                   color: "#64748b" },
@@ -1668,45 +1667,23 @@ export default function Reports() {
           ],
         };
 
-      case "Transaction Summary":
+      case "Processing Time":
         return {
-          title: "Transaction Summary",
-          subtitle: "Complete overview of all transactions",
+          title: "Processing Time",
+          subtitle: "Average processing time by stage",
           meta: activeFilterSummary,
-          kpis: KPI_DATA.map(k => ({ label: k.label, value: k.value })),
-          tables: [
-            {
-              title: "Status Distribution",
-              columns: ["Status", "Count"],
-              rows: STATUS_PIE.filter(s => s.value > 0).map(s => [s.name, s.value]),
-            },
-            {
-              title: "All Transactions",
-              columns: ["ID", "Document Type", "Submitted By", "Status", "Stage", "Date", "Days"],
-              rows: items.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.date, i.days]),
-            },
-          ],
+          kpis: [],
+          tables: [],
         };
 
-      case "Pending Transactions":
-      case "Completed Transactions": {
-        const statusWanted = reportName === "Pending Transactions" ? "Pending" : "Completed";
-        const filtered = items.filter(i => i.status === statusWanted);
+      case "Bottleneck":
         return {
-          title: reportName,
-          subtitle: `All transactions currently ${statusWanted.toLowerCase()}`,
+          title: "Bottleneck",
+          subtitle: "Identify workflow bottlenecks",
           meta: activeFilterSummary,
-          kpis: [
-            { label: `Total ${statusWanted}`, value: filtered.length },
-            { label: "% of All Transactions", value: `${items.length ? ((filtered.length / items.length) * 100).toFixed(1) : 0}%` },
-          ],
-          tables: [{
-            title: reportName,
-            columns: ["ID", "Document Type", "Submitted By", "Status", "Stage", "Date", "Days"],
-            rows: filtered.map(i => [formatTxnId(i.id), i.docType, i.person, i.status, i.stage, i.date, i.days]),
-          }],
+          kpis: [],
+          tables: [],
         };
-      }
 
       case "Audit Trail":
         return {
@@ -1781,9 +1758,8 @@ export default function Reports() {
   // Quick Reports "View" jumps straight to the tab that already renders
   // that data live, instead of duplicating the view in a new place.
   const QUICK_REPORT_TAB = {
-    "Transaction Summary": "Transactions",
-    "Pending Transactions": "Transactions",
-    "Completed Transactions": "Transactions",
+    "Processing Time": "Transactions",
+    "Bottleneck": "Transactions",
     "Delayed Transactions": "Transactions",
     "Faculty Workload": "Faculty Workload",
     "Processing Time": "Processing Time",
