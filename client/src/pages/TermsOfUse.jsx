@@ -10,7 +10,10 @@ export default function TermsOfUse() {
 
   return (
     <main className="path-info-page">
-      <style>{pageStyles}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
+        ${pageStyles}
+      `}</style>
       <header className="path-info-topbar">
         <div className="path-info-brand">
           <span><FileText size={18} /></span>
