@@ -1,296 +1,154 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoImg from "../assets/logo.png";
+import { ArrowLeft, FileText, MessageCircle, Headphones, Clock } from "lucide-react";
 
 export default function HelpDesk() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("general");
-  const [openFaq, setOpenFaq] = useState(null);
+
+  const handleBack = () => navigate(-1);
 
   const categories = {
-    general: "General Questions",
-    documents: "Documents & Submissions",
-    workflow: "Workflow & Tracking",
-    technical: "Technical Support",
-  };
-
-  const faqs = {
-    general: [
-      { q: "What is DS PATH?", a: "DS PATH is a document processing and tracking hub designed to streamline academic document workflows. It helps manage submissions, reviews, approvals, and tracking all in one secure platform." },
-      { q: "How do I create an account?", a: "You can create an account by clicking the 'Register' button on the login page and filling in your information, or by accepting an invitation from an administrator." },
-      { q: "Can I change my password?", a: "Yes, you can change your password from the Settings page. Go to Settings and look for the 'Change Password' option." },
-    ],
-    documents: [
-      { q: "How do I submit a document?", a: "Navigate to the Forms section, select the appropriate document category, fill in the required information, and attach your document. Click Submit when ready." },
-      { q: "What file formats are accepted?", a: "We accept PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, and image files (JPG, PNG, GIF)." },
-      { q: "What is the file size limit?", a: "The maximum file size for a single document is 50MB. If you need to submit larger files, please contact support." },
-      { q: "Can I edit after submitting?", a: "Once submitted, documents are locked. However, if a reviewer requests revisions, you can resubmit a new version." },
-    ],
-    workflow: [
-      { q: "How do I track my submission?", a: "Use the Tracking page to see the current status of your documents. You can filter by date, status, and document type." },
-      { q: "What does 'Pending' status mean?", a: "'Pending' means your document is waiting to be reviewed. You can see who currently has it assigned to them." },
-      { q: "How long does review take?", a: "Review times vary by document type. Check the SLA Configuration page to see target completion times for each category." },
-      { q: "Can I communicate with reviewers?", a: "Yes, use the Inbox section to send direct messages or participate in group chats with team members." },
-    ],
-    technical: [
-      { q: "Website loading slowly?", a: "Try clearing your browser cache and cookies. If the problem persists, contact support with details about your browser." },
-      { q: "Trouble uploading files?", a: "Ensure your file is not corrupted and is under 50MB. Try a different browser or device if possible." },
-      { q: "Video call not working?", a: "Check that you have allowed camera and microphone permissions. Try refreshing and ensuring a stable internet connection." },
-      { q: "Which browsers are supported?", a: "DS PATH works best on Chrome, Firefox, Safari, and Edge (latest versions). Mobile devices are also supported." },
-    ],
+    general: {
+      label: "General",
+      items: [
+        { q: "What is PATH?", a: "PATH is a document processing and tracking hub designed to streamline academic document workflows for faculty, program chairs, and administrators." },
+        { q: "How do I create an account?", a: "You can create an account by clicking 'Register' on the login page and submitting your information, or by accepting an invitation from an administrator." },
+      ],
+    },
+    documents: {
+      label: "Documents",
+      items: [
+        { q: "How do I submit a document?", a: "Navigate to Forms, select the appropriate document category, fill in the required information, and attach your document. Click Submit when ready." },
+        { q: "What file formats are accepted?", a: "We accept PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, and image files (JPG, PNG, GIF)." },
+      ],
+    },
+    workflow: {
+      label: "Workflow",
+      items: [
+        { q: "How do I track my submission?", a: "Use the Tracking page to see the current status of your documents. You can filter by date, status, and document type." },
+        { q: "What does 'Pending' status mean?", a: "'Pending' means your document is waiting to be reviewed. You can see who currently has it assigned to them." },
+      ],
+    },
   };
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
-        .faq-item { animation: slideUp 0.4s ease-out forwards; opacity: 0; }
-        .faq-item:nth-child(1) { animation-delay: 0.05s; }
-        .faq-item:nth-child(2) { animation-delay: 0.1s; }
-        .faq-item:nth-child(3) { animation-delay: 0.15s; }
-        .faq-item:nth-child(4) { animation-delay: 0.2s; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
+    <main className="path-info-page">
+      <style>{pageStyles}</style>
+      <header className="path-info-topbar">
+        <div className="path-info-brand">
+          <span><FileText size={18} /></span>
+          <strong>PATH</strong>
+          <small>Processing &amp; Tracking Hub</small>
+        </div>
+        <nav>
+          <button type="button" className="active">Help desk</button>
+        </nav>
+        <button className="path-info-back" type="button" onClick={handleBack}>
+          <ArrowLeft size={14} /> Back
+        </button>
+      </header>
 
-      <div style={{ minHeight: "100vh", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
-        {/* Header */}
-        <header style={{ 
-          background: "rgba(255,255,255,0.95)", 
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(124,58,237,0.08)", 
-          padding: "16px 0",
-          position: "sticky", 
-          top: 0, 
-          zIndex: 100,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
-        }}>
-          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <button
-              onClick={() => navigate(-1)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontSize: 14,
-                color: "#7c3aed",
-                fontWeight: 700,
-                padding: "8px 14px",
-                borderRadius: 8,
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = "#f0ebff"}
-              onMouseLeave={e => e.currentTarget.style.background = "none"}
-            >
-              ← Back
-            </button>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <img src={logoImg} alt="DS PATH" style={{ width: 34, height: 34, borderRadius: 9 }} />
-              <span style={{ fontWeight: 800, color: "#1f1533", fontSize: 16, letterSpacing: "0.02em", fontFamily: "'Manrope', sans-serif" }}>DS PATH</span>
-            </div>
-            <div style={{ width: 80 }} />
-          </div>
-        </header>
+      <section className="path-info-hero">
+        <span className="path-info-kicker"><i /> Support center</span>
+        <h1>We're here to help.</h1>
+        <p>Find answers to common questions or reach out to our support team for help with PATH.</p>
+      </section>
 
-        {/* Hero Section */}
-        <div style={{
-          background: "linear-gradient(135deg, #7c3aed 0%, #6b21a8 100%)",
-          padding: "64px 32px 48px",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          <div style={{ position: "absolute", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
-          <div style={{ position: "absolute", bottom: -50, left: -50, width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
-          
-          <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 1 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: "rgba(255,255,255,0.15)", borderRadius: 20, marginBottom: 20 }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981" }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>Support Center</span>
-            </div>
-            <h1 style={{ 
-              fontSize: 42, 
-              fontWeight: 800, 
-              color: "#fff", 
-              marginBottom: 12,
-              letterSpacing: "-0.03em",
-              fontFamily: "'Manrope', sans-serif",
-              lineHeight: 1.1
-            }}>
-              Help Desk
-            </h1>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", lineHeight: 1.6, margin: 0 }}>
-              Find answers to common questions or get in touch with our support team.
-            </p>
-          </div>
+      <section className="path-info-body">
+        <div className="path-info-meta">
+          <span>Last updated · September 2026</span>
         </div>
 
-        {/* Main Content */}
-        <main style={{ maxWidth: "1100px", margin: "0 auto", padding: "48px 32px 80px" }}>
-          {/* Category Pills */}
-          <div style={{ display: "flex", gap: 12, marginBottom: 40, flexWrap: "wrap" }}>
-            {Object.entries(categories).map(([key, title]) => (
-              <button
-                key={key}
-                onClick={() => { setSelectedCategory(key); setOpenFaq(null); }}
-                style={{
-                  padding: "10px 20px",
-                  background: selectedCategory === key ? "#7c3aed" : "#fff",
-                  color: selectedCategory === key ? "#fff" : "#5f5866",
-                  border: selectedCategory === key ? "1px solid #7c3aed" : "1px solid #e9e1f1",
-                  borderRadius: 24,
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  transition: "all 0.2s",
-                  boxShadow: selectedCategory === key ? "0 4px 12px rgba(124,58,237,0.2)" : "none",
-                }}
-                onMouseEnter={e => {
-                  if (selectedCategory !== key) {
-                    e.currentTarget.style.background = "#f8f7ff";
-                    e.currentTarget.style.borderColor = "#7c3aed";
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (selectedCategory !== key) {
-                    e.currentTarget.style.background = "#fff";
-                    e.currentTarget.style.borderColor = "#e9e1f1";
-                  }
-                }}
-              >
-                {title}
-              </button>
+        <div className="path-info-layout">
+          <div className="path-info-stack">
+            {/* Category Tabs */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+              {Object.entries(categories).map(([key, data]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSelectedCategory(key)}
+                  style={{
+                    padding: "8px 16px",
+                    border: selectedCategory === key ? "1px solid #7134d6" : "1px solid #e9e2f0",
+                    background: selectedCategory === key ? "#f1eaff" : "#fff",
+                    color: selectedCategory === key ? "#7134d6" : "#776987",
+                    borderRadius: 8,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    fontFamily: '"DM Sans", Arial, sans-serif',
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {data.label}
+                </button>
+              ))}
+            </div>
+
+            {/* FAQs for selected category */}
+            {categories[selectedCategory].items.map((item, idx) => (
+              <article key={idx} className="path-info-card">
+                <span className="path-info-icon">
+                  <MessageCircle size={18} />
+                </span>
+                <div>
+                  <h2>{item.q}</h2>
+                  <p>{item.a}</p>
+                </div>
+              </article>
             ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(500px, 100%), 1fr))", gap: 24 }}>
-            {/* FAQs Column */}
-            <div>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#1f1533", marginBottom: 20, fontFamily: "'Manrope', sans-serif" }}>
-                Frequently Asked Questions
-              </h2>
-              <div style={{ display: "grid", gap: 12 }}>
-                {faqs[selectedCategory].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="faq-item"
-                    style={{
-                      background: "#fff",
-                      borderRadius: 12,
-                      border: "1px solid #e9e1f1",
-                      overflow: "hidden",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    <button
-                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                      style={{
-                        width: "100%",
-                        padding: "16px 20px",
-                        background: "none",
-                        border: "none",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 12,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    >
-                      <h3 style={{ fontSize: 13, fontWeight: 700, color: "#1f1533", margin: 0 }}>{item.q}</h3>
-                      <span style={{ fontSize: 12, color: "#7c3aed", transition: "transform 0.3s", transform: openFaq === idx ? "rotate(180deg)" : "rotate(0)", flexShrink: 0 }}>
-                        ▼
-                      </span>
-                    </button>
-                    {openFaq === idx && (
-                      <div style={{ padding: "0 20px 16px", borderTop: "1px solid #e9e1f1", background: "#f8f7ff" }}>
-                        <p style={{ fontSize: 13, color: "#5f5866", lineHeight: 1.7, margin: 0 }}>{item.a}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+          <aside className="path-info-aside">
+            <span>Still need help?</span>
+            <strong>Contact support</strong>
+            <p>Our team typically responds within 24 hours during business hours.</p>
+            <hr />
+            
+            <div style={{ marginBottom: 16 }}>
+              <small style={{ display: "block", marginBottom: 8 }}>Email</small>
+              <a href="mailto:support@dspath.com" style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                color: "#7134d6",
+                textDecoration: "none",
+                fontSize: 10,
+                fontWeight: 800,
+              }}>
+                support@dspath.com
+              </a>
             </div>
 
-            {/* Contact Card */}
-            <div>
-              <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e9e1f1", padding: "28px 24px", position: "sticky", top: 100 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 800, color: "#1f1533", marginBottom: 8, fontFamily: "'Manrope', sans-serif" }}>
-                  Need More Help?
-                </h2>
-                <p style={{ fontSize: 13, color: "#5f5866", marginBottom: 24, lineHeight: 1.6 }}>
-                  Our support team is here to help. We typically respond within 24 hours during business hours.
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <a
-                    href="mailto:support@dspath.com"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      padding: "12px 20px",
-                      background: "#7c3aed",
-                      color: "white",
-                      textDecoration: "none",
-                      borderRadius: 8,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      transition: "all 0.2s",
-                      border: "1px solid #7c3aed",
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = "#6b21a8";
-                      e.currentTarget.style.borderColor = "#6b21a8";
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.background = "#7c3aed";
-                      e.currentTarget.style.borderColor = "#7c3aed";
-                    }}
-                  >
-                    Email Support
-                  </a>
-                  <a
-                    href="tel:+1234567890"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      padding: "12px 20px",
-                      background: "transparent",
-                      color: "#7c3aed",
-                      textDecoration: "none",
-                      borderRadius: 8,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      transition: "all 0.2s",
-                      border: "1px solid #e9e1f1",
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = "#f8f7ff";
-                      e.currentTarget.style.borderColor = "#7c3aed";
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.borderColor = "#e9e1f1";
-                    }}
-                  >
-                    Call Us
-                  </a>
-                </div>
-
-                <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e9e1f1" }}>
-                  <p style={{ fontSize: 11, color: "#82768a", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Business Hours</p>
-                  <p style={{ fontSize: 12, color: "#5f5866", margin: 0 }}>Monday - Friday<br/>9:00 AM - 5:00 PM</p>
-                </div>
-              </div>
+            <div style={{ marginBottom: 16 }}>
+              <small style={{ display: "block", marginBottom: 8 }}>Phone</small>
+              <a href="tel:+1234567890" style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                color: "#7134d6",
+                textDecoration: "none",
+                fontSize: 10,
+                fontWeight: 800,
+              }}>
+                +1 (234) 567-890
+              </a>
             </div>
-          </div>
-        </main>
-      </div>
-    </>
+
+            <hr />
+            <small style={{ display: "block", marginBottom: 8, color: "#9a88a6", fontWeight: 800 }}>Business hours</small>
+            <p style={{ margin: 0, color: "#78658a", fontSize: 11 }}>
+              Monday – Friday<br />9:00 AM – 5:00 PM ET
+            </p>
+          </aside>
+        </div>
+      </section>
+    </main>
   );
 }
+
+const pageStyles = `
+.path-info-page{min-height:100vh;background:#faf9ff;color:#40344b;font-family:"DM Sans",Arial,sans-serif}.path-info-topbar{display:flex;align-items:center;gap:28px;padding:24px clamp(20px,5vw,72px);border-bottom:1px solid #eee8f4;background:#fff}.path-info-brand{display:grid;grid-template-columns:35px auto;column-gap:9px;align-items:center}.path-info-brand>span{display:grid;width:35px;height:35px;grid-row:span 2;place-items:center;border-radius:10px;background:#7c3aed;color:#fff}.path-info-brand strong{font:800 17px Manrope,sans-serif;letter-spacing:.11em}.path-info-brand small{color:#a095a8;font-size:7px;letter-spacing:.1em;text-transform:uppercase}.path-info-topbar nav{display:flex;gap:8px;margin-left:auto}.path-info-topbar button{border:0;background:none;color:#776987;font:800 10px "DM Sans",sans-serif;cursor:pointer}.path-info-topbar nav button{padding:9px 12px;border-radius:8px}.path-info-topbar nav button:hover,.path-info-topbar nav .active{background:#f1eaff;color:#7134d6}.path-info-back{display:inline-flex;align-items:center;gap:6px}.path-info-hero,.path-info-body{max-width:1100px;margin:auto;padding-left:24px;padding-right:24px}.path-info-hero{padding-top:clamp(58px,8vw,96px);padding-bottom:52px}.path-info-kicker{display:flex;align-items:center;gap:7px;color:#8d729e;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.path-info-kicker i{width:6px;height:6px;border-radius:50%;background:#7c3aed}.path-info-hero h1{max-width:760px;margin:16px 0 14px;color:#33293c;font:800 clamp(38px,5.2vw,66px)/1 Manrope,sans-serif;letter-spacing:-.065em}.path-info-hero>p{max-width:590px;margin:0;color:#82768a;font-size:14px;line-height:1.7}.path-info-meta{display:flex;justify-content:space-between;margin-bottom:17px;color:#a095a8;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.path-info-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px}.path-info-stack{display:grid;gap:11px}.path-info-card{display:grid;grid-template-columns:38px 1fr;gap:15px;padding:23px;border:1px solid #e9e2f0;border-radius:15px;background:#fff;box-shadow:0 10px 24px rgba(76,46,102,.04)}.path-info-icon{display:grid;width:35px;height:35px;place-items:center;border-radius:11px;background:#f0eaff;color:#7134d6}.path-info-card h2{margin:0;color:#493358;font:800 14px Manrope,sans-serif}.path-info-card p{margin:8px 0 0;color:#756783;font-size:12px;line-height:1.7}.path-info-aside{align-self:start;padding:22px;border:1px solid #dfd1f0;border-radius:15px;background:#f3edff}.path-info-aside>span{color:#8e73a7;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.path-info-aside strong{display:block;margin-top:13px;color:#553477;font:800 19px/1.18 Manrope,sans-serif}.path-info-aside p{margin:12px 0;color:#78658a;font-size:11px;line-height:1.6}.path-info-aside hr{border:0;border-top:1px solid #ddcef0;margin:20px 0 16px}.path-info-aside small{display:block;color:#9a88a6;font-size:9px}.path-info-aside button{display:inline-flex;align-items:center;gap:5px;margin-top:8px;border:0;background:none;color:#7134d6;font-size:10px;font-weight:800;cursor:pointer}@media(max-width:700px){.path-info-topbar{flex-wrap:wrap;gap:14px;padding:18px 20px}.path-info-topbar nav{order:3;width:100%;margin:0}.path-info-topbar nav button{padding-left:0;margin-right:10px}.path-info-back{margin-left:auto}.path-info-hero{padding:50px 20px 35px}.path-info-body{padding:0 20px 55px}.path-info-meta{display:grid;gap:5px}.path-info-layout{grid-template-columns:1fr}.path-info-aside{order:-1}.path-info-card{padding:18px}}
+`;

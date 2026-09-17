@@ -1,166 +1,102 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import logoImg from "../assets/logo.png";
+import { ArrowLeft, ArrowRight, FileText, Scale, AlertCircle, CheckCircle } from "lucide-react";
 
 export default function TermsOfUse() {
   const navigate = useNavigate();
 
+  const handleBack = () => navigate(-1);
+  const handleHelpDesk = () => navigate("/help-desk");
+
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
-        
-        .terms-content strong { color: #2f2638; font-weight: 700; }
-        .terms-section { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
+    <main className="path-info-page">
+      <style>{pageStyles}</style>
+      <header className="path-info-topbar">
+        <div className="path-info-brand">
+          <span><FileText size={18} /></span>
+          <strong>PATH</strong>
+          <small>Processing &amp; Tracking Hub</small>
+        </div>
+        <nav>
+          <button type="button" className="active">Terms</button>
+          <button type="button" onClick={handleHelpDesk}>Help desk</button>
+        </nav>
+        <button className="path-info-back" type="button" onClick={handleBack}>
+          <ArrowLeft size={14} /> Back
+        </button>
+      </header>
 
-      <div style={{ minHeight: "100vh", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
-        {/* Header */}
-        <header style={{ 
-          background: "rgba(255,255,255,0.95)", 
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(124,58,237,0.08)", 
-          padding: "16px 0",
-          position: "sticky", 
-          top: 0, 
-          zIndex: 100,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
-        }}>
-          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <button
-              onClick={() => navigate(-1)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontSize: 14,
-                color: "#7c3aed",
-                fontWeight: 700,
-                padding: "8px 14px",
-                borderRadius: 8,
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = "#f0ebff"}
-              onMouseLeave={e => e.currentTarget.style.background = "none"}
-            >
-              ← Back
-            </button>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <img src={logoImg} alt="DS PATH" style={{ width: 34, height: 34, borderRadius: 9 }} />
-              <span style={{ fontWeight: 800, color: "#1f1533", fontSize: 16, letterSpacing: "0.02em", fontFamily: "'Manrope', sans-serif" }}>DS PATH</span>
-            </div>
-            <div style={{ width: 80 }} />
-          </div>
-        </header>
+      <section className="path-info-hero">
+        <span className="path-info-kicker"><i /> Terms of use</span>
+        <h1>Use the workspace responsibly and according to these terms.</h1>
+        <p>These terms govern your use of PATH. By creating an account and using the platform, you agree to abide by these rules and guidelines.</p>
+      </section>
 
-        {/* Hero Section */}
-        <div style={{
-          background: "linear-gradient(135deg, #7c3aed 0%, #6b21a8 100%)",
-          padding: "64px 32px 48px",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          <div style={{ position: "absolute", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
-          <div style={{ position: "absolute", bottom: -50, left: -50, width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
-          
-          <div style={{ maxWidth: "900px", margin: "0 auto", position: "relative", zIndex: 1 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: "rgba(255,255,255,0.15)", borderRadius: 20, marginBottom: 20 }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981" }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>Legal</span>
-            </div>
-            <h1 style={{ 
-              fontSize: 42, 
-              fontWeight: 800, 
-              color: "#fff", 
-              marginBottom: 12,
-              letterSpacing: "-0.03em",
-              fontFamily: "'Manrope', sans-serif",
-              lineHeight: 1.1
-            }}>
-              Terms of Use
-            </h1>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", lineHeight: 1.6, margin: 0 }}>
-              Please read these terms carefully before using DS PATH services.
-            </p>
-          </div>
+      <section className="path-info-body">
+        <div className="path-info-meta">
+          <span>Last updated · September 2026</span>
+          <span>Reading time · 4 minutes</span>
         </div>
 
-        {/* Content */}
-        <main style={{ maxWidth: "900px", margin: "0 auto", padding: "48px 32px 80px" }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: "40px", boxShadow: "0 4px 24px rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.08)" }}>
-            <div className="terms-content" style={{ lineHeight: 1.8, color: "#494454" }}>
-              {[
-                {
-                  title: "Agreement to Terms",
-                  content: "By accessing and using DS PATH, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree, please do not use this service.",
-                },
-                {
-                  title: "Use License",
-                  content: (
-                    <>
-                      <p style={{ marginBottom: 14 }}>Permission is granted to use DS PATH for lawful purposes only. You may not:</p>
-                      <ul style={{ marginLeft: 20, marginBottom: 0, lineHeight: 1.9 }}>
-                        <li style={{ marginBottom: 10 }}>Modify or copy the materials</li>
-                        <li style={{ marginBottom: 10 }}>Use the materials for any commercial purpose</li>
-                        <li style={{ marginBottom: 10 }}>Attempt to decompile or reverse engineer any software</li>
-                        <li style={{ marginBottom: 10 }}>Remove any copyright or proprietary notations</li>
-                        <li>Transfer the materials to another person</li>
-                      </ul>
-                    </>
-                  ),
-                },
-                {
-                  title: "Disclaimer",
-                  content: "The materials on DS PATH are provided 'as is'. DS PATH makes no warranties, expressed or implied, and hereby disclaims all other warranties including merchantability and fitness for a particular purpose.",
-                },
-                {
-                  title: "Limitations",
-                  content: "In no event shall DS PATH or its suppliers be liable for any damages arising out of the use or inability to use the materials, even if notified of the possibility of such damage.",
-                },
-                {
-                  title: "Accuracy of Materials",
-                  content: "The materials appearing on DS PATH could include technical, typographical, or photographic errors. DS PATH may make changes to the materials at any time without notice.",
-                },
-                {
-                  title: "Links",
-                  content: "DS PATH is not responsible for the contents of any linked site. The inclusion of any link does not imply endorsement by DS PATH. Use of any such linked website is at the user's own risk.",
-                },
-                {
-                  title: "Modifications",
-                  content: "DS PATH may revise these terms at any time without notice. By using this service, you are agreeing to be bound by the then current version of these terms.",
-                },
-                {
-                  title: "Governing Law",
-                  content: "These terms and conditions are governed by and construed in accordance with applicable law, and you irrevocably submit to the exclusive jurisdiction of the courts.",
-                },
-              ].map((section, idx) => (
-                <section key={idx} className="terms-section" style={{ marginBottom: idx < 7 ? 36 : 0, paddingBottom: idx < 7 ? 36 : 0, borderBottom: idx < 7 ? "1px solid #e9e1f1" : "none" }}>
-                  <h2 style={{ 
-                    fontSize: 20, 
-                    fontWeight: 800, 
-                    color: "#1f1533", 
-                    marginBottom: 16,
-                    fontFamily: "'Manrope', sans-serif",
-                    letterSpacing: "-0.01em"
-                  }}>
-                    {section.title}
-                  </h2>
-                  <div style={{ fontSize: 14, lineHeight: 1.8, color: "#5f5866" }}>{section.content}</div>
-                </section>
-              ))}
+        <div className="path-info-layout">
+          <div className="path-info-stack">
+            <Article 
+              icon={<Scale size={18} />} 
+              title="Agreement to Terms"
+            >
+              By accessing and using PATH, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree, please do not use this service. PATH reserves the right to modify these terms at any time without prior notice.
+            </Article>
 
-              <div style={{ marginTop: 40, padding: "24px 28px", background: "#f8f7ff", borderRadius: 12, border: "1px solid #e9e1f1", textAlign: "center" }}>
-                <p style={{ fontSize: 13, color: "#82768a", marginBottom: 0 }}>
-                  Last updated: <strong style={{ color: "#2f2638" }}>{new Date().toLocaleDateString()}</strong>
-                </p>
-              </div>
-            </div>
+            <Article 
+              icon={<CheckCircle size={18} />} 
+              title="Use License"
+            >
+              Permission is granted to use PATH for lawful academic purposes only. You may not modify, copy, or misuse platform materials. You may not use the service for unauthorized commercial purposes, attempt to decompile or reverse engineer any software, or remove any copyright or proprietary notations.
+            </Article>
+
+            <Article 
+              icon={<AlertCircle size={18} />} 
+              title="User Responsibilities"
+            >
+              You are responsible for maintaining the confidentiality of your account, for all activities that occur under your account, ensuring the accuracy of information you provide, and compliance with all applicable laws and regulations. Do not share your credentials or engage in unauthorized activities.
+            </Article>
+
+            <Article 
+              icon={<FileText size={18} />} 
+              title="Limitation of Liability"
+            >
+              In no event shall PATH or its suppliers be liable for any damages (including data loss, business interruption, or lost profits) arising out of the use or inability to use the service, even if PATH has been notified of the possibility of such damage.
+            </Article>
           </div>
-        </main>
-      </div>
-    </>
+
+          <aside className="path-info-aside">
+            <span>At a glance</span>
+            <strong>Clear rules. Fair use.</strong>
+            <p>PATH exists to serve academic departments responsibly. These terms protect both members and the institution.</p>
+            <hr />
+            <small>Have questions about these terms?</small>
+            <button type="button" onClick={handleHelpDesk}>
+              Contact Help Desk <ArrowRight size={13} />
+            </button>
+          </aside>
+        </div>
+      </section>
+    </main>
   );
 }
+
+function Article({ icon, title, children }) {
+  return (
+    <article className="path-info-card">
+      <span className="path-info-icon">{icon}</span>
+      <div>
+        <h2>{title}</h2>
+        <p>{children}</p>
+      </div>
+    </article>
+  );
+}
+
+const pageStyles = `
+.path-info-page{min-height:100vh;background:#faf9ff;color:#40344b;font-family:"DM Sans",Arial,sans-serif}.path-info-topbar{display:flex;align-items:center;gap:28px;padding:24px clamp(20px,5vw,72px);border-bottom:1px solid #eee8f4;background:#fff}.path-info-brand{display:grid;grid-template-columns:35px auto;column-gap:9px;align-items:center}.path-info-brand>span{display:grid;width:35px;height:35px;grid-row:span 2;place-items:center;border-radius:10px;background:#7c3aed;color:#fff}.path-info-brand strong{font:800 17px Manrope,sans-serif;letter-spacing:.11em}.path-info-brand small{color:#a095a8;font-size:7px;letter-spacing:.1em;text-transform:uppercase}.path-info-topbar nav{display:flex;gap:8px;margin-left:auto}.path-info-topbar button{border:0;background:none;color:#776987;font:800 10px "DM Sans",sans-serif;cursor:pointer}.path-info-topbar nav button{padding:9px 12px;border-radius:8px}.path-info-topbar nav button:hover,.path-info-topbar nav .active{background:#f1eaff;color:#7134d6}.path-info-back{display:inline-flex;align-items:center;gap:6px}.path-info-hero,.path-info-body{max-width:1100px;margin:auto;padding-left:24px;padding-right:24px}.path-info-hero{padding-top:clamp(58px,8vw,96px);padding-bottom:52px}.path-info-kicker{display:flex;align-items:center;gap:7px;color:#8d729e;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.path-info-kicker i{width:6px;height:6px;border-radius:50%;background:#7c3aed}.path-info-hero h1{max-width:760px;margin:16px 0 14px;color:#33293c;font:800 clamp(38px,5.2vw,66px)/1 Manrope,sans-serif;letter-spacing:-.065em}.path-info-hero>p{max-width:590px;margin:0;color:#82768a;font-size:14px;line-height:1.7}.path-info-meta{display:flex;justify-content:space-between;margin-bottom:17px;color:#a095a8;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.path-info-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px}.path-info-stack{display:grid;gap:11px}.path-info-card{display:grid;grid-template-columns:38px 1fr;gap:15px;padding:23px;border:1px solid #e9e2f0;border-radius:15px;background:#fff;box-shadow:0 10px 24px rgba(76,46,102,.04)}.path-info-icon{display:grid;width:35px;height:35px;place-items:center;border-radius:11px;background:#f0eaff;color:#7134d6}.path-info-card h2{margin:0;color:#493358;font:800 14px Manrope,sans-serif}.path-info-card p{margin:8px 0 0;color:#756783;font-size:12px;line-height:1.7}.path-info-aside{align-self:start;padding:22px;border:1px solid #dfd1f0;border-radius:15px;background:#f3edff}.path-info-aside>span{color:#8e73a7;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.path-info-aside strong{display:block;margin-top:13px;color:#553477;font:800 19px/1.18 Manrope,sans-serif}.path-info-aside p{margin:12px 0;color:#78658a;font-size:11px;line-height:1.6}.path-info-aside hr{border:0;border-top:1px solid #ddcef0;margin:20px 0 16px}.path-info-aside small{display:block;color:#9a88a6;font-size:9px}.path-info-aside button{display:inline-flex;align-items:center;gap:5px;margin-top:8px;border:0;background:none;color:#7134d6;font-size:10px;font-weight:800;cursor:pointer}@media(max-width:700px){.path-info-topbar{flex-wrap:wrap;gap:14px;padding:18px 20px}.path-info-topbar nav{order:3;width:100%;margin:0}.path-info-topbar nav button{padding-left:0;margin-right:10px}.path-info-back{margin-left:auto}.path-info-hero{padding:50px 20px 35px}.path-info-body{padding:0 20px 55px}.path-info-meta{display:grid;gap:5px}.path-info-layout{grid-template-columns:1fr}.path-info-aside{order:-1}.path-info-card{padding:18px}}
+`;
