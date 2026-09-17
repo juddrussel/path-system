@@ -1899,7 +1899,7 @@ export default function Inbox() {
 
               {/* Tab bar: DM / Groups / Documents */}
               <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
-                {[{ id: "dm", label: "Direct" }, { id: "groups", label: "Groups" }, { id: "documents", label: "Docs" }].map(t => (
+                {[{ id: "dm", label: "Direct" }, { id: "groups", label: "Groups" }].map(t => (
                   <button key={t.id} onClick={() => { setTab(t.id); setActiveConv(null); setActiveDoc(null); setActiveGroup(null); }}
                     style={{
                       flex: 1, padding: "6px 4px", borderRadius: 8, border: "none", cursor: "pointer",
