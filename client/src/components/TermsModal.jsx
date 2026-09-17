@@ -8,14 +8,22 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
 
   const handleScroll = (e) => {
     const target = e.target;
-    const scrolledToBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    const scrolledToBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 20;
     if (scrolledToBottom && !hasScrolled) {
       setHasScrolled(true);
     }
   };
 
+  const handleCheckboxClick = (e) => {
+    if (!hasScrolled) {
+      e.preventDefault();
+      return;
+    }
+    setAgreed(e.target.checked);
+  };
+
   const handleAccept = () => {
-    if (agreed) {
+    if (agreed && hasScrolled) {
       onAccept();
     }
   };
@@ -101,7 +109,7 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
           <div
             style={{
               background: "linear-gradient(135deg, #7c3aed 0%, #6b21a8 100%)",
-              padding: "28px 32px",
+              padding: "32px 36px 28px",
               position: "relative",
               overflow: "hidden",
             }}
@@ -110,21 +118,22 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
             <div style={{ position: "absolute", bottom: -30, left: -30, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
             
             <div style={{ position: "relative", zIndex: 1 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "5px 12px", background: "rgba(255,255,255,0.15)", borderRadius: 16, marginBottom: 12 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: "rgba(255,255,255,0.15)", borderRadius: 18, marginBottom: 14 }}>
                 <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#fbbf24" }} />
                 <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>Action Required</span>
               </div>
               <h2 style={{ 
-                fontSize: 28, 
+                fontSize: 32, 
                 fontWeight: 800, 
                 color: "#fff", 
-                margin: "0 0 8px 0",
+                margin: "0 0 10px 0",
                 letterSpacing: "-0.02em",
                 fontFamily: "'Manrope', sans-serif",
+                lineHeight: 1.2,
               }}>
                 Terms & Conditions
               </h2>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: 0, lineHeight: 1.5 }}>
                 Please review and accept our terms to continue
               </p>
             </div>
@@ -237,19 +246,21 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
                 alignItems: "flex-start",
                 gap: 12,
                 marginBottom: 20,
-                cursor: "pointer",
+                cursor: hasScrolled ? "pointer" : "not-allowed",
                 userSelect: "none",
+                opacity: hasScrolled ? 1 : 0.5,
               }}
             >
               <input
                 type="checkbox"
                 checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
+                onChange={handleCheckboxClick}
+                disabled={!hasScrolled}
                 style={{
                   width: 20,
                   height: 20,
                   marginTop: 2,
-                  cursor: "pointer",
+                  cursor: hasScrolled ? "pointer" : "not-allowed",
                   accentColor: "#7c3aed",
                   flexShrink: 0,
                 }}
@@ -263,17 +274,17 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
             {!hasScrolled && (
               <div style={{ 
                 marginBottom: 16, 
-                padding: "10px 14px", 
+                padding: "12px 16px", 
                 background: "#fef3c7", 
-                borderRadius: 8, 
+                borderRadius: 10, 
                 border: "1px solid #fde68a",
                 display: "flex",
                 alignItems: "center",
-                gap: 8
+                gap: 10
               }}>
-                <span style={{ fontSize: 16 }}>📜</span>
-                <span style={{ fontSize: 12, color: "#92400e", lineHeight: 1.5 }}>
-                  Please scroll through the entire document above
+                <span style={{ fontSize: 18 }}>⬇️</span>
+                <span style={{ fontSize: 12, color: "#92400e", lineHeight: 1.5, fontWeight: 600 }}>
+                  Please scroll to the bottom to continue
                 </span>
               </div>
             )}
@@ -308,28 +319,28 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
               </button>
               <button
                 onClick={handleAccept}
-                disabled={!agreed}
+                disabled={!agreed || !hasScrolled}
                 style={{
                   flex: 1,
                   padding: "12px 24px",
-                  background: agreed ? "#7c3aed" : "#d1c9e0",
+                  background: (agreed && hasScrolled) ? "#7c3aed" : "#d1c9e0",
                   color: "#fff",
                   border: "none",
                   borderRadius: 10,
                   fontWeight: 700,
                   fontSize: 14,
-                  cursor: agreed ? "pointer" : "not-allowed",
+                  cursor: (agreed && hasScrolled) ? "pointer" : "not-allowed",
                   transition: "all 0.2s",
-                  boxShadow: agreed ? "0 4px 12px rgba(124, 58, 237, 0.25)" : "none",
+                  boxShadow: (agreed && hasScrolled) ? "0 4px 12px rgba(124, 58, 237, 0.25)" : "none",
                   fontFamily: "'DM Sans', sans-serif",
                 }}
                 onMouseEnter={(e) => {
-                  if (agreed) {
+                  if (agreed && hasScrolled) {
                     e.currentTarget.style.background = "#6b21a8";
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (agreed) {
+                  if (agreed && hasScrolled) {
                     e.currentTarget.style.background = "#7c3aed";
                   }
                 }}
