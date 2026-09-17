@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { ArrowRight, ScrollText, X } from "lucide-react";
 
 export default function TermsModal({ isOpen, onAccept, onDecline }) {
+  const [accepted, setAccepted] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
-  const [agreed, setAgreed] = useState(false);
 
   if (!isOpen) return null;
 
@@ -19,338 +20,402 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
       e.preventDefault();
       return;
     }
-    setAgreed(e.target.checked);
+    setAccepted(e.target.checked);
   };
 
   const handleAccept = () => {
-    if (agreed && hasScrolled) {
+    if (accepted && hasScrolled) {
       onAccept();
     }
   };
 
   return (
-    <>
+    <div className="path-terms-overlay" role="presentation">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
-        
-        @keyframes modalFadeIn {
+        .path-terms-overlay {
+          position: fixed;
+          z-index: 20;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          padding: 24px;
+          background: rgba(42, 25, 63, .48);
+          backdrop-filter: blur(7px);
+          font-family: "DM Sans", Arial, sans-serif;
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        
-        @keyframes modalSlideUp {
-          from { opacity: 0; transform: translateY(30px) scale(0.96); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        
-        .terms-modal-overlay {
-          animation: modalFadeIn 0.3s ease-out;
+
+        .path-terms-modal {
+          position: relative;
+          width: min(100%, 540px);
+          max-height: min(720px, calc(100dvh - 48px));
+          overflow: auto;
+          border: 1px solid rgba(255, 255, 255, .72);
+          border-radius: 22px;
+          padding: 30px;
+          background: #fffdfd;
+          color: #40344b;
+          box-shadow: 0 28px 80px rgba(38, 20, 65, .28);
+          animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        
-        .terms-modal-content {
-          animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        .terms-scrollbar::-webkit-scrollbar {
+
+        .path-terms-modal::-webkit-scrollbar {
           width: 8px;
         }
-        
-        .terms-scrollbar::-webkit-scrollbar-track {
-          background: #f8f7ff;
-          border-radius: 4px;
+
+        .path-terms-modal::-webkit-scrollbar-track {
+          background: transparent;
         }
-        
-        .terms-scrollbar::-webkit-scrollbar-thumb {
+
+        .path-terms-modal::-webkit-scrollbar-thumb {
           background: #d1c9e0;
           border-radius: 4px;
         }
-        
-        .terms-scrollbar::-webkit-scrollbar-thumb:hover {
+
+        .path-terms-modal::-webkit-scrollbar-thumb:hover {
           background: #b8adc9;
+        }
+
+        .path-terms-close {
+          position: absolute;
+          top: 19px;
+          right: 19px;
+          display: grid;
+          width: 31px;
+          height: 31px;
+          place-items: center;
+          border: 1px solid #ebe3f0;
+          border-radius: 9px;
+          background: #fff;
+          color: #897b91;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .path-terms-close:hover {
+          background: #f8f7ff;
+          border-color: #d1c9e0;
+        }
+
+        .path-terms-icon {
+          display: grid;
+          width: 45px;
+          height: 45px;
+          margin-bottom: 18px;
+          place-items: center;
+          border-radius: 14px;
+          background: #f0eaff;
+          color: #7134d6;
+        }
+
+        .path-terms-kicker {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          color: #9b89ad;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: .13em;
+          text-transform: uppercase;
+        }
+
+        .path-terms-kicker i {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: currentColor;
+        }
+
+        .path-terms-modal h2 {
+          margin: 11px 0 7px;
+          color: #33293c;
+          font: 800 30px / 1.1 "Manrope", Arial, sans-serif;
+          letter-spacing: -.055em;
+        }
+
+        .path-terms-lede {
+          max-width: 420px;
+          margin: 0;
+          color: #82768a;
+          font-size: 12px;
+          line-height: 1.55;
+        }
+
+        .path-terms-scroll {
+          max-height: 300px;
+          overflow-y: auto;
+          margin: 22px 0 18px;
+          padding: 17px 18px;
+          border: 1px solid #ece5f1;
+          border-radius: 13px;
+          background: #fbf9fd;
+          scrollbar-color: #c9b8da transparent;
+        }
+
+        .path-terms-scroll::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .path-terms-scroll::-webkit-scrollbar-track {
+          background: #fbf9fd;
+          border-radius: 4px;
+        }
+
+        .path-terms-scroll::-webkit-scrollbar-thumb {
+          background: #d1c9e0;
+          border-radius: 4px;
+        }
+
+        .path-terms-scroll::-webkit-scrollbar-thumb:hover {
+          background: #b8adc9;
+        }
+
+        .path-terms-scroll h3 {
+          margin: 0 0 5px;
+          color: #5f3b91;
+          font: 800 11px / 1.3 "Manrope", Arial, sans-serif;
+        }
+
+        .path-terms-scroll h3:not(:first-child) {
+          margin-top: 17px;
+        }
+
+        .path-terms-scroll p {
+          margin: 0;
+          color: #756783;
+          font-size: 11px;
+          line-height: 1.62;
+        }
+
+        .path-terms-updated {
+          margin-top: 17px !important;
+          color: #a095a8 !important;
+          font-size: 9px !important;
+          font-weight: 800;
+          letter-spacing: .06em;
+          text-transform: uppercase;
+        }
+
+        .path-terms-scroll-hint {
+          margin-top: 12px;
+          padding: 10px 12px;
+          background: #fef3c7;
+          border: 1px solid #fde68a;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 11px;
+          color: #92400e;
+          font-weight: 600;
+        }
+
+        .path-terms-check {
+          display: flex;
+          align-items: flex-start;
+          gap: 9px;
+          color: #5d5066;
+          font-size: 11px;
+          font-weight: 700;
+          line-height: 1.45;
+          cursor: var(--cursor-type);
+          opacity: var(--checkbox-opacity);
+          margin-top: 18px;
+          transition: all 0.2s;
+        }
+
+        .path-terms-check input {
+          flex: 0 0 auto;
+          width: 15px;
+          height: 15px;
+          margin: 1px 0 0;
+          accent-color: #7c3aed;
+          cursor: var(--cursor-type);
+        }
+
+        .path-terms-actions {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 10px;
+          margin-top: 23px;
+        }
+
+        .path-terms-cancel,
+        .path-terms-accept {
+          min-height: 42px;
+          padding: 0 14px;
+          border-radius: 8px;
+          font: 800 10px "DM Sans", Arial, sans-serif;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .path-terms-cancel {
+          border: 1px solid #e2dbe8;
+          background: #fff;
+          color: #7f7188;
+        }
+
+        .path-terms-cancel:hover {
+          background: #f8f7ff;
+          border-color: #d1c9e0;
+        }
+
+        .path-terms-accept {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          border: 1px solid #7134d6;
+          background: #7c3aed;
+          color: #fff;
+          box-shadow: 0 9px 17px rgba(124, 58, 237, .23);
+        }
+
+        .path-terms-accept:hover:not(:disabled) {
+          background: #6b21a8;
+          border-color: #6b21a8;
+        }
+
+        .path-terms-accept:disabled {
+          border-color: #d9d1e2;
+          background: #d9d1e2;
+          box-shadow: none;
+          cursor: not-allowed;
+        }
+
+        .path-terms-cancel:active:not(:disabled),
+        .path-terms-accept:active:not(:disabled) {
+          transform: scale(.97);
+        }
+
+        @media (max-width: 520px) {
+          .path-terms-overlay { padding: 14px; }
+          .path-terms-modal {
+            max-height: calc(100dvh - 28px);
+            border-radius: 17px;
+            padding: 24px 19px 20px;
+          }
+          .path-terms-modal h2 { font-size: 27px; }
+          .path-terms-scroll { max-height: 250px; padding: 15px; }
+          .path-terms-actions {
+            align-items: stretch;
+            flex-direction: column-reverse;
+          }
+          .path-terms-cancel,
+          .path-terms-accept {
+            justify-content: center;
+            width: 100%;
+          }
         }
       `}</style>
 
-      {/* Overlay */}
-      <div
-        className="terms-modal-overlay"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(31, 21, 51, 0.75)",
-          backdropFilter: "blur(8px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 9999,
-          padding: "20px",
-          fontFamily: "'DM Sans', sans-serif",
-        }}
+      <section
+        className="path-terms-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="path-terms-title"
       >
-        {/* Modal */}
-        <div
-          className="terms-modal-content"
+        <button
+          className="path-terms-close"
+          type="button"
+          onClick={onDecline}
+          aria-label="Close terms and conditions"
+        >
+          <X size={17} />
+        </button>
+
+        <div className="path-terms-icon" aria-hidden="true">
+          <ScrollText size={21} strokeWidth={1.8} />
+        </div>
+        <span className="path-terms-kicker">
+          <i /> Before you continue
+        </span>
+        <h2 id="path-terms-title">Terms &amp; Conditions</h2>
+        <p className="path-terms-lede">
+          Please review the guidelines before completing your registration.
+        </p>
+
+        <div className="path-terms-scroll" onScroll={handleScroll} tabIndex={0}>
+          <h3>Use of the PATH workspace</h3>
+          <p>
+            PATH is an academic document workflow platform used by authorized faculty, program chairs, and administrators. You agree to use the workspace only for legitimate department business and academic purposes.
+          </p>
+
+          <h3>Accuracy and responsibility</h3>
+          <p>
+            You are responsible for the accuracy of information and files you submit, and for keeping your sign-in credentials private. Do not upload confidential material unless you are authorized to do so.
+          </p>
+
+          <h3>Review and access</h3>
+          <p>
+            Your account request will be manually reviewed by an administrator. Access may be limited or removed when workspace rules, university policy, or applicable law is not followed.
+          </p>
+
+          <h3>Data privacy</h3>
+          <p>
+            Your personal information will be handled in accordance with our Privacy Policy. We protect your data with appropriate security measures and only use it for legitimate business purposes.
+          </p>
+
+          <h3>Disclaimer</h3>
+          <p>
+            The service is provided "as is" without warranties of any kind. We reserve the right to modify or discontinue the service at any time with appropriate notice.
+          </p>
+
+          <p className="path-terms-updated">Last updated · September 2026</p>
+        </div>
+
+        {!hasScrolled && (
+          <div className="path-terms-scroll-hint">
+            <span>⬇️</span>
+            <span>Please scroll to the bottom to continue</span>
+          </div>
+        )}
+
+        <label 
+          className="path-terms-check"
           style={{
-            background: "#fff",
-            borderRadius: 20,
-            maxWidth: 680,
-            width: "100%",
-            maxHeight: "90vh",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "0 20px 60px rgba(124, 58, 237, 0.3)",
-            border: "1px solid rgba(124, 58, 237, 0.1)",
-            overflow: "hidden",
+            "--cursor-type": hasScrolled ? "pointer" : "not-allowed",
+            "--checkbox-opacity": hasScrolled ? 1 : 0.5,
           }}
         >
-          {/* Header */}
-          <div
-            style={{
-              background: "linear-gradient(135deg, #7c3aed 0%, #6b21a8 100%)",
-              padding: "36px 40px 32px",
-              position: "relative",
-              overflow: "hidden",
-            }}
+          <input
+            type="checkbox"
+            checked={accepted}
+            onChange={handleCheckboxClick}
+            disabled={!hasScrolled}
+          />
+          <span>I have read and agree to the PATH Terms &amp; Conditions.</span>
+        </label>
+
+        <div className="path-terms-actions">
+          <button
+            className="path-terms-cancel"
+            type="button"
+            onClick={onDecline}
           >
-            <div style={{ position: "absolute", top: -50, right: -50, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
-            <div style={{ position: "absolute", bottom: -30, left: -30, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
-            
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", background: "rgba(255,255,255,0.15)", borderRadius: 20, marginBottom: 16 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fbbf24" }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>Action Required</span>
-              </div>
-              <h2 style={{ 
-                fontSize: 36, 
-                fontWeight: 800, 
-                color: "#fff", 
-                margin: "0 0 12px 0",
-                letterSpacing: "-0.02em",
-                fontFamily: "'Manrope', sans-serif",
-                lineHeight: 1.15,
-              }}>
-                Terms & Conditions
-              </h2>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.92)", margin: 0, lineHeight: 1.5 }}>
-                Please review and accept our terms to continue
-              </p>
-            </div>
-          </div>
-
-          {/* Scrollable Content */}
-          <div
-            className="terms-scrollbar"
-            onScroll={handleScroll}
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "36px 40px",
-              lineHeight: 1.8,
-              color: "#494454",
-              fontSize: 13,
-            }}
+            Go back
+          </button>
+          <button
+            className="path-terms-accept"
+            type="button"
+            disabled={!accepted || !hasScrolled}
+            onClick={handleAccept}
           >
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1f1533", marginBottom: 12, fontFamily: "'Manrope', sans-serif" }}>
-                Agreement to Terms
-              </h3>
-              <p style={{ marginBottom: 14 }}>
-                By creating an account and using DS PATH, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by the terms of this agreement, you are not authorized to use or access this service.
-              </p>
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1f1533", marginBottom: 12, fontFamily: "'Manrope', sans-serif" }}>
-                Use License
-              </h3>
-              <p style={{ marginBottom: 10 }}>Permission is granted to use DS PATH for lawful purposes only. You may not:</p>
-              <ul style={{ marginLeft: 20, marginBottom: 0, lineHeight: 1.9 }}>
-                <li style={{ marginBottom: 8 }}>Modify, copy, or misuse platform materials</li>
-                <li style={{ marginBottom: 8 }}>Use the service for unauthorized commercial purposes</li>
-                <li style={{ marginBottom: 8 }}>Attempt to decompile or reverse engineer any software</li>
-                <li style={{ marginBottom: 8 }}>Remove any copyright or proprietary notations</li>
-                <li>Share or transfer your account credentials</li>
-              </ul>
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1f1533", marginBottom: 12, fontFamily: "'Manrope', sans-serif" }}>
-                User Responsibilities
-              </h3>
-              <p style={{ marginBottom: 10 }}>You are responsible for:</p>
-              <ul style={{ marginLeft: 20, marginBottom: 0, lineHeight: 1.9 }}>
-                <li style={{ marginBottom: 8 }}>Maintaining the confidentiality of your account</li>
-                <li style={{ marginBottom: 8 }}>All activities that occur under your account</li>
-                <li style={{ marginBottom: 8 }}>Ensuring the accuracy of information you provide</li>
-                <li>Compliance with all applicable laws and regulations</li>
-              </ul>
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1f1533", marginBottom: 12, fontFamily: "'Manrope', sans-serif" }}>
-                Privacy & Data
-              </h3>
-              <p>
-                We collect and process your personal information in accordance with our Privacy Policy. By accepting these terms, you acknowledge that you have read and understood how we collect, use, and protect your data. Your documents and personal information will be handled with appropriate security measures.
-              </p>
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1f1533", marginBottom: 12, fontFamily: "'Manrope', sans-serif" }}>
-                Disclaimer
-              </h3>
-              <p>
-                The service is provided "as is" without warranties of any kind, either expressed or implied. DS PATH makes no warranties regarding availability, reliability, or fitness for a particular purpose. We reserve the right to modify or discontinue the service at any time.
-              </p>
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1f1533", marginBottom: 12, fontFamily: "'Manrope', sans-serif" }}>
-                Limitation of Liability
-              </h3>
-              <p>
-                In no event shall DS PATH or its suppliers be liable for any damages (including data loss, business interruption, or lost profits) arising out of the use or inability to use the service, even if DS PATH has been notified of the possibility of such damage.
-              </p>
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1f1533", marginBottom: 12, fontFamily: "'Manrope', sans-serif" }}>
-                Modifications
-              </h3>
-              <p>
-                DS PATH may revise these terms at any time without prior notice. By continuing to use the service after changes are posted, you agree to be bound by the revised terms. We recommend reviewing these terms periodically.
-              </p>
-            </div>
-
-            <div style={{ padding: "20px 24px", background: "#f8f7ff", borderRadius: 12, border: "1px solid #e9e1f1" }}>
-              <p style={{ fontSize: 12, color: "#82768a", margin: 0, textAlign: "center" }}>
-                Last updated: <strong style={{ color: "#2f2638" }}>{new Date().toLocaleDateString()}</strong>
-              </p>
-            </div>
-          </div>
-
-          {/* Footer Actions */}
-          <div
-            style={{
-              padding: "28px 40px",
-              borderTop: "1px solid #e9e1f1",
-              background: "#fafafa",
-            }}
-          >
-            {/* Checkbox */}
-            <label
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 14,
-                marginBottom: 22,
-                cursor: hasScrolled ? "pointer" : "not-allowed",
-                userSelect: "none",
-                opacity: hasScrolled ? 1 : 0.5,
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={agreed}
-                onChange={handleCheckboxClick}
-                disabled={!hasScrolled}
-                style={{
-                  width: 22,
-                  height: 22,
-                  marginTop: 2,
-                  cursor: hasScrolled ? "pointer" : "not-allowed",
-                  accentColor: "#7c3aed",
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{ fontSize: 14, color: "#494454", lineHeight: 1.6 }}>
-                I have read and agree to the <strong style={{ color: "#2f2638" }}>Terms & Conditions</strong> and <strong style={{ color: "#2f2638" }}>Privacy Policy</strong>
-              </span>
-            </label>
-
-            {/* Scroll Reminder */}
-            {!hasScrolled && (
-              <div style={{ 
-                marginBottom: 16, 
-                padding: "12px 16px", 
-                background: "#fef3c7", 
-                borderRadius: 10, 
-                border: "1px solid #fde68a",
-                display: "flex",
-                alignItems: "center",
-                gap: 10
-              }}>
-                <span style={{ fontSize: 18 }}>⬇️</span>
-                <span style={{ fontSize: 12, color: "#92400e", lineHeight: 1.5, fontWeight: 600 }}>
-                  Please scroll to the bottom to continue
-                </span>
-              </div>
-            )}
-
-            {/* Buttons */}
-            <div style={{ display: "flex", gap: 14 }}>
-              <button
-                onClick={onDecline}
-                style={{
-                  flex: 1,
-                  padding: "14px 24px",
-                  background: "transparent",
-                  color: "#82768a",
-                  border: "1px solid #e9e1f1",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#f8f7ff";
-                  e.currentTarget.style.borderColor = "#d1c9e0";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.borderColor = "#e9e1f1";
-                }}
-              >
-                Decline
-              </button>
-              <button
-                onClick={handleAccept}
-                disabled={!agreed || !hasScrolled}
-                style={{
-                  flex: 1,
-                  padding: "14px 24px",
-                  background: (agreed && hasScrolled) ? "#7c3aed" : "#d1c9e0",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: (agreed && hasScrolled) ? "pointer" : "not-allowed",
-                  transition: "all 0.2s",
-                  boxShadow: (agreed && hasScrolled) ? "0 4px 12px rgba(124, 58, 237, 0.25)" : "none",
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-                onMouseEnter={(e) => {
-                  if (agreed && hasScrolled) {
-                    e.currentTarget.style.background = "#6b21a8";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (agreed && hasScrolled) {
-                    e.currentTarget.style.background = "#7c3aed";
-                  }
-                }}
-              >
-                Accept & Continue
-              </button>
-            </div>
-          </div>
+            Accept &amp; continue <ArrowRight size={15} />
+          </button>
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   );
 }
