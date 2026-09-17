@@ -214,7 +214,7 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
           border-radius: 8px;
           display: flex;
           align-items: center;
-          gap: 8px;
+          justify-content: center;
           font-size: 11px;
           color: #92400e;
           font-weight: 600;
@@ -377,8 +377,7 @@ export default function TermsModal({ isOpen, onAccept, onDecline }) {
 
         {!hasScrolled && (
           <div className="path-terms-scroll-hint">
-            <span>⬇️</span>
-            <span>Please scroll to the bottom to continue</span>
+            Please scroll to the bottom to continue
           </div>
         )}
 
