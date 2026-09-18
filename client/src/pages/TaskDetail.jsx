@@ -1092,7 +1092,7 @@ export default function TaskDetail() {
                     )}
                   </div>
                   {(() => {
-                    const briefAttachments = attachments.filter(file => !file.uploaded_by || file.uploaded_by === task.assigned_by);
+                    const briefAttachments = attachments.filter(file => file.uploaded_by === task.assigned_by);
                     return briefAttachments.length > 0 ? (
                       briefAttachments.map((file, index) => (
                         <FileCard
