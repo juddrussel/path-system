@@ -318,10 +318,32 @@ export default function TaskDetail() {
       }
     };
 
+    // Listen for when the collaborator uploads files
+    const handleCollaboratorFileUpload = (data) => {
+      if (data.taskId === parseInt(taskId)) {
+        // Reload the task to get the latest file list
+        loadTask();
+      }
+    };
+
+    // Listen for when the collaborator submits the task
+    const handleTaskSubmitted = (data) => {
+      if (data.taskId === parseInt(taskId)) {
+        // Reload the task to get updated status and submission
+        loadTask();
+      }
+    };
+
     socket.on("collaboration:user_confirmed", handleCollaboratorConfirmed);
+    socket.on("task:file_uploaded", handleCollaboratorFileUpload);
+    socket.on("task:attachment_added", handleCollaboratorFileUpload);
+    socket.on("task:submitted", handleTaskSubmitted);
 
     return () => {
       socket.off("collaboration:user_confirmed", handleCollaboratorConfirmed);
+      socket.off("task:file_uploaded", handleCollaboratorFileUpload);
+      socket.off("task:attachment_added", handleCollaboratorFileUpload);
+      socket.off("task:submitted", handleTaskSubmitted);
     };
   }, [taskId]);
 

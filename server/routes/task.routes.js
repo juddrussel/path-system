@@ -1720,7 +1720,10 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
   try {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
-    const canAccess = ["admin", "program_chair"].includes(req.user.role) || rows[0].faculty_id === req.user.id;
+    const task = rows[0];
+    const canAccess = ["admin", "program_chair"].includes(req.user.role) || 
+                      task.faculty_id === req.user.id || 
+                      task.collaborator_id === req.user.id;
     if (!canAccess) return res.status(403).json({ message: "Access denied." });
 
     if (!req.files?.length) return res.status(400).json({ message: "No files uploaded." });
@@ -1731,23 +1734,33 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
 
     const io = req.app.get("io");
     if (io) {
-      const notifyId = req.user.id === rows[0].faculty_id ? rows[0].assigned_by : rows[0].faculty_id;
-      uploaded.forEach(f => {
+      // For collaborative tasks, notify both collaborators
+      let notifyIds = [];
+      if (task.is_collaborative) {
+        notifyIds = [task.faculty_id, task.collaborator_id].filter(id => id !== req.user.id);
+      } else {
+        const notifyId = req.user.id === task.faculty_id ? task.assigned_by : task.faculty_id;
+        notifyIds = notifyId ? [notifyId] : [];
+      }
+
+      // Notify all relevant parties
+      for (const notifyId of notifyIds) {
+        if (!notifyId) continue;
+        
         io.to(`user_${notifyId}`).emit("task:attachment_added", {
           taskId: parseInt(req.params.id),
-          fileName: f.originalname,
+          fileName: uploaded.map(f => f.originalname).join(", "),
+          uploadedBy: req.user.full_name || req.user.username,
         });
-      });
 
-      if (notifyId && notifyId !== req.user.id) {
         const fileWord = uploaded.length === 1 ? "attachment" : "attachments";
         await notify(io, {
           userId: notifyId,
           type: "task_attachment_added",
           title: "New Attachment",
-          message: `${req.user.full_name || req.user.username} added ${uploaded.length} ${fileWord} to task ${rows[0].tracking_id}`,
+          message: `${req.user.full_name || req.user.username} added ${uploaded.length} ${fileWord} to task ${task.tracking_id}`,
           taskId: parseInt(req.params.id),
-          trackingId: rows[0].tracking_id,
+          trackingId: task.tracking_id,
         });
       }
     }
@@ -1881,6 +1894,11 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
       // flagged admin/program_chair in the users table for some reason.
       const recipientIds = new Set(chairsAndAdmins.map(u => u.id));
       if (task.assigned_by) recipientIds.add(task.assigned_by);
+      
+      // For collaborative tasks, also notify the other collaborator
+      if (task.is_collaborative && task.collaborator_id && task.collaborator_id !== req.user.id) {
+        recipientIds.add(task.collaborator_id);
+      }
 
       const submitPayload = {
         taskId,
