@@ -1412,7 +1412,9 @@ router.patch("/:id/status", requireAuth, async (req, res) => {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
     const task = rows[0];
-    const canUpdate = ["admin", "program_chair"].includes(req.user.role) || task.faculty_id === req.user.id;
+    const canUpdate = ["admin", "program_chair"].includes(req.user.role) || 
+                      task.faculty_id === req.user.id || 
+                      (task.is_collaborative && task.collaborator_id === req.user.id);
     if (!canUpdate) return res.status(403).json({ message: "Access denied." });
 
     await db.query("UPDATE tasks SET status = ?, updated_at = NOW() WHERE id = ?", [status, req.params.id]);
@@ -1424,9 +1426,16 @@ router.patch("/:id/status", requireAuth, async (req, res) => {
       const payload = { taskId: parseInt(req.params.id), newStatus: status, updatedBy: actorName };
       io.to(`user_${task.faculty_id}`).emit("task:status_changed", payload);
       io.to(`user_${task.assigned_by}`).emit("task:status_changed", payload);
+      if (task.is_collaborative && task.collaborator_id) {
+        io.to(`user_${task.collaborator_id}`).emit("task:status_changed", payload);
+      }
     }
     // Notify whichever party didn't make the change themselves.
-    for (const uid of new Set([task.faculty_id, task.assigned_by])) {
+    let notifyIds = [task.faculty_id, task.assigned_by];
+    if (task.is_collaborative && task.collaborator_id) {
+      notifyIds.push(task.collaborator_id);
+    }
+    for (const uid of new Set(notifyIds)) {
       if (!uid || uid === req.user.id) continue;
       await notify(io, {
         userId: uid,
