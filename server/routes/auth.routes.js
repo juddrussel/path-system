@@ -674,8 +674,8 @@ router.post("/invite", async (req, res) => {
     return res.status(400).json({ message: "Invalid email address." });
   }
 
+  // Check if already registered and approved BEFORE try-catch
   try {
-    // Check if already registered and approved
     const [existing] = await db.query(
       "SELECT id, status, invite_token_expires FROM users WHERE email = ?",
       [normalizedEmail]
@@ -800,7 +800,7 @@ router.post("/invite", async (req, res) => {
     console.error("POST /auth/invite error:", err.message);
     
     // Check if it's a Brevo email configuration issue
-    if (err.message.includes("Brevo")) {
+    if (err.message.includes("Brevo") || err.message.includes("api.brevo")) {
       return res.status(500).json({ message: "Email service temporarily unavailable. Please try again later or contact support." });
     }
     
