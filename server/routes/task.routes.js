@@ -660,12 +660,24 @@ async function enrichTasks(rows) {
   if (rows.length === 0) return [];
   const ids = rows.map(r => r.id);
 
-  const [attachments] = await db.query(
-    `SELECT ta.*, u.full_name AS uploaded_by_name
-     FROM task_attachments ta
-     LEFT JOIN users u ON u.id = ta.uploaded_by
-     WHERE ta.task_id IN (?)`, [ids]
-  );
+  let attachments = [];
+  try {
+    const [result] = await db.query(
+      `SELECT ta.*, COALESCE(u.full_name, 'Unknown') AS uploaded_by_name
+       FROM task_attachments ta
+       LEFT JOIN users u ON u.id = ta.uploaded_by
+       WHERE ta.task_id IN (?)`, [ids]
+    );
+    attachments = result;
+  } catch (err) {
+    // Fallback if uploaded_by column doesn't exist yet
+    try {
+      const [result] = await db.query(
+        `SELECT ta.* FROM task_attachments ta WHERE ta.task_id IN (?)`, [ids]
+      );
+      attachments = result.map(a => ({ ...a, uploaded_by_name: 'Unknown' }));
+    } catch (_) { /* table may not exist yet — safe to ignore */ }
+  }
   const [comments] = await db.query(
     `SELECT tc.*, u.full_name AS sender_name
      FROM task_comments tc
