@@ -14,34 +14,49 @@ const { writeLog } = require("./audit.routes");
 // verified, you can send from that address to ANY real recipient — no
 // domain required.
 async function sendMail({ to, subject, html }) {
-  const from = process.env.BREVO_FROM; // e.g. "yourname@gmail.com"
+  // Try Brevo first, fall back to Gmail if Brevo is unavailable
+  const from = process.env.BREVO_FROM;
+  const mailUser = process.env.MAIL_USER;
+  const mailPass = process.env.MAIL_PASS;
 
-  if (!from || !process.env.BREVO_API_KEY) {
-    throw new Error("Brevo email configuration missing: BREVO_FROM or BREVO_API_KEY not set.");
+  // Try Brevo
+  if (from && process.env.BREVO_API_KEY) {
+    try {
+      console.log("Sending email via Brevo:", { from, to, subject });
+      
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: "DS Path", email: from },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+        }),
+      });
+
+      console.log("Brevo response status:", response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Email sent successfully via Brevo");
+        return result;
+      }
+      
+      const errText = await response.text();
+      console.error(`Brevo API error (${response.status}):`, errText);
+      throw new Error(`Brevo API error (${response.status}): ${errText}`);
+    } catch (err) {
+      console.error("Brevo API error:", err.message);
+      throw err;
+    }
   }
-
-  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: {
-      "api-key": process.env.BREVO_API_KEY,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      sender: { name: "DS Path", email: from },
-      to: [{ email: to }],
-      subject,
-      htmlContent: html,
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error(`Brevo API error (${response.status}):`, errText);
-    throw new Error(`Brevo API error (${response.status}): ${errText}`);
-  }
-
-  return response.json();
+  
+  throw new Error("Brevo email configuration missing: BREVO_FROM or BREVO_API_KEY not set.");
 }
 
 // Verifies a reCAPTCHA v2 token with Google's siteverify endpoint.
