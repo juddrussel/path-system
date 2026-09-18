@@ -661,7 +661,10 @@ async function enrichTasks(rows) {
   const ids = rows.map(r => r.id);
 
   const [attachments] = await db.query(
-    "SELECT * FROM task_attachments WHERE task_id IN (?)", [ids]
+    `SELECT ta.*, u.full_name AS uploaded_by_name
+     FROM task_attachments ta
+     LEFT JOIN users u ON u.id = ta.uploaded_by
+     WHERE ta.task_id IN (?)`, [ids]
   );
   const [comments] = await db.query(
     `SELECT tc.*, u.full_name AS sender_name
@@ -1031,14 +1034,14 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
 
       const attachRows = [];
       if (preUploaded.length > 0) {
-        preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file"]));
+        preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file", req.user.id, new Date()]));
       }
       if (req.files?.length > 0) {
         const uploaded = await uploadFilesToR2(req.files);
-        uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname]));
+        uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname, req.user.id, new Date()]));
       }
       if (attachRows.length > 0) {
-        await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+        await db.query("INSERT INTO task_attachments (task_id, file_url, file_name, uploaded_by, uploaded_at) VALUES ?", [attachRows]);
       }
 
       const assignMessage = `You have been assigned a new task: ${title}`;
@@ -1135,17 +1138,15 @@ router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachment
 
       const attachRows = [];
       if (preUploaded.length > 0) {
-        preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file"]));
+        preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file", req.user.id, new Date()]));
       }
       if (req.files?.length > 0) {
         const uploaded = await uploadFilesToR2(req.files);
-        uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname]));
+        uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname, req.user.id, new Date()]));
       }
       if (attachRows.length > 0) {
-        await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+        await db.query("INSERT INTO task_attachments (task_id, file_url, file_name, uploaded_by, uploaded_at) VALUES ?", [attachRows]);
       }
-
-      createdDrafts.push({ id: taskId, tracking_id });
     }
 
     return res.status(201).json({
@@ -1230,14 +1231,14 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
 
     const attachRows = [];
     if (preUploaded.length > 0) {
-      preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file"]));
+      preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file", req.user.id, new Date()]));
     }
     if (req.files?.length > 0) {
       const uploaded = await uploadFilesToR2(req.files);
-      uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname]));
+      uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname, req.user.id, new Date()]));
     }
     if (attachRows.length > 0) {
-      await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+      await db.query("INSERT INTO task_attachments (task_id, file_url, file_name, uploaded_by, uploaded_at) VALUES ?", [attachRows]);
     }
 
     // Notify both users
@@ -1749,8 +1750,8 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
     if (!req.files?.length) return res.status(400).json({ message: "No files uploaded." });
 
     const uploaded = await uploadFilesToR2(req.files);
-    const attachRows = uploaded.map(f => [req.params.id, f.url, f.originalname]);
-    await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+    const attachRows = uploaded.map(f => [req.params.id, f.url, f.originalname, req.user.id, new Date()]);
+    await db.query("INSERT INTO task_attachments (task_id, file_url, file_name, uploaded_by, uploaded_at) VALUES ?", [attachRows]);
 
     const io = req.app.get("io");
     if (io) {

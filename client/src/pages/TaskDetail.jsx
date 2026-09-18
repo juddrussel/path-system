@@ -1112,34 +1112,6 @@ export default function TaskDetail() {
                   )}
                 </section>
 
-                {isCollaborative && isFacultyView && attachments.length > 0 && (
-                  <section className="td-card">
-                    <div className="td-section-title">
-                      <span className="td-icon">
-                        <Icon name="file" />
-                      </span>
-                      <div>
-                        <span>Collaborator files</span>
-                        <h2>
-                          Review files before final submission
-                        </h2>
-                      </div>
-                    </div>
-                    <p className="td-submission-intro">
-                      {collaborator} has uploaded the following files for review. Check the content before confirming your edits.
-                    </p>
-                    {attachments.map((file, index) => (
-                      <FileCard
-                        file={file}
-                        api={api}
-                        onPreview={previewFile}
-                        label="Collaborator upload"
-                        key={file.id || file.file_url || file.name || index}
-                      />
-                    ))}
-                  </section>
-                )}
-
                 {isFacultyView && (
                   isUnderReview ? (
                     <section className="td-card">
@@ -1247,6 +1219,29 @@ export default function TaskDetail() {
                       >
                         {submitting ? "Uploading…" : "📤 Upload for collaborator review"}
                       </button>
+                    )}
+                    {isCollaborative && isFacultyView && attachments.length > 0 && (
+                      <div style={{ marginTop: "16px", padding: "12px", backgroundColor: "#f3f4f6", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+                        <div style={{ fontSize: "12px", fontWeight: "600", color: "#666", marginBottom: "12px" }}>
+                          📎 Uploaded files
+                        </div>
+                        {attachments.map((file, index) => {
+                          const uploaderName = file.uploaded_by_name || file.uploader_name || collaborator || "Unknown";
+                          return (
+                            <div key={file.id || file.file_url || file.name || index} style={{ marginBottom: index < attachments.length - 1 ? "12px" : "0" }}>
+                              <div style={{ fontSize: "11px", color: "#666", marginBottom: "4px", fontWeight: "500" }}>
+                                Uploaded by {uploaderName}
+                              </div>
+                              <FileCard
+                                file={file}
+                                api={api}
+                                onPreview={previewFile}
+                                label={`File uploaded by ${uploaderName}`}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
                     <label className="td-note-label">
                       Submission note
