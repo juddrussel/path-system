@@ -16,6 +16,10 @@ const { writeLog } = require("./audit.routes");
 async function sendMail({ to, subject, html }) {
   const from = process.env.BREVO_FROM; // e.g. "yourname@gmail.com"
 
+  if (!from || !process.env.BREVO_API_KEY) {
+    throw new Error("Brevo email configuration missing: BREVO_FROM or BREVO_API_KEY not set.");
+  }
+
   const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
@@ -33,6 +37,7 @@ async function sendMail({ to, subject, html }) {
 
   if (!response.ok) {
     const errText = await response.text();
+    console.error(`Brevo API error (${response.status}):`, errText);
     throw new Error(`Brevo API error (${response.status}): ${errText}`);
   }
 
@@ -792,7 +797,13 @@ router.post("/invite", async (req, res) => {
 
     return res.status(200).json({ message: `Invite sent to ${normalizedEmail}.` });
   } catch (err) {
-    console.error("POST /auth/invite error:", err);
+    console.error("POST /auth/invite error:", err.message);
+    
+    // Check if it's a Brevo email configuration issue
+    if (err.message.includes("Brevo")) {
+      return res.status(500).json({ message: "Email service temporarily unavailable. Please try again later or contact support." });
+    }
+    
     return res.status(500).json({ message: "Failed to send invite. Please try again." });
   }
 });
