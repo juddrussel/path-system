@@ -1092,7 +1092,14 @@ export default function TaskDetail() {
                     )}
                   </div>
                   {(() => {
-                    const briefAttachments = attachments.filter(file => file.uploaded_by === task.assigned_by);
+                    const briefAttachments = attachments.filter(file => {
+                      if (!file.uploaded_at || !task.created_at) return false;
+                      const fileTime = new Date(file.uploaded_at).getTime();
+                      const taskTime = new Date(task.created_at).getTime();
+                      const timeDiffSeconds = (fileTime - taskTime) / 1000;
+                      // File is "initial" if uploaded within 5 seconds of task creation
+                      return timeDiffSeconds >= 0 && timeDiffSeconds <= 5;
+                    });
                     return briefAttachments.length > 0 ? (
                       briefAttachments.map((file, index) => (
                         <FileCard
