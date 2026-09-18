@@ -9,7 +9,7 @@ const db = require("../config/db");
 async function addUploadedByColumn() {
   const conn = await db.getConnection();
   try {
-    console.log("Adding uploaded_by and uploaded_at columns to task_attachments...");
+    console.log("Adding uploaded_by column to task_attachments...");
 
     // Check if uploaded_by column exists
     const [columns] = await conn.query(`
@@ -18,7 +18,7 @@ async function addUploadedByColumn() {
     `);
 
     if (columns.length > 0) {
-      console.log("✓ Columns already exist. Skipping migration.");
+      console.log("✓ Column uploaded_by already exists. Skipping migration.");
       conn.release();
       return;
     }
@@ -27,12 +27,6 @@ async function addUploadedByColumn() {
     await conn.query(`
       ALTER TABLE task_attachments 
       ADD COLUMN uploaded_by INT UNSIGNED NULL
-    `);
-
-    // Add uploaded_at column
-    await conn.query(`
-      ALTER TABLE task_attachments 
-      ADD COLUMN uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
     `);
 
     // Try to add foreign key if it doesn't exist
@@ -46,7 +40,7 @@ async function addUploadedByColumn() {
       console.log("Note: Foreign key may already exist or couldn't be created");
     }
 
-    console.log("✓ Successfully added uploaded_by and uploaded_at columns");
+    console.log("✓ Successfully added uploaded_by column");
     conn.release();
   } catch (err) {
     console.error("❌ Migration failed:", err.message);
