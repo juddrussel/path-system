@@ -1662,7 +1662,7 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
-    const canAccess = ["admin", "program_chair"].includes(req.user.role) || rows[0].faculty_id === req.user.id;
+    const canAccess = ["admin", "program_chair"].includes(req.user.role) || rows[0].faculty_id === req.user.id || (rows[0].is_collaborative && rows[0].collaborator_id === req.user.id);
     if (!canAccess) return res.status(403).json({ message: "Access denied." });
 
     const [result] = await db.query(
@@ -1717,7 +1717,7 @@ router.post("/:id/comment-upload", requireAuth, upload.array("files"), async (re
   try {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
-    const canAccess = ["admin", "program_chair"].includes(req.user.role) || rows[0].faculty_id === req.user.id;
+    const canAccess = ["admin", "program_chair"].includes(req.user.role) || rows[0].faculty_id === req.user.id || (rows[0].is_collaborative && rows[0].collaborator_id === req.user.id);
     if (!canAccess) return res.status(403).json({ message: "Access denied." });
     if (!req.files?.length) return res.status(400).json({ message: "No files uploaded." });
 
@@ -1821,7 +1821,7 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
     const [rows] = await conn.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
     if (rows.length === 0) { conn.release(); return res.status(404).json({ message: "Task not found." }); }
     const task = rows[0];
-    if (task.faculty_id !== req.user.id) {
+    if (task.faculty_id !== req.user.id && (!task.is_collaborative || task.collaborator_id !== req.user.id)) {
       conn.release();
       return res.status(403).json({ message: "Only the assigned faculty can submit this task." });
     }
