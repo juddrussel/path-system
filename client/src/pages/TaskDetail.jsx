@@ -561,6 +561,36 @@ export default function TaskDetail() {
     }
   };
 
+  // Upload file for review before submission (visible to collaborator)
+  const uploadFileForReview = async () => {
+    if (!selectedFile) {
+      setSubmissionError("Attach a file before uploading.");
+      return;
+    }
+    setSubmitting(true);
+    setSubmissionError("");
+    try {
+      const data = new FormData();
+      data.append("files", selectedFile);
+      const upload = await fetch(`${api}/api/tasks/${task.id}/attachments`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: data,
+      });
+      if (!upload.ok)
+        throw new Error("The file could not be uploaded.");
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      // loadTask will be triggered by WebSocket listener
+    } catch (uploadError) {
+      setSubmissionError(
+        uploadError.message || "The file could not be uploaded.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const submitWork = async () => {
     if (!selectedFile) {
       setSubmissionError("Attach the completed file before submitting.");
@@ -1082,6 +1112,34 @@ export default function TaskDetail() {
                   )}
                 </section>
 
+                {isCollaborative && isFacultyView && attachments.length > 0 && (
+                  <section className="td-card">
+                    <div className="td-section-title">
+                      <span className="td-icon">
+                        <Icon name="file" />
+                      </span>
+                      <div>
+                        <span>Collaborator files</span>
+                        <h2>
+                          Review files before final submission
+                        </h2>
+                      </div>
+                    </div>
+                    <p className="td-submission-intro">
+                      {collaborator} has uploaded the following files for review. Check the content before confirming your edits.
+                    </p>
+                    {attachments.map((file, index) => (
+                      <FileCard
+                        file={file}
+                        api={api}
+                        onPreview={previewFile}
+                        label="Collaborator upload"
+                        key={file.id || file.file_url || file.name || index}
+                      />
+                    ))}
+                  </section>
+                )}
+
                 {isFacultyView && (
                   isUnderReview ? (
                     <section className="td-card">
@@ -1167,6 +1225,29 @@ export default function TaskDetail() {
                       </div>
                       <Icon name="preview" />
                     </button>
+                    {selectedFile && isCollaborative && isFacultyView && (
+                      <button
+                        className="td-upload-review"
+                        type="button"
+                        disabled={submitting}
+                        onClick={uploadFileForReview}
+                        style={{
+                          marginBottom: "16px",
+                          padding: "10px 16px",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          borderRadius: "8px",
+                          border: "1px solid #3b82f6",
+                          backgroundColor: "#dbeafe",
+                          color: "#1e40af",
+                          cursor: submitting ? "not-allowed" : "pointer",
+                          opacity: submitting ? 0.6 : 1,
+                          transition: "all 0.2s",
+                        }}
+                      >
+                        {submitting ? "Uploading…" : "📤 Upload for collaborator review"}
+                      </button>
+                    )}
                     <label className="td-note-label">
                       Submission note
                       <textarea
