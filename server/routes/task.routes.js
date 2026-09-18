@@ -835,8 +835,8 @@ router.get("/my", requireAuth, async (req, res) => {
   try {
     const { q = "", status = "", priority = "", doc_type = "", date = "" } = req.query;
 
-    const conditions = ["t.faculty_id = ?"];
-    const params     = [req.user.id];
+    const conditions = ["(t.faculty_id = ? OR t.collaborator_id = ?)"];
+    const params     = [req.user.id, req.user.id];
 
     if (status)   { conditions.push("t.status = ?");              params.push(status); }
     if (priority) { conditions.push("t.priority = ?");            params.push(priority); }
@@ -854,10 +854,12 @@ router.get("/my", requireAuth, async (req, res) => {
          t.*,
          u1.full_name AS faculty_name,
          u1.email     AS faculty_email,
-         u2.full_name AS assigned_by_name
+         u2.full_name AS assigned_by_name,
+         u3.full_name AS collaborator_name
        FROM tasks t
        LEFT JOIN users u1 ON u1.id = t.faculty_id
        LEFT JOIN users u2 ON u2.id = t.assigned_by
+       LEFT JOIN users u3 ON u3.id = t.collaborator_id
        ${where}
        ORDER BY t.created_at DESC`,
       params
@@ -962,16 +964,19 @@ router.get("/assigned-by-me", requireAuth, requireChairOrAdmin, async (req, res)
 router.get("/:id", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT t.*, u1.full_name AS faculty_name, u1.email AS faculty_email, u2.full_name AS assigned_by_name
+      `SELECT t.*, u1.full_name AS faculty_name, u1.email AS faculty_email, u2.full_name AS assigned_by_name, u3.full_name AS collaborator_name
        FROM tasks t
        LEFT JOIN users u1 ON u1.id = t.faculty_id
        LEFT JOIN users u2 ON u2.id = t.assigned_by
+       LEFT JOIN users u3 ON u3.id = t.collaborator_id
        WHERE t.id = ?`,
       [req.params.id]
     );
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
     const task = rows[0];
-    const canView = ["admin", "program_chair"].includes(req.user.role) || task.faculty_id === req.user.id;
+    const canView = ["admin", "program_chair"].includes(req.user.role) || 
+                    task.faculty_id === req.user.id || 
+                    task.collaborator_id === req.user.id;
     if (!canView) return res.status(403).json({ message: "Access denied." });
     const [enriched] = await enrichTasks([task]);
     // Return as { task: ... } so frontend fetchSelectedTask can read data.task || data
@@ -1152,6 +1157,233 @@ router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachment
     });
   } catch (err) {
     console.error("POST /api/tasks/draft error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─── POST /api/tasks/collaborative ──────────────────────────────────────────────
+// Assigns a task to exactly 2 faculty members with collaborative workflow.
+// Both users must confirm before the task moves to "For Approval" status.
+// Request body:
+//   title, doc_type, priority, deadline, notes (same as regular assignment)
+//   faculty_ids: [id1, id2] (must be exactly 2)
+//   collaboration_mode: "together" (if not "together", falls back to regular assignment)
+//   attachments: JSON string of pre-uploaded files
+router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("attachments"), async (req, res) => {
+  const { title, doc_type, priority = "Medium", deadline, notes, collaboration_mode } = req.body;
+  if (!title || !deadline) {
+    return res.status(400).json({ message: "title and deadline are required." });
+  }
+  
+  // Parse faculty_ids from request
+  let facultyIds = req.body.faculty_ids;
+  if (typeof facultyIds === "string") {
+    facultyIds = [facultyIds];
+  }
+  facultyIds = Array.isArray(facultyIds) ? facultyIds.map(id => parseInt(id, 10)).filter(Number.isInteger) : [];
+  
+  // For collaborative workflow, we need exactly 2 faculty members
+  if (!Array.isArray(facultyIds) || facultyIds.length !== 2) {
+    return res.status(400).json({ message: "Collaborative assignment requires exactly 2 faculty members." });
+  }
+
+  if (collaboration_mode !== "together") {
+    return res.status(400).json({ message: "Only collaboration_mode='together' is supported for this endpoint." });
+  }
+
+  try {
+    const io = req.app.get("io");
+    
+    // Create a single shared task for both collaborators
+    // We'll use faculty_id for the primary user and collaborator_id for the second
+    const [facultyCheckResult] = await db.query(
+      "SELECT id, full_name FROM users WHERE id IN (?, ?) AND is_active = 1",
+      facultyIds
+    );
+
+    if (facultyCheckResult.length !== 2) {
+      return res.status(400).json({ message: "One or both faculty members are invalid or inactive." });
+    }
+
+    // Generate tracking ID for the collaborative task
+    const { tracking_id, result } = await insertTaskWithUniqueTrackingId((tid) => {
+      return db.query(
+        `INSERT INTO tasks (
+          tracking_id, faculty_id, collaborator_id, assigned_by, 
+          title, doc_type, priority, deadline, notes, status, 
+          is_collaborative, collaboration_type, confirmation_status,
+          created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 1, 'together', 'awaiting', NOW(), NOW())`,
+        [tid, facultyIds[0], facultyIds[1], req.user.id, title, doc_type || null, priority, deadline, notes || null]
+      ).then(([r]) => r);
+    });
+
+    const taskId = result.insertId;
+
+    // Handle attachments (same as regular assignment)
+    let preUploaded = [];
+    try {
+      preUploaded = JSON.parse(req.body.attachments || "[]");
+    } catch { preUploaded = []; }
+    preUploaded = Array.isArray(preUploaded) ? preUploaded.filter(a => a?.url) : [];
+
+    const attachRows = [];
+    if (preUploaded.length > 0) {
+      preUploaded.forEach(a => attachRows.push([taskId, a.url, a.name || "file"]));
+    }
+    if (req.files?.length > 0) {
+      const uploaded = await uploadFilesToR2(req.files);
+      uploaded.forEach(f => attachRows.push([taskId, f.url, f.originalname]));
+    }
+    if (attachRows.length > 0) {
+      await db.query("INSERT INTO task_attachments (task_id, file_url, file_name) VALUES ?", [attachRows]);
+    }
+
+    // Notify both users
+    const assignMessage = `You have been assigned a collaborative task: ${title}`;
+    
+    for (const facultyId of facultyIds) {
+      if (io) {
+        io.to(`user_${facultyId}`).emit("task_assigned", {
+          message: assignMessage,
+          tracking_id,
+          taskId,
+          isCollaborative: true,
+        });
+      }
+      await notify(io, {
+        userId: facultyId,
+        type: "task_assigned",
+        title: "New Collaborative Task Assigned",
+        message: assignMessage,
+        taskId,
+        trackingId: tracking_id,
+      });
+    }
+
+    // Log the action
+    const facultyNames = facultyCheckResult.map(u => u.full_name).join(", ");
+    await writeLog({
+      userId: req.user.id,
+      action: "TASK_ASSIGN_COLLABORATIVE",
+      detail: `Assigned collaborative task "${title}" to ${facultyNames}`,
+      ipAddress: req.ip,
+    });
+
+    // Return the created task
+    const [rows] = await db.query(
+      `SELECT t.*, u1.full_name AS faculty_name, u2.full_name AS collaborator_name, u3.full_name AS assigned_by_name
+       FROM tasks t
+       LEFT JOIN users u1 ON u1.id = t.faculty_id
+       LEFT JOIN users u2 ON u2.id = t.collaborator_id
+       LEFT JOIN users u3 ON u3.id = t.assigned_by
+       WHERE t.id = ?`,
+      [taskId]
+    );
+
+    const enriched = await enrichTasks(rows);
+    return res.status(201).json({
+      ...enriched[0],
+      tracking_id,
+      isCollaborative: true,
+      collaboration_mode: "together",
+    });
+  } catch (err) {
+    console.error("POST /api/tasks/collaborative error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─── POST /api/tasks/:id/confirm-collaboration ──────────────────────────────
+// Confirms that a faculty member on a collaborative task has completed their edits.
+// Both users must confirm before the task can be submitted.
+router.post("/:id/confirm-collaboration", requireAuth, async (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const userId = req.user.id;
+
+  try {
+    const [taskRows] = await db.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
+    if (taskRows.length === 0) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    const task = taskRows[0];
+
+    // Verify this is a collaborative task
+    if (!task.is_collaborative) {
+      return res.status(400).json({ message: "This task is not a collaborative task." });
+    }
+
+    // Verify the user is one of the collaborators
+    if (userId !== task.faculty_id && userId !== task.collaborator_id) {
+      return res.status(403).json({ message: "You are not assigned to this collaborative task." });
+    }
+
+    // Determine which collaborator is confirming and update the appropriate timestamp
+    const isUser1 = userId === task.faculty_id;
+    const timestampColumn = isUser1 ? "user1_confirmed_at" : "user2_confirmed_at";
+
+    // Update the task with the confirmation timestamp
+    await db.query(
+      `UPDATE tasks SET ${timestampColumn} = NOW(), updated_at = NOW() WHERE id = ?`,
+      [taskId]
+    );
+
+    // Get the updated task
+    const [updatedRows] = await db.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
+    const updatedTask = updatedRows[0];
+
+    // Determine new confirmation status
+    let newConfirmationStatus = "awaiting";
+    if (updatedTask.user1_confirmed_at && updatedTask.user2_confirmed_at) {
+      // Both have confirmed - ready for submission
+      newConfirmationStatus = "confirmed";
+    }
+
+    // Update confirmation_status if both have confirmed
+    if (newConfirmationStatus === "confirmed") {
+      await db.query(
+        "UPDATE tasks SET confirmation_status = 'confirmed' WHERE id = ?",
+        [taskId]
+      );
+    }
+
+    // Notify the other collaborator via WebSocket
+    const io = req.app.get("io");
+    const otherUserId = isUser1 ? task.collaborator_id : task.faculty_id;
+    const userName = req.user.full_name || req.user.username;
+
+    if (io) {
+      io.to(`user_${otherUserId}`).emit("collaboration:user_confirmed", {
+        taskId,
+        trackingId: task.tracking_id,
+        confirmedBy: userName,
+        confirmedByUserId: userId,
+        bothConfirmed: newConfirmationStatus === "confirmed",
+      });
+    }
+
+    // Persist the notification
+    await notify(io, {
+      userId: otherUserId,
+      type: "collaboration_user_confirmed",
+      title: "Collaborator Confirmed",
+      message: `${userName} has confirmed their edits on task ${task.tracking_id}. ${newConfirmationStatus === "confirmed" ? "Ready for submission!" : "Awaiting your confirmation..."}`,
+      taskId,
+      trackingId: task.tracking_id,
+    });
+
+    // Return the updated confirmation status
+    return res.json({
+      message: "Confirmation saved.",
+      confirmation_status: newConfirmationStatus,
+      user1_confirmed_at: updatedTask.user1_confirmed_at,
+      user2_confirmed_at: updatedTask.user2_confirmed_at,
+      bothConfirmed: newConfirmationStatus === "confirmed",
+    });
+  } catch (err) {
+    console.error("POST /api/tasks/:id/confirm-collaboration error:", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
@@ -1559,6 +1791,15 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
     if (task.faculty_id !== req.user.id) {
       conn.release();
       return res.status(403).json({ message: "Only the assigned faculty can submit this task." });
+    }
+
+    // For collaborative tasks, verify both users have confirmed
+    if (task.is_collaborative && task.confirmation_status !== "confirmed") {
+      conn.release();
+      return res.status(400).json({ 
+        message: "Both collaborators must confirm their edits before submission.",
+        confirmation_status: task.confirmation_status
+      });
     }
 
     // Upload to R2 before opening the transaction — network calls have no

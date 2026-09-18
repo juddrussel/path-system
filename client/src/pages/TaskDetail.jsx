@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { socket, connectSocket } from "./socket";
 
 /*
   Router integration requirement (React Router v6):
@@ -243,6 +244,10 @@ export default function TaskDetail() {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [postingComment, setPostingComment] = useState(false);
+  // Collaborative confirmation states
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState("");
+  const [confirmingCollaboration, setConfirmingCollaboration] = useState(false);
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
 
@@ -289,6 +294,37 @@ export default function TaskDetail() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  // WebSocket listener for collaborative task updates
+  useEffect(() => {
+    connectSocket();
+
+    // Listen for when the other collaborator confirms
+    const handleCollaboratorConfirmed = (data) => {
+      if (data.taskId === parseInt(taskId)) {
+        updateTask({
+          confirmation_status: data.bothConfirmed ? "confirmed" : "awaiting",
+          user1_confirmed_at: data.bothConfirmed ? new Date().toISOString() : undefined,
+          user2_confirmed_at: data.bothConfirmed ? new Date().toISOString() : undefined,
+        });
+        
+        // Show a notification to the user
+        if (data.bothConfirmed) {
+          setConfirmationMessage(`Both collaborators have confirmed! The task is ready to submit.`);
+          setTimeout(() => setConfirmationMessage(""), 4000);
+        } else {
+          setConfirmationMessage(`${data.confirmedBy} has confirmed their edits.`);
+          setTimeout(() => setConfirmationMessage(""), 3000);
+        }
+      }
+    };
+
+    socket.on("collaboration:user_confirmed", handleCollaboratorConfirmed);
+
+    return () => {
+      socket.off("collaboration:user_confirmed", handleCollaboratorConfirmed);
+    };
+  }, [taskId]);
+
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
   const viewerRoleLabel = isChair ? "Program Chair / Admin" : "Faculty";
@@ -299,6 +335,17 @@ export default function TaskDetail() {
     task?.assigned_to ||
     "—";
   const taskOwnerInitials = initials(taskOwner);
+  // Collaborative task info
+  const isCollaborative = task?.is_collaborative || false;
+  const collaborator =
+    task?.collaborator_name ||
+    task?.collaborator_full_name ||
+    task?.co_faculty_name ||
+    null;
+  const collaboratorInitials = collaborator ? initials(collaborator) : "";
+  const collaborationStatus = task?.confirmation_status || "awaiting";
+  const user1ConfirmedAt = task?.user1_confirmed_at || null;
+  const user2ConfirmedAt = task?.user2_confirmed_at || null;
   const taskIdentifier =
     task?.tracking_id ||
     task?.trackingId ||
@@ -376,6 +423,48 @@ export default function TaskDetail() {
 
   const updateTask = (patch) =>
     setTask((current) => (current ? { ...current, ...patch } : current));
+
+  // Collaborative confirmation helpers
+  const isCurrentUserCollaborator = isCollaborative && (user.id === task?.faculty_id || user.id === task?.collaborator_id);
+  const canConfirm = isCurrentUserCollaborator && collaborationStatus === "awaiting" && isFacultyView;
+  const hasCurrentUserConfirmed = isCollaborative && (
+    (user.id === task?.faculty_id && user1ConfirmedAt) ||
+    (user.id === task?.collaborator_id && user2ConfirmedAt)
+  );
+
+  const confirmCollaboration = async () => {
+    if (!canConfirm || !task) return;
+    
+    setConfirmingCollaboration(true);
+    try {
+      const response = await fetch(`${api}/api/tasks/${task.id}/confirm-collaboration`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Could not confirm collaboration.");
+      }
+      
+      const result = await response.json();
+      updateTask({
+        confirmation_status: result.confirmation_status,
+        user1_confirmed_at: result.user1_confirmed_at,
+        user2_confirmed_at: result.user2_confirmed_at,
+      });
+      setConfirmationModalOpen(false);
+      setConfirmationMessage("Your confirmation has been sent. Waiting for your collaborator...");
+    } catch (err) {
+      setConfirmationMessage(err.message || "Failed to confirm collaboration.");
+    } finally {
+      setConfirmingCollaboration(false);
+    }
+  };
 
   const goBack = () => navigate(location.state?.returnTo || "/task-assigned");
 
@@ -777,6 +866,12 @@ export default function TaskDetail() {
                       <span className="td-avatar">{taskOwnerInitials}</span>
                       {taskOwner}
                     </Meta>
+                    {isCollaborative && collaborator && (
+                      <Meta label="Collaborator" icon="user">
+                        <span className="td-avatar">{collaboratorInitials}</span>
+                        {collaborator}
+                      </Meta>
+                    )}
                     <Meta label="Document type" icon="file">
                       {task.doc_type || task.document_type || "Document record"}
                     </Meta>
@@ -844,6 +939,53 @@ export default function TaskDetail() {
                     </Meta>
                   </div>
                 </section>
+
+                {isCollaborative && (
+                  <section className="td-card">
+                    <div className="td-section-title">
+                      <span className="td-icon">
+                        <Icon name="user" />
+                      </span>
+                      <div>
+                        <span>Collaboration</span>
+                        <h2>Mutual confirmation status</h2>
+                      </div>
+                    </div>
+                    <div style={{ padding: "16px 20px" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "12px" }}>
+                        <div style={{ padding: "12px", border: "1px solid #e5e7eb", borderRadius: "8px", backgroundColor: user1ConfirmedAt ? "#dcfce7" : "#f3f4f6" }}>
+                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#666", marginBottom: "4px" }}>
+                            {taskOwner}
+                          </div>
+                          <div style={{ fontSize: "13px", fontWeight: "500", color: user1ConfirmedAt ? "#16a34a" : "#6b7280" }}>
+                            {user1ConfirmedAt ? "✓ Confirmed" : "Awaiting confirmation"}
+                          </div>
+                          {user1ConfirmedAt && (
+                            <div style={{ fontSize: "11px", color: "#666", marginTop: "4px" }}>
+                              {formatDate(user1ConfirmedAt)}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ padding: "12px", border: "1px solid #e5e7eb", borderRadius: "8px", backgroundColor: user2ConfirmedAt ? "#dcfce7" : "#f3f4f6" }}>
+                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#666", marginBottom: "4px" }}>
+                            {collaborator}
+                          </div>
+                          <div style={{ fontSize: "13px", fontWeight: "500", color: user2ConfirmedAt ? "#16a34a" : "#6b7280" }}>
+                            {user2ConfirmedAt ? "✓ Confirmed" : "Awaiting confirmation"}
+                          </div>
+                          {user2ConfirmedAt && (
+                            <div style={{ fontSize: "11px", color: "#666", marginTop: "4px" }}>
+                              {formatDate(user2ConfirmedAt)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <p style={{ fontSize: "12px", color: "#666", margin: "0" }}>
+                        Both collaborators must confirm their edits before the task can be submitted for review.
+                      </p>
+                    </div>
+                  </section>
+                )}
 
                 <section className="td-card">
                   <div className="td-section-title">
@@ -1014,18 +1156,57 @@ export default function TaskDetail() {
                         {submissionError}
                       </p>
                     )}
+                    {isCollaborative && isFacultyView && (
+                      <div style={{ marginTop: "12px", padding: "12px", border: "1px solid #fbbf24", borderRadius: "8px", backgroundColor: "#fffbeb" }}>
+                        <div style={{ fontSize: "12px", fontWeight: "600", color: "#b45309", marginBottom: "8px" }}>
+                          Collaborative Task
+                        </div>
+                        <p style={{ fontSize: "12px", color: "#92400e", margin: "0 0 12px", lineHeight: "1.4" }}>
+                          Both you and {collaborator} must confirm your edits before submission.
+                          {hasCurrentUserConfirmed && " You've already confirmed."}
+                        </p>
+                        {!hasCurrentUserConfirmed && (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmationModalOpen(true)}
+                            disabled={confirmingCollaboration}
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              padding: "8px 12px",
+                              border: "1px solid #f59e0b",
+                              borderRadius: "6px",
+                              backgroundColor: "#fbbf24",
+                              color: "#000",
+                              cursor: "pointer",
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            {confirmingCollaboration ? "Confirming…" : "Confirm my edits"}
+                          </button>
+                        )}
+                        {hasCurrentUserConfirmed && (
+                          <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
+                            ✓ You have confirmed
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <button
                       className="td-submit"
                       type="button"
-                      disabled={submitting}
+                      disabled={submitting || (isCollaborative && !user2ConfirmedAt)}
                       onClick={submitWork}
+                      title={isCollaborative && !user2ConfirmedAt ? "Both collaborators must confirm before submission" : ""}
                     >
                       <Icon name="send" size={14} />{" "}
                       {submitting
                         ? "Sending…"
-                        : status.tone === "returned"
-                          ? "Resubmit for chair review"
-                          : "Submit for chair review"}
+                        : isCollaborative && !user2ConfirmedAt
+                          ? "Awaiting collaborator confirmation…"
+                          : status.tone === "returned"
+                            ? "Resubmit for chair review"
+                            : "Submit for chair review"}
                     </button>
                   </section>
                   )
@@ -1660,6 +1841,90 @@ export default function TaskDetail() {
               </div>
             </div>
           </section>
+        </div>
+      )}
+
+      {/* Collaboration Confirmation Modal */}
+      {confirmationModalOpen && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+          fontFamily: "'DM Sans', sans-serif",
+        }}>
+          <div style={{
+            backgroundColor: "#fff",
+            borderRadius: "12px",
+            padding: "24px",
+            maxWidth: "420px",
+            width: "90%",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+          }}>
+            <div style={{ marginBottom: "16px" }}>
+              <h3 style={{ margin: "0 0 8px", fontSize: "16px", fontWeight: "600", color: "#1f2937" }}>
+                Confirm Your Edits
+              </h3>
+              <p style={{ margin: "0", fontSize: "13px", color: "#6b7280", lineHeight: "1.5" }}>
+                You're confirming that your edits are complete and ready for review. {collaborator} will also need to confirm before the task is submitted.
+              </p>
+            </div>
+
+            {confirmationMessage && (
+              <div style={{ marginBottom: "16px", padding: "12px", backgroundColor: confirmationMessage.includes("sent") ? "#dcfce7" : "#fee2e2", borderRadius: "6px", fontSize: "12px", color: confirmationMessage.includes("sent") ? "#166534" : "#991b1b" }}>
+                {confirmationMessage}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmationModalOpen(false);
+                  setConfirmationMessage("");
+                }}
+                disabled={confirmingCollaboration}
+                style={{
+                  padding: "8px 16px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "6px",
+                  backgroundColor: "#fff",
+                  color: "#374151",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmCollaboration}
+                disabled={confirmingCollaboration}
+                style={{
+                  padding: "8px 16px",
+                  border: "1px solid #10b981",
+                  borderRadius: "6px",
+                  backgroundColor: "#10b981",
+                  color: "#fff",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  opacity: confirmingCollaboration ? 0.6 : 1,
+                }}
+              >
+                {confirmingCollaboration ? "Confirming…" : "Yes, confirm"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

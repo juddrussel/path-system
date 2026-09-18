@@ -282,6 +282,7 @@ function TaskAssignmentInner() {
     deadline: "",
     deadlineTime: "17:00",
     notes: "",
+    collaborationMode: "separate",
   });
 
   const fetchNextTrackingId = async () => {
@@ -558,6 +559,7 @@ function TaskAssignmentInner() {
       deadline: "",
       deadlineTime: "17:00",
       notes: "",
+      collaborationMode: "separate",
     });
     setSelectedFacultyIds([]);
     setSelectedRole("");
@@ -633,6 +635,7 @@ function TaskAssignmentInner() {
       if (assignMode === "individual")
         selectedFacultyIds.forEach((id) => payload.append("faculty_ids", id));
       else payload.append("assign_role", selectedRole);
+      payload.append("collaboration_mode", form.collaborationMode);
       payload.append(
         "attachments",
         JSON.stringify(
@@ -644,7 +647,11 @@ function TaskAssignmentInner() {
           })),
         ),
       );
-      const response = await fetch(`${API}/api/tasks`, {
+      // If assigning 2 faculty together, use the collaborative endpoint
+      const isCollaborative = assignMode === "individual" && selectedFaculty.length === 2 && form.collaborationMode === "together";
+      const endpoint = isCollaborative ? `${API}/api/tasks/collaborative` : `${API}/api/tasks`;
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: authHeaders,
         body: payload,
@@ -827,6 +834,42 @@ function TaskAssignmentInner() {
                             </button>
                           </span>
                         ))}
+                      </div>
+                    )}
+                    {selectedFaculty.length === 2 && (
+                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #eee8f2' }}>
+                        <label className="path-assignment-field" style={{ marginBottom: '8px' }}>
+                          Collaboration mode
+                        </label>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12px', color: '#5a4965' }}>
+                            <input
+                              type="radio"
+                              name="collaborationMode"
+                              value="separate"
+                              checked={form.collaborationMode === "separate"}
+                              onChange={() => setForm(current => ({ ...current, collaborationMode: "separate" }))}
+                              style={{ cursor: 'pointer', accentColor: '#7c3aed' }}
+                            />
+                            Assign separately
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12px', color: '#5a4965' }}>
+                            <input
+                              type="radio"
+                              name="collaborationMode"
+                              value="together"
+                              checked={form.collaborationMode === "together"}
+                              onChange={() => setForm(current => ({ ...current, collaborationMode: "together" }))}
+                              style={{ cursor: 'pointer', accentColor: '#7c3aed' }}
+                            />
+                            Assign together
+                          </label>
+                        </div>
+                        <p style={{ fontSize: '11px', color: '#8263a6', marginTop: '8px', margin: '8px 0 0' }}>
+                          {form.collaborationMode === "together"
+                            ? "Both users will see the same task and both must confirm before final submission."
+                            : "Each user will see their own copy of the task."}
+                        </p>
                       </div>
                     )}
                   </div>
