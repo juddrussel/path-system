@@ -459,7 +459,7 @@ export default function TaskDetail() {
   // Collaborative confirmation helpers
   const isCurrentUserCollaborator = isCollaborative && (user.id === task?.faculty_id || user.id === task?.collaborator_id);
   const canConfirm = isCurrentUserCollaborator && collaborationStatus === "awaiting" && isFacultyView;
-  const hasCurrentUserConfirmed = isCollaborative && collaborationStatus !== "awaiting" && (
+  const hasCurrentUserConfirmed = isCollaborative && (
     (user.id === task?.faculty_id && user1ConfirmedAt) ||
     (user.id === task?.collaborator_id && user2ConfirmedAt)
   );
@@ -490,7 +490,11 @@ export default function TaskDetail() {
         user2_confirmed_at: result.user2_confirmed_at,
       });
       setConfirmationModalOpen(false);
-      setConfirmationMessage("Your confirmation has been sent. Waiting for your collaborator...");
+      setConfirmationMessage(result.bothConfirmed 
+        ? "Both collaborators confirmed! Ready to submit." 
+        : "Your confirmation has been sent. Waiting for your collaborator...");
+      // Keep message visible for 3 seconds then clear
+      setTimeout(() => setConfirmationMessage(""), 3000);
     } catch (err) {
       setConfirmationMessage(err.message || "Failed to confirm collaboration.");
     } finally {
