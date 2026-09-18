@@ -494,7 +494,7 @@ const GoogleStrategy  = require("passport-google-oauth20").Strategy;
 const MicrosoftStrategy = require("passport-microsoft").Strategy;
 
 const CLIENT_URL  = process.env.CLIENT_URL  || "https://path-system.vercel.app";
-const SERVER_BASE = "https://path-system-backend.onrender.com";
+const SERVER_BASE = process.env.BACKEND_URL || "https://ds-path-system.onrender.com";
 
 // ── Helper: find or create a user from OAuth profile ──────────────────────────
 async function findOrCreateOAuthUser({ email, full_name, provider }) {
