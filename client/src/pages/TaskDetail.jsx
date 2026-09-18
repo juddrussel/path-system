@@ -1091,29 +1091,32 @@ export default function TaskDetail() {
                       </ol>
                     )}
                   </div>
-                  {attachments.length > 0 ? (
-                    attachments.map((file, index) => (
-                      <FileCard
-                        file={file}
-                        api={api}
-                        onPreview={previewFile}
-                        label="Task instruction attachment"
-                        key={file.id || file.file_url || file.name || index}
-                      />
-                    ))
-                  ) : (
-                    <div className="td-file-card" style={{ cursor: "default" }}>
-                      <span>
-                        <Icon name="file" />
-                      </span>
-                      <div>
-                        <strong>No instruction attachment</strong>
-                        <small>
-                          The instructions above are the active task brief.
-                        </small>
+                  {(() => {
+                    const briefAttachments = attachments.filter(file => !file.uploaded_by || file.uploaded_by === task.assigned_by);
+                    return briefAttachments.length > 0 ? (
+                      briefAttachments.map((file, index) => (
+                        <FileCard
+                          file={file}
+                          api={api}
+                          onPreview={previewFile}
+                          label="Task instruction attachment"
+                          key={file.id || file.file_url || file.name || index}
+                        />
+                      ))
+                    ) : (
+                      <div className="td-file-card" style={{ cursor: "default" }}>
+                        <span>
+                          <Icon name="file" />
+                        </span>
+                        <div>
+                          <strong>No instruction attachment</strong>
+                          <small>
+                            The instructions above are the active task brief.
+                          </small>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </section>
 
                 {isFacultyView && (
