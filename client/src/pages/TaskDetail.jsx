@@ -334,16 +334,26 @@ export default function TaskDetail() {
       }
     };
 
+    // Listen for status changes (e.g., task returned for revision - need to reload to reset confirmations)
+    const handleTaskStatusChanged = (data) => {
+      if (data.taskId === parseInt(taskId)) {
+        // Force reload to get updated confirmation status
+        loadTask();
+      }
+    };
+
     socket.on("collaboration:user_confirmed", handleCollaboratorConfirmed);
     socket.on("task:file_uploaded", handleCollaboratorFileUpload);
     socket.on("task:attachment_added", handleCollaboratorFileUpload);
     socket.on("task:submitted", handleTaskSubmitted);
+    socket.on("task:status_changed", handleTaskStatusChanged);
 
     return () => {
       socket.off("collaboration:user_confirmed", handleCollaboratorConfirmed);
       socket.off("task:file_uploaded", handleCollaboratorFileUpload);
       socket.off("task:attachment_added", handleCollaboratorFileUpload);
       socket.off("task:submitted", handleTaskSubmitted);
+      socket.off("task:status_changed", handleTaskStatusChanged);
     };
   }, [taskId]);
 
@@ -449,7 +459,7 @@ export default function TaskDetail() {
   // Collaborative confirmation helpers
   const isCurrentUserCollaborator = isCollaborative && (user.id === task?.faculty_id || user.id === task?.collaborator_id);
   const canConfirm = isCurrentUserCollaborator && collaborationStatus === "awaiting" && isFacultyView;
-  const hasCurrentUserConfirmed = isCollaborative && (
+  const hasCurrentUserConfirmed = isCollaborative && collaborationStatus !== "awaiting" && (
     (user.id === task?.faculty_id && user1ConfirmedAt) ||
     (user.id === task?.collaborator_id && user2ConfirmedAt)
   );
