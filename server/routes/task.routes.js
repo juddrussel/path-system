@@ -1470,26 +1470,40 @@ router.patch("/:id/return", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
+    const task = rows[0];
     const instruction = req.body?.instruction || "";
-    await db.query("UPDATE tasks SET status = 'Returned', return_reason = ?, updated_at = NOW() WHERE id = ?", [instruction || null, req.params.id]);
-    await writeLog({ userId: req.user.id, action: "TASK_RETURN", detail: `Returned task ${rows[0].tracking_id}`, ipAddress: req.ip });
+    
+    // For collaborative tasks, reset confirmation status so both users must confirm again
+    const resetConfirmation = task.is_collaborative ? ", confirmation_status = 'awaiting', user1_confirmed_at = NULL, user2_confirmed_at = NULL" : "";
+    
+    await db.query(
+      `UPDATE tasks SET status = 'Returned', return_reason = ?, updated_at = NOW()${resetConfirmation} WHERE id = ?`,
+      [instruction || null, req.params.id]
+    );
+    await writeLog({ userId: req.user.id, action: "TASK_RETURN", detail: `Returned task ${task.tracking_id}`, ipAddress: req.ip });
 
     const io = req.app.get("io");
     const actorName = req.user.full_name || req.user.username;
     if (io) {
       const payload = { taskId: parseInt(req.params.id), newStatus: "Returned", updatedBy: actorName };
-      io.to(`user_${rows[0].faculty_id}`).emit("task:status_changed", payload);
-      io.to(`user_${rows[0].assigned_by}`).emit("task:status_changed", payload);
+      io.to(`user_${task.faculty_id}`).emit("task:status_changed", payload);
+      io.to(`user_${task.assigned_by}`).emit("task:status_changed", payload);
+      
+      // For collaborative tasks, also notify the collaborator
+      if (task.is_collaborative && task.collaborator_id) {
+        io.to(`user_${task.collaborator_id}`).emit("task:status_changed", payload);
+      }
     }
-    for (const uid of new Set([rows[0].faculty_id, rows[0].assigned_by])) {
+    
+    for (const uid of new Set([task.faculty_id, task.assigned_by, task.is_collaborative ? task.collaborator_id : null].filter(Boolean))) {
       if (!uid || uid === req.user.id) continue;
       await notify(io, {
         userId: uid,
         type: "task_status_changed",
         title: "Task Returned",
-        message: `${actorName} returned task "${rows[0].title}" (${rows[0].tracking_id})`,
-        taskId: rows[0].id,
-        trackingId: rows[0].tracking_id,
+        message: `${actorName} returned task "${task.title}" (${task.tracking_id})${task.is_collaborative ? " - confirmation required from both collaborators" : ""}`,
+        taskId: task.id,
+        trackingId: task.tracking_id,
       });
     }
 
@@ -1526,7 +1540,13 @@ router.patch("/:id/done", requireAuth, async (req, res) => {
       });
     }
 
-    await db.query("UPDATE tasks SET status = 'For Approval', updated_at = NOW() WHERE id = ?", [req.params.id]);
+    // For collaborative tasks coming from "Returned", reset confirmation
+    const resetConfirmation = task.is_collaborative ? ", confirmation_status = 'awaiting', user1_confirmed_at = NULL, user2_confirmed_at = NULL" : "";
+    
+    await db.query(
+      `UPDATE tasks SET status = 'For Approval', updated_at = NOW()${resetConfirmation} WHERE id = ?`,
+      [req.params.id]
+    );
     return res.json({ message: "Marked as done." });
   } catch (err) {
     console.error("PATCH /api/tasks/:id/done error:", err);
