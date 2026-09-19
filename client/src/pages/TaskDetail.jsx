@@ -369,15 +369,9 @@ export default function TaskDetail() {
   const taskOwnerInitials = initials(taskOwner);
   // Collaborative task info
   const isCollaborative = task?.is_collaborative || false;
-  const collaborator =
-    task?.collaborator_name ||
-    task?.collaborator_full_name ||
-    task?.co_faculty_name ||
-    null;
-  const collaboratorInitials = collaborator ? initials(collaborator) : "";
+  const collaborators = task?.collaborators || []; // Array of all collaborators
   const collaborationStatus = task?.confirmation_status || "awaiting";
-  const user1ConfirmedAt = task?.user1_confirmed_at || null;
-  const user2ConfirmedAt = task?.user2_confirmed_at || null;
+  const collaborationConfirmed = task?.task_collaborators || []; // Array with confirmed_at for each
   const taskIdentifier =
     task?.tracking_id ||
     task?.trackingId ||
@@ -457,12 +451,11 @@ export default function TaskDetail() {
     setTask((current) => (current ? { ...current, ...patch } : current));
 
   // Collaborative confirmation helpers
-  const isCurrentUserCollaborator = isCollaborative && (user.id === task?.faculty_id || user.id === task?.collaborator_id);
+  const isCurrentUserCollaborator = isCollaborative && collaborators.some(c => c.user_id === user.id);
   const canConfirm = isCurrentUserCollaborator && collaborationStatus === "awaiting" && isFacultyView;
-  const hasCurrentUserConfirmed = isCollaborative && (
-    (user.id === task?.faculty_id && user1ConfirmedAt) ||
-    (user.id === task?.collaborator_id && user2ConfirmedAt)
-  );
+  const currentUserCollab = collaborators.find(c => c.user_id === user.id);
+  const hasCurrentUserConfirmed = isCollaborative && currentUserCollab?.confirmed_at;
+  const allConfirmed = isCollaborative && collaborators.every(c => c.confirmed_at);
 
   const confirmCollaboration = async () => {
     if (!canConfirm || !task) return;
@@ -490,9 +483,9 @@ export default function TaskDetail() {
         user2_confirmed_at: result.user2_confirmed_at,
       });
       setConfirmationModalOpen(false);
-      setConfirmationMessage(result.bothConfirmed 
-        ? "Both collaborators confirmed! Ready to submit." 
-        : "Your confirmation has been sent. Waiting for your collaborator...");
+      setConfirmationMessage(result.allConfirmed 
+        ? `All ${collaborators.length} collaborators confirmed! Ready to submit.` 
+        : `Your confirmation has been sent. Waiting for ${collaborators.length - 1} more...`);
       // Keep message visible for 3 seconds then clear
       setTimeout(() => setConfirmationMessage(""), 3000);
     } catch (err) {
@@ -932,10 +925,17 @@ export default function TaskDetail() {
                       <span className="td-avatar">{taskOwnerInitials}</span>
                       {taskOwner}
                     </Meta>
-                    {isCollaborative && collaborator && (
-                      <Meta label="Collaborator" icon="user">
-                        <span className="td-avatar">{collaboratorInitials}</span>
-                        {collaborator}
+                    {isCollaborative && collaborators.length > 0 && (
+                      <Meta label="Collaborators" icon="users">
+                        <div>
+                          {collaborators.map((c, i) => (
+                            <div key={c.user_id} style={{ marginBottom: i < collaborators.length - 1 ? "8px" : "0" }}>
+                              <span className="td-avatar">{initials(c.full_name)}</span>
+                              {c.full_name}
+                              {c.confirmed_at && <span style={{ marginLeft: "8px", color: "#16a34a" }}>✓</span>}
+                            </div>
+                          ))}
+                        </div>
                       </Meta>
                     )}
                     <Meta label="Document type" icon="file">
@@ -1284,7 +1284,7 @@ export default function TaskDetail() {
                           Collaborative Task
                         </div>
                         <p style={{ fontSize: "12px", color: "#92400e", margin: "0 0 12px", lineHeight: "1.4" }}>
-                          Both you and {collaborator} must confirm your edits before submission.
+                          All {collaborators.length} collaborators must confirm their edits before submission.
                           {hasCurrentUserConfirmed && " You've already confirmed."}
                         </p>
                         {!hasCurrentUserConfirmed && (
@@ -1317,15 +1317,15 @@ export default function TaskDetail() {
                     <button
                       className="td-submit"
                       type="button"
-                      disabled={submitting || (isCollaborative && !user2ConfirmedAt)}
+                      disabled={submitting || (isCollaborative && !allConfirmed)}
                       onClick={submitWork}
-                      title={isCollaborative && !user2ConfirmedAt ? "Both collaborators must confirm before submission" : ""}
+                      title={isCollaborative && !allConfirmed ? "All collaborators must confirm before submission" : ""}
                     >
                       <Icon name="send" size={14} />{" "}
                       {submitting
                         ? "Sending…"
-                        : isCollaborative && !user2ConfirmedAt
-                          ? "Awaiting collaborator confirmation…"
+                        : isCollaborative && !allConfirmed
+                          ? `Awaiting ${collaborators.filter(c => !c.confirmed_at).length} confirmation(s)…`
                           : status.tone === "returned"
                             ? "Resubmit for chair review"
                             : "Submit for chair review"}
@@ -1994,7 +1994,7 @@ export default function TaskDetail() {
                 Confirm Your Edits
               </h3>
               <p style={{ margin: "0", fontSize: "13px", color: "#6b7280", lineHeight: "1.5" }}>
-                You're confirming that your edits are complete and ready for review. {collaborator} will also need to confirm before the task is submitted.
+                You're confirming that your edits are complete and ready for review. All other collaborators will also need to confirm before the task is submitted.
               </p>
             </div>
 
