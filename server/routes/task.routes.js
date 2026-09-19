@@ -1379,6 +1379,16 @@ router.post("/:id/confirm-collaboration", requireAuth, async (req, res) => {
     const io = req.app.get("io");
     const userName = req.user.full_name || req.user.username;
     const otherCollaborators = allCollaborators.filter(c => c.user_id !== userId);
+    const confirmedCount = allCollaborators.filter(c => c.confirmed_at).length;
+
+    // Log the confirmation action
+    await writeLog({
+      userId: req.user.id,
+      action: "TASK_CONFIRM_COLLABORATION",
+      detail: `${userName} confirmed edits on collaborative task ${task.tracking_id}. ${confirmedCount}/${allCollaborators.length} collaborators confirmed.`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
 
     for (const collaborator of otherCollaborators) {
       if (io) {
@@ -1388,7 +1398,7 @@ router.post("/:id/confirm-collaboration", requireAuth, async (req, res) => {
           confirmedBy: userName,
           confirmedByUserId: userId,
           allConfirmed: allConfirmed,
-          confirmedCount: allCollaborators.filter(c => c.confirmed_at).length,
+          confirmedCount: confirmedCount,
           totalCount: allCollaborators.length,
         });
       }
@@ -1398,7 +1408,7 @@ router.post("/:id/confirm-collaboration", requireAuth, async (req, res) => {
         userId: collaborator.user_id,
         type: "collaboration_user_confirmed",
         title: "Collaborator Confirmed",
-        message: `${userName} has confirmed their edits. ${allConfirmed ? "All collaborators confirmed - ready for submission!" : `${allCollaborators.filter(c => c.confirmed_at).length}/${allCollaborators.length} confirmed...`}`,
+        message: `${userName} has confirmed their edits. ${allConfirmed ? "All collaborators confirmed - ready for submission!" : `${confirmedCount}/${allCollaborators.length} confirmed...`}`,
         taskId,
         trackingId: task.tracking_id,
       });
@@ -1709,6 +1719,15 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
       [req.params.id, req.user.id, content.trim()]
     );
 
+    // Log the comment action
+    await writeLog({
+      userId: req.user.id,
+      action: "TASK_COMMENT_ADDED",
+      detail: `${req.user.full_name || req.user.username} added comment to task ${rows[0].tracking_id}: "${content.trim().substring(0, 100)}${content.trim().length > 100 ? "..." : ""}"`,
+      ipAddress: req.ip,
+      documentId: req.params.id
+    });
+
     const [[savedComment]] = await db.query(
       `SELECT tc.*, u.full_name AS sender_name
        FROM task_comments tc
@@ -1761,6 +1780,17 @@ router.post("/:id/comment-upload", requireAuth, upload.array("files"), async (re
     if (!req.files?.length) return res.status(400).json({ message: "No files uploaded." });
 
     const uploaded = await uploadFilesToR2(req.files);
+    const fileNames = uploaded.map(f => f.originalname).join(", ");
+    
+    // Log the file upload action
+    await writeLog({
+      userId: req.user.id,
+      action: "TASK_COMMENT_FILE_UPLOAD",
+      detail: `${req.user.full_name || req.user.username} uploaded ${uploaded.length} file(s) to comments on task ${rows[0].tracking_id}: ${fileNames}`,
+      ipAddress: req.ip,
+      documentId: req.params.id
+    });
+
     const files = uploaded.map(f => ({
       url: f.url,
       originalname: f.originalname,
@@ -1788,8 +1818,18 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
     if (!req.files?.length) return res.status(400).json({ message: "No files uploaded." });
 
     const uploaded = await uploadFilesToR2(req.files);
+    const fileNames = uploaded.map(f => f.originalname).join(", ");
     const attachRows = uploaded.map(f => [req.params.id, f.url, f.originalname, req.user.id, new Date()]);
     await db.query("INSERT INTO task_attachments (task_id, file_url, file_name, uploaded_by, uploaded_at) VALUES ?", [attachRows]);
+
+    // Log the attachment upload action
+    await writeLog({
+      userId: req.user.id,
+      action: "TASK_ATTACHMENT_UPLOADED",
+      detail: `${req.user.full_name || req.user.username} uploaded ${uploaded.length} attachment(s) to task ${task.tracking_id}: ${fileNames}`,
+      ipAddress: req.ip,
+      documentId: req.params.id
+    });
 
     const io = req.app.get("io");
     if (io) {
