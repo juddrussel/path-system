@@ -7,7 +7,7 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   const handleHome = () => navigate("/dashboard");
-  const handleHelpDesk = () => navigate("/helpdesk");
+  const handleHelpDesk = () => navigate("/help-desk");
 
   return (
     <main className="path-not-found">
