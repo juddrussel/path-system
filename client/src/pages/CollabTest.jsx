@@ -320,71 +320,289 @@ function WorkflowPanel({ documentId, status, token, onStatusChange }) {
   );
 }
 
-// ─── Audit Log Panel ──────────────────────────────────────────────────────────
-function AuditPanel({ documentId, token }) {
-  const [logs, setLogs] = useState([]);
+// ─── Expanded Version History Panel ─────────────────────────────────────────
+function ExpandedVersionPanel({ documentId, token, onRestore }) {
+  const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedVersion, setSelectedVersion] = useState(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!documentId || !token) return;
 
-    const fetchLogs = async () => {
+    const fetchVersions = async () => {
       setLoading(true);
       setError(null);
       try {
         const res = await fetch(
-          `${API_URL}/collab-test/document/${documentId}/audit?limit=10`,
+          `${API_URL}/collab-test/document/${documentId}/versions`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (!res.ok) throw new Error("Failed to fetch audit log");
+        if (!res.ok) throw new Error("Failed to fetch versions");
         const data = await res.json();
-        setLogs(data.logs);
+        setVersions(data);
+        if (data.length > 0 && !selectedVersion) {
+          setSelectedVersion(data[0]);
+        }
       } catch (err) {
         setError(err.message);
-        console.error("[AuditPanel] Error:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    const interval = setInterval(fetchLogs, 3000);
-    fetchLogs();
+    const interval = setInterval(fetchVersions, 5000);
+    fetchVersions();
 
     return () => clearInterval(interval);
-  }, [documentId, token]);
+  }, [documentId, token, selectedVersion]);
+
+  const handleRestore = async (versionId) => {
+    if (!window.confirm("Restore this version? This will create a new version with the restored content.")) {
+      return;
+    }
+    onRestore(versionId);
+  };
 
   return (
     <div
       style={{
-        backgroundColor: "#f0f7ff",
+        backgroundColor: "#f5f5f5",
         padding: "12px",
         borderRadius: "6px",
-        border: "1px solid #90caf9",
+        border: "2px solid #ddd",
         marginBottom: "12px",
       }}
     >
-      <h4 style={{ marginTop: 0, marginBottom: "8px" }}>📋 Audit Log</h4>
-      {loading && <p style={{ fontSize: "12px", color: "#666" }}>Loading...</p>}
-      {error && (
-        <p style={{ fontSize: "12px", color: "#d32f2f" }}>Error: {error}</p>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          cursor: "pointer",
+        }}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <h4 style={{ marginTop: 0, marginBottom: 0 }}>📚 Detailed Version History</h4>
+        <span style={{ fontSize: "16px" }}>{expanded ? "▼" : "▶"}</span>
+      </div>
+
+      {expanded && (
+        <>
+          {error && (
+            <p style={{ fontSize: "12px", color: "#d32f2f", marginTop: "8px" }}>
+              Error: {error}
+            </p>
+          )}
+
+          <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+            {/* Version List */}
+            <div
+              style={{
+                flex: "0 0 40%",
+                backgroundColor: "#fff",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                padding: "8px",
+                maxHeight: "300px",
+                overflowY: "auto",
+              }}
+            >
+              <strong style={{ display: "block", marginBottom: "8px", fontSize: "13px" }}>
+                Versions ({versions.length})
+              </strong>
+              {loading && <p style={{ fontSize: "11px", color: "#666" }}>Loading...</p>}
+              {!loading && versions.length === 0 && (
+                <p style={{ fontSize: "11px", color: "#666" }}>No versions</p>
+              )}
+              {!loading &&
+                versions.map((v) => (
+                  <div
+                    key={v.id}
+                    onClick={() => setSelectedVersion(v)}
+                    style={{
+                      padding: "8px",
+                      marginBottom: "6px",
+                      backgroundColor: selectedVersion?.id === v.id ? "#e3f2fd" : "#f9f9f9",
+                      border: `1px solid ${selectedVersion?.id === v.id ? "#2196f3" : "#ddd"}`,
+                      borderRadius: "3px",
+                      cursor: "pointer",
+                      fontSize: "11px",
+                    }}
+                  >
+                    <strong>v{v.version_no}</strong> ({v.kind})
+                    <div style={{ color: "#666", fontSize: "10px", marginTop: "3px" }}>
+                      {v.full_name} • {new Date(v.created_at).toLocaleTimeString()}
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Version Details */}
+            <div
+              style={{
+                flex: "1",
+                backgroundColor: "#fff",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                padding: "8px",
+              }}
+            >
+              {selectedVersion ? (
+                <>
+                  <div style={{ fontSize: "12px", marginBottom: "8px" }}>
+                    <strong>Version {selectedVersion.version_no}</strong> — {selectedVersion.kind}
+                    <div style={{ color: "#666", fontSize: "11px", marginTop: "4px" }}>
+                      Author: {selectedVersion.full_name}
+                      <br />
+                      Created: {new Date(selectedVersion.created_at).toLocaleString()}
+                      <br />
+                      Hash: <code style={{ fontSize: "9px" }}>{selectedVersion.content_hash?.slice(0, 12)}...</code>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRestore(selectedVersion.id)}
+                    style={{
+                      padding: "6px 10px",
+                      backgroundColor: "#28a745",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "3px",
+                      cursor: "pointer",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    📥 Restore This Version
+                  </button>
+                </>
+              ) : (
+                <p style={{ fontSize: "12px", color: "#666" }}>Select a version to view details</p>
+              )}
+            </div>
+          </div>
+        </>
       )}
-      {!loading && logs.length === 0 && (
-        <p style={{ fontSize: "12px", color: "#666" }}>No audit entries yet</p>
-      )}
-      {!loading && logs.length > 0 && (
-        <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "12px" }}>
-          {logs.slice(0, 5).map((log) => (
-            <li key={log.id} style={{ marginBottom: "6px", color: "#333" }}>
-              <strong>{log.action}</strong> — {log.summary || log.action}{" "}
-              <span style={{ color: "#999" }}>
-                by {log.full_name || "Unknown"}
-              </span>
-            </li>
-          ))}
-        </ul>
+    </div>
+  );
+}
+
+// ─── Activity Feed Panel ────────────────────────────────────────────────────
+function ActivityFeedPanel({ documentId, token }) {
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!documentId || !token) return;
+
+    const fetchActivities = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `${API_URL}/collab-test/document/${documentId}/audit?limit=20`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch activities");
+        const data = await res.json();
+        setActivities(data.logs);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const interval = setInterval(fetchActivities, 3000);
+    fetchActivities();
+
+    return () => clearInterval(interval);
+  }, [documentId, token]);
+
+  const getActivityIcon = (action) => {
+    const icons = {
+      created: "✨",
+      autosave: "💾",
+      request_review: "👀",
+      reopen: "🔓",
+      submit: "✅",
+      approved: "✔️",
+      rejected: "❌",
+      edit_session: "✏️",
+    };
+    return icons[action] || "📝";
+  };
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#fafafa",
+        padding: "12px",
+        borderRadius: "6px",
+        border: "2px solid #bbb",
+        marginBottom: "12px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          cursor: "pointer",
+        }}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <h4 style={{ marginTop: 0, marginBottom: 0 }}>🎬 Activity Feed</h4>
+        <span style={{ fontSize: "16px" }}>{expanded ? "▼" : "▶"}</span>
+      </div>
+
+      {expanded && (
+        <div style={{ marginTop: "12px", maxHeight: "400px", overflowY: "auto" }}>
+          {error && (
+            <p style={{ fontSize: "12px", color: "#d32f2f" }}>Error: {error}</p>
+          )}
+          {loading && <p style={{ fontSize: "12px", color: "#666" }}>Loading...</p>}
+          {!loading && activities.length === 0 && (
+            <p style={{ fontSize: "12px", color: "#666" }}>No activities yet</p>
+          )}
+          {!loading &&
+            activities.map((activity, idx) => (
+              <div
+                key={activity.id || idx}
+                style={{
+                  padding: "10px",
+                  marginBottom: "8px",
+                  backgroundColor: "#fff",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                }}
+              >
+                <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                  <span style={{ fontSize: "14px" }}>
+                    {getActivityIcon(activity.action)}
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <strong>{activity.action.replace(/_/g, " ").toUpperCase()}</strong>
+                    <div style={{ color: "#666", fontSize: "11px", marginTop: "3px" }}>
+                      {activity.summary || activity.action}
+                    </div>
+                    <div style={{ color: "#999", fontSize: "10px", marginTop: "3px" }}>
+                      by {activity.full_name || "Unknown"} •{" "}
+                      {new Date(activity.created_at).toLocaleTimeString()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
       )}
     </div>
   );
@@ -532,6 +750,13 @@ export default function CollabTest() {
 
   const isReadOnly = documentStatus !== "draft";
 
+  // Handle version restore (Phase 4 demo hook)
+  const handleRestoreVersion = async (versionId) => {
+    console.log("[CollabTest] Restore version:", versionId);
+    // In a real implementation, this would restore the version content
+    // and create a new checkpoint with label "restored_from_vN"
+  };
+
   return (
     <div
       style={{
@@ -549,9 +774,9 @@ export default function CollabTest() {
           paddingBottom: "12px",
         }}
       >
-        <h1 style={{ margin: "0 0 8px 0" }}>🧪 Collaborative Syllabus Editor (Phase 3)</h1>
+        <h1 style={{ margin: "0 0 8px 0" }}>🧪 Collaborative Syllabus Editor (Phase 4)</h1>
         <p style={{ margin: 0, color: "#666", fontSize: "14px" }}>
-          Real-time co-editing with review workflow. Request review to freeze edits and test approval system.
+          Real-time co-editing with expanded version history and activity feed. View detailed edit timeline and restore previous versions.
         </p>
       </div>
 
@@ -693,8 +918,12 @@ export default function CollabTest() {
       {/* Persistence Panels */}
       {documentId && (
         <>
-          <VersionPanel documentId={documentId} token={token} />
-          <AuditPanel documentId={documentId} token={token} />
+          <ExpandedVersionPanel
+            documentId={documentId}
+            token={token}
+            onRestore={handleRestoreVersion}
+          />
+          <ActivityFeedPanel documentId={documentId} token={token} />
         </>
       )}
 
@@ -727,19 +956,32 @@ export default function CollabTest() {
           lineHeight: "1.6",
         }}
       >
-        <strong>📖 Phase 3 Testing Instructions:</strong>
+        <strong>📖 Phase 4 Testing Instructions:</strong>
         <ol style={{ margin: "8px 0" }}>
           <li>Open this page in 2 tabs (same or different windows)</li>
           <li>In Tab 1, set user to "Prof Alice" and start typing in a section</li>
           <li>In Tab 2, set user to "Prof Bob" and watch the text appear in real-time</li>
+          <li>Continue editing for 10+ seconds—autosaves occur every 2 seconds</li>
           <li>
-            In Tab 1, click <strong>Request Review</strong> to change status to "review_requested"
+            Expand the <strong>Detailed Version History</strong> panel to see all saved versions
           </li>
-          <li>Verify that editors are now read-only (grayed out, "🔒 Read-only" badge)</li>
-          <li>Try typing in Tab 2—edits should be rejected (status not "draft")</li>
-          <li>In Tab 1, click <strong>Reopen for Editing</strong> to go back to "draft"</li>
-          <li>Verify edits work again in both tabs</li>
-          <li>Watch the <strong>Audit Log</strong> track all status changes</li>
+          <li>
+            Click on different versions to view metadata (author, timestamp, hash)
+          </li>
+          <li>
+            Expand the <strong>Activity Feed</strong> panel to see timeline of all actions
+          </li>
+          <li>
+            In Tab 1, click <strong>Request Review</strong> to freeze edits and trigger workflow
+            actions
+          </li>
+          <li>
+            Verify that both panels show the workflow action (request_review) in the feed
+          </li>
+          <li>
+            Watch <strong>Detailed Version History</strong> show a checkpoint version labeled
+            "submitted_for_review"
+          </li>
         </ol>
       </div>
     </div>
