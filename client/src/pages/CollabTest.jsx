@@ -102,9 +102,9 @@ export default function CollabTest() {
     };
   }, [documentId, token]);
 
-  // Create TipTap editor with collaboration
+  // Create TipTap editor with collaboration (only when ydoc is ready)
   const editor_instance = useEditor(
-    {
+    ydoc ? {
       extensions: [
         StarterKit.configure({
           history: false,
@@ -115,7 +115,7 @@ export default function CollabTest() {
         }),
       ],
       content: `<h1>${documentTitle}</h1><p>Start typing your syllabus...</p>`,
-    },
+    } : null,
     [ydoc]
   );
 
