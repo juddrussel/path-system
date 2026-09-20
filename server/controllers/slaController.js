@@ -258,7 +258,7 @@ async function updateEscalationSettings(req, res) {
   const { autoEscalation, notifyEmail, notifyDashboard, notifySms } = req.body;
   console.log(`[SLA] updateEscalationSettings called with:`, { autoEscalation, notifyEmail, notifyDashboard, notifySms });
   try {
-    await db.query(
+    const result = await db.query(
       `UPDATE sla_escalation_settings SET
         auto_escalation = ?, notify_email = ?, notify_dashboard = ?, notify_sms = ?, updated_by = ?
        WHERE id = 1`,
@@ -268,7 +268,15 @@ async function updateEscalationSettings(req, res) {
         req.user?.id ?? null,
       ]
     );
+    console.log(`[SLA] updateEscalationSettings result:`, result);
     console.log(`[SLA] updateEscalationSettings successful`);
+    
+    // Verify the update by reading back the values
+    const [[updated]] = await db.query(
+      "SELECT auto_escalation, notify_email, notify_dashboard, notify_sms FROM sla_escalation_settings WHERE id = 1"
+    );
+    console.log(`[SLA] Verified values in DB:`, updated);
+    
     await logActivity(req.user?.id, "Updated", "Escalation Settings");
     res.json({ message: "Escalation settings updated." });
   } catch (err) {
