@@ -543,6 +543,13 @@ export default function SLAConfiguration() {
         body: JSON.stringify(payload),
       });
       console.log(`[SLA UI] API response success`);
+      
+      // Reload escalation settings to confirm the change
+      console.log(`[SLA UI] Reloading escalation settings from API`);
+      const updatedSettings = await apiFetch("/sla/escalation-settings");
+      console.log(`[SLA UI] Reloaded settings:`, updatedSettings);
+      setEscalation(updatedSettings);
+      
       setToast("Email reminder settings updated.");
       setTimeout(() => setToast(""), 2500);
     } catch (err) {
