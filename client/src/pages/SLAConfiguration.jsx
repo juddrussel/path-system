@@ -1283,6 +1283,24 @@ export default function SLAConfiguration() {
                   <div className="sla-inheritance-banner"><Shield size={15} /><div><strong>Automatic inheritance</strong><small>New “{ruleForm.docType}” documents receive this policy at submission.</small></div></div>
                   <div className="sla-document-fields"><label className="sla-form-field"><span>Target window</span><div className="sla-input-with-unit"><input value={ruleForm.turnaroundHours} onChange={e => set("turnaroundHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label><label className="sla-form-field"><span>Escalate after</span><div className="sla-input-with-unit"><input value={ruleForm.escalationHours} onChange={e => set("escalationHours", e.target.value)} type="number" min="1" /><span>hours</span></div></label></div>
                   <div className="sla-detail-setting sla-reminder-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span className="sla-reminder-editor"><strong>Reminder schedule</strong><HourChipsInput value={ruleForm.reminderStageDays} onChange={v => set("reminderStageDays", v)} placeholder="Add reminder" /><small>Edit the hours before the deadline when reminders are sent.</small></span></div>
+                  {/* Email Notification Toggle */}
+                  {escalation && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", border: "1px solid #e5e7eb", borderRadius: 9, background: "#f9fafb", marginBottom: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <Mail size={15} style={{ color: "#7c3aed", flexShrink: 0 }} />
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }}>Send Email Reminders</p>
+                          <p style={{ fontSize: 12, color: "#6b7280", margin: "2px 0 0" }}>Notify reviewers when deadline is approaching or overdue</p>
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={!!escalation.notify_email}
+                        onChange={() => toggleReminder("email")}
+                        style={{ width: 16, height: 16, accentColor: "#7c3aed", cursor: "pointer", flexShrink: 0 }}
+                      />
+                    </div>
+                  )}
                   <label className="sla-form-field sla-owner-select"><span>Assigned reviewer role</span><select value={ruleForm.reviewerRole || ""} onChange={e => set("reviewerRole", e.target.value)}>{REVIEWER_ROLES.map(role => <option key={role}>{role}</option>)}</select></label>
                   <div className="sla-detail-facts"><div><span>Status</span><strong>{ruleForm.status}</strong></div><div><span>Coverage</span><strong>{selectedRuleId ? docsActiveFor(rules.find(r => r.id === selectedRuleId) || {}) : 0} active records</strong></div></div>
                   <div className="sla-preview-slot">{renderPreviewCard()}</div>
