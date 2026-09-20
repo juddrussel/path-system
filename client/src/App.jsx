@@ -32,6 +32,7 @@ import DocumentReview from "./pages/Documentreview";
 import TaskDetail from "./pages/TaskDetail";
 import Settings from "./pages/Settings";
 import AccountSetup from "./pages/AccountSetup";
+import CollabTest from "./pages/CollabTest";
 
 // Root route component — redirect to dashboard if logged in, else login
 function Root() {
@@ -90,6 +91,7 @@ function AppRoutes() {
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-of-use" element={<TermsOfUse />} />
       <Route path="/help-desk" element={<HelpDesk />} />
+      <Route path="/collab-test" element={<CollabTest />} />
 
       {/* Authenticated shell: Sidebar + TopBar mount once here via Layout,
           instead of once per page, so they persist across navigation. */}

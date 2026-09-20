@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "dev:collab": "nodemon collab/hocuspocus-server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1103.0",
     "@aws-sdk/s3-request-presigner": "^3.1103.0",
+    "@hocuspocus/extension-database": "^4.7.0",
+    "@hocuspocus/server": "^4.7.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -29,7 +32,8 @@
     "passport-microsoft": "^2.1.0",
     "resend": "^6.17.1",
     "socket.io": "^4.8.3",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.1",
+    "yjs": "^13.6.32"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

@@ -151,6 +151,11 @@ app.use("/api/sla", slaRoutes);
 app.use("/api/tracking", trackingRoutes);
 app.use("/api/academic", academicRoutes);
 
+// ── Collaborative editing (Phase 1+) – placeholder routes ──
+app.use("/api/collab-test", (req, res) => {
+  res.status(501).json({ message: "Collab routes coming in Phase 2" });
+});
+
 // ── R2 file upload ──
 const uploadRoute = require("./routes/upload");
 app.use("/api", uploadRoute);
