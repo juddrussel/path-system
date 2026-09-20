@@ -38,19 +38,6 @@ function SectionEditor({ section, ydoc, currentUser, readOnly }) {
     []
   );
 
-  // Ensure the shared type exists in the Yjs document
-  useEffect(() => {
-    if (ydoc) {
-      try {
-        if (!ydoc.getText(section)) {
-          ydoc.getText(section);
-        }
-      } catch (err) {
-        console.error(`[SectionEditor] Error initializing ${section}:`, err);
-      }
-    }
-  }, [ydoc, section]);
-
   const editor_instance = useEditor(
     {
       extensions: [
