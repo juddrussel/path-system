@@ -187,7 +187,7 @@ async function updateDocumentState(documentId, ydocState) {
 }
 
 // ─── Initialize Hocuspocus Server ──────────────────────────────────────────
-const server = Server.create({
+const server = new Server({
   port: HOCUSPOCUS_PORT,
   timeout: 30000,
   debounce: DEBOUNCE_MS,
