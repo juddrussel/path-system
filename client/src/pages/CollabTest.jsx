@@ -6,6 +6,7 @@ import Collaboration from "@tiptap/extension-collaboration";
 import * as Y from "yjs";
 
 const HOCUSPOCUS_URL = import.meta.env.VITE_HOCUSPOCUS_URL || "ws://localhost:1234";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 // ─── Test users (DEV ONLY) ───────────────────────────────────────────────────
 const TEST_USERS = [
@@ -82,20 +83,194 @@ function SectionEditor({ section, ydoc, currentUser }) {
   );
 }
 
+// ─── Version History Panel ────────────────────────────────────────────────────
+function VersionPanel({ documentId, token }) {
+  const [versions, setVersions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!documentId || !token) return;
+
+    const fetchVersions = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `${API_URL}/collab-test/document/${documentId}/versions`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch versions");
+        const data = await res.json();
+        setVersions(data);
+      } catch (err) {
+        setError(err.message);
+        console.error("[VersionPanel] Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const interval = setInterval(fetchVersions, 3000); // Poll every 3s
+    fetchVersions(); // Initial fetch
+
+    return () => clearInterval(interval);
+  }, [documentId, token]);
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#f9f9f9",
+        padding: "12px",
+        borderRadius: "6px",
+        border: "1px solid #ddd",
+        marginBottom: "12px",
+      }}
+    >
+      <h4 style={{ marginTop: 0, marginBottom: "8px" }}>📜 Version History</h4>
+      {loading && <p style={{ fontSize: "12px", color: "#666" }}>Loading...</p>}
+      {error && (
+        <p style={{ fontSize: "12px", color: "#d32f2f" }}>Error: {error}</p>
+      )}
+      {!loading && versions.length === 0 && (
+        <p style={{ fontSize: "12px", color: "#666" }}>No versions yet</p>
+      )}
+      {!loading && versions.length > 0 && (
+        <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "12px" }}>
+          {versions.slice(0, 5).map((v) => (
+            <li key={v.id} style={{ marginBottom: "6px", color: "#333" }}>
+              <strong>v{v.version_no}</strong> ({v.kind}) — {v.full_name || "Unknown"}{" "}
+              <span style={{ color: "#999" }}>
+                {new Date(v.created_at).toLocaleTimeString()}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ─── Audit Log Panel ──────────────────────────────────────────────────────────
+function AuditPanel({ documentId, token }) {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!documentId || !token) return;
+
+    const fetchLogs = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `${API_URL}/collab-test/document/${documentId}/audit?limit=10`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch audit log");
+        const data = await res.json();
+        setLogs(data.logs);
+      } catch (err) {
+        setError(err.message);
+        console.error("[AuditPanel] Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const interval = setInterval(fetchLogs, 3000); // Poll every 3s
+    fetchLogs(); // Initial fetch
+
+    return () => clearInterval(interval);
+  }, [documentId, token]);
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#f0f7ff",
+        padding: "12px",
+        borderRadius: "6px",
+        border: "1px solid #90caf9",
+        marginBottom: "12px",
+      }}
+    >
+      <h4 style={{ marginTop: 0, marginBottom: "8px" }}>📋 Audit Log</h4>
+      {loading && <p style={{ fontSize: "12px", color: "#666" }}>Loading...</p>}
+      {error && (
+        <p style={{ fontSize: "12px", color: "#d32f2f" }}>Error: {error}</p>
+      )}
+      {!loading && logs.length === 0 && (
+        <p style={{ fontSize: "12px", color: "#666" }}>No audit entries yet</p>
+      )}
+      {!loading && logs.length > 0 && (
+        <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "12px" }}>
+          {logs.slice(0, 5).map((log) => (
+            <li key={log.id} style={{ marginBottom: "6px", color: "#333" }}>
+              <strong>{log.action}</strong> — {log.summary || log.action}{" "}
+              <span style={{ color: "#999" }}>
+                by {log.full_name || "Unknown"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Collab Test Page ───────────────────────────────────────────────────
 export default function CollabTest() {
   const [currentUserId, setCurrentUserId] = useState(1);
-  const [documentId, setDocumentId] = useState(1);
+  const [taskId, setTaskId] = useState(1);
+  const [documentId, setDocumentId] = useState(null);
   const [ydoc, setYdoc] = useState(null);
   const [provider, setProvider] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [status, setStatus] = useState("disconnected");
+  const [docLoading, setDocLoading] = useState(false);
+  const [docError, setDocError] = useState(null);
 
   const currentUser = TEST_USERS.find((u) => u.id === currentUserId);
   const token = generateDevToken(currentUserId);
 
+  // Fetch or create document on mount and when taskId changes
+  useEffect(() => {
+    if (!taskId || !token) return;
+
+    const fetchDocument = async () => {
+      setDocLoading(true);
+      setDocError(null);
+      try {
+        const res = await fetch(
+          `${API_URL}/collab-test/document/${taskId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch document");
+        const data = await res.json();
+        setDocumentId(data.id);
+        console.log("[CollabTest] Document:", data);
+      } catch (err) {
+        setDocError(err.message);
+        console.error("[CollabTest] Error fetching document:", err);
+      } finally {
+        setDocLoading(false);
+      }
+    };
+
+    fetchDocument();
+  }, [taskId, token]);
+
   // Initialize Hocuspocus provider
   useEffect(() => {
+    if (!documentId) return;
+
     const documentName = `doc-${documentId}`;
     const doc = new Y.Doc();
 
@@ -103,8 +278,8 @@ export default function CollabTest() {
       url: HOCUSPOCUS_URL,
       name: documentName,
       document: doc,
-      token, // Custom token for auth
-      awareness: true, // Enable presence/cursors
+      token,
+      awareness: true,
       connect: true,
       resyncInterval: 5000,
 
@@ -180,9 +355,9 @@ export default function CollabTest() {
           paddingBottom: "12px",
         }}
       >
-        <h1 style={{ margin: "0 0 8px 0" }}>🧪 Collaborative Syllabus Editor (Phase 1)</h1>
+        <h1 style={{ margin: "0 0 8px 0" }}>🧪 Collaborative Syllabus Editor (Phase 2)</h1>
         <p style={{ margin: 0, color: "#666", fontSize: "14px" }}>
-          Real-time co-editing test page. Open this in multiple tabs/windows and switch users to test collaboration.
+          Real-time co-editing with persistence & audit logging. Edit sections and watch version history update automatically.
         </p>
       </div>
 
@@ -198,7 +373,11 @@ export default function CollabTest() {
           fontSize: "14px",
         }}
       >
-        <strong>Status:</strong> {status.toUpperCase()} | <strong>Document ID:</strong> {documentId}
+        <strong>Status:</strong> {status.toUpperCase()} | <strong>Document ID:</strong>{" "}
+        {documentId || "loading..."}
+        {docError && (
+          <div style={{ marginTop: "8px", color: "#d32f2f" }}>Error: {docError}</div>
+        )}
       </div>
 
       {/* Dev Controls */}
@@ -237,12 +416,13 @@ export default function CollabTest() {
 
         <div style={{ marginBottom: "12px" }}>
           <label style={{ display: "block", marginBottom: "4px", fontWeight: "600" }}>
-            Document ID:
+            Task ID (fetches/creates document):
           </label>
           <input
             type="number"
-            value={documentId}
-            onChange={(e) => setDocumentId(Number(e.target.value))}
+            value={taskId}
+            onChange={(e) => setTaskId(Number(e.target.value))}
+            disabled={docLoading}
             style={{
               padding: "8px",
               borderRadius: "4px",
@@ -251,10 +431,13 @@ export default function CollabTest() {
               width: "100px",
             }}
           />
+          {docLoading && (
+            <span style={{ marginLeft: "8px", color: "#666" }}>Fetching...</span>
+          )}
         </div>
 
         <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>
-          💡 Tip: Open this page in 2 browser tabs. Set different users and documents to test real-time sync.
+          💡 Tip: Open this page in 2 browser tabs. Set different users to test real-time sync, persistence, and audit logging.
         </p>
       </div>
 
@@ -303,10 +486,18 @@ export default function CollabTest() {
         </div>
       </div>
 
+      {/* Persistence Panels */}
+      {documentId && (
+        <>
+          <VersionPanel documentId={documentId} token={token} />
+          <AuditPanel documentId={documentId} token={token} />
+        </>
+      )}
+
       {/* Section Editors */}
       <div>
         <h2 style={{ marginTop: 0 }}>📝 Syllabus Sections</h2>
-        {ydoc && (
+        {ydoc ? (
           <>
             <SectionEditor section="description" ydoc={ydoc} currentUser={currentUser} />
             <SectionEditor section="outcomes" ydoc={ydoc} currentUser={currentUser} />
@@ -314,6 +505,10 @@ export default function CollabTest() {
             <SectionEditor section="schedule" ydoc={ydoc} currentUser={currentUser} />
             <SectionEditor section="references" ydoc={ydoc} currentUser={currentUser} />
           </>
+        ) : (
+          <p style={{ color: "#666" }}>
+            {docLoading ? "Fetching document..." : "Ready to edit"}
+          </p>
         )}
       </div>
 
@@ -328,14 +523,19 @@ export default function CollabTest() {
           lineHeight: "1.6",
         }}
       >
-        <strong>📖 Testing Instructions:</strong>
+        <strong>📖 Phase 2 Testing Instructions:</strong>
         <ol style={{ margin: "8px 0" }}>
           <li>Open this page in 2 tabs (same or different windows)</li>
           <li>In Tab 1, set user to "Prof Alice" and start typing in a section</li>
           <li>In Tab 2, set user to "Prof Bob" and watch the text appear in real-time</li>
-          <li>Edit the same paragraph in both tabs simultaneously—both edits should merge</li>
-          <li>Close one tab mid-edit and reopen it—content should persist</li>
-          <li>Check "Online" indicator updates as you connect/disconnect</li>
+          <li>
+            Edit the same paragraph in both tabs simultaneously—both edits should merge
+          </li>
+          <li>
+            Watch <strong>Version History</strong> and <strong>Audit Log</strong> panels update (every 3 seconds)
+          </li>
+          <li>Close one tab mid-edit and reopen it—content should persist and versions restore</li>
+          <li>Switch task IDs to test multi-document isolation</li>
         </ol>
       </div>
     </div>
