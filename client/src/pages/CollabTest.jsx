@@ -691,7 +691,6 @@ export default function CollabTest() {
       name: documentName,
       document: doc,
       token,
-      awareness: true,
       connect: true,
       resyncInterval: 5000,
 
@@ -718,20 +717,34 @@ export default function CollabTest() {
     });
 
     const updateConnectedUsers = () => {
-      const clients = Array.from(prov.awareness.getStates().values()).map(
-        (state) => state.user || { id: "unknown", name: "Unknown" }
-      );
-      setConnectedUsers(clients);
+      try {
+        if (prov.awareness && prov.awareness.getStates) {
+          const clients = Array.from(prov.awareness.getStates().values()).map(
+            (state) => state.user || { id: "unknown", name: "Unknown" }
+          );
+          setConnectedUsers(clients);
+        }
+      } catch (err) {
+        console.error("[CollabTest] Error updating connected users:", err);
+      }
     };
 
-    prov.awareness.on("change", updateConnectedUsers);
-    updateConnectedUsers();
+    if (prov.awareness) {
+      prov.awareness.on("change", updateConnectedUsers);
+      updateConnectedUsers();
+    }
 
     setYdoc(doc);
     setProvider(prov);
 
     return () => {
-      prov.awareness.off("change", updateConnectedUsers);
+      try {
+        if (prov.awareness) {
+          prov.awareness.off("change", updateConnectedUsers);
+        }
+      } catch (err) {
+        console.error("[CollabTest] Error cleaning up awareness:", err);
+      }
       prov.destroy();
       doc.destroy();
     };
