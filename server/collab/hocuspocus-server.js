@@ -354,3 +354,7 @@ const server = new Server({
 });
 
 console.log(`✅ Hocuspocus Server running on port ${HOCUSPOCUS_PORT}`);
+
+
+// Start listening
+server.listen();
