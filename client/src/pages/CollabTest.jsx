@@ -104,18 +104,18 @@ export default function CollabTest() {
 
   // Create TipTap editor with collaboration (only when ydoc is ready)
   const editor_instance = useEditor(
-    ydoc ? {
+    {
       extensions: [
         StarterKit.configure({
           history: false,
         }),
-        Collaboration.configure({
+        ...(ydoc ? [Collaboration.configure({
           document: ydoc,
           field: "content",
-        }),
+        })] : []),
       ],
       content: `<h1>${documentTitle}</h1><p>Start typing your syllabus...</p>`,
-    } : null,
+    },
     [ydoc]
   );
 
@@ -185,8 +185,9 @@ export default function CollabTest() {
           boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
           padding: "40px",
           fontFamily: "Roboto, system-ui, sans-serif",
+          minHeight: "400px",
         }}>
-          {editor_instance ? (
+          {ydoc && editor_instance ? (
             <EditorContent
               editor={editor_instance}
               style={{
@@ -196,7 +197,7 @@ export default function CollabTest() {
               }}
             />
           ) : (
-            <p style={{ color: "#9aa0a6", textAlign: "center" }}>
+            <p style={{ color: "#9aa0a6", textAlign: "center", marginTop: "50px" }}>
               {docLoading ? "Loading document..." : "Initializing editor..."}
             </p>
           )}
