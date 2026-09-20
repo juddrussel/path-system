@@ -548,6 +548,7 @@ export default function SLAConfiguration() {
       console.log(`[SLA UI] Reloading escalation settings from API`);
       const updatedSettings = await apiFetch("/sla/escalation-settings");
       console.log(`[SLA UI] Reloaded settings:`, updatedSettings);
+      console.log(`[SLA UI] notify_email value:`, updatedSettings?.notify_email);
       setEscalation(updatedSettings);
       
       setToast("Email reminder settings updated.");

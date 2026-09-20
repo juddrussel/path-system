@@ -230,12 +230,26 @@ async function getEscalationSettings(req, res) {
     const [[settings]] = await db.query(
       "SELECT * FROM sla_escalation_settings WHERE id = 1"
     );
+    console.log(`[SLA] getEscalationSettings raw result:`, settings);
+    if (!settings) {
+      console.warn(`[SLA] No escalation settings found for id=1, returning defaults`);
+      // Return default settings if none exist
+      return res.json({
+        id: 1,
+        auto_escalation: 0,
+        notify_email: 0,
+        notify_dashboard: 0,
+        notify_sms: 0,
+        recipients: []
+      });
+    }
     const [recipients] = await db.query(
       "SELECT id, role_name, email FROM sla_recipients ORDER BY role_name"
     );
+    console.log(`[SLA] Sending escalation settings:`, { ...settings, recipients });
     res.json({ ...settings, recipients });
   } catch (err) {
-    console.error(err);
+    console.error("[SLA] getEscalationSettings error:", err);
     res.status(500).json({ message: "Failed to load escalation settings." });
   }
 }
