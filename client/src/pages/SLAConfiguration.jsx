@@ -528,20 +528,25 @@ export default function SLAConfiguration() {
     const map = { email: "notify_email", dashboard: "notify_dashboard", sms: "notify_sms" };
     const field = map[key];
     const next = { ...escalation, [field]: escalation[field] ? 0 : 1 };
+    console.log(`[SLA UI] Toggling ${key}:`, { before: escalation[field], after: next[field] });
     setEscalation(next);
     try {
+      const payload = {
+        autoEscalation: next.auto_escalation,
+        notifyEmail: next.notify_email,
+        notifyDashboard: next.notify_dashboard,
+        notifySms: next.notify_sms,
+      };
+      console.log(`[SLA UI] Sending to API:`, payload);
       await apiFetch("/sla/escalation-settings", {
         method: "PUT",
-        body: JSON.stringify({
-          autoEscalation: next.auto_escalation,
-          notifyEmail: next.notify_email,
-          notifyDashboard: next.notify_dashboard,
-          notifySms: next.notify_sms,
-        }),
+        body: JSON.stringify(payload),
       });
+      console.log(`[SLA UI] API response success`);
       setToast("Email reminder settings updated.");
       setTimeout(() => setToast(""), 2500);
     } catch (err) {
+      console.error(`[SLA UI] API error:`, err);
       setError(err.message || "Failed to update reminder settings.");
     }
   }

@@ -242,6 +242,7 @@ async function getEscalationSettings(req, res) {
 
 async function updateEscalationSettings(req, res) {
   const { autoEscalation, notifyEmail, notifyDashboard, notifySms } = req.body;
+  console.log(`[SLA] updateEscalationSettings called with:`, { autoEscalation, notifyEmail, notifyDashboard, notifySms });
   try {
     await db.query(
       `UPDATE sla_escalation_settings SET
@@ -253,10 +254,11 @@ async function updateEscalationSettings(req, res) {
         req.user?.id ?? null,
       ]
     );
+    console.log(`[SLA] updateEscalationSettings successful`);
     await logActivity(req.user?.id, "Updated", "Escalation Settings");
     res.json({ message: "Escalation settings updated." });
   } catch (err) {
-    console.error(err);
+    console.error("[SLA] updateEscalationSettings error:", err);
     res.status(500).json({ message: "Failed to update escalation settings." });
   }
 }
