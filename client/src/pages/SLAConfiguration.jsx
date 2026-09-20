@@ -539,6 +539,8 @@ export default function SLAConfiguration() {
           notifySms: next.notify_sms,
         }),
       });
+      setToast("Email reminder settings updated.");
+      setTimeout(() => setToast(""), 2500);
     } catch (err) {
       setError(err.message || "Failed to update reminder settings.");
     }
@@ -1285,9 +1287,9 @@ export default function SLAConfiguration() {
                   <div className="sla-detail-setting sla-reminder-setting"><span className="sla-setting-icon"><Clock size={15} /></span><span className="sla-reminder-editor"><strong>Reminder schedule</strong><HourChipsInput value={ruleForm.reminderStageDays} onChange={v => set("reminderStageDays", v)} placeholder="Add reminder" /><small>Edit the hours before the deadline when reminders are sent.</small></span></div>
                   {/* Email Notification Toggle */}
                   {escalation && (
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", border: "1px solid #e5e7eb", borderRadius: 9, background: "#f9fafb", marginBottom: 12 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <Mail size={15} style={{ color: "#7c3aed", flexShrink: 0 }} />
+                    <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", border: "1px solid #ddd6fe", borderRadius: 9, background: "#f5f3ff", marginBottom: 12, cursor: "pointer", transition: "all 0.2s" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+                        <Mail size={16} style={{ color: "#7c3aed", flexShrink: 0 }} />
                         <div>
                           <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }}>Send Email Reminders</p>
                           <p style={{ fontSize: 12, color: "#6b7280", margin: "2px 0 0" }}>Notify reviewers when deadline is approaching or overdue</p>
@@ -1297,9 +1299,10 @@ export default function SLAConfiguration() {
                         type="checkbox"
                         checked={!!escalation.notify_email}
                         onChange={() => toggleReminder("email")}
-                        style={{ width: 16, height: 16, accentColor: "#7c3aed", cursor: "pointer", flexShrink: 0 }}
+                        style={{ width: 20, height: 20, accentColor: "#7c3aed", cursor: "pointer", flexShrink: 0, marginLeft: 12 }}
+                        title="Enable email notifications for SLA reminders"
                       />
-                    </div>
+                    </label>
                   )}
                   <label className="sla-form-field sla-owner-select"><span>Assigned reviewer role</span><select value={ruleForm.reviewerRole || ""} onChange={e => set("reviewerRole", e.target.value)}>{REVIEWER_ROLES.map(role => <option key={role}>{role}</option>)}</select></label>
                   <div className="sla-detail-facts"><div><span>Status</span><strong>{ruleForm.status}</strong></div><div><span>Coverage</span><strong>{selectedRuleId ? docsActiveFor(rules.find(r => r.id === selectedRuleId) || {}) : 0} active records</strong></div></div>
