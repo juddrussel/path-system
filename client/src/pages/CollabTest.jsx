@@ -17,20 +17,17 @@ const TEST_USERS = [
 
 // ─── Dev-only token generator (NOT FOR PRODUCTION) ────────────────────────────
 function generateDevToken(userId) {
-  // Dummy JWT-like token for testing
-  // In real app, this comes from your auth backend
   const payload = {
     id: userId,
     email: TEST_USERS[userId - 1]?.email || "test@example.com",
     role: "user",
     full_name: TEST_USERS[userId - 1]?.name || "Test User",
   };
-  // Base64 encode (NOT secure, dev only)
   return `dev_${Buffer.from(JSON.stringify(payload)).toString("base64")}`;
 }
 
 // ─── Single Section Editor ────────────────────────────────────────────────────
-function SectionEditor({ section, ydoc, currentUser }) {
+function SectionEditor({ section, ydoc, currentUser, readOnly }) {
   const [editor, setEditor] = useState(null);
 
   const handleCreate = useCallback(
@@ -44,7 +41,7 @@ function SectionEditor({ section, ydoc, currentUser }) {
     {
       extensions: [
         StarterKit.configure({
-          history: false, // Yjs handles history
+          history: false,
         }),
         Collaboration.configure({
           document: ydoc,
@@ -52,9 +49,10 @@ function SectionEditor({ section, ydoc, currentUser }) {
         }),
       ],
       onCreate: handleCreate,
+      editable: !readOnly,
       content: `<h2>${section}</h2><p>Start editing...</p>`,
     },
-    [ydoc, section]
+    [ydoc, section, readOnly]
   );
 
   return (
@@ -64,10 +62,14 @@ function SectionEditor({ section, ydoc, currentUser }) {
         borderRadius: "8px",
         padding: "12px",
         marginBottom: "12px",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: readOnly ? "#f0f0f0" : "#f9f9f9",
+        opacity: readOnly ? 0.7 : 1,
       }}
     >
-      <h3 style={{ marginTop: 0, color: "#333" }}>{section}</h3>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h3 style={{ marginTop: 0, marginBottom: "8px", color: "#333" }}>{section}</h3>
+        {readOnly && <span style={{ fontSize: "11px", color: "#999" }}>🔒 Read-only</span>}
+      </div>
       <EditorContent
         editor={editor_instance}
         style={{
@@ -76,7 +78,7 @@ function SectionEditor({ section, ydoc, currentUser }) {
           backgroundColor: "#fff",
           border: "1px solid #e0e0e0",
           borderRadius: "4px",
-          cursor: "text",
+          cursor: readOnly ? "not-allowed" : "text",
         }}
       />
     </div>
@@ -113,8 +115,8 @@ function VersionPanel({ documentId, token }) {
       }
     };
 
-    const interval = setInterval(fetchVersions, 3000); // Poll every 3s
-    fetchVersions(); // Initial fetch
+    const interval = setInterval(fetchVersions, 3000);
+    fetchVersions();
 
     return () => clearInterval(interval);
   }, [documentId, token]);
@@ -153,6 +155,171 @@ function VersionPanel({ documentId, token }) {
   );
 }
 
+// ─── Workflow Control Panel ────────────────────────────────────────────────
+function WorkflowPanel({ documentId, status, token, onStatusChange }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleRequestReview = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API_URL}/collab-test/document/${documentId}/request-review`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to request review");
+      const data = await res.json();
+      onStatusChange(data.status);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReopen = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API_URL}/collab-test/document/${documentId}/reopen`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to reopen document");
+      const data = await res.json();
+      onStatusChange(data.status);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API_URL}/collab-test/document/${documentId}/submit`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to submit document");
+      const data = await res.json();
+      onStatusChange(data.status);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#fff3cd",
+        padding: "12px",
+        borderRadius: "6px",
+        border: "1px solid #ffc107",
+        marginBottom: "12px",
+      }}
+    >
+      <h4 style={{ marginTop: 0, marginBottom: "12px" }}>🔄 Workflow Controls</h4>
+      {error && (
+        <p style={{ fontSize: "12px", color: "#d32f2f", marginBottom: "8px" }}>
+          Error: {error}
+        </p>
+      )}
+
+      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+        {status === "draft" && (
+          <button
+            onClick={handleRequestReview}
+            disabled={loading}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#007bff",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "13px",
+              fontWeight: "600",
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            Request Review
+          </button>
+        )}
+
+        {status === "review_requested" && (
+          <>
+            <button
+              onClick={handleReopen}
+              disabled={loading}
+              style={{
+                padding: "8px 12px",
+                backgroundColor: "#6c757d",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "13px",
+                fontWeight: "600",
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              Reopen for Editing
+            </button>
+            <span style={{ fontSize: "12px", color: "#666", alignSelf: "center" }}>
+              ⏸️ Editing disabled until approvers review
+            </span>
+          </>
+        )}
+
+        {status === "approved" && (
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#28a745",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "13px",
+              fontWeight: "600",
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            Submit
+          </button>
+        )}
+
+        {status === "submitted" && (
+          <span style={{ fontSize: "12px", color: "#28a745", fontWeight: "600" }}>
+            ✅ Document submitted
+          </span>
+        )}
+      </div>
+
+      <p style={{ fontSize: "11px", color: "#666", marginTop: "8px", margin: "8px 0 0 0" }}>
+        Current status: <strong>{status}</strong>
+      </p>
+    </div>
+  );
+}
+
 // ─── Audit Log Panel ──────────────────────────────────────────────────────────
 function AuditPanel({ documentId, token }) {
   const [logs, setLogs] = useState([]);
@@ -183,8 +350,8 @@ function AuditPanel({ documentId, token }) {
       }
     };
 
-    const interval = setInterval(fetchLogs, 3000); // Poll every 3s
-    fetchLogs(); // Initial fetch
+    const interval = setInterval(fetchLogs, 3000);
+    fetchLogs();
 
     return () => clearInterval(interval);
   }, [documentId, token]);
@@ -228,10 +395,11 @@ export default function CollabTest() {
   const [currentUserId, setCurrentUserId] = useState(1);
   const [taskId, setTaskId] = useState(1);
   const [documentId, setDocumentId] = useState(null);
+  const [documentStatus, setDocumentStatus] = useState("draft");
   const [ydoc, setYdoc] = useState(null);
   const [provider, setProvider] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
-  const [status, setStatus] = useState("disconnected");
+  const [connectionStatus, setConnectionStatus] = useState("disconnected");
   const [docLoading, setDocLoading] = useState(false);
   const [docError, setDocError] = useState(null);
 
@@ -255,6 +423,7 @@ export default function CollabTest() {
         if (!res.ok) throw new Error("Failed to fetch document");
         const data = await res.json();
         setDocumentId(data.id);
+        setDocumentStatus(data.status);
         console.log("[CollabTest] Document:", data);
       } catch (err) {
         setDocError(err.message);
@@ -266,6 +435,30 @@ export default function CollabTest() {
 
     fetchDocument();
   }, [taskId, token]);
+
+  // Poll document status every 2 seconds
+  useEffect(() => {
+    if (!documentId || !token) return;
+
+    const pollStatus = async () => {
+      try {
+        const res = await fetch(
+          `${API_URL}/collab-test/document/${documentId}/status`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        setDocumentStatus(data.status);
+      } catch (err) {
+        console.error("[CollabTest] Status poll error:", err);
+      }
+    };
+
+    const interval = setInterval(pollStatus, 2000);
+    return () => clearInterval(interval);
+  }, [documentId, token]);
 
   // Initialize Hocuspocus provider
   useEffect(() => {
@@ -285,7 +478,7 @@ export default function CollabTest() {
 
       onStatus({ status: newStatus }) {
         console.log("[Collab] Connection status:", newStatus);
-        setStatus(newStatus);
+        setConnectionStatus(newStatus);
       },
 
       onAuthenticate(context) {
@@ -305,7 +498,6 @@ export default function CollabTest() {
       },
     });
 
-    // Track connected users via awareness
     const updateConnectedUsers = () => {
       const clients = Array.from(prov.awareness.getStates().values()).map(
         (state) => state.user || { id: "unknown", name: "Unknown" }
@@ -338,6 +530,8 @@ export default function CollabTest() {
     });
   }, [provider, currentUserId, currentUser]);
 
+  const isReadOnly = documentStatus !== "draft";
+
   return (
     <div
       style={{
@@ -355,9 +549,9 @@ export default function CollabTest() {
           paddingBottom: "12px",
         }}
       >
-        <h1 style={{ margin: "0 0 8px 0" }}>🧪 Collaborative Syllabus Editor (Phase 2)</h1>
+        <h1 style={{ margin: "0 0 8px 0" }}>🧪 Collaborative Syllabus Editor (Phase 3)</h1>
         <p style={{ margin: 0, color: "#666", fontSize: "14px" }}>
-          Real-time co-editing with persistence & audit logging. Edit sections and watch version history update automatically.
+          Real-time co-editing with review workflow. Request review to freeze edits and test approval system.
         </p>
       </div>
 
@@ -367,13 +561,13 @@ export default function CollabTest() {
           padding: "12px",
           marginBottom: "16px",
           borderRadius: "6px",
-          backgroundColor: status === "connected" ? "#d4edda" : "#f8d7da",
-          color: status === "connected" ? "#155724" : "#856404",
-          border: `1px solid ${status === "connected" ? "#c3e6cb" : "#f5c6cb"}`,
+          backgroundColor: connectionStatus === "connected" ? "#d4edda" : "#f8d7da",
+          color: connectionStatus === "connected" ? "#155724" : "#856404",
+          border: `1px solid ${connectionStatus === "connected" ? "#c3e6cb" : "#f5c6cb"}`,
           fontSize: "14px",
         }}
       >
-        <strong>Status:</strong> {status.toUpperCase()} | <strong>Document ID:</strong>{" "}
+        <strong>Connection:</strong> {connectionStatus.toUpperCase()} | <strong>Document ID:</strong>{" "}
         {documentId || "loading..."}
         {docError && (
           <div style={{ marginTop: "8px", color: "#d32f2f" }}>Error: {docError}</div>
@@ -437,7 +631,7 @@ export default function CollabTest() {
         </div>
 
         <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>
-          💡 Tip: Open this page in 2 browser tabs. Set different users to test real-time sync, persistence, and audit logging.
+          💡 Tip: Click "Request Review" to freeze editing. Then switch users to test read-only enforcement.
         </p>
       </div>
 
@@ -486,6 +680,16 @@ export default function CollabTest() {
         </div>
       </div>
 
+      {/* Workflow Panel */}
+      {documentId && (
+        <WorkflowPanel
+          documentId={documentId}
+          status={documentStatus}
+          token={token}
+          onStatusChange={setDocumentStatus}
+        />
+      )}
+
       {/* Persistence Panels */}
       {documentId && (
         <>
@@ -499,11 +703,11 @@ export default function CollabTest() {
         <h2 style={{ marginTop: 0 }}>📝 Syllabus Sections</h2>
         {ydoc ? (
           <>
-            <SectionEditor section="description" ydoc={ydoc} currentUser={currentUser} />
-            <SectionEditor section="outcomes" ydoc={ydoc} currentUser={currentUser} />
-            <SectionEditor section="grading" ydoc={ydoc} currentUser={currentUser} />
-            <SectionEditor section="schedule" ydoc={ydoc} currentUser={currentUser} />
-            <SectionEditor section="references" ydoc={ydoc} currentUser={currentUser} />
+            <SectionEditor section="description" ydoc={ydoc} currentUser={currentUser} readOnly={isReadOnly} />
+            <SectionEditor section="outcomes" ydoc={ydoc} currentUser={currentUser} readOnly={isReadOnly} />
+            <SectionEditor section="grading" ydoc={ydoc} currentUser={currentUser} readOnly={isReadOnly} />
+            <SectionEditor section="schedule" ydoc={ydoc} currentUser={currentUser} readOnly={isReadOnly} />
+            <SectionEditor section="references" ydoc={ydoc} currentUser={currentUser} readOnly={isReadOnly} />
           </>
         ) : (
           <p style={{ color: "#666" }}>
@@ -523,19 +727,19 @@ export default function CollabTest() {
           lineHeight: "1.6",
         }}
       >
-        <strong>📖 Phase 2 Testing Instructions:</strong>
+        <strong>📖 Phase 3 Testing Instructions:</strong>
         <ol style={{ margin: "8px 0" }}>
           <li>Open this page in 2 tabs (same or different windows)</li>
           <li>In Tab 1, set user to "Prof Alice" and start typing in a section</li>
           <li>In Tab 2, set user to "Prof Bob" and watch the text appear in real-time</li>
           <li>
-            Edit the same paragraph in both tabs simultaneously—both edits should merge
+            In Tab 1, click <strong>Request Review</strong> to change status to "review_requested"
           </li>
-          <li>
-            Watch <strong>Version History</strong> and <strong>Audit Log</strong> panels update (every 3 seconds)
-          </li>
-          <li>Close one tab mid-edit and reopen it—content should persist and versions restore</li>
-          <li>Switch task IDs to test multi-document isolation</li>
+          <li>Verify that editors are now read-only (grayed out, "🔒 Read-only" badge)</li>
+          <li>Try typing in Tab 2—edits should be rejected (status not "draft")</li>
+          <li>In Tab 1, click <strong>Reopen for Editing</strong> to go back to "draft"</li>
+          <li>Verify edits work again in both tabs</li>
+          <li>Watch the <strong>Audit Log</strong> track all status changes</li>
         </ol>
       </div>
     </div>

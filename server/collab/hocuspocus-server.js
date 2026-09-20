@@ -244,6 +244,7 @@ const server = Server.create({
     data.connection.readOnly = readOnly;
     data.connection.user = user;
     data.connection.documentId = documentId;
+    data.connection.status = status;
 
     console.log(`[Hocuspocus] Auth successful: ${user.email} (readOnly=${readOnly})`);
     return true;
@@ -252,6 +253,15 @@ const server = Server.create({
   async onChange(data) {
     const { connection, documentName } = data;
     if (!connection.user) return;
+
+    // Phase 3: Reject edits if document is not in draft
+    if (connection.readOnly) {
+      console.warn(
+        `[Hocuspocus] Edit rejected for ${connection.user.email}: document status is ${connection.status}, not editable`
+      );
+      // Yjs will not apply this update; connection will be force-reconnected in Phase 3
+      return;
+    }
 
     const documentId = connection.documentId;
 

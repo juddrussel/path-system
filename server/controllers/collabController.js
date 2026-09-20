@@ -1,6 +1,6 @@
 /**
  * Collaborative editing controller
- * Handles document lifecycle, versions, and audit logs
+ * Handles document lifecycle, versions, audit logs, and workflow
  */
 
 const db = require("../config/db");
@@ -168,10 +168,249 @@ async function getDocumentStatus(req, res) {
   }
 }
 
+/**
+ * POST /api/collab-test/document/:documentId/request-review
+ * Change status from 'draft' to 'review_requested'
+ * Creates a checkpoint version labeled 'submitted_for_review'
+ */
+async function requestReview(req, res) {
+  const { documentId } = req.params;
+  const userId = req.user.id;
+  const io = req.app.get("io");
+
+  try {
+    // Fetch current document
+    const [[doc]] = await db.query(
+      "SELECT task_id, status FROM syllabus_documents WHERE id = ?",
+      [documentId]
+    );
+
+    if (!doc) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    if (doc.status !== "draft") {
+      return res
+        .status(400)
+        .json({ message: `Cannot request review: document is ${doc.status}` });
+    }
+
+    // Get latest version to snapshot
+    const [[latestVersion]] = await db.query(
+      `SELECT id, version_no FROM document_versions WHERE document_id = ? ORDER BY version_no DESC LIMIT 1`,
+      [documentId]
+    );
+
+    const nextVersionNo = (latestVersion?.version_no || 0) + 1;
+
+    // Create checkpoint version
+    const [versionResult] = await db.query(
+      `INSERT INTO document_versions (document_id, version_no, kind, label, created_by, created_at)
+       SELECT ?, ?, 'checkpoint', 'submitted_for_review', ?, NOW()
+       FROM document_versions WHERE id = ? LIMIT 1`,
+      [documentId, nextVersionNo, userId, latestVersion?.id]
+    );
+
+    // Update document status
+    await db.query(
+      "UPDATE syllabus_documents SET status = 'review_requested', current_version_id = ?, updated_at = NOW() WHERE id = ?",
+      [versionResult.insertId, documentId]
+    );
+
+    // Audit log
+    await db.query(
+      `INSERT INTO document_audit_log (document_id, user_id, action, summary, version_id, created_at)
+       VALUES (?, ?, 'request_review', 'Submitted for review', ?, NOW())`,
+      [documentId, userId, versionResult.insertId]
+    );
+
+    // Notify collaborators via Socket.io
+    io.to(`task_${doc.task_id}`).emit("document_status_changed", {
+      documentId,
+      taskId: doc.task_id,
+      status: "review_requested",
+      changedBy: req.user.full_name,
+      timestamp: new Date(),
+    });
+
+    res.json({
+      documentId,
+      status: "review_requested",
+      versionId: versionResult.insertId,
+    });
+  } catch (err) {
+    console.error("[Collab] requestReview failed:", err.message);
+    res.status(500).json({ message: "Failed to request review" });
+  }
+}
+
+/**
+ * POST /api/collab-test/document/:documentId/reopen
+ * Change status from 'review_requested' back to 'draft'
+ * Allows further editing if review is incomplete
+ */
+async function reopenDocument(req, res) {
+  const { documentId } = req.params;
+  const userId = req.user.id;
+  const io = req.app.get("io");
+
+  try {
+    // Fetch current document
+    const [[doc]] = await db.query(
+      "SELECT task_id, status FROM syllabus_documents WHERE id = ?",
+      [documentId]
+    );
+
+    if (!doc) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    if (doc.status !== "review_requested") {
+      return res
+        .status(400)
+        .json({ message: `Cannot reopen: document is ${doc.status}` });
+    }
+
+    // Update status back to draft
+    await db.query(
+      "UPDATE syllabus_documents SET status = 'draft', updated_at = NOW() WHERE id = ?",
+      [documentId]
+    );
+
+    // Audit log
+    await db.query(
+      `INSERT INTO document_audit_log (document_id, user_id, action, summary, created_at)
+       VALUES (?, ?, 'reopen', 'Document reopened for editing', NOW())`,
+      [documentId, userId]
+    );
+
+    // Notify collaborators
+    io.to(`task_${doc.task_id}`).emit("document_status_changed", {
+      documentId,
+      taskId: doc.task_id,
+      status: "draft",
+      changedBy: req.user.full_name,
+      timestamp: new Date(),
+    });
+
+    res.json({ documentId, status: "draft" });
+  } catch (err) {
+    console.error("[Collab] reopenDocument failed:", err.message);
+    res.status(500).json({ message: "Failed to reopen document" });
+  }
+}
+
+/**
+ * POST /api/collab-test/document/:documentId/submit
+ * Change status from 'approved' to 'submitted'
+ * Final submission after all approvals
+ */
+async function submitDocument(req, res) {
+  const { documentId } = req.params;
+  const userId = req.user.id;
+  const io = req.app.get("io");
+
+  try {
+    // Fetch current document
+    const [[doc]] = await db.query(
+      "SELECT task_id, status FROM syllabus_documents WHERE id = ?",
+      [documentId]
+    );
+
+    if (!doc) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    if (doc.status !== "approved") {
+      return res
+        .status(400)
+        .json({ message: `Cannot submit: document must be 'approved', currently ${doc.status}` });
+    }
+
+    // Check all required approvals are in place
+    const [[{ approvalCount }]] = await db.query(
+      `SELECT COUNT(*) as approvalCount FROM approvals 
+       WHERE task_id = ? AND version_id = (SELECT current_version_id FROM syllabus_documents WHERE id = ?)
+       AND status = 'approved'`,
+      [doc.task_id, documentId]
+    );
+
+    if (approvalCount === 0) {
+      return res
+        .status(400)
+        .json({ message: "No approvals found for current version" });
+    }
+
+    // Update status to submitted
+    await db.query(
+      "UPDATE syllabus_documents SET status = 'submitted', updated_at = NOW() WHERE id = ?",
+      [documentId]
+    );
+
+    // Audit log
+    await db.query(
+      `INSERT INTO document_audit_log (document_id, user_id, action, summary, created_at)
+       VALUES (?, ?, 'submit', 'Syllabus submitted', NOW())`,
+      [documentId, userId]
+    );
+
+    // Notify collaborators
+    io.to(`task_${doc.task_id}`).emit("document_status_changed", {
+      documentId,
+      taskId: doc.task_id,
+      status: "submitted",
+      changedBy: req.user.full_name,
+      timestamp: new Date(),
+    });
+
+    res.json({ documentId, status: "submitted" });
+  } catch (err) {
+    console.error("[Collab] submitDocument failed:", err.message);
+    res.status(500).json({ message: "Failed to submit document" });
+  }
+}
+
+/**
+ * GET /api/collab-test/document/:documentId/approvals
+ * Fetch approval status for current version
+ */
+async function getApprovals(req, res) {
+  const { documentId } = req.params;
+
+  try {
+    const [[doc]] = await db.query(
+      "SELECT task_id, current_version_id FROM syllabus_documents WHERE id = ?",
+      [documentId]
+    );
+
+    if (!doc) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const [approvals] = await db.query(
+      `SELECT a.id, a.user_id, a.status, a.comment, a.decided_at, u.full_name, u.email
+       FROM approvals a
+       LEFT JOIN users u ON a.user_id = u.id
+       WHERE a.task_id = ? AND a.version_id = ?
+       ORDER BY a.decided_at DESC`,
+      [doc.task_id, doc.current_version_id]
+    );
+
+    res.json({ approvals, versionId: doc.current_version_id });
+  } catch (err) {
+    console.error("[Collab] getApprovals failed:", err.message);
+    res.status(500).json({ message: "Failed to fetch approvals" });
+  }
+}
+
 module.exports = {
   getOrCreateDocument,
   getVersions,
   getAuditLog,
   getVersionSnapshot,
   getDocumentStatus,
+  requestReview,
+  reopenDocument,
+  submitDocument,
+  getApprovals,
 };

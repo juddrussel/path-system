@@ -1,6 +1,6 @@
 /**
  * Collaborative editing routes
- * Endpoints for document management, versions, and audit logs
+ * Endpoints for document management, versions, audit logs, and workflow
  */
 
 const express = require("express");
@@ -43,5 +43,32 @@ router.get(
  * Fetch document status
  */
 router.get("/document/:documentId/status", collabController.getDocumentStatus);
+
+/**
+ * POST /api/collab-test/document/:documentId/request-review
+ * Change status from 'draft' to 'review_requested'
+ */
+router.post(
+  "/document/:documentId/request-review",
+  collabController.requestReview
+);
+
+/**
+ * POST /api/collab-test/document/:documentId/reopen
+ * Change status from 'review_requested' back to 'draft'
+ */
+router.post("/document/:documentId/reopen", collabController.reopenDocument);
+
+/**
+ * POST /api/collab-test/document/:documentId/submit
+ * Change status from 'approved' to 'submitted'
+ */
+router.post("/document/:documentId/submit", collabController.submitDocument);
+
+/**
+ * GET /api/collab-test/document/:documentId/approvals
+ * Fetch approval status for current version
+ */
+router.get("/document/:documentId/approvals", collabController.getApprovals);
 
 module.exports = router;
