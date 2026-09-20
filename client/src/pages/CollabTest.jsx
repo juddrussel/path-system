@@ -23,7 +23,8 @@ function generateDevToken(userId) {
     role: "user",
     full_name: TEST_USERS[userId - 1]?.name || "Test User",
   };
-  return `dev_${Buffer.from(JSON.stringify(payload)).toString("base64")}`;
+  // Use btoa for browser-safe Base64 encoding
+  return `dev_${btoa(JSON.stringify(payload))}`;
 }
 
 // ─── Single Section Editor ────────────────────────────────────────────────────
