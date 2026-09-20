@@ -258,18 +258,39 @@ async function updateEscalationSettings(req, res) {
   const { autoEscalation, notifyEmail, notifyDashboard, notifySms } = req.body;
   console.log(`[SLA] updateEscalationSettings called with:`, { autoEscalation, notifyEmail, notifyDashboard, notifySms });
   try {
-    const result = await db.query(
-      `UPDATE sla_escalation_settings SET
-        auto_escalation = ?, notify_email = ?, notify_dashboard = ?, notify_sms = ?, updated_by = ?
-       WHERE id = 1`,
-      [
-        autoEscalation ? 1 : 0, notifyEmail ? 1 : 0,
-        notifyDashboard ? 1 : 0, notifySms ? 1 : 0,
-        req.user?.id ?? null,
-      ]
+    // First, check if a row exists
+    const [[exists]] = await db.query(
+      "SELECT id FROM sla_escalation_settings WHERE id = 1"
     );
-    console.log(`[SLA] updateEscalationSettings result:`, result);
-    console.log(`[SLA] updateEscalationSettings successful`);
+    console.log(`[SLA] Row exists:`, !!exists);
+    
+    if (!exists) {
+      // INSERT if doesn't exist
+      console.log(`[SLA] Inserting new sla_escalation_settings row`);
+      await db.query(
+        `INSERT INTO sla_escalation_settings 
+          (id, auto_escalation, notify_email, notify_dashboard, notify_sms, updated_by)
+         VALUES (1, ?, ?, ?, ?, ?)`,
+        [
+          autoEscalation ? 1 : 0, notifyEmail ? 1 : 0,
+          notifyDashboard ? 1 : 0, notifySms ? 1 : 0,
+          req.user?.id ?? null,
+        ]
+      );
+    } else {
+      // UPDATE if exists
+      console.log(`[SLA] Updating existing sla_escalation_settings row`);
+      await db.query(
+        `UPDATE sla_escalation_settings SET
+          auto_escalation = ?, notify_email = ?, notify_dashboard = ?, notify_sms = ?, updated_by = ?
+         WHERE id = 1`,
+        [
+          autoEscalation ? 1 : 0, notifyEmail ? 1 : 0,
+          notifyDashboard ? 1 : 0, notifySms ? 1 : 0,
+          req.user?.id ?? null,
+        ]
+      );
+    }
     
     // Verify the update by reading back the values
     const [[updated]] = await db.query(
