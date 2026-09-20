@@ -38,6 +38,19 @@ function SectionEditor({ section, ydoc, currentUser, readOnly }) {
     []
   );
 
+  // Ensure the shared type exists in the Yjs document
+  useEffect(() => {
+    if (ydoc) {
+      try {
+        if (!ydoc.getText(section)) {
+          ydoc.getText(section);
+        }
+      } catch (err) {
+        console.error(`[SectionEditor] Error initializing ${section}:`, err);
+      }
+    }
+  }, [ydoc, section]);
+
   const editor_instance = useEditor(
     {
       extensions: [
@@ -944,7 +957,7 @@ export default function CollabTest() {
       {/* Section Editors */}
       <div>
         <h2 style={{ marginTop: 0 }}>📝 Syllabus Sections</h2>
-        {ydoc ? (
+        {ydoc && documentId ? (
           <>
             <SectionEditor section="description" ydoc={ydoc} currentUser={currentUser} readOnly={isReadOnly} />
             <SectionEditor section="outcomes" ydoc={ydoc} currentUser={currentUser} readOnly={isReadOnly} />
@@ -954,7 +967,7 @@ export default function CollabTest() {
           </>
         ) : (
           <p style={{ color: "#666" }}>
-            {docLoading ? "Fetching document..." : "Ready to edit"}
+            {docLoading ? "Fetching document..." : connectionStatus === "connected" ? "Initializing editors..." : "Connecting..."}
           </p>
         )}
       </div>
