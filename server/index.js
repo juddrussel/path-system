@@ -64,13 +64,14 @@ const ALLOWED_ORIGINS = [
   CLIENT_URL,
   "https://path-system.vercel.app",
   "http://localhost:5173",
-  "http://localhost:3000"
+  "http://localhost:3000",
+  "*"  // Allow all origins in dev (users may be on same ISP with different local IPs)
 ];
 
 // ── Socket.IO setup ──
 const io = new Server(server, {
   cors: {
-    origin: ALLOWED_ORIGINS,
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -103,14 +104,8 @@ const upload = multer({
 
 // ── Middleware ──
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
+  origin: "*",  // Allow all origins in dev
+  credentials: false
 }));
 app.use(express.json());
 app.use(passport.initialize());
