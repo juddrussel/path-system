@@ -152,8 +152,7 @@ app.use("/api/tracking", trackingRoutes);
 app.use("/api/academic", academicRoutes);
 
 // ── Collaborative editing (Phase 2+) – persistence & audit ──
-const collabRoutes = require("./routes/collab.routes");
-app.use("/api/collab-test", collabRoutes);
+// REMOVED: Collab editing no longer needed
 
 // ── R2 file upload ──
 const uploadRoute = require("./routes/upload");
