@@ -3,14 +3,19 @@ require('dotenv').config();
 const mysql = require("mysql2/promise");
 const fs = require("fs");
 
-// Aiven requires SSL. If a CA cert path is provided, use it.
-// (On Render, this will be the path to your Secret File, e.g. /etc/secrets/ca.pem)
-const sslConfig = process.env.DB_CA_CERT_PATH
-  ? {
+// SSL config: check if cert file exists before reading
+let sslConfig = undefined;
+if (process.env.DB_CA_CERT_PATH) {
+  try {
+    sslConfig = {
       ca: fs.readFileSync(process.env.DB_CA_CERT_PATH),
       rejectUnauthorized: true,
-    }
-  : undefined;
+    };
+  } catch (err) {
+    console.warn(`⚠️  SSL cert not found at ${process.env.DB_CA_CERT_PATH}, connecting without SSL`);
+    sslConfig = undefined;
+  }
+}
 
 const db = mysql.createPool({
   host:               process.env.DB_HOST || "localhost",
