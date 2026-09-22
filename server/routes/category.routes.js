@@ -108,7 +108,7 @@ async function buildStats() {
   try {
     const [[row]] = await db.query(
       `SELECT COUNT(*) AS used FROM form_submissions fs
-       INNER JOIN document_categories dc ON dc.name = fs.category
+       INNER JOIN document_categories dc ON dc.name COLLATE utf8mb4_unicode_ci = fs.category COLLATE utf8mb4_unicode_ci
        WHERE MONTH(fs.created_at) = MONTH(CURRENT_DATE())
          AND YEAR(fs.created_at) = YEAR(CURRENT_DATE())`
     );
