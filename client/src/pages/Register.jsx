@@ -124,7 +124,7 @@ const s = {
     width: "100%",
     minWidth: 0,
     border: 0,
-    outline: 0,
+    outline: "none",
     background: "transparent",
     color: colors.ink,
     font: '500 12px "DM Sans", Arial, sans-serif',

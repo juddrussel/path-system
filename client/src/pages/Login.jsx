@@ -290,6 +290,7 @@ const styles = {
     padding: "0 12px",
     background: "#fff",
     color: "#a096a8",
+    boxShadow: "none",
   },
   inputShellError: {
     border: "1px solid #f19a9a",
@@ -298,7 +299,7 @@ const styles = {
     width: "100%",
     minWidth: 0,
     border: 0,
-    outline: 0,
+    outline: "none",
     background: "transparent",
     color: violet.ink,
     font: '500 12px "DM Sans", Arial, sans-serif',
