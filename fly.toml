@@ -1,0 +1,36 @@
+# Fly.io configuration for path-system backend
+
+app = "path-system-backend"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 5000
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+[checks]
+  [checks.status]
+    type = "http"
+    interval = "10s"
+    timeout = "5s"
+    grace_period = "40s"
+    method = "get"
+    path = "/api/health"
+    protocol = "http"
+    success_threshold = 1
+    failure_threshold = 3

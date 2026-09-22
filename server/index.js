@@ -128,6 +128,11 @@ app.post("/api/users/:id/avatar", requireAuth, upload.single("avatar"), async (r
   }
 });
 
+// ── Health check endpoint (for Docker/Fly.io) ──
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 // ── Make io accessible to route files via app ──
 app.set("io", io);
 
