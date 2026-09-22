@@ -2338,7 +2338,6 @@ export default function Forms() {
                 onChange={(e) => handleWizardFieldChange(f.id, e.target.value)}
                 onFocus={onFieldFocus}
                 onBlur={onFieldBlur}
-                placeholder="Enter value"
                 style={{ ...controlStyle, width: 220 }}
               />
             ))}

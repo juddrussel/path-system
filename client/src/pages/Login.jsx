@@ -795,7 +795,6 @@ export default function Login() {
                     type="text"
                     name="username"
                     autoComplete="username"
-                    placeholder="Enter your username"
                     value={formData.username}
                     onChange={handleChange}
                   />
@@ -818,7 +817,6 @@ export default function Login() {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     autoComplete="current-password"
-                    placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
                   />

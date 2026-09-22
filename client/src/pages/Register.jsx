@@ -696,7 +696,6 @@ export default function Register() {
                     name="full_name"
                     value={formData.full_name}
                     onChange={handleChange}
-                    placeholder="Enter your full name"
                     autoComplete="name"
                   />
                 </span>
@@ -729,7 +728,6 @@ export default function Register() {
                     value={formData.phone}
                     onChange={handleChange}
                     type="tel"
-                    placeholder="Enter your phone number"
                     autoComplete="tel"
                   />
                 </span>
