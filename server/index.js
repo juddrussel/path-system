@@ -59,19 +59,12 @@ const app = express();
 const server = http.createServer(app);
 
 // ── CORS origin (env-driven, falls back to local dev URL) ──
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
-const ALLOWED_ORIGINS = [
-  CLIENT_URL,
-  "https://path-system.vercel.app",
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "*"  // Allow all origins in dev (users may be on same ISP with different local IPs)
-];
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 
 // ── Socket.IO setup ──
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: CORS_ORIGIN,
     methods: ["GET", "POST"],
   },
 });

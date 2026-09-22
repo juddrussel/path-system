@@ -8,6 +8,7 @@ primary_region = "iad"
 
 [env]
   NODE_ENV = "production"
+  CORS_ORIGIN = "https://path-system.vercel.app"
 
 [[services]]
   protocol = "tcp"
