@@ -253,6 +253,10 @@ export default function TaskDetail() {
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
 
+  // Helper to update task state with partial updates
+  const updateTask = (patch) =>
+    setTask((current) => (current ? { ...current, ...(typeof patch === 'function' ? patch(current) : patch) } : current));
+
   const loadTask = async () => {
     if (!taskId) return;
     setLoading(true);
@@ -510,9 +514,6 @@ export default function TaskDetail() {
   const canApprove =
     isChair && hasFacultySubmission && status.tone === "review";
   const canReturn = isChair && hasFacultySubmission && status.tone === "review";
-
-  const updateTask = (patch) =>
-    setTask((current) => (current ? { ...current, ...patch } : current));
 
   // Collaborative confirmation helpers
   const isCurrentUserCollaborator = isCollaborative && collaborators.some(c => c.user_id === user.id);
