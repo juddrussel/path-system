@@ -65,15 +65,24 @@ export default function CollaborativeComments({
 
   // WebSocket listeners for real-time updates
   useEffect(() => {
-    if (!io) return;
+    if (!io) {
+      console.log("[CollaborativeComments] Socket.io not available");
+      return;
+    }
 
+    console.log(`[CollaborativeComments] Setting up socket listeners for taskId=${taskId}`);
+    
+    // Join the task room
     io.emit("join_task", { taskId });
+    console.log(`[CollaborativeComments] Emitted join_task for taskId=${taskId}`);
 
     const handleNewComment = ({ taskId: eTaskId, comment }) => {
+      console.log(`[CollaborativeComments] Received task:comment_added for taskId=${eTaskId}, current=${taskId}`, comment);
       if (eTaskId === taskId) {
         setComments((prev) => {
           if (comment.parentCommentId) {
             // Reply to existing comment - insert into replies array
+            console.log(`[CollaborativeComments] Adding reply to parent ${comment.parentCommentId}`);
             return prev.map(c => {
               if (c.id === comment.parentCommentId) {
                 return { ...c, replies: [...(c.replies || []), comment] };
@@ -82,6 +91,7 @@ export default function CollaborativeComments({
             });
           } else {
             // Top-level comment
+            console.log(`[CollaborativeComments] Adding top-level comment`);
             return [...prev, { ...comment, replies: [] }];
           }
         });
@@ -94,6 +104,7 @@ export default function CollaborativeComments({
     };
 
     const handleCommentDeleted = (data) => {
+      console.log(`[CollaborativeComments] Received task:comment_deleted for taskId=${data.taskId}, current=${taskId}`);
       if (data.taskId === taskId) {
         setComments((prev) => {
           return prev
@@ -127,7 +138,10 @@ export default function CollaborativeComments({
     io.on("task:user_typing", handleUserTyping);
     io.on("task:user_stop_typing", handleUserStopTyping);
 
+    console.log(`[CollaborativeComments] Socket listeners registered`);
+
     return () => {
+      console.log(`[CollaborativeComments] Cleaning up socket listeners for taskId=${taskId}`);
       io.off("task:comment_added", handleNewComment);
       io.off("task:comment_deleted", handleCommentDeleted);
       io.off("task:user_typing", handleUserTyping);

@@ -240,6 +240,17 @@ io.on("connection", (socket) => {
     socket.leave(`workflow_${workflowId}`);
   });
 
+  // ── Task collaboration: real-time comment updates ──────────────────────────
+  socket.on("join_task", ({ taskId }) => {
+    socket.join(`task_${taskId}`);
+    console.log(`Socket ${socket.id} joined task_${taskId}`);
+  });
+
+  socket.on("leave_task", ({ taskId }) => {
+    socket.leave(`task_${taskId}`);
+    console.log(`Socket ${socket.id} left task_${taskId}`);
+  });
+
   // ── Typing indicators ───────────────────────────────────────────────────
   socket.on("typing", ({ senderId, receiverId }) => {
     const receiverSocketId = onlineUsers.get(String(receiverId));
