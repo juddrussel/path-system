@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
+
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const resolveUrl = (value) =>
-  !value ? "" : /^https?:\/\//i.test(value) ? value : `${API}${value}`;
+const resolveUrl = (value) => resolveFileUrl(API, value);
 const personName = (value, fallback = "—") =>
   typeof value === "string"
     ? value

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -40,9 +41,7 @@ function avatarColor(str = "") {
 // Some values are already full URLs (e.g. Cloudflare R2), others are relative
 // paths served by our own backend — only prefix API in the latter case.
 function resolveUrl(pathOrUrl) {
-  if (!pathOrUrl) return null;
-  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
-  return `${API}${pathOrUrl}`;
+  return resolveFileUrl(API, pathOrUrl);
 }
 
 // Reply metadata is embedded into the plain-text `content` field (the backend

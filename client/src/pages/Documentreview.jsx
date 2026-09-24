@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL;
 const fileUrl = (value) =>
-  !value
-    ? ""
-    : /^https?:\/\//i.test(value)
-      ? value
-      : `${API || "http://localhost:5000"}${value}`;
+  resolveFileUrl(API || "http://localhost:5000", value);
 const stamp = (value, fallback = "—") => {
   const date = value && new Date(value);
   return date && !Number.isNaN(date.getTime())

@@ -1,17 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { io as socketIO } from "socket.io-client";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL;
-// Attachments/submissions now store full R2 URLs (https://...). Older rows
-// created before the R2 migration may still have local paths like
-// "/uploads/forms/xyz.pdf" — those still need the API host prepended.
-const resolveFileUrl = (u) =>
-  !u
-    ? ""
-    : /^https?:\/\//i.test(u)
-      ? u
-      : `${API || "http://localhost:5000"}${u}`;
 
 function getUser() {
   try {

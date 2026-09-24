@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io } from "socket.io-client";
+import { resolveFileUrl as resolveFileUrlUtil } from "../utils/r2ProxyHelper";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
@@ -1725,8 +1726,7 @@ export default function MyTasks() {
   // R2 attachment URLs are already full https:// URLs — only prepend API
   // for legacy relative paths (e.g. "/uploads/..."). Without this, every
   // R2 file URL gets mangled into "${API}https://..." and fails to load.
-  const resolveFileUrl = (u) =>
-    !u ? "" : /^https?:\/\//i.test(u) ? u : `${API}${u}`;
+  const resolveFileUrl = (u) => resolveFileUrlUtil(API, u);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");

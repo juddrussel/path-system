@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
 import CollaborativeComments from "../components/CollaborativeComments";
+import { resolveFileUrl as resolveFileUrlUtil } from "../utils/r2ProxyHelper";
 
 /*
   Router integration requirement (React Router v6):
@@ -85,25 +86,7 @@ const toDatetimeInput = (value) => {
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 };
 
-const resolveFileUrl = (api, value) => {
-  if (!value) return "";
-  // If it's already a full URL
-  if (/^https?:\/\//i.test(value)) {
-    // If it's an R2 URL, convert to proxy URL
-    if (value.includes("r2.dev")) {
-      // Extract the key from the R2 URL
-      // URL format: https://pub-xxx.r2.dev/uploads/uuid-filename
-      const match = value.match(/r2\.dev\/(.+)$/);
-      if (match) {
-        const key = match[1];
-        return `${api}/api/files/proxy?key=${encodeURIComponent(key)}`;
-      }
-    }
-    return value;
-  }
-  // Relative path
-  return `${api}${value}`;
-};
+
 
 const pdfReadingUrl = (value, zoom = "page-width") => {
   if (!value) return "";
@@ -212,7 +195,7 @@ function FileCard({ file, api, onPreview, label = "Attached file" }) {
   if (!file) return null;
   const name =
     file.file_name || file.originalname || file.name || "Attached file";
-  const url = resolveFileUrl(api, file.file_url || file.url || file.path);
+  const url = resolveFileUrlUtil(api, file.file_url || file.url || file.path);
   return (
     <button
       type="button"
