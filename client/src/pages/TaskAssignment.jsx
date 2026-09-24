@@ -1228,7 +1228,7 @@ function TaskAssignmentInner() {
                 )}
               </section>
               <section className="path-assignment-aside-section path-assignment-quality">
-                <div className="path-assignment-aside-heading">
+                <div className="path-assignment-aside-heading" style={{ whiteSpace: "nowrap" }}>
                   <span>Handoff quality</span>
                   <small>{incompleteSteps ? "In progress" : "Ready"}</small>
                 </div>
