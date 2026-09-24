@@ -1222,6 +1222,170 @@ export default function TaskDetail() {
                       )}
                     </section>
 
+                    {/* FACULTY SUBMISSION SECTION */}
+                    {isFacultyView && (
+                      isUnderReview ? (
+                        <section className="td-card">
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 20px", textAlign: "center" }}>
+                            <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdf4", border: "1.5px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <Icon name="shield" size={22} />
+                            </div>
+                            <div>
+                              <strong style={{ display: "block", fontSize: 15, fontWeight: 800, color: "#27213a", marginBottom: 6, fontFamily: "Manrope,'DM Sans',sans-serif" }}>
+                                Your submission is under review
+                              </strong>
+                              <p style={{ margin: 0, fontSize: 12, color: "#6b5f76", lineHeight: 1.6 }}>
+                                The program chair is reviewing your submitted work. You cannot make changes while it is in review. You will be notified once a decision is made.
+                              </p>
+                            </div>
+                            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 99, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", fontSize: 11, fontWeight: 800 }}>
+                              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 0 3px rgba(34,197,94,0.2)" }} />
+                              Currently in review
+                            </div>
+                          </div>
+                        </section>
+                      ) : (
+                        <section className="td-card" ref={submissionPanelRef}>
+                          <div className="td-section-title">
+                            <span className="td-icon">
+                              <Icon name="send" />
+                            </span>
+                            <div>
+                              <span>Faculty submission</span>
+                              <h2>
+                                {status.tone === "returned"
+                                  ? "Resubmit revised work"
+                                  : "Submit your completed work"}
+                              </h2>
+                            </div>
+                          </div>
+                          <p className="td-submission-intro">
+                            {status.tone === "returned"
+                              ? "Your previous version was returned for revision. Attach a corrected file and add a new note explaining what changed."
+                              : "Attach the completed file and leave a concise note that helps the chair make a decision."}
+                          </p>
+                          {(task.revision_instruction ||
+                            task.return_instruction ||
+                            task.return_reason) && (
+                            <div className="td-return-guidance">
+                              <span>Chair's revision instructions</span>
+                              <p>
+                                {task.revision_instruction ||
+                                  task.return_instruction ||
+                                  task.return_reason}
+                              </p>
+                            </div>
+                          )}
+                          <input
+                            ref={fileInputRef}
+                            hidden
+                            type="file"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
+                            onChange={(event) => {
+                              setSelectedFile(event.target.files?.[0] || null);
+                              setSubmissionError("");
+                            }}
+                          />
+                          <button
+                            className={`td-upload-button ${selectedFile ? "selected" : ""}`}
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            <span>
+                              <Icon name="attach" />
+                            </span>
+                            <div>
+                              <strong>
+                                {selectedFile
+                                  ? selectedFile.name
+                                  : "Attach completed file"}
+                              </strong>
+                              <small>
+                                {selectedFile
+                                  ? formatSize(selectedFile.size)
+                                  : "PDF, DOCX, XLSX, or CSV"}
+                              </small>
+                            </div>
+                            <Icon name="preview" />
+                          </button>
+
+                          <label className="td-note-label">
+                            Submission note
+                            <textarea
+                              value={submissionNote}
+                              onChange={(event) => {
+                                setSubmissionNote(event.target.value);
+                                setSubmissionError("");
+                              }}
+                              rows={3}
+                              placeholder="Summarize what was completed or flag any exception for review…"
+                            />
+                          </label>
+                          {submissionError && (
+                            <p
+                              className="td-field-error"
+                              role="alert"
+                              style={{ marginTop: 8 }}
+                            >
+                              {submissionError}
+                            </p>
+                          )}
+                          {isCollaborative && isFacultyView && (
+                            <div style={{ marginTop: "12px", padding: "12px", border: "1px solid #fbbf24", borderRadius: "8px", backgroundColor: "#fffbeb" }}>
+                              <div style={{ fontSize: "12px", fontWeight: "600", color: "#b45309", marginBottom: "8px" }}>
+                                Collaborative Task
+                              </div>
+                              <p style={{ fontSize: "12px", color: "#92400e", margin: "0 0 12px", lineHeight: "1.4" }}>
+                                All {collaborators.length} collaborators must confirm their edits before submission.
+                                {hasCurrentUserConfirmed && " You've already confirmed."}
+                              </p>
+                              {!hasCurrentUserConfirmed && (
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmationModalOpen(true)}
+                                  disabled={confirmingCollaboration}
+                                  style={{
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    padding: "8px 12px",
+                                    border: "1px solid #f59e0b",
+                                    borderRadius: "6px",
+                                    backgroundColor: "#fbbf24",
+                                    color: "#000",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s",
+                                  }}
+                                >
+                                  {confirmingCollaboration ? "Confirming…" : "Confirm my edits"}
+                                </button>
+                              )}
+                              {hasCurrentUserConfirmed && (
+                                <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
+                                  ✓ You have confirmed
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          <button
+                            className="td-submit"
+                            type="button"
+                            disabled={submitting || (isCollaborative && !allConfirmed)}
+                            onClick={submitWork}
+                            title={isCollaborative && !allConfirmed ? "All collaborators must confirm before submission" : ""}
+                          >
+                            <Icon name="send" size={14} />{" "}
+                            {submitting
+                              ? "Sending…"
+                              : isCollaborative && !allConfirmed
+                                ? `Awaiting ${collaborators.filter(c => !c.confirmed_at).length} confirmation(s)…`
+                                : status.tone === "returned"
+                                  ? "Resubmit for chair review"
+                                  : "Submit for chair review"}
+                          </button>
+                        </section>
+                      )
+                    )}
+
                     {/* DISCUSSION SECTION */}
                     <section className="td-card">
                       <div style={{ marginBottom: "12px" }}>
