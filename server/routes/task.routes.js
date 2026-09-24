@@ -1038,7 +1038,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     }
     
     if (!canView) return res.status(403).json({ message: "Access denied." });
-    const [enriched] = await enrichTasks([task]);
+    const enriched = await enrichTasks([task]);
     const responseTask = enriched[0];
     console.log(`📤 GET /:id response for task ${req.params.id}: faculty_name=${responseTask?.faculty_name}, collaborators=${responseTask?.collaborators?.length}`);
     // Return as { task: ... } so frontend fetchSelectedTask can read data.task || data
