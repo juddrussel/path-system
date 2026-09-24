@@ -293,14 +293,10 @@ export default function CollaborativeComments({
 
   const getFileUrl = (file) => {
     // Convert R2 key to proxy URL
-    console.log(`[getFileUrl] file object:`, file);
     if (file.key) {
-      const url = `${apiUrl}/api/files/proxy?key=${encodeURIComponent(file.key)}`;
-      console.log(`[getFileUrl] Generated proxy URL: ${url}`);
-      return url;
+      return `${apiUrl}/api/files/proxy?key=${encodeURIComponent(file.key)}`;
     }
     // Fallback to direct URL if available (for backward compat)
-    console.log(`[getFileUrl] No key found, falling back to URL:`, file.url);
     return file.url || null;
   };
 
