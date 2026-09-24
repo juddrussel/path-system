@@ -577,19 +577,21 @@ export default function CollaborativeComments({
 
         .cc-file-picker-btn {
           padding: 8px 10px;
-          border: 1px solid #e0d5ef;
+          border: 1px solid #7c3aed;
           border-radius: 6px;
-          background: #f0e8f8;
-          color: #7c3aed;
+          background: #7c3aed;
+          color: #fff;
           font-size: 14px;
           cursor: pointer;
           transition: all 0.2s;
           line-height: 1;
+          font-weight: 600;
         }
 
         .cc-file-picker-btn:hover:not(:disabled) {
-          background: #e9ddfb;
-          border-color: #7c3aed;
+          background: #6d28d9;
+          border-color: #6d28d9;
+          box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
         }
 
         .cc-file-picker-btn:disabled {
