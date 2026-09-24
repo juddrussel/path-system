@@ -1059,7 +1059,7 @@ export default function TaskDetail() {
 
                 {task?.is_collaborative && (
                   <div style={{ padding: "0 4px" }}>
-                    <CollaborationStatus taskId={task.id} token={token} apiUrl={api} />
+                    <CollaborationStatus taskId={task.id} token={token} apiUrl={api} collaborators={collaborators} />
                   </div>
                 )}
 

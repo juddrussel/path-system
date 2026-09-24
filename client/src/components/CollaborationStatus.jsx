@@ -1,42 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 /**
  * CollaborationStatus
  * Shows who has confirmed their edits and when.
  * Green checkmark = confirmed, Yellow hourglass = pending <24h, Red alert = overdue >24h
  */
-export default function CollaborationStatus({ taskId, token, apiUrl }) {
-  const [collaborators, setCollaborators] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function CollaborationStatus({ taskId, token, apiUrl, collaborators }) {
+  // If collaborators prop is passed, use it; otherwise leave empty
+  const collabList = collaborators || [];
 
-  useEffect(() => {
-    const loadCollaborators = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${apiUrl}/api/tasks/${taskId}/collaborators`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to load collaborators");
-        const data = await res.json();
-        setCollaborators(data.collaborators || []);
-      } catch (err) {
-        setError(err.message);
-        console.error("CollaborationStatus error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!collabList || collabList.length === 0) return null;
 
-    if (taskId && token) loadCollaborators();
-  }, [taskId, token, apiUrl]);
-
-  if (loading) return <div className="coll-status-loading">Loading collaborators...</div>;
-  if (error) return <div className="coll-status-error">Error: {error}</div>;
-  if (collaborators.length === 0) return null;
-
-  const confirmedCount = collaborators.filter(c => c.confirmedAt).length;
-  const allConfirmed = confirmedCount === collaborators.length;
+  const confirmedCount = collabList.filter(c => c.confirmed_at).length;
+  const allConfirmed = confirmedCount === collabList.length;
 
   return (
     <div className="coll-status">
@@ -55,11 +31,11 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
         </div>
       </div>
       <p className="coll-status-description">
-        All {collaborators.length} collaborator{collaborators.length !== 1 ? "s" : ""} must confirm their edits before the task can be submitted for review.
+        All {collabList.length} collaborator{collabList.length !== 1 ? "s" : ""} must confirm their edits before the task can be submitted for review.
       </p>
       <div className="coll-status-list">
-        {collaborators.map((collab) => {
-          const confirmedAt = collab.confirmedAt ? new Date(collab.confirmedAt) : null;
+        {collabList.map((collab) => {
+          const confirmedAt = collab.confirmed_at ? new Date(collab.confirmed_at) : null;
           const now = new Date();
           const hoursAgo = confirmedAt ? (now - confirmedAt) / (1000 * 60 * 60) : null;
           
@@ -78,7 +54,7 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           }
 
           // Generate initials for avatar
-          const initials = (collab.fullName || "?")
+          const initials = (collab.full_name || "?")
             .split(/\s+/)
             .filter(Boolean)
             .slice(0, 2)
@@ -86,11 +62,11 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
             .join("");
 
           const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F"];
-          const colorIndex = collab.userId % colors.length;
+          const colorIndex = collab.user_id % colors.length;
           const bgColor = colors[colorIndex];
 
           return (
-            <div key={collab.userId} className={`coll-status-badge coll-status-${statusClass}`}>
+            <div key={collab.user_id} className={`coll-status-badge coll-status-${statusClass}`}>
               <div
                 style={{
                   position: "relative",
@@ -138,7 +114,7 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <strong style={{ display: "block", marginBottom: "1px", fontSize: "13px", color: "#3a2a45" }}>{collab.fullName}</strong>
+                <strong style={{ display: "block", marginBottom: "1px", fontSize: "13px", color: "#3a2a45" }}>{collab.full_name}</strong>
                 <small style={{ display: "block", color: "#9a8ba6", fontSize: "11px" }}>{collab.email}</small>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
