@@ -402,7 +402,7 @@ export default function TaskDetail() {
     : null;
   const latestSubmissionName =
     latestSubmission?.file_name || latestSubmission?.name || "Submitted work";
-  const latestSubmissionUrl = resolveFileUrl(
+  const latestSubmissionUrl = resolveFileUrlUtil(
     api,
     latestSubmission?.file_url ||
       latestSubmission?.url ||
@@ -1634,7 +1634,7 @@ export default function TaskDetail() {
                               onClick={() =>
                                 previewFile({
                                   name,
-                                  url: resolveFileUrl(
+                                  url: resolveFileUrlUtil(
                                     api,
                                     file.file_url || file.url,
                                   ),
