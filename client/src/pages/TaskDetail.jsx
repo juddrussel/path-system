@@ -366,7 +366,7 @@ export default function TaskDetail() {
     task?.assigned_to_name ||
     task?.assignee_name ||
     task?.assigned_to ||
-    "â€”";
+    "✓��”";
   const taskOwnerInitials = initials(taskOwner);
   // Collaborative task info
   const isCollaborative = task?.is_collaborative || false;
@@ -729,7 +729,7 @@ export default function TaskDetail() {
         `}</style>
 
         <div className="td-load-card">
-          {/* Header â€” mimics the violet task header */}
+          {/* Header ✓��” mimics the violet task header */}
           <div className="td-load-header">
             <div className="td-load-spinner-wrap">
               <div className="td-spin-ring" />
@@ -750,7 +750,7 @@ export default function TaskDetail() {
             </div>
           </div>
 
-          {/* Body â€” mimics the description + meta sections */}
+          {/* Body ✓��” mimics the description + meta sections */}
           <div className="td-load-body">
             {/* Avatar + name row */}
             <div className="td-load-row">
@@ -987,7 +987,7 @@ export default function TaskDetail() {
                               onClick={saveDeadline}
                               disabled={deadlineSaving}
                             >
-                              {deadlineSaving ? "Savingâ€¦" : "Save"}
+                              {deadlineSaving ? "Saving✓��¦" : "Save"}
                             </button>
                           </span>
                           {deadlineError && (
@@ -1100,9 +1100,9 @@ export default function TaskDetail() {
                   })()}
                 </section>
 
-                {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {/* ✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€ */}
                 {/* Collaboration Sections - ONLY FOR COLLABORATIVE TASKS */}
-                {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {/* ✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€ */}
 
                 {task?.is_collaborative && isCurrentUserCollaborator && (
                   <>
@@ -1178,7 +1178,7 @@ export default function TaskDetail() {
                                 {collaborator.full_name || "Faculty"}
                               </strong>
                               <small style={{ display: "block", color: "#9d8fa8", fontSize: "9px", marginTop: "1px" }}>
-                                {collaborator.email || "â€”"}
+                                {collaborator.email || "✓��”"}
                               </small>
                             </div>
 
@@ -1318,7 +1318,7 @@ export default function TaskDetail() {
                                 setSubmissionError("");
                               }}
                               rows={3}
-                              placeholder="Summarize what was completed or flag any exception for reviewâ€¦"
+                              placeholder="Summarize what was completed or flag any exception for review✓��¦"
                             />
                           </label>
                           {submissionError && (
@@ -1356,7 +1356,7 @@ export default function TaskDetail() {
                                     transition: "all 0.2s",
                                   }}
                                 >
-                                  {confirmingCollaboration ? "Confirmingâ€¦" : "Confirm my edits"}
+                                  {confirmingCollaboration ? "Confirming✓��¦" : "Confirm my edits"}
                                 </button>
                               )}
                               {hasCurrentUserConfirmed && (
@@ -1375,9 +1375,9 @@ export default function TaskDetail() {
                           >
                             <Icon name="send" size={14} />{" "}
                             {submitting
-                              ? "Sendingâ€¦"
+                              ? "Sending✓��¦"
                               : isCollaborative && !allConfirmed
-                                ? `Awaiting ${collaborators.filter(c => !c.confirmed_at).length} confirmation(s)â€¦`
+                                ? `Awaiting ${collaborators.filter(c => !c.confirmed_at).length} confirmation(s)✓��¦`
                                 : status.tone === "returned"
                                   ? "Resubmit for chair review"
                                   : "Submit for chair review"}
@@ -1451,7 +1451,7 @@ export default function TaskDetail() {
                         </div>
                         <div>
                           <span>âœ¦ AI Summary</span>
-                          <span>â–¢ PDF</span>
+                          <span>✓��¢ PDF</span>
                           <button
                             type="button"
                             onClick={() =>
@@ -1518,7 +1518,7 @@ export default function TaskDetail() {
                             }
                             aria-label="Open submitted file in a new tab"
                           >
-                            â†—
+                            ✓��—
                           </button>
                         </div>
                         <div className="td-reader-paper">
@@ -1619,11 +1619,11 @@ export default function TaskDetail() {
                               </p>
                               <div className="td-lineage-meta">
                                 <span>{name}</span>
-                                <i>â€¢</i>
+                                <i>✓��¢</i>
                                 <span>{formatSize(file.size)}</span>
                                 {reverseIndex === 0 && (
                                   <>
-                                    <i>â€¢</i>
+                                    <i>✓��¢</i>
                                     <b>Latest</b>
                                   </>
                                 )}
@@ -1721,7 +1721,7 @@ export default function TaskDetail() {
                           onClick={approveTask}
                         >
                           <Icon name="check" size={14} />{" "}
-                          {deciding ? "Savingâ€¦" : "Approve task"}
+                          {deciding ? "Saving✓��¦" : "Approve task"}
                         </button>
                         <button
                           className="td-return"
@@ -1784,7 +1784,7 @@ export default function TaskDetail() {
                           setReturnInstruction(event.target.value);
                           setReturnError("");
                         }}
-                        placeholder="Explain what needs to be corrected before the next submissionâ€¦"
+                        placeholder="Explain what needs to be corrected before the next submission✓��¦"
                         autoFocus
                       />
                       {returnError && (
@@ -1892,7 +1892,7 @@ export default function TaskDetail() {
               </div>
               <div className="td-reader-head-actions">
                 <span>âœ¦ AI Summary</span>
-                <span>â–¢ PDF</span>
+                <span>✓��¢ PDF</span>
                 <button
                   type="button"
                   onClick={() => setPreview(null)}
@@ -1950,7 +1950,7 @@ export default function TaskDetail() {
                     }
                     aria-label="Open file in a new tab"
                   >
-                    â†—
+                    ✓��—
                   </button>
                 </div>
                 <div className="td-reader-paper">
@@ -2056,7 +2056,7 @@ export default function TaskDetail() {
                   opacity: confirmingCollaboration ? 0.6 : 1,
                 }}
               >
-                {confirmingCollaboration ? "Confirmingâ€¦" : "Yes, confirm"}
+                {confirmingCollaboration ? "Confirming✓��¦" : "Yes, confirm"}
               </button>
             </div>
           </div>
