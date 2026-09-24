@@ -699,9 +699,23 @@ async function enrichTasks(rows) {
     );
   } catch (_) { /* table may not exist yet — safe to ignore */ }
 
+  // Fetch collaborators for collaborative tasks
+  let collaborators = [];
+  try {
+    const [collabRows] = await db.query(
+      `SELECT tc.user_id, tc.confirmed_at, u.full_name, u.email
+       FROM task_collaborators tc
+       JOIN users u ON u.id = tc.user_id
+       WHERE tc.task_id IN (?)`,
+      [ids]
+    );
+    collaborators = collabRows;
+  } catch (_) { /* table may not exist yet — safe to ignore */ }
+
   const attachMap     = {};
   const commentMap    = {};
   const submissionMap = {};
+  const collaboratorMap = {};
   attachments.forEach(a => {
     if (!attachMap[a.task_id])     attachMap[a.task_id]     = [];
     attachMap[a.task_id].push(a);
@@ -714,12 +728,22 @@ async function enrichTasks(rows) {
     if (!submissionMap[s.task_id]) submissionMap[s.task_id] = [];
     submissionMap[s.task_id].push(s);
   });
+  collaborators.forEach(c => {
+    if (!collaboratorMap[c.task_id]) collaboratorMap[c.task_id] = [];
+    collaboratorMap[c.task_id].push({
+      user_id: c.user_id,
+      confirmed_at: c.confirmed_at,
+      full_name: c.full_name,
+      email: c.email,
+    });
+  });
 
   return rows.map(r => ({
     ...r,
     attachments: attachMap[r.id]     || [],
     comments:    commentMap[r.id]    || [],
     submissions: submissionMap[r.id] || [],
+    collaborators: collaboratorMap[r.id] || [],
   }));
 }
 
