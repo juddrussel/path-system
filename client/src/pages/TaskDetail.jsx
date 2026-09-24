@@ -269,6 +269,9 @@ export default function TaskDetail() {
       if (!response.ok) throw new Error("The task could not be loaded.");
       const data = await response.json();
       const nextTask = data.task || data;
+      console.log("📥 TaskDetail loaded task:", nextTask);
+      console.log("📥 is_collaborative:", nextTask?.is_collaborative);
+      console.log("📥 collaborators array:", nextTask?.collaborators);
       setTask(nextTask);
       setComments(nextTask.comments || []);
       setDeadlineDraft(toDatetimeInput(nextTask.deadline || nextTask.due_date));
@@ -375,6 +378,17 @@ export default function TaskDetail() {
   const collaborators = task?.collaborators || []; // Array of all collaborators
   const collaborationStatus = task?.confirmation_status || "awaiting";
   const collaborationConfirmed = task?.task_collaborators || []; // Array with confirmed_at for each
+
+  // Debug collaborators
+  useEffect(() => {
+    console.log("🔍 isCollaborative:", isCollaborative);
+    console.log("🔍 collaborators:", collaborators);
+    console.log("🔍 user.id:", user?.id);
+    if (isCollaborative) {
+      const isUserCollab = collaborators.some(c => c.user_id === user.id);
+      console.log("🔍 isCurrentUserCollaborator:", isUserCollab);
+    }
+  }, [task, collaborators, user?.id, isCollaborative]);
   const taskIdentifier =
     task?.tracking_id ||
     task?.trackingId ||
@@ -1068,23 +1082,26 @@ export default function TaskDetail() {
                 {/* Only visible to assigned collaborators, not to task creator */}
                 {/* ─────────────────────────────────────────────────────────── */}
 
-                {task?.is_collaborative && isCurrentUserCollaborator && (
+                {task?.is_collaborative && (
                   <>
-                    {console.log("🔍 DEBUG TaskDetail: Rendering CollaborativeComments - is_collab:", task?.is_collaborative, "isUserCollab:", isCurrentUserCollaborator, "collaborators:", collaborators, "user.id:", user?.id)}
-                    <div style={{ padding: "0 4px" }}>
-                      <CollaborativeComments
-                        taskId={task.id}
-                        token={token}
-                        apiUrl={api}
-                        io={socket}
-                        currentUserId={user?.id}
-                        currentUserName={user?.full_name}
-                      />
-                    </div>
+                    {isCurrentUserCollaborator && (
+                      <>
+                        <div style={{ padding: "0 4px" }}>
+                          <CollaborativeComments
+                            taskId={task.id}
+                            token={token}
+                            apiUrl={api}
+                            io={socket}
+                            currentUserId={user?.id}
+                            currentUserName={user?.full_name}
+                          />
+                        </div>
 
-                    <div style={{ padding: "0 4px" }}>
-                      <TaskChangelog taskId={task.id} token={token} apiUrl={api} />
-                    </div>
+                        <div style={{ padding: "0 4px" }}>
+                          <TaskChangelog taskId={task.id} token={token} apiUrl={api} />
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
 
