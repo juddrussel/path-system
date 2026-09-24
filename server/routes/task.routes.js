@@ -2146,13 +2146,13 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
 
     const now = new Date();
     await db.query(
-      "INSERT INTO task_comments (task_id, sender_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-      [taskId, userId, content, now, now]
+      "INSERT INTO task_comments (task_id, sender_id, content, created_at) VALUES (?, ?, ?, ?)",
+      [taskId, userId, content, now]
     );
 
     // Fetch the newly created comment with user info
     const [comments] = await db.query(
-      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, u.full_name, u.email
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
        WHERE tc.task_id = ? ORDER BY tc.created_at DESC LIMIT 1`,
@@ -2184,7 +2184,6 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
       userEmail: comment.email,
       content: comment.content,
       createdAt: comment.created_at,
-      updatedAt: comment.updated_at,
     });
   } catch (err) {
     console.error("POST /api/tasks/:id/comments error:", err);
@@ -2229,7 +2228,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     }
 
     const [comments] = await db.query(
-      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, u.full_name, u.email
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
        WHERE tc.task_id = ?
@@ -2252,7 +2251,6 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
         userEmail: c.email,
         content: c.content,
         createdAt: c.created_at,
-        updatedAt: c.updated_at,
       })),
       total: countRows[0].total,
       limit,
