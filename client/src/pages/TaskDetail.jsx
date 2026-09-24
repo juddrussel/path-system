@@ -895,10 +895,12 @@ export default function TaskDetail() {
                     </div>
                   </div>
                   <div className="td-meta-grid">
-                    <Meta label="Assigned to" icon="user">
-                      <span className="td-avatar">{taskOwnerInitials}</span>
-                      {taskOwner}
-                    </Meta>
+                    {!isCollaborative && (
+                      <Meta label="Assigned to" icon="user">
+                        <span className="td-avatar">{taskOwnerInitials}</span>
+                        {taskOwner}
+                      </Meta>
+                    )}
                     {isCollaborative && collaborators.length > 0 && (
                       <Meta label="Collaborators" icon="users">
                         <div>
