@@ -1120,9 +1120,10 @@ export default function TaskDetail() {
 
                 {/* ─────────────────────────────────────────────────────────── */}
                 {/* Collaboration Features: Status, Comments, Changelog */}
+                {/* Only visible to assigned collaborators, not to task creator */}
                 {/* ─────────────────────────────────────────────────────────── */}
 
-                {task?.is_collaborative && (
+                {task?.is_collaborative && isCurrentUserCollaborator && (
                   <>
                     <div style={{ padding: "0 4px" }}>
                       <CollaborationStatus taskId={task.id} token={token} apiUrl={api} />
