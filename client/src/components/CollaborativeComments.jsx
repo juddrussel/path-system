@@ -218,394 +218,374 @@ export default function CollaborativeComments({
     return date.toLocaleDateString();
   };
 
-  const CommentThread = ({ comment, depth = 0 }) => (
-    <div key={comment.id} style={{ marginLeft: depth > 0 ? "16px" : "0" }}>
-      <div className={`cc-message ${comment.userId === currentUserId ? "cc-own" : ""}`}>
-        <div className="cc-message-header">
-          <strong>{comment.userName}</strong>
-          <small>{formatTime(comment.createdAt)}</small>
-        </div>
-        <div className="cc-message-content">{comment.content}</div>
-        {comment.files && comment.files.length > 0 && (
-          <div className="cc-message-files">
-            {comment.files.map((file, idx) => (
-              <a
-                key={idx}
-                href={file.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cc-file-link"
-                title={`${file.name} (${file.size} bytes)`}
+  const getInitials = (name) => {
+    if (!name) return "?";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const CommentThread = ({ comment, depth = 0 }) => {
+    const [showReplyInput, setShowReplyInput] = useState(false);
+    const [replyText, setReplyText] = useState("");
+    const [replySubmitting, setReplySubmitting] = useState(false);
+
+    const handleSubmitReply = async (e) => {
+      e.preventDefault();
+      if (!replyText.trim() || replySubmitting) return;
+
+      try {
+        setReplySubmitting(true);
+        const formData = new FormData();
+        formData.append("content", replyText.trim());
+        formData.append("parentCommentId", comment.id);
+
+        const res = await fetch(`${apiUrl}/api/tasks/${taskId}/comments`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Failed to submit reply");
+
+        setReplyText("");
+        setShowReplyInput(false);
+      } catch (err) {
+        console.error("Submit reply error:", err);
+      } finally {
+        setReplySubmitting(false);
+      }
+    };
+
+    return (
+      <div key={comment.id} style={{ marginLeft: depth > 0 ? "32px" : "0", marginBottom: "10px" }}>
+        <div className="cc-comment-item">
+          <div className="cc-avatar" style={{ background: ["#f3d9fa", "#d9f0fa", "#fad9e8"][comment.userId % 3] }}>
+            {getInitials(comment.userName)}
+          </div>
+          <div className="cc-comment-content">
+            <div className="cc-comment-header">
+              <strong>{comment.userName || "User"}</strong>
+              <span className="cc-comment-role">{comment.userRole || "Faculty lead"}</span>
+              <span className="cc-comment-dot">·</span>
+              <span className="cc-comment-time">Today · {formatTime(comment.createdAt)}</span>
+            </div>
+            <div className="cc-comment-text">{comment.content}</div>
+            {comment.files && comment.files.length > 0 && (
+              <div className="cc-comment-files">
+                {comment.files.map((file, idx) => (
+                  <a
+                    key={idx}
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cc-file-badge"
+                  >
+                    📎 {file.name}
+                  </a>
+                ))}
+              </div>
+            )}
+            <div className="cc-comment-actions">
+              <button
+                className="cc-action-btn"
+                onClick={() => setShowReplyInput(!showReplyInput)}
               >
-                📎 {file.name}
-              </a>
+                ↩ Reply
+              </button>
+            </div>
+            {showReplyInput && (
+              <form onSubmit={handleSubmitReply} className="cc-inline-reply">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder={`Reply to ${comment.userName.split(' ')[0]}...`}
+                  rows={2}
+                  disabled={replySubmitting}
+                  autoFocus
+                />
+                <div className="cc-inline-reply-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowReplyInput(false);
+                      setReplyText("");
+                    }}
+                    disabled={replySubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={!replyText.trim() || replySubmitting}>
+                    ↗ Reply
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="cc-replies-container">
+            {comment.replies.map((reply) => (
+              <CommentThread key={reply.id} comment={reply} depth={depth + 1} />
             ))}
           </div>
         )}
-        <div className="cc-message-actions">
-          {comment.userId === currentUserId && (
-            <button
-              className="cc-delete-btn"
-              onClick={() => handleDeleteComment(comment.id)}
-              title="Delete this comment"
-            >
-              ✕
-            </button>
-          )}
-          <button
-            className="cc-reply-btn"
-            onClick={() => setReplyingTo(comment.id)}
-            title="Reply to this comment"
-          >
-            ↩ Reply
-          </button>
-        </div>
       </div>
-      {comment.replies && comment.replies.length > 0 && (
-        <div className="cc-replies">
-          {comment.replies.map((reply) => (
-            <CommentThread key={reply.id} comment={reply} depth={depth + 1} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   if (loading) return <div className="cc-loading">Loading comments...</div>;
 
   const totalComments = comments.length + comments.reduce((sum, c) => sum + (c.replies?.length || 0), 0);
 
   return (
-    <div className="cc-container">
-      <div className="cc-header">
-        <span>Collaboration Discussion</span>
-        <em>{totalComments} comment{totalComments !== 1 ? "s" : ""}</em>
+    <div className="cc-discussion-container">
+      <div className="cc-meta-header">
+        <span>{totalComments} messages · {comments.filter(c => c.replies?.length > 0).length} replies</span>
       </div>
 
-      <div className="cc-messages" ref={scrollContainerRef}>
+      <div className="cc-thread" ref={scrollContainerRef}>
         {comments.length === 0 ? (
-          <div className="cc-empty">No comments yet. Start the conversation!</div>
+          <div className="cc-empty-state">
+            <p>No comments yet. Start the conversation!</p>
+          </div>
         ) : (
           comments.map((comment) => <CommentThread key={comment.id} comment={comment} />)
         )}
 
         {typingUsers.size > 0 && (
-          <div className="cc-typing">
-            <strong>{Array.from(typingUsers).length} typing...</strong>
+          <div className="cc-typing-indicator">
+            <em>{Array.from(typingUsers).length} typing...</em>
           </div>
         )}
       </div>
 
-      {replyingTo && (
-        <div className="cc-reply-context">
-          <span>Replying to comment #{replyingTo}</span>
-          <button type="button" onClick={() => setReplyingTo(null)}>
-            Cancel
-          </button>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmitComment} className="cc-composer">
-        <div className="cc-composer-input-group">
-          <textarea
-            value={newComment}
-            onChange={handleCommentChange}
-            placeholder={replyingTo ? "Write a reply..." : "Add a comment..."}
-            rows={2}
-            disabled={submitting}
-          />
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-          />
-          <button
-            type="button"
-            className="cc-file-picker-btn"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={submitting}
-            title="Attach files"
-          >
-            📎
-          </button>
-        </div>
+      <form onSubmit={handleSubmitComment} className="cc-main-composer">
+        <textarea
+          value={newComment}
+          onChange={handleCommentChange}
+          placeholder="Write a note, ask a question, or mention what needs checking..."
+          rows={3}
+          disabled={submitting}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
+          onChange={handleFileSelect}
+          style={{ display: "none" }}
+        />
         {newCommentFiles.length > 0 && (
-          <div className="cc-file-list">
+          <div className="cc-attached-files">
             {newCommentFiles.map((file, idx) => (
-              <div key={idx} className="cc-file-item">
-                <span>{file.name}</span>
-                <button type="button" onClick={() => handleRemoveFile(idx)}>
-                  ✕
-                </button>
+              <div key={idx} className="cc-attached-file">
+                <span>📎 {file.name}</span>
+                <button type="button" onClick={() => handleRemoveFile(idx)}>✕</button>
               </div>
             ))}
           </div>
         )}
-        <div className="cc-composer-actions">
-          <button type="submit" disabled={!newComment.trim() || submitting}>
-            {submitting ? "Sending..." : replyingTo ? "Reply" : "Send"}
-          </button>
+        <div className="cc-composer-footer">
+          <small>Ctrl / Cmd + Enter to send</small>
+          <div className="cc-composer-buttons">
+            <button
+              type="button"
+              className="cc-attach-btn"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={submitting}
+            >
+              📎 Add picture / PDF
+            </button>
+            <button type="submit" className="cc-send-btn" disabled={!newComment.trim() || submitting}>
+              ↗ Send message
+            </button>
+          </div>
         </div>
       </form>
 
-      {error && <div className="cc-error">{error}</div>}
+      {error && <div className="cc-error-message">{error}</div>}
 
       <style>{`
-  .cc-container {
-    margin-top: 24px;
-    padding: 0;
-    border: 1px solid #e5dff3;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #fdfbff 0%, #faf8ff 100%);
+  /* Discussion Container */
+  .cc-discussion-container {
     display: flex;
     flex-direction: column;
-    height: 500px;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.08);
-    overflow: hidden;
-  }
-
-  .cc-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #f0ebfa 0%, #f5f0fb 100%);
-    border-bottom: 1px solid #e9ddfb;
-  }
-
-  .cc-header span {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #4a3a55;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .cc-header em {
-    font-style: normal;
-    padding: 4px 10px;
+    gap: 0;
     background: #fff;
-    border: 1px solid #e5dff3;
-    border-radius: 6px;
-    color: #8d7e98;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    border-radius: 8px;
   }
 
-  .cc-loading,
-  .cc-messages {
-    flex: 1;
+  .cc-meta-header {
+    padding: 0 0 10px 0;
+    font-size: 10px;
+    color: #9d91a5;
+    letter-spacing: 0.02em;
+  }
+
+  /* Thread Area */
+  .cc-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 400px;
     overflow-y: auto;
-    padding: 16px 20px;
-    display: grid;
-    gap: 12px;
-    align-content: start;
+    padding: 12px 0;
+    margin-bottom: 16px;
   }
 
-  .cc-loading {
-    align-items: center;
-    justify-content: center;
+  .cc-thread::-webkit-scrollbar {
+    width: 5px;
   }
 
-  .cc-messages::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .cc-messages::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .cc-messages::-webkit-scrollbar-thumb {
-    background: #d4c8e3;
+  .cc-thread::-webkit-scrollbar-track {
+    background: #f8f5fc;
     border-radius: 3px;
   }
 
-  .cc-messages::-webkit-scrollbar-thumb:hover {
-    background: #c5b7d5;
+  .cc-thread::-webkit-scrollbar-thumb {
+    background: #d9cbe6;
+    border-radius: 3px;
   }
 
-  .cc-empty {
-    padding: 40px 20px;
+  .cc-empty-state {
     text-align: center;
+    padding: 40px 20px;
     color: #b0a0bd;
-    font-size: 13px;
+    font-size: 11px;
   }
 
-  .cc-message {
-    padding: 12px;
-    border-radius: 8px;
-    background: #fff;
-    border: 1px solid #e9ddfb;
-    font-size: 12px;
-    transition: all 0.2s ease;
-  }
-
-  .cc-message:hover {
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
-    border-color: #dfc8f0;
-    background: #fafafe;
-  }
-
-  .cc-message.cc-own {
-    background: linear-gradient(135deg, #eef6fb 0%, #f0f9ff 100%);
-    border-color: #d4e4f0;
-  }
-
-  .cc-message-header {
+  /* Comment Item */
+  .cc-comment-item {
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 8px;
-    align-items: center;
+    gap: 10px;
+    align-items: flex-start;
   }
 
-  .cc-message-header strong {
-    font-size: 12px;
+  .cc-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: #5a4768;
+    flex-shrink: 0;
+  }
+
+  .cc-comment-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cc-comment-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  .cc-comment-header strong {
+    font-size: 11px;
     font-weight: 700;
     color: #3a2a45;
   }
 
-  .cc-message-header small {
+  .cc-comment-role {
     font-size: 10px;
-    color: #9a8ba6;
+    color: #9d8fa8;
   }
 
-  .cc-message-content {
+  .cc-comment-dot {
+    font-size: 10px;
+    color: #d0c4db;
+  }
+
+  .cc-comment-time {
+    font-size: 10px;
+    color: #b0a0bd;
+  }
+
+  .cc-comment-text {
+    font-size: 11px;
     color: #5d4867;
     line-height: 1.5;
+    margin-bottom: 6px;
     word-wrap: break-word;
-    white-space: pre-wrap;
-    margin-bottom: 8px;
   }
 
-  .cc-message-files {
+  .cc-comment-files {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 6px;
-    margin: 8px 0;
-    padding: 8px 10px;
-    background: #f8f5fc;
-    border-radius: 6px;
-    border: 1px solid #e9ddfb;
+    margin-bottom: 6px;
   }
 
-  .cc-file-link {
-    font-size: 11px;
+  .cc-file-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: #f5f0fb;
+    border: 1px solid #e5dff3;
+    border-radius: 5px;
+    font-size: 10px;
     color: #7c3aed;
     text-decoration: none;
-    word-break: break-all;
     transition: all 0.2s;
+  }
+
+  .cc-file-badge:hover {
+    background: #ede7fb;
+    border-color: #7c3aed;
+  }
+
+  .cc-comment-actions {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 500;
+    gap: 8px;
+    margin-top: 4px;
   }
 
-  .cc-file-link:hover {
-    color: #5b21b6;
-  }
-
-  .cc-message-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
-  }
-
-  .cc-delete-btn, .cc-reply-btn {
-    padding: 4px 8px;
-    border: 1px solid #e0d5ef;
+  .cc-action-btn {
+    padding: 3px 7px;
+    border: 1px solid #e9ddfb;
     border-radius: 4px;
-    background: #f5f0fb;
+    background: #faf8fc;
     color: #8d7e98;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     cursor: pointer;
-    opacity: 0;
     transition: all 0.2s;
   }
 
-  .cc-message:hover .cc-delete-btn,
-  .cc-message:hover .cc-reply-btn {
-    opacity: 1;
-  }
-
-  .cc-delete-btn:hover, .cc-reply-btn:hover {
-    background: #e9ddfb;
-    color: #5d4867;
+  .cc-action-btn:hover {
+    background: #f0ebfa;
     border-color: #dfc8f0;
+    color: #6d5b7d;
   }
 
-  .cc-replies {
+  /* Inline Reply Form */
+  .cc-inline-reply {
     margin-top: 10px;
-    padding-left: 14px;
-    border-left: 2px solid #e9ddfb;
-  }
-
-  .cc-reply-context {
+    padding: 10px;
+    background: #fcfaff;
+    border: 1px solid #e9ddfb;
+    border-radius: 7px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    background: #fffbeb;
-    border: 1px solid #fcdab7;
-    border-radius: 6px;
-    margin: 0 20px 12px 20px;
-    font-size: 11px;
-    color: #92400e;
-  }
-
-  .cc-reply-context button {
-    padding: 3px 8px;
-    border: 1px solid #fbbf24;
-    border-radius: 4px;
-    background: #fef3c7;
-    color: #92400e;
-    font-size: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 600;
-  }
-
-  .cc-reply-context button:hover {
-    background: #fbbf24;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  .cc-typing {
-    padding: 6px 20px;
-    font-size: 11px;
-    color: #9a88a6;
-    font-style: italic;
-  }
-
-  .cc-composer {
-    margin: 12px 20px 20px 20px;
-    padding-top: 12px;
-    border-top: 1px solid #e9ddfb;
-    display: grid;
+    flex-direction: column;
     gap: 8px;
   }
 
-  .cc-composer-input-group {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .cc-composer textarea {
-    flex: 1;
-    padding: 10px 12px;
+  .cc-inline-reply textarea {
+    width: 100%;
+    padding: 8px 10px;
     border: 1px solid #e0d5ef;
-    border-radius: 8px;
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 12px;
+    border-radius: 6px;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 10px;
     color: #5d4867;
     resize: none;
     outline: none;
@@ -613,132 +593,207 @@ export default function CollaborativeComments({
     background: #fff;
   }
 
-  .cc-composer textarea::placeholder {
-    color: #b0a0bd;
+  .cc-inline-reply textarea:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
   }
 
-  .cc-composer textarea:focus {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-    background: #fafbff;
+  .cc-inline-reply-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
   }
 
-  .cc-composer textarea:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .cc-file-picker-btn {
-    padding: 10px 12px;
-    border: 1px solid #7c3aed;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-    color: #fff;
-    font-size: 16px;
+  .cc-inline-reply-actions button {
+    padding: 5px 10px;
+    border: 1px solid #e0d5ef;
+    border-radius: 5px;
+    background: #fff;
+    color: #8d7e98;
+    font-size: 9px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
-    line-height: 1;
-    font-weight: 600;
-    flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
   }
 
-  .cc-file-picker-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
-    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
-    transform: translateY(-1px);
+  .cc-inline-reply-actions button[type="submit"] {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: #fff;
   }
 
-  .cc-file-picker-btn:disabled {
+  .cc-inline-reply-actions button:hover:not(:disabled) {
+    background: #6d28d9;
+    border-color: #6d28d9;
+    color: #fff;
+  }
+
+  .cc-inline-reply-actions button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .cc-file-list {
+  /* Replies Container */
+  .cc-replies-container {
+    margin-top: 10px;
+  }
+
+  /* Main Composer */
+  .cc-main-composer {
+    padding: 16px;
+    background: #faf8fc;
+    border: 1px solid #e9ddfb;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cc-main-composer textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e0d5ef;
+    border-radius: 7px;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 11px;
+    color: #5d4867;
+    resize: vertical;
+    outline: none;
+    transition: all 0.2s;
+    background: #fff;
+    min-height: 80px;
+  }
+
+  .cc-main-composer textarea::placeholder {
+    color: #b0a0bd;
+  }
+
+  .cc-main-composer textarea:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+  }
+
+  .cc-main-composer textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .cc-attached-files {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 8px;
-    background: #f8f5fc;
-    border-radius: 6px;
-    border: 1px solid #e9ddfb;
   }
 
-  .cc-file-item {
+  .cc-attached-file {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 8px;
+    padding: 6px 10px;
     background: #fff;
-    border-radius: 4px;
-    border: 1px solid #e0d5ef;
-    font-size: 11px;
+    border: 1px solid #e9ddfb;
+    border-radius: 5px;
+    font-size: 10px;
     color: #5d4867;
-    transition: all 0.2s;
   }
 
-  .cc-file-item:hover {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border-color: #dfc8f0;
-  }
-
-  .cc-file-item button {
-    padding: 2px 4px;
+  .cc-attached-file button {
+    padding: 2px 5px;
     border: none;
     background: transparent;
     color: #9a8ba6;
     font-size: 10px;
     cursor: pointer;
-    transition: color 0.2s;
     font-weight: 600;
   }
 
-  .cc-file-item button:hover {
-    color: #7c3aed;
+  .cc-attached-file button:hover {
+    color: #b55e51;
   }
 
-  .cc-composer-actions {
+  .cc-composer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cc-composer-footer small {
+    font-size: 9px;
+    color: #b0a0bd;
+  }
+
+  .cc-composer-buttons {
     display: flex;
     gap: 8px;
   }
 
-  .cc-composer button {
-    padding: 8px 14px;
+  .cc-attach-btn,
+  .cc-send-btn {
+    padding: 7px 12px;
     border: 1px solid #d9cbe6;
     border-radius: 6px;
-    background: #fff;
-    color: #5d4867;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
 
-  .cc-composer button:hover:not(:disabled) {
+  .cc-attach-btn {
+    background: #fff;
+    color: #7c3aed;
     border-color: #7c3aed;
+  }
+
+  .cc-attach-btn:hover:not(:disabled) {
+    background: #f5f0fb;
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.15);
+  }
+
+  .cc-send-btn {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    border-color: #7c3aed;
     color: #fff;
-    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
+  }
+
+  .cc-send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+    box-shadow: 0 3px 8px rgba(124, 58, 237, 0.35);
     transform: translateY(-1px);
   }
 
-  .cc-composer button:disabled {
+  .cc-attach-btn:disabled,
+  .cc-send-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
   }
 
-  .cc-error {
+  /* Typing Indicator */
+  .cc-typing-indicator {
+    padding: 6px 0;
+    font-size: 10px;
+    color: #9a88a6;
+    font-style: italic;
+  }
+
+  /* Error Message */
+  .cc-error-message {
     margin-top: 8px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border-radius: 6px;
     background: #fff9f8;
     border: 1px solid #f5d1cc;
     color: #b55e51;
+    font-size: 10px;
+  }
+
+  /* Loading State */
+  .cc-loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: #b0a0bd;
     font-size: 11px;
-    margin-left: 20px;
-    margin-right: 20px;
   }
 `}</style>
     </div>

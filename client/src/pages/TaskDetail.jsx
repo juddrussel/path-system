@@ -1224,212 +1224,22 @@ export default function TaskDetail() {
 
                     {/* DISCUSSION SECTION */}
                     <section className="td-card">
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-                        <div>
-                          <span style={{ display: "block", color: "#8a8899", fontSize: "10px", fontWeight: "800", letterSpacing: ".08em", textTransform: "uppercase" }}>
-                            Discussion
-                          </span>
-                          <h2 style={{ margin: "3px 0 0", color: "#3d2a4a", font: "800 16px 'Manrope', sans-serif", letterSpacing: "-.04em" }}>
-                            Working notes & questions
-                          </h2>
-                        </div>
-                        <small style={{ color: "#9d8fa8", fontSize: "9px", fontWeight: "700" }}>
-                          {comments?.length || 0} message{comments?.length !== 1 ? "s" : ""} · 1 replies
-                        </small>
+                      <div style={{ marginBottom: "12px" }}>
+                        <span style={{ display: "block", color: "#8a8899", fontSize: "10px", fontWeight: "800", letterSpacing: ".08em", textTransform: "uppercase" }}>
+                          Discussion
+                        </span>
+                        <h2 style={{ margin: "3px 0 0", color: "#3d2a4a", font: "800 16px 'Manrope', sans-serif", letterSpacing: "-.04em" }}>
+                          Working notes & questions
+                        </h2>
                       </div>
-
-                      {/* Comments Thread */}
-                      <div style={{ display: "grid", gap: "12px", marginBottom: "14px" }}>
-                        {comments && comments.length > 0 ? (
-                          comments.map((comment, idx) => (
-                            <div key={idx} style={{ display: "grid", gap: "10px" }}>
-                              {/* Main Comment */}
-                              <div style={{
-                                display: "flex",
-                                gap: "10px",
-                                padding: "10px",
-                                borderRadius: "8px",
-                                background: "#f9f7fb",
-                                border: "1px solid #ede9f2"
-                              }}>
-                                <div style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  borderRadius: "6px",
-                                  background: ["#fce7f3", "#dbeafe", "#e0e7ff", "#fef3c7"][idx % 4],
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  color: "#5a4768",
-                                  fontWeight: "800",
-                                  fontSize: "11px",
-                                  flexShrink: 0
-                                }}>
-                                  {comment.initials || "U"}
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                                    <strong style={{ color: "#3d2a4a", fontSize: "10px", fontWeight: "800" }}>
-                                      {comment.author || "Faculty"}
-                                    </strong>
-                                    <small style={{ color: "#9d8fa8", fontSize: "8px" }}>
-                                      {comment.role || "Faculty lead"} · {comment.time || "Today, 9:42 AM"}
-                                    </small>
-                                  </div>
-                                  <p style={{ margin: "0", color: "#5a4768", fontSize: "10px", lineHeight: "1.5" }}>
-                                    {comment.body || comment.content}
-                                  </p>
-                                  <button style={{
-                                    marginTop: "6px",
-                                    background: "none",
-                                    border: "none",
-                                    color: "#7551b3",
-                                    fontSize: "8px",
-                                    fontWeight: "800",
-                                    cursor: "pointer",
-                                    padding: "0"
-                                  }}>
-                                    ↪ Reply
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Reply If Exists */}
-                              {comment.replies && comment.replies.length > 0 && (
-                                <div style={{ marginLeft: "24px", display: "flex", gap: "10px" }}>
-                                  <div style={{
-                                    width: "32px",
-                                    height: "32px",
-                                    borderRadius: "6px",
-                                    background: "#e8d9ff",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: "#5a4768",
-                                    fontWeight: "800",
-                                    fontSize: "11px",
-                                    flexShrink: 0
-                                  }}>
-                                    {comment.replies[0].initials || "U"}
-                                  </div>
-                                  <div style={{ flex: 1, minWidth: 0, padding: "10px", borderRadius: "8px", background: "#f0f0f0", border: "1px solid #e0e0e0" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                                      <strong style={{ color: "#3d2a4a", fontSize: "10px", fontWeight: "800" }}>
-                                        {comment.replies[0].author}
-                                      </strong>
-                                      <small style={{ color: "#9d8fa8", fontSize: "8px" }}>
-                                        {comment.replies[0].time}
-                                      </small>
-                                    </div>
-                                    <p style={{ margin: "0", color: "#5a4768", fontSize: "10px", lineHeight: "1.5" }}>
-                                      {comment.replies[0].body}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <p style={{ color: "#9d8fa8", fontSize: "10px", fontStyle: "italic", margin: "0", padding: "10px" }}>
-                            No discussion notes yet. Start a conversation.
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Reply Input */}
-                      <div style={{
-                        padding: "10px",
-                        borderRadius: "8px",
-                        border: "1px solid #e5d9ee",
-                        background: "#fcfaff",
-                        marginBottom: "12px"
-                      }}>
-                        <textarea
-                          placeholder="Reply to Sarah Bennett…"
-                          style={{
-                            width: "100%",
-                            padding: "8px",
-                            borderRadius: "6px",
-                            border: "1px solid #e0d9e9",
-                            background: "#fff",
-                            color: "#5a4768",
-                            fontSize: "9px",
-                            fontFamily: "'DM Sans', sans-serif",
-                            resize: "vertical",
-                            minHeight: "50px",
-                            outline: "none"
-                          }}
-                        />
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
-                          <button style={{
-                            padding: "6px 11px",
-                            borderRadius: "6px",
-                            border: "none",
-                            background: "#8b5cf6",
-                            color: "#fff",
-                            fontSize: "9px",
-                            fontWeight: "800",
-                            cursor: "pointer"
-                          }}>
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Main Message Input */}
-                      <div>
-                        <textarea
-                          placeholder="Write a note, ask a question, or mention what needs checking…"
-                          style={{
-                            width: "100%",
-                            padding: "10px",
-                            borderRadius: "8px",
-                            border: "1px solid #e5d9ee",
-                            background: "#fff",
-                            color: "#5a4768",
-                            fontSize: "9px",
-                            fontFamily: "'DM Sans', sans-serif",
-                            resize: "vertical",
-                            minHeight: "70px",
-                            outline: "none"
-                          }}
-                        />
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "8px" }}>
-                          <small style={{ color: "#9d8fa8", fontSize: "8px" }}>Ctrl / Cmd + Enter to send</small>
-                          <div style={{ display: "flex", gap: "6px" }}>
-                            <button style={{
-                              padding: "6px 10px",
-                              borderRadius: "6px",
-                              border: "none",
-                              background: "#8b5cf6",
-                              color: "#fff",
-                              fontSize: "9px",
-                              fontWeight: "800",
-                              cursor: "pointer",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "4px"
-                            }}>
-                              🖼️ Add picture / PDF
-                            </button>
-                            <button style={{
-                              padding: "6px 10px",
-                              borderRadius: "6px",
-                              border: "none",
-                              background: "#8b5cf6",
-                              color: "#fff",
-                              fontSize: "9px",
-                              fontWeight: "800",
-                              cursor: "pointer",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "4px"
-                            }}>
-                              ✉️ Send message
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                      <CollaborativeComments
+                        taskId={task.id}
+                        token={token}
+                        apiUrl={api}
+                        io={socket}
+                        currentUserId={user?.id}
+                        currentUserName={user?.full_name}
+                      />
                     </section>
                   </>
                 )}
