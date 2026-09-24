@@ -1510,6 +1510,7 @@ router.post("/:id/cancel-confirmation", requireAuth, async (req, res) => {
     });
 
     // Notify other collaborators
+    const io = req.app.get("io");
     const [allCollaborators] = await db.query(
       "SELECT id, user_id FROM task_collaborators WHERE task_id = ?",
       [taskId]
