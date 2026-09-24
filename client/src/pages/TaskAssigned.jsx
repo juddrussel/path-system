@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import CollaborativeComments from "../components/CollaborativeComments";
+import TaskChangelog from "../components/TaskChangelog";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
@@ -5205,6 +5207,40 @@ export default function TaskAssigned() {
                           </div>
                         </div>
                       </div>
+
+                      {/* ── COLLABORATION DISCUSSION ───────────────────────────── */}
+                      {selected.is_collaborative && (
+                        <>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 700,
+                              letterSpacing: 1,
+                              color: "#7b7486",
+                              textTransform: "uppercase",
+                              marginBottom: 14,
+                              marginTop: 20,
+                            }}
+                          >
+                            Discussion
+                          </div>
+
+                          <div style={{ padding: "0 4px", marginBottom: 20 }}>
+                            <CollaborativeComments
+                              taskId={selected.id}
+                              token={token}
+                              apiUrl={API}
+                              io={socketRef.current}
+                              currentUserId={user?.id}
+                              currentUserName={user?.full_name}
+                            />
+                          </div>
+
+                          <div style={{ padding: "0 4px", marginBottom: 20 }}>
+                            <TaskChangelog taskId={selected.id} token={token} apiUrl={API} />
+                          </div>
+                        </>
+                      )}
 
                       <div
                         style={{
