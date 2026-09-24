@@ -202,6 +202,7 @@ export default function CollaborativeComments({
         formData.append("files", file);
       });
 
+      console.log(`[CollaborativeComments] Submitting comment to task ${taskId}`);
       const res = await fetch(`${apiUrl}/api/tasks/${taskId}/comments`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -210,12 +211,19 @@ export default function CollaborativeComments({
 
       if (!res.ok) throw new Error("Failed to submit comment");
 
+      const newCommentData = await res.json();
+      console.log(`[CollaborativeComments] Comment submitted, id=${newCommentData.id}`, newCommentData);
+
       setNewComment("");
       setNewCommentFiles([]);
       setReplyingTo(null);
+      
       if (io) {
         io.emit("stop_typing", { taskId });
       }
+
+      // Reload comments to ensure we have the latest
+      await loadComments();
     } catch (err) {
       console.error("Submit comment error:", err);
       setError(err.message);

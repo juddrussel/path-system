@@ -2188,7 +2188,19 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
     );
 
     const comment = comments[0];
-    const parsedFiles = comment.files ? JSON.parse(comment.files) : [];
+    let parsedFiles = [];
+    try {
+      if (comment.files) {
+        if (typeof comment.files === 'string') {
+          parsedFiles = JSON.parse(comment.files);
+        } else if (typeof comment.files === 'object') {
+          parsedFiles = comment.files;
+        }
+      }
+    } catch (e) {
+      console.error(`Failed to parse files for comment ${comment.id}:`, e.message);
+      parsedFiles = [];
+    }
 
     const commentObj = {
       id: comment.id,
@@ -2196,6 +2208,7 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       userId: comment.sender_id,
       userName: comment.full_name,
       userEmail: comment.email,
+      userRole: "Faculty lead",
       parentCommentId: comment.parent_comment_id,
       content: comment.content,
       files: parsedFiles,
@@ -2205,10 +2218,14 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
     // Broadcast via WebSocket to all collaborators in this task's room
     const io = req.app.get("io");
     if (io) {
+      console.log(`[POST /tasks/:id/comments] Broadcasting task:comment_added to task_${taskId}`);
       io.to(`task_${taskId}`).emit("task:comment_added", {
         taskId,
         comment: commentObj,
       });
+      console.log(`[POST /tasks/:id/comments] Broadcast sent for taskId=${taskId}, commentId=${comment.id}`);
+    } else {
+      console.error(`[POST /tasks/:id/comments] Socket.io instance not found!`);
     }
 
     // Track in changelog with detailed file information
@@ -2293,9 +2310,16 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     allComments.forEach(comment => {
       let parsedFiles = [];
       try {
-        parsedFiles = comment.files ? JSON.parse(comment.files) : [];
+        if (comment.files) {
+          // Check if files is already an object or a string
+          if (typeof comment.files === 'string') {
+            parsedFiles = JSON.parse(comment.files);
+          } else if (typeof comment.files === 'object') {
+            parsedFiles = comment.files;
+          }
+        }
       } catch (e) {
-        console.error(`Failed to parse files for comment ${comment.id}:`, e);
+        console.error(`Failed to parse files for comment ${comment.id}:`, e.message, comment.files);
         parsedFiles = [];
       }
 
