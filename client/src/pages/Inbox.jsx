@@ -995,7 +995,7 @@ export default function Inbox() {
   }, [activeConv, socket]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Auto-scroll removed per user request
   }, [messages, docComments, otherTyping]);
 
   useEffect(() => { fetchConversations(); fetchAllUsers(); fetchUnreadCount(); fetchGroups(); }, []);
@@ -2640,7 +2640,7 @@ export default function Inbox() {
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="20" height="20"><circle cx="12" cy="12" r="9" /><path d="M9 10h.01M15 10h.01M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8" strokeLinecap="round" /></svg>
                     </button>
-                    <button onClick={sendDm} disabled={!dmInput.trim() && !dmFile} style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "#6b38d4", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !dmInput.trim() && !dmFile ? 0.5 : 1, boxShadow: "0 2px 6px rgba(107,56,212,0.3)" }}>
+                    <button onClick={sendDm} style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "#6b38d4", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !dmInput.trim() && !dmFile ? 0.5 : 1, boxShadow: "0 2px 6px rgba(107,56,212,0.3)" }}>
                       <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M1 1l14 7-14 7V9l10-2L1 5V1z" /></svg>
                     </button>
                   </div>
@@ -2897,8 +2897,7 @@ export default function Inbox() {
                       rows={1}
                       style={{ flex: 1, border: "none", background: "transparent", outline: "none", resize: "none", fontSize: 13.5, color: "#181445", padding: "9px 4px", lineHeight: 1.5, maxHeight: 100, overflowY: "auto", fontFamily: "inherit" }}
                     />
-                    <button onClick={sendGroupMessage} disabled={!groupInput.trim() && !groupFile}
-                      style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "#6b38d4", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !groupInput.trim() && !groupFile ? 0.5 : 1, boxShadow: "0 2px 6px rgba(107,56,212,0.3)" }}>
+                    <button onClick={sendGroupMessage} style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "#6b38d4", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !groupInput.trim() && !groupFile ? 0.5 : 1, boxShadow: "0 2px 6px rgba(107,56,212,0.3)" }}>
                       <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M1 1l14 7-14 7V9l10-2L1 5V1z" /></svg>
                     </button>
                   </div>
@@ -2975,7 +2974,7 @@ export default function Inbox() {
                     rows={1}
                     style={{ flex: 1, padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 10, fontSize: 13, outline: "none", resize: "none", fontFamily: "inherit", lineHeight: 1.5, maxHeight: 100, overflowY: "auto" }}
                   />
-                  <button onClick={sendDocComment} disabled={!docInput.trim() && !docFile} style={{ width: 34, height: 34, borderRadius: 8, border: "none", background: "#7c3aed", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !docInput.trim() && !docFile ? 0.5 : 1 }}>
+                  <button onClick={sendDocComment} style={{ width: 34, height: 34, borderRadius: 8, border: "none", background: "#7c3aed", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: !docInput.trim() && !docFile ? 0.5 : 1 }}>
                     <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M1 1l14 7-14 7V9l10-2L1 5V1z" /></svg>
                   </button>
                 </div>

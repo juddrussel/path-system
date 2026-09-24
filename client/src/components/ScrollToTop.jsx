@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
 
   const toggleVisibility = () => {
     if (window.scrollY > 300) {
@@ -22,6 +24,11 @@ export default function ScrollToTop() {
     window.addEventListener("scroll", toggleVisibility);
     return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
+
+  // Only show on pages OTHER than Inbox
+  const isInboxPage = location.pathname === "/inbox";
+
+  if (isInboxPage) return null;
 
   return (
     <button
