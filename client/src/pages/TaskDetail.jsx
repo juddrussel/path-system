@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
+import CollaborationStatus from "../components/CollaborationStatus";
+import CollaborativeComments from "../components/CollaborativeComments";
+import TaskChangelog from "../components/TaskChangelog";
 
 /*
   Router integration requirement (React Router v6):
@@ -1114,6 +1117,33 @@ export default function TaskDetail() {
                     );
                   })()}
                 </section>
+
+                {/* ─────────────────────────────────────────────────────────── */}
+                {/* Collaboration Features: Status, Comments, Changelog */}
+                {/* ─────────────────────────────────────────────────────────── */}
+
+                {task?.is_collaborative && (
+                  <>
+                    <div style={{ padding: "0 4px" }}>
+                      <CollaborationStatus taskId={task.id} token={token} apiUrl={api} />
+                    </div>
+
+                    <div style={{ padding: "0 4px" }}>
+                      <CollaborativeComments
+                        taskId={task.id}
+                        token={token}
+                        apiUrl={api}
+                        io={socket}
+                        currentUserId={user?.id}
+                        currentUserName={user?.full_name}
+                      />
+                    </div>
+
+                    <div style={{ padding: "0 4px" }}>
+                      <TaskChangelog taskId={task.id} token={token} apiUrl={api} />
+                    </div>
+                  </>
+                )}
 
                 {isFacultyView && (
                   isUnderReview ? (

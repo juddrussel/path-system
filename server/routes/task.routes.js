@@ -1676,6 +1676,36 @@ router.patch("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
 
+    const task = rows[0];
+    const taskId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const now = new Date();
+
+    // Track changes in changelog before updating
+    const trackedFields = ["title", "doc_type", "priority", "deadline", "notes", "faculty_id"];
+    const changeLog = [];
+
+    for (const field of trackedFields) {
+      const reqField = field;
+      if (req.body[reqField] !== undefined && req.body[reqField] !== null) {
+        const oldValue = task[field];
+        const newValue = req.body[reqField];
+        
+        // Only log if value actually changed
+        if (oldValue !== newValue) {
+          changeLog.push({
+            taskId,
+            fieldName: field,
+            oldValue: oldValue ? String(oldValue) : null,
+            newValue: String(newValue),
+            changedBy: userId,
+            changedAt: now,
+          });
+        }
+      }
+    }
+
+    // Update the task
     await db.query(
       `UPDATE tasks
        SET title      = COALESCE(?, title),
@@ -1686,15 +1716,40 @@ router.patch("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
            faculty_id = COALESCE(?, faculty_id),
            updated_at = NOW()
        WHERE id = ?`,
-      [title, doc_type, priority, deadline, notes, faculty_id, req.params.id]
+      [title, doc_type, priority, deadline, notes, faculty_id, taskId]
     );
-    await writeLog({ userId: req.user.id, action: "TASK_EDIT", detail: `Edited task ${rows[0].tracking_id}`, ipAddress: req.ip });
+
+    // Insert changelog entries
+    for (const change of changeLog) {
+      await db.query(
+        `INSERT INTO task_changelog (task_id, field_name, old_value, new_value, changed_by, changed_at)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [change.taskId, change.fieldName, change.oldValue, change.newValue, change.changedBy, change.changedAt]
+      );
+    }
+
+    await writeLog({ userId: req.user.id, action: "TASK_EDIT", detail: `Edited task ${task.tracking_id}`, ipAddress: req.ip });
 
     // If the deadline moved via this general edit endpoint too, clear any
     // stale reminders so they can re-fire for the new date — same as the
     // dedicated /:id/deadline route above.
     if (deadline) {
-      await clearDeadlineReminderRows(req.params.id);
+      await clearDeadlineReminderRows(taskId);
+    }
+
+    // Broadcast changes via WebSocket
+    const io = req.app.get("io");
+    if (io && changeLog.length > 0) {
+      io.to(`task_${taskId}`).emit("task:fields_updated", {
+        taskId,
+        changes: changeLog.map(c => ({
+          fieldName: c.fieldName,
+          oldValue: c.oldValue,
+          newValue: c.newValue,
+          changedBy: userId,
+          changedAt: c.changedAt,
+        })),
+      });
     }
 
     return res.json({ message: "Task updated." });
@@ -2123,6 +2178,332 @@ router.delete("/:id/archive-for-me", requireAuth, async (req, res) => {
     return res.json({ message: "Task unarchived for you." });
   } catch (err) {
     console.error("DELETE /tasks/:id/archive-for-me error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────── COLLABORATIVE FEATURES: Comments, Changelog ───────────────
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── POST /api/tasks/:id/comments ────────────────────────────────────────────
+// Add a comment to a task's discussion thread
+router.post("/:id/comments", requireAuth, async (req, res) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    const { content } = req.body;
+    const userId = req.user.id;
+
+    if (!content || content.trim() === "") {
+      return res.status(400).json({ message: "Comment cannot be empty." });
+    }
+
+    // Verify user has access to this task
+    const [taskRows] = await db.query(
+      `SELECT t.id FROM tasks t
+       WHERE t.id = ? AND (
+         t.faculty_id = ? OR t.collaborator_id = ? OR 
+         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
+       )`,
+      [taskId, userId, userId, userId]
+    );
+
+    if (taskRows.length === 0) {
+      return res.status(403).json({ message: "You don't have access to this task." });
+    }
+
+    const now = new Date();
+    await db.query(
+      "INSERT INTO task_comments (task_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+      [taskId, userId, content, now, now]
+    );
+
+    // Fetch the newly created comment with user info
+    const [comments] = await db.query(
+      `SELECT tc.id, tc.task_id, tc.user_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+       FROM task_comments tc
+       JOIN users u ON u.id = tc.user_id
+       WHERE tc.task_id = ? ORDER BY tc.created_at DESC LIMIT 1`,
+      [taskId]
+    );
+
+    const comment = comments[0];
+
+    // Broadcast via WebSocket to all users in this task's room
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`task_${taskId}`).emit("task:new_comment", {
+        id: comment.id,
+        taskId: comment.task_id,
+        userId: comment.user_id,
+        userName: comment.full_name,
+        userEmail: comment.email,
+        content: comment.content,
+        createdAt: comment.created_at,
+        updatedAt: comment.updated_at,
+      });
+    }
+
+    return res.json({
+      id: comment.id,
+      taskId: comment.task_id,
+      userId: comment.user_id,
+      userName: comment.full_name,
+      userEmail: comment.email,
+      content: comment.content,
+      createdAt: comment.created_at,
+      updatedAt: comment.updated_at,
+    });
+  } catch (err) {
+    console.error("POST /api/tasks/:id/comments error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─── GET /api/tasks/:id/comments ────────────────────────────────────────────
+// Fetch paginated comments for a task
+router.get("/:id/comments", requireAuth, async (req, res) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
+
+    // Verify access
+    const [taskRows] = await db.query(
+      `SELECT t.id FROM tasks t
+       WHERE t.id = ? AND (
+         t.faculty_id = ? OR t.collaborator_id = ? OR 
+         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
+       )`,
+      [taskId, userId, userId, userId]
+    );
+
+    if (taskRows.length === 0) {
+      return res.status(403).json({ message: "You don't have access to this task." });
+    }
+
+    const [comments] = await db.query(
+      `SELECT tc.id, tc.task_id, tc.user_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+       FROM task_comments tc
+       JOIN users u ON u.id = tc.user_id
+       WHERE tc.task_id = ?
+       ORDER BY tc.created_at ASC
+       LIMIT ? OFFSET ?`,
+      [taskId, limit, offset]
+    );
+
+    const [countRows] = await db.query(
+      "SELECT COUNT(*) AS total FROM task_comments WHERE task_id = ?",
+      [taskId]
+    );
+
+    return res.json({
+      comments: comments.map(c => ({
+        id: c.id,
+        taskId: c.task_id,
+        userId: c.user_id,
+        userName: c.full_name,
+        userEmail: c.email,
+        content: c.content,
+        createdAt: c.created_at,
+        updatedAt: c.updated_at,
+      })),
+      total: countRows[0].total,
+      limit,
+      offset,
+    });
+  } catch (err) {
+    console.error("GET /api/tasks/:id/comments error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─── DELETE /api/comments/:id ───────────────────────────────────────────────
+// Delete a comment (only by author or admin)
+router.delete("/comments/:commentId", requireAuth, async (req, res) => {
+  try {
+    const commentId = parseInt(req.params.commentId);
+    const userId = req.user.id;
+
+    const [comments] = await db.query(
+      "SELECT id, task_id, user_id FROM task_comments WHERE id = ?",
+      [commentId]
+    );
+
+    if (comments.length === 0) {
+      return res.status(404).json({ message: "Comment not found." });
+    }
+
+    const comment = comments[0];
+
+    // Only allow deletion by comment author or admins
+    if (comment.user_id !== userId && req.user.role !== "admin") {
+      return res.status(403).json({ message: "You can only delete your own comments." });
+    }
+
+    await db.query("DELETE FROM task_comments WHERE id = ?", [commentId]);
+
+    // Broadcast deletion via WebSocket
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`task_${comment.task_id}`).emit("task:comment_deleted", {
+        commentId: comment.id,
+        taskId: comment.task_id,
+      });
+    }
+
+    return res.json({ message: "Comment deleted." });
+  } catch (err) {
+    console.error("DELETE /api/comments/:id error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─── GET /api/tasks/:id/changelog ───────────────────────────────────────────
+// Fetch change history for a task with pagination
+router.get("/:id/changelog", requireAuth, async (req, res) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
+
+    // Verify access
+    const [taskRows] = await db.query(
+      `SELECT t.id FROM tasks t
+       WHERE t.id = ? AND (
+         t.faculty_id = ? OR t.collaborator_id = ? OR 
+         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
+       )`,
+      [taskId, userId, userId, userId]
+    );
+
+    if (taskRows.length === 0) {
+      return res.status(403).json({ message: "You don't have access to this task." });
+    }
+
+    const [changes] = await db.query(
+      `SELECT tc.id, tc.task_id, tc.field_name, tc.old_value, tc.new_value, tc.changed_by, tc.changed_at, u.full_name
+       FROM task_changelog tc
+       JOIN users u ON u.id = tc.changed_by
+       WHERE tc.task_id = ?
+       ORDER BY tc.changed_at DESC
+       LIMIT ? OFFSET ?`,
+      [taskId, limit, offset]
+    );
+
+    const [countRows] = await db.query(
+      "SELECT COUNT(*) AS total FROM task_changelog WHERE task_id = ?",
+      [taskId]
+    );
+
+    return res.json({
+      changes: changes.map(c => ({
+        id: c.id,
+        taskId: c.task_id,
+        fieldName: c.field_name,
+        oldValue: c.old_value,
+        newValue: c.new_value,
+        changedBy: c.changed_by,
+        changedByName: c.full_name,
+        changedAt: c.changed_at,
+      })),
+      total: countRows[0].total,
+      limit,
+      offset,
+    });
+  } catch (err) {
+    console.error("GET /api/tasks/:id/changelog error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ─── GET /api/tasks/:id/collaborators ───────────────────────────────────────
+// Fetch list of collaborators with confirmation status
+router.get("/:id/collaborators", requireAuth, async (req, res) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    const userId = req.user.id;
+
+    // Verify access
+    const [taskRows] = await db.query(
+      `SELECT t.id, t.faculty_id, t.collaborator_id, t.is_collaborative
+       FROM tasks t
+       WHERE t.id = ? AND (
+         t.faculty_id = ? OR t.collaborator_id = ? OR 
+         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
+       )`,
+      [taskId, userId, userId, userId]
+    );
+
+    if (taskRows.length === 0) {
+      return res.status(403).json({ message: "You don't have access to this task." });
+    }
+
+    const task = taskRows[0];
+    const collaborators = [];
+
+    // Add primary faculty
+    if (task.faculty_id) {
+      const [facultyRows] = await db.query(
+        "SELECT id, full_name, email FROM users WHERE id = ?",
+        [task.faculty_id]
+      );
+      if (facultyRows.length > 0) {
+        const user = facultyRows[0];
+        collaborators.push({
+          userId: user.id,
+          fullName: user.full_name,
+          email: user.email,
+          role: "primary",
+          confirmedAt: null,
+        });
+      }
+    }
+
+    // Add secondary faculty (if any)
+    if (task.collaborator_id) {
+      const [facultyRows] = await db.query(
+        "SELECT id, full_name, email FROM users WHERE id = ?",
+        [task.collaborator_id]
+      );
+      if (facultyRows.length > 0) {
+        const user = facultyRows[0];
+        collaborators.push({
+          userId: user.id,
+          fullName: user.full_name,
+          email: user.email,
+          role: "secondary",
+          confirmedAt: null,
+        });
+      }
+    }
+
+    // Add multi-collaborators from task_collaborators table
+    if (task.is_collaborative) {
+      const [multisRows] = await db.query(
+        `SELECT tc.user_id, tc.confirmed_at, u.full_name, u.email
+         FROM task_collaborators tc
+         JOIN users u ON u.id = tc.user_id
+         WHERE tc.task_id = ?`,
+        [taskId]
+      );
+
+      multisRows.forEach(row => {
+        collaborators.push({
+          userId: row.user_id,
+          fullName: row.full_name,
+          email: row.email,
+          role: "collaborator",
+          confirmedAt: row.confirmed_at,
+        });
+      });
+    }
+
+    return res.json({ collaborators });
+  } catch (err) {
+    console.error("GET /api/tasks/:id/collaborators error:", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
