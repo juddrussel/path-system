@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
+import CollaborationStatus from "../components/CollaborationStatus";
 import CollaborativeComments from "../components/CollaborativeComments";
 import TaskChangelog from "../components/TaskChangelog";
 
@@ -1219,40 +1220,15 @@ export default function TaskDetail() {
                       </p>
                     )}
                     {isCollaborative && isFacultyView && (
-                      <div style={{ marginTop: "12px", padding: "12px", border: "1px solid #fbbf24", borderRadius: "8px", backgroundColor: "#fffbeb" }}>
-                        <div style={{ fontSize: "12px", fontWeight: "600", color: "#b45309", marginBottom: "8px" }}>
-                          Collaborative Task
-                        </div>
-                        <p style={{ fontSize: "12px", color: "#92400e", margin: "0 0 12px", lineHeight: "1.4" }}>
-                          All {collaborators.length} collaborators must confirm their edits before submission.
-                          {hasCurrentUserConfirmed && " You've already confirmed."}
-                        </p>
-                        {!hasCurrentUserConfirmed && (
-                          <button
-                            type="button"
-                            onClick={() => setConfirmationModalOpen(true)}
-                            disabled={confirmingCollaboration}
-                            style={{
-                              fontSize: "12px",
-                              fontWeight: "600",
-                              padding: "8px 12px",
-                              border: "1px solid #f59e0b",
-                              borderRadius: "6px",
-                              backgroundColor: "#fbbf24",
-                              color: "#000",
-                              cursor: "pointer",
-                              transition: "all 0.2s",
-                            }}
-                          >
-                            {confirmingCollaboration ? "Confirming…" : "Confirm my edits"}
-                          </button>
-                        )}
-                        {hasCurrentUserConfirmed && (
-                          <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
-                            ✓ You have confirmed
-                          </div>
-                        )}
-                      </div>
+                      <CollaborationStatus
+                        taskId={task.id}
+                        token={token}
+                        apiUrl={api}
+                        currentUserId={user?.id}
+                        hasCurrentUserConfirmed={hasCurrentUserConfirmed}
+                        onConfirmClick={() => setConfirmationModalOpen(true)}
+                        isLoading={confirmingCollaboration}
+                      />
                     )}
                     <button
                       className="td-submit"

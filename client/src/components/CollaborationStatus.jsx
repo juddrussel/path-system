@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
  * Unified card showing mutual confirmation status + list of collaborators.
  * Shows who has confirmed their edits with visual indicators.
  */
-export default function CollaborationStatus({ taskId, token, apiUrl }) {
+export default function CollaborationStatus({ taskId, token, apiUrl, onConfirmClick, currentUserId, hasCurrentUserConfirmed, isLoading }) {
   const [collaborators, setCollaborators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,7 +35,7 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
   if (error) return <div className="coll-card-error">Error: {error}</div>;
   if (collaborators.length === 0) return null;
 
-  const confirmedCount = collaborators.filter(c => c.confirmedAt).length;
+  const confirmedCount = collaborators.filter(c => c.confirmed_at).length;
   const allConfirmed = confirmedCount === collaborators.length;
 
   return (
@@ -45,12 +45,6 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           <span className="coll-card-label">Collaboration</span>
           <h3 className="coll-card-title">Mutual confirmation status</h3>
         </div>
-        <div className="coll-card-badge" style={{
-          background: allConfirmed ? "#d4edda" : "#fff3cd",
-          color: allConfirmed ? "#155724" : "#856404"
-        }}>
-          {allConfirmed ? `✓ ${confirmedCount} confirmed` : `⏳ ${confirmedCount}/${collaborators.length} confirmed`}
-        </div>
       </div>
 
       <p className="coll-card-description">
@@ -59,11 +53,11 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
 
       <div className="coll-card-list">
         {collaborators.map((collab) => {
-          const confirmedAt = collab.confirmedAt ? new Date(collab.confirmedAt) : null;
-          const isConfirmed = !!confirmedAt;
+          const isConfirmed = !!collab.confirmed_at;
+          const isCurrentUser = collab.user_id === currentUserId;
 
           // Generate initials for avatar
-          const initials = (collab.fullName || "?")
+          const initials = (collab.full_name || "?")
             .split(/\s+/)
             .filter(Boolean)
             .slice(0, 2)
@@ -71,11 +65,11 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
             .join("");
 
           const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F"];
-          const colorIndex = collab.userId % colors.length;
+          const colorIndex = (collab.user_id || 0) % colors.length;
           const bgColor = colors[colorIndex];
 
           return (
-            <div key={collab.userId} className={`coll-card-item ${isConfirmed ? "confirmed" : "pending"}`}>
+            <div key={collab.user_id} className={`coll-card-item ${isConfirmed ? "confirmed" : "pending"}`}>
               <div style={{ position: "relative", flexShrink: 0 }}>
                 <div
                   style={{
@@ -120,7 +114,10 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "2px" }}>
-                  <strong style={{ fontSize: "13px", color: "#3a2a45" }}>{collab.fullName}</strong>
+                  <strong style={{ fontSize: "13px", color: "#3a2a45" }}>
+                    {collab.full_name}
+                    {isCurrentUser && <span style={{ fontWeight: 400, color: "#9a8ba6" }}> (you)</span>}
+                  </strong>
                   {isConfirmed && (
                     <span style={{ fontSize: "10px", color: "#10b981", fontWeight: 600 }}>Confirmed</span>
                   )}
@@ -144,6 +141,46 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           );
         })}
       </div>
+
+      {!hasCurrentUserConfirmed && onConfirmClick && (
+        <button
+          type="button"
+          onClick={onConfirmClick}
+          disabled={isLoading}
+          style={{
+            marginTop: "12px",
+            width: "100%",
+            padding: "10px 12px",
+            border: "1px solid #f59e0b",
+            borderRadius: "6px",
+            backgroundColor: "#fbbf24",
+            color: "#000",
+            fontSize: "12px",
+            fontWeight: "600",
+            cursor: isLoading ? "not-allowed" : "pointer",
+            opacity: isLoading ? 0.6 : 1,
+            transition: "all 0.2s",
+          }}
+        >
+          {isLoading ? "Confirming…" : "Confirm my edits"}
+        </button>
+      )}
+
+      {hasCurrentUserConfirmed && (
+        <div style={{
+          marginTop: "12px",
+          padding: "10px 12px",
+          textAlign: "center",
+          fontSize: "12px",
+          color: "#16a34a",
+          fontWeight: "600",
+          background: "#f0fdf4",
+          borderRadius: "6px",
+          border: "1px solid #bbf7d0"
+        }}>
+          ✓ You have confirmed
+        </div>
+      )}
 
       <style>{`
         .coll-card {
@@ -179,15 +216,6 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           color: #3a2a45;
         }
 
-        .coll-card-badge {
-          padding: 6px 12px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 700;
-          white-space: nowrap;
-          flex-shrink: 0;
-        }
-
         .coll-card-description {
           margin: 0 0 14px 0;
           font-size: 13px;
@@ -198,6 +226,7 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
         .coll-card-list {
           display: grid;
           gap: 10px;
+          margin-bottom: 12px;
         }
 
         .coll-card-item {
