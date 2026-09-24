@@ -664,21 +664,22 @@ export default function CollaborativeComments({
   /* Comment Item */
   .cc-comment-item {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: flex-start;
   }
 
   .cc-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 7px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
-    color: #5a4768;
+    color: #fff;
     flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   }
 
   .cc-comment-content {
@@ -689,37 +690,38 @@ export default function CollaborativeComments({
   .cc-comment-header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 4px;
+    gap: 7px;
+    margin-bottom: 5px;
     flex-wrap: wrap;
   }
 
   .cc-comment-header strong {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
-    color: #3a2a45;
+    color: #3d2a50;
   }
 
   .cc-comment-role {
-    font-size: 10px;
-    color: #9d8fa8;
+    font-size: 11px;
+    color: #a89faa;
+    font-weight: 600;
   }
 
   .cc-comment-dot {
-    font-size: 10px;
+    font-size: 9px;
     color: #d0c4db;
   }
 
   .cc-comment-time {
-    font-size: 10px;
+    font-size: 11px;
     color: #b0a0bd;
   }
 
   .cc-comment-text {
-    font-size: 11px;
+    font-size: 12px;
     color: #5d4867;
-    line-height: 1.5;
-    margin-bottom: 6px;
+    line-height: 1.6;
+    margin-bottom: 8px;
     word-wrap: break-word;
   }
 
@@ -732,20 +734,20 @@ export default function CollaborativeComments({
 
   .cc-image-preview {
     max-width: 100%;
-    max-height: 300px;
-    border-radius: 8px;
-    border: 1px solid #e0d5ef;
-    background: #f5f0fb;
+    max-height: 320px;
+    border-radius: 9px;
+    border: 1px solid #ddd4e8;
+    background: #f9f8fc;
     object-fit: cover;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .cc-image-preview:hover {
     border-color: #7c3aed;
-    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.15);
-    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.18);
+    transform: scale(1.03);
   }
 
   .cc-image-loading {
@@ -902,27 +904,27 @@ export default function CollaborativeComments({
   /* Main Composer */
   .cc-main-composer {
     padding: 16px;
-    background: #faf8fc;
-    border: 1px solid #e9ddfb;
-    border-radius: 8px;
+    background: #f9f8fc;
+    border: 1px solid #ddd4e8;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
 
   .cc-main-composer textarea {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #e0d5ef;
-    border-radius: 7px;
+    padding: 12px 14px;
+    border: 1px solid #ddd4e8;
+    border-radius: 8px;
     font-family: 'DM Sans', -apple-system, sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     color: #5d4867;
     resize: vertical;
     outline: none;
     transition: all 0.2s;
     background: #fff;
-    min-height: 80px;
+    min-height: 90px;
   }
 
   .cc-main-composer textarea::placeholder {
@@ -1038,35 +1040,42 @@ export default function CollaborativeComments({
 
   .cc-attach-btn,
   .cc-send-btn {
-    padding: 7px 12px;
-    border: 1px solid #d9cbe6;
-    border-radius: 6px;
-    font-size: 10px;
+    padding: 8px 14px;
+    border-radius: 7px;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
+    border: none;
   }
 
   .cc-attach-btn {
-    background: #fff;
+    background: #f0ebf8;
     color: #7c3aed;
-    border-color: #7c3aed;
+    border: 1px solid #ddd4e8;
   }
-
+  
   .cc-attach-btn:hover:not(:disabled) {
-    background: #f5f0fb;
-    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.15);
+    background: #e8dff5;
+    border-color: #c8b5e0;
   }
 
   .cc-send-btn {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-    border-color: #7c3aed;
     color: #fff;
-    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.25);
   }
 
   .cc-send-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+    box-shadow: 0 6px 12px rgba(124, 58, 237, 0.35);
+    transform: translateY(-1px);
+  }
+  
+  .cc-send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
     box-shadow: 0 3px 8px rgba(124, 58, 237, 0.35);
     transform: translateY(-1px);
   }
