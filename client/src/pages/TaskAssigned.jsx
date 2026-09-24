@@ -2190,6 +2190,7 @@ export default function TaskAssigned() {
                                 display: "flex",
                                 gap: 4,
                                 flexWrap: "wrap",
+                                alignItems: "center",
                               }}
                             >
                               {task.priority && <Badge label={task.priority} />}
@@ -2212,6 +2213,28 @@ export default function TaskAssigned() {
                                   }}
                                 >
                                   NEEDS REVIEW
+                                </span>
+                              )}
+                              {task.is_collaborative && (
+                                <span
+                                  style={{
+                                    fontSize: 11,
+                                    padding: "2px 6px",
+                                    borderRadius: "4px",
+                                    fontWeight: 600,
+                                    backgroundColor:
+                                      task.confirmation_status === "completed"
+                                        ? "#d4edda"
+                                        : "#fff3cd",
+                                    color:
+                                      task.confirmation_status === "completed"
+                                        ? "#155724"
+                                        : "#856404",
+                                  }}
+                                >
+                                  {task.confirmation_status === "completed"
+                                    ? "✓ All confirmed"
+                                    : "⏳ Confirming"}
                                 </span>
                               )}
                             </div>
