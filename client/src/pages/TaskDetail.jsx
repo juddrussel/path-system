@@ -980,42 +980,6 @@ export default function TaskDetail() {
                   </div>
                 </section>
 
-                {isCollaborative && (
-                  <section className="td-card">
-                    <div className="td-section-title">
-                      <span className="td-icon">
-                        <Icon name="user" />
-                      </span>
-                      <div>
-                        <span>Collaboration</span>
-                        <h2>Mutual confirmation status</h2>
-                      </div>
-                    </div>
-                    <div style={{ padding: "16px 20px" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "12px" }}>
-                        {collaborators.map((collab, idx) => (
-                          <div key={idx} style={{ padding: "12px", border: "1px solid #e5e7eb", borderRadius: "8px", backgroundColor: collab.confirmed_at ? "#dcfce7" : "#f3f4f6" }}>
-                            <div style={{ fontSize: "12px", fontWeight: "600", color: "#666", marginBottom: "4px" }}>
-                              {collab.full_name || `Collaborator ${idx + 1}`}
-                            </div>
-                            <div style={{ fontSize: "13px", fontWeight: "500", color: collab.confirmed_at ? "#16a34a" : "#6b7280" }}>
-                              {collab.confirmed_at ? "✓ Confirmed" : "Awaiting confirmation"}
-                            </div>
-                            {collab.confirmed_at && (
-                              <div style={{ fontSize: "11px", color: "#666", marginTop: "4px" }}>
-                                {formatDate(collab.confirmed_at)}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                      <p style={{ fontSize: "12px", color: "#666", margin: "0" }}>
-                        All {collaborators.length} collaborator{collaborators.length !== 1 ? "s" : ""} must confirm their edits before the task can be submitted for review.
-                      </p>
-                    </div>
-                  </section>
-                )}
-
                 <section className="td-card">
                   <div className="td-section-title">
                     <span className="td-icon">
