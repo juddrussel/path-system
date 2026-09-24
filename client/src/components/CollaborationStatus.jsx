@@ -61,9 +61,60 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
             label = `Overdue ${Math.floor(hoursAgo - 24)}h`;
           }
 
+          // Generate initials for avatar
+          const initials = (collab.fullName || "?")
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((w) => w[0]?.toUpperCase())
+            .join("");
+
+          const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F"];
+          const colorIndex = collab.userId % colors.length;
+          const bgColor = colors[colorIndex];
+
           return (
             <div key={collab.userId} className={`coll-status-badge coll-status-${statusClass}`}>
-              <span className="coll-status-icon">{icon}</span>
+              <div
+                className="coll-status-avatar"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: bgColor,
+                  color: "#fff",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  flexShrink: 0,
+                  position: "relative",
+                }}
+              >
+                {initials}
+                {confirmedAt && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: -2,
+                      right: -2,
+                      background: "#10b981",
+                      color: "#fff",
+                      width: 18,
+                      height: 18,
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "11px",
+                      border: "2px solid #fff",
+                    }}
+                  >
+                    ✓
+                  </span>
+                )}
+              </div>
               <div>
                 <strong>{collab.fullName}</strong>
                 <small>{collab.email}</small>
@@ -77,42 +128,49 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
       <style>{`
         .coll-status {
           margin-top: 20px;
-          padding: 14px 16px;
-          border: 1px solid #e0d5ef;
-          border-radius: 10px;
-          background: #fcfaff;
+          padding: 16px;
+          border: 1px solid #e5e1ea;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #fcfaff 0%, #f7f3fd 100%);
         }
 
         .coll-status-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 12px;
-          font-size: 12px;
-          font-weight: 800;
-          color: #4a3a55;
+          margin-bottom: 14px;
+          font-size: 11px;
+          font-weight: 900;
+          color: #5a4965;
           text-transform: uppercase;
-          letter-spacing: 0.07em;
+          letter-spacing: 0.1em;
         }
 
         .coll-status-header em {
           font-style: normal;
-          color: #9a8ba6;
+          color: #8b7d95;
+          font-weight: 600;
         }
 
         .coll-status-list {
           display: grid;
-          gap: 8px;
+          gap: 10px;
         }
 
         .coll-status-badge {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 10px;
-          border-radius: 8px;
+          gap: 12px;
+          padding: 12px;
+          border-radius: 10px;
           background: #fff;
           border: 1px solid #e9ddfb;
+          transition: all 0.2s ease;
+        }
+
+        .coll-status-badge:hover {
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+          border-color: #dfc8f0;
         }
 
         .coll-status-badge.confirmed {
@@ -121,39 +179,13 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
         }
 
         .coll-status-badge.pending {
-          border-color: #f4e4c1;
+          border-color: #f0deb8;
           background: #fffbf0;
         }
 
         .coll-status-badge.overdue {
           border-color: #f5d1cc;
           background: #fff9f8;
-        }
-
-        .coll-status-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          font-size: 14px;
-          font-weight: 800;
-        }
-
-        .coll-status-confirmed .coll-status-icon {
-          background: #d4f3d0;
-          color: #51ab83;
-        }
-
-        .coll-status-pending .coll-status-icon {
-          background: #fde8c6;
-          color: #e1b347;
-        }
-
-        .coll-status-overdue .coll-status-icon {
-          background: #fad4ce;
-          color: #dc7365;
         }
 
         .coll-status-badge > div {
@@ -163,22 +195,24 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
 
         .coll-status-badge strong {
           display: block;
-          font-size: 12px;
-          color: #4a3a55;
+          font-size: 13px;
+          font-weight: 600;
+          color: #3a2a45;
         }
 
         .coll-status-badge small {
           display: block;
           margin-top: 2px;
           font-size: 11px;
-          color: #9a8ba6;
+          color: #8d7e98;
         }
 
         .coll-status-badge em {
           font-style: normal;
           white-space: nowrap;
           font-size: 11px;
-          color: #8d7e98;
+          color: #a89cb3;
+          font-weight: 500;
         }
 
         .coll-status-loading,
