@@ -1111,10 +1111,7 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
 
       // Add all collaborators to task_collaborators table (for multi-faculty collaboration)
       if (facultyIds.length >= 2) {
-        // Include the assigner (req.user.id) + all faculty members
-        const allCollaborators = [req.user.id, ...facultyIds];
-        const uniqueCollaborators = [...new Set(allCollaborators)]; // Remove duplicates
-        const collaboratorRows = uniqueCollaborators.map(fId => [taskId, fId]);
+        const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
         await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
       }
 
@@ -1277,10 +1274,8 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
 
     const taskId = result.insertId;
 
-    // Add all collaborators to task_collaborators table (including the assigner)
-    const allCollaborators = [req.user.id, ...facultyIds];
-    const uniqueCollaborators = [...new Set(allCollaborators)]; // Remove duplicates
-    const collaboratorRows = uniqueCollaborators.map(fId => [taskId, fId]);
+    // Add all collaborators to task_collaborators table
+    const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
     await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
 
     // Handle attachments
@@ -2208,24 +2203,28 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
 
     console.log(`[GET /comments] taskId=${taskId}, userId=${userId}`);
 
-    // Verify access
+    // Verify access - allow if user is a collaborator OR is the task creator (admin/chair)
     const [taskRows] = await db.query(
       `SELECT t.id FROM tasks t
        WHERE t.id = ? AND (
-         t.faculty_id = ? OR t.collaborator_id = ? OR 
+         t.assigned_by = ? OR
          t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
        )`,
-      [taskId, userId, userId, userId]
+      [taskId, userId, userId]
     );
 
     console.log(`[GET /comments] Access check result: ${taskRows.length} rows`);
     if (taskRows.length === 0) {
-      // Debug: check if user is in collaborators at all
+      // Debug: check who has access to this task
       const [debugRows] = await db.query(
         `SELECT user_id FROM task_collaborators WHERE task_id = ?`,
         [taskId]
       );
-      console.log(`[GET /comments] User ${userId} NOT in collaborators. Task ${taskId} has collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
+      const [taskCheck] = await db.query(
+        `SELECT assigned_by FROM tasks WHERE id = ?`,
+        [taskId]
+      );
+      console.log(`[GET /comments] User ${userId} NOT authorized. Task ${taskId} creator: ${taskCheck[0]?.assigned_by}, collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
       return res.status(403).json({ message: "You don't have access to this task." });
     }
 
@@ -2317,14 +2316,14 @@ router.get("/:id/changelog", requireAuth, async (req, res) => {
 
     console.log(`[GET /changelog] taskId=${taskId}, userId=${userId}`);
 
-    // Verify access
+    // Verify access - allow if user is a collaborator OR is the task creator
     const [taskRows] = await db.query(
       `SELECT t.id FROM tasks t
        WHERE t.id = ? AND (
-         t.faculty_id = ? OR t.collaborator_id = ? OR 
+         t.assigned_by = ? OR
          t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
        )`,
-      [taskId, userId, userId, userId]
+      [taskId, userId, userId]
     );
 
     console.log(`[GET /changelog] Access check result: ${taskRows.length} rows`);
@@ -2333,7 +2332,11 @@ router.get("/:id/changelog", requireAuth, async (req, res) => {
         `SELECT user_id FROM task_collaborators WHERE task_id = ?`,
         [taskId]
       );
-      console.log(`[GET /changelog] User ${userId} NOT in collaborators. Task ${taskId} has collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
+      const [taskCheck] = await db.query(
+        `SELECT assigned_by FROM tasks WHERE id = ?`,
+        [taskId]
+      );
+      console.log(`[GET /changelog] User ${userId} NOT authorized. Task ${taskId} creator: ${taskCheck[0]?.assigned_by}, collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
       return res.status(403).json({ message: "You don't have access to this task." });
     }
 
@@ -2382,15 +2385,15 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
 
     console.log(`[GET /collaborators] taskId=${taskId}, userId=${userId}`);
 
-    // Verify access
+    // Verify access - allow if user is a collaborator OR is the task creator
     const [taskRows] = await db.query(
       `SELECT t.id, t.faculty_id, t.collaborator_id, t.is_collaborative
        FROM tasks t
        WHERE t.id = ? AND (
-         t.faculty_id = ? OR t.collaborator_id = ? OR 
+         t.assigned_by = ? OR
          t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
        )`,
-      [taskId, userId, userId, userId]
+      [taskId, userId, userId]
     );
 
     console.log(`[GET /collaborators] Access check result: ${taskRows.length} rows`);
@@ -2399,7 +2402,11 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
         `SELECT user_id FROM task_collaborators WHERE task_id = ?`,
         [taskId]
       );
-      console.log(`[GET /collaborators] User ${userId} NOT in collaborators. Task ${taskId} has collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
+      const [taskCheck] = await db.query(
+        `SELECT assigned_by FROM tasks WHERE id = ?`,
+        [taskId]
+      );
+      console.log(`[GET /collaborators] User ${userId} NOT authorized. Task ${taskId} creator: ${taskCheck[0]?.assigned_by}, collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
       return res.status(403).json({ message: "You don't have access to this task." });
     }
 
