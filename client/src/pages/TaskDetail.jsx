@@ -1,4 +1,4 @@
-﻿﻿import { useEffect, useMemo, useRef, useState } from "react";
+ï»¿import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
 import CollaborativeComments from "../components/CollaborativeComments";
@@ -207,7 +207,7 @@ function FileCard({ file, api, onPreview, label = "Attached file" }) {
       </span>
       <div>
         <strong>{name}</strong>
-        <small>{formatSize(file.size)} Â· Open inline preview</small>
+        <small>{formatSize(file.size)} ÃÂ· Open inline preview</small>
       </div>
       <Icon name="preview" />
     </button>
@@ -366,7 +366,7 @@ export default function TaskDetail() {
     task?.assigned_to_name ||
     task?.assignee_name ||
     task?.assigned_to ||
-    "✓��”";
+    "âï¿½ï¿½â";
   const taskOwnerInitials = initials(taskOwner);
   // Collaborative task info
   const isCollaborative = task?.is_collaborative || false;
@@ -729,7 +729,7 @@ export default function TaskDetail() {
         `}</style>
 
         <div className="td-load-card">
-          {/* Header ✓��” mimics the violet task header */}
+          {/* Header âï¿½ï¿½â mimics the violet task header */}
           <div className="td-load-header">
             <div className="td-load-spinner-wrap">
               <div className="td-spin-ring" />
@@ -750,7 +750,7 @@ export default function TaskDetail() {
             </div>
           </div>
 
-          {/* Body ✓��” mimics the description + meta sections */}
+          {/* Body âï¿½ï¿½â mimics the description + meta sections */}
           <div className="td-load-body">
             {/* Avatar + name row */}
             <div className="td-load-row">
@@ -950,7 +950,7 @@ export default function TaskDetail() {
                                     flexShrink: 0,
                                   }}
                                 >
-                                  <span>âœ“</span>
+                                  <span>Ã¢Åâ</span>
                                   <span>Confirmed</span>
                                 </div>
                               )}
@@ -987,7 +987,7 @@ export default function TaskDetail() {
                               onClick={saveDeadline}
                               disabled={deadlineSaving}
                             >
-                              {deadlineSaving ? "Saving✓��¦" : "Save"}
+                              {deadlineSaving ? "Savingâï¿½ï¿½Â¦" : "Save"}
                             </button>
                           </span>
                           {deadlineError && (
@@ -1100,9 +1100,9 @@ export default function TaskDetail() {
                   })()}
                 </section>
 
-                {/* ✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€ */}
+                {/* âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬ */}
                 {/* Collaboration Sections - ONLY FOR COLLABORATIVE TASKS */}
-                {/* ✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€✓��€ */}
+                {/* âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬âï¿½ï¿½â¬ */}
 
                 {task?.is_collaborative && isCurrentUserCollaborator && (
                   <>
@@ -1129,7 +1129,7 @@ export default function TaskDetail() {
                           fontWeight: "800",
                           whiteSpace: "nowrap"
                         }}>
-                          {allConfirmed ? "âœ“ All confirmed" : `â³ ${collaborators.filter(c => !c.confirmed_at).length} waiting`}
+                          {allConfirmed ? "Ã¢Åâ All confirmed" : `Ã¢ÂÂ³ ${collaborators.filter(c => !c.confirmed_at).length} waiting`}
                         </div>
                       </div>
                       
@@ -1178,7 +1178,7 @@ export default function TaskDetail() {
                                 {collaborator.full_name || "Faculty"}
                               </strong>
                               <small style={{ display: "block", color: "#9d8fa8", fontSize: "9px", marginTop: "1px" }}>
-                                {collaborator.email || "✓��”"}
+                                {collaborator.email || "âï¿½ï¿½â"}
                               </small>
                             </div>
 
@@ -1196,9 +1196,9 @@ export default function TaskDetail() {
                               color: collaborator.confirmed_at ? "#4d9070" : "#8b7ba5"
                             }}>
                               {collaborator.confirmed_at ? (
-                                <>âœ“ Confirmed</>
+                                <>Ã¢Åâ Confirmed</>
                               ) : (
-                                <>â³ Waiting</>
+                                <>Ã¢ÂÂ³ Waiting</>
                               )}
                             </div>
                           </div>
@@ -1318,7 +1318,7 @@ export default function TaskDetail() {
                                 setSubmissionError("");
                               }}
                               rows={3}
-                              placeholder="Summarize what was completed or flag any exception for review✓��¦"
+                              placeholder="Summarize what was completed or flag any exception for reviewâï¿½ï¿½Â¦"
                             />
                           </label>
                           {submissionError && (
@@ -1356,12 +1356,12 @@ export default function TaskDetail() {
                                     transition: "all 0.2s",
                                   }}
                                 >
-                                  {confirmingCollaboration ? "Confirming✓��¦" : "Confirm my edits"}
+                                  {confirmingCollaboration ? "Confirmingâï¿½ï¿½Â¦" : "Confirm my edits"}
                                 </button>
                               )}
                               {hasCurrentUserConfirmed && (
                                 <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
-                                  ✓ You have confirmed
+                                  â You have confirmed
                                 </div>
                               )}
                             </div>
@@ -1375,9 +1375,9 @@ export default function TaskDetail() {
                           >
                             <Icon name="send" size={14} />{" "}
                             {submitting
-                              ? "Sending✓��¦"
+                              ? "Sendingâï¿½ï¿½Â¦"
                               : isCollaborative && !allConfirmed
-                                ? `Awaiting ${collaborators.filter(c => !c.confirmed_at).length} confirmation(s)✓��¦`
+                                ? `Awaiting ${collaborators.filter(c => !c.confirmed_at).length} confirmation(s)âï¿½ï¿½Â¦`
                                 : status.tone === "returned"
                                   ? "Resubmit for chair review"
                                   : "Submit for chair review"}
@@ -1445,13 +1445,13 @@ export default function TaskDetail() {
                           </span>
                           <strong>{latestSubmissionName}</strong>
                           <small>
-                            {formatSize(latestSubmission.size)} Â· Submitted
+                            {formatSize(latestSubmission.size)} ÃÂ· Submitted
                             document
                           </small>
                         </div>
                         <div>
-                          <span>âœ¦ AI Summary</span>
-                          <span>✓��¢ PDF</span>
+                          <span>Ã¢ÅÂ¦ AI Summary</span>
+                          <span>âï¿½ï¿½Â¢ PDF</span>
                           <button
                             type="button"
                             onClick={() =>
@@ -1470,7 +1470,7 @@ export default function TaskDetail() {
                       <div className="td-reader-frame td-inline-reader-frame">
                         <div className="td-reader-toolbar">
                           <button type="button" aria-label="Reader menu">
-                            â˜°
+                            Ã¢ËÂ°
                           </button>
                           <b>1</b>
                           <span>/ 1</span>
@@ -1485,7 +1485,7 @@ export default function TaskDetail() {
                             }
                             aria-label="Zoom out"
                           >
-                            âˆ’
+                            Ã¢Ëâ
                           </button>
                           <button
                             type="button"
@@ -1518,7 +1518,7 @@ export default function TaskDetail() {
                             }
                             aria-label="Open submitted file in a new tab"
                           >
-                            ✓��—
+                            âï¿½ï¿½â
                           </button>
                         </div>
                         <div className="td-reader-paper">
@@ -1619,11 +1619,11 @@ export default function TaskDetail() {
                               </p>
                               <div className="td-lineage-meta">
                                 <span>{name}</span>
-                                <i>✓��¢</i>
+                                <i>âï¿½ï¿½Â¢</i>
                                 <span>{formatSize(file.size)}</span>
                                 {reverseIndex === 0 && (
                                   <>
-                                    <i>✓��¢</i>
+                                    <i>âï¿½ï¿½Â¢</i>
                                     <b>Latest</b>
                                   </>
                                 )}
@@ -1721,7 +1721,7 @@ export default function TaskDetail() {
                           onClick={approveTask}
                         >
                           <Icon name="check" size={14} />{" "}
-                          {deciding ? "Saving✓��¦" : "Approve task"}
+                          {deciding ? "Savingâï¿½ï¿½Â¦" : "Approve task"}
                         </button>
                         <button
                           className="td-return"
@@ -1784,7 +1784,7 @@ export default function TaskDetail() {
                           setReturnInstruction(event.target.value);
                           setReturnError("");
                         }}
-                        placeholder="Explain what needs to be corrected before the next submission✓��¦"
+                        placeholder="Explain what needs to be corrected before the next submissionâï¿½ï¿½Â¦"
                         autoFocus
                       />
                       {returnError && (
@@ -1813,14 +1813,14 @@ export default function TaskDetail() {
                   <span className="td-side-label">Submission readiness</span>
                   <div className="td-readiness">
                     <span className="complete">
-                      <b>âœ“</b> Brief shared
+                      <b>Ã¢Åâ</b> Brief shared
                     </span>
                     <span
                       className={
                         task.deadline || task.due_date ? "complete" : ""
                       }
                     >
-                      <b>{task.deadline || task.due_date ? "âœ“" : ""}</b>{" "}
+                      <b>{task.deadline || task.due_date ? "Ã¢Åâ" : ""}</b>{" "}
                       Deadline{" "}
                       {task.deadline || task.due_date ? "mapped" : "needed"}
                     </span>
@@ -1829,7 +1829,7 @@ export default function TaskDetail() {
                         latestSubmission || selectedFile ? "complete" : ""
                       }
                     >
-                      <b>{latestSubmission || selectedFile ? "âœ“" : ""}</b>{" "}
+                      <b>{latestSubmission || selectedFile ? "Ã¢Åâ" : ""}</b>{" "}
                       Completed file{" "}
                       {latestSubmission
                         ? "submitted"
@@ -1846,7 +1846,7 @@ export default function TaskDetail() {
                     >
                       <b>
                         {latestSubmission?.note || submissionNote.trim()
-                          ? "âœ“"
+                          ? "Ã¢Åâ"
                           : ""}
                       </b>{" "}
                       Submission note{" "}
@@ -1891,8 +1891,8 @@ export default function TaskDetail() {
                 <p>{preview.name}</p>
               </div>
               <div className="td-reader-head-actions">
-                <span>âœ¦ AI Summary</span>
-                <span>✓��¢ PDF</span>
+                <span>Ã¢ÅÂ¦ AI Summary</span>
+                <span>âï¿½ï¿½Â¢ PDF</span>
                 <button
                   type="button"
                   onClick={() => setPreview(null)}
@@ -1906,7 +1906,7 @@ export default function TaskDetail() {
               <div className="td-reader-frame">
                 <div className="td-reader-toolbar">
                   <button type="button" aria-label="Reader menu">
-                    â˜°
+                    Ã¢ËÂ°
                   </button>
                   <b>1</b>
                   <span>/ 1</span>
@@ -1921,7 +1921,7 @@ export default function TaskDetail() {
                     }
                     aria-label="Zoom out"
                   >
-                    âˆ’
+                    Ã¢Ëâ
                   </button>
                   <button
                     type="button"
@@ -1950,7 +1950,7 @@ export default function TaskDetail() {
                     }
                     aria-label="Open file in a new tab"
                   >
-                    ✓��—
+                    âï¿½ï¿½â
                   </button>
                 </div>
                 <div className="td-reader-paper">
@@ -2056,7 +2056,7 @@ export default function TaskDetail() {
                   opacity: confirmingCollaboration ? 0.6 : 1,
                 }}
               >
-                {confirmingCollaboration ? "Confirming✓��¦" : "Yes, confirm"}
+                {confirmingCollaboration ? "Confirmingâï¿½ï¿½Â¦" : "Yes, confirm"}
               </button>
             </div>
           </div>
