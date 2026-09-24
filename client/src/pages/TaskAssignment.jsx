@@ -647,8 +647,8 @@ function TaskAssignmentInner() {
           })),
         ),
       );
-      // If assigning 2 faculty together, use the collaborative endpoint
-      const isCollaborative = assignMode === "individual" && selectedFaculty.length === 2 && form.collaborationMode === "together";
+      // If assigning 2+ faculty together, use the collaborative endpoint
+      const isCollaborative = assignMode === "individual" && selectedFaculty.length >= 2 && form.collaborationMode === "together";
       const endpoint = isCollaborative ? `${API}/api/tasks/collaborative` : `${API}/api/tasks`;
       
       const response = await fetch(endpoint, {
@@ -837,7 +837,7 @@ function TaskAssignmentInner() {
                         ))}
                       </div>
                     )}
-                    {selectedFaculty.length === 2 && (
+                    {selectedFaculty.length >= 2 && (
                       <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #eee8f2' }}>
                         <label className="path-assignment-field" style={{ marginBottom: '8px' }}>
                           Collaboration mode
