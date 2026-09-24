@@ -460,6 +460,19 @@ export default function TaskDetail() {
   const hasCurrentUserConfirmed = isCollaborative && currentUserCollab?.confirmed_at;
   const allConfirmed = isCollaborative && collaborators.every(c => c.confirmed_at);
 
+  // Debug rendering
+  useEffect(() => {
+    if (task?.id) {
+      console.log("🎯 TaskDetail render check:");
+      console.log("   task.id:", task.id);
+      console.log("   is_collaborative:", task?.is_collaborative);
+      console.log("   collaborators.length:", collaborators.length);
+      console.log("   isCurrentUserCollaborator:", isCurrentUserCollaborator);
+      console.log("   Should render CollaborationStatus:", task?.is_collaborative && collaborators.length > 0);
+      console.log("   Should render CollaborativeComments:", task?.is_collaborative && isCurrentUserCollaborator);
+    }
+  }, [task?.id, task?.is_collaborative, collaborators.length, isCurrentUserCollaborator]);
+
   const confirmCollaboration = async () => {
     if (!canConfirm || !task) return;
     
