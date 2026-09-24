@@ -269,7 +269,6 @@ export default function TaskDetail() {
       if (!response.ok) throw new Error("The task could not be loaded.");
       const data = await response.json();
       const nextTask = data.task || data;
-      console.log("📥 TaskDetail loaded task - faculty_name:", nextTask?.faculty_name, "collaborators length:", nextTask?.collaborators?.length);
       setTask(nextTask);
       setComments(nextTask.comments || []);
       setDeadlineDraft(toDatetimeInput(nextTask.deadline || nextTask.due_date));
@@ -460,19 +459,6 @@ export default function TaskDetail() {
   const currentUserCollab = collaborators.find(c => c.user_id === user.id);
   const hasCurrentUserConfirmed = isCollaborative && currentUserCollab?.confirmed_at;
   const allConfirmed = isCollaborative && collaborators.every(c => c.confirmed_at);
-
-  // Debug rendering
-  useEffect(() => {
-    if (task?.id) {
-      console.log("🎯 TaskDetail render check:");
-      console.log("   task.id:", task.id);
-      console.log("   is_collaborative:", task?.is_collaborative);
-      console.log("   collaborators.length:", collaborators.length);
-      console.log("   isCurrentUserCollaborator:", isCurrentUserCollaborator);
-      console.log("   Should render CollaborationStatus:", task?.is_collaborative && collaborators.length > 0);
-      console.log("   Should render CollaborativeComments:", task?.is_collaborative && isCurrentUserCollaborator);
-    }
-  }, [task?.id, task?.is_collaborative, collaborators.length, isCurrentUserCollaborator]);
 
   const confirmCollaboration = async () => {
     if (!canConfirm || !task) return;

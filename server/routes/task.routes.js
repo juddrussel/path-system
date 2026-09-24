@@ -738,19 +738,13 @@ async function enrichTasks(rows) {
     });
   });
 
-  return rows.map(r => {
-    const enriched = {
-      ...r,
-      attachments: attachMap[r.id]     || [],
-      comments:    commentMap[r.id]    || [],
-      submissions: submissionMap[r.id] || [],
-      collaborators: collaboratorMap[r.id] || [],
-    };
-    if (r.id === 24) {
-      console.log(`📦 enrichTasks debug for task 24: r.faculty_name=${r.faculty_name}, enriched.faculty_name=${enriched.faculty_name}, enriched has collaborators=${!!enriched.collaborators}`);
-    }
-    return enriched;
-  });
+  return rows.map(r => ({
+    ...r,
+    attachments: attachMap[r.id]     || [],
+    comments:    commentMap[r.id]    || [],
+    submissions: submissionMap[r.id] || [],
+    collaborators: collaboratorMap[r.id] || [],
+  }));
 }
 
 // ─── HELPER: normalize faculty_ids from FormData (may arrive as a single
@@ -1019,9 +1013,6 @@ router.get("/:id", requireAuth, async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
     const task = rows[0];
-    if (task.id === 24) {
-      console.log(`📋 Query result for task 24: faculty_name=${task.faculty_name}, faculty_id=${task.faculty_id}`);
-    }
     
     // Check if user has access
     let canView = ["admin", "program_chair"].includes(req.user.role) || 
@@ -1040,7 +1031,6 @@ router.get("/:id", requireAuth, async (req, res) => {
     if (!canView) return res.status(403).json({ message: "Access denied." });
     const enriched = await enrichTasks([task]);
     const responseTask = enriched[0];
-    console.log(`📤 GET /:id response for task ${req.params.id}: faculty_name=${responseTask?.faculty_name}, collaborators=${responseTask?.collaborators?.length}`);
     // Return as { task: ... } so frontend fetchSelectedTask can read data.task || data
     return res.json({ task: responseTask });
   } catch (err) {
