@@ -1070,6 +1070,7 @@ export default function TaskDetail() {
 
                 {task?.is_collaborative && isCurrentUserCollaborator && (
                   <>
+                    {console.log("🔍 DEBUG TaskDetail: Rendering CollaborativeComments - is_collab:", task?.is_collaborative, "isUserCollab:", isCurrentUserCollaborator, "collaborators:", collaborators, "user.id:", user?.id)}
                     <div style={{ padding: "0 4px" }}>
                       <CollaborativeComments
                         taskId={task.id}
