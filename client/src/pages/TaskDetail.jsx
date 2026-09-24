@@ -903,12 +903,59 @@ export default function TaskDetail() {
                     )}
                     {isCollaborative && collaborators.length > 0 && (
                       <Meta label="Collaborators" icon="users">
-                        <div>
-                          {collaborators.map((c, i) => (
-                            <div key={c.user_id} style={{ marginBottom: i < collaborators.length - 1 ? "8px" : "0" }}>
-                              <span className="td-avatar">{initials(c.full_name)}</span>
-                              {c.full_name}
-                              {c.confirmed_at && <span style={{ marginLeft: "8px", color: "#16a34a" }}>✓</span>}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                          {collaborators.map((c) => (
+                            <div 
+                              key={c.user_id} 
+                              style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "10px",
+                                padding: "8px 10px",
+                                borderRadius: "6px",
+                                backgroundColor: c.confirmed_at ? "#f0fdf4" : "#fafafa",
+                                border: `1px solid ${c.confirmed_at ? "#dcfce7" : "#e5e7eb"}`,
+                              }}
+                            >
+                              <span 
+                                className="td-avatar" 
+                                style={{
+                                  width: "32px",
+                                  height: "32px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  borderRadius: "50%",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                {initials(c.full_name)}
+                              </span>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: "13px", fontWeight: "500", color: "#1f2937" }}>
+                                  {c.full_name}
+                                </div>
+                                <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                                  {c.email}
+                                </div>
+                              </div>
+                              {c.confirmed_at && (
+                                <div 
+                                  style={{ 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    gap: "4px",
+                                    color: "#16a34a",
+                                    fontSize: "12px",
+                                    fontWeight: "500",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <span>✓</span>
+                                  <span>Confirmed</span>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
