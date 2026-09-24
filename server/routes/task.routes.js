@@ -703,7 +703,7 @@ async function enrichTasks(rows) {
   let collaborators = [];
   try {
     const [collabRows] = await db.query(
-      `SELECT tc.user_id, tc.confirmed_at, u.full_name, u.email
+      `SELECT tc.task_id, tc.user_id, tc.confirmed_at, u.full_name, u.email
        FROM task_collaborators tc
        JOIN users u ON u.id = tc.user_id
        WHERE tc.task_id IN (?)`,
