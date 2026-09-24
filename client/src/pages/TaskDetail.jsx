@@ -562,35 +562,6 @@ export default function TaskDetail() {
   };
 
   // Upload file for review before submission (visible to collaborator)
-  const uploadFileForReview = async () => {
-    if (!selectedFile) {
-      setSubmissionError("Attach a file before uploading.");
-      return;
-    }
-    setSubmitting(true);
-    setSubmissionError("");
-    try {
-      const data = new FormData();
-      data.append("files", selectedFile);
-      const upload = await fetch(`${api}/api/tasks/${task.id}/attachments`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: data,
-      });
-      if (!upload.ok)
-        throw new Error("The file could not be uploaded.");
-      setSelectedFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      // loadTask will be triggered by WebSocket listener
-    } catch (uploadError) {
-      setSubmissionError(
-        uploadError.message || "The file could not be uploaded.",
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const submitWork = async () => {
     if (!selectedFile) {
       setSubmissionError("Attach the completed file before submitting.");
@@ -1237,52 +1208,7 @@ export default function TaskDetail() {
                       </div>
                       <Icon name="preview" />
                     </button>
-                    {selectedFile && isCollaborative && isFacultyView && (
-                      <button
-                        className="td-upload-review"
-                        type="button"
-                        disabled={submitting}
-                        onClick={uploadFileForReview}
-                        style={{
-                          marginBottom: "16px",
-                          padding: "10px 16px",
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          borderRadius: "8px",
-                          border: "1px solid #3b82f6",
-                          backgroundColor: "#dbeafe",
-                          color: "#1e40af",
-                          cursor: submitting ? "not-allowed" : "pointer",
-                          opacity: submitting ? 0.6 : 1,
-                          transition: "all 0.2s",
-                        }}
-                      >
-                        {submitting ? "Uploading…" : "📤 Upload for collaborator review"}
-                      </button>
-                    )}
-                    {isCollaborative && isFacultyView && attachments.length > 0 && (
-                      <div style={{ marginTop: "16px", padding: "12px", backgroundColor: "#f3f4f6", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
-                        <div style={{ fontSize: "12px", fontWeight: "600", color: "#666", marginBottom: "12px" }}>
-                          📎 Uploaded files
-                        </div>
-                        {attachments.map((file, index) => {
-                          const uploaderName = file.uploaded_by_name || file.uploader_name || collaborator || "Unknown";
-                          return (
-                            <div key={file.id || file.file_url || file.name || index} style={{ marginBottom: index < attachments.length - 1 ? "12px" : "0" }}>
-                              <div style={{ fontSize: "11px", color: "#666", marginBottom: "4px", fontWeight: "500" }}>
-                                Uploaded by {uploaderName}
-                              </div>
-                              <FileCard
-                                file={file}
-                                api={api}
-                                onPreview={previewFile}
-                                label={`File uploaded by ${uploaderName}`}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+
                     <label className="td-note-label">
                       Submission note
                       <textarea

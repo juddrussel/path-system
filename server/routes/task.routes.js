@@ -2119,72 +2119,115 @@ router.delete("/:id/archive-for-me", requireAuth, async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─── POST /api/tasks/:id/comments ────────────────────────────────────────────
-// Add a comment to a task's discussion thread
-router.post("/:id/comments", requireAuth, async (req, res) => {
+// Add a comment to a task's discussion thread with optional file attachments and threading
+router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
-    const { content } = req.body;
+    const { content, parentCommentId } = req.body;
     const userId = req.user.id;
 
     if (!content || content.trim() === "") {
       return res.status(400).json({ message: "Comment cannot be empty." });
     }
 
-    // Verify user has access to this task
-    const [taskRows] = await db.query(
-      `SELECT t.id FROM tasks t
-       WHERE t.id = ? AND (
-         t.faculty_id = ? OR t.collaborator_id = ? OR 
-         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
-       )`,
-      [taskId, userId, userId, userId]
+    // Verify user is a collaborator on this task (not just task creator)
+    const [collabRows] = await db.query(
+      `SELECT tc.id FROM task_collaborators tc
+       WHERE tc.task_id = ? AND tc.user_id = ?`,
+      [taskId, userId]
     );
 
-    if (taskRows.length === 0) {
-      return res.status(403).json({ message: "You don't have access to this task." });
+    if (collabRows.length === 0) {
+      return res.status(403).json({ message: "Only collaborators can post comments." });
     }
 
+    // If replying to a comment, verify it exists
+    let parentId = null;
+    if (parentCommentId) {
+      const [parentRows] = await db.query(
+        "SELECT id FROM task_comments WHERE id = ? AND task_id = ?",
+        [parseInt(parentCommentId), taskId]
+      );
+      if (parentRows.length === 0) {
+        return res.status(404).json({ message: "Parent comment not found." });
+      }
+      parentId = parseInt(parentCommentId);
+    }
+
+    // Upload files if any
+    let files = [];
+    if (req.files && req.files.length > 0) {
+      const uploaded = await uploadFilesToR2(req.files);
+      files = uploaded.map(f => ({
+        name: f.originalname || f.name,
+        url: f.url,
+        size: f.size
+      }));
+    }
+
+    // Insert comment with files and optional parent
     const now = new Date();
-    await db.query(
-      "INSERT INTO task_comments (task_id, sender_id, content, created_at) VALUES (?, ?, ?, ?)",
-      [taskId, userId, content, now]
+    const filesJson = files.length > 0 ? JSON.stringify(files) : null;
+    
+    const [result] = await db.query(
+      `INSERT INTO task_comments (task_id, sender_id, parent_comment_id, content, files, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [taskId, userId, parentId, content.trim(), filesJson, now]
     );
 
     // Fetch the newly created comment with user info
     const [comments] = await db.query(
-      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, u.full_name, u.email
+      `SELECT tc.id, tc.task_id, tc.sender_id, tc.parent_comment_id, tc.content, tc.files, tc.created_at, 
+              u.full_name, u.email
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
-       WHERE tc.task_id = ? ORDER BY tc.created_at DESC LIMIT 1`,
-      [taskId]
+       WHERE tc.id = ?`,
+      [result.insertId]
     );
 
     const comment = comments[0];
+    const parsedFiles = comment.files ? JSON.parse(comment.files) : [];
 
-    // Broadcast via WebSocket to all users in this task's room
-    const io = req.app.get("io");
-    if (io) {
-      io.to(`task_${taskId}`).emit("task:new_comment", {
-        id: comment.id,
-        taskId: comment.task_id,
-        userId: comment.user_id,
-        userName: comment.full_name,
-        userEmail: comment.email,
-        content: comment.content,
-        createdAt: comment.created_at,
-        updatedAt: comment.updated_at,
-      });
-    }
-
-    return res.json({
+    const commentObj = {
       id: comment.id,
       taskId: comment.task_id,
       userId: comment.sender_id,
       userName: comment.full_name,
       userEmail: comment.email,
+      parentCommentId: comment.parent_comment_id,
       content: comment.content,
+      files: parsedFiles,
       createdAt: comment.created_at,
-    });
+    };
+
+    // Broadcast via WebSocket to all collaborators in this task's room
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`task_${taskId}`).emit("task:comment_added", {
+        taskId,
+        comment: commentObj,
+      });
+    }
+
+    // Track in changelog with detailed file information
+    const changelogDetail = {
+      comment_id: comment.id,
+      author: comment.full_name,
+      type: parentId ? 'reply' : 'comment',
+      content_preview: content.trim().substring(0, 100) + (content.trim().length > 100 ? '...' : ''),
+      files: files.map(f => ({ name: f.name, size: f.size })),
+      files_count: files.length,
+      is_reply: !!parentId,
+      parent_comment_id: parentId
+    };
+    
+    await db.query(
+      `INSERT INTO task_changelog (task_id, field_name, new_value, changed_by, changed_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [taskId, 'collaboration_comment', JSON.stringify(changelogDetail), userId, now]
+    );
+
+    return res.json(commentObj);
   } catch (err) {
     console.error("POST /api/tasks/:id/comments error:", err);
     return res.status(500).json({ message: "Internal server error." });
@@ -2192,43 +2235,68 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
 });
 
 // ─── GET /api/tasks/:id/comments ────────────────────────────────────────────
-// Fetch paginated comments for a task
+// Fetch comments for a task with threading support
 router.get("/:id/comments", requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const userId = req.user.id;
-    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
     const offset = Math.max(parseInt(req.query.offset) || 0, 0);
 
-    console.log(`[GET /comments] taskId=${taskId}, userId=${userId}`);
-
-    // Verify access - only collaborators can view comments (not the creator)
-    const [taskRows] = await db.query(
-      `SELECT t.id FROM tasks t
-       WHERE t.id = ? AND t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)`,
+    // Verify access - only collaborators can view comments
+    const [collabRows] = await db.query(
+      `SELECT tc.id FROM task_collaborators tc
+       WHERE tc.task_id = ? AND tc.user_id = ?`,
       [taskId, userId]
     );
 
-    console.log(`[GET /comments] Access check result: ${taskRows.length} rows`);
-    if (taskRows.length === 0) {
-      // Debug: check who has access to this task
-      const [debugRows] = await db.query(
-        `SELECT user_id FROM task_collaborators WHERE task_id = ?`,
-        [taskId]
-      );
-      console.log(`[GET /comments] User ${userId} is NOT a collaborator. Task ${taskId} collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
-      return res.status(403).json({ message: "Only collaborators can view the collaboration discussion." });
+    if (collabRows.length === 0) {
+      return res.status(403).json({ message: "Only collaborators can view comments." });
     }
 
-    const [comments] = await db.query(
-      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, u.full_name, u.email
+    // Fetch all top-level comments with their replies
+    const [allComments] = await db.query(
+      `SELECT tc.id, tc.task_id, tc.sender_id, tc.parent_comment_id, tc.content, tc.files, tc.created_at, 
+              u.full_name, u.email
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
        WHERE tc.task_id = ?
-       ORDER BY tc.created_at ASC
-       LIMIT ? OFFSET ?`,
-      [taskId, limit, offset]
+       ORDER BY COALESCE(tc.parent_comment_id, tc.id) ASC, tc.created_at ASC`,
+      [taskId]
     );
+
+    // Build nested structure
+    const commentMap = new Map();
+    const topLevel = [];
+
+    allComments.forEach(comment => {
+      const parsedFiles = comment.files ? JSON.parse(comment.files) : [];
+      const commentObj = {
+        id: comment.id,
+        taskId: comment.task_id,
+        userId: comment.sender_id,
+        userName: comment.full_name,
+        userEmail: comment.email,
+        parentCommentId: comment.parent_comment_id,
+        content: comment.content,
+        files: parsedFiles,
+        createdAt: comment.created_at,
+        replies: []
+      };
+
+      commentMap.set(comment.id, commentObj);
+
+      if (!comment.parent_comment_id) {
+        // Top-level comment
+        topLevel.push(commentObj);
+      } else {
+        // Reply to another comment
+        const parent = commentMap.get(comment.parent_comment_id);
+        if (parent) {
+          parent.replies.push(commentObj);
+        }
+      }
+    });
 
     const [countRows] = await db.query(
       "SELECT COUNT(*) AS total FROM task_comments WHERE task_id = ?",
@@ -2236,15 +2304,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     );
 
     return res.json({
-      comments: comments.map(c => ({
-        id: c.id,
-        taskId: c.task_id,
-        userId: c.sender_id,
-        userName: c.full_name,
-        userEmail: c.email,
-        content: c.content,
-        createdAt: c.created_at,
-      })),
+      comments: topLevel,
       total: countRows[0].total,
       limit,
       offset,
@@ -2256,14 +2316,14 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
 });
 
 // ─── DELETE /api/comments/:id ───────────────────────────────────────────────
-// Delete a comment (only by author or admin)
+// Delete a comment (only by author or admin) - also deletes all child replies
 router.delete("/comments/:commentId", requireAuth, async (req, res) => {
   try {
     const commentId = parseInt(req.params.commentId);
     const userId = req.user.id;
 
     const [comments] = await db.query(
-      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+      `SELECT tc.id, tc.task_id, tc.sender_id, u.full_name
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
        WHERE tc.id = ?`,
@@ -2281,18 +2341,19 @@ router.delete("/comments/:commentId", requireAuth, async (req, res) => {
       return res.status(403).json({ message: "You can only delete your own comments." });
     }
 
-    await db.query("DELETE FROM task_comments WHERE id = ?", [commentId]);
+    // Delete the comment and all its replies (cascading delete via FK)
+    await db.query("DELETE FROM task_comments WHERE id = ? OR parent_comment_id = ?", [commentId, commentId]);
 
     // Broadcast deletion via WebSocket
     const io = req.app.get("io");
     if (io) {
       io.to(`task_${comment.task_id}`).emit("task:comment_deleted", {
-        commentId: comment.id,
+        commentId,
         taskId: comment.task_id,
       });
     }
 
-    return res.json({ message: "Comment deleted." });
+    return res.json({ message: "Comment and replies deleted." });
   } catch (err) {
     console.error("DELETE /api/comments/:id error:", err);
     return res.status(500).json({ message: "Internal server error." });

@@ -86,13 +86,13 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    width: 40,
-                    height: 40,
+                    width: 32,
+                    height: 32,
                     borderRadius: "50%",
                     background: bgColor,
                     color: "#fff",
-                    fontSize: "13px",
-                    fontWeight: 700,
+                    fontSize: "11px",
+                    fontWeight: 600,
                   }}
                 >
                   {initials}
@@ -101,20 +101,20 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
                   <span
                     style={{
                       position: "absolute",
-                      bottom: -3,
-                      right: -3,
+                      bottom: -4,
+                      right: -4,
                       background: "#10b981",
                       color: "#fff",
-                      width: 20,
-                      height: 20,
+                      width: 18,
+                      height: 18,
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "12px",
+                      fontSize: "10px",
                       fontWeight: "bold",
                       border: "2px solid #fff",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                      boxShadow: "0 1px 2px rgba(0,0,0,0.15)",
                     }}
                   >
                     ✓
@@ -122,11 +122,11 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <strong style={{ display: "block", marginBottom: "2px" }}>{collab.fullName}</strong>
-                <small style={{ display: "block", color: "#8d7e98", fontSize: "11px" }}>{collab.email}</small>
+                <strong style={{ display: "block", marginBottom: "1px", fontSize: "13px", color: "#3a2a45" }}>{collab.fullName}</strong>
+                <small style={{ display: "block", color: "#9a8ba6", fontSize: "11px" }}>{collab.email}</small>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-                <span style={{ fontSize: "12px", color: "#8d7e98", fontWeight: "500", minWidth: "70px", textAlign: "right" }}>
+                <span style={{ fontSize: "11px", color: "#9a8ba6", fontWeight: "500", minWidth: "60px", textAlign: "right" }}>
                   {label}
                 </span>
               </div>

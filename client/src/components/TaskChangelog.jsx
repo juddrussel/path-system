@@ -47,11 +47,98 @@ export default function TaskChangelog({ taskId, token, apiUrl }) {
     return date.toLocaleString();
   };
 
-  const formatFieldName = (field) => {
-    return field
-      .split("_")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+  const formatChangeDisplay = (change) => {
+    // Handle collaboration_comment entries specially
+    if (change.fieldName === 'collaboration_comment') {
+      try {
+        const detail = JSON.parse(change.newValue);
+        if (detail.type === 'reply') {
+          return `Replied to comment ${detail.parent_comment_id}${detail.files_count > 0 ? ` (+ ${detail.files_count} file${detail.files_count > 1 ? 's' : ''})` : ''}`;
+        } else {
+          return `Posted a comment${detail.files_count > 0 ? ` (+ ${detail.files_count} file${detail.files_count > 1 ? 's' : ''})` : ''}`;
+        }
+      } catch (e) {
+        return 'Posted collaboration comment';
+      }
+    }
+    return formatFieldName(change.fieldName);
+  };
+
+  const renderChangeDetail = (change) => {
+    if (change.fieldName === 'collaboration_comment') {
+      try {
+        const detail = JSON.parse(change.newValue);
+        return (
+          <div className="tc-entry-details">
+            <div style={{ marginBottom: '8px' }}>
+              <span className="tc-label">Activity</span>
+              <div style={{ fontSize: '12px', color: '#5d4867', padding: '6px', background: '#f5f0fb', borderRadius: '4px', borderLeft: '2px solid #7c3aed' }}>
+                {detail.type === 'reply' ? '↩ Reply to comment' : '💬 New comment'}{detail.files_count > 0 ? ` with ${detail.files_count} file${detail.files_count > 1 ? 's' : ''}` : ''}
+              </div>
+            </div>
+            {detail.content_preview && (
+              <div style={{ marginBottom: '8px' }}>
+                <span className="tc-label">Preview</span>
+                <div style={{ fontSize: '11px', color: '#5d4867', padding: '6px', background: '#fff', border: '1px solid #e9ddfb', borderRadius: '4px' }}>
+                  "{detail.content_preview}"
+                </div>
+              </div>
+            )}
+            {detail.files && detail.files.length > 0 && (
+              <div>
+                <span className="tc-label">Files</span>
+                <div style={{ fontSize: '11px', color: '#5d4867' }}>
+                  {detail.files.map((f, idx) => (
+                    <div key={idx} style={{ padding: '4px 6px', background: '#f5f0fb', borderRadius: '4px', marginBottom: idx < detail.files.length - 1 ? '4px' : '0' }}>
+                      📎 {f.name} ({Math.round(f.size / 1024)} KB)
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      } catch (e) {
+        return (
+          <div className="tc-entry-details">
+            <code style={{ display: 'block', padding: '6px', background: '#fff', border: '1px solid #e9ddfb', borderRadius: '4px' }}>
+              {change.newValue}
+            </code>
+          </div>
+        );
+      }
+    }
+    
+    // Default rendering for other changes
+    return (
+      <div className="tc-entry-details">
+        <div className="tc-change-pair">
+          <div className="tc-before">
+            <span className="tc-label">Before</span>
+            <code>{truncateValue(change.oldValue)}</code>
+          </div>
+          <div className="tc-arrow">→</div>
+          <div className="tc-after">
+            <span className="tc-label">After</span>
+            <code>{truncateValue(change.newValue)}</code>
+          </div>
+        </div>
+
+        {(change.oldValue?.length > 50 || change.newValue?.length > 50) && (
+          <details className="tc-full-view">
+            <summary>View full values</summary>
+            <div className="tc-full-before">
+              <strong>Full Before:</strong>
+              <pre>{change.oldValue || "(empty)"}</pre>
+            </div>
+            <div className="tc-full-after">
+              <strong>Full After:</strong>
+              <pre>{change.newValue || "(empty)"}</pre>
+            </div>
+          </details>
+        )}
+      </div>
+    );
   };
 
   const truncateValue = (value, length = 50) => {
@@ -84,42 +171,14 @@ export default function TaskChangelog({ taskId, token, apiUrl }) {
                   type="button"
                 >
                   <span className="tc-toggle">{isExpanded ? "▼" : "▶"}</span>
-                  <span className="tc-field">{formatFieldName(change.fieldName)}</span>
+                  <span className="tc-field">{formatChangeDisplay(change)}</span>
                   <span className="tc-meta">
                     by <strong>{change.changedByName}</strong> on{" "}
                     <time>{formatTime(change.changedAt)}</time>
                   </span>
                 </button>
 
-                {isExpanded && (
-                  <div className="tc-entry-details">
-                    <div className="tc-change-pair">
-                      <div className="tc-before">
-                        <span className="tc-label">Before</span>
-                        <code>{truncateValue(change.oldValue)}</code>
-                      </div>
-                      <div className="tc-arrow">→</div>
-                      <div className="tc-after">
-                        <span className="tc-label">After</span>
-                        <code>{truncateValue(change.newValue)}</code>
-                      </div>
-                    </div>
-
-                    {(change.oldValue?.length > 50 || change.newValue?.length > 50) && (
-                      <details className="tc-full-view">
-                        <summary>View full values</summary>
-                        <div className="tc-full-before">
-                          <strong>Full Before:</strong>
-                          <pre>{change.oldValue || "(empty)"}</pre>
-                        </div>
-                        <div className="tc-full-after">
-                          <strong>Full After:</strong>
-                          <pre>{change.newValue || "(empty)"}</pre>
-                        </div>
-                      </details>
-                    )}
-                  </div>
-                )}
+                {isExpanded && renderChangeDetail(change)}
               </div>
             );
           })}
