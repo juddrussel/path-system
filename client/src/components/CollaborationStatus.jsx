@@ -35,12 +35,25 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
   if (error) return <div className="coll-status-error">Error: {error}</div>;
   if (collaborators.length === 0) return null;
 
+  const confirmedCount = collaborators.filter(c => c.confirmedAt).length;
+  const allConfirmed = confirmedCount === collaborators.length;
+
   return (
     <div className="coll-status">
       <div className="coll-status-header">
-        <span>Collaboration Status</span>
-        <em>{collaborators.filter(c => c.confirmedAt).length} of {collaborators.length} confirmed</em>
+        <div className="coll-status-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+          </svg>
+        </div>
+        <div className="coll-status-header-text">
+          <span className="coll-status-label">COLLABORATION</span>
+          <h3 className="coll-status-title">Mutual confirmation status</h3>
+        </div>
       </div>
+      <p className="coll-status-description">
+        All {collaborators.length} collaborator{collaborators.length !== 1 ? "s" : ""} must confirm their edits before the task can be submitted for review.
+      </p>
       <div className="coll-status-list">
         {collaborators.map((collab) => {
           const confirmedAt = collab.confirmedAt ? new Date(collab.confirmedAt) : null;
@@ -138,28 +151,65 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
       <style>{`
         .coll-status {
           margin-top: 20px;
-          padding: 16px;
-          border: 1px solid #e5e1ea;
+          padding: 20px;
+          border: 1px solid #e5dff3;
           border-radius: 12px;
-          background: #fcfaff;
+          background: #fdfbff;
         }
 
         .coll-status-header {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 14px;
-          font-size: 11px;
-          font-weight: 900;
-          color: #5a4965;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
+          align-items: flex-start;
+          gap: 14px;
+          margin-bottom: 16px;
         }
 
-        .coll-status-header em {
-          font-style: normal;
-          color: #8b7d95;
-          font-weight: 600;
+        .coll-status-icon {
+          flex-shrink: 0;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: #f0ebfa;
+          color: #9b7dd6;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .coll-status-icon svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .coll-status-header-text {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .coll-status-label {
+          font-size: 10px;
+          font-weight: 900;
+          color: #c2b4d4;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .coll-status-title {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 700;
+          color: #3a2a45;
+          line-height: 1.3;
+        }
+
+        .coll-status-description {
+          margin: 0 0 16px 0;
+          padding: 0;
+          font-size: 13px;
+          color: #7b6d84;
+          line-height: 1.5;
         }
 
         .coll-status-list {
