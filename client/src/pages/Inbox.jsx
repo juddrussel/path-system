@@ -733,6 +733,11 @@ export default function Inbox() {
   const [docInput, setDocInput] = useState("");
   const [docFile, setDocFile] = useState(null);
 
+  // ── File upload status states ──────────────────────────────────────────────
+  const [dmFileUploading, setDmFileUploading] = useState(false);
+  const [groupFileUploading, setGroupFileUploading] = useState(false);
+  const [docFileUploading, setDocFileUploading] = useState(false);
+
   // ── Call state ────────────────────────────────────────────────────────────
   const [callState, setCallState] = useState(null);
   // callState: null | { type: "outgoing"|"incoming"|"active", callType: "audio"|"video", with: userObj }
@@ -1361,6 +1366,9 @@ export default function Inbox() {
 
   const sendGroupMessage = async () => {
     if (!activeGroup || (!groupInput.trim() && !groupFile)) return;
+    
+    if (groupFile) setGroupFileUploading(true);
+    
     const fd = new FormData();
     if (groupInput.trim()) fd.append("content", groupInput.trim());
     if (groupFile) fd.append("file", groupFile);
@@ -1378,6 +1386,8 @@ export default function Inbox() {
       socket?.emit("send_group_message", { groupId: activeGroup.id, message: msg });
       setGroups(prev => prev.map(g => g.id === activeGroup.id ? { ...g, last_message: msg.content || "📎 File", last_time: msg.created_at, last_sender_id: msg.sender_id } : g));
     }
+    
+    setGroupFileUploading(false);
   };
 
   const handleGroupInput = (val) => {
@@ -1492,6 +1502,9 @@ export default function Inbox() {
 
   const sendDm = async () => {
     if (!activeConv || (!dmInput.trim() && !dmFile)) return;
+    
+    if (dmFile) setDmFileUploading(true);
+    
     const fd = new FormData();
     let content = dmInput.trim();
     if (replyingTo) {
@@ -1516,6 +1529,8 @@ export default function Inbox() {
       if (dmFileRef.current) dmFileRef.current.value = "";
       socket?.emit("stop_typing", { senderId: currentUser.id, receiverId: activeConv.id });
     }
+    
+    setDmFileUploading(false);
   };
 
   const handleDmInput = (val) => {
@@ -1541,6 +1556,9 @@ export default function Inbox() {
 
   const sendDocComment = async () => {
     if (!activeDoc || (!docInput.trim() && !docFile)) return;
+    
+    if (docFile) setDocFileUploading(true);
+    
     const fd = new FormData();
     if (docInput.trim()) fd.append("content", docInput.trim());
     if (docFile) fd.append("file", docFile);
@@ -1553,6 +1571,8 @@ export default function Inbox() {
       setDocInput(""); setDocFile(null);
       if (docFileRef.current) docFileRef.current.value = "";
     }
+    
+    setDocFileUploading(false);
   };
 
   // ── WebRTC helpers ────────────────────────────────────────────────────────
@@ -2611,8 +2631,16 @@ export default function Inbox() {
                 {/* File preview */}
                 {dmFile && (
                   <div style={{ padding: "6px 18px", background: "#faf5ff", borderTop: "0.5px solid #e5e7eb", display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-                    <span style={{ color: "#7c3aed" }}>📎 {dmFile.name}</span>
-                    <button onClick={() => { setDmFile(null); dmFileRef.current.value = ""; }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 14 }}>×</button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+                      {dmFile.type.startsWith("image/") && (
+                        <img src={URL.createObjectURL(dmFile)} alt={dmFile.name} style={{ height: 32, maxWidth: 32, borderRadius: 4, objectFit: "cover" }} />
+                      )}
+                      <span style={{ color: "#7c3aed", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        📎 {dmFile.name}
+                      </span>
+                      {dmFileUploading && <span style={{ color: "#7c3aed", fontSize: 11, marginLeft: "auto" }}>⟳ Uploading...</span>}
+                    </div>
+                    <button onClick={() => { setDmFile(null); dmFileRef.current.value = ""; }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 14, flexShrink: 0 }}>×</button>
                   </div>
                 )}
 
@@ -2875,8 +2903,16 @@ export default function Inbox() {
                 {/* Group message input */}
                 {groupFile && (
                   <div style={{ padding: "6px 18px", background: "#faf5ff", borderTop: "0.5px solid #e5e7eb", display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-                    <span style={{ color: "#7c3aed" }}>📎 {groupFile.name}</span>
-                    <button onClick={() => { setGroupFile(null); if (groupFileRef.current) groupFileRef.current.value = ""; }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 14 }}>×</button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+                      {groupFile.type.startsWith("image/") && (
+                        <img src={URL.createObjectURL(groupFile)} alt={groupFile.name} style={{ height: 32, maxWidth: 32, borderRadius: 4, objectFit: "cover" }} />
+                      )}
+                      <span style={{ color: "#7c3aed", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        📎 {groupFile.name}
+                      </span>
+                      {groupFileUploading && <span style={{ color: "#7c3aed", fontSize: 11, marginLeft: "auto" }}>⟳ Uploading...</span>}
+                    </div>
+                    <button onClick={() => { setGroupFile(null); if (groupFileRef.current) groupFileRef.current.value = ""; }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 14, flexShrink: 0 }}>×</button>
                   </div>
                 )}
                 <div style={{ padding: "16px 24px", borderTop: "0.5px solid #e5e7eb", background: "white" }}>
@@ -2955,8 +2991,16 @@ export default function Inbox() {
                 {/* File preview */}
                 {docFile && (
                   <div style={{ padding: "6px 18px", background: "#faf5ff", borderTop: "0.5px solid #e5e7eb", display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-                    <span style={{ color: "#7c3aed" }}>📎 {docFile.name}</span>
-                    <button onClick={() => { setDocFile(null); docFileRef.current.value = ""; }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 14 }}>×</button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+                      {docFile.type.startsWith("image/") && (
+                        <img src={URL.createObjectURL(docFile)} alt={docFile.name} style={{ height: 32, maxWidth: 32, borderRadius: 4, objectFit: "cover" }} />
+                      )}
+                      <span style={{ color: "#7c3aed", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        📎 {docFile.name}
+                      </span>
+                      {docFileUploading && <span style={{ color: "#7c3aed", fontSize: 11, marginLeft: "auto" }}>⟳ Uploading...</span>}
+                    </div>
+                    <button onClick={() => { setDocFile(null); docFileRef.current.value = ""; }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 14, flexShrink: 0 }}>×</button>
                   </div>
                 )}
 
