@@ -16,6 +16,7 @@ export default function CollaborativeComments({
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [newCommentFiles, setNewCommentFiles] = useState([]);
+  const [fileUploadStatus, setFileUploadStatus] = useState({}); // { fileName: 'uploading'|'success'|'error' }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -144,6 +145,39 @@ export default function CollaborativeComments({
       }
     };
 
+    const handleCommentUpdated = (data) => {
+      console.log(`[CollaborativeComments] Received task:comment_updated for taskId=${data.taskId}, commentId=${data.commentId}`);
+      if (data.taskId === taskId) {
+        setComments((prev) => {
+          return prev.map((c) => {
+            if (c.id === data.commentId) {
+              console.log(`[CollaborativeComments] Updating comment ${data.commentId} with real R2 URLs`);
+              return {
+                ...c,
+                files: data.comment.files,
+              };
+            }
+            // Also check replies
+            if (c.replies && c.replies.length > 0) {
+              return {
+                ...c,
+                replies: c.replies.map((reply) => {
+                  if (reply.id === data.commentId) {
+                    return {
+                      ...reply,
+                      files: data.comment.files,
+                    };
+                  }
+                  return reply;
+                })
+              };
+            }
+            return c;
+          });
+        });
+      }
+    };
+
     const handleUserTyping = (data) => {
       if (data.taskId === taskId) {
         setTypingUsers((prev) => new Set([...prev, data.userId]));
@@ -161,6 +195,7 @@ export default function CollaborativeComments({
     };
 
     io.on("task:comment_added", handleNewComment);
+    io.on("task:comment_updated", handleCommentUpdated);
     io.on("task:comment_deleted", handleCommentDeleted);
     io.on("task:user_typing", handleUserTyping);
     io.on("task:user_stop_typing", handleUserStopTyping);
@@ -170,6 +205,7 @@ export default function CollaborativeComments({
     return () => {
       console.log(`[CollaborativeComments] Cleaning up socket listeners for taskId=${taskId}`);
       io.off("task:comment_added", handleNewComment);
+      io.off("task:comment_updated", handleCommentUpdated);
       io.off("task:comment_deleted", handleCommentDeleted);
       io.off("task:user_typing", handleUserTyping);
       io.off("task:user_stop_typing", handleUserStopTyping);
@@ -211,11 +247,46 @@ export default function CollaborativeComments({
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files || []);
+    
+    // Validate files and set initial status
+    const newStatus = {};
+    files.forEach((file) => {
+      // Check file size (limit to 10MB per file)
+      if (file.size > 10 * 1024 * 1024) {
+        newStatus[file.name] = 'error';
+      } else {
+        newStatus[file.name] = 'uploading';
+      }
+    });
+    
+    setFileUploadStatus(newStatus);
     setNewCommentFiles((prev) => [...prev, ...files]);
+
+    // Simulate validation and mark as success (files are ready to be sent)
+    // In a real scenario, you might validate with the server
+    setTimeout(() => {
+      setFileUploadStatus((prev) => {
+        const updated = { ...prev };
+        files.forEach((file) => {
+          if (prev[file.name] !== 'error') {
+            updated[file.name] = 'success';
+          }
+        });
+        return updated;
+      });
+    }, 500);
   };
 
   const handleRemoveFile = (index) => {
+    const removedFile = newCommentFiles[index];
     setNewCommentFiles((prev) => prev.filter((_, i) => i !== index));
+    
+    // Clear upload status for this file
+    setFileUploadStatus((prev) => {
+      const updated = { ...prev };
+      delete updated[removedFile.name];
+      return updated;
+    });
   };
 
   const handleSubmitComment = async (e) => {
@@ -247,6 +318,7 @@ export default function CollaborativeComments({
 
       setNewComment("");
       setNewCommentFiles([]);
+      setFileUploadStatus({}); // Clear all upload statuses
       setReplyingTo(null);
       
       if (io) {
@@ -309,18 +381,25 @@ export default function CollaborativeComments({
         formData.append("content", replyText.trim());
         formData.append("parentCommentId", comment.id);
 
+        console.log(`[CommentThread] Submitting reply to comment ${comment.id}`);
         const res = await fetch(`${apiUrl}/api/tasks/${taskId}/comments`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
         });
 
-        if (!res.ok) throw new Error("Failed to submit reply");
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || "Failed to submit reply");
+        }
 
+        const replyData = await res.json();
+        console.log(`[CommentThread] Reply submitted successfully`, replyData);
+        
         setReplyText("");
         setShowReplyInput(false);
       } catch (err) {
-        console.error("Submit reply error:", err);
+        console.error("[CommentThread] Submit reply error:", err);
       } finally {
         setReplySubmitting(false);
       }
@@ -342,17 +421,45 @@ export default function CollaborativeComments({
             <div className="cc-comment-text">{comment.content}</div>
             {comment.files && comment.files.length > 0 && (
               <div className="cc-comment-files">
-                {comment.files.map((file, idx) => (
-                  <a
-                    key={idx}
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cc-file-badge"
-                  >
-                    📎 {file.name}
-                  </a>
-                ))}
+                {/* Render images inline, other files as badges */}
+                {comment.files.map((file, idx) => {
+                  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+                  const isLoading = !file.url; // Files without URL are still uploading to R2
+                  
+                  return isImage ? (
+                    isLoading ? (
+                      <div key={idx} className="cc-image-loading">
+                        <div className="cc-image-spinner" />
+                        <span className="cc-image-name">{file.name}</span>
+                      </div>
+                    ) : (
+                      <img
+                        key={idx}
+                        src={file.url}
+                        alt={file.name}
+                        className="cc-image-preview"
+                        title={file.name}
+                      />
+                    )
+                  ) : (
+                    isLoading ? (
+                      <div key={idx} className="cc-file-badge cc-file-loading">
+                        <span>⏳ {file.name}</span>
+                      </div>
+                    ) : (
+                      <a
+                        key={idx}
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cc-file-badge"
+                        title={file.name}
+                      >
+                        📎 {file.name}
+                      </a>
+                    )
+                  );
+                })}
               </div>
             )}
             <div className="cc-comment-actions">
@@ -447,12 +554,28 @@ export default function CollaborativeComments({
         />
         {newCommentFiles.length > 0 && (
           <div className="cc-attached-files">
-            {newCommentFiles.map((file, idx) => (
-              <div key={idx} className="cc-attached-file">
-                <span>📎 {file.name}</span>
-                <button type="button" onClick={() => handleRemoveFile(idx)}>✕</button>
-              </div>
-            ))}
+            {newCommentFiles.map((file, idx) => {
+              const status = fileUploadStatus[file.name];
+              return (
+                <div key={idx} className={`cc-attached-file cc-attached-file-${status || 'pending'}`}>
+                  <span>
+                    {status === 'success' && '✓'}
+                    {status === 'uploading' && '⟳'}
+                    {status === 'error' && '✕'}
+                    {!status && '📎'}
+                    {' '}
+                    {file.name}
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={() => handleRemoveFile(idx)}
+                    disabled={submitting}
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
         <div className="cc-composer-footer">
@@ -591,6 +714,61 @@ export default function CollaborativeComments({
     flex-wrap: wrap;
     gap: 6px;
     margin-bottom: 6px;
+  }
+
+  .cc-image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    border: 1px solid #e0d5ef;
+    background: #f5f0fb;
+    object-fit: cover;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .cc-image-preview:hover {
+    border-color: #7c3aed;
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.15);
+    transform: scale(1.02);
+  }
+
+  .cc-image-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    max-width: 200px;
+    border-radius: 8px;
+    border: 2px dashed #d9cbe6;
+    background: #f5f0fb;
+  }
+
+  .cc-image-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e0d5ef;
+    border-top-color: #7c3aed;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .cc-image-name {
+    font-size: 10px;
+    color: #7c3aed;
+    font-weight: 600;
+    word-break: break-word;
+  }
+
+  .cc-file-loading {
+    opacity: 0.7;
+    background: #fcf8fe;
   }
 
   .cc-file-badge {
@@ -763,6 +941,48 @@ export default function CollaborativeComments({
     border-radius: 5px;
     font-size: 10px;
     color: #5d4867;
+    transition: all 0.2s;
+  }
+
+  .cc-attached-file-pending {
+    border-color: #d9cbe6;
+    background: #fcfaff;
+  }
+
+  .cc-attached-file-uploading {
+    border-color: #a78bfa;
+    background: #f5f0fb;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .cc-attached-file-uploading span {
+    color: #7c3aed;
+    font-weight: 600;
+  }
+
+  .cc-attached-file-success {
+    border-color: #10b981;
+    background: #f0fdf4;
+  }
+
+  .cc-attached-file-success span {
+    color: #059669;
+    font-weight: 600;
+  }
+
+  .cc-attached-file-error {
+    border-color: #ef4444;
+    background: #fef2f2;
+  }
+
+  .cc-attached-file-error span {
+    color: #dc2626;
+    font-weight: 600;
   }
 
   .cc-attached-file button {
@@ -773,10 +993,16 @@ export default function CollaborativeComments({
     font-size: 10px;
     cursor: pointer;
     font-weight: 600;
+    transition: color 0.2s;
   }
 
-  .cc-attached-file button:hover {
+  .cc-attached-file button:hover:not(:disabled) {
     color: #b55e51;
+  }
+
+  .cc-attached-file button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .cc-composer-footer {

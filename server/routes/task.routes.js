@@ -2156,26 +2156,98 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       parentId = parseInt(parentCommentId);
     }
 
-    // Upload files if any
-    let files = [];
+    // Collect file metadata for immediate response (without R2 upload)
+    let pendingFiles = [];
+    const fileUploadPromises = [];
+    const now = new Date();
+
     if (req.files && req.files.length > 0) {
-      const uploaded = await uploadFilesToR2(req.files);
-      files = uploaded.map(f => ({
+      pendingFiles = req.files.map((f, idx) => ({
         name: f.originalname || f.name,
-        url: f.url,
-        size: f.size
+        size: f.size,
+        tempId: `temp_${Date.now()}_${idx}`, // Temp ID until R2 upload completes
       }));
+
+      // Start R2 uploads in background (don't await)
+      fileUploadPromises.push(
+        uploadFilesToR2(req.files)
+          .then(async (uploaded) => {
+            // Update comment with real R2 URLs after upload completes
+            const updatedFiles = uploaded.map(f => ({
+              name: f.originalname || f.name,
+              url: f.url,
+              size: f.size
+            }));
+            const filesJson = JSON.stringify(updatedFiles);
+            
+            await db.query(
+              "UPDATE task_comments SET files = ? WHERE id = ?",
+              [filesJson, commentId]
+            );
+
+            // Broadcast updated comment with real URLs
+            const [updatedRows] = await db.query(
+              `SELECT tc.id, tc.task_id, tc.sender_id, tc.parent_comment_id, tc.content, tc.files, tc.created_at,
+                      u.full_name, u.email
+               FROM task_comments tc
+               JOIN users u ON u.id = tc.sender_id
+               WHERE tc.id = ?`,
+              [commentId]
+            );
+
+            if (updatedRows.length > 0) {
+              const updatedComment = updatedRows[0];
+              let parsedFiles = [];
+              try {
+                if (updatedComment.files) {
+                  parsedFiles = typeof updatedComment.files === 'string' 
+                    ? JSON.parse(updatedComment.files) 
+                    : updatedComment.files;
+                }
+              } catch (e) {
+                console.error(`Failed to parse files for comment ${commentId}:`, e.message);
+              }
+
+              const updatedObj = {
+                id: updatedComment.id,
+                taskId: updatedComment.task_id,
+                userId: updatedComment.sender_id,
+                userName: updatedComment.full_name,
+                userEmail: updatedComment.email,
+                userRole: "Faculty lead",
+                parentCommentId: updatedComment.parent_comment_id,
+                content: updatedComment.content,
+                files: parsedFiles,
+                createdAt: updatedComment.created_at,
+              };
+
+              const io = req.app.get("io");
+              if (io) {
+                console.log(`[POST /tasks/:id/comments] Broadcasting file update to task_${taskId}`);
+                io.to(`task_${taskId}`).emit("task:comment_updated", {
+                  taskId,
+                  commentId,
+                  comment: updatedObj,
+                });
+              }
+            }
+          })
+          .catch((err) => {
+            console.error(`Failed to upload files for comment ${commentId}:`, err.message);
+          })
+      );
     }
 
-    // Insert comment with files and optional parent
-    const now = new Date();
-    const filesJson = files.length > 0 ? JSON.stringify(files) : null;
+    // Insert comment immediately with pending files (no R2 URLs yet)
+    const filesJson = pendingFiles.length > 0 ? JSON.stringify(pendingFiles) : null;
     
     const [result] = await db.query(
       `INSERT INTO task_comments (task_id, sender_id, parent_comment_id, content, files, created_at) 
        VALUES (?, ?, ?, ?, ?, ?)`,
       [taskId, userId, parentId, content.trim(), filesJson, now]
     );
+
+    const commentId = result.insertId;
 
     // Fetch the newly created comment with user info
     const [comments] = await db.query(
@@ -2184,24 +2256,10 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
        WHERE tc.id = ?`,
-      [result.insertId]
+      [commentId]
     );
 
     const comment = comments[0];
-    let parsedFiles = [];
-    try {
-      if (comment.files) {
-        if (typeof comment.files === 'string') {
-          parsedFiles = JSON.parse(comment.files);
-        } else if (typeof comment.files === 'object') {
-          parsedFiles = comment.files;
-        }
-      }
-    } catch (e) {
-      console.error(`Failed to parse files for comment ${comment.id}:`, e.message);
-      parsedFiles = [];
-    }
-
     const commentObj = {
       id: comment.id,
       taskId: comment.task_id,
@@ -2211,31 +2269,31 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       userRole: "Faculty lead",
       parentCommentId: comment.parent_comment_id,
       content: comment.content,
-      files: parsedFiles,
+      files: pendingFiles, // Show pending files immediately
       createdAt: comment.created_at,
     };
 
-    // Broadcast via WebSocket to all collaborators in this task's room
+    // Broadcast immediately with pending files (before R2 upload completes)
     const io = req.app.get("io");
     if (io) {
-      console.log(`[POST /tasks/:id/comments] Broadcasting task:comment_added to task_${taskId}`);
+      console.log(`[POST /tasks/:id/comments] Broadcasting task:comment_added to task_${taskId} (files uploading in background)`);
       io.to(`task_${taskId}`).emit("task:comment_added", {
         taskId,
         comment: commentObj,
       });
-      console.log(`[POST /tasks/:id/comments] Broadcast sent for taskId=${taskId}, commentId=${comment.id}`);
+      console.log(`[POST /tasks/:id/comments] Broadcast sent for taskId=${taskId}, commentId=${commentId}`);
     } else {
       console.error(`[POST /tasks/:id/comments] Socket.io instance not found!`);
     }
 
-    // Track in changelog with detailed file information
+    // Track in changelog with file information
     const changelogDetail = {
-      comment_id: comment.id,
+      comment_id: commentId,
       author: comment.full_name,
       type: parentId ? 'reply' : 'comment',
       content_preview: content.trim().substring(0, 100) + (content.trim().length > 100 ? '...' : ''),
-      files: files.map(f => ({ name: f.name, size: f.size })),
-      files_count: files.length,
+      files: pendingFiles,
+      files_count: pendingFiles.length,
       is_reply: !!parentId,
       parent_comment_id: parentId
     };
@@ -2244,6 +2302,12 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       `INSERT INTO task_changelog (task_id, field_name, new_value, changed_by, changed_at)
        VALUES (?, ?, ?, ?, ?)`,
       [taskId, 'collaboration_comment', JSON.stringify(changelogDetail), userId, now]
+    );
+
+    // Don't await R2 uploads — let them happen in background
+    // Fire and forget to keep response fast
+    Promise.all(fileUploadPromises).catch(err => 
+      console.error(`Background file upload failed:`, err.message)
     );
 
     return res.json(commentObj);
