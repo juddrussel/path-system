@@ -291,6 +291,15 @@ export default function CollaborativeComments({
     });
   };
 
+  const getFileUrl = (file) => {
+    // Convert R2 key to proxy URL
+    if (file.key) {
+      return `${apiUrl}/api/files/proxy?key=${encodeURIComponent(file.key)}`;
+    }
+    // Fallback to direct URL if available (for backward compat)
+    return file.url || null;
+  };
+
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || submitting) return;
@@ -426,7 +435,8 @@ export default function CollaborativeComments({
                 {/* Render images inline, other files as badges */}
                 {comment.files.map((file, idx) => {
                   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
-                  const isLoading = !file.url; // Files without URL are still uploading to R2
+                  const isLoading = !file.key && !file.url; // Files without key/url are still uploading to R2
+                  const fileUrl = getFileUrl(file);
                   
                   return isImage ? (
                     isLoading ? (
@@ -437,12 +447,12 @@ export default function CollaborativeComments({
                     ) : (
                       <img
                         key={idx}
-                        src={file.url}
+                        src={fileUrl}
                         alt={file.name}
                         className="cc-image-preview"
                         title={file.name}
-                        onLoad={() => console.log(`[Image loaded] ${file.url}`)}
-                        onError={() => console.error(`[Image failed to load] ${file.url}`)}
+                        onLoad={() => console.log(`[Image loaded] ${fileUrl}`)}
+                        onError={() => console.error(`[Image failed to load] ${fileUrl}`)}
                       />
                     )
                   ) : (
@@ -453,7 +463,7 @@ export default function CollaborativeComments({
                     ) : (
                       <a
                         key={idx}
-                        href={file.url}
+                        href={fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="cc-file-badge"

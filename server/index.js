@@ -40,6 +40,7 @@ const facultyRoutes = require("./routes/facultyRoutes");
 const slaRoutes = require("./routes/slaRoutes");
 const trackingRoutes = require("./routes/tracking.routes");
 const academicRoutes = require("./routes/academic.routes");
+const fileProxyRoutes = require("./routes/file.proxy.routes");
 const startScoreCron = require("./jobs/scoreCron");
 const { startSlaCron } = require("./cron/slaCron");
 const { recalculateAllScores } = require("./services/facultyScoreService");
@@ -148,6 +149,7 @@ app.use("/api/faculty", facultyRoutes(db));
 app.use("/api/sla", slaRoutes);
 app.use("/api/tracking", trackingRoutes);
 app.use("/api/academic", academicRoutes);
+app.use("/api/files", fileProxyRoutes);
 
 // ── Collaborative editing (Phase 2+) – persistence & audit ──
 // REMOVED: Collab editing no longer needed

@@ -33,4 +33,3 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
-.kiro/settings/mcp.json

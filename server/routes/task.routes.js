@@ -2165,17 +2165,17 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       pendingFiles = req.files.map((f, idx) => ({
         name: f.originalname || f.name,
         size: f.size,
-        tempId: `temp_${Date.now()}_${idx}`, // Temp ID until R2 upload completes
+        key: `pending_${Date.now()}_${idx}`, // Temp key until R2 upload completes
       }));
 
       // Start R2 uploads in background (don't await)
       fileUploadPromises.push(
         uploadFilesToR2(req.files)
           .then(async (uploaded) => {
-            // Update comment with real R2 URLs after upload completes
+            // Update comment with real R2 keys (not URLs) for proxying
             const updatedFiles = uploaded.map(f => ({
               name: f.originalname || f.name,
-              url: f.url,
+              key: f.key, // Store the R2 key instead of URL
               size: f.size
             }));
             const filesJson = JSON.stringify(updatedFiles);
@@ -2185,7 +2185,7 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
               [filesJson, commentId]
             );
 
-            // Broadcast updated comment with real URLs
+            // Broadcast updated comment with keys (not URLs)
             const [updatedRows] = await db.query(
               `SELECT tc.id, tc.task_id, tc.sender_id, tc.parent_comment_id, tc.content, tc.files, tc.created_at,
                       u.full_name, u.email
