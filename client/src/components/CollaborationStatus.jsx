@@ -76,50 +76,60 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           return (
             <div key={collab.userId} className={`coll-status-badge coll-status-${statusClass}`}>
               <div
-                className="coll-status-avatar"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  background: bgColor,
-                  color: "#fff",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  flexShrink: 0,
                   position: "relative",
+                  flexShrink: 0,
                 }}
               >
-                {initials}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: bgColor,
+                    color: "#fff",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                  }}
+                >
+                  {initials}
+                </div>
                 {confirmedAt && (
                   <span
                     style={{
                       position: "absolute",
-                      bottom: -2,
-                      right: -2,
+                      bottom: -3,
+                      right: -3,
                       background: "#10b981",
                       color: "#fff",
-                      width: 18,
-                      height: 18,
+                      width: 20,
+                      height: 20,
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "11px",
+                      fontSize: "12px",
+                      fontWeight: "bold",
                       border: "2px solid #fff",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
                     }}
                   >
                     ✓
                   </span>
                 )}
               </div>
-              <div>
-                <strong>{collab.fullName}</strong>
-                <small>{collab.email}</small>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <strong style={{ display: "block", marginBottom: "2px" }}>{collab.fullName}</strong>
+                <small style={{ display: "block", color: "#8d7e98", fontSize: "11px" }}>{collab.email}</small>
               </div>
-              <em>{label}</em>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                <span style={{ fontSize: "12px", color: "#8d7e98", fontWeight: "500", minWidth: "70px", textAlign: "right" }}>
+                  {label}
+                </span>
+              </div>
             </div>
           );
         })}
@@ -131,7 +141,7 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           padding: 16px;
           border: 1px solid #e5e1ea;
           border-radius: 12px;
-          background: linear-gradient(135deg, #fcfaff 0%, #f7f3fd 100%);
+          background: #fcfaff;
         }
 
         .coll-status-header {
@@ -154,65 +164,38 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
 
         .coll-status-list {
           display: grid;
-          gap: 10px;
+          gap: 12px;
         }
 
         .coll-status-badge {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
           padding: 12px;
-          border-radius: 10px;
+          border-radius: 8px;
           background: #fff;
           border: 1px solid #e9ddfb;
           transition: all 0.2s ease;
         }
 
         .coll-status-badge:hover {
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
           border-color: #dfc8f0;
         }
 
         .coll-status-badge.confirmed {
           border-color: #c5e4c3;
-          background: #f5fbf8;
+          background: #fafffe;
         }
 
         .coll-status-badge.pending {
           border-color: #f0deb8;
-          background: #fffbf0;
+          background: #fffbf8;
         }
 
         .coll-status-badge.overdue {
           border-color: #f5d1cc;
           background: #fff9f8;
-        }
-
-        .coll-status-badge > div {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .coll-status-badge strong {
-          display: block;
-          font-size: 13px;
-          font-weight: 600;
-          color: #3a2a45;
-        }
-
-        .coll-status-badge small {
-          display: block;
-          margin-top: 2px;
-          font-size: 11px;
-          color: #8d7e98;
-        }
-
-        .coll-status-badge em {
-          font-style: normal;
-          white-space: nowrap;
-          font-size: 11px;
-          color: #a89cb3;
-          font-weight: 500;
         }
 
         .coll-status-loading,
