@@ -2208,6 +2208,8 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
                 console.error(`Failed to parse files for comment ${commentId}:`, e.message);
               }
 
+              console.log(`[File Proxy] Updated files for comment ${commentId}:`, JSON.stringify(parsedFiles));
+
               const updatedObj = {
                 id: updatedComment.id,
                 taskId: updatedComment.task_id,
@@ -2223,7 +2225,7 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
 
               const io = req.app.get("io");
               if (io) {
-                console.log(`[POST /tasks/:id/comments] Broadcasting file update to task_${taskId}`);
+                console.log(`[POST /tasks/:id/comments] Broadcasting file update to task_${taskId} with files:`, JSON.stringify(parsedFiles));
                 io.to(`task_${taskId}`).emit("task:comment_updated", {
                   taskId,
                   commentId,
