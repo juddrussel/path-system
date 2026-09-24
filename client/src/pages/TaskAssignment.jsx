@@ -1244,10 +1244,7 @@ function TaskAssignmentInner() {
                   "Due date",
                   "Review guidance",
                 ].map((label, index) => (
-                  <div key={label}>
-                    <span className={index < readySteps ? "complete" : ""}>
-                      {index < readySteps ? <Icon.Check /> : index + 1}
-                    </span>
+                  <div key={label} style={{ paddingLeft: "0" }}>
                     <strong>{label}</strong>
                   </div>
                 ))}
