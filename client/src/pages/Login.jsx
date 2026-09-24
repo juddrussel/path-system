@@ -576,8 +576,6 @@ export default function Login() {
     <main style={styles.page}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');`}</style>
       <aside style={styles.aside}>
-        <span style={styles.asideOrb} aria-hidden="true" />
-        <span style={styles.asideOrbBottom} aria-hidden="true" />
         <div style={styles.brand}>
           <span style={styles.mark}>
             <img src={logowhite} alt="DS PATH logo" style={styles.markImg} />
@@ -795,6 +793,7 @@ export default function Login() {
                     style={styles.input}
                     type="text"
                     name="username"
+                    placeholder="your.name@example.edu"
                     autoComplete="username"
                     value={formData.username}
                     onChange={handleChange}
@@ -817,6 +816,7 @@ export default function Login() {
                     style={styles.input}
                     type={showPassword ? "text" : "password"}
                     name="password"
+                    placeholder="••••••••••••"
                     autoComplete="current-password"
                     value={formData.password}
                     onChange={handleChange}
