@@ -696,6 +696,7 @@ export default function Register() {
                   <input
                     style={s.input}
                     name="full_name"
+                    placeholder="Jane Smith"
                     value={formData.full_name}
                     onChange={handleChange}
                     autoComplete="name"
@@ -727,6 +728,7 @@ export default function Register() {
                   <input
                     style={s.input}
                     name="phone"
+                    placeholder="(555) 123-4567"
                     value={formData.phone}
                     onChange={handleChange}
                     type="tel"
