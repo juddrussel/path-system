@@ -37,6 +37,7 @@ export default function CollaborativeComments({
         // Not a collaborator - just show empty comments
         console.log("User is not a collaborator on this task");
         setComments([]);
+        setLoading(false);
         return;
       }
       
@@ -47,13 +48,20 @@ export default function CollaborativeComments({
       
       const data = await res.json();
       setComments(data.comments || []);
+      setLoading(false);
     } catch (err) {
       console.error("CollaborativeComments load error:", err);
       setError(null); // Don't show error to user, just empty state
-    } finally {
       setLoading(false);
     }
   };
+
+  // Load initial comments
+  useEffect(() => {
+    if (taskId && token) {
+      loadComments();
+    }
+  }, [taskId, token, apiUrl]);
 
   // WebSocket listeners for real-time updates
   useEffect(() => {
