@@ -26,15 +26,19 @@ const requireAuth = (req, res, next) => {
  * Query params:
  *   key: R2 object key (e.g., "uploads/uuid-filename.png")
  */
-router.get("/proxy", requireAuth, async (req, res) => {
+router.get("/proxy", async (req, res) => {
   try {
     const { key } = req.query;
 
+    console.log(`[File Proxy] GET request received, key=${key}, auth=${req.headers.authorization ? 'present' : 'missing'}`);
+
     if (!key) {
+      console.error(`[File Proxy] Missing key parameter`);
       return res.status(400).json({ message: "Missing 'key' parameter" });
     }
 
     if (!process.env.R2_BUCKET_NAME) {
+      console.error(`[File Proxy] R2 bucket not configured`);
       return res.status(500).json({ message: "R2 bucket not configured" });
     }
 
