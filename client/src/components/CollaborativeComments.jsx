@@ -302,7 +302,7 @@ export default function CollaborativeComments({
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
-    if (!newComment.trim() || submitting) return;
+    if ((!newComment.trim() && newCommentFiles.length === 0) || submitting) return;
 
     try {
       setSubmitting(true);
@@ -603,7 +603,7 @@ export default function CollaborativeComments({
             >
               📎 Add picture / PDF
             </button>
-            <button type="submit" className="cc-send-btn" disabled={!newComment.trim() || submitting}>
+            <button type="submit" className="cc-send-btn" disabled={(!newComment.trim() && newCommentFiles.length === 0) || submitting}>
               ↗ Send message
             </button>
           </div>
