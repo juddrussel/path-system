@@ -106,7 +106,12 @@ app.use(cors({
   origin: "*",  // Allow all origins in dev
   credentials: false
 }));
-app.use(express.json());
+app.use(express.json({ charset: 'utf-8' }));
+app.use((req, res, next) => {
+  res.charset = 'utf-8';
+  res.type('application/json; charset=utf-8');
+  next();
+});
 app.use(passport.initialize());
 app.use("/uploads", express.static("./uploads"));
 
