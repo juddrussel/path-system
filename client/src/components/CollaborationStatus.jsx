@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 
 /**
  * CollaborationStatus
- * Shows who has confirmed their edits and when.
- * Green checkmark = confirmed, Yellow hourglass = pending <24h, Red alert = overdue >24h
+ * Unified card showing mutual confirmation status + list of collaborators.
+ * Shows who has confirmed their edits with visual indicators.
  */
 export default function CollaborationStatus({ taskId, token, apiUrl }) {
   const [collaborators, setCollaborators] = useState([]);
@@ -31,35 +31,36 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
     if (taskId && token) loadCollaborators();
   }, [taskId, token, apiUrl]);
 
-  if (loading) return <div className="coll-status-loading">Loading collaborators...</div>;
-  if (error) return <div className="coll-status-error">Error: {error}</div>;
+  if (loading) return <div className="coll-card-loading">Loading collaborators...</div>;
+  if (error) return <div className="coll-card-error">Error: {error}</div>;
   if (collaborators.length === 0) return null;
 
+  const confirmedCount = collaborators.filter(c => c.confirmedAt).length;
+  const allConfirmed = confirmedCount === collaborators.length;
+
   return (
-    <div className="coll-status">
-      <div className="coll-status-header">
-        <span>Collaboration Status</span>
-        <em>{collaborators.filter(c => c.confirmedAt).length} of {collaborators.length} confirmed</em>
+    <div className="coll-card">
+      <div className="coll-card-header">
+        <div>
+          <span className="coll-card-label">Collaboration</span>
+          <h3 className="coll-card-title">Mutual confirmation status</h3>
+        </div>
+        <div className="coll-card-badge" style={{
+          background: allConfirmed ? "#d4edda" : "#fff3cd",
+          color: allConfirmed ? "#155724" : "#856404"
+        }}>
+          {allConfirmed ? `✓ ${confirmedCount} confirmed` : `⏳ ${confirmedCount}/${collaborators.length} confirmed`}
+        </div>
       </div>
-      <div className="coll-status-list">
+
+      <p className="coll-card-description">
+        All {collaborators.length} collaborator{collaborators.length !== 1 ? "s" : ""} must confirm their edits before the task can be submitted for review.
+      </p>
+
+      <div className="coll-card-list">
         {collaborators.map((collab) => {
           const confirmedAt = collab.confirmedAt ? new Date(collab.confirmedAt) : null;
-          const now = new Date();
-          const hoursAgo = confirmedAt ? (now - confirmedAt) / (1000 * 60 * 60) : null;
-          
-          let statusClass = "pending";
-          let icon = "⏳";
-          let label = "Pending";
-
-          if (confirmedAt) {
-            statusClass = "confirmed";
-            icon = "✓";
-            label = `Confirmed ${hoursAgo < 1 ? "just now" : hoursAgo < 24 ? `${Math.floor(hoursAgo)}h ago` : `${Math.floor(hoursAgo / 24)}d ago`}`;
-          } else if (hoursAgo !== null && hoursAgo > 24) {
-            statusClass = "overdue";
-            icon = "⚠";
-            label = `Overdue ${Math.floor(hoursAgo - 24)}h`;
-          }
+          const isConfirmed = !!confirmedAt;
 
           // Generate initials for avatar
           const initials = (collab.fullName || "?")
@@ -74,60 +75,69 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           const bgColor = colors[colorIndex];
 
           return (
-            <div key={collab.userId} className={`coll-status-badge coll-status-${statusClass}`}>
-              <div
-                style={{
-                  position: "relative",
-                  flexShrink: 0,
-                }}
-              >
+            <div key={collab.userId} className={`coll-card-item ${isConfirmed ? "confirmed" : "pending"}`}>
+              <div style={{ position: "relative", flexShrink: 0 }}>
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    width: 32,
-                    height: 32,
+                    width: 40,
+                    height: 40,
                     borderRadius: "50%",
                     background: bgColor,
                     color: "#fff",
-                    fontSize: "11px",
-                    fontWeight: 600,
+                    fontSize: "13px",
+                    fontWeight: 700,
                   }}
                 >
                   {initials}
                 </div>
-                {confirmedAt && (
+                {isConfirmed && (
                   <span
                     style={{
                       position: "absolute",
-                      bottom: -4,
-                      right: -4,
+                      bottom: -2,
+                      right: -2,
                       background: "#10b981",
                       color: "#fff",
-                      width: 18,
-                      height: 18,
+                      width: 20,
+                      height: 20,
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "10px",
+                      fontSize: "11px",
                       fontWeight: "bold",
                       border: "2px solid #fff",
-                      boxShadow: "0 1px 2px rgba(0,0,0,0.15)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
                     }}
                   >
                     ✓
                   </span>
                 )}
               </div>
+
               <div style={{ flex: 1, minWidth: 0 }}>
-                <strong style={{ display: "block", marginBottom: "1px", fontSize: "13px", color: "#3a2a45" }}>{collab.fullName}</strong>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "2px" }}>
+                  <strong style={{ fontSize: "13px", color: "#3a2a45" }}>{collab.fullName}</strong>
+                  {isConfirmed && (
+                    <span style={{ fontSize: "10px", color: "#10b981", fontWeight: 600 }}>Confirmed</span>
+                  )}
+                </div>
                 <small style={{ display: "block", color: "#9a8ba6", fontSize: "11px" }}>{collab.email}</small>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-                <span style={{ fontSize: "11px", color: "#9a8ba6", fontWeight: "500", minWidth: "60px", textAlign: "right" }}>
-                  {label}
+
+              <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+                <span style={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: isConfirmed ? "#10b981" : "#b8a8c0",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  background: isConfirmed ? "#f0fdf4" : "#f5f3f8"
+                }}>
+                  {isConfirmed ? "✓" : "○"}
                 </span>
               </div>
             </div>
@@ -136,41 +146,64 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
       </div>
 
       <style>{`
-        .coll-status {
-          margin-top: 20px;
+        .coll-card {
+          margin: 16px 0;
           padding: 16px;
           border: 1px solid #e5e1ea;
           border-radius: 12px;
           background: #fcfaff;
         }
 
-        .coll-status-header {
+        .coll-card-header {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
-          margin-bottom: 14px;
-          font-size: 11px;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+
+        .coll-card-label {
+          display: block;
+          font-size: 10px;
           font-weight: 900;
-          color: #5a4965;
+          color: #9a8ba6;
           text-transform: uppercase;
           letter-spacing: 0.1em;
+          margin-bottom: 2px;
         }
 
-        .coll-status-header em {
-          font-style: normal;
-          color: #8b7d95;
-          font-weight: 600;
+        .coll-card-title {
+          margin: 0;
+          font-size: 15px;
+          font-weight: 800;
+          color: #3a2a45;
         }
 
-        .coll-status-list {
+        .coll-card-badge {
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .coll-card-description {
+          margin: 0 0 14px 0;
+          font-size: 13px;
+          color: #6b5f76;
+          line-height: 1.5;
+        }
+
+        .coll-card-list {
           display: grid;
-          gap: 12px;
+          gap: 10px;
         }
 
-        .coll-status-badge {
+        .coll-card-item {
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 12px;
           padding: 12px;
           border-radius: 8px;
           background: #fff;
@@ -178,34 +211,30 @@ export default function CollaborationStatus({ taskId, token, apiUrl }) {
           transition: all 0.2s ease;
         }
 
-        .coll-status-badge:hover {
+        .coll-card-item:hover {
           box-shadow: 0 2px 8px rgba(0,0,0,0.06);
           border-color: #dfc8f0;
         }
 
-        .coll-status-badge.confirmed {
+        .coll-card-item.confirmed {
           border-color: #c5e4c3;
-          background: #fafffe;
+          background: #f7fcf5;
         }
 
-        .coll-status-badge.pending {
+        .coll-card-item.pending {
           border-color: #f0deb8;
           background: #fffbf8;
         }
 
-        .coll-status-badge.overdue {
-          border-color: #f5d1cc;
-          background: #fff9f8;
-        }
-
-        .coll-status-loading,
-        .coll-status-error {
+        .coll-card-loading,
+        .coll-card-error {
           padding: 12px;
           font-size: 12px;
           color: #9a88a6;
+          text-align: center;
         }
 
-        .coll-status-error {
+        .coll-card-error {
           color: #b55e51;
         }
       `}</style>
