@@ -269,6 +269,7 @@ export default function TaskDetail() {
       if (!response.ok) throw new Error("The task could not be loaded.");
       const data = await response.json();
       const nextTask = data.task || data;
+      console.log("📥 TaskDetail loaded task - faculty_name:", nextTask?.faculty_name, "collaborators length:", nextTask?.collaborators?.length);
       setTask(nextTask);
       setComments(nextTask.comments || []);
       setDeadlineDraft(toDatetimeInput(nextTask.deadline || nextTask.due_date));
