@@ -998,7 +998,7 @@ export default function Inbox() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, docComments, otherTyping]);
 
-  useEffect(() => { fetchConversations(); fetchAllUsers(); fetchUnreadCount(); fetchDocuments(); fetchGroups(); }, []);
+  useEffect(() => { fetchConversations(); fetchAllUsers(); fetchUnreadCount(); fetchGroups(); }, []);
 
   // ── Arriving from TopBar's bottom-right "new message" popup ───────────────
   // TopBar navigates here with { openConversationId } in nav state when the
@@ -1330,10 +1330,11 @@ export default function Inbox() {
     if (res.ok) { const d = await res.json(); setUnreadTotal(d.count); }
   };
 
-  const fetchDocuments = async () => {
-    const res = await fetch(`${API}/api/documents`, { headers: authHeaders });
-    if (res.ok) setDocuments(await res.json());
-  };
+  // Note: fetchDocuments is not used — /api/documents endpoint does not exist on the server
+  // const fetchDocuments = async () => {
+  //   const res = await fetch(`${API}/api/documents`, { headers: authHeaders });
+  //   if (res.ok) setDocuments(await res.json());
+  // };
 
   // ── Group chat helpers ─────────────────────────────────────────────────────
   const fetchGroups = async () => {
