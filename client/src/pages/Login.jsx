@@ -300,6 +300,7 @@ const styles = {
     minWidth: 0,
     border: 0,
     outline: "none",
+    boxShadow: "none",
     background: "transparent",
     color: violet.ink,
     font: '500 12px "DM Sans", Arial, sans-serif',
@@ -715,6 +716,7 @@ export default function Login() {
                     100% { transform: scaleY(1) scaleX(1); opacity: 1; }
                   }
                   @keyframes login-progress { from{width:0%} to{width:100%} }
+                  input:focus, input:focus-visible { outline: none !important; box-shadow: none !important; border: none !important; }
                 `}</style>
               </div>
             )}

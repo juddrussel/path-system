@@ -125,6 +125,7 @@ const s = {
     minWidth: 0,
     border: 0,
     outline: "none",
+    boxShadow: "none",
     background: "transparent",
     color: colors.ink,
     font: '500 12px "DM Sans", Arial, sans-serif',
@@ -656,6 +657,7 @@ export default function Register() {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');
         .path-scroll-hide { scrollbar-width: none; -ms-overflow-style: none; }
         .path-scroll-hide::-webkit-scrollbar { display: none; width: 0; height: 0; }
+        input:focus, input:focus-visible { outline: none !important; box-shadow: none !important; border: none !important; }
       `}</style>
 
       <section style={s.main} className="path-scroll-hide">
