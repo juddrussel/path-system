@@ -358,13 +358,18 @@ export default function TaskDetail() {
     // Real-time listener for when a collaborator confirms (client-emitted event)
     const handleCollaboratorConfirmedRealTime = (data) => {
       if (data.taskId === parseInt(taskId) && data.userId !== user?.id) {
-        // Update collaborators list immediately
-        if (collaborators && collaborators.length > 0) {
-          const updatedCollaborators = collaborators.map(c => 
+        // Update task collaborators list immediately
+        updateTask((prevTask) => {
+          if (!prevTask) return prevTask;
+          const updatedCollaborators = (prevTask.collaborators || []).map(c => 
             c.user_id === data.userId ? { ...c, confirmed_at: data.confirmedAt } : c
           );
-          setCollaborators(updatedCollaborators);
-        }
+          return {
+            ...prevTask,
+            collaborators: updatedCollaborators,
+            confirmation_status: data.allConfirmed ? "confirmed" : "awaiting"
+          };
+        });
         
         // Show notification
         setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed!' : ''}`);
@@ -375,14 +380,19 @@ export default function TaskDetail() {
     // Real-time listener for when a collaborator cancels (client-emitted event)
     const handleCollaboratorCancelledRealTime = (data) => {
       if (data.taskId === parseInt(taskId) && data.userId !== user?.id) {
-        // Update collaborators list immediately
-        if (collaborators && collaborators.length > 0) {
-          const updatedCollaborators = collaborators.map(c => ({
+        // Update task collaborators list immediately
+        updateTask((prevTask) => {
+          if (!prevTask) return prevTask;
+          const updatedCollaborators = (prevTask.collaborators || []).map(c => ({
             ...c,
             confirmed_at: null
           }));
-          setCollaborators(updatedCollaborators);
-        }
+          return {
+            ...prevTask,
+            collaborators: updatedCollaborators,
+            confirmation_status: "awaiting"
+          };
+        });
         
         // Show notification
         setConfirmationMessage(`${data.userName} has cancelled their confirmation. All collaborators must confirm again.`);
@@ -409,7 +419,7 @@ export default function TaskDetail() {
       socket.off("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
       socket.off("collaboration:confirmation_cancelled_real_time", handleCollaboratorCancelledRealTime);
     };
-  }, [taskId]);
+  }, [taskId, updateTask]);
 
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
@@ -538,12 +548,17 @@ export default function TaskDetail() {
       });
       
       // Update current user's confirmation in collaborators list
-      if (collaborators && collaborators.length > 0) {
-        const updatedCollaborators = collaborators.map(c => 
+      updateTask((prevTask) => {
+        if (!prevTask) return prevTask;
+        const updatedCollaborators = (prevTask.collaborators || []).map(c => 
           c.user_id === user.id ? { ...c, confirmed_at: new Date().toISOString() } : c
         );
-        setCollaborators(updatedCollaborators);
-      }
+        return {
+          ...prevTask,
+          collaborators: updatedCollaborators,
+          confirmation_status: result.confirmation_status,
+        };
+      });
       
       // Emit real-time socket event for immediate UI update
       socket.emit("collaboration:user_confirmed_real_time", {
@@ -594,13 +609,18 @@ export default function TaskDetail() {
       });
       
       // Reset collaborators' confirmation status
-      if (collaborators && collaborators.length > 0) {
-        const updatedCollaborators = collaborators.map(c => ({
+      updateTask((prevTask) => {
+        if (!prevTask) return prevTask;
+        const updatedCollaborators = (prevTask.collaborators || []).map(c => ({
           ...c,
           confirmed_at: null
         }));
-        setCollaborators(updatedCollaborators);
-      }
+        return {
+          ...prevTask,
+          collaborators: updatedCollaborators,
+          confirmation_status: result.confirmation_status,
+        };
+      });
       
       // Emit real-time socket event for immediate UI update
       socket.emit("collaboration:confirmation_cancelled_real_time", {
