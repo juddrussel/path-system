@@ -25,7 +25,8 @@ export default function CollaborativeComments({
   const scrollContainerRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  const loadComments = async () => {
+  // Load initial comments - moved inside useCallback to be stable
+  const loadComments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -54,14 +55,14 @@ export default function CollaborativeComments({
       setError(null); // Don't show error to user, just empty state
       setLoading(false);
     }
-  };
+  }, [taskId, token, apiUrl]);
 
   // Load initial comments
   useEffect(() => {
     if (taskId && token) {
       loadComments();
     }
-  }, [taskId, token, apiUrl]);
+  }, [taskId, token, loadComments]);
 
   // WebSocket listeners for real-time updates
   useEffect(() => {
@@ -79,16 +80,20 @@ export default function CollaborativeComments({
     const handleNewComment = ({ taskId: eTaskId, comment }) => {
       console.log(`[CollaborativeComments] Received task:comment_added for taskId=${eTaskId}, current=${taskId}`, comment);
       if (eTaskId === taskId) {
+        console.log(`[CollaborativeComments] Processing comment, parentCommentId=${comment.parentCommentId}`);
         setComments((prev) => {
+          console.log(`[CollaborativeComments] Current state has ${prev.length} comments`);
           if (comment.parentCommentId) {
             // Reply to existing comment - find parent and add reply
             console.log(`[CollaborativeComments] Adding reply to parent ${comment.parentCommentId}`);
-            return prev.map(c => {
+            const updated = prev.map(c => {
               if (c.id === comment.parentCommentId) {
-                // Create a new object with updated replies array
+                console.log(`[CollaborativeComments] Found parent comment ${c.id}, adding reply`);
+                const newReplies = [...(c.replies || []), comment];
+                console.log(`[CollaborativeComments] New replies count: ${newReplies.length}`);
                 return {
                   ...c,
-                  replies: [...(c.replies || []), comment]
+                  replies: newReplies
                 };
               }
               // Also check in nested replies in case we need to go deeper
@@ -108,6 +113,8 @@ export default function CollaborativeComments({
               }
               return c;
             });
+            console.log(`[CollaborativeComments] Updated state, new total replies: ${updated.reduce((sum, c) => sum + (c.replies?.length || 0), 0)}`);
+            return updated;
           } else {
             // Top-level comment
             console.log(`[CollaborativeComments] Adding top-level comment`);
@@ -246,8 +253,8 @@ export default function CollaborativeComments({
         io.emit("stop_typing", { taskId });
       }
 
-      // Reload comments to ensure we have the latest
-      await loadComments();
+      // Don't reload - let socket event update the state
+      // The server will broadcast the comment via socket.io
     } catch (err) {
       console.error("Submit comment error:", err);
       setError(err.message);
