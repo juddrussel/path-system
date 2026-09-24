@@ -710,7 +710,10 @@ async function enrichTasks(rows) {
       [ids]
     );
     collaborators = collabRows;
-  } catch (_) { /* table may not exist yet — safe to ignore */ }
+    console.log("📊 enrichTasks: fetched collaborators for task_ids", ids, "result:", collabRows);
+  } catch (err) { 
+    console.error("❌ enrichTasks: Failed to fetch collaborators:", err.message);
+  }
 
   const attachMap     = {};
   const commentMap    = {};
@@ -738,13 +741,19 @@ async function enrichTasks(rows) {
     });
   });
 
-  return rows.map(r => ({
-    ...r,
-    attachments: attachMap[r.id]     || [],
-    comments:    commentMap[r.id]    || [],
-    submissions: submissionMap[r.id] || [],
-    collaborators: collaboratorMap[r.id] || [],
-  }));
+  return rows.map(r => {
+    const enriched = {
+      ...r,
+      attachments: attachMap[r.id]     || [],
+      comments:    commentMap[r.id]    || [],
+      submissions: submissionMap[r.id] || [],
+      collaborators: collaboratorMap[r.id] || [],
+    };
+    if (r.is_collaborative) {
+      console.log(`📦 enrichTasks: task ${r.id} is_collaborative=true, collaborators=`, enriched.collaborators);
+    }
+    return enriched;
+  });
 }
 
 // ─── HELPER: normalize faculty_ids from FormData (may arrive as a single
@@ -1013,6 +1022,8 @@ router.get("/:id", requireAuth, async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
     const task = rows[0];
+    console.log(`📋 GET /:id - Loading task ${req.params.id}, is_collaborative: ${task.is_collaborative}`);
+    
     // Check if user has access
     let canView = ["admin", "program_chair"].includes(req.user.role) || 
                   task.faculty_id === req.user.id || 
@@ -1029,8 +1040,9 @@ router.get("/:id", requireAuth, async (req, res) => {
     
     if (!canView) return res.status(403).json({ message: "Access denied." });
     const [enriched] = await enrichTasks([task]);
+    console.log(`📋 enrichTasks returned for task ${req.params.id}:`, enriched[0]?.collaborators);
     // Return as { task: ... } so frontend fetchSelectedTask can read data.task || data
-    return res.json({ task: enriched });
+    return res.json({ task: enriched[0] });
   } catch (err) {
     console.error("GET /api/tasks/:id error:", err);
     return res.status(500).json({ message: "Internal server error." });
