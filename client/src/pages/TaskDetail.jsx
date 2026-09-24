@@ -1361,7 +1361,7 @@ export default function TaskDetail() {
                               )}
                               {hasCurrentUserConfirmed && (
                                 <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
-                                  âœ“ You have confirmed
+                                  ✓ You have confirmed
                                 </div>
                               )}
                             </div>
