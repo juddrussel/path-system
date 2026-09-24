@@ -387,11 +387,6 @@ export default function CollaborativeComments({
     letter-spacing: 0.08em;
   }
 
-  .cc-header span::before {
-    content: "💬";
-    font-size: 16px;
-  }
-
   .cc-header em {
     font-style: normal;
     padding: 4px 10px;
