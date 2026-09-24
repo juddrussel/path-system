@@ -837,9 +837,14 @@ export default function Register() {
                     placeholder="Re-enter your password"
                     autoComplete="new-password"
                   />
+                  {formData.confirm_password && formData.password === formData.confirm_password && (
+                    <span style={{ fontSize: 18, color: "#10b981", marginRight: 8 }}>✓</span>
+                  )}
                 </span>
                 {errors.confirm_password ? (
                   <p style={s.fieldError}>{errors.confirm_password}</p>
+                ) : formData.confirm_password && formData.password === formData.confirm_password ? (
+                  <p style={{ ...s.fieldHint, color: "#10b981", fontWeight: 600 }}>✓ Passwords match!</p>
                 ) : (
                   <p style={s.fieldHint}>Passwords must match exactly.</p>
                 )}
