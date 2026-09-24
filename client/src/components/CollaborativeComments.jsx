@@ -25,27 +25,35 @@ export default function CollaborativeComments({
   const scrollContainerRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Load initial comments
-  useEffect(() => {
-    const loadComments = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${apiUrl}/api/tasks/${taskId}/comments?limit=50&offset=0`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to load comments");
-        const data = await res.json();
-        setComments(data.comments || []);
-      } catch (err) {
-        setError(err.message);
-        console.error("CollaborativeComments load error:", err);
-      } finally {
-        setLoading(false);
+  const loadComments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${apiUrl}/api/tasks/${taskId}/comments?limit=50&offset=0`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (res.status === 403) {
+        // Not a collaborator - just show empty comments
+        console.log("User is not a collaborator on this task");
+        setComments([]);
+        return;
       }
-    };
-
-    if (taskId && token) loadComments();
-  }, [taskId, token, apiUrl]);
+      
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || `Server error: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      setComments(data.comments || []);
+    } catch (err) {
+      console.error("CollaborativeComments load error:", err);
+      setError(null); // Don't show error to user, just empty state
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // WebSocket listeners for real-time updates
   useEffect(() => {

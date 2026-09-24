@@ -2245,15 +2245,32 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 50, 100);
     const offset = Math.max(parseInt(req.query.offset) || 0, 0);
 
-    // Verify access - only collaborators can view comments
-    const [collabRows] = await db.query(
-      `SELECT tc.id FROM task_collaborators tc
-       WHERE tc.task_id = ? AND tc.user_id = ?`,
-      [taskId, userId]
+    console.log(`[GET /tasks/:id/comments] taskId=${taskId}, userId=${userId}`);
+
+    // Verify task exists
+    const [taskRows] = await db.query(
+      `SELECT id, is_collaborative FROM tasks WHERE id = ?`,
+      [taskId]
     );
 
-    if (collabRows.length === 0) {
-      return res.status(403).json({ message: "Only collaborators can view comments." });
+    if (taskRows.length === 0) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    const task = taskRows[0];
+
+    // If it's a collaborative task, verify user is a collaborator
+    if (task.is_collaborative) {
+      const [collabRows] = await db.query(
+        `SELECT tc.id FROM task_collaborators tc
+         WHERE tc.task_id = ? AND tc.user_id = ?`,
+        [taskId, userId]
+      );
+
+      if (collabRows.length === 0) {
+        console.log(`[GET /tasks/:id/comments] User ${userId} is not a collaborator on task ${taskId}`);
+        return res.status(403).json({ message: "Only collaborators can view comments." });
+      }
     }
 
     // Fetch all top-level comments with their replies
@@ -2267,18 +2284,28 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
       [taskId]
     );
 
+    console.log(`[GET /tasks/:id/comments] Fetched ${allComments.length} comments for task ${taskId}`);
+
     // Build nested structure
     const commentMap = new Map();
     const topLevel = [];
 
     allComments.forEach(comment => {
-      const parsedFiles = comment.files ? JSON.parse(comment.files) : [];
+      let parsedFiles = [];
+      try {
+        parsedFiles = comment.files ? JSON.parse(comment.files) : [];
+      } catch (e) {
+        console.error(`Failed to parse files for comment ${comment.id}:`, e);
+        parsedFiles = [];
+      }
+
       const commentObj = {
         id: comment.id,
         taskId: comment.task_id,
         userId: comment.sender_id,
         userName: comment.full_name,
         userEmail: comment.email,
+        userRole: "Faculty lead",
         parentCommentId: comment.parent_comment_id,
         content: comment.content,
         files: parsedFiles,
@@ -2313,7 +2340,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     });
   } catch (err) {
     console.error("GET /api/tasks/:id/comments error:", err.message, err.stack);
-    return res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error.", error: err.message });
   }
 });
 
