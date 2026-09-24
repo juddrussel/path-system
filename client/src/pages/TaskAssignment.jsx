@@ -1232,12 +1232,25 @@ function TaskAssignmentInner() {
                   <span>Handoff quality</span>
                   <small>{incompleteSteps ? "In progress" : "Ready"}</small>
                 </div>
-                <div style={{ fontSize: "12px", color: "#71607d", lineHeight: 1.5 }}>
+                <div style={{ fontSize: "12px", color: "#71607d", lineHeight: 1.5, marginBottom: "8px" }}>
                   {["Clear owner", "Document context", "Due date", "Review guidance"]
                     .map((label, idx) => idx < readySteps ? label : null)
                     .filter(Boolean)
                     .join(" · ")}
                 </div>
+                {[
+                  "Clear owner",
+                  "Document context",
+                  "Due date",
+                  "Review guidance",
+                ].map((label, index) => (
+                  <div key={label}>
+                    <span className={index < readySteps ? "complete" : ""}>
+                      {index < readySteps ? <Icon.Check /> : index + 1}
+                    </span>
+                    <strong>{label}</strong>
+                  </div>
+                ))}
               </section>
             </aside>
           </div>
