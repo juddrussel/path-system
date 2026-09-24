@@ -1221,29 +1221,6 @@ export default function TaskDetail() {
                         </div>
                       )}
                     </section>
-
-                    {/* DISCUSSION SECTION */}
-                    <section className="td-card">
-                      <div style={{ marginBottom: "12px" }}>
-                        <span style={{ display: "block", color: "#8a8899", fontSize: "10px", fontWeight: "800", letterSpacing: ".08em", textTransform: "uppercase" }}>
-                          Discussion
-                        </span>
-                        <h2 style={{ margin: "3px 0 0", color: "#3d2a4a", font: "800 16px 'Manrope', sans-serif", letterSpacing: "-.04em" }}>
-                          Working notes & questions
-                        </h2>
-                      </div>
-                      <CollaborativeComments
-                        taskId={task.id}
-                        token={token}
-                        apiUrl={api}
-                        io={socket}
-                        currentUserId={user?.id}
-                        currentUserName={user?.full_name}
-                      />
-                    </section>
-                  </>
-                )}
-
                 {isFacultyView && (
                   isUnderReview ? (
                     <section className="td-card">
@@ -1405,6 +1382,28 @@ export default function TaskDetail() {
                     </button>
                   </section>
                   )
+                )}
+
+                    {/* DISCUSSION SECTION */}
+                    <section className="td-card">
+                      <div style={{ marginBottom: "12px" }}>
+                        <span style={{ display: "block", color: "#8a8899", fontSize: "10px", fontWeight: "800", letterSpacing: ".08em", textTransform: "uppercase" }}>
+                          Discussion
+                        </span>
+                        <h2 style={{ margin: "3px 0 0", color: "#3d2a4a", font: "800 16px 'Manrope', sans-serif", letterSpacing: "-.04em" }}>
+                          Working notes & questions
+                        </h2>
+                      </div>
+                      <CollaborativeComments
+                        taskId={task.id}
+                        token={token}
+                        apiUrl={api}
+                        io={socket}
+                        currentUserId={user?.id}
+                        currentUserName={user?.full_name}
+                      />
+                    </section>
+                  </>
                 )}
 
                 {latestSubmission && (
