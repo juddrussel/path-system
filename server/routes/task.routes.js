@@ -2146,15 +2146,15 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
 
     const now = new Date();
     await db.query(
-      "INSERT INTO task_comments (task_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO task_comments (task_id, sender_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
       [taskId, userId, content, now, now]
     );
 
     // Fetch the newly created comment with user info
     const [comments] = await db.query(
-      `SELECT tc.id, tc.task_id, tc.user_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
        FROM task_comments tc
-       JOIN users u ON u.id = tc.user_id
+       JOIN users u ON u.id = tc.sender_id
        WHERE tc.task_id = ? ORDER BY tc.created_at DESC LIMIT 1`,
       [taskId]
     );
@@ -2179,7 +2179,7 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
     return res.json({
       id: comment.id,
       taskId: comment.task_id,
-      userId: comment.user_id,
+      userId: comment.sender_id,
       userName: comment.full_name,
       userEmail: comment.email,
       content: comment.content,
@@ -2229,9 +2229,9 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     }
 
     const [comments] = await db.query(
-      `SELECT tc.id, tc.task_id, tc.user_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
        FROM task_comments tc
-       JOIN users u ON u.id = tc.user_id
+       JOIN users u ON u.id = tc.sender_id
        WHERE tc.task_id = ?
        ORDER BY tc.created_at ASC
        LIMIT ? OFFSET ?`,
@@ -2247,7 +2247,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
       comments: comments.map(c => ({
         id: c.id,
         taskId: c.task_id,
-        userId: c.user_id,
+        userId: c.sender_id,
         userName: c.full_name,
         userEmail: c.email,
         content: c.content,
@@ -2259,7 +2259,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
       offset,
     });
   } catch (err) {
-    console.error("GET /api/tasks/:id/comments error:", err);
+    console.error("GET /api/tasks/:id/comments error:", err.message, err.stack);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
@@ -2272,7 +2272,10 @@ router.delete("/comments/:commentId", requireAuth, async (req, res) => {
     const userId = req.user.id;
 
     const [comments] = await db.query(
-      "SELECT id, task_id, user_id FROM task_comments WHERE id = ?",
+      `SELECT tc.id, tc.task_id, tc.sender_id, tc.content, tc.created_at, tc.updated_at, u.full_name, u.email
+       FROM task_comments tc
+       JOIN users u ON u.id = tc.sender_id
+       WHERE tc.id = ?`,
       [commentId]
     );
 
@@ -2283,7 +2286,7 @@ router.delete("/comments/:commentId", requireAuth, async (req, res) => {
     const comment = comments[0];
 
     // Only allow deletion by comment author or admins
-    if (comment.user_id !== userId && req.user.role !== "admin") {
+    if (comment.sender_id !== userId && req.user.role !== "admin") {
       return res.status(403).json({ message: "You can only delete your own comments." });
     }
 
@@ -2371,7 +2374,7 @@ router.get("/:id/changelog", requireAuth, async (req, res) => {
       offset,
     });
   } catch (err) {
-    console.error("GET /api/tasks/:id/changelog error:", err);
+    console.error("GET /api/tasks/:id/changelog error:", err.message, err.stack);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
@@ -2472,7 +2475,7 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
 
     return res.json({ collaborators });
   } catch (err) {
-    console.error("GET /api/tasks/:id/collaborators error:", err);
+    console.error("GET /api/tasks/:id/collaborators error:", err.message, err.stack);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
