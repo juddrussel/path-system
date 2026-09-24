@@ -728,7 +728,7 @@ export default function Register() {
                   <input
                     style={s.input}
                     name="phone"
-                    placeholder="(555) 123-4567"
+                    placeholder="+1 (555) 123-4567"
                     value={formData.phone}
                     onChange={handleChange}
                     type="tel"
