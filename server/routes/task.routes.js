@@ -1460,6 +1460,96 @@ router.post("/:id/confirm-collaboration", requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/tasks/:id/cancel-confirmation ──────────────────────────────────
+// Cancels a faculty member's confirmation on a collaborative task.
+// Sets their confirmed_at back to NULL and resets confirmation_status to 'awaiting'.
+router.post("/:id/cancel-confirmation", requireAuth, async (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const userId = req.user.id;
+
+  try {
+    // Get the task
+    const [taskRows] = await db.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
+    if (taskRows.length === 0) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    const task = taskRows[0];
+
+    // Verify user is a collaborator on this task
+    const [collabCheck] = await db.query(
+      "SELECT * FROM task_collaborators WHERE task_id = ? AND user_id = ?",
+      [taskId, userId]
+    );
+
+    if (collabCheck.length === 0) {
+      return res.status(403).json({ message: "You are not a collaborator on this task." });
+    }
+
+    // Cancel the confirmation by setting confirmed_at to NULL
+    await db.query(
+      `UPDATE task_collaborators SET confirmed_at = NULL WHERE task_id = ? AND user_id = ?`,
+      [taskId, userId]
+    );
+
+    // Reset confirmation_status to 'awaiting' since not all are confirmed now
+    await db.query(
+      "UPDATE tasks SET confirmation_status = 'awaiting' WHERE id = ?",
+      [taskId]
+    );
+
+    // Log the cancellation action
+    const userName = req.user.full_name || req.user.username;
+    await writeLog({
+      userId: req.user.id,
+      action: "TASK_CANCEL_CONFIRMATION",
+      detail: `${userName} cancelled confirmation on collaborative task ${task.tracking_id}.`,
+      taskId: taskId,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
+
+    // Notify other collaborators
+    const [allCollaborators] = await db.query(
+      "SELECT id, user_id FROM task_collaborators WHERE task_id = ?",
+      [taskId]
+    );
+
+    for (const collaborator of allCollaborators) {
+      if (collaborator.user_id !== userId && io) {
+        io.to(`user_${collaborator.user_id}`).emit("collaboration:confirmation_cancelled", {
+          taskId,
+          trackingId: task.tracking_id,
+          cancelledBy: userName,
+          cancelledByUserId: userId,
+        });
+      }
+    }
+
+    // Notify via notification system
+    for (const collaborator of allCollaborators) {
+      if (collaborator.user_id !== userId) {
+        await notify(io, {
+          userId: collaborator.user_id,
+          type: "collaboration_confirmation_cancelled",
+          title: "Collaborator Cancelled Confirmation",
+          message: `${userName} has cancelled their confirmation. All collaborators must confirm again before submission.`,
+          taskId,
+          trackingId: task.tracking_id,
+        });
+      }
+    }
+
+    return res.json({
+      message: "Confirmation cancelled.",
+      confirmation_status: "awaiting",
+    });
+  } catch (err) {
+    console.error("POST /api/tasks/:id/cancel-confirmation error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // ─── PATCH /api/tasks/:id/status ─────────────────────────────────────────────
 router.patch("/:id/status", requireAuth, async (req, res) => {
   const { status } = req.body;

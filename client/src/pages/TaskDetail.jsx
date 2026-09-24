@@ -249,6 +249,7 @@ export default function TaskDetail() {
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [confirmingCollaboration, setConfirmingCollaboration] = useState(false);
+  const [cancellingConfirmation, setCancellingConfirmation] = useState(false);
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
 
@@ -493,6 +494,37 @@ export default function TaskDetail() {
       setConfirmationMessage(err.message || "Failed to confirm collaboration.");
     } finally {
       setConfirmingCollaboration(false);
+    }
+  };
+
+  const cancelConfirmation = async () => {
+    if (!hasCurrentUserConfirmed || !task) return;
+    
+    setCancellingConfirmation(true);
+    try {
+      const response = await fetch(`${api}/api/tasks/${task.id}/cancel-confirmation`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Could not cancel confirmation.");
+      }
+      
+      const result = await response.json();
+      updateTask({
+        confirmation_status: result.confirmation_status,
+      });
+      setConfirmationMessage("Your confirmation has been cancelled.");
+      setTimeout(() => setConfirmationMessage(""), 3000);
+    } catch (err) {
+      setConfirmationMessage(err.message || "Failed to cancel confirmation.");
+    } finally {
+      setCancellingConfirmation(false);
     }
   };
 
@@ -1358,8 +1390,29 @@ export default function TaskDetail() {
                           </button>
                         )}
                         {hasCurrentUserConfirmed && (
-                          <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
-                            ✓ You have confirmed
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
+                              ✓ You have confirmed
+                            </div>
+                            <button
+                              type="button"
+                              onClick={cancelConfirmation}
+                              disabled={cancellingConfirmation}
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "600",
+                                padding: "6px 10px",
+                                border: "1px solid #dc2626",
+                                borderRadius: "6px",
+                                backgroundColor: "#fef2f2",
+                                color: "#dc2626",
+                                cursor: cancellingConfirmation ? "not-allowed" : "pointer",
+                                transition: "all 0.2s",
+                                opacity: cancellingConfirmation ? 0.6 : 1,
+                              }}
+                            >
+                              {cancellingConfirmation ? "Cancelling…" : "Cancel"}
+                            </button>
                           </div>
                         )}
                       </div>
