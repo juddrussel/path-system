@@ -1450,9 +1450,7 @@ router.post("/:id/confirm-collaboration", requireAuth, async (req, res) => {
     return res.json({
       message: "Confirmation saved.",
       confirmation_status: newConfirmationStatus,
-      user1_confirmed_at: updatedTask.user1_confirmed_at,
-      user2_confirmed_at: updatedTask.user2_confirmed_at,
-      bothConfirmed: newConfirmationStatus === "confirmed",
+      allConfirmed: newConfirmationStatus === "confirmed",
     });
   } catch (err) {
     console.error("POST /api/tasks/:id/confirm-collaboration error:", err);
