@@ -2202,14 +2202,11 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
 
     console.log(`[GET /comments] taskId=${taskId}, userId=${userId}`);
 
-    // Verify access - allow if user is a collaborator OR is the task creator (admin/chair)
+    // Verify access - only collaborators can view comments (not the creator)
     const [taskRows] = await db.query(
       `SELECT t.id FROM tasks t
-       WHERE t.id = ? AND (
-         t.assigned_by = ? OR
-         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
-       )`,
-      [taskId, userId, userId]
+       WHERE t.id = ? AND t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)`,
+      [taskId, userId]
     );
 
     console.log(`[GET /comments] Access check result: ${taskRows.length} rows`);
@@ -2219,12 +2216,8 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
         `SELECT user_id FROM task_collaborators WHERE task_id = ?`,
         [taskId]
       );
-      const [taskCheck] = await db.query(
-        `SELECT assigned_by FROM tasks WHERE id = ?`,
-        [taskId]
-      );
-      console.log(`[GET /comments] User ${userId} NOT authorized. Task ${taskId} creator: ${taskCheck[0]?.assigned_by}, collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
-      return res.status(403).json({ message: "You don't have access to this task." });
+      console.log(`[GET /comments] User ${userId} is NOT a collaborator. Task ${taskId} collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
+      return res.status(403).json({ message: "Only collaborators can view the collaboration discussion." });
     }
 
     const [comments] = await db.query(
@@ -2317,14 +2310,11 @@ router.get("/:id/changelog", requireAuth, async (req, res) => {
 
     console.log(`[GET /changelog] taskId=${taskId}, userId=${userId}`);
 
-    // Verify access - allow if user is a collaborator OR is the task creator
+    // Verify access - only collaborators can view changelog
     const [taskRows] = await db.query(
       `SELECT t.id FROM tasks t
-       WHERE t.id = ? AND (
-         t.assigned_by = ? OR
-         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
-       )`,
-      [taskId, userId, userId]
+       WHERE t.id = ? AND t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)`,
+      [taskId, userId]
     );
 
     console.log(`[GET /changelog] Access check result: ${taskRows.length} rows`);
@@ -2333,12 +2323,8 @@ router.get("/:id/changelog", requireAuth, async (req, res) => {
         `SELECT user_id FROM task_collaborators WHERE task_id = ?`,
         [taskId]
       );
-      const [taskCheck] = await db.query(
-        `SELECT assigned_by FROM tasks WHERE id = ?`,
-        [taskId]
-      );
-      console.log(`[GET /changelog] User ${userId} NOT authorized. Task ${taskId} creator: ${taskCheck[0]?.assigned_by}, collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
-      return res.status(403).json({ message: "You don't have access to this task." });
+      console.log(`[GET /changelog] User ${userId} is NOT a collaborator. Task ${taskId} collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
+      return res.status(403).json({ message: "Only collaborators can view the collaboration discussion." });
     }
 
     const [changes] = await db.query(
@@ -2386,15 +2372,12 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
 
     console.log(`[GET /collaborators] taskId=${taskId}, userId=${userId}`);
 
-    // Verify access - allow if user is a collaborator OR is the task creator
+    // Verify access - only collaborators can view collaborators list
     const [taskRows] = await db.query(
       `SELECT t.id, t.faculty_id, t.collaborator_id, t.is_collaborative
        FROM tasks t
-       WHERE t.id = ? AND (
-         t.assigned_by = ? OR
-         t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)
-       )`,
-      [taskId, userId, userId]
+       WHERE t.id = ? AND t.id IN (SELECT task_id FROM task_collaborators WHERE user_id = ?)`,
+      [taskId, userId]
     );
 
     console.log(`[GET /collaborators] Access check result: ${taskRows.length} rows`);
@@ -2403,12 +2386,8 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
         `SELECT user_id FROM task_collaborators WHERE task_id = ?`,
         [taskId]
       );
-      const [taskCheck] = await db.query(
-        `SELECT assigned_by FROM tasks WHERE id = ?`,
-        [taskId]
-      );
-      console.log(`[GET /collaborators] User ${userId} NOT authorized. Task ${taskId} creator: ${taskCheck[0]?.assigned_by}, collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
-      return res.status(403).json({ message: "You don't have access to this task." });
+      console.log(`[GET /collaborators] User ${userId} is NOT a collaborator. Task ${taskId} collaborators: ${debugRows.map(r => r.user_id).join(',')}`);
+      return res.status(403).json({ message: "Only collaborators can view the collaboration discussion." });
     }
 
     const task = taskRows[0];
