@@ -148,10 +148,11 @@ export default function CollaborativeComments({
     const handleCommentUpdated = (data) => {
       console.log(`[CollaborativeComments] Received task:comment_updated for taskId=${data.taskId}, commentId=${data.commentId}`);
       if (data.taskId === taskId) {
+        console.log(`[CollaborativeComments] Updating comment ${data.commentId} with files:`, data.comment.files);
         setComments((prev) => {
           return prev.map((c) => {
             if (c.id === data.commentId) {
-              console.log(`[CollaborativeComments] Updating comment ${data.commentId} with real R2 URLs`);
+              console.log(`[CollaborativeComments] Found comment ${data.commentId}, updating with ${data.comment.files.length} files`);
               return {
                 ...c,
                 files: data.comment.files,
@@ -163,6 +164,7 @@ export default function CollaborativeComments({
                 ...c,
                 replies: c.replies.map((reply) => {
                   if (reply.id === data.commentId) {
+                    console.log(`[CollaborativeComments] Found reply ${data.commentId}, updating files`);
                     return {
                       ...reply,
                       files: data.comment.files,
@@ -439,6 +441,8 @@ export default function CollaborativeComments({
                         alt={file.name}
                         className="cc-image-preview"
                         title={file.name}
+                        onLoad={() => console.log(`[Image loaded] ${file.url}`)}
+                        onError={() => console.error(`[Image failed to load] ${file.url}`)}
                       />
                     )
                   ) : (

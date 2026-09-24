@@ -17,6 +17,11 @@ console.log("ENV CHECK:", {
   DB_PASS: process.env.DB_PASS,
   DB_NAME: process.env.DB_NAME,
   JWT_SECRET: process.env.JWT_SECRET,
+  R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID ? "✓ set" : "✗ missing",
+  R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID ? "✓ set" : "✗ missing",
+  R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY ? "✓ set" : "✗ missing",
+  R2_BUCKET_NAME: process.env.R2_BUCKET_NAME || "✗ missing",
+  R2_PUBLIC_URL: process.env.R2_PUBLIC_URL || "✗ missing",
 });
 
 const authRoutes = require("./routes/auth.routes");
