@@ -81,18 +81,38 @@ export default function CollaborativeComments({
       if (eTaskId === taskId) {
         setComments((prev) => {
           if (comment.parentCommentId) {
-            // Reply to existing comment - insert into replies array
+            // Reply to existing comment - find parent and add reply
             console.log(`[CollaborativeComments] Adding reply to parent ${comment.parentCommentId}`);
             return prev.map(c => {
               if (c.id === comment.parentCommentId) {
-                return { ...c, replies: [...(c.replies || []), comment] };
+                // Create a new object with updated replies array
+                return {
+                  ...c,
+                  replies: [...(c.replies || []), comment]
+                };
+              }
+              // Also check in nested replies in case we need to go deeper
+              if (c.replies && c.replies.length > 0) {
+                return {
+                  ...c,
+                  replies: c.replies.map(reply => {
+                    if (reply.id === comment.parentCommentId) {
+                      return {
+                        ...reply,
+                        replies: [...(reply.replies || []), comment]
+                      };
+                    }
+                    return reply;
+                  })
+                };
               }
               return c;
             });
           } else {
             // Top-level comment
             console.log(`[CollaborativeComments] Adding top-level comment`);
-            return [...prev, { ...comment, replies: [] }];
+            const newComment = { ...comment, replies: [] };
+            return [...prev, newComment];
           }
         });
         setTypingUsers((prev) => {
@@ -153,7 +173,11 @@ export default function CollaborativeComments({
   // Auto-scroll to bottom when new comments arrive
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+      }, 0);
     }
   }, [comments]);
 
