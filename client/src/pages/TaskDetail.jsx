@@ -355,20 +355,59 @@ export default function TaskDetail() {
       }
     };
 
+    // Real-time listener for when a collaborator confirms (client-emitted event)
+    const handleCollaboratorConfirmedRealTime = (data) => {
+      if (data.taskId === parseInt(taskId) && data.userId !== user?.id) {
+        // Update collaborators list immediately
+        if (collaborators && collaborators.length > 0) {
+          const updatedCollaborators = collaborators.map(c => 
+            c.user_id === data.userId ? { ...c, confirmed_at: data.confirmedAt } : c
+          );
+          setCollaborators(updatedCollaborators);
+        }
+        
+        // Show notification
+        setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed!' : ''}`);
+        setTimeout(() => setConfirmationMessage(""), 4000);
+      }
+    };
+
+    // Real-time listener for when a collaborator cancels (client-emitted event)
+    const handleCollaboratorCancelledRealTime = (data) => {
+      if (data.taskId === parseInt(taskId) && data.userId !== user?.id) {
+        // Update collaborators list immediately
+        if (collaborators && collaborators.length > 0) {
+          const updatedCollaborators = collaborators.map(c => ({
+            ...c,
+            confirmed_at: null
+          }));
+          setCollaborators(updatedCollaborators);
+        }
+        
+        // Show notification
+        setConfirmationMessage(`${data.userName} has cancelled their confirmation. All collaborators must confirm again.`);
+        setTimeout(() => setConfirmationMessage(""), 4000);
+      }
+    };
+
     socket.on("collaboration:user_confirmed", handleCollaboratorConfirmed);
+    socket.on("collaboration:user_confirmed_real_time", handleCollaboratorConfirmedRealTime);
     socket.on("task:file_uploaded", handleCollaboratorFileUpload);
     socket.on("task:attachment_added", handleCollaboratorFileUpload);
     socket.on("task:submitted", handleTaskSubmitted);
     socket.on("task:status_changed", handleTaskStatusChanged);
     socket.on("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
+    socket.on("collaboration:confirmation_cancelled_real_time", handleCollaboratorCancelledRealTime);
 
     return () => {
       socket.off("collaboration:user_confirmed", handleCollaboratorConfirmed);
+      socket.off("collaboration:user_confirmed_real_time", handleCollaboratorConfirmedRealTime);
       socket.off("task:file_uploaded", handleCollaboratorFileUpload);
       socket.off("task:attachment_added", handleCollaboratorFileUpload);
       socket.off("task:submitted", handleTaskSubmitted);
       socket.off("task:status_changed", handleTaskStatusChanged);
       socket.off("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
+      socket.off("collaboration:confirmation_cancelled_real_time", handleCollaboratorCancelledRealTime);
     };
   }, [taskId]);
 
@@ -492,11 +531,30 @@ export default function TaskDetail() {
       }
       
       const result = await response.json();
+      
+      // Update local state immediately
       updateTask({
         confirmation_status: result.confirmation_status,
-        user1_confirmed_at: result.user1_confirmed_at,
-        user2_confirmed_at: result.user2_confirmed_at,
       });
+      
+      // Update current user's confirmation in collaborators list
+      if (collaborators && collaborators.length > 0) {
+        const updatedCollaborators = collaborators.map(c => 
+          c.user_id === user.id ? { ...c, confirmed_at: new Date().toISOString() } : c
+        );
+        setCollaborators(updatedCollaborators);
+      }
+      
+      // Emit real-time socket event for immediate UI update
+      socket.emit("collaboration:user_confirmed_real_time", {
+        taskId: task.id,
+        trackingId: task.tracking_id,
+        userId: user.id,
+        userName: user.full_name,
+        confirmedAt: new Date().toISOString(),
+        allConfirmed: result.allConfirmed,
+      });
+      
       setConfirmationModalOpen(false);
       setConfirmationMessage(result.allConfirmed 
         ? `All ${collaborators.length} collaborators confirmed! Ready to submit.` 
@@ -543,6 +601,15 @@ export default function TaskDetail() {
         }));
         setCollaborators(updatedCollaborators);
       }
+      
+      // Emit real-time socket event for immediate UI update
+      socket.emit("collaboration:confirmation_cancelled_real_time", {
+        taskId: task.id,
+        trackingId: task.tracking_id,
+        userId: user.id,
+        userName: user.full_name,
+        cancelledAt: new Date().toISOString(),
+      });
       
       setConfirmationMessage("Your confirmation has been cancelled. Other collaborators have been notified.");
       setTimeout(() => setConfirmationMessage(""), 4000);
