@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
-import CollaborationStatus from "../components/CollaborationStatus";
 import CollaborativeComments from "../components/CollaborativeComments";
 import TaskChangelog from "../components/TaskChangelog";
 
@@ -1088,17 +1087,6 @@ export default function TaskDetail() {
                     );
                   })()}
                 </section>
-
-                {/* ─────────────────────────────────────────────────────────── */}
-                {/* Collaboration Confirmation Status - visible to everyone */}
-                {/* ─────────────────────────────────────────────────────────── */}
-
-                {task?.is_collaborative && (
-                  <div style={{ padding: "0 4px" }}>
-                    <CollaborationStatus taskId={task.id} token={token} apiUrl={api} />
-                  </div>
-                )}
-
                 {/* ─────────────────────────────────────────────────────────── */}
                 {/* Collaboration Discussion: Comments & Changelog */}
                 {/* Only visible to assigned collaborators, not to task creator */}
