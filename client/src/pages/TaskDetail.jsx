@@ -1502,68 +1502,7 @@ export default function TaskDetail() {
                   </section>
                 )}
 
-                <section className="td-card">
-                  <div className="td-section-title">
-                    <span className="td-icon">
-                      <Icon name="message" />
-                    </span>
-                    <div>
-                      <span>Discussion</span>
-                      <h2>Keep decisions in the handoff</h2>
-                    </div>
-                  </div>
-                  {comments.length ? (
-                    <div className="td-comments">
-                      {comments.map((item, index) => (
-                        <article
-                          className="td-comment"
-                          key={item.id || `${item.created_at}-${index}`}
-                        >
-                          <span>
-                            {initials(
-                              item.sender_name ||
-                                item.author_name ||
-                                item.author,
-                            )}
-                          </span>
-                          <div>
-                            <strong>
-                              {item.sender_name ||
-                                item.author_name ||
-                                item.author ||
-                                "Workflow member"}
-                            </strong>
-                            <time>
-                              {formatDate(item.created_at || item.createdAt)}
-                            </time>
-                            <p>{item.content || item.body}</p>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="td-discussion-empty">
-                      There are no discussion notes yet. Add guidance that
-                      should remain with the task record.
-                    </p>
-                  )}
-                  <div className="td-composer">
-                    <textarea
-                      value={comment}
-                      onChange={(event) => setComment(event.target.value)}
-                      rows={3}
-                      placeholder="Write a note for this handoff…"
-                    />
-                    <button
-                      type="button"
-                      disabled={!comment.trim() || postingComment}
-                      onClick={postComment}
-                    >
-                      <Icon name="send" size={13} />{" "}
-                      {postingComment ? "Posting…" : "Post note"}
-                    </button>
-                  </div>
-                </section>
+
               </main>
 
               <aside className="td-side">
