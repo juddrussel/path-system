@@ -1111,7 +1111,10 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
 
       // Add all collaborators to task_collaborators table (for multi-faculty collaboration)
       if (facultyIds.length >= 2) {
-        const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
+        // Include the assigner (req.user.id) + all faculty members
+        const allCollaborators = [req.user.id, ...facultyIds];
+        const uniqueCollaborators = [...new Set(allCollaborators)]; // Remove duplicates
+        const collaboratorRows = uniqueCollaborators.map(fId => [taskId, fId]);
         await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
       }
 
@@ -1274,8 +1277,10 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
 
     const taskId = result.insertId;
 
-    // Add all collaborators to task_collaborators table
-    const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
+    // Add all collaborators to task_collaborators table (including the assigner)
+    const allCollaborators = [req.user.id, ...facultyIds];
+    const uniqueCollaborators = [...new Set(allCollaborators)]; // Remove duplicates
+    const collaboratorRows = uniqueCollaborators.map(fId => [taskId, fId]);
     await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
 
     // Handle attachments
