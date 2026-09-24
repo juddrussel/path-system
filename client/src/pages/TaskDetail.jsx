@@ -344,11 +344,23 @@ export default function TaskDetail() {
       }
     };
 
+    // Listen for when a collaborator cancels their confirmation
+    const handleCollaboratorCancelledConfirmation = (data) => {
+      if (data.taskId === parseInt(taskId)) {
+        setConfirmationMessage(`${data.cancelledBy} has cancelled their confirmation. All collaborators must confirm again.`);
+        setTimeout(() => setConfirmationMessage(""), 4000);
+        
+        // Reload the task to get updated collaborator confirmations
+        loadTask();
+      }
+    };
+
     socket.on("collaboration:user_confirmed", handleCollaboratorConfirmed);
     socket.on("task:file_uploaded", handleCollaboratorFileUpload);
     socket.on("task:attachment_added", handleCollaboratorFileUpload);
     socket.on("task:submitted", handleTaskSubmitted);
     socket.on("task:status_changed", handleTaskStatusChanged);
+    socket.on("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
 
     return () => {
       socket.off("collaboration:user_confirmed", handleCollaboratorConfirmed);
@@ -356,6 +368,7 @@ export default function TaskDetail() {
       socket.off("task:attachment_added", handleCollaboratorFileUpload);
       socket.off("task:submitted", handleTaskSubmitted);
       socket.off("task:status_changed", handleTaskStatusChanged);
+      socket.off("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
     };
   }, [taskId]);
 
@@ -516,11 +529,23 @@ export default function TaskDetail() {
       }
       
       const result = await response.json();
+      
+      // Update local state immediately for real-time feel
       updateTask({
         confirmation_status: result.confirmation_status,
       });
-      setConfirmationMessage("Your confirmation has been cancelled.");
-      setTimeout(() => setConfirmationMessage(""), 3000);
+      
+      // Reset collaborators' confirmation status
+      if (collaborators && collaborators.length > 0) {
+        const updatedCollaborators = collaborators.map(c => ({
+          ...c,
+          confirmed_at: null
+        }));
+        setCollaborators(updatedCollaborators);
+      }
+      
+      setConfirmationMessage("Your confirmation has been cancelled. Other collaborators have been notified.");
+      setTimeout(() => setConfirmationMessage(""), 4000);
     } catch (err) {
       setConfirmationMessage(err.message || "Failed to cancel confirmation.");
     } finally {
