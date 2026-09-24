@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
-import CollaborationStatus from "../components/CollaborationStatus";
 import CollaborativeComments from "../components/CollaborativeComments";
-import TaskChangelog from "../components/TaskChangelog";
 
 /*
   Router integration requirement (React Router v6):
@@ -1103,40 +1101,155 @@ export default function TaskDetail() {
                 </section>
 
                 {/* ─────────────────────────────────────────────────────────── */}
-                {/* Collaboration Confirmation Status - visible to everyone */}
+                {/* Collaboration Sections - Confirmation, Comments, Changelog */}
                 {/* ─────────────────────────────────────────────────────────── */}
 
-                {task?.is_collaborative && (
-                  <div style={{ padding: "0 4px" }}>
-                    <CollaborationStatus taskId={task.id} token={token} apiUrl={api} collaborators={collaborators} />
-                  </div>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────── */}
-                {/* Collaboration Discussion: Comments & Changelog */}
-                {/* Only visible to assigned collaborators, not to task creator */}
-                {/* ─────────────────────────────────────────────────────────── */}
-
-                {task?.is_collaborative && (
+                {task?.is_collaborative && isCurrentUserCollaborator && (
                   <>
-                    {isCurrentUserCollaborator && (
-                      <>
-                        <div style={{ padding: "0 4px" }}>
-                          <CollaborativeComments
-                            taskId={task.id}
-                            token={token}
-                            apiUrl={api}
-                            io={socket}
-                            currentUserId={user?.id}
-                            currentUserName={user?.full_name}
-                          />
+                    {/* Collective Confirmation Section */}
+                    <section className="td-card" style={{ borderTop: "3px solid #7c3aed" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+                        <div>
+                          <span style={{ display: "block", color: "#9b8da2", fontSize: "11px", fontWeight: "800", letterSpacing: ".1em", textTransform: "uppercase" }}>
+                            COLLECTIVE CONFIRMATION
+                          </span>
+                          <h2 style={{ margin: "6px 0 0", color: "#372541", font: "800 18px Manrope,sans-serif", letterSpacing: "-.05em" }}>
+                            Everyone needs to sign off
+                          </h2>
                         </div>
+                        <div style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "5px 10px",
+                          borderRadius: "6px",
+                          background: "#fef3c7",
+                          color: "#92400e",
+                          fontSize: "11px",
+                          fontWeight: "800"
+                        }}>
+                          {allConfirmed ? "✓ All confirmed" : `⏳ ${collaborators.filter(c => !c.confirmed_at).length} waiting`}
+                        </div>
+                      </div>
+                      
+                      <p style={{ margin: "0 0 16px", color: "#8d7e98", fontSize: "13px", lineHeight: "1.6" }}>
+                        The final submission stays locked until every faculty member confirms that their section is accurate and ready for their review.
+                      </p>
 
-                        <div style={{ padding: "0 4px" }}>
-                          <TaskChangelog taskId={task.id} token={token} apiUrl={api} />
+                      {/* Collaborators List */}
+                      <div style={{ display: "grid", gap: "10px" }}>
+                        {collaborators.map((collaborator) => (
+                          <div
+                            key={collaborator.user_id}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "12px",
+                              padding: "12px",
+                              borderRadius: "10px",
+                              border: "1px solid #e8e1ed",
+                              background: collaborator.confirmed_at ? "#f8fdf4" : "#fafbff",
+                              transition: "all 0.2s ease"
+                            }}
+                          >
+                            {/* Avatar */}
+                            <div
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "8px",
+                                background: ["#c7d2fe", "#e9d5ff", "#fce7f3", "#dbeafe"][collaborator.user_id % 4],
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "#5b4766",
+                                fontWeight: "800",
+                                fontSize: "13px",
+                                flexShrink: 0
+                              }}
+                            >
+                              {initials(collaborator.full_name || "Faculty")}
+                            </div>
+
+                            {/* Collaborator Info */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <strong style={{ display: "block", color: "#372541", fontSize: "13px", fontWeight: "800" }}>
+                                {collaborator.full_name || "Faculty Member"}
+                              </strong>
+                              <small style={{ display: "block", color: "#9b8da2", fontSize: "11px", marginTop: "2px" }}>
+                                {collaborator.email || "No email"}
+                              </small>
+                            </div>
+
+                            {/* Confirmation Status */}
+                            <div style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "5px",
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              fontSize: "11px",
+                              fontWeight: "800",
+                              flexShrink: 0,
+                              background: collaborator.confirmed_at ? "#e7f6ed" : "#f3f0f9",
+                              color: collaborator.confirmed_at ? "#478d6c" : "#8b7b98"
+                            }}>
+                              {collaborator.confirmed_at ? (
+                                <>
+                                  <span>✓</span>
+                                  <span>Confirmed</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>⏳</span>
+                                  <span>Waiting</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* All Confirmed Banner */}
+                      {collaborators.length > 0 && collaborators.some(c => !c.confirmed_at) && (
+                        <div style={{
+                          marginTop: "12px",
+                          padding: "10px 12px",
+                          borderRadius: "8px",
+                          background: "#fef3c7",
+                          border: "1px solid #fcd34d",
+                          color: "#92400e",
+                          fontSize: "12px",
+                          lineHeight: "1.5"
+                        }}>
+                          {collaborators.filter(c => !c.confirmed_at).map(c => c.full_name).join(" and ")} still need to confirm.
                         </div>
-                      </>
-                    )}
+                      )}
+                    </section>
+
+                    {/* Discussion Section */}
+                    <section className="td-card">
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                        <div>
+                          <span style={{ display: "block", color: "#9b8da2", fontSize: "11px", fontWeight: "800", letterSpacing: ".1em", textTransform: "uppercase" }}>
+                            DISCUSSION
+                          </span>
+                          <h2 style={{ margin: "6px 0 0", color: "#372541", font: "800 18px Manrope,sans-serif", letterSpacing: "-.05em" }}>
+                            Working notes & questions
+                          </h2>
+                        </div>
+                      </div>
+                      <div style={{ padding: "0 4px" }}>
+                        <CollaborativeComments
+                          taskId={task.id}
+                          token={token}
+                          apiUrl={api}
+                          io={socket}
+                          currentUserId={user?.id}
+                          currentUserName={user?.full_name}
+                        />
+                      </div>
+                    </section>
                   </>
                 )}
 
