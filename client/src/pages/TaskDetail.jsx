@@ -1620,7 +1620,7 @@ export default function TaskDetail() {
                         <Icon name="preview" />
                       </button>
                       
-                      {selectedFile && isCollaborative && (
+                      {selectedFile && isCollaborative && isCurrentUserCollaborator && (
                         <button
                           type="button"
                           onClick={uploadCollaborativeFile}
