@@ -245,8 +245,8 @@ export default function TaskDetail() {
   const [comments, setComments] = useState([]);
   const [postingComment, setPostingComment] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
-  const [replyText, setReplyText] = useState("");
   const [commentFiles, setCommentFiles] = useState([]);
+  const [fileUploadStatus, setFileUploadStatus] = useState({});
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
   const commentFileInputRef = useRef(null);
@@ -595,18 +595,56 @@ export default function TaskDetail() {
         {
           content,
           sender_name: user.full_name || user.username || "You",
+          author_name: user.full_name || user.username || "You",
           created_at: new Date().toISOString(),
           parentCommentId: replyingTo,
         },
       ]);
       setComment("");
       setCommentFiles([]);
+      setFileUploadStatus({});
       setReplyingTo(null);
     } catch (commentError) {
       setError(commentError.message || "The note could not be posted.");
     } finally {
       setPostingComment(false);
     }
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    const newStatus = {};
+    files.forEach((file) => {
+      if (file.size > 10 * 1024 * 1024) {
+        newStatus[file.name] = "error";
+      } else {
+        newStatus[file.name] = "uploading";
+      }
+    });
+    setFileUploadStatus(newStatus);
+    setCommentFiles((prev) => [...prev, ...files]);
+
+    setTimeout(() => {
+      setFileUploadStatus((prev) => {
+        const updated = { ...prev };
+        files.forEach((file) => {
+          if (prev[file.name] !== "error") {
+            updated[file.name] = "success";
+          }
+        });
+        return updated;
+      });
+    }, 500);
+  };
+
+  const handleRemoveFile = (index) => {
+    const removedFile = commentFiles[index];
+    setCommentFiles((prev) => prev.filter((_, i) => i !== index));
+    setFileUploadStatus((prev) => {
+      const updated = { ...prev };
+      delete updated[removedFile.name];
+      return updated;
+    });
   };
 
   const previewFile = (file) => {
@@ -1355,50 +1393,82 @@ export default function TaskDetail() {
                   </div>
                   {comments.length ? (
                     <div className="td-comments">
-                      {comments.map((item, index) => (
-                        <article
-                          className="td-comment"
-                          key={item.id || `${item.created_at}-${index}`}
-                          style={{ marginLeft: item.parentCommentId ? "32px" : "0" }}
-                        >
-                          <span>
-                            {initials(
-                              item.sender_name ||
-                                item.author_name ||
-                                item.author,
-                            )}
-                          </span>
-                          <div>
-                            <strong>
-                              {item.sender_name ||
-                                item.author_name ||
-                                item.author ||
-                                "Workflow member"}
-                            </strong>
-                            <time>
-                              {formatDate(item.created_at || item.createdAt)}
-                            </time>
-                            <p>{item.content || item.body}</p>
-                            <button
-                              type="button"
-                              onClick={() => setReplyingTo(item.id || index)}
-                              style={{
-                                marginTop: "8px",
-                                border: "1px solid #e5dff3",
-                                borderRadius: "4px",
-                                padding: "4px 8px",
-                                background: "#faf8fc",
-                                color: "#8d7e98",
-                                fontSize: "10px",
-                                fontWeight: "600",
-                                cursor: "pointer",
-                              }}
-                            >
-                              ↩ Reply
-                            </button>
-                          </div>
-                        </article>
-                      ))}
+                      {comments.map((item, index) => {
+                        const isReply = item.parentCommentId;
+                        return (
+                          <article
+                            className="td-comment"
+                            key={item.id || `${item.created_at}-${index}`}
+                            style={{
+                              marginLeft: isReply ? "32px" : "0",
+                              marginBottom: "9px",
+                            }}
+                          >
+                            <span>
+                              {initials(
+                                item.sender_name ||
+                                  item.author_name ||
+                                  item.author,
+                              )}
+                            </span>
+                            <div>
+                              <strong>
+                                {item.sender_name ||
+                                  item.author_name ||
+                                  item.author ||
+                                  "Workflow member"}
+                              </strong>
+                              <time>
+                                {formatDate(item.created_at || item.createdAt)}
+                              </time>
+                              <p>{item.content || item.body}</p>
+                              {item.files && item.files.length > 0 && (
+                                <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                                  {item.files.map((file, fidx) => (
+                                    <a
+                                      key={fidx}
+                                      href={resolveFileUrl(api, file.url || file.file_url)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        padding: "4px 8px",
+                                        background: "#f5f0fb",
+                                        border: "1px solid #e5dff3",
+                                        borderRadius: "5px",
+                                        fontSize: "10px",
+                                        color: "#7c3aed",
+                                        textDecoration: "none",
+                                      }}
+                                    >
+                                      📎 {file.name}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setReplyingTo(item.id)}
+                                style={{
+                                  marginTop: "8px",
+                                  border: "1px solid #e5dff3",
+                                  borderRadius: "4px",
+                                  padding: "4px 8px",
+                                  background: "#faf8fc",
+                                  color: "#8d7e98",
+                                  fontSize: "10px",
+                                  fontWeight: "600",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                ↩ Reply
+                              </button>
+                            </div>
+                          </article>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="td-discussion-empty">
@@ -1410,35 +1480,39 @@ export default function TaskDetail() {
                     <div
                       style={{
                         marginTop: "12px",
-                        padding: "12px",
+                        padding: "10px 12px",
                         background: "#fcfaff",
                         border: "1px solid #e9ddfb",
                         borderRadius: "8px",
+                        fontSize: "11px",
+                        color: "#8d7e98",
                       }}
                     >
-                      <small style={{ color: "#8d7e98" }}>
-                        Replying to comment...{" "}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setReplyingTo(null);
-                            setReplyText("");
-                          }}
-                          style={{
-                            border: "none",
-                            background: "none",
-                            color: "#dc2626",
-                            cursor: "pointer",
-                            fontSize: "10px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </small>
+                      Replying to a comment.{" "}
+                      <button
+                        type="button"
+                        onClick={() => setReplyingTo(null)}
+                        style={{
+                          border: "none",
+                          background: "none",
+                          color: "#dc2626",
+                          cursor: "pointer",
+                          fontSize: "10px",
+                          fontWeight: "600",
+                          textDecoration: "underline",
+                        }}
+                      >
+                        Cancel reply
+                      </button>
                     </div>
                   )}
-                  <div className="td-composer">
+                  <form
+                    className="td-composer"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      postComment();
+                    }}
+                  >
                     <textarea
                       value={comment}
                       onChange={(event) => setComment(event.target.value)}
@@ -1451,51 +1525,75 @@ export default function TaskDetail() {
                           padding: "8px 0",
                           borderTop: "1px solid #e9ddfb",
                           marginTop: "8px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "4px",
                         }}
                       >
-                        {commentFiles.map((file, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              padding: "6px 8px",
-                              background: "#faf8fc",
-                              border: "1px solid #e5dff3",
-                              borderRadius: "5px",
-                              marginBottom: "4px",
-                              fontSize: "10px",
-                              color: "#7c3aed",
-                            }}
-                          >
-                            <span>📎 {file.name}</span>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setCommentFiles((prev) =>
-                                  prev.filter((_, i) => i !== idx)
-                                )
-                              }
+                        {commentFiles.map((file, idx) => {
+                          const status = fileUploadStatus[file.name];
+                          return (
+                            <div
+                              key={idx}
                               style={{
-                                border: "none",
-                                background: "none",
-                                color: "#dc2626",
-                                cursor: "pointer",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                padding: "6px 8px",
+                                background:
+                                  status === "error"
+                                    ? "#fef2f2"
+                                    : status === "success"
+                                      ? "#f0fdf4"
+                                      : "#fcf8fe",
+                                border:
+                                  status === "error"
+                                    ? "1px solid #ef4444"
+                                    : status === "success"
+                                      ? "1px solid #10b981"
+                                      : "1px solid #e5dff3",
+                                borderRadius: "5px",
+                                fontSize: "10px",
+                                color:
+                                  status === "error"
+                                    ? "#dc2626"
+                                    : status === "success"
+                                      ? "#059669"
+                                      : "#7c3aed",
                                 fontWeight: "600",
                               }}
                             >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
+                              <span>
+                                {status === "error" && "✕"}
+                                {status === "uploading" && "⟳"}
+                                {status === "success" && "✓"}
+                                {!status && "📎"} {file.name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFile(idx)}
+                                style={{
+                                  border: "none",
+                                  background: "none",
+                                  color: "inherit",
+                                  cursor: "pointer",
+                                  fontWeight: "600",
+                                  fontSize: "10px",
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                     <div
                       style={{
-                        display: "flex",
+                        display: "grid",
+                        gridTemplateColumns: "auto 1fr",
                         gap: "8px",
-                        marginTop: "8px",
+                        marginTop: "10px",
                         alignItems: "center",
                       }}
                     >
@@ -1503,10 +1601,7 @@ export default function TaskDetail() {
                         ref={commentFileInputRef}
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx"
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          setCommentFiles((prev) => [...prev, ...files]);
-                        }}
+                        onChange={handleFileSelect}
                         style={{ display: "none" }}
                       />
                       <button
@@ -1515,28 +1610,27 @@ export default function TaskDetail() {
                         style={{
                           border: "1px solid #dccdea",
                           borderRadius: "6px",
-                          padding: "6px 10px",
+                          padding: "8px 11px",
                           background: "#faf8fc",
                           color: "#7c3aed",
                           fontSize: "10px",
                           fontWeight: "700",
                           cursor: "pointer",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         📎 Attach file
                       </button>
                       <button
-                        type="button"
+                        type="submit"
                         disabled={
                           (!comment.trim() && commentFiles.length === 0) ||
                           postingComment
                         }
-                        onClick={postComment}
                         style={{
-                          flex: 1,
                           border: "none",
                           borderRadius: "6px",
-                          padding: "6px 10px",
+                          padding: "8px 11px",
                           background:
                             (!comment.trim() && commentFiles.length === 0) ||
                             postingComment
@@ -1560,7 +1654,7 @@ export default function TaskDetail() {
                         {postingComment ? "Posting…" : "Post note"}
                       </button>
                     </div>
-                  </div>
+                  </form>
                 </section>
               </main>
 
