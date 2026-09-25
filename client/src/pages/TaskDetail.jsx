@@ -1546,8 +1546,8 @@ export default function TaskDetail() {
                       </div>
                     )}
                     
-                    {/* Display uploaded files for collaborators (excluding the initial task brief, only if not all confirmed yet) */}
-                    {isCollaborative && !allConfirmed && task?.attachments && task.attachments.length > 0 && (
+                    {/* Display uploaded files for collaborators (excluding the initial task brief) */}
+                    {isCollaborative && task?.attachments && task.attachments.length > 0 && (
                       (() => {
                         // Filter out the initial brief attachment (uploaded within 5 seconds of task creation)
                         const collaboratorUploads = task.attachments.filter(file => {
@@ -1559,7 +1559,8 @@ export default function TaskDetail() {
                           return !(timeDiffSeconds >= 0 && timeDiffSeconds <= 5);
                         });
                         
-                        // Only show section if there are collaborator uploads (not just the initial brief)
+                        // Show section if there are collaborator uploads (not just the initial brief)
+                        // Show to collaborators during review phase or to admin/chair after submission
                         return collaboratorUploads.length > 0 ? (
                           <div style={{ marginBottom: "16px", padding: "12px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #dcfce7" }}>
                             <div style={{ fontSize: "10px", fontWeight: "700", color: "#166534", marginBottom: "10px", textTransform: "uppercase" }}>
