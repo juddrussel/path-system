@@ -1971,6 +1971,7 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
   const taskId            = parseInt(req.params.id);
   const note              = req.body.note              || null;
   const submissionGroupId = req.body.submission_group_id || `sub_${Date.now()}`;
+  const isCollaborativeUpload = req.body.is_collaborative_upload === "true";
   const submittedAt       = new Date();
 
   const conn = await db.getConnection();
@@ -1997,7 +1998,8 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
     }
 
     // For collaborative tasks, verify all collaborators have confirmed
-    if (task.is_collaborative && task.confirmation_status !== "confirmed") {
+    // ONLY for final submission - skip this check for collaborative file uploads
+    if (task.is_collaborative && !isCollaborativeUpload && task.confirmation_status !== "confirmed") {
       conn.release();
       return res.status(400).json({ 
         message: "All collaborators must confirm their edits before submission.",
@@ -2012,11 +2014,13 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
 
     await conn.beginTransaction();
 
-    // 1. Update task status → For Approval
-    await conn.query(
-      "UPDATE tasks SET status = 'For Approval', updated_at = NOW() WHERE id = ?",
-      [taskId]
-    );
+    // 1. Update task status → For Approval ONLY for final submission
+    if (!isCollaborativeUpload) {
+      await conn.query(
+        "UPDATE tasks SET status = 'For Approval', updated_at = NOW() WHERE id = ?",
+        [taskId]
+      );
+    }
 
     // 2. Save each uploaded file to task_submissions
     const savedFiles = [];
@@ -2066,8 +2070,10 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
 
     await writeLog({
       userId:    req.user.id,
-      action:    "TASK_SUBMIT",
-      detail:    `Submitted task ${task.tracking_id} with ${savedFiles.length} file(s)`,
+      action:    isCollaborativeUpload ? "TASK_UPLOAD_COLLABORATIVE_FILE" : "TASK_SUBMIT",
+      detail:    isCollaborativeUpload 
+        ? `Uploaded file to collaborative task ${task.tracking_id} for review`
+        : `Submitted task ${task.tracking_id} with ${savedFiles.length} file(s)`,
       ipAddress: req.ip,
     });
 

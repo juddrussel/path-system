@@ -723,6 +723,7 @@ export default function TaskDetail() {
       formData.append("files", selectedFile);
       formData.append("submission_group_id", `collab_${task.id}_${Date.now()}`);
       formData.append("note", `Uploaded by ${user.full_name}`);
+      formData.append("is_collaborative_upload", "true"); // Flag to skip confirmation check
       
       const response = await fetch(`${api}/api/tasks/${task.id}/submit`, {
         method: "POST",
@@ -731,7 +732,8 @@ export default function TaskDetail() {
       });
       
       if (!response.ok) {
-        throw new Error("File upload failed.");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "File upload failed.");
       }
       
       // Emit socket event to notify other collaborators in real-time
