@@ -2292,8 +2292,18 @@ router.delete("/:id/archive-for-me", requireAuth, async (req, res) => {
 router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
-    const { content, parentCommentId } = req.body;
+    let { content, parentCommentId } = req.body;
     const userId = req.user.id;
+
+    // Parse parentCommentId if it exists and is a string
+    if (parentCommentId) {
+      parentCommentId = parseInt(parentCommentId, 10);
+      if (isNaN(parentCommentId)) {
+        parentCommentId = null;
+      }
+    }
+
+    console.log(`[POST /tasks/:id/comments] taskId=${taskId}, parentCommentId=${parentCommentId}, content="${content.substring(0, 50)}..."`);
 
     if (!content || content.trim() === "") {
       return res.status(400).json({ message: "Comment cannot be empty." });
