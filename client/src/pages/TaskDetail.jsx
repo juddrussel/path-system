@@ -1392,136 +1392,207 @@ export default function TaskDetail() {
                     </div>
                   </div>
 
-                  {/* Render threaded comments */}
-                  {comments.length ? (
-                    <div className="td-comments">
-                      {comments.map((item) => {
-                        const isReply = item.parentCommentId;
-                        return (
-                          <article
-                            className="td-comment"
-                            key={item.id || item.created_at}
-                            style={{
-                              marginLeft: isReply ? "32px" : "0",
-                              marginBottom: "9px",
-                            }}
-                          >
-                            <span>
-                              {initials(
-                                item.sender_name ||
-                                  item.author_name ||
-                                  item.author
-                              )}
-                            </span>
-                            <div>
-                              <strong>
-                                {item.sender_name ||
-                                  item.author_name ||
-                                  item.author ||
-                                  "Workflow member"}
-                              </strong>
-                              <time>
-                                {formatDate(item.created_at || item.createdAt)}
-                              </time>
-                              <p>{item.content || item.body}</p>
-
-                              {/* File attachments with status badges */}
-                              {item.files && item.files.length > 0 && (
-                                <div
-                                  style={{
-                                    marginTop: "8px",
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    gap: "6px",
-                                  }}
-                                >
-                                  {item.files.map((file, fidx) => (
-                                    <a
-                                      key={fidx}
-                                      href={resolveFileUrl(
-                                        api,
-                                        file.url || file.file_url
-                                      )}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      style={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "4px",
-                                        padding: "4px 8px",
-                                        background: "#f5f0fb",
-                                        border: "1px solid #e5dff3",
-                                        borderRadius: "5px",
-                                        fontSize: "10px",
-                                        color: "#7c3aed",
-                                        textDecoration: "none",
-                                        transition: "all 0.2s",
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.target.style.background = "#ede7fb";
-                                        e.target.style.borderColor = "#7c3aed";
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.style.background = "#f5f0fb";
-                                        e.target.style.borderColor = "#e5dff3";
-                                      }}
-                                    >
-                                      📎 {file.name || file.file_name}
-                                    </a>
-                                  ))}
-                                </div>
-                              )}
-
-                              {/* Reply button */}
-                              <button
-                                type="button"
-                                onClick={() => setReplyingTo(item.id)}
+                  {/* Comments thread */}
+                  <div style={{ marginTop: "16px" }}>
+                    {comments.length ? (
+                      <div style={{ display: "grid", gap: "12px", marginBottom: "20px" }}>
+                        {comments.map((item) => {
+                          const isReply = item.parentCommentId;
+                          return (
+                            <div
+                              key={item.id || item.created_at}
+                              style={{
+                                paddingLeft: isReply ? "28px" : "0",
+                                borderLeft: isReply ? "2px solid #e9ddfb" : "none",
+                                paddingTop: isReply ? "8px" : "0",
+                              }}
+                            >
+                              <div
                                 style={{
-                                  marginTop: "8px",
-                                  border: "1px solid #e5dff3",
-                                  borderRadius: "4px",
-                                  padding: "4px 8px",
-                                  background: "#faf8fc",
-                                  color: "#8d7e98",
-                                  fontSize: "10px",
-                                  fontWeight: "600",
-                                  cursor: "pointer",
-                                  transition: "all 0.2s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.target.style.background = "#f0ebfa";
-                                  e.target.style.borderColor = "#dfc8f0";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.target.style.background = "#faf8fc";
-                                  e.target.style.borderColor = "#e5dff3";
+                                  display: "flex",
+                                  gap: "10px",
+                                  padding: "12px",
+                                  background: isReply ? "#fcfaff" : "#fdfcff",
+                                  border: "1px solid " + (isReply ? "#f0ebf3" : "#f5f0fb"),
+                                  borderRadius: "8px",
                                 }}
                               >
-                                ↩ Reply
-                              </button>
+                                <div
+                                  style={{
+                                    display: "grid",
+                                    placeItems: "center",
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "8px",
+                                    background: "#ebe2fb",
+                                    color: "#7043ba",
+                                    fontSize: "11px",
+                                    fontWeight: "800",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {initials(
+                                    item.sender_name ||
+                                      item.author_name ||
+                                      item.author
+                                  )}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "8px",
+                                      marginBottom: "6px",
+                                      flexWrap: "wrap",
+                                    }}
+                                  >
+                                    <strong
+                                      style={{
+                                        color: "#5b4766",
+                                        fontSize: "12px",
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      {item.sender_name ||
+                                        item.author_name ||
+                                        item.author ||
+                                        "Workflow member"}
+                                    </strong>
+                                    <span
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "#a394a8",
+                                      }}
+                                    >
+                                      {formatDate(item.created_at || item.createdAt)}
+                                    </span>
+                                  </div>
+                                  <p
+                                    style={{
+                                      margin: "0 0 8px 0",
+                                      color: "#75657d",
+                                      fontSize: "12px",
+                                      lineHeight: "1.5",
+                                    }}
+                                  >
+                                    {item.content || item.body}
+                                  </p>
+
+                                  {/* File attachments */}
+                                  {item.files && item.files.length > 0 && (
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: "6px",
+                                        marginBottom: "8px",
+                                      }}
+                                    >
+                                      {item.files.map((file, fidx) => (
+                                        <a
+                                          key={fidx}
+                                          href={resolveFileUrl(
+                                            api,
+                                            file.url || file.file_url
+                                          )}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          style={{
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "4px",
+                                            padding: "5px 9px",
+                                            background: "#f5f0fb",
+                                            border: "1px solid #e5dff3",
+                                            borderRadius: "5px",
+                                            fontSize: "10px",
+                                            color: "#7c3aed",
+                                            textDecoration: "none",
+                                            fontWeight: "600",
+                                            cursor: "pointer",
+                                            transition: "all 0.15s ease",
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            e.target.style.background = "#ede7fb";
+                                            e.target.style.borderColor = "#7c3aed";
+                                            e.target.style.boxShadow =
+                                              "0 2px 6px rgba(124,58,237,0.15)";
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.target.style.background = "#f5f0fb";
+                                            e.target.style.borderColor = "#e5dff3";
+                                            e.target.style.boxShadow = "none";
+                                          }}
+                                        >
+                                          📎 {file.name || file.file_name}
+                                        </a>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {/* Reply button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => setReplyingTo(item.id)}
+                                    style={{
+                                      border: "1px solid #e9ddfb",
+                                      borderRadius: "5px",
+                                      padding: "5px 10px",
+                                      background: "#faf8fc",
+                                      color: "#8d7e98",
+                                      fontSize: "10px",
+                                      fontWeight: "700",
+                                      cursor: "pointer",
+                                      transition: "all 0.15s ease",
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.target.style.background = "#f0ebfa";
+                                      e.target.style.borderColor = "#d9cbe6";
+                                      e.target.style.color = "#6d5b7d";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.target.style.background = "#faf8fc";
+                                      e.target.style.borderColor = "#e9ddfb";
+                                      e.target.style.color = "#8d7e98";
+                                    }}
+                                  >
+                                    ↩ Reply
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                          </article>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="td-discussion-empty">
-                      There are no discussion notes yet. Add guidance that
-                      should remain with the task record.
-                    </p>
-                  )}
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p
+                        style={{
+                          margin: "16px 0 0",
+                          color: "#9b8fa1",
+                          fontSize: "12px",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        There are no discussion notes yet. Add guidance that should
+                        remain with the task record.
+                      </p>
+                    )}
+                  </div>
 
                   {/* Reply indicator */}
                   {replyingTo && (
                     <div
                       style={{
-                        marginTop: "12px",
+                        marginBottom: "16px",
                         padding: "10px 12px",
-                        background: "#fcfaff",
-                        border: "1px solid #e9ddfb",
-                        borderRadius: "8px",
+                        background: "#f5f0fb",
+                        border: "1px solid #e0d5ef",
+                        borderLeft: "3px solid #7c3aed",
+                        borderRadius: "6px",
                         fontSize: "11px",
-                        color: "#8d7e98",
+                        color: "#7043bb",
+                        fontWeight: "600",
                       }}
                     >
                       Replying to a comment.{" "}
@@ -1534,48 +1605,98 @@ export default function TaskDetail() {
                           color: "#dc2626",
                           cursor: "pointer",
                           fontSize: "10px",
-                          fontWeight: "600",
+                          fontWeight: "700",
                           textDecoration: "underline",
-                          padding: 0,
+                          padding: "0 2px",
                         }}
                       >
-                        Cancel reply
+                        Clear
                       </button>
                     </div>
                   )}
 
-                  {/* Comment composer */}
+                  {/* New comment form */}
                   <form
-                    className="td-composer"
                     onSubmit={(e) => {
                       e.preventDefault();
                       postComment();
                     }}
+                    style={{
+                      padding: "16px",
+                      background: "#faf8fc",
+                      border: "1px solid #e9ddfb",
+                      borderRadius: "9px",
+                      display: "grid",
+                      gap: "12px",
+                    }}
                   >
+                    {/* Textarea */}
                     <textarea
                       value={comment}
                       onChange={(event) => setComment(event.target.value)}
                       rows={3}
                       placeholder="Write a note for this handoff…"
+                      style={{
+                        width: "100%",
+                        border: "1px solid #e2d9e9",
+                        borderRadius: "7px",
+                        padding: "10px",
+                        outline: "none",
+                        color: "#5d4867",
+                        font: "500 11px 'DM Sans', sans-serif",
+                        lineHeight: "1.5",
+                        resize: "vertical",
+                        boxSizing: "border-box",
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "#a78bfa";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(124,58,237,0.08)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "#e2d9e9";
+                        e.target.style.boxShadow = "none";
+                      }}
                     />
 
-                    {/* File attachments list with status */}
+                    {/* Files list */}
                     {commentFiles.length > 0 && (
                       <div
                         style={{
-                          padding: "8px 0",
-                          borderTop: "1px solid #e9ddfb",
-                          marginTop: "8px",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "4px",
+                          display: "grid",
+                          gap: "6px",
+                          padding: "10px",
+                          background: "#fff",
+                          border: "1px solid #e9ddfb",
+                          borderRadius: "6px",
                         }}
                       >
                         {commentFiles.map((file, idx) => {
                           const status = fileUploadStatus[file.name];
-                          const isError = status === "error";
-                          const isSuccess = status === "success";
-                          const isUploading = status === "uploading";
+                          const bgColor =
+                            status === "error"
+                              ? "#fef2f2"
+                              : status === "success"
+                                ? "#f0fdf4"
+                                : status === "uploading"
+                                  ? "#f5f0fb"
+                                  : "#fcfaff";
+                          const borderColor =
+                            status === "error"
+                              ? "#ef4444"
+                              : status === "success"
+                                ? "#10b981"
+                                : status === "uploading"
+                                  ? "#a78bfa"
+                                  : "#e5dff3";
+                          const textColor =
+                            status === "error"
+                              ? "#dc2626"
+                              : status === "success"
+                                ? "#059669"
+                                : status === "uploading"
+                                  ? "#7c3aed"
+                                  : "#8d7e98";
 
                           return (
                             <div
@@ -1584,32 +1705,19 @@ export default function TaskDetail() {
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                padding: "6px 8px",
-                                background: isError
-                                  ? "#fef2f2"
-                                  : isSuccess
-                                    ? "#f0fdf4"
-                                    : "#fcf8fe",
-                                border: isError
-                                  ? "1px solid #ef4444"
-                                  : isSuccess
-                                    ? "1px solid #10b981"
-                                    : "1px solid #e5dff3",
+                                padding: "8px 10px",
+                                background: bgColor,
+                                border: `1px solid ${borderColor}`,
                                 borderRadius: "5px",
                                 fontSize: "10px",
-                                color: isError
-                                  ? "#dc2626"
-                                  : isSuccess
-                                    ? "#059669"
-                                    : "#7c3aed",
+                                color: textColor,
                                 fontWeight: "600",
-                                transition: "all 0.2s",
                               }}
                             >
-                              <span>
-                                {isError && "✕"}
-                                {isUploading && "⟳"}
-                                {isSuccess && "✓"}
+                              <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {status === "error" && "✕"}
+                                {status === "uploading" && "⟳"}
+                                {status === "success" && "✓"}
                                 {!status && "📎"} {file.name}
                               </span>
                               <button
@@ -1618,11 +1726,13 @@ export default function TaskDetail() {
                                 style={{
                                   border: "none",
                                   background: "none",
-                                  color: "inherit",
+                                  color: textColor,
                                   cursor: "pointer",
-                                  fontWeight: "600",
                                   fontSize: "10px",
+                                  fontWeight: "700",
                                   padding: "0 4px",
+                                  marginLeft: "8px",
+                                  flexShrink: 0,
                                 }}
                               >
                                 ✕
@@ -1633,13 +1743,12 @@ export default function TaskDetail() {
                       </div>
                     )}
 
-                    {/* Composer footer with buttons */}
+                    {/* Buttons row */}
                     <div
                       style={{
                         display: "flex",
-                        gap: "8px",
-                        marginTop: "10px",
-                        alignItems: "center",
+                        gap: "10px",
+                        alignItems: "stretch",
                       }}
                     >
                       <input
@@ -1656,25 +1765,26 @@ export default function TaskDetail() {
                         style={{
                           border: "1px solid #dccdea",
                           borderRadius: "6px",
-                          padding: "8px 11px",
+                          padding: "9px 12px",
                           background: "#faf8fc",
                           color: "#7c3aed",
-                          fontSize: "10px",
+                          fontSize: "11px",
                           fontWeight: "700",
                           cursor: "pointer",
                           whiteSpace: "nowrap",
-                          transition: "all 0.2s",
+                          transition: "all 0.15s ease",
+                          flexShrink: 0,
                         }}
                         onMouseEnter={(e) => {
                           e.target.style.background = "#f0ebfa";
-                          e.target.style.borderColor = "#bee0cf";
+                          e.target.style.borderColor = "#b1a1d4";
                         }}
                         onMouseLeave={(e) => {
                           e.target.style.background = "#faf8fc";
                           e.target.style.borderColor = "#dccdea";
                         }}
                       >
-                        📎 Attach file
+                        📎 Attach
                       </button>
                       <button
                         type="submit"
@@ -1686,14 +1796,14 @@ export default function TaskDetail() {
                           flex: 1,
                           border: "none",
                           borderRadius: "6px",
-                          padding: "8px 11px",
+                          padding: "9px 12px",
                           background:
                             (!comment.trim() && commentFiles.length === 0) ||
                             postingComment
                               ? "#e7e1ea"
                               : "#7c3aed",
                           color: "#fff",
-                          fontSize: "10px",
+                          fontSize: "11px",
                           fontWeight: "700",
                           cursor:
                             (!comment.trim() && commentFiles.length === 0) ||
@@ -1705,7 +1815,23 @@ export default function TaskDetail() {
                             postingComment
                               ? 0.55
                               : 1,
-                          transition: "all 0.2s",
+                          transition: "all 0.15s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (
+                            !(!comment.trim() && commentFiles.length === 0) &&
+                            !postingComment
+                          ) {
+                            e.target.style.background = "#6d28d9";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (
+                            !(!comment.trim() && commentFiles.length === 0) &&
+                            !postingComment
+                          ) {
+                            e.target.style.background = "#7c3aed";
+                          }
                         }}
                       >
                         {postingComment ? "Posting…" : "Post note"}
