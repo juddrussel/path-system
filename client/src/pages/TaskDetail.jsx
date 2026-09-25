@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { socket, connectSocket } from "./socket";
-import CollaborativeComments from "../components/CollaborativeComments";
-import { resolveFileUrl as resolveFileUrlUtil } from "../utils/r2ProxyHelper";
 
 /*
   Router integration requirement (React Router v6):
@@ -86,7 +83,8 @@ const toDatetimeInput = (value) => {
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 };
 
-
+const resolveFileUrl = (api, value) =>
+  !value ? "" : /^https?:\/\//i.test(value) ? value : `${api}${value}`;
 
 const pdfReadingUrl = (value, zoom = "page-width") => {
   if (!value) return "";
@@ -195,7 +193,7 @@ function FileCard({ file, api, onPreview, label = "Attached file" }) {
   if (!file) return null;
   const name =
     file.file_name || file.originalname || file.name || "Attached file";
-  const url = resolveFileUrlUtil(api, file.file_url || file.url || file.path);
+  const url = resolveFileUrl(api, file.file_url || file.url || file.path);
   return (
     <button
       type="button"
@@ -235,7 +233,6 @@ export default function TaskDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
   const [returnInstruction, setReturnInstruction] = useState("");
-  const [returnReason, setReturnReason] = useState("");
   const [returnError, setReturnError] = useState("");
   const [deciding, setDeciding] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
@@ -245,17 +242,8 @@ export default function TaskDetail() {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [postingComment, setPostingComment] = useState(false);
-  // Collaborative confirmation states
-  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
-  const [confirmationMessage, setConfirmationMessage] = useState("");
-  const [confirmingCollaboration, setConfirmingCollaboration] = useState(false);
-  const [cancellingConfirmation, setCancellingConfirmation] = useState(false);
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
-
-  // Helper to update task state with partial updates
-  const updateTask = (patch) =>
-    setTask((current) => (current ? { ...current, ...(typeof patch === 'function' ? patch(current) : patch) } : current));
 
   const loadTask = async () => {
     if (!taskId) return;
@@ -300,148 +288,15 @@ export default function TaskDetail() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // WebSocket listener for collaborative task updates
-  useEffect(() => {
-    connectSocket();
-
-    // Listen for when the other collaborator confirms
-    const handleCollaboratorConfirmed = (data) => {
-      if (data.taskId === parseInt(taskId)) {
-        updateTask({
-          confirmation_status: data.bothConfirmed ? "confirmed" : "awaiting",
-          user1_confirmed_at: data.bothConfirmed ? new Date().toISOString() : undefined,
-          user2_confirmed_at: data.bothConfirmed ? new Date().toISOString() : undefined,
-        });
-        
-        // Show a notification to the user
-        if (data.bothConfirmed) {
-          setConfirmationMessage(`Both collaborators have confirmed! The task is ready to submit.`);
-          setTimeout(() => setConfirmationMessage(""), 4000);
-        } else {
-          setConfirmationMessage(`${data.confirmedBy} has confirmed their edits.`);
-          setTimeout(() => setConfirmationMessage(""), 3000);
-        }
-      }
-    };
-
-    // Listen for when the collaborator uploads files
-    const handleCollaboratorFileUpload = (data) => {
-      if (data.taskId === parseInt(taskId)) {
-        // Reload the task to get the latest file list
-        loadTask();
-      }
-    };
-
-    // Listen for when the collaborator submits the task
-    const handleTaskSubmitted = (data) => {
-      if (data.taskId === parseInt(taskId)) {
-        // Reload the task to get updated status and submission
-        loadTask();
-      }
-    };
-
-    // Listen for status changes (e.g., task returned for revision - need to reload to reset confirmations)
-    const handleTaskStatusChanged = (data) => {
-      if (data.taskId === parseInt(taskId)) {
-        // Force reload to get updated confirmation status
-        loadTask();
-      }
-    };
-
-    // Listen for when a collaborator cancels their confirmation
-    const handleCollaboratorCancelledConfirmation = (data) => {
-      if (data.taskId === parseInt(taskId)) {
-        setConfirmationMessage(`${data.cancelledBy} has cancelled their confirmation. All collaborators must confirm again.`);
-        setTimeout(() => setConfirmationMessage(""), 4000);
-        
-        // Reload the task to get updated collaborator confirmations
-        loadTask();
-      }
-    };
-
-    // Real-time listener for when a collaborator confirms (client-emitted event)
-    const handleCollaboratorConfirmedRealTime = (data) => {
-      if (data.taskId === parseInt(taskId) && data.userId !== user?.id) {
-        // Update task collaborators list immediately
-        updateTask((prevTask) => {
-          if (!prevTask) return prevTask;
-          const updatedCollaborators = (prevTask.collaborators || []).map(c => 
-            c.user_id === data.userId ? { ...c, confirmed_at: data.confirmedAt } : c
-          );
-          return {
-            ...prevTask,
-            collaborators: updatedCollaborators,
-            confirmation_status: data.allConfirmed ? "confirmed" : "awaiting"
-          };
-        });
-        
-        // Show notification
-        setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed! Auto-submitting...' : ''}`);
-        setTimeout(() => setConfirmationMessage(""), 4000);
-      }
-    };
-
-    // Real-time listener for when a collaborator cancels (client-emitted event)
-    const handleCollaboratorCancelledRealTime = (data) => {
-      if (data.taskId === parseInt(taskId) && data.userId !== user?.id) {
-        // Update task collaborators list immediately
-        updateTask((prevTask) => {
-          if (!prevTask) return prevTask;
-          const updatedCollaborators = (prevTask.collaborators || []).map(c => ({
-            ...c,
-            confirmed_at: null
-          }));
-          return {
-            ...prevTask,
-            collaborators: updatedCollaborators,
-            confirmation_status: "awaiting"
-          };
-        });
-        
-        // Show notification
-        setConfirmationMessage(`${data.userName} has cancelled their confirmation. All collaborators must confirm again.`);
-        setTimeout(() => setConfirmationMessage(""), 4000);
-      }
-    };
-
-    socket.on("collaboration:user_confirmed", handleCollaboratorConfirmed);
-    socket.on("collaboration:user_confirmed_real_time", handleCollaboratorConfirmedRealTime);
-    socket.on("task:file_uploaded", handleCollaboratorFileUpload);
-    socket.on("task:attachment_added", handleCollaboratorFileUpload);
-    socket.on("task:file_uploaded_collaborative", handleCollaboratorFileUpload);
-    socket.on("task:submitted", handleTaskSubmitted);
-    socket.on("task:status_changed", handleTaskStatusChanged);
-    socket.on("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
-    socket.on("collaboration:confirmation_cancelled_real_time", handleCollaboratorCancelledRealTime);
-
-    return () => {
-      socket.off("collaboration:user_confirmed", handleCollaboratorConfirmed);
-      socket.off("collaboration:user_confirmed_real_time", handleCollaboratorConfirmedRealTime);
-      socket.off("task:file_uploaded", handleCollaboratorFileUpload);
-      socket.off("task:attachment_added", handleCollaboratorFileUpload);
-      socket.off("task:file_uploaded_collaborative", handleCollaboratorFileUpload);
-      socket.off("task:submitted", handleTaskSubmitted);
-      socket.off("task:status_changed", handleTaskStatusChanged);
-      socket.off("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
-      socket.off("collaboration:confirmation_cancelled_real_time", handleCollaboratorCancelledRealTime);
-    };
-  }, [taskId, updateTask]);
-
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
   const viewerRoleLabel = isChair ? "Program Chair / Admin" : "Faculty";
   const taskOwner =
-    task?.faculty_name ||
     task?.assigned_to_name ||
     task?.assignee_name ||
     task?.assigned_to ||
-    "—";
+    "Faculty review group";
   const taskOwnerInitials = initials(taskOwner);
-  // Collaborative task info
-  const isCollaborative = task?.is_collaborative || false;
-  const collaborators = task?.collaborators || []; // Array of all collaborators
-  const collaborationStatus = task?.confirmation_status || "awaiting";
-  const collaborationConfirmed = task?.task_collaborators || []; // Array with confirmed_at for each
   const taskIdentifier =
     task?.tracking_id ||
     task?.trackingId ||
@@ -471,7 +326,7 @@ export default function TaskDetail() {
     : null;
   const latestSubmissionName =
     latestSubmission?.file_name || latestSubmission?.name || "Submitted work";
-  const latestSubmissionUrl = resolveFileUrlUtil(
+  const latestSubmissionUrl = resolveFileUrl(
     api,
     latestSubmission?.file_url ||
       latestSubmission?.url ||
@@ -504,7 +359,6 @@ export default function TaskDetail() {
       ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(latestSubmissionUrl)}`
       : latestSubmissionUrl;
   const hasFacultySubmission = Boolean(latestSubmission);
-  const isUnderReview = /for.?approval|under.?review|in.?review/i.test(task?.status || "");
   const decisionStatus =
     !hasFacultySubmission && isChair
       ? {
@@ -517,134 +371,10 @@ export default function TaskDetail() {
     isChair && hasFacultySubmission && status.tone === "review";
   const canReturn = isChair && hasFacultySubmission && status.tone === "review";
 
-  // Collaborative confirmation helpers
-  const isCurrentUserCollaborator = isCollaborative && collaborators.some(c => c.user_id === user.id);
-  const canConfirm = isCurrentUserCollaborator && collaborationStatus === "awaiting" && isFacultyView;
-  const currentUserCollab = collaborators.find(c => c.user_id === user.id);
-  const hasCurrentUserConfirmed = isCollaborative && currentUserCollab?.confirmed_at;
-  const allConfirmed = isCollaborative && collaborators.every(c => c.confirmed_at);
+  const updateTask = (patch) =>
+    setTask((current) => (current ? { ...current, ...patch } : current));
 
-  const confirmCollaboration = async () => {
-    if (!canConfirm || !task) return;
-    
-    setConfirmingCollaboration(true);
-    try {
-      const response = await fetch(`${api}/api/tasks/${task.id}/confirm-collaboration`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_id: user.id }),
-      });
-      
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Could not confirm collaboration.");
-      }
-      
-      const result = await response.json();
-      
-      // Update local state immediately
-      updateTask({
-        confirmation_status: result.confirmation_status,
-      });
-      
-      // Update current user's confirmation in collaborators list
-      updateTask((prevTask) => {
-        if (!prevTask) return prevTask;
-        const updatedCollaborators = (prevTask.collaborators || []).map(c => 
-          c.user_id === user.id ? { ...c, confirmed_at: new Date().toISOString() } : c
-        );
-        return {
-          ...prevTask,
-          collaborators: updatedCollaborators,
-          confirmation_status: result.confirmation_status,
-        };
-      });
-      
-      // Emit real-time socket event for immediate UI update
-      socket.emit("collaboration:user_confirmed_real_time", {
-        taskId: task.id,
-        trackingId: task.tracking_id,
-        userId: user.id,
-        userName: user.full_name,
-        confirmedAt: new Date().toISOString(),
-        allConfirmed: result.allConfirmed,
-      });
-      
-      setConfirmationModalOpen(false);
-      setConfirmationMessage(result.allConfirmed 
-        ? `All ${collaborators.length} collaborators confirmed! Submitting to program chair...` 
-        : `Your confirmation has been sent. Waiting for ${collaborators.length - 1} more...`);
-      
-      // Keep message visible for 3 seconds then clear
-      setTimeout(() => setConfirmationMessage(""), 3000);
-    } catch (err) {
-      setConfirmationMessage(err.message || "Failed to confirm collaboration.");
-    } finally {
-      setConfirmingCollaboration(false);
-    }
-  };
-
-  const cancelConfirmation = async () => {
-    if (!hasCurrentUserConfirmed || !task) return;
-    
-    setCancellingConfirmation(true);
-    try {
-      const response = await fetch(`${api}/api/tasks/${task.id}/cancel-confirmation`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Could not cancel confirmation.");
-      }
-      
-      const result = await response.json();
-      
-      // Update local state immediately for real-time feel
-      updateTask({
-        confirmation_status: result.confirmation_status,
-      });
-      
-      // Reset collaborators' confirmation status
-      updateTask((prevTask) => {
-        if (!prevTask) return prevTask;
-        const updatedCollaborators = (prevTask.collaborators || []).map(c => ({
-          ...c,
-          confirmed_at: null
-        }));
-        return {
-          ...prevTask,
-          collaborators: updatedCollaborators,
-          confirmation_status: result.confirmation_status,
-        };
-      });
-      
-      // Emit real-time socket event for immediate UI update
-      socket.emit("collaboration:confirmation_cancelled_real_time", {
-        taskId: task.id,
-        trackingId: task.tracking_id,
-        userId: user.id,
-        userName: user.full_name,
-        cancelledAt: new Date().toISOString(),
-      });
-      
-      setConfirmationMessage("Your confirmation has been cancelled. Other collaborators have been notified.");
-      setTimeout(() => setConfirmationMessage(""), 4000);
-    } catch (err) {
-      setConfirmationMessage(err.message || "Failed to cancel confirmation.");
-    } finally {
-      setCancellingConfirmation(false);
-    }
-  };
-
-  const goBack = () => navigate(location.state?.returnTo || "/task-assigned");
+  const goBack = () => navigate(location.state?.returnTo || "/tasks");
 
   const postStatus = async (endpoint, body) => {
     const response = await fetch(`${api}/api/tasks/${task.id}${endpoint}`, {
@@ -675,10 +405,6 @@ export default function TaskDetail() {
   const returnTask = async (event) => {
     event.preventDefault();
     if (!canReturn || deciding) return;
-    if (!returnReason) {
-      setReturnError("Select a reason before continuing.");
-      return;
-    }
     if (returnInstruction.trim().length < 12) {
       setReturnError(
         "Add at least 12 characters of guidance before returning this task.",
@@ -687,15 +413,13 @@ export default function TaskDetail() {
     }
     setDeciding(true);
     setReturnError("");
-    const structuredInstruction = `Reason: ${returnReason}\n\nReviewer direction: ${returnInstruction.trim()}`;
     try {
-      await postStatus("/return", { instruction: structuredInstruction });
+      await postStatus("/return", { instruction: returnInstruction.trim() });
       updateTask({
         status: "Returned for revision",
-        revision_instruction: structuredInstruction,
+        revision_instruction: returnInstruction.trim(),
       });
       setReturnInstruction("");
-      setReturnReason("");
       setReturnOpen(false);
       await loadTask();
     } catch (decisionError) {
@@ -707,102 +431,6 @@ export default function TaskDetail() {
     }
   };
 
-
-  // Upload file for collaborative task (visible to all collaborators)
-  const uploadCollaborativeFile = async () => {
-    if (!selectedFile) {
-      setSubmissionError("Please select a file to upload.");
-      return;
-    }
-    
-    setSubmitting(true);
-    setSubmissionError("");
-    
-    try {
-      const formData = new FormData();
-      formData.append("files", selectedFile);
-      
-      const response = await fetch(`${api}/api/tasks/${task.id}/upload-collaborative`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "File upload failed.");
-      }
-      
-      // Emit socket event to notify other collaborators in real-time
-      socket.emit("task:file_uploaded_collaborative", {
-        taskId: task.id,
-        fileName: selectedFile.name,
-        uploadedBy: user.full_name,
-        uploadedByUserId: user.id,
-        timestamp: new Date().toISOString(),
-      });
-      
-      // Clear the selected file
-      setSelectedFile(null);
-      
-      // Reload task to show the newly uploaded file
-      await loadTask();
-      
-      setSubmissionError(""); // Clear any previous errors
-    } catch (err) {
-      setSubmissionError(err.message || "File upload failed.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Auto-submit when all collaborators confirm (collaborative tasks only)
-  useEffect(() => {
-    if (!isCollaborative || !allConfirmed || submitting) return;
-    
-    // Only auto-submit if there's a latest submission (file has been uploaded)
-    if (!latestSubmission) return;
-    
-    // Auto-submit with the latest submission
-    const autoSubmit = async () => {
-      setSubmitting(true);
-      setSubmissionError("");
-      try {
-        // Update status to "For Approval"
-        await postStatus("/status", { status: "For Approval" });
-        
-        // Add a system comment noting auto-submission
-        await fetch(`${api}/api/tasks/${task.id}/comments`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            content: `All collaborators confirmed. Task automatically submitted for chair review.`,
-          }),
-        });
-        
-        // Reload task to reflect new status
-        await loadTask();
-        
-        // Show success notification
-        setConfirmationMessage("✓ All collaborators confirmed! Task automatically submitted to admin and program chair for review.");
-        setTimeout(() => setConfirmationMessage(""), 5000);
-      } catch (err) {
-        console.error("Auto-submit error:", err);
-        setSubmissionError(err.message || "Auto-submission failed. Please try again.");
-      } finally {
-        setSubmitting(false);
-      }
-    };
-    
-    // Trigger auto-submit after a brief delay to ensure UI updates properly
-    const timer = setTimeout(autoSubmit, 500);
-    return () => clearTimeout(timer);
-  }, [allConfirmed, isCollaborative, latestSubmission, submitting, task?.id, token, api]);
-
-  // Upload file for review before submission (visible to collaborator)
   const submitWork = async () => {
     if (!selectedFile) {
       setSubmissionError("Attach the completed file before submitting.");
@@ -919,118 +547,39 @@ export default function TaskDetail() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="td-shell">
         <style>{`
           @keyframes td-spin { to { transform: rotate(360deg); } }
-          @keyframes td-shimmer {
-            0%   { background-position: -400px 0; }
-            100% { background-position:  400px 0; }
-          }
-          @keyframes td-fadein {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
+          @keyframes td-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+          .td-spinner {
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 3px solid #ede9fe;
+            border-top-color: #7c3aed;
+            animation: td-spin 0.8s linear infinite;
           }
           .td-skel {
-            background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 40%, #ede9fe 80%);
-            background-size: 400px 100%;
-            animation: td-shimmer 1.4s ease-in-out infinite;
-            border-radius: 7px;
-          }
-          .td-load-card {
-            background: #fff;
-            border: 1px solid #e8e1f5;
-            border-radius: 18px;
-            box-shadow: 0 12px 40px rgba(76,29,149,0.09);
-            width: min(580px, 92vw);
-            overflow: hidden;
-            animation: td-fadein 0.35s ease both;
-          }
-          .td-load-header {
-            background: linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%);
-            padding: 28px 28px 24px;
-            display: flex; flex-direction: column; gap: 14px;
-          }
-          .td-load-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
-          .td-load-row  { display: flex; gap: 10px; align-items: center; }
-          .td-skel-light {
-            background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.3) 40%, rgba(255,255,255,0.15) 80%);
-            background-size: 400px 100%;
-            animation: td-shimmer 1.4s ease-in-out infinite;
-            border-radius: 7px;
-          }
-          .td-load-spinner-wrap {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 4px;
-          }
-          .td-spin-ring {
-            width: 20px; height: 20px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.25);
-            border-top-color: #c4b5fd;
-            animation: td-spin 0.75s linear infinite;
-            flex-shrink: 0;
+            background: linear-gradient(90deg, #ede9fe 25%, #f5f3ff 50%, #ede9fe 75%);
+            background-size: 200% 100%;
+            border-radius: 8px;
+            animation: td-pulse 1.4s ease-in-out infinite;
           }
         `}</style>
-
-        <div className="td-load-card">
-          {/* Header — mimics the violet task header */}
-          <div className="td-load-header">
-            <div className="td-load-spinner-wrap">
-              <div className="td-spin-ring" />
-              <span style={{ color: "rgba(196,181,253,0.8)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                Loading task details
-              </span>
-            </div>
-            {/* Title skeleton */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div className="td-skel-light" style={{ height: 22, width: "65%" }} />
-              <div className="td-skel-light" style={{ height: 13, width: "45%" }} />
-            </div>
-            {/* Chips row */}
-            <div className="td-load-row" style={{ gap: 8 }}>
-              <div className="td-skel-light" style={{ height: 24, width: 72, borderRadius: 99 }} />
-              <div className="td-skel-light" style={{ height: 24, width: 88, borderRadius: 99 }} />
-              <div className="td-skel-light" style={{ height: 24, width: 60, borderRadius: 99 }} />
-            </div>
-          </div>
-
-          {/* Body — mimics the description + meta sections */}
-          <div className="td-load-body">
-            {/* Avatar + name row */}
-            <div className="td-load-row">
-              <div className="td-skel" style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0 }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                <div className="td-skel" style={{ height: 13, width: "55%" }} />
-                <div className="td-skel" style={{ height: 11, width: "35%" }} />
+        <main className="td-main">
+          <div className="td-loading">
+            <div className="td-spinner" />
+            <strong>Loading task details</strong>
+            <span>Fetching the latest data, just a moment…</span>
+            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 10, width: 320 }}>
+              <div className="td-skel" style={{ height: 16, width: "70%" }} />
+              <div className="td-skel" style={{ height: 12, width: "50%" }} />
+              <div className="td-skel" style={{ height: 12, width: "85%" }} />
+              <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+                <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
+                <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
               </div>
             </div>
-
-            {/* Divider */}
-            <div style={{ height: 1, background: "#f0eafc" }} />
-
-            {/* Description lines */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div className="td-skel" style={{ height: 12, width: "90%" }} />
-              <div className="td-skel" style={{ height: 12, width: "80%" }} />
-              <div className="td-skel" style={{ height: 12, width: "60%" }} />
-            </div>
-
-            {/* Meta grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[80, 65, 70, 55].map((w, i) => (
-                <div key={i} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                  <div className="td-skel" style={{ height: 10, width: `${w * 0.6}%` }} />
-                  <div className="td-skel" style={{ height: 14, width: `${w}%` }} />
-                </div>
-              ))}
-            </div>
-
-            {/* Action buttons */}
-            <div className="td-load-row" style={{ marginTop: 4 }}>
-              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
-              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
-            </div>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
@@ -1136,72 +685,10 @@ export default function TaskDetail() {
                     </div>
                   </div>
                   <div className="td-meta-grid">
-                    {!isCollaborative && (
-                      <Meta label="Assigned to" icon="user">
-                        <span className="td-avatar">{taskOwnerInitials}</span>
-                        {taskOwner}
-                      </Meta>
-                    )}
-                    {isCollaborative && collaborators.length > 0 && (
-                      <Meta label="Collaborators" icon="users">
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                          {collaborators.map((c) => (
-                            <div 
-                              key={c.user_id} 
-                              style={{ 
-                                display: "flex", 
-                                alignItems: "center", 
-                                gap: "10px",
-                                padding: "8px 10px",
-                                borderRadius: "6px",
-                                backgroundColor: c.confirmed_at ? "#f0fdf4" : "#fafafa",
-                                border: `1px solid ${c.confirmed_at ? "#dcfce7" : "#e5e7eb"}`,
-                              }}
-                            >
-                              <span 
-                                className="td-avatar" 
-                                style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  borderRadius: "50%",
-                                  fontSize: "12px",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                {initials(c.full_name)}
-                              </span>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: "13px", fontWeight: "500", color: "#1f2937" }}>
-                                  {c.full_name}
-                                </div>
-                                <div style={{ fontSize: "11px", color: "#6b7280" }}>
-                                  {c.email}
-                                </div>
-                              </div>
-                              {c.confirmed_at && (
-                                <div 
-                                  style={{ 
-                                    display: "flex", 
-                                    alignItems: "center", 
-                                    gap: "4px",
-                                    color: "#16a34a",
-                                    fontSize: "12px",
-                                    fontWeight: "500",
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  <span>✓</span>
-                                  <span>Confirmed</span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </Meta>
-                    )}
+                    <Meta label="Assigned to" icon="user">
+                      <span className="td-avatar">{taskOwnerInitials}</span>
+                      {taskOwner}
+                    </Meta>
                     <Meta label="Document type" icon="file">
                       {task.doc_type || task.document_type || "Document record"}
                     </Meta>
@@ -1308,184 +795,32 @@ export default function TaskDetail() {
                       </ol>
                     )}
                   </div>
-                  {(() => {
-                    const briefAttachments = attachments.filter(file => {
-                      if (!file.uploaded_at || !task.created_at) return false;
-                      const fileTime = new Date(file.uploaded_at).getTime();
-                      const taskTime = new Date(task.created_at).getTime();
-                      const timeDiffSeconds = (fileTime - taskTime) / 1000;
-                      // File is "initial" if uploaded within 5 seconds of task creation
-                      return timeDiffSeconds >= 0 && timeDiffSeconds <= 5;
-                    });
-                    return briefAttachments.length > 0 ? (
-                      briefAttachments.map((file, index) => (
-                        <FileCard
-                          file={file}
-                          api={api}
-                          onPreview={previewFile}
-                          label="Task instruction attachment"
-                          key={file.id || file.file_url || file.name || index}
-                        />
-                      ))
-                    ) : (
-                      <div className="td-file-card" style={{ cursor: "default" }}>
-                        <span>
-                          <Icon name="file" />
-                        </span>
-                        <div>
-                          <strong>No instruction attachment</strong>
-                          <small>
-                            The instructions above are the active task brief.
-                          </small>
-                        </div>
+                  {attachments.length > 0 ? (
+                    attachments.map((file, index) => (
+                      <FileCard
+                        file={file}
+                        api={api}
+                        onPreview={previewFile}
+                        label="Task instruction attachment"
+                        key={file.id || file.file_url || file.name || index}
+                      />
+                    ))
+                  ) : (
+                    <div className="td-file-card" style={{ cursor: "default" }}>
+                      <span>
+                        <Icon name="file" />
+                      </span>
+                      <div>
+                        <strong>No instruction attachment</strong>
+                        <small>
+                          The instructions above are the active task brief.
+                        </small>
                       </div>
-                    );
-                  })()}
+                    </div>
+                  )}
                 </section>
 
-                {/* ─────────────────────────────────────────────────────────── */}
-                {/* Collaboration Sections - ONLY FOR COLLABORATIVE TASKS */}
-                {/* ─────────────────────────────────────────────────────────── */}
-
-                {task?.is_collaborative && isCurrentUserCollaborator && (
-                  <>
-                    {/* COLLECTIVE CONFIRMATION SECTION */}
-                    <section className="td-card">
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "16px" }}>
-                        <div>
-                          <span style={{ display: "block", color: "#8a8899", fontSize: "10px", fontWeight: "800", letterSpacing: ".08em", textTransform: "uppercase" }}>
-                            Collective Confirmation
-                          </span>
-                          <h2 style={{ margin: "3px 0 0", color: "#3d2a4a", font: "800 16px 'Manrope', sans-serif", letterSpacing: "-.04em" }}>
-                            Everyone needs to sign off
-                          </h2>
-                        </div>
-                        <div style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
-                          padding: "4px 8px",
-                          borderRadius: "5px",
-                          background: "#fef3c7",
-                          color: "#92400e",
-                          fontSize: "10px",
-                          fontWeight: "800",
-                          whiteSpace: "nowrap"
-                        }}>
-                          {allConfirmed ? "✓ All confirmed" : `⏳ ${collaborators.filter(c => !c.confirmed_at).length} waiting`}
-                        </div>
-                      </div>
-                      
-                      <p style={{ margin: "0 0 14px", color: "#8c7e96", fontSize: "10px", lineHeight: "1.55" }}>
-                        The final submission stays locked until every faculty member confirms that their section is accurate and ready for review.
-                      </p>
-
-                      {/* Collaborators Grid */}
-                      <div style={{ display: "grid", gap: "9px" }}>
-                        {collaborators.map((collaborator) => (
-                          <div
-                            key={collaborator.user_id}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "10px",
-                              borderRadius: "9px",
-                              border: "1px solid #e6d9f0",
-                              background: collaborator.confirmed_at ? "#f3f9f5" : "#fafbfc",
-                              transition: "background 0.2s ease"
-                            }}
-                          >
-                            {/* Avatar Badge */}
-                            <div
-                              style={{
-                                width: "36px",
-                                height: "36px",
-                                borderRadius: "7px",
-                                background: ["#e0d7f7", "#fce7f3", "#dbeafe", "#fed7aa"][collaborator.user_id % 4],
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: "#5a4768",
-                                fontWeight: "800",
-                                fontSize: "12px",
-                                flexShrink: 0
-                              }}
-                            >
-                              {initials(collaborator.full_name || "Faculty")}
-                            </div>
-
-                            {/* Name & Email */}
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <strong style={{ display: "block", color: "#3d2a4a", fontSize: "10px", fontWeight: "800" }}>
-                                {collaborator.full_name || "Faculty"}
-                              </strong>
-                              <small style={{ display: "block", color: "#9d8fa8", fontSize: "9px", marginTop: "1px" }}>
-                                {collaborator.email || "—"}
-                              </small>
-                            </div>
-
-                            {/* Status Badge */}
-                            <div style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "4px",
-                              padding: "3px 7px",
-                              borderRadius: "5px",
-                              fontSize: "9px",
-                              fontWeight: "800",
-                              flexShrink: 0,
-                              background: collaborator.confirmed_at ? "#e6f4ed" : "#f0ecf7",
-                              color: collaborator.confirmed_at ? "#4d9070" : "#8b7ba5"
-                            }}>
-                              {collaborator.confirmed_at ? (
-                                <>✓ Confirmed</>
-                              ) : (
-                                <>⏳ Waiting</>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Pending Notice */}
-                      {collaborators.length > 0 && collaborators.some(c => !c.confirmed_at) && (
-                        <div style={{
-                          marginTop: "10px",
-                          padding: "8px 10px",
-                          borderRadius: "7px",
-                          background: "#fffcf0",
-                          border: "1px solid #f5e6c9",
-                          color: "#8b6f1f",
-                          fontSize: "9px",
-                          lineHeight: "1.4"
-                        }}>
-                          {collaborators.filter(c => !c.confirmed_at).map(c => c.full_name).join(", ")} still need to confirm.
-                        </div>
-                      )}
-                    </section>
                 {isFacultyView && (
-                  isUnderReview ? (
-                    <section className="td-card">
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 20px", textAlign: "center" }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdf4", border: "1.5px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <Icon name="shield" size={22} />
-                        </div>
-                        <div>
-                          <strong style={{ display: "block", fontSize: 15, fontWeight: 800, color: "#27213a", marginBottom: 6, fontFamily: "Manrope,'DM Sans',sans-serif" }}>
-                            Your submission is under review
-                          </strong>
-                          <p style={{ margin: 0, fontSize: 12, color: "#6b5f76", lineHeight: 1.6 }}>
-                            The program chair is reviewing your submitted work. You cannot make changes while it is in review. You will be notified once a decision is made.
-                          </p>
-                        </div>
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 99, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", fontSize: 11, fontWeight: 800 }}>
-                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 0 3px rgba(34,197,94,0.2)" }} />
-                          Currently in review
-                        </div>
-                      </div>
-                    </section>
-                  ) : (
                   <section className="td-card" ref={submissionPanelRef}>
                     <div className="td-section-title">
                       <span className="td-icon">
@@ -1517,71 +852,6 @@ export default function TaskDetail() {
                         </p>
                       </div>
                     )}
-                    
-                    {/* Display uploaded files for collaborators (excluding the initial task brief, only if not all confirmed yet) */}
-                    {isCollaborative && !allConfirmed && task?.attachments && task.attachments.length > 0 && (
-                      (() => {
-                        // Filter out the initial brief attachment (uploaded within 5 seconds of task creation)
-                        const collaboratorUploads = task.attachments.filter(file => {
-                          if (!file.uploaded_at || !task.created_at) return true; // Show if we can't determine
-                          const fileTime = new Date(file.uploaded_at).getTime();
-                          const taskTime = new Date(task.created_at).getTime();
-                          const timeDiffSeconds = (fileTime - taskTime) / 1000;
-                          // Hide if this is the initial brief (uploaded within 5 seconds of task creation)
-                          return !(timeDiffSeconds >= 0 && timeDiffSeconds <= 5);
-                        });
-                        
-                        // Only show section if there are collaborator uploads (not just the initial brief)
-                        return collaboratorUploads.length > 0 ? (
-                          <div style={{ marginBottom: "16px", padding: "12px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #dcfce7" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "700", color: "#166534", marginBottom: "10px", textTransform: "uppercase" }}>
-                              📁 Collaborator uploads
-                            </div>
-                            {collaboratorUploads.map((att, idx) => (
-                              <div
-                                key={idx}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                  padding: "8px",
-                                  marginBottom: idx < collaboratorUploads.length - 1 ? "8px" : "0",
-                                  borderRadius: "6px",
-                                  background: "#f8fafc",
-                                  border: "1px solid #e2e8f0"
-                                }}
-                              >
-                                <Icon name="file" size={14} />
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                    {att.file_name}
-                                  </div>
-                                  <div style={{ fontSize: "9px", color: "#64748b" }}>
-                                    by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
-                                  </div>
-                                </div>
-                                <a
-                                  href={att.file_url || resolveFileUrlUtil(att.key)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    padding: "4px 8px",
-                                    fontSize: "9px",
-                                    fontWeight: "600",
-                                    color: "#0891b2",
-                                    cursor: "pointer",
-                                    textDecoration: "none"
-                                  }}
-                                >
-                                  View
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        ) : null;
-                      })()
-                    )}
-
                     <input
                       ref={fileInputRef}
                       hidden
@@ -1592,54 +862,28 @@ export default function TaskDetail() {
                         setSubmissionError("");
                       }}
                     />
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <button
-                        className={`td-upload-button ${selectedFile ? "selected" : ""}`}
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        style={{ flex: 1 }}
-                      >
-                        <span>
-                          <Icon name="attach" />
-                        </span>
-                        <div>
-                          <strong>
-                            {selectedFile
-                              ? selectedFile.name
-                              : "Attach completed file"}
-                          </strong>
-                          <small>
-                            {selectedFile
-                              ? formatSize(selectedFile.size)
-                              : "PDF, DOCX, XLSX, or CSV"}
-                          </small>
-                        </div>
-                        <Icon name="preview" />
-                      </button>
-                      
-                      {selectedFile && isCollaborative && isCurrentUserCollaborator && (
-                        <button
-                          type="button"
-                          onClick={uploadCollaborativeFile}
-                          disabled={submitting}
-                          style={{
-                            padding: "12px 16px",
-                            background: "#3b82f6",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "6px",
-                            fontSize: "11px",
-                            fontWeight: "600",
-                            cursor: submitting ? "not-allowed" : "pointer",
-                            opacity: submitting ? 0.6 : 1,
-                            whiteSpace: "nowrap"
-                          }}
-                        >
-                          {submitting ? "Uploading…" : "Upload for Review"}
-                        </button>
-                      )}
-                    </div>
-
+                    <button
+                      className={`td-upload-button ${selectedFile ? "selected" : ""}`}
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <span>
+                        <Icon name="attach" />
+                      </span>
+                      <div>
+                        <strong>
+                          {selectedFile
+                            ? selectedFile.name
+                            : "Attach completed file"}
+                        </strong>
+                        <small>
+                          {selectedFile
+                            ? formatSize(selectedFile.size)
+                            : "PDF, DOCX, XLSX, or CSV"}
+                        </small>
+                      </div>
+                      <Icon name="preview" />
+                    </button>
                     <label className="td-note-label">
                       Submission note
                       <textarea
@@ -1661,103 +905,20 @@ export default function TaskDetail() {
                         {submissionError}
                       </p>
                     )}
-                    {isCollaborative && isFacultyView && (
-                      <div style={{ marginTop: "12px", padding: "12px", border: "1px solid #fbbf24", borderRadius: "8px", backgroundColor: "#fffbeb" }}>
-                        <div style={{ fontSize: "12px", fontWeight: "600", color: "#b45309", marginBottom: "8px" }}>
-                          Collaborative Task
-                        </div>
-                        <p style={{ fontSize: "12px", color: "#92400e", margin: "0 0 12px", lineHeight: "1.4" }}>
-                          All {collaborators.length} collaborators must confirm their edits before submission.
-                          {hasCurrentUserConfirmed && " You've already confirmed."}
-                        </p>
-                        {!hasCurrentUserConfirmed && (
-                          <button
-                            type="button"
-                            onClick={() => setConfirmationModalOpen(true)}
-                            disabled={confirmingCollaboration}
-                            style={{
-                              fontSize: "12px",
-                              fontWeight: "600",
-                              padding: "8px 12px",
-                              border: "1px solid #f59e0b",
-                              borderRadius: "6px",
-                              backgroundColor: "#fbbf24",
-                              color: "#000",
-                              cursor: "pointer",
-                              transition: "all 0.2s",
-                            }}
-                          >
-                            {confirmingCollaboration ? "Confirming…" : "Confirm my edits"}
-                          </button>
-                        )}
-                        {hasCurrentUserConfirmed && (
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <div style={{ fontSize: "12px", color: "#16a34a", fontWeight: "600" }}>
-                              ✓ You have confirmed
-                            </div>
-                            <button
-                              type="button"
-                              onClick={cancelConfirmation}
-                              disabled={cancellingConfirmation}
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "600",
-                                padding: "6px 10px",
-                                border: "1px solid #dc2626",
-                                borderRadius: "6px",
-                                backgroundColor: "#fef2f2",
-                                color: "#dc2626",
-                                cursor: cancellingConfirmation ? "not-allowed" : "pointer",
-                                transition: "all 0.2s",
-                                opacity: cancellingConfirmation ? 0.6 : 1,
-                              }}
-                            >
-                              {cancellingConfirmation ? "Cancelling…" : "Cancel"}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
                     <button
                       className="td-submit"
                       type="button"
-                      disabled={submitting || (isCollaborative && !allConfirmed)}
+                      disabled={submitting}
                       onClick={submitWork}
-                      title={isCollaborative && !allConfirmed ? "All collaborators must confirm before submission" : ""}
                     >
                       <Icon name="send" size={14} />{" "}
                       {submitting
                         ? "Sending…"
-                        : isCollaborative && !allConfirmed
-                          ? `Awaiting ${collaborators.filter(c => !c.confirmed_at).length} confirmation(s)…`
-                          : status.tone === "returned"
-                            ? "Resubmit for chair review"
-                            : "Submit for chair review"}
+                        : status.tone === "returned"
+                          ? "Resubmit for chair review"
+                          : "Submit for chair review"}
                     </button>
                   </section>
-                  )
-                )}
-
-                    {/* DISCUSSION SECTION */}
-                    <section className="td-card">
-                      <div style={{ marginBottom: "12px" }}>
-                        <span style={{ display: "block", color: "#8a8899", fontSize: "10px", fontWeight: "800", letterSpacing: ".08em", textTransform: "uppercase" }}>
-                          Discussion
-                        </span>
-                        <h2 style={{ margin: "3px 0 0", color: "#3d2a4a", font: "800 16px 'Manrope', sans-serif", letterSpacing: "-.04em" }}>
-                          Working notes & questions
-                        </h2>
-                      </div>
-                      <CollaborativeComments
-                        taskId={task.id}
-                        token={token}
-                        apiUrl={api}
-                        io={socket}
-                        currentUserId={user?.id}
-                        currentUserName={user?.full_name}
-                      />
-                    </section>
-                  </>
                 )}
 
                 {latestSubmission && (
@@ -1987,7 +1148,7 @@ export default function TaskDetail() {
                               onClick={() =>
                                 previewFile({
                                   name,
-                                  url: resolveFileUrlUtil(
+                                  url: resolveFileUrl(
                                     api,
                                     file.file_url || file.url,
                                   ),
@@ -2012,7 +1173,68 @@ export default function TaskDetail() {
                   </section>
                 )}
 
-
+                <section className="td-card">
+                  <div className="td-section-title">
+                    <span className="td-icon">
+                      <Icon name="message" />
+                    </span>
+                    <div>
+                      <span>Discussion</span>
+                      <h2>Keep decisions in the handoff</h2>
+                    </div>
+                  </div>
+                  {comments.length ? (
+                    <div className="td-comments">
+                      {comments.map((item, index) => (
+                        <article
+                          className="td-comment"
+                          key={item.id || `${item.created_at}-${index}`}
+                        >
+                          <span>
+                            {initials(
+                              item.sender_name ||
+                                item.author_name ||
+                                item.author,
+                            )}
+                          </span>
+                          <div>
+                            <strong>
+                              {item.sender_name ||
+                                item.author_name ||
+                                item.author ||
+                                "Workflow member"}
+                            </strong>
+                            <time>
+                              {formatDate(item.created_at || item.createdAt)}
+                            </time>
+                            <p>{item.content || item.body}</p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="td-discussion-empty">
+                      There are no discussion notes yet. Add guidance that
+                      should remain with the task record.
+                    </p>
+                  )}
+                  <div className="td-composer">
+                    <textarea
+                      value={comment}
+                      onChange={(event) => setComment(event.target.value)}
+                      rows={3}
+                      placeholder="Write a note for this handoff…"
+                    />
+                    <button
+                      type="button"
+                      disabled={!comment.trim() || postingComment}
+                      onClick={postComment}
+                    >
+                      <Icon name="send" size={13} />{" "}
+                      {postingComment ? "Posting…" : "Post note"}
+                    </button>
+                  </div>
+                </section>
               </main>
 
               <aside className="td-side">
@@ -2039,17 +1261,14 @@ export default function TaskDetail() {
                         <button
                           className="td-approve"
                           type="button"
-                          disabled={isUnderReview}
-                          title={isUnderReview ? "Your submission is currently under review." : undefined}
                           onClick={() =>
-                            !isUnderReview && submissionPanelRef.current?.scrollIntoView({
+                            submissionPanelRef.current?.scrollIntoView({
                               behavior: "smooth",
                               block: "center",
                             })
                           }
-                          style={isUnderReview ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
                         >
-                          <Icon name="send" size={14} /> {isUnderReview ? "Under review" : "Prepare submission"}
+                          <Icon name="send" size={14} /> Prepare submission
                         </button>
                         <button
                           className="td-return"
@@ -2109,23 +1328,6 @@ export default function TaskDetail() {
                   )}
                   {!isFacultyView && returnOpen && (
                     <form className="td-return-form" onSubmit={returnTask}>
-                      <label htmlFor="td-return-reason">
-                        Reason <em style={{ color: "#dc2626", fontStyle: "normal", fontWeight: 700 }}>required</em>
-                      </label>
-                      <select
-                        id="td-return-reason"
-                        value={returnReason}
-                        onChange={(event) => { setReturnReason(event.target.value); setReturnError(""); }}
-                        required
-                        style={{ width: "100%", padding: "8px 10px", border: "1px solid #e2dbe9", borderRadius: 8, fontSize: 12, fontFamily: "inherit", color: returnReason ? "#44354f" : "#9a8fa3", background: "#fff", outline: "none", marginBottom: 10, cursor: "pointer" }}
-                      >
-                        <option value="" disabled>Select a reason</option>
-                        <option>Missing information or supporting document</option>
-                        <option>Template or format correction required</option>
-                        <option>Content needs clarification</option>
-                        <option>Required approval or endorsement is missing</option>
-                        <option>Other revision needed</option>
-                      </select>
                       <label htmlFor="td-return-instruction">
                         Instructions for faculty
                       </label>
@@ -2148,8 +1350,6 @@ export default function TaskDetail() {
                           onClick={() => {
                             setReturnOpen(false);
                             setReturnError("");
-                            setReturnReason("");
-                            setReturnInstruction("");
                           }}
                         >
                           Cancel
@@ -2328,90 +1528,6 @@ export default function TaskDetail() {
               </div>
             </div>
           </section>
-        </div>
-      )}
-
-      {/* Collaboration Confirmation Modal */}
-      {confirmationModalOpen && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-          fontFamily: "'DM Sans', sans-serif",
-        }}>
-          <div style={{
-            backgroundColor: "#fff",
-            borderRadius: "12px",
-            padding: "24px",
-            maxWidth: "420px",
-            width: "90%",
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-          }}>
-            <div style={{ marginBottom: "16px" }}>
-              <h3 style={{ margin: "0 0 8px", fontSize: "16px", fontWeight: "600", color: "#1f2937" }}>
-                Confirm Your Edits
-              </h3>
-              <p style={{ margin: "0", fontSize: "13px", color: "#6b7280", lineHeight: "1.5" }}>
-                You're confirming that your edits are complete and ready for review. All other collaborators will also need to confirm before the task is submitted.
-              </p>
-            </div>
-
-            {confirmationMessage && (
-              <div style={{ marginBottom: "16px", padding: "12px", backgroundColor: confirmationMessage.includes("sent") ? "#dcfce7" : "#fee2e2", borderRadius: "6px", fontSize: "12px", color: confirmationMessage.includes("sent") ? "#166534" : "#991b1b" }}>
-                {confirmationMessage}
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setConfirmationModalOpen(false);
-                  setConfirmationMessage("");
-                }}
-                disabled={confirmingCollaboration}
-                style={{
-                  padding: "8px 16px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "6px",
-                  backgroundColor: "#fff",
-                  color: "#374151",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmCollaboration}
-                disabled={confirmingCollaboration}
-                style={{
-                  padding: "8px 16px",
-                  border: "1px solid #10b981",
-                  borderRadius: "6px",
-                  backgroundColor: "#10b981",
-                  color: "#fff",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  opacity: confirmingCollaboration ? 0.6 : 1,
-                }}
-              >
-                {confirmingCollaboration ? "Confirming…" : "Yes, confirm"}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>
