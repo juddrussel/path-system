@@ -1532,28 +1532,53 @@ export default function TaskDetail() {
                         setSubmissionError("");
                       }}
                     />
-                    <button
-                      className={`td-upload-button ${selectedFile ? "selected" : ""}`}
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <span>
-                        <Icon name="attach" />
-                      </span>
-                      <div>
-                        <strong>
-                          {selectedFile
-                            ? selectedFile.name
-                            : "Attach completed file"}
-                        </strong>
-                        <small>
-                          {selectedFile
-                            ? formatSize(selectedFile.size)
-                            : "PDF, DOCX, XLSX, or CSV"}
-                        </small>
-                      </div>
-                      <Icon name="preview" />
-                    </button>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button
+                        className={`td-upload-button ${selectedFile ? "selected" : ""}`}
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        style={{ flex: 1 }}
+                      >
+                        <span>
+                          <Icon name="attach" />
+                        </span>
+                        <div>
+                          <strong>
+                            {selectedFile
+                              ? selectedFile.name
+                              : "Attach completed file"}
+                          </strong>
+                          <small>
+                            {selectedFile
+                              ? formatSize(selectedFile.size)
+                              : "PDF, DOCX, XLSX, or CSV"}
+                          </small>
+                        </div>
+                        <Icon name="preview" />
+                      </button>
+                      
+                      {selectedFile && isCollaborative && (
+                        <button
+                          type="button"
+                          onClick={uploadCollaborativeFile}
+                          disabled={submitting}
+                          style={{
+                            padding: "12px 16px",
+                            background: "#3b82f6",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "6px",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            cursor: submitting ? "not-allowed" : "pointer",
+                            opacity: submitting ? 0.6 : 1,
+                            whiteSpace: "nowrap"
+                          }}
+                        >
+                          {submitting ? "Uploading…" : "Upload for Review"}
+                        </button>
+                      )}
+                    </div>
 
                     <label className="td-note-label">
                       Submission note
