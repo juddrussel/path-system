@@ -1391,14 +1391,16 @@ export default function TaskDetail() {
                       <h2>Keep decisions in the handoff</h2>
                     </div>
                   </div>
+
+                  {/* Render threaded comments */}
                   {comments.length ? (
                     <div className="td-comments">
-                      {comments.map((item, index) => {
+                      {comments.map((item) => {
                         const isReply = item.parentCommentId;
                         return (
                           <article
                             className="td-comment"
-                            key={item.id || `${item.created_at}-${index}`}
+                            key={item.id || item.created_at}
                             style={{
                               marginLeft: isReply ? "32px" : "0",
                               marginBottom: "9px",
@@ -1408,7 +1410,7 @@ export default function TaskDetail() {
                               {initials(
                                 item.sender_name ||
                                   item.author_name ||
-                                  item.author,
+                                  item.author
                               )}
                             </span>
                             <div>
@@ -1422,12 +1424,24 @@ export default function TaskDetail() {
                                 {formatDate(item.created_at || item.createdAt)}
                               </time>
                               <p>{item.content || item.body}</p>
+
+                              {/* File attachments with status badges */}
                               {item.files && item.files.length > 0 && (
-                                <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                                <div
+                                  style={{
+                                    marginTop: "8px",
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: "6px",
+                                  }}
+                                >
                                   {item.files.map((file, fidx) => (
                                     <a
                                       key={fidx}
-                                      href={resolveFileUrl(api, file.url || file.file_url)}
+                                      href={resolveFileUrl(
+                                        api,
+                                        file.url || file.file_url
+                                      )}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       style={{
@@ -1441,13 +1455,24 @@ export default function TaskDetail() {
                                         fontSize: "10px",
                                         color: "#7c3aed",
                                         textDecoration: "none",
+                                        transition: "all 0.2s",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.target.style.background = "#ede7fb";
+                                        e.target.style.borderColor = "#7c3aed";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.background = "#f5f0fb";
+                                        e.target.style.borderColor = "#e5dff3";
                                       }}
                                     >
-                                      📎 {file.name}
+                                      📎 {file.name || file.file_name}
                                     </a>
                                   ))}
                                 </div>
                               )}
+
+                              {/* Reply button */}
                               <button
                                 type="button"
                                 onClick={() => setReplyingTo(item.id)}
@@ -1461,6 +1486,15 @@ export default function TaskDetail() {
                                   fontSize: "10px",
                                   fontWeight: "600",
                                   cursor: "pointer",
+                                  transition: "all 0.2s",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.background = "#f0ebfa";
+                                  e.target.style.borderColor = "#dfc8f0";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.background = "#faf8fc";
+                                  e.target.style.borderColor = "#e5dff3";
                                 }}
                               >
                                 ↩ Reply
@@ -1476,6 +1510,8 @@ export default function TaskDetail() {
                       should remain with the task record.
                     </p>
                   )}
+
+                  {/* Reply indicator */}
                   {replyingTo && (
                     <div
                       style={{
@@ -1500,12 +1536,15 @@ export default function TaskDetail() {
                           fontSize: "10px",
                           fontWeight: "600",
                           textDecoration: "underline",
+                          padding: 0,
                         }}
                       >
                         Cancel reply
                       </button>
                     </div>
                   )}
+
+                  {/* Comment composer */}
                   <form
                     className="td-composer"
                     onSubmit={(e) => {
@@ -1519,6 +1558,8 @@ export default function TaskDetail() {
                       rows={3}
                       placeholder="Write a note for this handoff…"
                     />
+
+                    {/* File attachments list with status */}
                     {commentFiles.length > 0 && (
                       <div
                         style={{
@@ -1532,6 +1573,10 @@ export default function TaskDetail() {
                       >
                         {commentFiles.map((file, idx) => {
                           const status = fileUploadStatus[file.name];
+                          const isError = status === "error";
+                          const isSuccess = status === "success";
+                          const isUploading = status === "uploading";
+
                           return (
                             <div
                               key={idx}
@@ -1540,33 +1585,31 @@ export default function TaskDetail() {
                                 justifyContent: "space-between",
                                 alignItems: "center",
                                 padding: "6px 8px",
-                                background:
-                                  status === "error"
-                                    ? "#fef2f2"
-                                    : status === "success"
-                                      ? "#f0fdf4"
-                                      : "#fcf8fe",
-                                border:
-                                  status === "error"
-                                    ? "1px solid #ef4444"
-                                    : status === "success"
-                                      ? "1px solid #10b981"
-                                      : "1px solid #e5dff3",
+                                background: isError
+                                  ? "#fef2f2"
+                                  : isSuccess
+                                    ? "#f0fdf4"
+                                    : "#fcf8fe",
+                                border: isError
+                                  ? "1px solid #ef4444"
+                                  : isSuccess
+                                    ? "1px solid #10b981"
+                                    : "1px solid #e5dff3",
                                 borderRadius: "5px",
                                 fontSize: "10px",
-                                color:
-                                  status === "error"
-                                    ? "#dc2626"
-                                    : status === "success"
-                                      ? "#059669"
-                                      : "#7c3aed",
+                                color: isError
+                                  ? "#dc2626"
+                                  : isSuccess
+                                    ? "#059669"
+                                    : "#7c3aed",
                                 fontWeight: "600",
+                                transition: "all 0.2s",
                               }}
                             >
                               <span>
-                                {status === "error" && "✕"}
-                                {status === "uploading" && "⟳"}
-                                {status === "success" && "✓"}
+                                {isError && "✕"}
+                                {isUploading && "⟳"}
+                                {isSuccess && "✓"}
                                 {!status && "📎"} {file.name}
                               </span>
                               <button
@@ -1579,6 +1622,7 @@ export default function TaskDetail() {
                                   cursor: "pointer",
                                   fontWeight: "600",
                                   fontSize: "10px",
+                                  padding: "0 4px",
                                 }}
                               >
                                 ✕
@@ -1588,10 +1632,11 @@ export default function TaskDetail() {
                         })}
                       </div>
                     )}
+
+                    {/* Composer footer with buttons */}
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "auto 1fr",
+                        display: "flex",
                         gap: "8px",
                         marginTop: "10px",
                         alignItems: "center",
@@ -1600,6 +1645,7 @@ export default function TaskDetail() {
                       <input
                         ref={commentFileInputRef}
                         type="file"
+                        multiple
                         accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx"
                         onChange={handleFileSelect}
                         style={{ display: "none" }}
@@ -1617,6 +1663,15 @@ export default function TaskDetail() {
                           fontWeight: "700",
                           cursor: "pointer",
                           whiteSpace: "nowrap",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = "#f0ebfa";
+                          e.target.style.borderColor = "#bee0cf";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = "#faf8fc";
+                          e.target.style.borderColor = "#dccdea";
                         }}
                       >
                         📎 Attach file
@@ -1628,6 +1683,7 @@ export default function TaskDetail() {
                           postingComment
                         }
                         style={{
+                          flex: 1,
                           border: "none",
                           borderRadius: "6px",
                           padding: "8px 11px",
@@ -1649,6 +1705,7 @@ export default function TaskDetail() {
                             postingComment
                               ? 0.55
                               : 1,
+                          transition: "all 0.2s",
                         }}
                       >
                         {postingComment ? "Posting…" : "Post note"}
