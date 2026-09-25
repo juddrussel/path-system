@@ -790,7 +790,7 @@ export default function TaskDetail() {
         await loadTask();
         
         // Show success notification
-        setConfirmationMessage("✓ All collaborators confirmed! Task automatically submitted for chair review.");
+        setConfirmationMessage("✓ All collaborators confirmed! Task automatically submitted to admin and program chair for review.");
         setTimeout(() => setConfirmationMessage(""), 5000);
       } catch (err) {
         console.error("Auto-submit error:", err);
