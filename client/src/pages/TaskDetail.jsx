@@ -376,7 +376,15 @@ export default function TaskDetail() {
         });
         
         // Show notification
-        setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed!' : ''}`);
+        setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed! Auto-submitting...' : ''}`);
+        
+        // If all confirmed, trigger auto-submission
+        if (data.allConfirmed) {
+          setTimeout(() => {
+            autoSubmitTask();
+          }, 1500);
+        }
+        
         setTimeout(() => setConfirmationMessage(""), 4000);
       }
     };
@@ -423,7 +431,7 @@ export default function TaskDetail() {
       socket.off("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
       socket.off("collaboration:confirmation_cancelled_real_time", handleCollaboratorCancelledRealTime);
     };
-  }, [taskId, updateTask]);
+  }, [taskId, updateTask, autoSubmitTask]);
 
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
@@ -573,8 +581,16 @@ export default function TaskDetail() {
       
       setConfirmationModalOpen(false);
       setConfirmationMessage(result.allConfirmed 
-        ? `All ${collaborators.length} collaborators confirmed! Ready to submit.` 
+        ? `All ${collaborators.length} collaborators confirmed! Submitting to program chair...` 
         : `Your confirmation has been sent. Waiting for ${collaborators.length - 1} more...`);
+      
+      // If all confirmed, auto-submit after a short delay so user sees the message
+      if (result.allConfirmed) {
+        setTimeout(() => {
+          autoSubmitTask();
+        }, 1500);
+      }
+      
       // Keep message visible for 3 seconds then clear
       setTimeout(() => setConfirmationMessage(""), 3000);
     } catch (err) {
@@ -703,6 +719,55 @@ export default function TaskDetail() {
       setDeciding(false);
     }
   };
+
+  // Auto-submit when all collaborators confirm (collaborative tasks only)
+  const autoSubmitTask = async () => {
+    try {
+      // Get the latest task data to find the latest submission/attachment
+      const taskResponse = await fetch(`${api}/api/tasks/${task.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!taskResponse.ok) throw new Error("Could not load task for submission.");
+      
+      const latestTask = await taskResponse.json();
+      const taskData = latestTask.task || latestTask;
+      
+      // Get the most recent attachment/submission
+      const latestAttachment = (taskData.attachments || []).sort(
+        (a, b) => new Date(b.uploaded_at || b.created_at) - new Date(a.uploaded_at || a.created_at)
+      )[0];
+      
+      if (!latestAttachment) {
+        setSubmissionError("No file attached. Please attach a file before submitting.");
+        return;
+      }
+      
+      // Update task status to "For Approval"
+      await postStatus("/status", { status: "For Approval" });
+      
+      // Post submission comment
+      await fetch(`${api}/api/tasks/${task.id}/comments`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: `Collaborative task submitted by all collaborators. Final file: ${latestAttachment.file_name}`,
+        }),
+      });
+      
+      // Reload task to reflect new status
+      await loadTask();
+      
+      setConfirmationMessage("Task successfully submitted to program chair!");
+      setTimeout(() => setConfirmationMessage(""), 4000);
+    } catch (err) {
+      setSubmissionError(err.message || "Auto-submission failed. Please try submitting manually.");
+      setConfirmationMessage("");
+    }
+  };
+
 
   // Upload file for review before submission (visible to collaborator)
   const submitWork = async () => {
