@@ -377,14 +377,6 @@ export default function TaskDetail() {
         
         // Show notification
         setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed! Auto-submitting...' : ''}`);
-        
-        // If all confirmed, trigger auto-submission
-        if (data.allConfirmed) {
-          setTimeout(() => {
-            autoSubmitTask();
-          }, 1500);
-        }
-        
         setTimeout(() => setConfirmationMessage(""), 4000);
       }
     };
@@ -431,7 +423,17 @@ export default function TaskDetail() {
       socket.off("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
       socket.off("collaboration:confirmation_cancelled_real_time", handleCollaboratorCancelledRealTime);
     };
-  }, [taskId, updateTask, autoSubmitTask]);
+  }, [taskId, updateTask]);
+
+  // Auto-submit when all collaborators confirm
+  useEffect(() => {
+    if (isCollaborative && allConfirmed && task?.status !== "For Approval" && task?.status !== "Approved") {
+      const timer = setTimeout(() => {
+        autoSubmitTask();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isCollaborative, allConfirmed, task?.id, task?.status, autoSubmitTask]);
 
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
@@ -583,13 +585,6 @@ export default function TaskDetail() {
       setConfirmationMessage(result.allConfirmed 
         ? `All ${collaborators.length} collaborators confirmed! Submitting to program chair...` 
         : `Your confirmation has been sent. Waiting for ${collaborators.length - 1} more...`);
-      
-      // If all confirmed, auto-submit after a short delay so user sees the message
-      if (result.allConfirmed) {
-        setTimeout(() => {
-          autoSubmitTask();
-        }, 1500);
-      }
       
       // Keep message visible for 3 seconds then clear
       setTimeout(() => setConfirmationMessage(""), 3000);
