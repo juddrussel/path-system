@@ -565,17 +565,60 @@ export default function TaskDetail() {
           }
         `}</style>
         <main className="td-main">
-          <div className="td-loading">
-            <div className="td-spinner" />
-            <strong>Loading task details</strong>
-            <span>Fetching the latest data, just a moment…</span>
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 10, width: 320 }}>
-              <div className="td-skel" style={{ height: 16, width: "70%" }} />
-              <div className="td-skel" style={{ height: 12, width: "50%" }} />
-              <div className="td-skel" style={{ height: 12, width: "85%" }} />
-              <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-                <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
-                <div className="td-skel" style={{ height: 32, flex: 1, borderRadius: 8 }} />
+          <div className="td-loading" style={{ padding: "20px" }}>
+            {/* Header Skeleton */}
+            <div style={{
+              background: "#7c3aed",
+              borderRadius: "12px",
+              padding: "20px",
+              marginBottom: "24px",
+              display: "flex",
+              alignItems: "center",
+              gap: "16px"
+            }}>
+              <div className="td-skel" style={{ width: 24, height: 24, borderRadius: "50%" }} />
+              <div style={{ flex: 1 }}>
+                <div className="td-skel" style={{ height: 14, width: "30%", marginBottom: "8px" }} />
+                <div className="td-skel" style={{ height: 20, width: "40%" }} />
+              </div>
+              <div className="td-skel" style={{ width: 80, height: 32, borderRadius: "8px" }} />
+              <div className="td-skel" style={{ width: 80, height: 32, borderRadius: "8px" }} />
+            </div>
+
+            {/* Content Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "24px" }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} style={{
+                  background: "#fff",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  border: "1px solid #e5e7eb"
+                }}>
+                  <div className="td-skel" style={{ height: 16, marginBottom: "12px" }} />
+                  <div className="td-skel" style={{ height: 12, width: "80%", marginBottom: "8px" }} />
+                  <div className="td-skel" style={{ height: 12, width: "60%" }} />
+                </div>
+              ))}
+            </div>
+
+            {/* Main Content Area */}
+            <div style={{
+              background: "#fff",
+              borderRadius: "8px",
+              padding: "20px",
+              border: "1px solid #e5e7eb"
+            }}>
+              <div className="td-skel" style={{ height: 20, width: "25%", marginBottom: "16px" }} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "12px" }}>
+                {[1, 2, 3, 4, 5].map((row) => (
+                  <div key={row} style={{ display: "contents" }}>
+                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
+                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
+                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
+                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
+                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
