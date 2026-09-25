@@ -721,7 +721,7 @@ export default function TaskDetail() {
   };
 
   // Auto-submit when all collaborators confirm (collaborative tasks only)
-  const autoSubmitTask = async () => {
+  const autoSubmitTask = useCallback(async () => {
     try {
       // Get the latest task data to find the latest submission/attachment
       const taskResponse = await fetch(`${api}/api/tasks/${task.id}`, {
@@ -766,7 +766,7 @@ export default function TaskDetail() {
       setSubmissionError(err.message || "Auto-submission failed. Please try submitting manually.");
       setConfirmationMessage("");
     }
-  };
+  }, [api, task?.id, token, postStatus, loadTask]);
 
 
   // Upload file for review before submission (visible to collaborator)
