@@ -469,12 +469,6 @@ export default function TaskDetail() {
   const latestSubmission = submissions.length
     ? submissions[submissions.length - 1]
     : null;
-  
-  // For collaborative tasks, check if ANY work has been uploaded (attachments) or submitted (submissions)
-  // For regular tasks, only check submissions
-  const hasAnyWork = isCollaborative 
-    ? (attachments.length > 0 || submissions.length > 0)
-    : Boolean(latestSubmission);
   const latestSubmissionName =
     latestSubmission?.file_name || latestSubmission?.name || "Submitted work";
   const latestSubmissionUrl = resolveFileUrlUtil(
@@ -512,7 +506,7 @@ export default function TaskDetail() {
   const hasFacultySubmission = Boolean(latestSubmission);
   const isUnderReview = /for.?approval|under.?review|in.?review/i.test(task?.status || "");
   const decisionStatus =
-    !hasAnyWork && isChair
+    !hasFacultySubmission && isChair
       ? {
           label: "Awaiting faculty submission",
           tone: "waiting",
@@ -520,8 +514,8 @@ export default function TaskDetail() {
         }
       : status;
   const canApprove =
-    isChair && hasAnyWork && status.tone === "review";
-  const canReturn = isChair && hasAnyWork && status.tone === "review";
+    isChair && hasFacultySubmission && status.tone === "review";
+  const canReturn = isChair && hasFacultySubmission && status.tone === "review";
 
   // Collaborative confirmation helpers
   const isCurrentUserCollaborator = isCollaborative && collaborators.some(c => c.user_id === user.id);
@@ -721,18 +715,12 @@ export default function TaskDetail() {
       return;
     }
     
-    if (!submissionNote.trim()) {
-      setSubmissionError("Add a submission note before uploading.");
-      return;
-    }
-    
     setSubmitting(true);
     setSubmissionError("");
     
     try {
       const formData = new FormData();
       formData.append("files", selectedFile);
-      formData.append("note", submissionNote.trim());
       
       const response = await fetch(`${api}/api/tasks/${task.id}/upload-collaborative`, {
         method: "POST",
@@ -754,9 +742,8 @@ export default function TaskDetail() {
         timestamp: new Date().toISOString(),
       });
       
-      // Clear the selected file but keep submission note (allow multiple uploads)
+      // Clear the selected file
       setSelectedFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
       
       // Reload task to show the newly uploaded file
       await loadTask();
@@ -773,28 +760,16 @@ export default function TaskDetail() {
   useEffect(() => {
     if (!isCollaborative || !allConfirmed || submitting) return;
     
-    // Don't auto-submit if task is already submitted/approved
-    const isAlreadySubmitted = task?.status && 
-      (task.status.toLowerCase().includes("approval") || 
-       task.status.toLowerCase().includes("approved") ||
-       task.status.toLowerCase().includes("received") ||
-       task.status.toLowerCase().includes("completed"));
+    // Only auto-submit if there's a latest submission (file has been uploaded)
+    if (!latestSubmission) return;
     
-    if (isAlreadySubmitted) {
-      console.log("[Auto-Submit] Skipping - task already submitted with status:", task?.status);
-      return;
-    }
-    
-    // Auto-submit workflow (don't require files to exist - task is collaborative and all confirmed)
+    // Auto-submit with the latest submission
     const autoSubmit = async () => {
       setSubmitting(true);
       setSubmissionError("");
       try {
-        console.log("[Auto-Submit] Triggered: all collaborators confirmed for collaborative task", task?.id);
-        
         // Update status to "For Approval"
         await postStatus("/status", { status: "For Approval" });
-        console.log("[Auto-Submit] Status updated to 'For Approval'");
         
         // Add a system comment noting auto-submission
         await fetch(`${api}/api/tasks/${task.id}/comments`, {
@@ -804,14 +779,12 @@ export default function TaskDetail() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            content: `All collaborators confirmed. Task automatically submitted to admin and program chair for review.`,
+            content: `All collaborators confirmed. Task automatically submitted for chair review.`,
           }),
         });
-        console.log("[Auto-Submit] System comment added");
         
         // Reload task to reflect new status
         await loadTask();
-        console.log("[Auto-Submit] Task reloaded");
         
         // Show success notification
         setConfirmationMessage("✓ All collaborators confirmed! Task automatically submitted to admin and program chair for review.");
@@ -825,10 +798,9 @@ export default function TaskDetail() {
     };
     
     // Trigger auto-submit after a brief delay to ensure UI updates properly
-    console.log("[Auto-Submit Effect] Scheduling auto-submit for task", task?.id);
     const timer = setTimeout(autoSubmit, 500);
     return () => clearTimeout(timer);
-  }, [allConfirmed, isCollaborative, submitting, task?.id, task?.status, token, api]);
+  }, [allConfirmed, isCollaborative, latestSubmission, submitting, task?.id, token, api]);
 
   // Upload file for review before submission (visible to collaborator)
   const submitWork = async () => {
@@ -1546,9 +1518,8 @@ export default function TaskDetail() {
                       </div>
                     )}
                     
-                    {/* Display uploaded files for collaborators during collaborative task review */}
-                    {/* ONLY show for collaborative tasks - NEVER for solo tasks */}
-                    {isCollaborative === true && task?.attachments && task.attachments.length > 0 && (
+                    {/* Display uploaded files for collaborators (excluding the initial task brief, only if not all confirmed yet) */}
+                    {isCollaborative && !allConfirmed && task?.attachments && task.attachments.length > 0 && (
                       (() => {
                         // Filter out the initial brief attachment (uploaded within 5 seconds of task creation)
                         const collaboratorUploads = task.attachments.filter(file => {
@@ -1560,8 +1531,7 @@ export default function TaskDetail() {
                           return !(timeDiffSeconds >= 0 && timeDiffSeconds <= 5);
                         });
                         
-                        // Show section if there are collaborator uploads (not just the initial brief)
-                        // Show to collaborators during review phase or to admin/chair after submission
+                        // Only show section if there are collaborator uploads (not just the initial brief)
                         return collaboratorUploads.length > 0 ? (
                           <div style={{ marginBottom: "16px", padding: "12px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #dcfce7" }}>
                             <div style={{ fontSize: "10px", fontWeight: "700", color: "#166534", marginBottom: "10px", textTransform: "uppercase" }}>
@@ -1571,6 +1541,9 @@ export default function TaskDetail() {
                               <div
                                 key={idx}
                                 style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
                                   padding: "8px",
                                   marginBottom: idx < collaboratorUploads.length - 1 ? "8px" : "0",
                                   borderRadius: "6px",
@@ -1578,47 +1551,30 @@ export default function TaskDetail() {
                                   border: "1px solid #e2e8f0"
                                 }}
                               >
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: att.note ? "6px" : "0" }}>
-                                  <Icon name="file" size={14} />
-                                  <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                      {att.file_name}
-                                    </div>
-                                    <div style={{ fontSize: "9px", color: "#64748b" }}>
-                                      by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
-                                    </div>
+                                <Icon name="file" size={14} />
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {att.file_name}
                                   </div>
-                                  <a
-                                    href={att.file_url || resolveFileUrlUtil(att.key)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      padding: "4px 8px",
-                                      fontSize: "9px",
-                                      fontWeight: "600",
-                                      color: "#0891b2",
-                                      cursor: "pointer",
-                                      textDecoration: "none"
-                                    }}
-                                  >
-                                    View
-                                  </a>
+                                  <div style={{ fontSize: "9px", color: "#64748b" }}>
+                                    by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
+                                  </div>
                                 </div>
-                                {att.note && (
-                                  <div style={{
+                                <a
+                                  href={att.file_url || resolveFileUrlUtil(att.key)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    padding: "4px 8px",
                                     fontSize: "9px",
-                                    color: "#475569",
-                                    fontStyle: "italic",
-                                    paddingLeft: "22px",
-                                    lineHeight: "1.4",
-                                    borderLeft: "2px solid #cbd5e1",
-                                    paddingLeft: "8px",
-                                    marginLeft: "6px",
-                                    color: "#64748b"
-                                  }}>
-                                    "{att.note}"
-                                  </div>
-                                )}
+                                    fontWeight: "600",
+                                    color: "#0891b2",
+                                    cursor: "pointer",
+                                    textDecoration: "none"
+                                  }}
+                                >
+                                  View
+                                </a>
                               </div>
                             ))}
                           </div>
@@ -2138,7 +2094,7 @@ export default function TaskDetail() {
                       </>
                     )}
                   </div>
-                  {!isFacultyView && !hasAnyWork && (
+                  {!isFacultyView && !hasFacultySubmission && (
                     <div className="td-no-submission">
                       <Icon name="shield" size={15} />
                       <div>
@@ -2222,17 +2178,15 @@ export default function TaskDetail() {
                     </span>
                     <span
                       className={
-                        (latestSubmission || selectedFile || (isCollaborative && attachments.length > 0)) ? "complete" : ""
+                        latestSubmission || selectedFile ? "complete" : ""
                       }
                     >
-                      <b>{(latestSubmission || selectedFile || (isCollaborative && attachments.length > 0)) ? "✓" : ""}</b>{" "}
+                      <b>{latestSubmission || selectedFile ? "✓" : ""}</b>{" "}
                       Completed file{" "}
                       {latestSubmission
                         ? "submitted"
                         : selectedFile
                           ? "attached"
-                          : (isCollaborative && attachments.length > 0)
-                          ? "uploaded"
                           : "needed"}
                     </span>
                     <span
