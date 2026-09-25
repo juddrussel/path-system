@@ -469,6 +469,12 @@ export default function TaskDetail() {
   const latestSubmission = submissions.length
     ? submissions[submissions.length - 1]
     : null;
+  
+  // For collaborative tasks, check if ANY work has been uploaded (attachments) or submitted (submissions)
+  // For regular tasks, only check submissions
+  const hasAnyWork = isCollaborative 
+    ? (attachments.length > 0 || submissions.length > 0)
+    : Boolean(latestSubmission);
   const latestSubmissionName =
     latestSubmission?.file_name || latestSubmission?.name || "Submitted work";
   const latestSubmissionUrl = resolveFileUrlUtil(
@@ -506,7 +512,7 @@ export default function TaskDetail() {
   const hasFacultySubmission = Boolean(latestSubmission);
   const isUnderReview = /for.?approval|under.?review|in.?review/i.test(task?.status || "");
   const decisionStatus =
-    !hasFacultySubmission && isChair
+    !hasAnyWork && isChair
       ? {
           label: "Awaiting faculty submission",
           tone: "waiting",
@@ -514,8 +520,8 @@ export default function TaskDetail() {
         }
       : status;
   const canApprove =
-    isChair && hasFacultySubmission && status.tone === "review";
-  const canReturn = isChair && hasFacultySubmission && status.tone === "review";
+    isChair && hasAnyWork && status.tone === "review";
+  const canReturn = isChair && hasAnyWork && status.tone === "review";
 
   // Collaborative confirmation helpers
   const isCurrentUserCollaborator = isCollaborative && collaborators.some(c => c.user_id === user.id);
@@ -2116,7 +2122,7 @@ export default function TaskDetail() {
                       </>
                     )}
                   </div>
-                  {!isFacultyView && !hasFacultySubmission && (
+                  {!isFacultyView && !hasAnyWork && (
                     <div className="td-no-submission">
                       <Icon name="shield" size={15} />
                       <div>
@@ -2200,15 +2206,17 @@ export default function TaskDetail() {
                     </span>
                     <span
                       className={
-                        latestSubmission || selectedFile ? "complete" : ""
+                        (latestSubmission || selectedFile || (isCollaborative && attachments.length > 0)) ? "complete" : ""
                       }
                     >
-                      <b>{latestSubmission || selectedFile ? "✓" : ""}</b>{" "}
+                      <b>{(latestSubmission || selectedFile || (isCollaborative && attachments.length > 0)) ? "✓" : ""}</b>{" "}
                       Completed file{" "}
                       {latestSubmission
                         ? "submitted"
                         : selectedFile
                           ? "attached"
+                          : (isCollaborative && attachments.length > 0)
+                          ? "uploaded"
                           : "needed"}
                     </span>
                     <span
