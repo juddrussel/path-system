@@ -267,7 +267,25 @@ export default function TaskDetail() {
       const data = await response.json();
       const nextTask = data.task || data;
       setTask(nextTask);
-      setComments(nextTask.comments || []);
+      
+      // Flatten nested comments structure from GET endpoint
+      // Backend returns comments with replies nested, but we need flat array with parentCommentId
+      let flatComments = [];
+      if (nextTask.comments && Array.isArray(nextTask.comments)) {
+        nextTask.comments.forEach(topComment => {
+          flatComments.push(topComment);
+          if (topComment.replies && Array.isArray(topComment.replies)) {
+            topComment.replies.forEach(reply => {
+              flatComments.push({
+                ...reply,
+                parentCommentId: topComment.id,
+              });
+            });
+          }
+        });
+      }
+      setComments(flatComments);
+      
       setDeadlineDraft(toDatetimeInput(nextTask.deadline || nextTask.due_date));
     } catch (loadError) {
       setError(loadError.message || "The task could not be loaded.");
