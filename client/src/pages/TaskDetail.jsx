@@ -757,6 +757,52 @@ export default function TaskDetail() {
     }
   };
 
+  // Auto-submit when all collaborators confirm (collaborative tasks only)
+  useEffect(() => {
+    if (!isCollaborative || !allConfirmed || submitting) return;
+    
+    // Only auto-submit if there's a latest submission (file has been uploaded)
+    if (!latestSubmission) return;
+    
+    // Auto-submit with the latest submission
+    const autoSubmit = async () => {
+      setSubmitting(true);
+      setSubmissionError("");
+      try {
+        // Update status to "For Approval"
+        await postStatus("/status", { status: "For Approval" });
+        
+        // Add a system comment noting auto-submission
+        await fetch(`${api}/api/tasks/${task.id}/comments`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: `All collaborators confirmed. Task automatically submitted for chair review.`,
+          }),
+        });
+        
+        // Reload task to reflect new status
+        await loadTask();
+        
+        // Show success notification
+        setConfirmationMessage("✓ All collaborators confirmed! Task automatically submitted for chair review.");
+        setTimeout(() => setConfirmationMessage(""), 5000);
+      } catch (err) {
+        console.error("Auto-submit error:", err);
+        setSubmissionError(err.message || "Auto-submission failed. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
+    };
+    
+    // Trigger auto-submit after a brief delay to ensure UI updates properly
+    const timer = setTimeout(autoSubmit, 500);
+    return () => clearTimeout(timer);
+  }, [allConfirmed, isCollaborative, latestSubmission, submitting, task?.id, token, api]);
+
   // Upload file for review before submission (visible to collaborator)
   const submitWork = async () => {
     if (!selectedFile) {
