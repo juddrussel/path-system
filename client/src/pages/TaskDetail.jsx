@@ -244,8 +244,12 @@ export default function TaskDetail() {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [postingComment, setPostingComment] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [commentFiles, setCommentFiles] = useState([]);
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
+  const commentFileInputRef = useRef(null);
 
   const loadTask = async () => {
     if (!taskId) return;
@@ -565,27 +569,39 @@ export default function TaskDetail() {
 
   const postComment = async () => {
     const content = comment.trim();
-    if (!content || postingComment) return;
+    if ((!content && commentFiles.length === 0) || postingComment) return;
     setPostingComment(true);
     try {
+      const formData = new FormData();
+      formData.append("content", content);
+      if (replyingTo) {
+        formData.append("parentCommentId", replyingTo);
+      }
+      commentFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+
       const response = await fetch(`${api}/api/tasks/${task.id}/comments`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content }),
+        body: formData,
       });
       if (!response.ok) throw new Error("The note could not be posted.");
+      
       setComments((current) => [
         ...current,
         {
           content,
           sender_name: user.full_name || user.username || "You",
           created_at: new Date().toISOString(),
+          parentCommentId: replyingTo,
         },
       ]);
       setComment("");
+      setCommentFiles([]);
+      setReplyingTo(null);
     } catch (commentError) {
       setError(commentError.message || "The note could not be posted.");
     } finally {
@@ -1343,6 +1359,7 @@ export default function TaskDetail() {
                         <article
                           className="td-comment"
                           key={item.id || `${item.created_at}-${index}`}
+                          style={{ marginLeft: item.parentCommentId ? "32px" : "0" }}
                         >
                           <span>
                             {initials(
@@ -1362,6 +1379,23 @@ export default function TaskDetail() {
                               {formatDate(item.created_at || item.createdAt)}
                             </time>
                             <p>{item.content || item.body}</p>
+                            <button
+                              type="button"
+                              onClick={() => setReplyingTo(item.id || index)}
+                              style={{
+                                marginTop: "8px",
+                                border: "1px solid #e5dff3",
+                                borderRadius: "4px",
+                                padding: "4px 8px",
+                                background: "#faf8fc",
+                                color: "#8d7e98",
+                                fontSize: "10px",
+                                fontWeight: "600",
+                                cursor: "pointer",
+                              }}
+                            >
+                              ↩ Reply
+                            </button>
                           </div>
                         </article>
                       ))}
@@ -1372,6 +1406,38 @@ export default function TaskDetail() {
                       should remain with the task record.
                     </p>
                   )}
+                  {replyingTo && (
+                    <div
+                      style={{
+                        marginTop: "12px",
+                        padding: "12px",
+                        background: "#fcfaff",
+                        border: "1px solid #e9ddfb",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      <small style={{ color: "#8d7e98" }}>
+                        Replying to comment...{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReplyingTo(null);
+                            setReplyText("");
+                          }}
+                          style={{
+                            border: "none",
+                            background: "none",
+                            color: "#dc2626",
+                            cursor: "pointer",
+                            fontSize: "10px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </small>
+                    </div>
+                  )}
                   <div className="td-composer">
                     <textarea
                       value={comment}
@@ -1379,14 +1445,121 @@ export default function TaskDetail() {
                       rows={3}
                       placeholder="Write a note for this handoff…"
                     />
-                    <button
-                      type="button"
-                      disabled={!comment.trim() || postingComment}
-                      onClick={postComment}
+                    {commentFiles.length > 0 && (
+                      <div
+                        style={{
+                          padding: "8px 0",
+                          borderTop: "1px solid #e9ddfb",
+                          marginTop: "8px",
+                        }}
+                      >
+                        {commentFiles.map((file, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "6px 8px",
+                              background: "#faf8fc",
+                              border: "1px solid #e5dff3",
+                              borderRadius: "5px",
+                              marginBottom: "4px",
+                              fontSize: "10px",
+                              color: "#7c3aed",
+                            }}
+                          >
+                            <span>📎 {file.name}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCommentFiles((prev) =>
+                                  prev.filter((_, i) => i !== idx)
+                                )
+                              }
+                              style={{
+                                border: "none",
+                                background: "none",
+                                color: "#dc2626",
+                                cursor: "pointer",
+                                fontWeight: "600",
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        marginTop: "8px",
+                        alignItems: "center",
+                      }}
                     >
-                      <Icon name="send" size={13} />{" "}
-                      {postingComment ? "Posting…" : "Post note"}
-                    </button>
+                      <input
+                        ref={commentFileInputRef}
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          setCommentFiles((prev) => [...prev, ...files]);
+                        }}
+                        style={{ display: "none" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => commentFileInputRef.current?.click()}
+                        style={{
+                          border: "1px solid #dccdea",
+                          borderRadius: "6px",
+                          padding: "6px 10px",
+                          background: "#faf8fc",
+                          color: "#7c3aed",
+                          fontSize: "10px",
+                          fontWeight: "700",
+                          cursor: "pointer",
+                        }}
+                      >
+                        📎 Attach file
+                      </button>
+                      <button
+                        type="button"
+                        disabled={
+                          (!comment.trim() && commentFiles.length === 0) ||
+                          postingComment
+                        }
+                        onClick={postComment}
+                        style={{
+                          flex: 1,
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "6px 10px",
+                          background:
+                            (!comment.trim() && commentFiles.length === 0) ||
+                            postingComment
+                              ? "#e7e1ea"
+                              : "#7c3aed",
+                          color: "#fff",
+                          fontSize: "10px",
+                          fontWeight: "700",
+                          cursor:
+                            (!comment.trim() && commentFiles.length === 0) ||
+                            postingComment
+                              ? "not-allowed"
+                              : "pointer",
+                          opacity:
+                            (!comment.trim() && commentFiles.length === 0) ||
+                            postingComment
+                              ? 0.55
+                              : 1,
+                        }}
+                      >
+                        {postingComment ? "Posting…" : "Post note"}
+                      </button>
+                    </div>
                   </div>
                 </section>
               </main>
