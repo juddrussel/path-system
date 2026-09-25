@@ -1985,6 +1985,10 @@ router.post("/:id/upload-collaborative", requireAuth, upload.array("files"), asy
     }
     
     // Upload files to R2
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files provided." });
+    }
+    
     const uploaded = await uploadFilesToR2(req.files);
     
     // Save to task_attachments (NOT task_submissions)
@@ -1992,9 +1996,9 @@ router.post("/:id/upload-collaborative", requireAuth, upload.array("files"), asy
     for (const file of uploaded) {
       const [result] = await db.query(
         `INSERT INTO task_attachments
-           (task_id, file_name, file_url, size, uploaded_at, uploaded_by)
-         VALUES (?, ?, ?, ?, NOW(), ?)`,
-        [taskId, file.originalname, file.url, file.size, req.user.id]
+           (task_id, file_name, file_url, uploaded_at, uploaded_by)
+         VALUES (?, ?, ?, NOW(), ?)`,
+        [taskId, file.originalname, file.url, req.user.id]
       );
       savedFiles.push({
         id: result.insertId,
