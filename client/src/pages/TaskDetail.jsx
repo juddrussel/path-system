@@ -378,11 +378,6 @@ export default function TaskDetail() {
         // Show notification
         setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed! Auto-submitting...' : ''}`);
         setTimeout(() => setConfirmationMessage(""), 4000);
-        
-        // Refresh task data to ensure we have fresh collaborators and attachments
-        if (data.allConfirmed) {
-          setTimeout(() => loadTask(), 300);
-        }
       }
     };
 
@@ -772,6 +767,18 @@ export default function TaskDetail() {
   useEffect(() => {
     if (!isCollaborative || !allConfirmed || submitting) return;
     
+    // Don't auto-submit if task is already submitted/approved
+    const isAlreadySubmitted = task?.status && 
+      (task.status.toLowerCase().includes("approval") || 
+       task.status.toLowerCase().includes("approved") ||
+       task.status.toLowerCase().includes("received") ||
+       task.status.toLowerCase().includes("completed"));
+    
+    if (isAlreadySubmitted) {
+      console.log("[Auto-Submit] Skipping - task already submitted with status:", task?.status);
+      return;
+    }
+    
     // Auto-submit workflow (don't require files to exist - task is collaborative and all confirmed)
     const autoSubmit = async () => {
       setSubmitting(true);
@@ -815,7 +822,7 @@ export default function TaskDetail() {
     console.log("[Auto-Submit Effect] Scheduling auto-submit for task", task?.id);
     const timer = setTimeout(autoSubmit, 500);
     return () => clearTimeout(timer);
-  }, [allConfirmed, isCollaborative, submitting, task?.id, token, api]);
+  }, [allConfirmed, isCollaborative, submitting, task?.id, task?.status, token, api]);
 
   // Upload file for review before submission (visible to collaborator)
   const submitWork = async () => {
