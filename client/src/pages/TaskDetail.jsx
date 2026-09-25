@@ -1569,9 +1569,6 @@ export default function TaskDetail() {
                               <div
                                 key={idx}
                                 style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
                                   padding: "8px",
                                   marginBottom: idx < collaboratorUploads.length - 1 ? "8px" : "0",
                                   borderRadius: "6px",
@@ -1579,30 +1576,47 @@ export default function TaskDetail() {
                                   border: "1px solid #e2e8f0"
                                 }}
                               >
-                                <Icon name="file" size={14} />
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                    {att.file_name}
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: att.note ? "6px" : "0" }}>
+                                  <Icon name="file" size={14} />
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                      {att.file_name}
+                                    </div>
+                                    <div style={{ fontSize: "9px", color: "#64748b" }}>
+                                      by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
+                                    </div>
                                   </div>
-                                  <div style={{ fontSize: "9px", color: "#64748b" }}>
-                                    by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
-                                  </div>
+                                  <a
+                                    href={att.file_url || resolveFileUrlUtil(att.key)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      padding: "4px 8px",
+                                      fontSize: "9px",
+                                      fontWeight: "600",
+                                      color: "#0891b2",
+                                      cursor: "pointer",
+                                      textDecoration: "none"
+                                    }}
+                                  >
+                                    View
+                                  </a>
                                 </div>
-                                <a
-                                  href={att.file_url || resolveFileUrlUtil(att.key)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    padding: "4px 8px",
+                                {att.note && (
+                                  <div style={{
                                     fontSize: "9px",
-                                    fontWeight: "600",
-                                    color: "#0891b2",
-                                    cursor: "pointer",
-                                    textDecoration: "none"
-                                  }}
-                                >
-                                  View
-                                </a>
+                                    color: "#475569",
+                                    fontStyle: "italic",
+                                    paddingLeft: "22px",
+                                    lineHeight: "1.4",
+                                    borderLeft: "2px solid #cbd5e1",
+                                    paddingLeft: "8px",
+                                    marginLeft: "6px",
+                                    color: "#64748b"
+                                  }}>
+                                    "{att.note}"
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
