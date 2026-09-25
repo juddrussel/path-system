@@ -408,6 +408,7 @@ export default function TaskDetail() {
     socket.on("collaboration:user_confirmed_real_time", handleCollaboratorConfirmedRealTime);
     socket.on("task:file_uploaded", handleCollaboratorFileUpload);
     socket.on("task:attachment_added", handleCollaboratorFileUpload);
+    socket.on("task:file_uploaded_collaborative", handleCollaboratorFileUpload);
     socket.on("task:submitted", handleTaskSubmitted);
     socket.on("task:status_changed", handleTaskStatusChanged);
     socket.on("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
@@ -418,6 +419,7 @@ export default function TaskDetail() {
       socket.off("collaboration:user_confirmed_real_time", handleCollaboratorConfirmedRealTime);
       socket.off("task:file_uploaded", handleCollaboratorFileUpload);
       socket.off("task:attachment_added", handleCollaboratorFileUpload);
+      socket.off("task:file_uploaded_collaborative", handleCollaboratorFileUpload);
       socket.off("task:submitted", handleTaskSubmitted);
       socket.off("task:status_changed", handleTaskStatusChanged);
       socket.off("collaboration:confirmation_cancelled", handleCollaboratorCancelledConfirmation);
@@ -705,6 +707,55 @@ export default function TaskDetail() {
     }
   };
 
+
+  // Upload file for collaborative task (visible to all collaborators)
+  const uploadCollaborativeFile = async () => {
+    if (!selectedFile) {
+      setSubmissionError("Please select a file to upload.");
+      return;
+    }
+    
+    setSubmitting(true);
+    setSubmissionError("");
+    
+    try {
+      const formData = new FormData();
+      formData.append("files", selectedFile);
+      formData.append("submission_group_id", `collab_${task.id}_${Date.now()}`);
+      formData.append("note", `Uploaded by ${user.full_name}`);
+      
+      const response = await fetch(`${api}/api/tasks/${task.id}/submit`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error("File upload failed.");
+      }
+      
+      // Emit socket event to notify other collaborators in real-time
+      socket.emit("task:file_uploaded_collaborative", {
+        taskId: task.id,
+        fileName: selectedFile.name,
+        uploadedBy: user.full_name,
+        uploadedByUserId: user.id,
+        timestamp: new Date().toISOString(),
+      });
+      
+      // Clear the selected file
+      setSelectedFile(null);
+      
+      // Reload task to show the newly uploaded file
+      await loadTask();
+      
+      setSubmissionError(""); // Clear any previous errors
+    } catch (err) {
+      setSubmissionError(err.message || "File upload failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // Upload file for review before submission (visible to collaborator)
   const submitWork = async () => {
@@ -1253,6 +1304,176 @@ export default function TaskDetail() {
 
                 {task?.is_collaborative && isCurrentUserCollaborator && (
                   <>
+                    {/* COLLABORATIVE UPLOADS SECTION */}
+                    <section className="td-card">
+                      <div style={{ marginBottom: "16px" }}>
+                        <span style={{ display: "block", color: "#8a8899", fontSize: "10px", fontWeight: "800", letterSpacing: ".08em", textTransform: "uppercase" }}>
+                          Collaboration
+                        </span>
+                        <h2 style={{ margin: "3px 0 0", color: "#3d2a4a", font: "800 16px 'Manrope', sans-serif", letterSpacing: "-.04em" }}>
+                          Shared files & uploads
+                        </h2>
+                      </div>
+                      
+                      <p style={{ margin: "0 0 14px", color: "#8c7e96", fontSize: "10px", lineHeight: "1.55" }}>
+                        Upload files here. All collaborators will see what's uploaded in real-time.
+                      </p>
+
+                      {/* File Upload Input and Button */}
+                      <div style={{ marginBottom: "16px" }}>
+                        <input
+                          id="collab-file-input"
+                          hidden
+                          type="file"
+                          accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (file) {
+                              setSelectedFile(file);
+                              setSubmissionError("");
+                            }
+                          }}
+                        />
+                        {!selectedFile ? (
+                          <button
+                            className="td-upload-button"
+                            type="button"
+                            onClick={() => document.getElementById('collab-file-input')?.click()}
+                            disabled={submitting}
+                            style={{
+                              width: "100%",
+                              padding: "12px",
+                              border: "2px dashed #cbd5e1",
+                              borderRadius: "8px",
+                              background: "#f8fafc",
+                              cursor: submitting ? "not-allowed" : "pointer",
+                              opacity: submitting ? 0.6 : 1,
+                              transition: "all 0.2s"
+                            }}
+                          >
+                            <span style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
+                              <Icon name="attach" size={16} />
+                              <span style={{ fontSize: "12px", fontWeight: "600", color: "#475569" }}>
+                                {submitting ? "Uploading..." : "Click to upload file"}
+                              </span>
+                            </span>
+                          </button>
+                        ) : (
+                          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            <div style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              background: "#e0f2fe",
+                              border: "1px solid #0284c7"
+                            }}>
+                              <div style={{ fontSize: "12px", fontWeight: "600", color: "#0c4a6e" }}>
+                                {selectedFile.name}
+                              </div>
+                              <div style={{ fontSize: "9px", color: "#075985" }}>
+                                {(selectedFile.size / 1024).toFixed(1)} KB
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={uploadCollaborativeFile}
+                              disabled={submitting}
+                              style={{
+                                padding: "8px 16px",
+                                background: "#10b981",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                fontSize: "12px",
+                                fontWeight: "600",
+                                cursor: submitting ? "not-allowed" : "pointer",
+                                opacity: submitting ? 0.6 : 1
+                              }}
+                            >
+                              {submitting ? "Uploading…" : "Upload"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedFile(null)}
+                              disabled={submitting}
+                              style={{
+                                padding: "8px 12px",
+                                background: "#f3f4f6",
+                                color: "#6b7280",
+                                border: "1px solid #d1d5db",
+                                borderRadius: "6px",
+                                fontSize: "12px",
+                                fontWeight: "600",
+                                cursor: submitting ? "not-allowed" : "pointer",
+                                opacity: submitting ? 0.6 : 1
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Display Uploaded Files */}
+                      {task?.attachments && task.attachments.length > 0 && (
+                        <div>
+                          <div style={{ fontSize: "10px", fontWeight: "700", color: "#64748b", marginBottom: "8px", textTransform: "uppercase" }}>
+                            Files uploaded
+                          </div>
+                          {task.attachments.map((att, idx) => (
+                            <div
+                              key={idx}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                padding: "8px",
+                                marginBottom: "8px",
+                                borderRadius: "6px",
+                                background: "#f1f5f9",
+                                border: "1px solid #e2e8f0"
+                              }}
+                            >
+                              <Icon name="file" size={14} />
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {att.file_name}
+                                </div>
+                                <div style={{ fontSize: "9px", color: "#94a3b8" }}>
+                                  by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
+                                </div>
+                              </div>
+                              <a
+                                href={att.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  padding: "4px 8px",
+                                  fontSize: "9px",
+                                  fontWeight: "600",
+                                  color: "#06b6d4",
+                                  cursor: "pointer"
+                                }}
+                              >
+                                View
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {!task?.attachments || task.attachments.length === 0 && (
+                        <div style={{ padding: "16px", textAlign: "center", background: "#fef3c7", borderRadius: "6px", border: "1px solid #fcd34d" }}>
+                          <div style={{ fontSize: "12px", color: "#92400e", fontWeight: "600" }}>
+                            No files uploaded yet
+                          </div>
+                          <div style={{ fontSize: "10px", color: "#b45309", marginTop: "4px" }}>
+                            Upload a file to get started
+                          </div>
+                        </div>
+                      )}
+                    </section>
+
                     {/* COLLECTIVE CONFIRMATION SECTION */}
                     <section className="td-card">
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "16px" }}>
