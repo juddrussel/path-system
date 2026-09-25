@@ -1957,6 +1957,72 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
   }
 });
 
+// ─── POST /api/tasks/:id/upload-collaborative ──────────────────────────────
+// Upload file for collaborative review (does NOT submit, just for collaborators to see)
+router.post("/:id/upload-collaborative", requireAuth, upload.array("files"), async (req, res) => {
+  const taskId = parseInt(req.params.id);
+  
+  try {
+    const [taskRows] = await db.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
+    if (taskRows.length === 0) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+    
+    const task = taskRows[0];
+    
+    // Verify user is a collaborator
+    if (!task.is_collaborative) {
+      return res.status(400).json({ message: "This is not a collaborative task." });
+    }
+    
+    const [collab] = await db.query(
+      "SELECT id FROM task_collaborators WHERE task_id = ? AND user_id = ?",
+      [taskId, req.user.id]
+    );
+    
+    if (collab.length === 0) {
+      return res.status(403).json({ message: "You are not a collaborator on this task." });
+    }
+    
+    // Upload files to R2
+    const uploaded = await uploadFilesToR2(req.files);
+    
+    // Save to task_attachments (NOT task_submissions)
+    const savedFiles = [];
+    for (const file of uploaded) {
+      const [result] = await db.query(
+        `INSERT INTO task_attachments
+           (task_id, file_name, file_url, size, uploaded_at, uploaded_by_id, uploaded_by_name)
+         VALUES (?, ?, ?, ?, NOW(), ?, ?)`,
+        [taskId, file.originalname, file.url, file.size, req.user.id, req.user.full_name || req.user.username]
+      );
+      savedFiles.push({
+        id: result.insertId,
+        file_name: file.originalname,
+        file_url: file.url,
+        size: file.size,
+        uploaded_by_id: req.user.id,
+        uploaded_by_name: req.user.full_name || req.user.username,
+        uploaded_at: new Date().toISOString(),
+      });
+    }
+    
+    // Log the upload
+    await writeLog({
+      userId: req.user.id,
+      action: "TASK_UPLOAD_COLLABORATIVE_FILE",
+      detail: `Uploaded ${uploaded.length} file(s) to collaborative task ${task.tracking_id} for review`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
+    
+    return res.status(200).json({ success: true, files: savedFiles });
+  } catch (err) {
+    console.error("POST /api/tasks/:id/upload-collaborative error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // ─── POST /api/tasks/:id/submit ──────────────────────────────────────────────
 // Faculty submits their completed work. Files go to task_submissions (NOT
 // task_attachments), so they always render as a separate post from the task brief.

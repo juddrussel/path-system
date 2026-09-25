@@ -721,11 +721,8 @@ export default function TaskDetail() {
     try {
       const formData = new FormData();
       formData.append("files", selectedFile);
-      formData.append("submission_group_id", `collab_${task.id}_${Date.now()}`);
-      formData.append("note", `Uploaded by ${user.full_name}`);
-      formData.append("is_collaborative_upload", "true"); // Flag to skip confirmation check
       
-      const response = await fetch(`${api}/api/tasks/${task.id}/submit`, {
+      const response = await fetch(`${api}/api/tasks/${task.id}/upload-collaborative`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
