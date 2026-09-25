@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { socket, connectSocket } from "./socket.js";
 
 /*
   Router integration requirement (React Router v6):
@@ -288,6 +289,49 @@ export default function TaskDetail() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  // Real-time socket.io listeners for comments and task updates
+  useEffect(() => {
+    if (!token || !taskId) return;
+    
+    connectSocket();
+    
+    // Handle new comments in real-time
+    const handleCommentAdded = (data) => {
+      if (data.taskId === taskId) {
+        setComments((prev) => [
+          ...prev,
+          {
+            id: data.comment.id,
+            content: data.comment.content,
+            author_name: data.comment.author_name,
+            author: data.comment.author,
+            created_at: data.comment.created_at,
+            body: data.comment.body,
+          },
+        ]);
+      }
+    };
+
+    // Handle task status changes
+    const handleStatusChanged = (data) => {
+      if (data.taskId === taskId) {
+        setTask((prev) => ({
+          ...prev,
+          status: data.status,
+        }));
+      }
+    };
+
+    // Attach listeners
+    socket.on("task:comment_added", handleCommentAdded);
+    socket.on("task:status_changed", handleStatusChanged);
+
+    return () => {
+      socket.off("task:comment_added", handleCommentAdded);
+      socket.off("task:status_changed", handleStatusChanged);
+    };
+  }, [taskId, token]);
 
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
