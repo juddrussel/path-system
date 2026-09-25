@@ -425,19 +425,6 @@ export default function TaskDetail() {
     };
   }, [taskId, updateTask]);
 
-  // Auto-submit when all collaborators confirm
-  const hasAutoSubmitted = useRef(false);
-  
-  useEffect(() => {
-    if (isCollaborative && allConfirmed && task?.id && !hasAutoSubmitted.current && task?.status !== "For Approval" && task?.status !== "Approved") {
-      hasAutoSubmitted.current = true;
-      const timer = setTimeout(() => {
-        autoSubmitTask();
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [isCollaborative, allConfirmed, task?.id, task?.status]);
-
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
   const viewerRoleLabel = isChair ? "Program Chair / Admin" : "Faculty";
@@ -717,54 +704,6 @@ export default function TaskDetail() {
       setDeciding(false);
     }
   };
-
-  // Auto-submit when all collaborators confirm (collaborative tasks only)
-  const autoSubmitTask = useCallback(async () => {
-    try {
-      // Get the latest task data to find the latest submission/attachment
-      const taskResponse = await fetch(`${api}/api/tasks/${task.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!taskResponse.ok) throw new Error("Could not load task for submission.");
-      
-      const latestTask = await taskResponse.json();
-      const taskData = latestTask.task || latestTask;
-      
-      // Get the most recent attachment/submission
-      const latestAttachment = (taskData.attachments || []).sort(
-        (a, b) => new Date(b.uploaded_at || b.created_at) - new Date(a.uploaded_at || a.created_at)
-      )[0];
-      
-      if (!latestAttachment) {
-        setSubmissionError("No file attached. Please attach a file before submitting.");
-        return;
-      }
-      
-      // Update task status to "For Approval"
-      await postStatus("/status", { status: "For Approval" });
-      
-      // Post submission comment
-      await fetch(`${api}/api/tasks/${task.id}/comments`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: `Collaborative task submitted by all collaborators. Final file: ${latestAttachment.file_name}`,
-        }),
-      });
-      
-      // Reload task to reflect new status
-      await loadTask();
-      
-      setConfirmationMessage("Task successfully submitted to program chair!");
-      setTimeout(() => setConfirmationMessage(""), 4000);
-    } catch (err) {
-      setSubmissionError(err.message || "Auto-submission failed. Please try submitting manually.");
-      setConfirmationMessage("");
-    }
-  }, [api, task?.id, token, postStatus, loadTask]);
 
 
   // Upload file for review before submission (visible to collaborator)
