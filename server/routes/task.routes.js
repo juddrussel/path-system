@@ -2299,15 +2299,41 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       return res.status(400).json({ message: "Comment cannot be empty." });
     }
 
-    // Verify user is a collaborator on this task (not just task creator)
-    const [collabRows] = await db.query(
-      `SELECT tc.id FROM task_collaborators tc
-       WHERE tc.task_id = ? AND tc.user_id = ?`,
-      [taskId, userId]
+    // Get task to check if collaborative and get task owner info
+    const [taskRows] = await db.query(
+      `SELECT id, is_collaborative, faculty_id, assigned_by, collaborator_id FROM tasks WHERE id = ?`,
+      [taskId]
     );
 
-    if (collabRows.length === 0) {
-      return res.status(403).json({ message: "Only collaborators can post comments." });
+    if (taskRows.length === 0) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    const task = taskRows[0];
+    const isAdmin = ["admin", "program_chair"].includes(req.user.role);
+
+    // Determine if user can comment:
+    // - For collaborative tasks: user must be a collaborator
+    // - For solo tasks: user must be task creator, faculty, assigned_by, or admin
+    let canComment = false;
+
+    if (task.is_collaborative) {
+      // Collaborative task: check task_collaborators
+      const [collabRows] = await db.query(
+        `SELECT tc.id FROM task_collaborators tc
+         WHERE tc.task_id = ? AND tc.user_id = ?`,
+        [taskId, userId]
+      );
+      canComment = collabRows.length > 0;
+    } else {
+      // Solo task: allow task creator, faculty, assigned_by, or admin
+      canComment = isAdmin || 
+                   task.faculty_id === userId || 
+                   task.assigned_by === userId;
+    }
+
+    if (!canComment) {
+      return res.status(403).json({ message: "You don't have permission to comment on this task." });
     }
 
     // If replying to a comment, verify it exists
@@ -2497,9 +2523,9 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
 
     console.log(`[GET /tasks/:id/comments] taskId=${taskId}, userId=${userId}`);
 
-    // Verify task exists
+    // Verify task exists and get type
     const [taskRows] = await db.query(
-      `SELECT id, is_collaborative FROM tasks WHERE id = ?`,
+      `SELECT id, is_collaborative, faculty_id, assigned_by FROM tasks WHERE id = ?`,
       [taskId]
     );
 
@@ -2508,19 +2534,31 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     }
 
     const task = taskRows[0];
+    const isAdmin = ["admin", "program_chair"].includes(req.user.role);
 
-    // If it's a collaborative task, verify user is a collaborator
+    // Determine if user can view comments:
+    // - For collaborative tasks: user must be a collaborator
+    // - For solo tasks: user must be task creator, faculty, assigned_by, or admin
+    let canViewComments = false;
+
     if (task.is_collaborative) {
+      // Collaborative task: check task_collaborators
       const [collabRows] = await db.query(
         `SELECT tc.id FROM task_collaborators tc
          WHERE tc.task_id = ? AND tc.user_id = ?`,
         [taskId, userId]
       );
+      canViewComments = collabRows.length > 0;
+    } else {
+      // Solo task: allow task creator, faculty, assigned_by, or admin
+      canViewComments = isAdmin || 
+                        task.faculty_id === userId || 
+                        task.assigned_by === userId;
+    }
 
-      if (collabRows.length === 0) {
-        console.log(`[GET /tasks/:id/comments] User ${userId} is not a collaborator on task ${taskId}`);
-        return res.status(403).json({ message: "Only collaborators can view comments." });
-      }
+    if (!canViewComments) {
+      console.log(`[GET /tasks/:id/comments] User ${userId} does not have permission to view comments on task ${taskId}`);
+      return res.status(403).json({ message: "You don't have permission to view comments on this task." });
     }
 
     // Fetch all top-level comments with their replies
