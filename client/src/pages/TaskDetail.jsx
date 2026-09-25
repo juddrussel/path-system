@@ -426,14 +426,17 @@ export default function TaskDetail() {
   }, [taskId, updateTask]);
 
   // Auto-submit when all collaborators confirm
+  const hasAutoSubmitted = useRef(false);
+  
   useEffect(() => {
-    if (isCollaborative && allConfirmed && task?.status !== "For Approval" && task?.status !== "Approved") {
+    if (isCollaborative && allConfirmed && task?.id && !hasAutoSubmitted.current && task?.status !== "For Approval" && task?.status !== "Approved") {
+      hasAutoSubmitted.current = true;
       const timer = setTimeout(() => {
         autoSubmitTask();
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isCollaborative, allConfirmed, task?.id, task?.status, autoSubmitTask]);
+  }, [isCollaborative, allConfirmed, task?.id, task?.status]);
 
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
