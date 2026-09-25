@@ -1521,53 +1521,68 @@ export default function TaskDetail() {
                       </div>
                     )}
                     
-                    {/* Display uploaded files for collaborators */}
+                    {/* Display uploaded files for collaborators (excluding the initial task brief) */}
                     {isCollaborative && task?.attachments && task.attachments.length > 0 && (
-                      <div style={{ marginBottom: "16px", padding: "12px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #dcfce7" }}>
-                        <div style={{ fontSize: "10px", fontWeight: "700", color: "#166534", marginBottom: "10px", textTransform: "uppercase" }}>
-                          📁 Uploaded files
-                        </div>
-                        {task.attachments.map((att, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              padding: "8px",
-                              marginBottom: idx < task.attachments.length - 1 ? "8px" : "0",
-                              borderRadius: "6px",
-                              background: "#f8fafc",
-                              border: "1px solid #e2e8f0"
-                            }}
-                          >
-                            <Icon name="file" size={14} />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                {att.file_name}
-                              </div>
-                              <div style={{ fontSize: "9px", color: "#64748b" }}>
-                                by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
-                              </div>
+                      (() => {
+                        // Filter out the initial brief attachment (uploaded within 5 seconds of task creation)
+                        const collaboratorUploads = task.attachments.filter(file => {
+                          if (!file.uploaded_at || !task.created_at) return true; // Show if we can't determine
+                          const fileTime = new Date(file.uploaded_at).getTime();
+                          const taskTime = new Date(task.created_at).getTime();
+                          const timeDiffSeconds = (fileTime - taskTime) / 1000;
+                          // Hide if this is the initial brief (uploaded within 5 seconds of task creation)
+                          return !(timeDiffSeconds >= 0 && timeDiffSeconds <= 5);
+                        });
+                        
+                        // Only show section if there are collaborator uploads (not just the initial brief)
+                        return collaboratorUploads.length > 0 ? (
+                          <div style={{ marginBottom: "16px", padding: "12px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #dcfce7" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "700", color: "#166534", marginBottom: "10px", textTransform: "uppercase" }}>
+                              📁 Collaborator uploads
                             </div>
-                            <a
-                              href={att.file_url || resolveFileUrlUtil(att.key)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                padding: "4px 8px",
-                                fontSize: "9px",
-                                fontWeight: "600",
-                                color: "#0891b2",
-                                cursor: "pointer",
-                                textDecoration: "none"
-                              }}
-                            >
-                              View
-                            </a>
+                            {collaboratorUploads.map((att, idx) => (
+                              <div
+                                key={idx}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  padding: "8px",
+                                  marginBottom: idx < collaboratorUploads.length - 1 ? "8px" : "0",
+                                  borderRadius: "6px",
+                                  background: "#f8fafc",
+                                  border: "1px solid #e2e8f0"
+                                }}
+                              >
+                                <Icon name="file" size={14} />
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: "11px", fontWeight: "600", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {att.file_name}
+                                  </div>
+                                  <div style={{ fontSize: "9px", color: "#64748b" }}>
+                                    by {att.uploaded_by_name || "Unknown"} • {new Date(att.uploaded_at).toLocaleDateString()}
+                                  </div>
+                                </div>
+                                <a
+                                  href={att.file_url || resolveFileUrlUtil(att.key)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    padding: "4px 8px",
+                                    fontSize: "9px",
+                                    fontWeight: "600",
+                                    color: "#0891b2",
+                                    cursor: "pointer",
+                                    textDecoration: "none"
+                                  }}
+                                >
+                                  View
+                                </a>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        ) : null;
+                      })()
                     )}
 
                     <input
