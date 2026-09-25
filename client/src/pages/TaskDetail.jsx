@@ -308,10 +308,13 @@ export default function TaskDetail() {
           {
             id: data.comment.id,
             content: data.comment.content,
-            author_name: data.comment.author_name,
-            author: data.comment.author,
-            created_at: data.comment.created_at,
-            body: data.comment.body,
+            sender_name: data.comment.userName || data.comment.sender_name,
+            author_name: data.comment.userName || data.comment.author_name,
+            author: data.comment.userName || data.comment.author,
+            created_at: data.comment.createdAt || data.comment.created_at,
+            body: data.comment.content,
+            parentCommentId: data.comment.parentCommentId,
+            files: data.comment.files || [],
           },
         ]);
       }
