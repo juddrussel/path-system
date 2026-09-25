@@ -233,6 +233,7 @@ export default function TaskDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
   const [returnInstruction, setReturnInstruction] = useState("");
+  const [returnReason, setReturnReason] = useState("");
   const [returnError, setReturnError] = useState("");
   const [deciding, setDeciding] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
@@ -292,10 +293,11 @@ export default function TaskDetail() {
   const isFacultyView = !isChair;
   const viewerRoleLabel = isChair ? "Program Chair / Admin" : "Faculty";
   const taskOwner =
+    task?.faculty_name ||
     task?.assigned_to_name ||
     task?.assignee_name ||
     task?.assigned_to ||
-    "Faculty review group";
+    "—";
   const taskOwnerInitials = initials(taskOwner);
   const taskIdentifier =
     task?.tracking_id ||
@@ -359,7 +361,15 @@ export default function TaskDetail() {
       ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(latestSubmissionUrl)}`
       : latestSubmissionUrl;
   const hasFacultySubmission = Boolean(latestSubmission);
-  const decisionStatus = status; // Always use the actual task status
+  const isUnderReview = /for.?approval|under.?review|in.?review/i.test(task?.status || "");
+  const decisionStatus =
+    !hasFacultySubmission && isChair
+      ? {
+          label: "Awaiting faculty submission",
+          tone: "waiting",
+          note: "Waiting on evidence",
+        }
+      : status;
   const canApprove =
     isChair && hasFacultySubmission && status.tone === "review";
   const canReturn = isChair && hasFacultySubmission && status.tone === "review";
@@ -367,7 +377,7 @@ export default function TaskDetail() {
   const updateTask = (patch) =>
     setTask((current) => (current ? { ...current, ...patch } : current));
 
-  const goBack = () => navigate(location.state?.returnTo || "/tasks");
+  const goBack = () => navigate(location.state?.returnTo || "/task-assigned");
 
   const postStatus = async (endpoint, body) => {
     const response = await fetch(`${api}/api/tasks/${task.id}${endpoint}`, {
@@ -398,6 +408,10 @@ export default function TaskDetail() {
   const returnTask = async (event) => {
     event.preventDefault();
     if (!canReturn || deciding) return;
+    if (!returnReason) {
+      setReturnError("Select a reason before continuing.");
+      return;
+    }
     if (returnInstruction.trim().length < 12) {
       setReturnError(
         "Add at least 12 characters of guidance before returning this task.",
@@ -406,13 +420,15 @@ export default function TaskDetail() {
     }
     setDeciding(true);
     setReturnError("");
+    const structuredInstruction = `Reason: ${returnReason}\n\nReviewer direction: ${returnInstruction.trim()}`;
     try {
-      await postStatus("/return", { instruction: returnInstruction.trim() });
+      await postStatus("/return", { instruction: structuredInstruction });
       updateTask({
         status: "Returned for revision",
-        revision_instruction: returnInstruction.trim(),
+        revision_instruction: structuredInstruction,
       });
       setReturnInstruction("");
+      setReturnReason("");
       setReturnOpen(false);
       await loadTask();
     } catch (decisionError) {
@@ -540,82 +556,118 @@ export default function TaskDetail() {
 
   if (loading) {
     return (
-      <div className="td-shell">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
         <style>{`
           @keyframes td-spin { to { transform: rotate(360deg); } }
-          @keyframes td-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
-          .td-spinner {
-            width: 44px; height: 44px; border-radius: 50%;
-            border: 3px solid #ede9fe;
-            border-top-color: #7c3aed;
-            animation: td-spin 0.8s linear infinite;
+          @keyframes td-shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position:  400px 0; }
+          }
+          @keyframes td-fadein {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
           }
           .td-skel {
-            background: linear-gradient(90deg, #ede9fe 25%, #f5f3ff 50%, #ede9fe 75%);
-            background-size: 200% 100%;
-            border-radius: 8px;
-            animation: td-pulse 1.4s ease-in-out infinite;
+            background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 40%, #ede9fe 80%);
+            background-size: 400px 100%;
+            animation: td-shimmer 1.4s ease-in-out infinite;
+            border-radius: 7px;
+          }
+          .td-load-card {
+            background: #fff;
+            border: 1px solid #e8e1f5;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(76,29,149,0.09);
+            width: min(580px, 92vw);
+            overflow: hidden;
+            animation: td-fadein 0.35s ease both;
+          }
+          .td-load-header {
+            background: linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%);
+            padding: 28px 28px 24px;
+            display: flex; flex-direction: column; gap: 14px;
+          }
+          .td-load-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+          .td-load-row  { display: flex; gap: 10px; align-items: center; }
+          .td-skel-light {
+            background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.3) 40%, rgba(255,255,255,0.15) 80%);
+            background-size: 400px 100%;
+            animation: td-shimmer 1.4s ease-in-out infinite;
+            border-radius: 7px;
+          }
+          .td-load-spinner-wrap {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 4px;
+          }
+          .td-spin-ring {
+            width: 20px; height: 20px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.25);
+            border-top-color: #c4b5fd;
+            animation: td-spin 0.75s linear infinite;
+            flex-shrink: 0;
           }
         `}</style>
-        <main className="td-main">
-          <div className="td-loading" style={{ padding: "20px" }}>
-            {/* Header Skeleton */}
-            <div style={{
-              background: "#7c3aed",
-              borderRadius: "12px",
-              padding: "20px",
-              marginBottom: "24px",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px"
-            }}>
-              <div className="td-skel" style={{ width: 24, height: 24, borderRadius: "50%" }} />
-              <div style={{ flex: 1 }}>
-                <div className="td-skel" style={{ height: 14, width: "30%", marginBottom: "8px" }} />
-                <div className="td-skel" style={{ height: 20, width: "40%" }} />
+
+        <div className="td-load-card">
+          {/* Header — mimics the violet task header */}
+          <div className="td-load-header">
+            <div className="td-load-spinner-wrap">
+              <div className="td-spin-ring" />
+              <span style={{ color: "rgba(196,181,253,0.8)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                Loading task details
+              </span>
+            </div>
+            {/* Title skeleton */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="td-skel-light" style={{ height: 22, width: "65%" }} />
+              <div className="td-skel-light" style={{ height: 13, width: "45%" }} />
+            </div>
+            {/* Chips row */}
+            <div className="td-load-row" style={{ gap: 8 }}>
+              <div className="td-skel-light" style={{ height: 24, width: 72, borderRadius: 99 }} />
+              <div className="td-skel-light" style={{ height: 24, width: 88, borderRadius: 99 }} />
+              <div className="td-skel-light" style={{ height: 24, width: 60, borderRadius: 99 }} />
+            </div>
+          </div>
+
+          {/* Body — mimics the description + meta sections */}
+          <div className="td-load-body">
+            {/* Avatar + name row */}
+            <div className="td-load-row">
+              <div className="td-skel" style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                <div className="td-skel" style={{ height: 13, width: "55%" }} />
+                <div className="td-skel" style={{ height: 11, width: "35%" }} />
               </div>
-              <div className="td-skel" style={{ width: 80, height: 32, borderRadius: "8px" }} />
-              <div className="td-skel" style={{ width: 80, height: 32, borderRadius: "8px" }} />
             </div>
 
-            {/* Content Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "24px" }}>
-              {[1, 2, 3].map((i) => (
-                <div key={i} style={{
-                  background: "#fff",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  border: "1px solid #e5e7eb"
-                }}>
-                  <div className="td-skel" style={{ height: 16, marginBottom: "12px" }} />
-                  <div className="td-skel" style={{ height: 12, width: "80%", marginBottom: "8px" }} />
-                  <div className="td-skel" style={{ height: 12, width: "60%" }} />
+            {/* Divider */}
+            <div style={{ height: 1, background: "#f0eafc" }} />
+
+            {/* Description lines */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="td-skel" style={{ height: 12, width: "90%" }} />
+              <div className="td-skel" style={{ height: 12, width: "80%" }} />
+              <div className="td-skel" style={{ height: 12, width: "60%" }} />
+            </div>
+
+            {/* Meta grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {[80, 65, 70, 55].map((w, i) => (
+                <div key={i} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                  <div className="td-skel" style={{ height: 10, width: `${w * 0.6}%` }} />
+                  <div className="td-skel" style={{ height: 14, width: `${w}%` }} />
                 </div>
               ))}
             </div>
 
-            {/* Main Content Area */}
-            <div style={{
-              background: "#fff",
-              borderRadius: "8px",
-              padding: "20px",
-              border: "1px solid #e5e7eb"
-            }}>
-              <div className="td-skel" style={{ height: 20, width: "25%", marginBottom: "16px" }} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "12px" }}>
-                {[1, 2, 3, 4, 5].map((row) => (
-                  <div key={row} style={{ display: "contents" }}>
-                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
-                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
-                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
-                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
-                    <div className="td-skel" style={{ height: 12, gridColumn: "span 1" }} />
-                  </div>
-                ))}
-              </div>
+            {/* Action buttons */}
+            <div className="td-load-row" style={{ marginTop: 4 }}>
+              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
+              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
             </div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
@@ -857,6 +909,27 @@ export default function TaskDetail() {
                 </section>
 
                 {isFacultyView && (
+                  isUnderReview ? (
+                    <section className="td-card">
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 20px", textAlign: "center" }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdf4", border: "1.5px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Icon name="shield" size={22} />
+                        </div>
+                        <div>
+                          <strong style={{ display: "block", fontSize: 15, fontWeight: 800, color: "#27213a", marginBottom: 6, fontFamily: "Manrope,'DM Sans',sans-serif" }}>
+                            Your submission is under review
+                          </strong>
+                          <p style={{ margin: 0, fontSize: 12, color: "#6b5f76", lineHeight: 1.6 }}>
+                            The program chair is reviewing your submitted work. You cannot make changes while it is in review. You will be notified once a decision is made.
+                          </p>
+                        </div>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 99, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", fontSize: 11, fontWeight: 800 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 0 3px rgba(34,197,94,0.2)" }} />
+                          Currently in review
+                        </div>
+                      </div>
+                    </section>
+                  ) : (
                   <section className="td-card" ref={submissionPanelRef}>
                     <div className="td-section-title">
                       <span className="td-icon">
@@ -955,6 +1028,7 @@ export default function TaskDetail() {
                           : "Submit for chair review"}
                     </button>
                   </section>
+                  )
                 )}
 
                 {latestSubmission && (
@@ -1297,14 +1371,17 @@ export default function TaskDetail() {
                         <button
                           className="td-approve"
                           type="button"
+                          disabled={isUnderReview}
+                          title={isUnderReview ? "Your submission is currently under review." : undefined}
                           onClick={() =>
-                            submissionPanelRef.current?.scrollIntoView({
+                            !isUnderReview && submissionPanelRef.current?.scrollIntoView({
                               behavior: "smooth",
                               block: "center",
                             })
                           }
+                          style={isUnderReview ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
                         >
-                          <Icon name="send" size={14} /> Prepare submission
+                          <Icon name="send" size={14} /> {isUnderReview ? "Under review" : "Prepare submission"}
                         </button>
                         <button
                           className="td-return"
@@ -1364,6 +1441,23 @@ export default function TaskDetail() {
                   )}
                   {!isFacultyView && returnOpen && (
                     <form className="td-return-form" onSubmit={returnTask}>
+                      <label htmlFor="td-return-reason">
+                        Reason <em style={{ color: "#dc2626", fontStyle: "normal", fontWeight: 700 }}>required</em>
+                      </label>
+                      <select
+                        id="td-return-reason"
+                        value={returnReason}
+                        onChange={(event) => { setReturnReason(event.target.value); setReturnError(""); }}
+                        required
+                        style={{ width: "100%", padding: "8px 10px", border: "1px solid #e2dbe9", borderRadius: 8, fontSize: 12, fontFamily: "inherit", color: returnReason ? "#44354f" : "#9a8fa3", background: "#fff", outline: "none", marginBottom: 10, cursor: "pointer" }}
+                      >
+                        <option value="" disabled>Select a reason</option>
+                        <option>Missing information or supporting document</option>
+                        <option>Template or format correction required</option>
+                        <option>Content needs clarification</option>
+                        <option>Required approval or endorsement is missing</option>
+                        <option>Other revision needed</option>
+                      </select>
                       <label htmlFor="td-return-instruction">
                         Instructions for faculty
                       </label>
@@ -1386,6 +1480,8 @@ export default function TaskDetail() {
                           onClick={() => {
                             setReturnOpen(false);
                             setReturnError("");
+                            setReturnReason("");
+                            setReturnInstruction("");
                           }}
                         >
                           Cancel
