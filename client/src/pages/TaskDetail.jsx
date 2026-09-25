@@ -1546,8 +1546,9 @@ export default function TaskDetail() {
                       </div>
                     )}
                     
-                    {/* Display uploaded files for collaborators (excluding the initial task brief) */}
-                    {isCollaborative && task?.attachments && task.attachments.length > 0 && (
+                    {/* Display uploaded files for collaborators during collaborative task review */}
+                    {/* ONLY show for collaborative tasks - NEVER for solo tasks */}
+                    {isCollaborative === true && task?.attachments && task.attachments.length > 0 && (
                       (() => {
                         // Filter out the initial brief attachment (uploaded within 5 seconds of task creation)
                         const collaboratorUploads = task.attachments.filter(file => {
