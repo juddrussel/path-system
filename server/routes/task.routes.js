@@ -1992,16 +1992,16 @@ router.post("/:id/upload-collaborative", requireAuth, upload.array("files"), asy
     for (const file of uploaded) {
       const [result] = await db.query(
         `INSERT INTO task_attachments
-           (task_id, file_name, file_url, size, uploaded_at, uploaded_by_id, uploaded_by_name)
-         VALUES (?, ?, ?, ?, NOW(), ?, ?)`,
-        [taskId, file.originalname, file.url, file.size, req.user.id, req.user.full_name || req.user.username]
+           (task_id, file_name, file_url, size, uploaded_at, uploaded_by)
+         VALUES (?, ?, ?, ?, NOW(), ?)`,
+        [taskId, file.originalname, file.url, file.size, req.user.id]
       );
       savedFiles.push({
         id: result.insertId,
         file_name: file.originalname,
         file_url: file.url,
         size: file.size,
-        uploaded_by_id: req.user.id,
+        uploaded_by: req.user.id,
         uploaded_by_name: req.user.full_name || req.user.username,
         uploaded_at: new Date().toISOString(),
       });
