@@ -1421,7 +1421,7 @@ export default function TaskDetail() {
                   {/* Comments thread */}
                   <div style={{ marginTop: "16px" }}>
                     {comments.length ? (
-                      <div style={{ display: "grid", gap: "12px", marginBottom: "20px" }}>
+                      <div style={{ display: "grid", gap: "12px", marginBottom: "20px", maxHeight: "400px", overflowY: "auto", paddingRight: "8px" }}>
                         {comments.map((item) => {
                           const isReply = item.parentCommentId;
                           return (
