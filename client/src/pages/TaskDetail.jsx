@@ -359,14 +359,7 @@ export default function TaskDetail() {
       ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(latestSubmissionUrl)}`
       : latestSubmissionUrl;
   const hasFacultySubmission = Boolean(latestSubmission);
-  const decisionStatus =
-    !hasFacultySubmission && isChair
-      ? {
-          label: "Awaiting faculty submission",
-          tone: "waiting",
-          note: "Waiting on evidence",
-        }
-      : status;
+  const decisionStatus = status; // Always use the actual task status
   const canApprove =
     isChair && hasFacultySubmission && status.tone === "review";
   const canReturn = isChair && hasFacultySubmission && status.tone === "review";
