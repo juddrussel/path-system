@@ -715,12 +715,18 @@ export default function TaskDetail() {
       return;
     }
     
+    if (!submissionNote.trim()) {
+      setSubmissionError("Add a submission note before uploading.");
+      return;
+    }
+    
     setSubmitting(true);
     setSubmissionError("");
     
     try {
       const formData = new FormData();
       formData.append("files", selectedFile);
+      formData.append("note", submissionNote.trim());
       
       const response = await fetch(`${api}/api/tasks/${task.id}/upload-collaborative`, {
         method: "POST",
@@ -742,8 +748,9 @@ export default function TaskDetail() {
         timestamp: new Date().toISOString(),
       });
       
-      // Clear the selected file
+      // Clear the selected file but keep submission note (allow multiple uploads)
       setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       
       // Reload task to show the newly uploaded file
       await loadTask();

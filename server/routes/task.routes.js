@@ -1961,6 +1961,7 @@ router.post("/:id/attachments", requireAuth, upload.array("files"), async (req, 
 // Upload file for collaborative review (does NOT submit, just for collaborators to see)
 router.post("/:id/upload-collaborative", requireAuth, upload.array("files"), async (req, res) => {
   const taskId = parseInt(req.params.id);
+  const note = req.body.note || null;
   
   try {
     const [taskRows] = await db.query("SELECT * FROM tasks WHERE id = ?", [taskId]);
@@ -2011,11 +2012,11 @@ router.post("/:id/upload-collaborative", requireAuth, upload.array("files"), asy
       });
     }
     
-    // Log the upload
+    // Log the upload with the note
     await writeLog({
       userId: req.user.id,
       action: "TASK_UPLOAD_COLLABORATIVE_FILE",
-      detail: `Uploaded ${uploaded.length} file(s) to collaborative task ${task.tracking_id} for review`,
+      detail: `Uploaded ${uploaded.length} file(s) to collaborative task ${task.tracking_id} for review. Note: ${note || "(none)"}`,
       ipAddress: req.ip,
       documentId: taskId
     });
