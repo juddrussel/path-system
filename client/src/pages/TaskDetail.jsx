@@ -378,6 +378,11 @@ export default function TaskDetail() {
         // Show notification
         setConfirmationMessage(`${data.userName} has confirmed their edits.${data.allConfirmed ? ' All collaborators confirmed! Auto-submitting...' : ''}`);
         setTimeout(() => setConfirmationMessage(""), 4000);
+        
+        // Refresh task data to ensure we have fresh collaborators and attachments
+        if (data.allConfirmed) {
+          setTimeout(() => loadTask(), 300);
+        }
       }
     };
 
@@ -767,16 +772,16 @@ export default function TaskDetail() {
   useEffect(() => {
     if (!isCollaborative || !allConfirmed || submitting) return;
     
-    // Only auto-submit if there's a latest submission (file has been uploaded)
-    if (!latestSubmission) return;
-    
-    // Auto-submit with the latest submission
+    // Auto-submit workflow (don't require files to exist - task is collaborative and all confirmed)
     const autoSubmit = async () => {
       setSubmitting(true);
       setSubmissionError("");
       try {
+        console.log("[Auto-Submit] Triggered: all collaborators confirmed for collaborative task", task?.id);
+        
         // Update status to "For Approval"
         await postStatus("/status", { status: "For Approval" });
+        console.log("[Auto-Submit] Status updated to 'For Approval'");
         
         // Add a system comment noting auto-submission
         await fetch(`${api}/api/tasks/${task.id}/comments`, {
@@ -786,12 +791,14 @@ export default function TaskDetail() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            content: `All collaborators confirmed. Task automatically submitted for chair review.`,
+            content: `All collaborators confirmed. Task automatically submitted to admin and program chair for review.`,
           }),
         });
+        console.log("[Auto-Submit] System comment added");
         
         // Reload task to reflect new status
         await loadTask();
+        console.log("[Auto-Submit] Task reloaded");
         
         // Show success notification
         setConfirmationMessage("✓ All collaborators confirmed! Task automatically submitted to admin and program chair for review.");
@@ -805,9 +812,10 @@ export default function TaskDetail() {
     };
     
     // Trigger auto-submit after a brief delay to ensure UI updates properly
+    console.log("[Auto-Submit Effect] Scheduling auto-submit for task", task?.id);
     const timer = setTimeout(autoSubmit, 500);
     return () => clearTimeout(timer);
-  }, [allConfirmed, isCollaborative, latestSubmission, submitting, task?.id, token, api]);
+  }, [allConfirmed, isCollaborative, submitting, task?.id, token, api]);
 
   // Upload file for review before submission (visible to collaborator)
   const submitWork = async () => {
