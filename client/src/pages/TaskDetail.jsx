@@ -590,14 +590,19 @@ export default function TaskDetail() {
       });
       if (!response.ok) throw new Error("The note could not be posted.");
       
+      const newCommentData = await response.json();
+      
+      // Wait for server response with actual ID before adding to UI
       setComments((current) => [
         ...current,
         {
-          content,
-          sender_name: user.full_name || user.username || "You",
-          author_name: user.full_name || user.username || "You",
-          created_at: new Date().toISOString(),
-          parentCommentId: replyingTo,
+          id: newCommentData.id,
+          content: newCommentData.content || content,
+          sender_name: newCommentData.sender_name || user.full_name || user.username || "You",
+          author_name: newCommentData.author_name || user.full_name || user.username || "You",
+          created_at: newCommentData.created_at || new Date().toISOString(),
+          parentCommentId: newCommentData.parentCommentId || replyingTo,
+          files: newCommentData.files || [],
         },
       ]);
       setComment("");
