@@ -391,6 +391,7 @@ router.delete("/:id", requireAuth, requireAdminOrChair, async (req, res) => {
     await conn.query("DELETE FROM form_templates WHERE created_by = ?", [id]);
     await conn.query("DELETE FROM messages WHERE sender_id = ?", [id]);
     await conn.query("DELETE FROM task_comments WHERE sender_id = ?", [id]);
+    await conn.query("DELETE FROM task_changelog WHERE changed_by = ?", [id]);
     await conn.query("DELETE FROM task_assignments WHERE assigned_to = ?", [id]);
 
     // Tasks this user owns (faculty_id) — their comments must go first,
@@ -420,6 +421,7 @@ router.delete("/:id", requireAuth, requireAdminOrChair, async (req, res) => {
       await conn.query("UPDATE messages SET receiver_id = NULL WHERE receiver_id = ?", [id]);
       await conn.query("UPDATE task_assignments SET assigned_by = NULL WHERE assigned_by = ?", [id]);
       await conn.query("UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?", [id]);
+      await conn.query("UPDATE task_changelog SET changed_by = NULL WHERE changed_by = ?", [id]);
     }
 
     // ── 3. Finally, the user row itself ─────────────────────────────────────
