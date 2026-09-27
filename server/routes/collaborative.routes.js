@@ -207,9 +207,9 @@ router.post("/:id/upload-final-output", requireAuth, upload.single("file"), asyn
       }
     }
 
-    // Reset task status to "In Progress"
+    // Set task status to awaiting confirmation (NOT submitted yet)
     await db.query(
-      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting' WHERE id = ?`,
+      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting', submitted_at = NULL WHERE id = ?`,
       [taskId]
     );
 

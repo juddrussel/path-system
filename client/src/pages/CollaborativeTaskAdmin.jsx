@@ -67,6 +67,7 @@ export default function CollaborativeTaskAdmin() {
   // State
   const [task, setTask] = useState(null);
   const [collaborators, setCollaborators] = useState([]);
+  const [confirmations, setConfirmations] = useState([]);
   const [versions, setVersions] = useState([]);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,6 +95,7 @@ export default function CollaborativeTaskAdmin() {
           ...c,
           tone: getTone(i),
         })));
+        setConfirmations(data.confirmations || []);
         setVersions(data.versions || []);
         setComments(data.comments || []);
         setStatus(data.task?.status || "Submitted");
@@ -175,8 +177,13 @@ export default function CollaborativeTaskAdmin() {
   if (error) return <div style={{ padding: "32px", textAlign: "center", color: "#d32f2f" }}>Error: {error}</div>;
   if (!task) return <div style={{ padding: "32px", textAlign: "center" }}>Task not found</div>;
 
-  const confirmedCount = collaborators.length;
+  // Count confirmed collaborators from the confirmations data
+  const confirmedCount = collaborators.filter(c => 
+    confirmations.some(conf => conf.user_id === c.user_id && conf.status === "confirmed")
+  ).length;
   const currentVersion = versions[0];
+  const allConfirmed = confirmedCount === collaborators.length && collaborators.length > 0;
+  const isReadyForReview = task.status === "For Approval" && allConfirmed;
 
   return (
     <div className="admin-collab">
@@ -283,7 +290,7 @@ export default function CollaborativeTaskAdmin() {
               <div className="admin-heading">
                 <div>
                   <span className="admin-kicker">Collaborator oversight</span>
-                  <h2>Everyone has confirmed the latest output</h2>
+                  <h2>{allConfirmed ? "Everyone has confirmed the latest output" : "Waiting for collaborator confirmations"}</h2>
                 </div>
                 <span className="admin-success">
                   <CheckCircle2 size={13} /> {confirmedCount}/{collaborators.length} confirmed
@@ -293,24 +300,35 @@ export default function CollaborativeTaskAdmin() {
                 Confirmation is locked from the admin view. Use Request revision if the submitted output needs another pass.
               </p>
               <div className="admin-people">
-                {collaborators.map((collab) => (
-                  <div className="admin-person" key={collab.user_id}>
-                    <span className={`admin-avatar ${collab.tone}`}>
-                      {initials(collab.full_name)}
-                    </span>
-                    <div>
-                      <strong>{collab.full_name}</strong>
-                      <small>{collab.role}</small>
+                {collaborators.map((collab) => {
+                  const isConfirmed = confirmations.some(conf => conf.user_id === collab.user_id && conf.status === "confirmed");
+                  return (
+                    <div className="admin-person" key={collab.user_id}>
+                      <span className={`admin-avatar ${collab.tone}`}>
+                        {initials(collab.full_name)}
+                      </span>
+                      <div>
+                        <strong>{collab.full_name}</strong>
+                        <small>{collab.role}</small>
+                      </div>
+                      <span className={isConfirmed ? "admin-confirmed" : "admin-confirmed"} style={{ color: isConfirmed ? "#4d946f" : "#998ba3" }}>
+                        {isConfirmed ? (
+                          <>
+                            <Check size={12} /> Confirmed
+                          </>
+                        ) : (
+                          <>
+                            <Clock3 size={12} /> Pending
+                          </>
+                        )}
+                      </span>
                     </div>
-                    <span className="admin-confirmed">
-                      <Check size={12} /> Confirmed
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
 
-            {currentVersion && (
+            {isReadyForReview && currentVersion && (
               <section className="admin-card">
                 <div className="admin-heading">
                   <div>
