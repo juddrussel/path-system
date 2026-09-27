@@ -530,16 +530,24 @@ router.get("/:id", requireAuth, async (req, res) => {
     // Fetch confirmation details for current version
     let confirmations = [];
     try {
-      const result = await db.query(
-        `SELECT 
-           tc.user_id, u.full_name, u.username,
-           tc.status, tc.confirmed_at, tc.withdrawn_at
-         FROM task_confirmations tc
-         JOIN users u ON tc.user_id = u.id
-         WHERE tc.task_id = ? AND tc.output_version = ?`,
-        [taskId, task.current_output_version || 0]
-      );
-      confirmations = result[0] || [];
+      // Check if task_confirmations table exists first
+      const tableCheck = await db.query(`
+        SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES 
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'task_confirmations'
+      `);
+      
+      if (tableCheck[0] && tableCheck[0].length > 0) {
+        const result = await db.query(
+          `SELECT 
+             tc.user_id, u.full_name, u.username,
+             tc.status, tc.confirmed_at, tc.withdrawn_at
+           FROM task_confirmations tc
+           JOIN users u ON tc.user_id = u.id
+           WHERE tc.task_id = ? AND tc.output_version = ?`,
+          [taskId, task.current_output_version || 0]
+        );
+        confirmations = result[0] || [];
+      }
       console.log(`Found ${confirmations.length} confirmations`);
     } catch (e) {
       console.error("Error fetching confirmations:", e.message);
@@ -549,17 +557,25 @@ router.get("/:id", requireAuth, async (req, res) => {
     // Fetch versions
     let versions = [];
     try {
-      const result = await db.query(
-        `SELECT 
-           tfo.version, tfo.file_url, tfo.file_name, tfo.file_size,
-           tfo.uploaded_by, u.full_name, tfo.upload_note, tfo.created_at
-         FROM task_final_outputs tfo
-         JOIN users u ON tfo.uploaded_by = u.id
-         WHERE tfo.task_id = ?
-         ORDER BY tfo.version DESC`,
-        [taskId]
-      );
-      versions = result[0] || [];
+      // Check if task_final_outputs table exists first
+      const tableCheck = await db.query(`
+        SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES 
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'task_final_outputs'
+      `);
+      
+      if (tableCheck[0] && tableCheck[0].length > 0) {
+        const result = await db.query(
+          `SELECT 
+             tfo.version, tfo.file_url, tfo.file_name, tfo.file_size,
+             tfo.uploaded_by, u.full_name, tfo.upload_note, tfo.created_at
+           FROM task_final_outputs tfo
+           JOIN users u ON tfo.uploaded_by = u.id
+           WHERE tfo.task_id = ?
+           ORDER BY tfo.version DESC`,
+          [taskId]
+        );
+        versions = result[0] || [];
+      }
       console.log(`Found ${versions.length} versions`);
     } catch (e) {
       console.error("Error fetching versions:", e.message);
