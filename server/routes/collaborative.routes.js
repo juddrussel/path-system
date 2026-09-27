@@ -464,73 +464,126 @@ router.get("/:id", requireAuth, async (req, res) => {
     const taskId = parseInt(req.params.id);
     const userId = req.user.id;
 
+    console.log(`[GET /collaborative-tasks/${taskId}] User ${userId} (role: ${req.user.role}) requesting task`);
+
     // Fetch task
-    const [[task]] = await db.query(
-      `SELECT * FROM tasks WHERE id = ?`,
-      [taskId]
-    );
+    let task;
+    try {
+      const result = await db.query(
+        `SELECT * FROM tasks WHERE id = ?`,
+        [taskId]
+      );
+      task = result[0]?.[0];
+    } catch (e) {
+      console.error("Error fetching task:", e.message);
+      throw e;
+    }
 
     if (!task) {
+      console.log(`Task ${taskId} not found`);
       return res.status(404).json({ message: "Task not found." });
     }
 
+    console.log(`Task ${taskId} found:`, { id: task.id, title: task.title, is_collaborative: task.is_collaborative });
+
     // Verify access (collaborator, chair, or admin)
-    const [collabCheck] = await db.query(
-      `SELECT id FROM task_collaborators WHERE task_id = ? AND user_id = ?`,
-      [taskId, userId]
-    );
+    let collabCheck = [];
+    try {
+      const result = await db.query(
+        `SELECT id FROM task_collaborators WHERE task_id = ? AND user_id = ?`,
+        [taskId, userId]
+      );
+      collabCheck = result[0] || [];
+    } catch (e) {
+      console.error("Error checking collaborator status:", e.message);
+    }
 
     const isChair = ADMIN_ROLES.includes(req.user.role);
+    console.log(`Access check: isCollab=${collabCheck.length > 0}, isChair=${isChair}`);
 
     if (collabCheck.length === 0 && !isChair) {
+      console.log(`User ${userId} denied access to task ${taskId}`);
       return res.status(403).json({ message: "You don't have access to this task." });
     }
 
-    // Fetch collaborators with confirmation status
-    const [collaborators] = await db.query(
-      `SELECT 
-         tc.user_id, u.full_name, u.username,
-         tc.role, tc.created_at,
-         tc.confirmed_at, tc.current_version_confirmed
-       FROM task_collaborators tc
-       JOIN users u ON tc.user_id = u.id
-       WHERE tc.task_id = ?
-       ORDER BY u.full_name ASC`,
-      [taskId]
-    );
+    // Fetch collaborators
+    let collaborators = [];
+    try {
+      const result = await db.query(
+        `SELECT 
+           tc.user_id, u.full_name, u.username,
+           tc.role, tc.created_at,
+           tc.confirmed_at, tc.current_version_confirmed
+         FROM task_collaborators tc
+         JOIN users u ON tc.user_id = u.id
+         WHERE tc.task_id = ?
+         ORDER BY u.full_name ASC`,
+        [taskId]
+      );
+      collaborators = result[0] || [];
+      console.log(`Found ${collaborators.length} collaborators`);
+    } catch (e) {
+      console.error("Error fetching collaborators:", e.message);
+      collaborators = [];
+    }
 
-    // Fetch confirmation details for current version (may be empty if no versions yet)
-    const [confirmations] = await db.query(
-      `SELECT 
-         tc.user_id, u.full_name, u.username,
-         tc.status, tc.confirmed_at, tc.withdrawn_at
-       FROM task_confirmations tc
-       JOIN users u ON tc.user_id = u.id
-       WHERE tc.task_id = ? AND tc.output_version = ?`,
-      [taskId, task.current_output_version || 0]
-    ) || [[]];
+    // Fetch confirmation details for current version
+    let confirmations = [];
+    try {
+      const result = await db.query(
+        `SELECT 
+           tc.user_id, u.full_name, u.username,
+           tc.status, tc.confirmed_at, tc.withdrawn_at
+         FROM task_confirmations tc
+         JOIN users u ON tc.user_id = u.id
+         WHERE tc.task_id = ? AND tc.output_version = ?`,
+        [taskId, task.current_output_version || 0]
+      );
+      confirmations = result[0] || [];
+      console.log(`Found ${confirmations.length} confirmations`);
+    } catch (e) {
+      console.error("Error fetching confirmations:", e.message);
+      confirmations = [];
+    }
 
-    // Fetch all final output versions
-    const [versions] = await db.query(
-      `SELECT 
-         tfo.version, tfo.file_url, tfo.file_name, tfo.file_size,
-         tfo.uploaded_by, u.full_name, tfo.upload_note, tfo.created_at
-       FROM task_final_outputs tfo
-       JOIN users u ON tfo.uploaded_by = u.id
-       WHERE tfo.task_id = ?
-       ORDER BY tfo.version DESC`,
-      [taskId]
-    ) || [[]];
+    // Fetch versions
+    let versions = [];
+    try {
+      const result = await db.query(
+        `SELECT 
+           tfo.version, tfo.file_url, tfo.file_name, tfo.file_size,
+           tfo.uploaded_by, u.full_name, tfo.upload_note, tfo.created_at
+         FROM task_final_outputs tfo
+         JOIN users u ON tfo.uploaded_by = u.id
+         WHERE tfo.task_id = ?
+         ORDER BY tfo.version DESC`,
+        [taskId]
+      );
+      versions = result[0] || [];
+      console.log(`Found ${versions.length} versions`);
+    } catch (e) {
+      console.error("Error fetching versions:", e.message);
+      versions = [];
+    }
 
-    // Fetch comments (may be empty initially)
-    const [comments] = await db.query(
-      `SELECT tc.*, u.full_name, u.username FROM task_comments tc
-       JOIN users u ON tc.user_id = u.id
-       WHERE tc.task_id = ?
-       ORDER BY tc.created_at ASC`,
-      [taskId]
-    ) || [[]];
+    // Fetch comments
+    let comments = [];
+    try {
+      const result = await db.query(
+        `SELECT tc.*, u.full_name, u.username FROM task_comments tc
+         JOIN users u ON tc.user_id = u.id
+         WHERE tc.task_id = ?
+         ORDER BY tc.created_at ASC`,
+        [taskId]
+      );
+      comments = result[0] || [];
+      console.log(`Found ${comments.length} comments`);
+    } catch (e) {
+      console.error("Error fetching comments:", e.message);
+      comments = [];
+    }
 
+    console.log(`Successfully loaded collaborative task ${taskId}`);
     return res.json({
       task,
       collaborators,
@@ -539,8 +592,8 @@ router.get("/:id", requireAuth, async (req, res) => {
       comments,
     });
   } catch (err) {
-    console.error("GET /collaborative-tasks/:id error:", err);
-    return res.status(500).json({ message: "Internal server error." });
+    console.error("GET /collaborative-tasks/:id FATAL error:", err);
+    return res.status(500).json({ message: "Internal server error.", error: err.message });
   }
 });
 
