@@ -71,6 +71,7 @@ export default function CollaborativeTaskDetail() {
   const [collaborators, setCollaborators] = useState([]);
   const [versions, setVersions] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Awaiting Confirmation");
@@ -108,6 +109,7 @@ export default function CollaborativeTaskDetail() {
         })));
         setVersions(data.versions || []);
         setMessages(data.comments || []);
+        setAttachments(data.attachments || []);
         setStatus(data.task?.status || "Awaiting Confirmation");
         
         socket.emit("join_task", { taskId: parseInt(taskId) });
@@ -412,64 +414,67 @@ export default function CollaborativeTaskDetail() {
                 </div>
               </div>
 
-              {task.attachment_url || task.file_url ? (
+              {attachments.length > 0 ? (
                 <div style={{ marginTop: "14px" }}>
                   <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
                     Instruction attachment
                   </span>
-                  <div style={{
-                    padding: "10px",
-                    border: "1px solid #e2d6ef",
-                    borderRadius: "8px",
-                    background: "#fbf8ff",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px"
-                  }}>
-                    <span style={{
-                      display: "grid",
-                      width: "32px",
-                      height: "32px",
-                      placeItems: "center",
-                      borderRadius: "7px",
-                      background: "#eee5fb",
-                      color: "#7043b7",
-                      fontSize: "14px",
-                      flexShrink: 0
+                  {attachments.map((attach, idx) => (
+                    <div key={idx} style={{
+                      padding: "10px",
+                      border: "1px solid #e2d6ef",
+                      borderRadius: "8px",
+                      background: "#fbf8ff",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: idx < attachments.length - 1 ? "8px" : 0
                     }}>
-                      📄
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <strong style={{ display: "block", color: "#5a4567", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {task.file_name || "Instruction document"}
-                      </strong>
-                      <small style={{ display: "block", marginTop: "3px", color: "#978ba1", fontSize: "8px" }}>
-                        Uploaded by assigner
-                      </small>
-                    </div>
-                    <a
-                      href={r2ToProxyUrl(api, task.attachment_url || task.file_url)}
-                      download={task.file_name || "instruction"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "5px",
-                        padding: "6px 10px",
-                        borderRadius: "6px",
+                      <span style={{
+                        display: "grid",
+                        width: "32px",
+                        height: "32px",
+                        placeItems: "center",
+                        borderRadius: "7px",
                         background: "#eee5fb",
-                        color: "#7043b6",
-                        textDecoration: "none",
-                        fontSize: "8px",
-                        fontWeight: 800,
-                        whiteSpace: "nowrap",
+                        color: "#7043b7",
+                        fontSize: "14px",
                         flexShrink: 0
-                      }}
-                    >
-                      <FileImage size={12} /> Open
-                    </a>
-                  </div>
+                      }}>
+                        📄
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <strong style={{ display: "block", color: "#5a4567", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {attach.file_name}
+                        </strong>
+                        <small style={{ display: "block", marginTop: "3px", color: "#978ba1", fontSize: "8px" }}>
+                          Uploaded by assigner
+                        </small>
+                      </div>
+                      <a
+                        href={r2ToProxyUrl(api, attach.file_url)}
+                        download={attach.file_name}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "6px 10px",
+                          borderRadius: "6px",
+                          background: "#eee5fb",
+                          color: "#7043b6",
+                          textDecoration: "none",
+                          fontSize: "8px",
+                          fontWeight: 800,
+                          whiteSpace: "nowrap",
+                          flexShrink: 0
+                        }}
+                      >
+                        <FileImage size={12} /> Open
+                      </a>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div style={{ marginTop: "14px", padding: "10px", borderRadius: "8px", background: "#f5f0fb", border: "1px dashed #d9cbe6" }}>
