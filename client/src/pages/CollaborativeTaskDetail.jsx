@@ -277,7 +277,7 @@ export default function CollaborativeTaskDetail() {
   if (!task) return <div style={{ padding: "32px", textAlign: "center" }}>Task not found</div>;
 
   const confirmedCount = collaborators.filter(c => c.confirmed).length;
-  const pendingNames = useMemo(() => collaborators.filter(c => !c.confirmed).map(c => c.full_name.split(" ")[0]), [collaborators]);
+  const pendingNames = collaborators.filter(c => !c.confirmed).map(c => c.full_name.split(" ")[0]);
 
   return (
     <div className="collab-standalone">
