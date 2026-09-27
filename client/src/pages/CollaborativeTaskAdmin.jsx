@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
+import { r2ToProxyUrl } from "../utils/r2ProxyHelper.js";
 
 const ADMIN_ROLES = ["admin", "program_chair"];
 
@@ -351,7 +352,20 @@ export default function CollaborativeTaskAdmin() {
                     </small>
                     <p>{currentVersion.upload_note || "Final group output"}</p>
                   </div>
-                  <button type="button" aria-label="Download submitted file">
+                  <button 
+                    type="button" 
+                    aria-label="Download submitted file"
+                    onClick={() => {
+                      const url = r2ToProxyUrl(api, currentVersion.file_url);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = currentVersion.file_name;
+                      a.target = '_blank';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    }}
+                  >
                     <Download size={15} />
                   </button>
                 </div>

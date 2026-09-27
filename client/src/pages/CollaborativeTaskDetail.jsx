@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
+import { r2ToProxyUrl } from "../utils/r2ProxyHelper.js";
 
 const ADMIN_ROLES = ["admin", "program_chair"];
 
@@ -386,7 +387,7 @@ export default function CollaborativeTaskDetail() {
                   </div>
                   <em>{status}</em>
                   <a
-                    href={versions[0].file_url}
+                    href={r2ToProxyUrl(api, versions[0].file_url)}
                     download={versions[0].file_name}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -559,7 +560,7 @@ export default function CollaborativeTaskDetail() {
                         <em>{item.version === versions[0].version ? "Current" : "Previous"}</em>
                       </div>
                       <a
-                        href={item.file_url}
+                        href={r2ToProxyUrl(api, item.file_url)}
                         download={item.file_name}
                         target="_blank"
                         rel="noopener noreferrer"
