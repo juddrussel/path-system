@@ -312,6 +312,7 @@ export default function CollaborativeTaskDetail() {
   };
 
   if (loading) return <div style={{ padding: "32px", textAlign: "center" }}>Loading...</div>;
+  if (error) return <div style={{ padding: "32px", textAlign: "center", color: "#d32f2f" }}>Error: {error}</div>;
   if (!task) return <div style={{ padding: "32px", textAlign: "center" }}>Task not found</div>;
 
   const confirmedCount = confirmations.filter(c => c.status === "confirmed").length;
