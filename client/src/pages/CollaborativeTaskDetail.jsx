@@ -236,10 +236,17 @@ export default function CollaborativeTaskDetail() {
       }
     });
 
+    socket.on("collaborative:comment_posted", (comment) => {
+      if (comment.task_id === task.id) {
+        setComments((prev) => [comment, ...prev]);
+      }
+    });
+
     return () => {
       socket.off("collaborative:confirmed");
       socket.off("collaborative:withdrawn");
       socket.off("collaborative:output_updated");
+      socket.off("collaborative:comment_posted");
     };
   }, [task]);
 
@@ -255,6 +262,26 @@ export default function CollaborativeTaskDetail() {
       if (data.autoSubmitted) {
         setTask((prev) => ({ ...prev, status: "For Approval" }));
       }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handlePostComment = async () => {
+    if (!messageDraft.trim()) return;
+    try {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: messageDraft }),
+      });
+      if (!response.ok) throw new Error("Failed to post comment");
+      const newComment = await response.json();
+      setComments((prev) => [newComment, ...prev]);
+      setMessageDraft("");
     } catch (err) {
       setError(err.message);
     }
@@ -534,7 +561,7 @@ export default function CollaborativeTaskDetail() {
                     <small>Ctrl / Cmd + Enter to send</small>
                     <span className="collab-composer-actions">
                       <button
-                        onClick={() => setMessageDraft("")}
+                        onClick={handlePostComment}
                         disabled={!messageDraft.trim()}
                       >
                         <Send size={14} /> Send

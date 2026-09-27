@@ -467,6 +467,25 @@ async function runCollaborativeMigration() {
     `);
     console.log("[Startup] ✓ task_collaborators table updated");
 
+    // 5. Create task_comments table (if it doesn't exist)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS task_comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        task_id INT NOT NULL,
+        user_id INT NOT NULL,
+        content LONGTEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_task_id (task_id),
+        INDEX idx_user_id (user_id),
+        INDEX idx_created_at (created_at),
+        FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[Startup] ✓ task_comments table created");
+
     console.log("[Startup] ✓ Collaborative tasks schema migration completed successfully!");
   } catch (err) {
     console.error("[Startup] Migration error:", err.message);
