@@ -521,7 +521,12 @@ router.get("/:id", requireAuth, async (req, res) => {
         [taskId]
       );
       collaborators = result[0] || [];
-      console.log(`Found ${collaborators.length} collaborators`);
+      console.log(`[GET Task ${taskId}] Found ${collaborators.length} collaborators`);
+      if (collaborators.length === 0) {
+        console.log(`[GET Task ${taskId}] WARNING: No collaborators found! Checking task_collaborators table...`);
+        const [debugCollabs] = await db.query(`SELECT * FROM task_collaborators WHERE task_id = ?`, [taskId]);
+        console.log(`[GET Task ${taskId}] Raw task_collaborators rows:`, debugCollabs);
+      }
     } catch (e) {
       console.error("Error fetching collaborators:", e.message);
       collaborators = [];

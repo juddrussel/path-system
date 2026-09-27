@@ -180,6 +180,9 @@ export default function CollaborativeTaskDetail() {
         setConfirmations(data.confirmations || []);
         setVersions(data.versions || []);
         setComments(data.comments || []);
+        
+        // Join socket room for this task
+        socket.emit("join_task", { taskId: parseInt(taskId) });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -188,6 +191,10 @@ export default function CollaborativeTaskDetail() {
     };
 
     if (taskId && token) loadTask();
+    
+    return () => {
+      socket.emit("leave_task", { taskId: parseInt(taskId) });
+    };
   }, [taskId, token, api]);
 
   // Socket listeners
