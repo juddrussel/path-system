@@ -409,12 +409,14 @@ export default function CollaborativeTaskDetail() {
                         </>
                       )}
                     </span>
-                    <button
-                      className="collab-toggle"
-                      onClick={() => toggleConfirmation(collab.user_id)}
-                    >
-                      {collab.confirmed ? "Withdraw" : "Confirm"}
-                    </button>
+                    {collab.user_id === user.id && (
+                      <button
+                        className="collab-toggle"
+                        onClick={() => toggleConfirmation(collab.user_id)}
+                      >
+                        {collab.confirmed ? "Withdraw" : "Confirm"}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
