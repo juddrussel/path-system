@@ -614,3 +614,92 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 module.exports = router;
+
+
+// ─── POST /api/collaborative-tasks/migrate (Admin only) ───────────────────────
+// Runs the collaborative tasks database migration
+// This endpoint exists to set up the schema without manual SQL access
+router.post("/migrate", requireAuth, requireChairOrAdmin, async (req, res) => {
+  try {
+    console.log("[Migrate] Starting collaborative tasks schema update...");
+
+    // 1. Update tasks table
+    await db.query(`
+      ALTER TABLE tasks 
+      ADD COLUMN IF NOT EXISTS assignment_type ENUM('individual','collaborative') DEFAULT 'individual' AFTER is_collaborative,
+      ADD COLUMN IF NOT EXISTS current_output_version INT DEFAULT 0 AFTER assignment_type,
+      ADD COLUMN IF NOT EXISTS all_confirmed_at DATETIME AFTER current_output_version,
+      ADD COLUMN IF NOT EXISTS submitted_at DATETIME AFTER all_confirmed_at
+    `);
+    console.log("✓ tasks table updated");
+
+    // 2. Create task_final_outputs table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS task_final_outputs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        task_id INT NOT NULL,
+        version INT NOT NULL,
+        file_url VARCHAR(1024) NOT NULL,
+        file_name VARCHAR(255) NOT NULL,
+        file_size BIGINT,
+        uploaded_by INT NOT NULL,
+        upload_note TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        
+        UNIQUE KEY unique_task_version (task_id, version),
+        INDEX idx_task_id (task_id),
+        INDEX idx_created_at (created_at),
+        FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY (uploaded_by) REFERENCES users(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("✓ task_final_outputs table created");
+
+    // 3. Create task_confirmations table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS task_confirmations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        task_id INT NOT NULL,
+        user_id INT NOT NULL,
+        output_version INT NOT NULL,
+        confirmed_at DATETIME,
+        withdrawn_at DATETIME,
+        status ENUM('pending','confirmed','withdrawn') DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
+        
+        UNIQUE KEY unique_user_version (task_id, user_id, output_version),
+        INDEX idx_task_id (task_id),
+        INDEX idx_user_id (user_id),
+        INDEX idx_status (status),
+        FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("✓ task_confirmations table created");
+
+    // 4. Update task_collaborators table
+    await db.query(`
+      ALTER TABLE task_collaborators 
+      ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'contributor' AFTER user_id,
+      ADD COLUMN IF NOT EXISTS current_version_confirmed TINYINT DEFAULT 0 AFTER confirmed_at
+    `);
+    console.log("✓ task_collaborators table updated");
+
+    console.log("[Migrate] ✓ All schema updates completed successfully!");
+    return res.json({
+      message: "Migration completed successfully!",
+      updates: [
+        "tasks table updated with assignment_type, current_output_version, all_confirmed_at, submitted_at",
+        "task_final_outputs table created",
+        "task_confirmations table created",
+        "task_collaborators table updated with role and current_version_confirmed"
+      ]
+    });
+  } catch (err) {
+    console.error("[Migrate] Error:", err);
+    return res.status(500).json({ message: "Migration failed.", error: err.message });
+  }
+});
+
+module.exports = router;
