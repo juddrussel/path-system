@@ -354,6 +354,17 @@ export default function CollaborativeTaskDetail() {
   const currentUserConfirmed = confirmations.find(c => c.user_id === user.id)?.status === "confirmed";
   const isCollaborator = collaborators.some(c => c.user_id === user.id);
 
+  // DEBUG: Log data state
+  console.log("DEBUG COLLAB PAGE", {
+    taskId,
+    task: task?.id,
+    collaborators: collaborators.length,
+    confirmations: confirmations.length,
+    versions: versions.length,
+    comments: comments.length,
+    isCollaborator,
+  });
+
   return (
     <div className="collab-standalone">
       <style>{collaborativeTaskStyles}</style>
@@ -419,33 +430,39 @@ export default function CollaborativeTaskDetail() {
               <p className="collab-muted">Every collaborator confirms the current version.</p>
 
               <div className="collab-people">
-                {collaborators.map((collab) => {
-                  const confirmation = confirmations.find(
-                    c => c.user_id === collab.user_id && c.output_version === task.current_output_version
-                  );
-                  const isConfirmed = confirmation?.status === "confirmed";
+                {collaborators.length > 0 ? (
+                  collaborators.map((collab) => {
+                    const confirmation = confirmations.find(
+                      c => c.user_id === collab.user_id && c.output_version === task.current_output_version
+                    );
+                    const isConfirmed = confirmation?.status === "confirmed";
 
-                  return (
-                    <div className="collab-person" key={collab.user_id}>
-                      <span className="collab-avatar">{initials(collab.full_name)}</span>
-                      <div className="collab-person-copy">
-                        <strong>{collab.full_name}</strong>
-                        <small>{collab.role}</small>
+                    return (
+                      <div className="collab-person" key={collab.user_id}>
+                        <span className="collab-avatar">{initials(collab.full_name)}</span>
+                        <div className="collab-person-copy">
+                          <strong>{collab.full_name}</strong>
+                          <small>{collab.role}</small>
+                        </div>
+                        <span className={`collab-person-status ${isConfirmed ? "confirmed" : ""}`}>
+                          {isConfirmed ? (
+                            <>
+                              <Check size={12} /> Confirmed
+                            </>
+                          ) : (
+                            <>
+                              <Clock3 size={12} /> Pending
+                            </>
+                          )}
+                        </span>
                       </div>
-                      <span className={`collab-person-status ${isConfirmed ? "confirmed" : ""}`}>
-                        {isConfirmed ? (
-                          <>
-                            <Check size={12} /> Confirmed
-                          </>
-                        ) : (
-                          <>
-                            <Clock3 size={12} /> Pending
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: "12px", color: "#8d7f97", fontSize: "12px" }}>
+                    No collaborators found for this task.
+                  </div>
+                )}
               </div>
 
               {isCollaborator && task.status !== "For Approval" && (
@@ -514,7 +531,7 @@ export default function CollaborativeTaskDetail() {
                 </>
               )}
 
-              {versions.length > 0 && (
+              {versions.length > 0 ? (
                 <div className="collab-history">
                   {versions.map((v) => (
                     <div key={`v${v.version}`}>
@@ -526,6 +543,10 @@ export default function CollaborativeTaskDetail() {
                       <em>{v.version === task.current_output_version ? "Current" : "Previous"}</em>
                     </div>
                   ))}
+                </div>
+              ) : (
+                <div style={{ padding: "12px", color: "#8d7f97", fontSize: "12px", marginTop: "12px" }}>
+                  No versions uploaded yet.
                 </div>
               )}
             </section>
@@ -542,18 +563,24 @@ export default function CollaborativeTaskDetail() {
               </div>
 
               <div className="collab-messages">
-                {comments.map((comment) => (
-                  <div className="collab-message" key={comment.id}>
-                    <span className="collab-avatar">{initials(comment.full_name)}</span>
-                    <div className="collab-message-content">
-                      <header>
-                        <strong>{comment.full_name}</strong>
-                        <small>{formatDate(comment.created_at)}</small>
-                      </header>
-                      <p>{comment.content}</p>
+                {comments.length > 0 ? (
+                  comments.map((comment) => (
+                    <div className="collab-message" key={comment.id}>
+                      <span className="collab-avatar">{initials(comment.full_name)}</span>
+                      <div className="collab-message-content">
+                        <header>
+                          <strong>{comment.full_name}</strong>
+                          <small>{formatDate(comment.created_at)}</small>
+                        </header>
+                        <p>{comment.content}</p>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div style={{ padding: "12px", color: "#8d7f97", fontSize: "12px" }}>
+                    No comments yet. Start a discussion!
                   </div>
-                ))}
+                )}
               </div>
 
               {isCollaborator && (
