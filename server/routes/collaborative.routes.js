@@ -475,14 +475,14 @@ router.get("/:id", requireAuth, async (req, res) => {
     }
 
     // Verify access (collaborator, chair, or admin)
-    const isCollab = await db.query(
+    const [collabCheck] = await db.query(
       `SELECT id FROM task_collaborators WHERE task_id = ? AND user_id = ?`,
       [taskId, userId]
     );
 
     const isChair = ADMIN_ROLES.includes(req.user.role);
 
-    if (isCollab.length === 0 && !isChair) {
+    if (collabCheck.length === 0 && !isChair) {
       return res.status(403).json({ message: "You don't have access to this task." });
     }
 
@@ -499,7 +499,7 @@ router.get("/:id", requireAuth, async (req, res) => {
       [taskId]
     );
 
-    // Fetch confirmation details for current version
+    // Fetch confirmation details for current version (may be empty if no versions yet)
     const [confirmations] = await db.query(
       `SELECT 
          tc.user_id, u.full_name, u.username,
@@ -507,8 +507,8 @@ router.get("/:id", requireAuth, async (req, res) => {
        FROM task_confirmations tc
        JOIN users u ON tc.user_id = u.id
        WHERE tc.task_id = ? AND tc.output_version = ?`,
-      [taskId, task.current_output_version]
-    );
+      [taskId, task.current_output_version || 0]
+    ) || [[]];
 
     // Fetch all final output versions
     const [versions] = await db.query(
@@ -520,16 +520,16 @@ router.get("/:id", requireAuth, async (req, res) => {
        WHERE tfo.task_id = ?
        ORDER BY tfo.version DESC`,
       [taskId]
-    );
+    ) || [[]];
 
-    // Fetch comments
+    // Fetch comments (may be empty initially)
     const [comments] = await db.query(
       `SELECT tc.*, u.full_name, u.username FROM task_comments tc
        JOIN users u ON tc.user_id = u.id
        WHERE tc.task_id = ?
        ORDER BY tc.created_at ASC`,
       [taskId]
-    );
+    ) || [[]];
 
     return res.json({
       task,
