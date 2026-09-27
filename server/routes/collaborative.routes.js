@@ -621,6 +621,50 @@ router.get("/:id", requireAuth, async (req, res) => {
 module.exports = router;
 
 
+// ─── GET /api/collaborative-tasks/:id/debug ────────────────────────────────
+// Debug endpoint to see raw data in database
+router.get("/:id/debug", requireAuth, async (req, res) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    
+    // Raw check: what's in task_collaborators?
+    const [collabs] = await db.query(
+      `SELECT * FROM task_collaborators WHERE task_id = ?`,
+      [taskId]
+    );
+    
+    // Raw check: what's in tasks?
+    const [tasks] = await db.query(
+      `SELECT id, title, is_collaborative, assignment_type FROM tasks WHERE id = ?`,
+      [taskId]
+    );
+    
+    // Raw check: what's in task_confirmations?
+    const [confs] = await db.query(
+      `SELECT * FROM task_confirmations WHERE task_id = ?`,
+      [taskId]
+    );
+    
+    // Raw check: what's in task_final_outputs?
+    const [outs] = await db.query(
+      `SELECT * FROM task_final_outputs WHERE task_id = ?`,
+      [taskId]
+    );
+
+    res.json({
+      task: tasks[0],
+      task_collaborators_count: collabs.length,
+      task_collaborators: collabs,
+      task_confirmations_count: confs.length,
+      task_confirmations: confs.slice(0, 3),
+      task_final_outputs_count: outs.length,
+      task_final_outputs: outs,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── POST /api/collaborative-tasks/:id/comment ──────────────────────────────
 // Add a comment/working note to a collaborative task
 router.post("/:id/comment", requireAuth, async (req, res) => {
