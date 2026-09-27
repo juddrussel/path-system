@@ -623,7 +623,7 @@ module.exports = router;
 
 // ─── GET /api/collaborative-tasks/:id/debug ────────────────────────────────
 // Debug endpoint to see raw data in database
-router.get("/:id/debug", async (req, res) => {
+router.get("/:id/debug", requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     
@@ -633,9 +633,9 @@ router.get("/:id/debug", async (req, res) => {
       [taskId]
     );
     
-    // Raw check: what's in tasks?
+    // Raw check: what's in tasks? (only basic columns)
     const [tasks] = await db.query(
-      `SELECT id, title, is_collaborative, assignment_type FROM tasks WHERE id = ?`,
+      `SELECT id, title, is_collaborative FROM tasks WHERE id = ?`,
       [taskId]
     );
     
