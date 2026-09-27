@@ -392,6 +392,100 @@ export default function CollaborativeTaskDetail() {
             <section className="collab-card">
               <div className="collab-heading">
                 <div>
+                  <span className="collab-kicker">
+                    <FileText size={12} /> Instructions
+                  </span>
+                  <h2>{task.title}</h2>
+                </div>
+              </div>
+              
+              <div style={{ marginTop: "14px" }}>
+                <div style={{
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background: "#f5f0fb",
+                  borderLeft: "3px solid #7c3aed"
+                }}>
+                  <p style={{ margin: 0, color: "#5d4867", fontSize: "11px", lineHeight: "1.6" }}>
+                    {task.notes || task.description || "Complete the requested work, check source records, and provide a concise submission note for the reviewer."}
+                  </p>
+                </div>
+              </div>
+
+              {task.attachment_url || task.file_url ? (
+                <div style={{ marginTop: "14px" }}>
+                  <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
+                    Instruction attachment
+                  </span>
+                  <div style={{
+                    padding: "10px",
+                    border: "1px solid #e2d6ef",
+                    borderRadius: "8px",
+                    background: "#fbf8ff",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px"
+                  }}>
+                    <span style={{
+                      display: "grid",
+                      width: "32px",
+                      height: "32px",
+                      placeItems: "center",
+                      borderRadius: "7px",
+                      background: "#eee5fb",
+                      color: "#7043b7",
+                      fontSize: "14px",
+                      flexShrink: 0
+                    }}>
+                      📄
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <strong style={{ display: "block", color: "#5a4567", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {task.file_name || "Instruction document"}
+                      </strong>
+                      <small style={{ display: "block", marginTop: "3px", color: "#978ba1", fontSize: "8px" }}>
+                        Uploaded by assigner
+                      </small>
+                    </div>
+                    <a
+                      href={r2ToProxyUrl(api, task.attachment_url || task.file_url)}
+                      download={task.file_name || "instruction"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        padding: "6px 10px",
+                        borderRadius: "6px",
+                        background: "#eee5fb",
+                        color: "#7043b6",
+                        textDecoration: "none",
+                        fontSize: "8px",
+                        fontWeight: 800,
+                        whiteSpace: "nowrap",
+                        flexShrink: 0
+                      }}
+                    >
+                      <FileImage size={12} /> Open
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ marginTop: "14px", padding: "10px", borderRadius: "8px", background: "#f5f0fb", border: "1px dashed #d9cbe6" }}>
+                  <span style={{ fontSize: "8px", fontWeight: 800, color: "#9b8ba2", display: "flex", alignItems: "center", gap: "6px" }}>
+                    ℹ️ No instruction attachment
+                  </span>
+                  <small style={{ display: "block", marginTop: "4px", color: "#978ba1", fontSize: "8px" }}>
+                    The instructions above are the active task brief.
+                  </small>
+                </div>
+              )}
+            </section>
+
+            <section className="collab-card">
+              <div className="collab-heading">
+                <div>
                   <span className="collab-kicker">Confirmation gate</span>
                   <h2>Confirm the latest final output</h2>
                 </div>
