@@ -385,6 +385,27 @@ export default function CollaborativeTaskDetail() {
                     <small>{versions[0].uploaded_by} · {formatDate(versions[0].created_at)}</small>
                   </div>
                   <em>{status}</em>
+                  <a
+                    href={versions[0].file_url}
+                    download={versions[0].file_name}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      background: "#eee5fb",
+                      color: "#7043b6",
+                      textDecoration: "none",
+                      fontSize: "8px",
+                      fontWeight: 800,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <FileImage size={12} /> Open
+                  </a>
                 </div>
               )}
 
@@ -492,13 +513,37 @@ export default function CollaborativeTaskDetail() {
               {versions.length > 0 && (
                 <div className="collab-history">
                   {versions.map((item) => (
-                    <div key={`${item.version}-${item.file_name}`}>
-                      <span>v{item.version}</span>
-                      <div>
-                        <strong>{item.file_name}</strong>
-                        <small>{item.upload_note || "Version uploaded"}</small>
+                    <div key={`${item.version}-${item.file_name}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span>v{item.version}</span>
+                        <div>
+                          <strong>{item.file_name}</strong>
+                          <small>{item.upload_note || "Version uploaded"}</small>
+                        </div>
+                        <em>{item.version === versions[0].version ? "Current" : "Previous"}</em>
                       </div>
-                      <em>{item.version === versions[0].version ? "Current" : "Previous"}</em>
+                      <a
+                        href={item.file_url}
+                        download={item.file_name}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "6px 10px",
+                          borderRadius: "6px",
+                          background: "#eee5fb",
+                          color: "#7043b6",
+                          textDecoration: "none",
+                          fontSize: "8px",
+                          fontWeight: 800,
+                          whiteSpace: "nowrap",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <FileImage size={12} /> Download
+                      </a>
                     </div>
                   ))}
                 </div>
