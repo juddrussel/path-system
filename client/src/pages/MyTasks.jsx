@@ -1879,7 +1879,12 @@ export default function MyTasks() {
         return;
       }
 
-      navigate(`/task-details/${taskId}`, {
+      // Route to collaborative detail page if this is a collaborative task
+      const route = task?.is_collaborative 
+        ? `/collaborative-task/${taskId}` 
+        : `/task-details/${taskId}`;
+      
+      navigate(route, {
         state: {
           task,
           viewerRole: canViewAdminNav ? "chair" : "faculty",

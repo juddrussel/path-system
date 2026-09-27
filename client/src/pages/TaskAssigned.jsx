@@ -5549,10 +5549,16 @@ function PathTasksAssignedLayout({
     task?.deadline &&
     new Date(task.deadline) < new Date() &&
     !/approved|done|received/i.test(task.status || "");
-  const openTask = (task) =>
-    navigate(`/task-details/${task.id}`, {
+  const openTask = (task) => {
+    // Route to collaborative detail page if this is a collaborative task
+    const route = task?.is_collaborative 
+      ? `/collaborative-task/${task.id}` 
+      : `/task-details/${task.id}`;
+    
+    navigate(route, {
       state: { task, returnTo: "/task-assigned" },
     });
+  };
 
   return (
     <div className="path-assigned-shell">
