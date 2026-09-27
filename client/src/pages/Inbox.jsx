@@ -2870,7 +2870,7 @@ export default function Inbox() {
                             fontSize: 13.5, lineHeight: 1.5, wordBreak: "break-word",
                           }}>
                             {msg.file_url
-                              ? <a href={msg.file_url} target="_blank" rel="noreferrer" download={msg.file_name} style={{ display: "flex", alignItems: "center", gap: 6, color: isMine ? "white" : "#6b38d4", textDecoration: "none", fontSize: 12 }}>
+                              ? <a href={resolveUrl(msg.file_url)} target="_blank" rel="noreferrer" download={msg.file_name} style={{ display: "flex", alignItems: "center", gap: 6, color: isMine ? "white" : "#6b38d4", textDecoration: "none", fontSize: 12 }}>
                                   <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M3 2h7l3 3v9H3V2z" /></svg>
                                   {msg.file_name || "File"}
                                 </a>
