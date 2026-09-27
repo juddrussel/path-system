@@ -12,11 +12,18 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
-const { requireAuth, requireChairOrAdmin } = require("../middleware/auth");
+const { requireAuth } = require("../middleware/auth");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const ADMIN_ROLES = ["admin", "program_chair"];
+
+// Local middleware for chair/admin authorization
+function requireChairOrAdmin(req, res, next) {
+  if (!["admin", "program_chair"].includes(req.user?.role))
+    return res.status(403).json({ message: "Program Chair or Admin access required." });
+  next();
+}
 
 // ─── POST /api/collaborative-tasks ────────────────────────────────────────
 // Create a new collaborative task for multiple faculty
