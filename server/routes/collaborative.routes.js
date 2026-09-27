@@ -14,6 +14,7 @@ const router = express.Router();
 const db = require("../config/db");
 const { requireAuth } = require("../middleware/auth");
 const multer = require("multer");
+const { uploadToR2 } = require("../utils/uploadToR2");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const ADMIN_ROLES = ["admin", "program_chair"];
@@ -166,8 +167,8 @@ router.post("/:id/upload-final-output", requireAuth, upload.single("file"), asyn
 
     const nextVersion = currentVersion + 1;
 
-    // Create file URL (assuming S3/R2 upload)
-    const fileUrl = req.file.location || `s3://${req.file.bucket}/${req.file.key}`;
+    // Upload file to R2
+    const { url: fileUrl } = await uploadToR2(req.file);
 
     // Insert final output record
     await db.query(
