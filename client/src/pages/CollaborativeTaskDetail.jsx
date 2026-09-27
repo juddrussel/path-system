@@ -502,6 +502,42 @@ export default function CollaborativeTaskDetail() {
                 />
               </label>
 
+              <div style={{
+                marginTop: "16px",
+                padding: "12px",
+                border: "1px solid #e2d6ef",
+                borderRadius: "9px",
+                background: "#fbf8ff"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+                  <span style={{ fontSize: "10px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                    Confirmation required before upload
+                  </span>
+                  <span style={{ fontSize: "12px", fontWeight: 800, color: "#7c3aed" }}>
+                    {confirmedCount}/{collaborators.length}
+                  </span>
+                </div>
+                <div style={{
+                  height: "6px",
+                  borderRadius: "99px",
+                  background: "#e9e0ef",
+                  overflow: "hidden"
+                }}>
+                  <div style={{
+                    width: `${(confirmedCount / collaborators.length) * 100}%`,
+                    height: "100%",
+                    borderRadius: "inherit",
+                    background: "#7c3aed",
+                    transition: "width 0.3s ease"
+                  }} />
+                </div>
+                <p style={{ margin: "8px 0 0", fontSize: "9px", color: "#978aa0", lineHeight: "1.4" }}>
+                  {confirmedCount === collaborators.length
+                    ? "✓ Everyone has confirmed the latest version. You can upload a new version anytime."
+                    : `${collaborators.length - confirmedCount} collaborator${collaborators.length - confirmedCount !== 1 ? "s" : ""} still need to confirm before uploading.`}
+                </p>
+              </div>
+
               <button
                 className="collab-primary"
                 onClick={uploadNewVersion}
