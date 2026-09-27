@@ -84,6 +84,8 @@ export default function CollaborativeTaskDetail() {
   const [showRevision, setShowRevision] = useState(false);
   const [revisionReason, setRevisionReason] = useState("");
   const [reviewNote, setReviewNote] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const finalInputRef = useRef(null);
   const discussionInputRef = useRef(null);
@@ -218,20 +220,47 @@ export default function CollaborativeTaskDetail() {
   const uploadNewVersion = async () => {
     if (!finalFile) return;
     try {
+      setIsUploading(true);
+      setUploadProgress(0);
       const formData = new FormData();
       formData.append("file", finalFile);
       formData.append("note", finalNote);
 
-      await fetch(`${api}/api/collaborative-tasks/${taskId}/upload-final-output`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
+      const xhr = new XMLHttpRequest();
+      
+      // Track upload progress
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percentComplete);
+        }
       });
-      setFinalFile(null);
-      setFinalNote("");
-      if (finalInputRef.current) finalInputRef.current.value = "";
+
+      // Handle completion
+      xhr.addEventListener("load", () => {
+        if (xhr.status === 200) {
+          setFinalFile(null);
+          setFinalNote("");
+          setUploadProgress(0);
+          if (finalInputRef.current) finalInputRef.current.value = "";
+        } else {
+          setError("Upload failed");
+        }
+        setIsUploading(false);
+      });
+
+      // Handle error
+      xhr.addEventListener("error", () => {
+        setError("Upload failed");
+        setIsUploading(false);
+      });
+
+      xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/upload-final-output`);
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+      xhr.send(formData);
     } catch (err) {
       setError(err.message);
+      setIsUploading(false);
     }
   };
 
@@ -503,10 +532,43 @@ export default function CollaborativeTaskDetail() {
                 />
               </label>
 
+              {isUploading && (
+                <div style={{
+                  marginTop: "16px",
+                  padding: "12px",
+                  border: "1px solid #e2d6ef",
+                  borderRadius: "9px",
+                  background: "#fbf8ff"
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                      Uploading {finalFile?.name}...
+                    </span>
+                    <span style={{ fontSize: "11px", fontWeight: 800, color: "#7c3aed" }}>
+                      {uploadProgress}%
+                    </span>
+                  </div>
+                  <div style={{
+                    height: "6px",
+                    borderRadius: "99px",
+                    background: "#e9e0ef",
+                    overflow: "hidden"
+                  }}>
+                    <div style={{
+                      width: `${uploadProgress}%`,
+                      height: "100%",
+                      borderRadius: "inherit",
+                      background: "#7c3aed",
+                      transition: "width 0.2s ease"
+                    }} />
+                  </div>
+                </div>
+              )}
+
               <button
                 className="collab-primary"
                 onClick={uploadNewVersion}
-                disabled={!finalFile}
+                disabled={!finalFile || isUploading}
               >
                 <UploadCloud size={14} /> Upload v{(versions.length || 0) + 1} and reset confirmations
               </button>
