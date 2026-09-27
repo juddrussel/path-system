@@ -31,6 +31,7 @@ import Notifications from "./pages/Notifications";
 import DocumentReview from "./pages/Documentreview";
 import TaskDetail from "./pages/TaskDetail";
 import CollaborativeTaskDetail from "./pages/CollaborativeTaskDetail";
+import CollaborativeTaskAdmin from "./pages/CollaborativeTaskAdmin";
 import Settings from "./pages/Settings";
 import AccountSetup from "./pages/AccountSetup";
 
@@ -113,6 +114,7 @@ function AppRoutes() {
         <Route path="/document-review/:id" element={<DocumentReview />} />
         <Route path="/task-details/:id" element={<TaskDetail />} />
         <Route path="/collaborative-task/:taskId" element={<CollaborativeTaskDetail />} />
+        <Route path="/collaborative-task/:taskId/admin" element={<CollaborativeTaskAdmin />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
 

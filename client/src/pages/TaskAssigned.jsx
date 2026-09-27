@@ -5551,9 +5551,15 @@ function PathTasksAssignedLayout({
     !/approved|done|received/i.test(task.status || "");
   const openTask = (task) => {
     // Route to collaborative detail page if this is a collaborative task
-    const route = task?.is_collaborative 
-      ? `/collaborative-task/${task.id}` 
-      : `/task-details/${task.id}`;
+    let route = `/task-details/${task.id}`;
+    
+    if (task?.is_collaborative) {
+      const userRole = user?.role;
+      const isAdmin = ["admin", "program_chair"].includes(userRole);
+      route = isAdmin 
+        ? `/collaborative-task/${task.id}/admin` 
+        : `/collaborative-task/${task.id}`;
+    }
     
     navigate(route, {
       state: { task, returnTo: "/task-assigned" },
