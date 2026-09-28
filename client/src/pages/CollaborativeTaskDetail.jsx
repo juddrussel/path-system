@@ -67,6 +67,9 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
 };
 
 // Recursive component to render threaded replies
+// Maximum visual nesting depth is 6 levels to prevent UI from getting too narrow
+const MAX_VISUAL_DEPTH = 6;
+
 function RenderReplies({ 
   replies, 
   depth, 
@@ -91,8 +94,15 @@ function RenderReplies({
   token,
   taskId
 }) {
+  // Only indent if we haven't reached max visual depth
+  const shouldIndent = depth <= MAX_VISUAL_DEPTH;
+  
   return (
-    <div style={{ marginLeft: "28px", borderLeft: "2px solid #e9ddfb", paddingTop: "8px" }}>
+    <div style={{ 
+      marginLeft: shouldIndent ? "28px" : "0", 
+      borderLeft: shouldIndent ? "2px solid #e9ddfb" : "none", 
+      paddingTop: "8px" 
+    }}>
       {replies.map((reply) => (
         <div key={reply.id}>
           <article className="collab-message" style={{ background: "#fcfaff", border: "1px solid #f0ebf3" }}>
