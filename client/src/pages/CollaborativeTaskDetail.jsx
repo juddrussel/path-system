@@ -304,8 +304,7 @@ export default function CollaborativeTaskDetail() {
       });
       
       if (response.ok) {
-        const newComment = await response.json();
-        setMessages((prev) => [newComment, ...prev]);
+        // Don't add to state here - let socket broadcast handle it to avoid duplicates
         setMessageDraft("");
         setDiscussionAttachment(null);
         if (discussionInputRef.current) discussionInputRef.current.value = "";
