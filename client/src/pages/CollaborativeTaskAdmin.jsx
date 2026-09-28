@@ -72,6 +72,7 @@ export default function CollaborativeTaskAdmin() {
   const [confirmations, setConfirmations] = useState([]);
   const [versions, setVersions] = useState([]);
   const [comments, setComments] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Submitted");
@@ -100,6 +101,7 @@ export default function CollaborativeTaskAdmin() {
         setConfirmations(data.confirmations || []);
         setVersions(data.versions || []);
         setComments(data.comments || []);
+        setAttachments(data.attachments || []);
         setStatus(data.task?.status || "Submitted");
         
         socket.emit("join_task", { taskId: parseInt(taskId) });
@@ -309,13 +311,13 @@ export default function CollaborativeTaskAdmin() {
                 </p>
               </div>
 
-              {versions.length > 0 && versions[0].instruction_attachments && versions[0].instruction_attachments.length > 0 && (
+              {attachments.length > 0 && (
                 <div style={{ marginTop: "12px" }}>
                   <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
                     Instruction attachments
                   </span>
                   <div style={{ display: "grid", gap: "8px" }}>
-                    {versions[0].instruction_attachments.map((file, index) => (
+                    {attachments.map((file, index) => (
                       <div key={file.id || file.file_url || file.name || index} style={{ padding: "8px", border: "1px solid #e2d6ef", borderRadius: "7px", background: "#fbf8ff", display: "flex", gap: "8px", alignItems: "center" }}>
                         <span style={{ fontSize: "12px" }}>📄</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
