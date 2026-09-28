@@ -110,6 +110,7 @@ export default function CollaborativeTaskDetail() {
         setVersions(data.versions || []);
         setMessages(data.comments || []);
         setAttachments(data.attachments || []);
+        console.log("[CollaborativeTaskDetail] API response attachments:", data.attachments);
         setStatus(data.task?.status || "Awaiting Confirmation");
         
         socket.emit("join_task", { taskId: parseInt(taskId) });
@@ -391,7 +392,7 @@ export default function CollaborativeTaskDetail() {
               </div>
             </section>
 
-            <section className="collab-card">
+            <section className="collab-card" style={{ backgroundColor: "#fff9f0" }}>
               <div className="collab-heading">
                 <div>
                   <span className="collab-kicker">

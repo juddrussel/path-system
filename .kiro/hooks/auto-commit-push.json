@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Auto-commit and push on file save",
+      "trigger": "PostFileSave",
+      "description": "Automatically commits and pushes file changes to git",
+      "action": {
+        "type": "command",
+        "command": "cd \"$WORKSPACE_ROOT\" && git add -A && git commit -m \"Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')\" 2>/dev/null && git push 2>/dev/null || true",
+        "timeout": 30
+      }
+    }
+  ]
+}
