@@ -115,6 +115,7 @@ export default function CollaborativeTaskDetail() {
   const [replyFiles, setReplyFiles] = useState([]);
   const [replyFileProgress, setReplyFileProgress] = useState({});
   const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
+  const [imageLoadingStates, setImageLoadingStates] = useState({});
 
   const finalInputRef = useRef(null);
   const discussionInputRef = useRef(null);
@@ -794,7 +795,8 @@ export default function CollaborativeTaskDetail() {
                             <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
                               {message.files.map((file, idx) => {
                                 const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-                                const [imageLoading, setImageLoading] = React.useState(true);
+                                const imageKey = `msg-${message.id}-file-${idx}`;
+                                const imageLoading = imageLoadingStates[imageKey] ?? true;
                                 return isImage ? (
                                   <div 
                                     key={idx}
@@ -835,8 +837,8 @@ export default function CollaborativeTaskDetail() {
                                       <img 
                                         src={file.url}
                                         alt={file.name}
-                                        onLoad={() => setImageLoading(false)}
-                                        onError={() => setImageLoading(false)}
+                                        onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                        onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                                         style={{ 
                                           maxWidth: "100%", 
                                           borderRadius: "6px", 
@@ -889,7 +891,8 @@ export default function CollaborativeTaskDetail() {
                                   <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
                                     {reply.files.map((file, idx) => {
                                       const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-                                      const [imageLoading, setImageLoading] = React.useState(true);
+                                      const imageKey = `reply-${reply.id}-file-${idx}`;
+                                      const imageLoading = imageLoadingStates[imageKey] ?? true;
                                       return isImage ? (
                                         <div 
                                           key={idx}
@@ -930,8 +933,8 @@ export default function CollaborativeTaskDetail() {
                                             <img 
                                               src={file.url}
                                               alt={file.name}
-                                              onLoad={() => setImageLoading(false)}
-                                              onError={() => setImageLoading(false)}
+                                              onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                              onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                                               style={{ 
                                                 maxWidth: "100%", 
                                                 borderRadius: "6px", 
