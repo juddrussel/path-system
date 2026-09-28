@@ -300,24 +300,13 @@ export default function CollaborativeTaskAdmin() {
               </div>
 
               <p style={{ maxWidth: "620px", margin: "0 0 16px", color: "#887995", fontSize: "12px", lineHeight: "1.55" }}>
-                Use this checklist as the shared source of truth while preparing the final output. Discuss questions in the thread below and make sure the latest version reflects every requirement.
+                Program Chair / Admin instructions for this collaborative task.
               </p>
 
-              <div style={{ display: "grid", gap: "12px" }}>
-                {task?.notes ? task.notes.split("\n").filter(line => line.trim()).map((instruction, idx) => (
-                  <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                    <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>
-                      {String(idx + 1).padStart(2, '0')}
-                    </span>
-                    <div>
-                      <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>
-                        {instruction.trim().replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '')}
-                      </strong>
-                    </div>
-                  </div>
-                )) : (
-                  <p style={{ margin: 0, color: "#887995", fontSize: "12px" }}>No instructions provided.</p>
-                )}
+              <div style={{ padding: "14px", borderRadius: "8px", border: "1px solid #dccfe8", background: "#faf7ff" }}>
+                <p style={{ margin: "0", color: "#5d4867", fontSize: "11px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+                  {task?.notes || "No instructions provided."}
+                </p>
               </div>
 
               <div style={{ marginTop: "16px", padding: "14px", borderRadius: "8px", border: "1px solid #dccfe8", background: "#faf7ff", display: "flex", gap: "10px", alignItems: "flex-start" }}>
