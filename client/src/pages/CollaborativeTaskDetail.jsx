@@ -723,13 +723,15 @@ export default function CollaborativeTaskDetail() {
                       {replyTo === message.id && (
                         <div style={{ marginLeft: "38px", marginTop: "12px", padding: "12px", borderLeft: "2px solid #e2d6ef", background: "#fbf8ff", borderRadius: "8px" }}>
                           <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
-                            ↳ Reply to {message.full_name}
+                            ↳ Reply to {message.full_name.split(" ")[0]}
                           </div>
                           <textarea
+                            key={`reply-${message.id}`}
                             value={replyDraft}
                             onChange={(e) => setReplyDraft(e.target.value)}
                             placeholder={`Write your reply…`}
                             rows={2}
+                            autoFocus
                             style={{
                               display: "block",
                               width: "100%",
