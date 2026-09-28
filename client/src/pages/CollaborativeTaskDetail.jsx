@@ -213,7 +213,7 @@ export default function CollaborativeTaskDetail() {
                 if (msg.id === comment.parent_comment_id) {
                   return {
                     ...msg,
-                    replies: [...(msg.replies || []), comment]
+                    replies: [...(msg.replies || []), { ...comment, replies: [] }]
                   };
                 }
                 // If this message has replies, search in them too
