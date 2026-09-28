@@ -434,7 +434,50 @@ export default function CollaborativeTaskDetail() {
               </div>
             </section>
 
-
+            {task?.notes && (
+              <section className="collab-card">
+                <div className="collab-heading">
+                  <div>
+                    <span className="collab-kicker">📋 Instructions from the Program Chair / Admin</span>
+                    <h2>What the group needs to complete</h2>
+                  </div>
+                  <span className="collab-badge">Required before submission</span>
+                </div>
+                <div style={{ padding: "12px", border: "1px solid #e2d6ef", borderRadius: "9px", background: "#fbf8ff" }}>
+                  <p style={{ margin: "0", color: "#5d4867", fontSize: "11px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+                    {task.notes}
+                  </p>
+                </div>
+                {attachments.length > 0 && (
+                  <div style={{ marginTop: "12px" }}>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
+                      Instruction attachments
+                    </span>
+                    <div style={{ display: "grid", gap: "8px" }}>
+                      {attachments.map((file, index) => (
+                        <div key={file.id || file.file_url || file.name || index} style={{ padding: "8px", border: "1px solid #e2d6ef", borderRadius: "7px", background: "#fbf8ff", display: "flex", gap: "8px", alignItems: "center" }}>
+                          <span style={{ fontSize: "12px" }}>📄</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <strong style={{ display: "block", color: "#5a4567", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {file.file_name || file.name}
+                            </strong>
+                            <small style={{ display: "block", marginTop: "2px", color: "#978ba1", fontSize: "8px" }}>
+                              {file.size_kb || Math.round((file.file_size || 0) / 1024)} KB
+                            </small>
+                          </div>
+                          <a
+                            onClick={() => setPreview(file)}
+                            style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 8px", borderRadius: "5px", background: "#eee5fb", color: "#7043b6", textDecoration: "none", fontSize: "8px", fontWeight: 800, whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer" }}
+                          >
+                            <Download size={12} /> Preview
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
 
             <section className="collab-card">
               <div className="collab-heading">
