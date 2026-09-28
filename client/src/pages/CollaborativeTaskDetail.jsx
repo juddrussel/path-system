@@ -359,6 +359,13 @@ export default function CollaborativeTaskDetail() {
         formData.append("content", messageDraft.trim());
         formData.append("taskId", taskId);
         
+        // Initialize all progress to 10% immediately
+        const initialProgress = {};
+        commentFiles.forEach((_, idx) => {
+          initialProgress[idx] = 10;
+        });
+        setCommentFileProgress(initialProgress);
+        
         // Create XMLHttpRequest with progress tracking
         const xhr = new XMLHttpRequest();
         let lastProgressTime = Date.now();
@@ -376,7 +383,6 @@ export default function CollaborativeTaskDetail() {
         };
         
         // Start simulation immediately and update frequently
-        estimateProgress(); // Call once immediately
         progressInterval = setInterval(estimateProgress, 20);
         
         xhr.upload.addEventListener("progress", (event) => {
@@ -1143,6 +1149,13 @@ export default function CollaborativeTaskDetail() {
                                             formData.append("taskId", taskId);
                                             formData.append("parentCommentId", reply.id);
                                             
+                                            // Initialize all progress to 10% immediately
+                                            const initialProgress = {};
+                                            replyFiles.forEach((_, idx) => {
+                                              initialProgress[idx] = 10;
+                                            });
+                                            setReplyFileProgress(initialProgress);
+                                            
                                             const xhr = new XMLHttpRequest();
                                             let lastProgressTime = Date.now();
                                             let progressInterval = null;
@@ -1157,7 +1170,6 @@ export default function CollaborativeTaskDetail() {
                                               });
                                             };
                                             
-                                            estimateProgress(); // Call once immediately
                                             progressInterval = setInterval(estimateProgress, 20);
                                             
                                             xhr.upload.addEventListener("progress", (event) => {
