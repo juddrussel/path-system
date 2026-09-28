@@ -684,10 +684,22 @@ export default function CollaborativeTaskDetail() {
                             />
                             <button
                               className="collab-primary"
-                              onClick={() => {
-                                postMessage();
-                                setReplyDraft("");
-                                setReplyTo(null);
+                              onClick={async () => {
+                                if (!replyDraft.trim()) return;
+                                try {
+                                  await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+                                    method: "POST",
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({ content: replyDraft.trim() }),
+                                  });
+                                  setReplyDraft("");
+                                  setReplyTo(null);
+                                } catch (err) {
+                                  setError(err.message);
+                                }
                               }}
                               disabled={!replyDraft.trim()}
                             >
