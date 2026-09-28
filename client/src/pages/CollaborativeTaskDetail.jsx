@@ -659,29 +659,49 @@ export default function CollaborativeTaskDetail() {
               <div className="collab-messages">
                 {messages.length > 0 ? (
                   messages.map((message) => (
-                    <article className="collab-message" key={message.id}>
-                      <span className={`collab-avatar ${getTone(message.user_id || message.sender_id || 0)}`}>
-                        {initials(message.full_name)}
-                      </span>
-                      <div className="collab-message-content">
-                        <header>
-                          <strong>{message.full_name}</strong>
-                          <small>{formatDate(message.created_at)}</small>
-                        </header>
-                        <p>{message.content}</p>
-                        <div className="collab-thread">
-                          <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
-                            <Reply size={12} /> Reply
-                          </button>
+                    <div key={message.id}>
+                      <article className="collab-message">
+                        <span className={`collab-avatar ${getTone(message.user_id || message.sender_id || 0)}`}>
+                          {initials(message.full_name)}
+                        </span>
+                        <div className="collab-message-content">
+                          <header>
+                            <strong>{message.full_name}</strong>
+                            <small>{formatDate(message.created_at)}</small>
+                          </header>
+                          <p>{message.content}</p>
+                          <div className="collab-thread">
+                            <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
+                              <Reply size={12} /> Reply
+                            </button>
+                          </div>
                         </div>
-                        {replyTo === message.id && (
-                          <label className="collab-label">
-                            <textarea
-                              value={replyDraft}
-                              onChange={(e) => setReplyDraft(e.target.value)}
-                              placeholder={`Reply to ${message.full_name}…`}
-                              rows={2}
-                            />
+                      </article>
+                      {replyTo === message.id && (
+                        <div style={{ marginLeft: "38px", marginTop: "12px", padding: "12px", borderLeft: "2px solid #e2d6ef", background: "#fbf8ff", borderRadius: "8px" }}>
+                          <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
+                            ↳ Reply to {message.full_name}
+                          </div>
+                          <textarea
+                            value={replyDraft}
+                            onChange={(e) => setReplyDraft(e.target.value)}
+                            placeholder={`Write your reply…`}
+                            rows={2}
+                            style={{
+                              display: "block",
+                              width: "100%",
+                              padding: "10px",
+                              border: "1px solid #e2d9e9",
+                              borderRadius: "8px",
+                              outline: "0",
+                              resize: "vertical",
+                              color: "#5d4867",
+                              font: "10px/1.5 DM Sans,Arial,sans-serif",
+                              boxSizing: "border-box",
+                              marginBottom: "8px"
+                            }}
+                          />
+                          <div style={{ display: "flex", gap: "8px" }}>
                             <button
                               className="collab-primary"
                               onClick={async () => {
@@ -702,13 +722,36 @@ export default function CollaborativeTaskDetail() {
                                 }
                               }}
                               disabled={!replyDraft.trim()}
+                              style={{ marginTop: "0" }}
                             >
-                              <Send size={13} /> Reply
+                              <Send size={13} /> Send reply
                             </button>
-                          </label>
-                        )}
-                      </div>
-                    </article>
+                            <button
+                              onClick={() => {
+                                setReplyTo(null);
+                                setReplyDraft("");
+                              }}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "6px",
+                                padding: "9px 11px",
+                                border: "1px solid #ded2e8",
+                                borderRadius: "8px",
+                                background: "#fff",
+                                color: "#76538d",
+                                fontSize: "9px",
+                                fontWeight: "800",
+                                cursor: "pointer"
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ))
                 ) : (
                   <div style={{ padding: "12px", color: "#8d7f97", fontSize: "12px" }}>
