@@ -66,6 +66,8 @@ export default function CollaborativeTaskDetail() {
   const isChair = ADMIN_ROLES.includes(user.role);
   const api = import.meta.env.VITE_API_URL || "";
 
+  console.log("[CollaborativeTaskDetail] Component mounted. taskId:", taskId, "token exists:", !!token, "api:", api);
+
   // State
   const [task, setTask] = useState(null);
   const [collaborators, setCollaborators] = useState([]);
