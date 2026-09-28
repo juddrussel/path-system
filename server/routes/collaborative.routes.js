@@ -588,21 +588,42 @@ router.get("/:id", requireAuth, async (req, res) => {
       versions = [];
     }
 
-    // Fetch comments
+    // Fetch comments with threading support
     let comments = [];
     try {
       const result = await db.query(
         `SELECT 
-           tc.id, tc.task_id, tc.sender_id as user_id, tc.content, tc.created_at,
+           tc.id, tc.task_id, tc.sender_id as user_id, tc.parent_comment_id, 
+           tc.content, tc.created_at,
            u.full_name
          FROM task_comments tc
          LEFT JOIN users u ON tc.sender_id = u.id
          WHERE tc.task_id = ?
-         ORDER BY tc.created_at DESC`,
+         ORDER BY tc.created_at ASC`,
         [taskId]
       );
-      comments = result[0] || [];
-      console.log(`Found ${comments.length} comments`);
+      const allComments = result[0] || [];
+      
+      // Build parent-child hierarchy
+      const commentMap = {};
+      const rootComments = [];
+      
+      allComments.forEach(comment => {
+        commentMap[comment.id] = { ...comment, replies: [] };
+      });
+      
+      allComments.forEach(comment => {
+        if (comment.parent_comment_id) {
+          if (commentMap[comment.parent_comment_id]) {
+            commentMap[comment.parent_comment_id].replies.push(commentMap[comment.id]);
+          }
+        } else {
+          rootComments.push(commentMap[comment.id]);
+        }
+      });
+      
+      comments = rootComments;
+      console.log(`Found ${allComments.length} comments (${rootComments.length} root, ${allComments.length - rootComments.length} replies)`);
     } catch (e) {
       console.error("Error fetching comments:", e.message);
       comments = [];
@@ -687,14 +708,14 @@ router.get("/:id/debug", requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/collaborative-tasks/:id/comment ──────────────────────────────
-// Add a comment/working note to a collaborative task
+// Add a comment/working note to a collaborative task (supports threading/replies)
 router.post("/:id/comment", requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const userId = req.user?.id;
-    const { content } = req.body;
+    const { content, parentCommentId } = req.body;
 
-    console.log(`[Comment] taskId=${taskId}, userId=${userId}, contentLength=${content?.length || 0}`);
+    console.log(`[Comment] taskId=${taskId}, userId=${userId}, parentId=${parentCommentId}, contentLength=${content?.length || 0}`);
 
     if (!content || !content.trim()) {
       return res.status(400).json({ message: "Comment cannot be empty" });
@@ -715,11 +736,22 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       return res.status(403).json({ message: "Only collaborators can comment" });
     }
 
+    // If replying to a comment, verify the parent comment exists and belongs to this task
+    if (parentCommentId) {
+      const [[parentCheck]] = await db.query(
+        "SELECT id FROM task_comments WHERE id = ? AND task_id = ?",
+        [parentCommentId, taskId]
+      );
+      if (!parentCheck) {
+        return res.status(400).json({ message: "Parent comment not found" });
+      }
+    }
+
     // Insert comment into task_comments using sender_id (matches production schema)
     const [result] = await db.query(
-      `INSERT INTO task_comments (task_id, sender_id, content, created_at) 
-       VALUES (?, ?, ?, NOW())`,
-      [taskId, userId, content]
+      `INSERT INTO task_comments (task_id, sender_id, parent_comment_id, content, created_at) 
+       VALUES (?, ?, ?, ?, NOW())`,
+      [taskId, userId, parentCommentId || null, content]
     );
 
     console.log(`[Comment] Inserted comment id=${result.insertId}`);
@@ -731,8 +763,10 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       id: result.insertId,
       task_id: taskId,
       user_id: userId,
+      sender_id: userId,
       content,
       full_name: user?.full_name || "Unknown",
+      parent_comment_id: parentCommentId || null,
       created_at: new Date().toISOString(),
     };
 

@@ -660,6 +660,7 @@ export default function CollaborativeTaskDetail() {
                 {messages.length > 0 ? (
                   messages.map((message) => (
                     <div key={message.id}>
+                      {/* Parent comment */}
                       <article className="collab-message">
                         <span className={`collab-avatar ${getTone(message.user_id || message.sender_id || 0)}`}>
                           {initials(message.full_name)}
@@ -677,6 +678,33 @@ export default function CollaborativeTaskDetail() {
                           </div>
                         </div>
                       </article>
+
+                      {/* Nested replies */}
+                      {message.replies && message.replies.length > 0 && (
+                        <div style={{ marginLeft: "28px", borderLeft: "2px solid #e9ddfb", paddingTop: "8px" }}>
+                          {message.replies.map((reply) => (
+                            <article className="collab-message" key={reply.id} style={{ background: "#fcfaff", border: "1px solid #f0ebf3" }}>
+                              <span className={`collab-avatar ${getTone(reply.user_id || reply.sender_id || 0)}`}>
+                                {initials(reply.full_name)}
+                              </span>
+                              <div className="collab-message-content">
+                                <header>
+                                  <strong>{reply.full_name}</strong>
+                                  <small>{formatDate(reply.created_at)}</small>
+                                </header>
+                                <p>{reply.content}</p>
+                                <div className="collab-thread">
+                                  <button type="button" onClick={() => setReplyTo(replyTo === reply.id ? null : reply.id)}>
+                                    <Reply size={12} /> Reply
+                                  </button>
+                                </div>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Reply form for parent comment */}
                       {replyTo === message.id && (
                         <div style={{ marginLeft: "38px", marginTop: "12px", padding: "12px", borderLeft: "2px solid #e2d6ef", background: "#fbf8ff", borderRadius: "8px" }}>
                           <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
@@ -713,7 +741,10 @@ export default function CollaborativeTaskDetail() {
                                       Authorization: `Bearer ${token}`,
                                       "Content-Type": "application/json",
                                     },
-                                    body: JSON.stringify({ content: replyDraft.trim() }),
+                                    body: JSON.stringify({ 
+                                      content: replyDraft.trim(),
+                                      parentCommentId: message.id
+                                    }),
                                   });
                                   setReplyDraft("");
                                   setReplyTo(null);
