@@ -594,7 +594,7 @@ router.get("/:id", requireAuth, async (req, res) => {
       const result = await db.query(
         `SELECT 
            tc.id, tc.task_id, tc.sender_id as user_id, tc.parent_comment_id, 
-           tc.content, tc.created_at,
+           tc.content, tc.files, tc.created_at,
            u.full_name
          FROM task_comments tc
          LEFT JOIN users u ON tc.sender_id = u.id
@@ -604,12 +604,16 @@ router.get("/:id", requireAuth, async (req, res) => {
       );
       const allComments = result[0] || [];
       
-      // Build parent-child hierarchy
+      // Parse files JSON and build parent-child hierarchy
       const commentMap = {};
       const rootComments = [];
       
       allComments.forEach(comment => {
-        commentMap[comment.id] = { ...comment, replies: [] };
+        commentMap[comment.id] = { 
+          ...comment, 
+          files: comment.files ? JSON.parse(comment.files) : [],
+          replies: [] 
+        };
       });
       
       allComments.forEach(comment => {
@@ -708,17 +712,17 @@ router.get("/:id/debug", requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/collaborative-tasks/:id/comment ──────────────────────────────
-// Add a comment/working note to a collaborative task (supports threading/replies)
-router.post("/:id/comment", requireAuth, async (req, res) => {
+// Add a comment/working note to a collaborative task (supports threading/replies and file attachments)
+router.post("/:id/comment", requireAuth, upload.array("files", 5), async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const userId = req.user?.id;
     const { content, parentCommentId } = req.body;
 
-    console.log(`[Comment] taskId=${taskId}, userId=${userId}, parentId=${parentCommentId}, contentLength=${content?.length || 0}`);
+    console.log(`[Comment] taskId=${taskId}, userId=${userId}, parentId=${parentCommentId}, contentLength=${content?.length || 0}, files=${req.files?.length || 0}`);
 
-    if (!content || !content.trim()) {
-      return res.status(400).json({ message: "Comment cannot be empty" });
+    if ((!content || !content.trim()) && (!req.files || req.files.length === 0)) {
+      return res.status(400).json({ message: "Comment cannot be empty and must have content or files" });
     }
 
     if (!userId) {
@@ -747,14 +751,34 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       }
     }
 
+    // Upload files if present
+    let fileUrls = [];
+    if (req.files && req.files.length > 0) {
+      try {
+        for (const file of req.files) {
+          const { url } = await uploadToR2(file);
+          fileUrls.push({
+            url,
+            name: file.originalname,
+            size: file.size,
+            type: file.mimetype
+          });
+        }
+      } catch (uploadErr) {
+        console.error("[Comment File Upload Error]", uploadErr);
+        return res.status(500).json({ message: "File upload failed", error: uploadErr.message });
+      }
+    }
+
     // Insert comment into task_comments using sender_id (matches production schema)
+    const filesJson = fileUrls.length > 0 ? JSON.stringify(fileUrls) : null;
     const [result] = await db.query(
-      `INSERT INTO task_comments (task_id, sender_id, parent_comment_id, content, created_at) 
-       VALUES (?, ?, ?, ?, NOW())`,
-      [taskId, userId, parentCommentId || null, content]
+      `INSERT INTO task_comments (task_id, sender_id, parent_comment_id, content, files, created_at) 
+       VALUES (?, ?, ?, ?, ?, NOW())`,
+      [taskId, userId, parentCommentId || null, content || "", filesJson]
     );
 
-    console.log(`[Comment] Inserted comment id=${result.insertId}`);
+    console.log(`[Comment] Inserted comment id=${result.insertId} with ${fileUrls.length} files`);
 
     // Fetch user details for response
     const [[user]] = await db.query("SELECT id, full_name FROM users WHERE id = ?", [userId]);
@@ -764,9 +788,10 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       task_id: taskId,
       user_id: userId,
       sender_id: userId,
-      content,
+      content: content || "",
       full_name: user?.full_name || "Unknown",
       parent_comment_id: parentCommentId || null,
+      files: fileUrls,
       created_at: new Date().toISOString(),
     };
 

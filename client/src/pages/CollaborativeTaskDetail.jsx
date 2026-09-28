@@ -107,8 +107,18 @@ export default function CollaborativeTaskDetail() {
   const [isUploading, setIsUploading] = useState(false);
   const [readerZoom, setReaderZoom] = useState("page-width");
 
+  // Comment file upload state
+  const [commentFiles, setCommentFiles] = useState([]);
+  const [commentFileProgress, setCommentFileProgress] = useState({});
+  const [isCommentUploadingFiles, setIsCommentUploadingFiles] = useState(false);
+  const [replyFiles, setReplyFiles] = useState([]);
+  const [replyFileProgress, setReplyFileProgress] = useState({});
+  const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
+
   const finalInputRef = useRef(null);
   const discussionInputRef = useRef(null);
+  const commentFilesRef = useRef(null);
+  const replyFilesRef = useRef(null);
 
   // Load task data
   useEffect(() => {
@@ -307,25 +317,75 @@ export default function CollaborativeTaskDetail() {
   };
 
   const postMessage = async () => {
-    if (!messageDraft.trim() && !discussionAttachment) return;
+    if (!messageDraft.trim() && commentFiles.length === 0) return;
+    
     try {
-      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: messageDraft.trim() }),
-      });
+      setIsCommentUploadingFiles(true);
       
-      if (response.ok) {
-        // Don't add to state here - let socket broadcast handle it to avoid duplicates
+      // Upload files first if any
+      let uploadedFiles = [];
+      if (commentFiles.length > 0) {
+        const formData = new FormData();
+        commentFiles.forEach((file, idx) => {
+          formData.append("files", file);
+        });
+        formData.append("content", messageDraft.trim());
+        formData.append("taskId", taskId);
+        
+        // Track upload progress
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            commentFiles.forEach((_, idx) => {
+              const percentComplete = Math.round((event.loaded / event.total) * 100);
+              setCommentFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
+            });
+          }
+        });
+        
+        xhr.addEventListener("load", () => {
+          if (xhr.status === 200 || xhr.status === 201) {
+            // Success - socket will broadcast
+          } else {
+            setError("File upload failed");
+          }
+          setIsCommentUploadingFiles(false);
+        });
+        
+        xhr.addEventListener("error", () => {
+          setError("File upload failed");
+          setIsCommentUploadingFiles(false);
+        });
+        
+        xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/comment`);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.send(formData);
+        
+        // Clear after upload
         setMessageDraft("");
-        setDiscussionAttachment(null);
-        if (discussionInputRef.current) discussionInputRef.current.value = "";
+        setCommentFiles([]);
+        setCommentFileProgress({});
+        if (commentFilesRef.current) commentFilesRef.current.value = "";
+      } else {
+        // No files, just send text comment
+        const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content: messageDraft.trim() }),
+        });
+        
+        if (response.ok) {
+          setMessageDraft("");
+        }
+        setIsCommentUploadingFiles(false);
       }
     } catch (err) {
       setError(err.message);
+      setIsCommentUploadingFiles(false);
     }
   };
 
@@ -729,6 +789,23 @@ export default function CollaborativeTaskDetail() {
                             <small>{formatDate(message.created_at)}</small>
                           </header>
                           <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{message.content}</p>
+                          {message.files && message.files.length > 0 && (
+                            <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                              {message.files.map((file, idx) => (
+                                <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <span style={{ fontSize: "12px" }}>📎</span>
+                                  <a 
+                                    href={file.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                  >
+                                    {file.name}
+                                  </a>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                           <div className="collab-thread">
                             <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
                               <Reply size={12} /> Reply
@@ -751,6 +828,23 @@ export default function CollaborativeTaskDetail() {
                                   <small>{formatDate(reply.created_at)}</small>
                                 </header>
                                 <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{reply.content}</p>
+                                {reply.files && reply.files.length > 0 && (
+                                  <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                                    {reply.files.map((file, idx) => (
+                                      <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span style={{ fontSize: "12px" }}>📎</span>
+                                        <a 
+                                          href={file.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                        >
+                                          {file.name}
+                                        </a>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                                 <div className="collab-thread">
                                   <button type="button" onClick={() => setReplyTo(replyTo === reply.id ? null : reply.id)}>
                                     <Reply size={12} /> Reply
@@ -861,21 +955,68 @@ export default function CollaborativeTaskDetail() {
                   placeholder="Write a note, ask a question, or mention what needs checking…"
                   rows={3}
                 />
+                {commentFiles.length > 0 && (
+                  <div style={{ marginTop: "8px", padding: "8px", background: "#fbf8ff", borderRadius: "6px", borderTop: "1px solid #e2d6ef" }}>
+                    <div style={{ fontSize: "8px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "6px" }}>
+                      {commentFiles.length} file(s) attached
+                    </div>
+                    <div style={{ display: "grid", gap: "6px" }}>
+                      {commentFiles.map((file, idx) => (
+                        <div key={idx} style={{ padding: "6px", background: "#fff", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ color: "#5d4867", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {file.name}
+                            </div>
+                            {commentFileProgress[idx] !== undefined && commentFileProgress[idx] < 100 && (
+                              <div style={{ marginTop: "3px", height: "3px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                                <div style={{ height: "100%", background: "#7c3aed", width: `${commentFileProgress[idx]}%`, transition: "width 0.2s" }} />
+                              </div>
+                            )}
+                            {commentFileProgress[idx] === 100 && (
+                              <div style={{ marginTop: "3px", fontSize: "8px", color: "#579574" }}>✓ Ready</div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => setCommentFiles(prev => prev.filter((_, i) => i !== idx))}
+                            disabled={isCommentUploadingFiles}
+                            style={{ background: "none", border: "none", color: "#806f8b", cursor: "pointer", fontSize: "14px" }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="collab-composer-footer">
-                  {discussionAttachment && <strong>{discussionAttachment.name}</strong>}
                   <small>Ctrl / Cmd + Enter to send</small>
                   <span className="collab-composer-actions">
                     <input
-                      ref={discussionInputRef}
+                      ref={commentFilesRef}
                       type="file"
                       hidden
-                      accept="image/*,application/pdf"
-                      onChange={(e) => setDiscussionAttachment(e.target.files?.[0])}
+                      multiple
+                      accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (commentFiles.length + files.length > 5) {
+                          setError("Maximum 5 files allowed");
+                          return;
+                        }
+                        setCommentFiles(prev => [...prev, ...files]);
+                        if (commentFilesRef.current) commentFilesRef.current.value = "";
+                      }}
                     />
-                    <button onClick={() => discussionInputRef.current?.click()}>
-                      <Paperclip size={13} /> Add picture / PDF
+                    <button 
+                      onClick={() => commentFilesRef.current?.click()}
+                      disabled={isCommentUploadingFiles || commentFiles.length >= 5}
+                    >
+                      <Paperclip size={13} /> Add files ({commentFiles.length}/5)
                     </button>
-                    <button onClick={postMessage} disabled={!messageDraft.trim() && !discussionAttachment}>
+                    <button 
+                      onClick={postMessage} 
+                      disabled={(!messageDraft.trim() && commentFiles.length === 0) || isCommentUploadingFiles}
+                    >
                       <Send size={14} /> Send message
                     </button>
                   </span>
