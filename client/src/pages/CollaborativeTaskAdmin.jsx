@@ -304,7 +304,7 @@ export default function CollaborativeTaskAdmin() {
               </p>
 
               <div style={{ display: "grid", gap: "12px" }}>
-                {task?.instructions ? task.instructions.split("\n").filter(line => line.trim()).map((instruction, idx) => (
+                {task?.notes ? task.notes.split("\n").filter(line => line.trim()).map((instruction, idx) => (
                   <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
                     <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>
                       {String(idx + 1).padStart(2, '0')}

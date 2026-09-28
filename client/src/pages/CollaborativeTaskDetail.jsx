@@ -400,7 +400,7 @@ export default function CollaborativeTaskDetail() {
               </div>
             </section>
 
-            {task?.instructions ? (
+            {task?.notes ? (
               <section className="collab-card">
                 <div className="collab-heading">
                   <div>
@@ -415,7 +415,7 @@ export default function CollaborativeTaskDetail() {
                   Use this checklist as the shared source of truth while preparing the final output. Discuss questions in the thread below and make sure the latest version reflects every requirement.
                 </p>
                 <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
-                  {task.instructions.split("\n").filter(line => line.trim()).map((instruction, idx) => (
+                  {task.notes.split("\n").filter(line => line.trim()).map((instruction, idx) => (
                     <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
                       <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", borderRadius: "8px", background: "#eee5fc", color: "#7043b6", fontSize: "10px", fontWeight: 800, flexShrink: 0 }}>
                         {String(idx + 1).padStart(2, '0')}

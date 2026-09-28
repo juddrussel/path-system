@@ -283,7 +283,6 @@ function TaskAssignmentInner() {
     deadlineTime: "17:00",
     notes: "",
     collaborationMode: "separate",
-    instructions: "",
   });
 
   const fetchNextTrackingId = async () => {
@@ -561,7 +560,6 @@ function TaskAssignmentInner() {
       deadlineTime: "17:00",
       notes: "",
       collaborationMode: "separate",
-      instructions: "",
     });
     setSelectedFacultyIds([]);
     setSelectedRole("");
@@ -873,23 +871,6 @@ function TaskAssignmentInner() {
                             ? "Both users will see the same task and both must confirm before final submission."
                             : "Each user will see their own copy of the task."}
                         </p>
-
-                        {form.collaborationMode === "together" && (
-                          <label className="path-assignment-notes" style={{ marginTop: '16px' }}>
-                            Collaborative instructions
-                            <textarea
-                              value={form.instructions}
-                              onChange={(event) =>
-                                setForm((current) => ({
-                                  ...current,
-                                  instructions: event.target.value,
-                                }))
-                              }
-                              placeholder="Provide step-by-step instructions for what the group needs to complete. This will be displayed as a checklist for all collaborators."
-                              style={{ minHeight: '100px' }}
-                            />
-                          </label>
-                        )}
                       </div>
                     )}
                   </div>
