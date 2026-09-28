@@ -96,11 +96,16 @@ export default function CollaborativeTaskDetail() {
     const loadTask = async () => {
       try {
         setLoading(true);
+        console.log("[CollaborativeTaskDetail] Loading task:", taskId);
         const response = await fetch(`${api}/api/collaborative-tasks/${taskId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log("[CollaborativeTaskDetail] API Response status:", response.status);
         if (!response.ok) throw new Error("Failed to load task");
         const data = await response.json();
+        console.log("[CollaborativeTaskDetail] Full API response:", data);
+        console.log("[CollaborativeTaskDetail] Task:", data.task);
+        console.log("[CollaborativeTaskDetail] Attachments:", data.attachments);
         setTask(data.task);
         setCollaborators((data.collaborators || []).map((c, i) => ({
           ...c,
@@ -110,11 +115,11 @@ export default function CollaborativeTaskDetail() {
         setVersions(data.versions || []);
         setMessages(data.comments || []);
         setAttachments(data.attachments || []);
-        console.log("[CollaborativeTaskDetail] API response attachments:", data.attachments);
         setStatus(data.task?.status || "Awaiting Confirmation");
         
         socket.emit("join_task", { taskId: parseInt(taskId) });
       } catch (err) {
+        console.error("[CollaborativeTaskDetail] Error loading task:", err);
         setError(err.message);
       } finally {
         setLoading(false);
