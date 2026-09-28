@@ -7,6 +7,7 @@ import {
   Clock3,
   Download,
   FileText,
+  ListChecks,
   MessageCircle,
   Paperclip,
   Reply,
@@ -283,6 +284,53 @@ export default function CollaborativeTaskAdmin() {
                 <div>
                   <small>Workflow owner</small>
                   <strong>Program Chair</strong>
+                </div>
+              </div>
+            </section>
+
+            <section className="admin-card">
+              <div className="admin-heading">
+                <div>
+                  <span className="admin-kicker"><ListChecks size={12} /> Instructions from the Program Chair / Admin</span>
+                  <h2>What the group needs to complete</h2>
+                </div>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 10px", borderRadius: "6px", background: "#7c3aed", color: "#fff", fontSize: "9px", fontWeight: 800, whiteSpace: "nowrap" }}>
+                  Required before submission
+                </span>
+              </div>
+
+              <p style={{ maxWidth: "620px", margin: "0 0 16px", color: "#887995", fontSize: "12px", lineHeight: "1.55" }}>
+                Use this checklist as the shared source of truth while preparing the final output. Discuss questions in the thread below and make sure the latest version reflects every requirement.
+              </p>
+
+              <div style={{ display: "grid", gap: "12px" }}>
+                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>01</span>
+                  <div>
+                    <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>Reconcile the annual assessment findings against the latest course offering and faculty records.</strong>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>02</span>
+                  <div>
+                    <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>Correct the HIST 204 exception and confirm that all totals, sections, and supporting notes are accurate.</strong>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>03</span>
+                  <div>
+                    <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>Upload one consolidated PDF as the final output, then ask every collaborator to review and confirm it.</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: "16px", padding: "14px", borderRadius: "8px", border: "1px solid #dccfe8", background: "#faf7ff", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                <ShieldCheck size={16} style={{ color: "#7043b7", flexShrink: 0 }} />
+                <div>
+                  <strong style={{ display: "block", color: "#604477", fontSize: "9px", fontWeight: 800, marginBottom: "4px" }}>SUBMISSION NOTE</strong>
+                  <small style={{ display: "block", color: "#978aa0", fontSize: "9px", lineHeight: "1.4" }}>The task will be submitted to the Program Chair / Admin only after every collaborator confirms the latest version.</small>
                 </div>
               </div>
             </section>
