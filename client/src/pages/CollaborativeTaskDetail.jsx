@@ -349,6 +349,11 @@ export default function CollaborativeTaskDetail() {
         xhr.addEventListener("load", () => {
           if (xhr.status === 200 || xhr.status === 201) {
             // Success - socket will broadcast
+            // Clear after successful upload
+            setMessageDraft("");
+            setCommentFiles([]);
+            setCommentFileProgress({});
+            if (commentFilesRef.current) commentFilesRef.current.value = "";
           } else {
             setError("File upload failed");
           }
@@ -364,11 +369,7 @@ export default function CollaborativeTaskDetail() {
         xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         xhr.send(formData);
         
-        // Clear after upload
-        setMessageDraft("");
-        setCommentFiles([]);
-        setCommentFileProgress({});
-        if (commentFilesRef.current) commentFilesRef.current.value = "";
+        // Don't clear here - wait for load event above
       } else {
         // No files, just send text comment
         const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
