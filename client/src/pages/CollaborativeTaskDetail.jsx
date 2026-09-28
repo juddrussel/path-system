@@ -206,29 +206,45 @@ export default function CollaborativeTaskDetail() {
       if (comment.task_id === task.id) {
         setMessages((prev) => {
           if (comment.parent_comment_id) {
-            // Find the parent comment (could be top-level or nested)
-            const addReplyRecursive = (messages) => {
-              return messages.map(msg => {
-                // If this is the parent, add the reply
-                if (msg.id === comment.parent_comment_id) {
-                  return {
-                    ...msg,
-                    replies: [...(msg.replies || []), comment]
+            // Recursively find and update the parent comment at ANY depth
+            const findAndAddReply = (comments) => {
+              for (let i = 0; i < comments.length; i++) {
+                if (comments[i].id === comment.parent_comment_id) {
+                  // Found the parent at this level - add reply to it
+                  console.log("[Socket] Found parent comment", comment.parent_comment_id, "adding reply", comment.id);
+                  const updatedComments = [...comments];
+                  updatedComments[i] = {
+                    ...updatedComments[i],
+                    replies: [...(updatedComments[i].replies || []), { ...comment, replies: [] }]
                   };
+                  return updatedComments;
                 }
-                // If this message has replies, search in them too
-                if (msg.replies && msg.replies.length > 0) {
-                  return {
-                    ...msg,
-                    replies: addReplyRecursive(msg.replies)
-                  };
+                // Check nested replies recursively
+                if (comments[i].replies && comments[i].replies.length > 0) {
+                  const updated = findAndAddReply(comments[i].replies);
+                  // Check if array was actually modified by comparing length or checking deep
+                  const foundMatch = updated.some((r, idx) => {
+                    if (!comments[i].replies[idx]) return true;
+                    return r.id !== comments[i].replies[idx].id;
+                  });
+                  
+                  if (foundMatch || updated.length > comments[i].replies.length) {
+                    // Found it in nested replies - update this comment's replies
+                    console.log("[Socket] Found parent in nested level");
+                    const updatedComments = [...comments];
+                    updatedComments[i] = { ...updatedComments[i], replies: updated };
+                    return updatedComments;
+                  }
                 }
-                return msg;
-              });
+              }
+              return comments;
             };
-            return addReplyRecursive(prev);
+            const result = findAndAddReply(prev);
+            console.log("[Socket] Updated messages, count:", result.length, "new reply parent:", comment.parent_comment_id);
+            return result;
           }
-          // Root comment - add to top level
+          // Root comment
+          console.log("[Socket] Adding root comment", comment.id);
           return [{ ...comment, replies: [] }, ...prev];
         });
       }
