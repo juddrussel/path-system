@@ -192,7 +192,22 @@ export default function CollaborativeTaskDetail() {
 
     socket.on("collaborative:comment_posted", (comment) => {
       if (comment.task_id === task.id) {
-        setMessages((prev) => [comment, ...prev]);
+        setMessages((prev) => {
+          // If this is a reply to another comment, add it to the parent's replies array
+          if (comment.parent_comment_id) {
+            return prev.map(msg => {
+              if (msg.id === comment.parent_comment_id) {
+                return {
+                  ...msg,
+                  replies: [...(msg.replies || []), comment]
+                };
+              }
+              return msg;
+            });
+          }
+          // Otherwise, it's a root comment
+          return [{ ...comment, replies: [] }, ...prev];
+        });
       }
     });
 
