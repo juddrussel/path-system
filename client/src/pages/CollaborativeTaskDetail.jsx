@@ -324,8 +324,6 @@ export default function CollaborativeTaskDetail() {
     try {
       setIsCommentUploadingFiles(true);
       
-      // Upload files first if any
-      let uploadedFiles = [];
       if (commentFiles.length > 0) {
         const formData = new FormData();
         commentFiles.forEach((file, idx) => {
@@ -334,26 +332,53 @@ export default function CollaborativeTaskDetail() {
         formData.append("content", messageDraft.trim());
         formData.append("taskId", taskId);
         
-        // Track upload progress
+        // Create XMLHttpRequest with progress tracking
         const xhr = new XMLHttpRequest();
+        let lastProgressTime = Date.now();
+        let progressInterval = null;
+        
+        // Simulated progress if real progress doesn't fire
+        const startTime = Date.now();
+        const estimateProgress = () => {
+          const elapsed = Date.now() - startTime;
+          // Estimate: 100ms per 10% up to 90%
+          const estimatedPercent = Math.min(Math.floor((elapsed / 100) * 10), 90);
+          commentFiles.forEach((_, idx) => {
+            setCommentFileProgress(prev => {
+              const current = prev[idx] ?? 0;
+              // Only update if estimate is higher
+              return { ...prev, [idx]: Math.max(current, estimatedPercent) };
+            });
+          });
+        };
+        
+        // Start simulation immediately
+        progressInterval = setInterval(estimateProgress, 50);
         
         xhr.upload.addEventListener("progress", (event) => {
-          if (event.lengthComputable) {
+          if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
             commentFiles.forEach((_, idx) => {
-              const percentComplete = Math.round((event.loaded / event.total) * 100);
               setCommentFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
             });
+            lastProgressTime = Date.now();
           }
         });
         
         xhr.addEventListener("load", () => {
+          if (progressInterval) clearInterval(progressInterval);
           if (xhr.status === 200 || xhr.status === 201) {
-            // Success - socket will broadcast
-            // Clear after successful upload
-            setMessageDraft("");
-            setCommentFiles([]);
-            setCommentFileProgress({});
-            if (commentFilesRef.current) commentFilesRef.current.value = "";
+            // Set to 100% immediately on success
+            commentFiles.forEach((_, idx) => {
+              setCommentFileProgress(prev => ({ ...prev, [idx]: 100 }));
+            });
+            // Clear after a short delay so user sees 100%
+            setTimeout(() => {
+              setMessageDraft("");
+              setCommentFiles([]);
+              setCommentFileProgress({});
+              if (commentFilesRef.current) commentFilesRef.current.value = "";
+            }, 300);
           } else {
             setError("File upload failed");
           }
@@ -361,15 +386,19 @@ export default function CollaborativeTaskDetail() {
         });
         
         xhr.addEventListener("error", () => {
+          if (progressInterval) clearInterval(progressInterval);
           setError("File upload failed");
+          setIsCommentUploadingFiles(false);
+        });
+        
+        xhr.addEventListener("abort", () => {
+          if (progressInterval) clearInterval(progressInterval);
           setIsCommentUploadingFiles(false);
         });
         
         xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/comment`);
         xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         xhr.send(formData);
-        
-        // Don't clear here - wait for load event above
       } else {
         // No files, just send text comment
         const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
@@ -1096,23 +1125,47 @@ export default function CollaborativeTaskDetail() {
                                             formData.append("parentCommentId", reply.id);
                                             
                                             const xhr = new XMLHttpRequest();
+                                            let lastProgressTime = Date.now();
+                                            let progressInterval = null;
+                                            
+                                            // Simulated progress if real progress doesn't fire
+                                            const startTime = Date.now();
+                                            const estimateProgress = () => {
+                                              const elapsed = Date.now() - startTime;
+                                              const estimatedPercent = Math.min(Math.floor((elapsed / 100) * 10), 90);
+                                              replyFiles.forEach((_, idx) => {
+                                                setReplyFileProgress(prev => {
+                                                  const current = prev[idx] ?? 0;
+                                                  return { ...prev, [idx]: Math.max(current, estimatedPercent) };
+                                                });
+                                              });
+                                            };
+                                            
+                                            progressInterval = setInterval(estimateProgress, 50);
                                             
                                             xhr.upload.addEventListener("progress", (event) => {
-                                              if (event.lengthComputable) {
+                                              if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
+                                                const percentComplete = Math.round((event.loaded / event.total) * 100);
                                                 replyFiles.forEach((_, idx) => {
-                                                  const percentComplete = Math.round((event.loaded / event.total) * 100);
                                                   setReplyFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
                                                 });
+                                                lastProgressTime = Date.now();
                                               }
                                             });
                                             
                                             xhr.addEventListener("load", () => {
+                                              if (progressInterval) clearInterval(progressInterval);
                                               if (xhr.status === 200 || xhr.status === 201) {
-                                                setReplyDraft("");
-                                                setReplyFiles([]);
-                                                setReplyFileProgress({});
-                                                setReplyTo(null);
-                                                if (replyFilesRef.current) replyFilesRef.current.value = "";
+                                                replyFiles.forEach((_, idx) => {
+                                                  setReplyFileProgress(prev => ({ ...prev, [idx]: 100 }));
+                                                });
+                                                setTimeout(() => {
+                                                  setReplyDraft("");
+                                                  setReplyFiles([]);
+                                                  setReplyFileProgress({});
+                                                  setReplyTo(null);
+                                                  if (replyFilesRef.current) replyFilesRef.current.value = "";
+                                                }, 300);
                                               } else {
                                                 setError("File upload failed");
                                               }
@@ -1120,7 +1173,13 @@ export default function CollaborativeTaskDetail() {
                                             });
                                             
                                             xhr.addEventListener("error", () => {
+                                              if (progressInterval) clearInterval(progressInterval);
                                               setError("File upload failed");
+                                              setIsReplyUploadingFiles(false);
+                                            });
+                                            
+                                            xhr.addEventListener("abort", () => {
+                                              if (progressInterval) clearInterval(progressInterval);
                                               setIsReplyUploadingFiles(false);
                                             });
                                             
