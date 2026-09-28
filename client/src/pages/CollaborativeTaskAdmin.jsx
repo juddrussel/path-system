@@ -82,6 +82,7 @@ export default function CollaborativeTaskAdmin() {
   const [showRevision, setShowRevision] = useState(false);
   const [replyTo, setReplyTo] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
+  const [preview, setPreview] = useState(null);
 
   // Load task data
   useEffect(() => {
@@ -329,13 +330,10 @@ export default function CollaborativeTaskAdmin() {
                           </small>
                         </div>
                         <a
-                          href={r2ToProxyUrl(api, file.file_url || file.url)}
-                          download={file.file_name || file.name}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 8px", borderRadius: "5px", background: "#eee5fb", color: "#7043b6", textDecoration: "none", fontSize: "8px", fontWeight: 800, whiteSpace: "nowrap", flexShrink: 0 }}
+                          onClick={() => setPreview(file)}
+                          style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 8px", borderRadius: "5px", background: "#eee5fb", color: "#7043b6", textDecoration: "none", fontSize: "8px", fontWeight: 800, whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer" }}
                         >
-                          <Download size={12} /> Open
+                          <Download size={12} /> Preview
                         </a>
                       </div>
                     ))}
@@ -665,6 +663,49 @@ export default function CollaborativeTaskAdmin() {
               <button type="button" onClick={requestRevision} disabled={!revisionReason.trim()}>
                 Send revision request
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {preview && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 30, display: "grid", placeItems: "center", padding: "20px", background: "rgba(0,0,0,0.5)" }}>
+          <div style={{ position: "relative", width: "min(90vw, 900px)", height: "min(90vh, 700px)", background: "#fff", borderRadius: "12px", boxShadow: "0 20px 50px rgba(0,0,0,0.3)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <button
+              onClick={() => setPreview(null)}
+              style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10, border: "none", background: "transparent", color: "#666", cursor: "pointer", fontSize: "24px" }}
+            >
+              ✕
+            </button>
+            <div style={{ padding: "16px", borderBottom: "1px solid #eee", backgroundColor: "#f9f9f9" }}>
+              <strong style={{ color: "#333", fontSize: "14px" }}>{preview.file_name || preview.name}</strong>
+            </div>
+            <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {preview.file_name?.toLowerCase().match(/\.(pdf)$/i) ? (
+                <iframe
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(r2ToProxyUrl(api, preview.file_url || preview.url))}&embedded=true`}
+                  style={{ width: "100%", height: "100%", border: "none" }}
+                  title="PDF Preview"
+                />
+              ) : preview.file_name?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                <img
+                  src={r2ToProxyUrl(api, preview.file_url || preview.url)}
+                  alt="Image preview"
+                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                />
+              ) : (
+                <div style={{ textAlign: "center", color: "#999", padding: "40px" }}>
+                  <p style={{ fontSize: "16px", marginBottom: "10px" }}>Preview not available</p>
+                  <p style={{ fontSize: "12px" }}>File type: {preview.file_name?.split(".").pop()}</p>
+                  <a
+                    href={r2ToProxyUrl(api, preview.file_url || preview.url)}
+                    download={preview.file_name || preview.name}
+                    style={{ display: "inline-block", marginTop: "16px", padding: "8px 16px", background: "#7043b7", color: "#fff", textDecoration: "none", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}
+                  >
+                    Download File
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
