@@ -999,30 +999,148 @@ export default function CollaborativeTaskDetail() {
                               marginBottom: "8px"
                             }}
                           />
+                          {replyFiles.length > 0 && (
+                            <div style={{ marginBottom: "8px", padding: "8px", background: "#fff", borderRadius: "6px", borderTop: "1px solid #e2d6ef" }}>
+                              <div style={{ fontSize: "8px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "6px" }}>
+                                {replyFiles.length} file(s) attached
+                              </div>
+                              <div style={{ display: "grid", gap: "6px" }}>
+                                {replyFiles.map((file, idx) => (
+                                  <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <div style={{ color: "#5d4867", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                        {file.name}
+                                      </div>
+                                      {replyFileProgress[idx] !== undefined && replyFileProgress[idx] < 100 && (
+                                        <div style={{ marginTop: "3px", height: "3px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                                          <div style={{ height: "100%", background: "#7c3aed", width: `${replyFileProgress[idx]}%`, transition: "width 0.2s" }} />
+                                        </div>
+                                      )}
+                                      {replyFileProgress[idx] === 100 && (
+                                        <div style={{ marginTop: "3px", fontSize: "8px", color: "#579574" }}>✓ Ready</div>
+                                      )}
+                                    </div>
+                                    <button
+                                      onClick={() => setReplyFiles(prev => prev.filter((_, i) => i !== idx))}
+                                      disabled={isReplyUploadingFiles}
+                                      style={{ background: "none", border: "none", color: "#806f8b", cursor: "pointer", fontSize: "14px" }}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           <div style={{ display: "flex", gap: "8px" }}>
+                            <input
+                              ref={replyFilesRef}
+                              type="file"
+                              hidden
+                              multiple
+                              accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files || []);
+                                if (replyFiles.length + files.length > 5) {
+                                  setError("Maximum 5 files allowed");
+                                  return;
+                                }
+                                setReplyFiles(prev => [...prev, ...files]);
+                                if (replyFilesRef.current) replyFilesRef.current.value = "";
+                              }}
+                            />
+                            <button
+                              onClick={() => replyFilesRef.current?.click()}
+                              disabled={isReplyUploadingFiles || replyFiles.length >= 5}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "5px",
+                                padding: "7px 9px",
+                                border: "1px solid #ded2e8",
+                                borderRadius: "7px",
+                                background: "#fff",
+                                color: "#76538d",
+                                fontSize: "8px",
+                                fontWeight: "800",
+                                cursor: "pointer"
+                              }}
+                            >
+                              <Paperclip size={11} /> Add files ({replyFiles.length}/5)
+                            </button>
                             <button
                               className="collab-primary"
                               onClick={async () => {
-                                if (!replyDraft.trim()) return;
+                                if (!replyDraft.trim() && replyFiles.length === 0) return;
                                 try {
-                                  await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
-                                    method: "POST",
-                                    headers: {
-                                      Authorization: `Bearer ${token}`,
-                                      "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({ 
-                                      content: replyDraft.trim(),
-                                      parentCommentId: message.id
-                                    }),
-                                  });
-                                  setReplyDraft("");
-                                  setReplyTo(null);
+                                  setIsReplyUploadingFiles(true);
+                                  
+                                  if (replyFiles.length > 0) {
+                                    const formData = new FormData();
+                                    replyFiles.forEach((file) => {
+                                      formData.append("files", file);
+                                    });
+                                    formData.append("content", replyDraft.trim());
+                                    formData.append("taskId", taskId);
+                                    formData.append("parentCommentId", message.id);
+                                    
+                                    const xhr = new XMLHttpRequest();
+                                    
+                                    xhr.upload.addEventListener("progress", (event) => {
+                                      if (event.lengthComputable) {
+                                        replyFiles.forEach((_, idx) => {
+                                          const percentComplete = Math.round((event.loaded / event.total) * 100);
+                                          setReplyFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
+                                        });
+                                      }
+                                    });
+                                    
+                                    xhr.addEventListener("load", () => {
+                                      if (xhr.status === 200 || xhr.status === 201) {
+                                        setReplyDraft("");
+                                        setReplyFiles([]);
+                                        setReplyFileProgress({});
+                                        setReplyTo(null);
+                                        if (replyFilesRef.current) replyFilesRef.current.value = "";
+                                      } else {
+                                        setError("File upload failed");
+                                      }
+                                      setIsReplyUploadingFiles(false);
+                                    });
+                                    
+                                    xhr.addEventListener("error", () => {
+                                      setError("File upload failed");
+                                      setIsReplyUploadingFiles(false);
+                                    });
+                                    
+                                    xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/comment`);
+                                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                                    xhr.send(formData);
+                                  } else {
+                                    const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+                                      method: "POST",
+                                      headers: {
+                                        Authorization: `Bearer ${token}`,
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({ 
+                                        content: replyDraft.trim(),
+                                        parentCommentId: message.id
+                                      }),
+                                    });
+                                    
+                                    if (response.ok) {
+                                      setReplyDraft("");
+                                      setReplyTo(null);
+                                    }
+                                    setIsReplyUploadingFiles(false);
+                                  }
                                 } catch (err) {
                                   setError(err.message);
+                                  setIsReplyUploadingFiles(false);
                                 }
                               }}
-                              disabled={!replyDraft.trim()}
+                              disabled={(!replyDraft.trim() && replyFiles.length === 0) || isReplyUploadingFiles}
                               style={{ marginTop: "0" }}
                             >
                               <Send size={13} /> Send reply
@@ -1031,6 +1149,8 @@ export default function CollaborativeTaskDetail() {
                               onClick={() => {
                                 setReplyTo(null);
                                 setReplyDraft("");
+                                setReplyFiles([]);
+                                setReplyFileProgress({});
                               }}
                               style={{
                                 display: "inline-flex",
