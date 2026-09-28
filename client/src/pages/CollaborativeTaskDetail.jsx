@@ -728,7 +728,7 @@ export default function CollaborativeTaskDetail() {
                             <strong>{message.full_name}</strong>
                             <small>{formatDate(message.created_at)}</small>
                           </header>
-                          <p>{message.content}</p>
+                          <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{message.content}</p>
                           <div className="collab-thread">
                             <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
                               <Reply size={12} /> Reply
@@ -750,7 +750,7 @@ export default function CollaborativeTaskDetail() {
                                   <strong>{reply.full_name}</strong>
                                   <small>{formatDate(reply.created_at)}</small>
                                 </header>
-                                <p>{reply.content}</p>
+                                <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{reply.content}</p>
                                 <div className="collab-thread">
                                   <button type="button" onClick={() => setReplyTo(replyTo === reply.id ? null : reply.id)}>
                                     <Reply size={12} /> Reply
