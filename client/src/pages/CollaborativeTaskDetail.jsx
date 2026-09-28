@@ -873,317 +873,321 @@ export default function CollaborativeTaskDetail() {
                         </div>
                       </article>
 
-                      {/* Nested replies */}
+                      {/* Nested replies - flat display, no additional nesting */}
                       {message.replies && message.replies.length > 0 && (
                         <div style={{ marginLeft: "28px", borderLeft: "2px solid #e9ddfb", paddingTop: "8px" }}>
                           {message.replies.map((reply) => (
-                            <article className="collab-message" key={reply.id} style={{ background: "#fcfaff", border: "1px solid #f0ebf3" }}>
-                              <span className={`collab-avatar ${getTone(reply.user_id || reply.sender_id || 0)}`}>
-                                {initials(reply.full_name)}
-                              </span>
-                              <div className="collab-message-content">
-                                <header>
-                                  <strong>{reply.full_name}</strong>
-                                  <small>{formatDate(reply.created_at)}</small>
-                                </header>
-                                <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{reply.content}</p>
-                                {reply.files && reply.files.length > 0 && (
-                                  <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
-                                    {reply.files.map((file, idx) => {
-                                      const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-                                      const imageKey = `reply-${reply.id}-file-${idx}`;
-                                      const imageLoading = imageLoadingStates[imageKey] ?? true;
-                                      return isImage ? (
-                                        <div 
-                                          key={idx}
-                                          style={{ 
-                                            position: "relative",
-                                            display: "inline-block",
-                                            maxWidth: "280px"
-                                          }}
-                                        >
-                                          {imageLoading && (
-                                            <div style={{
-                                              position: "absolute",
-                                              inset: 0,
-                                              display: "flex",
-                                              alignItems: "center",
-                                              justifyContent: "center",
-                                              background: "#f5f0fb",
-                                              borderRadius: "6px",
-                                              border: "1px solid #e2d9e9",
-                                              zIndex: 1
-                                            }}>
+                            <div key={reply.id}>
+                              <article className="collab-message" style={{ background: "#fcfaff", border: "1px solid #f0ebf3" }}>
+                                <span className={`collab-avatar ${getTone(reply.user_id || reply.sender_id || 0)}`}>
+                                  {initials(reply.full_name)}
+                                </span>
+                                <div className="collab-message-content">
+                                  <header>
+                                    <strong>{reply.full_name}</strong>
+                                    <small>{formatDate(reply.created_at)}</small>
+                                  </header>
+                                  <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{reply.content}</p>
+                                  {reply.files && reply.files.length > 0 && (
+                                    <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                                      {reply.files.map((file, idx) => {
+                                        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                        const imageKey = `reply-${reply.id}-file-${idx}`;
+                                        const imageLoading = imageLoadingStates[imageKey] ?? true;
+                                        return isImage ? (
+                                          <div 
+                                            key={idx}
+                                            style={{ 
+                                              position: "relative",
+                                              display: "inline-block",
+                                              maxWidth: "280px"
+                                            }}
+                                          >
+                                            {imageLoading && (
                                               <div style={{
-                                                width: "24px",
-                                                height: "24px",
-                                                border: "2px solid #e2d9e9",
-                                                borderTopColor: "#7c3aed",
-                                                borderRadius: "50%",
-                                                animation: "spin 0.8s linear infinite"
-                                              }} />
-                                            </div>
-                                          )}
-                                          <a 
-                                            href={file.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ display: "block", maxWidth: "280px" }}
-                                          >
-                                            <img 
-                                              src={file.url}
-                                              alt={file.name}
-                                              onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
-                                              onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
-                                              style={{ 
-                                                maxWidth: "100%", 
-                                                borderRadius: "6px", 
-                                                border: "1px solid #e2d9e9", 
-                                                cursor: "pointer",
-                                                display: imageLoading ? "none" : "block"
-                                              }}
-                                            />
-                                          </a>
-                                        </div>
-                                      ) : (
-                                        <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
-                                          <span style={{ fontSize: "12px" }}>📎</span>
-                                          <a 
-                                            href={file.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
-                                          >
-                                            {file.name}
-                                          </a>
-                                        </div>
-                                      );
-                                    })}
+                                                position: "absolute",
+                                                inset: 0,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                background: "#f5f0fb",
+                                                borderRadius: "6px",
+                                                border: "1px solid #e2d9e9",
+                                                zIndex: 1
+                                              }}>
+                                                <div style={{
+                                                  width: "24px",
+                                                  height: "24px",
+                                                  border: "2px solid #e2d9e9",
+                                                  borderTopColor: "#7c3aed",
+                                                  borderRadius: "50%",
+                                                  animation: "spin 0.8s linear infinite"
+                                                }} />
+                                              </div>
+                                            )}
+                                            <a 
+                                              href={file.url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              style={{ display: "block", maxWidth: "280px" }}
+                                            >
+                                              <img 
+                                                src={file.url}
+                                                alt={file.name}
+                                                onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                                onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                                style={{ 
+                                                  maxWidth: "100%", 
+                                                  borderRadius: "6px", 
+                                                  border: "1px solid #e2d9e9", 
+                                                  cursor: "pointer",
+                                                  display: imageLoading ? "none" : "block"
+                                                }}
+                                              />
+                                            </a>
+                                          </div>
+                                        ) : (
+                                          <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                                            <span style={{ fontSize: "12px" }}>📎</span>
+                                            <a 
+                                              href={file.url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                            >
+                                              {file.name}
+                                            </a>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                  <div className="collab-thread">
+                                    <button type="button" onClick={() => setReplyTo(replyTo === reply.id ? null : reply.id)}>
+                                      <Reply size={12} /> Reply
+                                    </button>
                                   </div>
-                                )}
-                                <div className="collab-thread">
-                                  <button type="button" onClick={() => setReplyTo(replyTo === reply.id ? null : reply.id)}>
-                                    <Reply size={12} /> Reply
-                                  </button>
                                 </div>
-                              </div>
-                            </article>
+                              </article>
+
+                              {/* Reply form for nested reply - appears inline, not nested deeper */}
+                              {replyTo === reply.id && (
+                                <div style={{ marginTop: "12px", padding: "12px", background: "#fbf8ff", borderRadius: "8px" }}>
+                                  <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
+                                    ↳ Reply to {reply.full_name.split(" ")[0]}
+                                  </div>
+                                  <textarea
+                                    key={`reply-to-reply-${reply.id}`}
+                                    value={replyDraft}
+                                    onChange={(e) => setReplyDraft(e.target.value)}
+                                    placeholder={`Write your reply…`}
+                                    rows={2}
+                                    autoFocus
+                                    style={{
+                                      display: "block",
+                                      width: "100%",
+                                      padding: "10px",
+                                      border: "1px solid #e2d9e9",
+                                      borderRadius: "8px",
+                                      outline: "0",
+                                      resize: "vertical",
+                                      color: "#5d4867",
+                                      font: "10px/1.5 DM Sans,Arial,sans-serif",
+                                      boxSizing: "border-box",
+                                      marginBottom: "8px"
+                                    }}
+                                  />
+                                  {replyFiles.length > 0 && (
+                                    <div style={{ marginBottom: "8px", padding: "8px", background: "#fff", borderRadius: "6px", borderTop: "1px solid #e2d6ef" }}>
+                                      <div style={{ fontSize: "8px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "6px" }}>
+                                        {replyFiles.length} file(s) attached
+                                      </div>
+                                      <div style={{ display: "grid", gap: "6px" }}>
+                                        {replyFiles.map((file, idx) => {
+                                          const isPdf = /\.pdf$/i.test(file.name);
+                                          const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                          const progress = replyFileProgress[idx] ?? 0;
+                                          const isUploading = progress < 100;
+                                          
+                                          return (
+                                            <div key={idx} style={{ padding: "8px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
+                                              <div style={{ display: "grid", width: "32px", height: "32px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "14px", flexShrink: 0 }}>
+                                                {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
+                                              </div>
+                                              <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ color: "#5d4867", fontSize: "9px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                  {file.name}
+                                                </div>
+                                                <div style={{ marginTop: "4px", height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                                                  <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                                                </div>
+                                                <div style={{ marginTop: "4px", fontSize: "8px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
+                                                  {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                                                </div>
+                                              </div>
+                                              <button
+                                                onClick={() => setReplyFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                disabled={isReplyUploadingFiles}
+                                                style={{ background: "none", border: "none", color: "#806f8b", cursor: isReplyUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isReplyUploadingFiles ? 0.5 : 1 }}
+                                              >
+                                                ✕
+                                              </button>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div style={{ display: "flex", gap: "8px" }}>
+                                    <input
+                                      ref={replyFilesRef}
+                                      type="file"
+                                      hidden
+                                      multiple
+                                      accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+                                      onChange={(e) => {
+                                        const files = Array.from(e.target.files || []);
+                                        if (replyFiles.length + files.length > 5) {
+                                          setError("Maximum 5 files allowed");
+                                          return;
+                                        }
+                                        setReplyFiles(prev => [...prev, ...files]);
+                                        // Initialize progress for new files
+                                        files.forEach((_, idx) => {
+                                          setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 0 }));
+                                        });
+                                        if (replyFilesRef.current) replyFilesRef.current.value = "";
+                                      }}
+                                    />
+                                    <button
+                                      onClick={() => replyFilesRef.current?.click()}
+                                      disabled={isReplyUploadingFiles || replyFiles.length >= 5}
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "5px",
+                                        padding: "7px 9px",
+                                        border: "1px solid #ded2e8",
+                                        borderRadius: "7px",
+                                        background: "#fff",
+                                        color: "#76538d",
+                                        fontSize: "8px",
+                                        fontWeight: "800",
+                                        cursor: "pointer"
+                                      }}
+                                    >
+                                      <Paperclip size={11} /> Add files ({replyFiles.length}/5)
+                                    </button>
+                                    <button
+                                      className="collab-primary"
+                                      onClick={async () => {
+                                        if (!replyDraft.trim() && replyFiles.length === 0) return;
+                                        try {
+                                          setIsReplyUploadingFiles(true);
+                                          
+                                          if (replyFiles.length > 0) {
+                                            const formData = new FormData();
+                                            replyFiles.forEach((file) => {
+                                              formData.append("files", file);
+                                            });
+                                            formData.append("content", replyDraft.trim());
+                                            formData.append("taskId", taskId);
+                                            formData.append("parentCommentId", reply.id);
+                                            
+                                            const xhr = new XMLHttpRequest();
+                                            
+                                            xhr.upload.addEventListener("progress", (event) => {
+                                              if (event.lengthComputable) {
+                                                replyFiles.forEach((_, idx) => {
+                                                  const percentComplete = Math.round((event.loaded / event.total) * 100);
+                                                  setReplyFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
+                                                });
+                                              }
+                                            });
+                                            
+                                            xhr.addEventListener("load", () => {
+                                              if (xhr.status === 200 || xhr.status === 201) {
+                                                setReplyDraft("");
+                                                setReplyFiles([]);
+                                                setReplyFileProgress({});
+                                                setReplyTo(null);
+                                                if (replyFilesRef.current) replyFilesRef.current.value = "";
+                                              } else {
+                                                setError("File upload failed");
+                                              }
+                                              setIsReplyUploadingFiles(false);
+                                            });
+                                            
+                                            xhr.addEventListener("error", () => {
+                                              setError("File upload failed");
+                                              setIsReplyUploadingFiles(false);
+                                            });
+                                            
+                                            xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/comment`);
+                                            xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                                            xhr.send(formData);
+                                          } else {
+                                            const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+                                              method: "POST",
+                                              headers: {
+                                                Authorization: `Bearer ${token}`,
+                                                "Content-Type": "application/json",
+                                              },
+                                              body: JSON.stringify({ 
+                                                content: replyDraft.trim(),
+                                                parentCommentId: reply.id
+                                              }),
+                                            });
+                                            
+                                            if (response.ok) {
+                                              setReplyDraft("");
+                                              setReplyTo(null);
+                                            }
+                                            setIsReplyUploadingFiles(false);
+                                          }
+                                        } catch (err) {
+                                          setError(err.message);
+                                          setIsReplyUploadingFiles(false);
+                                        }
+                                      }}
+                                      disabled={(!replyDraft.trim() && replyFiles.length === 0) || isReplyUploadingFiles}
+                                      style={{ marginTop: "0" }}
+                                    >
+                                      <Send size={13} /> Send reply
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setReplyTo(null);
+                                        setReplyDraft("");
+                                        setReplyFiles([]);
+                                        setReplyFileProgress({});
+                                      }}
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: "6px",
+                                        padding: "9px 11px",
+                                        border: "1px solid #ded2e8",
+                                        borderRadius: "8px",
+                                        background: "#fff",
+                                        color: "#76538d",
+                                        fontSize: "9px",
+                                        fontWeight: "800",
+                                        cursor: "pointer"
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           ))}
                         </div>
                       )}
 
-                      {/* Reply form for parent comment */}
-                      {replyTo === message.id && (
-                        <div style={{ marginLeft: "38px", marginTop: "12px", padding: "12px", borderLeft: "2px solid #e2d6ef", background: "#fbf8ff", borderRadius: "8px" }}>
-                          <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
-                            ↳ Reply to {message.full_name.split(" ")[0]}
-                          </div>
-                          <textarea
-                            key={`reply-${message.id}`}
-                            value={replyDraft}
-                            onChange={(e) => setReplyDraft(e.target.value)}
-                            placeholder={`Write your reply…`}
-                            rows={2}
-                            autoFocus
-                            style={{
-                              display: "block",
-                              width: "100%",
-                              padding: "10px",
-                              border: "1px solid #e2d9e9",
-                              borderRadius: "8px",
-                              outline: "0",
-                              resize: "vertical",
-                              color: "#5d4867",
-                              font: "10px/1.5 DM Sans,Arial,sans-serif",
-                              boxSizing: "border-box",
-                              marginBottom: "8px"
-                            }}
-                          />
-                          {replyFiles.length > 0 && (
-                            <div style={{ marginBottom: "8px", padding: "8px", background: "#fff", borderRadius: "6px", borderTop: "1px solid #e2d6ef" }}>
-                              <div style={{ fontSize: "8px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "6px" }}>
-                                {replyFiles.length} file(s) attached
-                              </div>
-                              <div style={{ display: "grid", gap: "6px" }}>
-                                {replyFiles.map((file, idx) => {
-                                  const isPdf = /\.pdf$/i.test(file.name);
-                                  const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-                                  const progress = replyFileProgress[idx] ?? 0;
-                                  const isUploading = progress < 100;
-                                  
-                                  return (
-                                    <div key={idx} style={{ padding: "8px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
-                                      <div style={{ display: "grid", width: "32px", height: "32px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "14px", flexShrink: 0 }}>
-                                        {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
-                                      </div>
-                                      <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ color: "#5d4867", fontSize: "9px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                          {file.name}
-                                        </div>
-                                        <div style={{ marginTop: "4px", height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
-                                          <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
-                                        </div>
-                                        <div style={{ marginTop: "4px", fontSize: "8px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
-                                          {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
-                                        </div>
-                                      </div>
-                                      <button
-                                        onClick={() => setReplyFiles(prev => prev.filter((_, i) => i !== idx))}
-                                        disabled={isReplyUploadingFiles}
-                                        style={{ background: "none", border: "none", color: "#806f8b", cursor: isReplyUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isReplyUploadingFiles ? 0.5 : 1 }}
-                                      >
-                                        ✕
-                                      </button>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            <input
-                              ref={replyFilesRef}
-                              type="file"
-                              hidden
-                              multiple
-                              accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
-                              onChange={(e) => {
-                                const files = Array.from(e.target.files || []);
-                                if (replyFiles.length + files.length > 5) {
-                                  setError("Maximum 5 files allowed");
-                                  return;
-                                }
-                                setReplyFiles(prev => [...prev, ...files]);
-                                // Initialize progress for new files
-                                files.forEach((_, idx) => {
-                                  setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 0 }));
-                                });
-                                if (replyFilesRef.current) replyFilesRef.current.value = "";
-                              }}
-                            />
-                            <button
-                              onClick={() => replyFilesRef.current?.click()}
-                              disabled={isReplyUploadingFiles || replyFiles.length >= 5}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "5px",
-                                padding: "7px 9px",
-                                border: "1px solid #ded2e8",
-                                borderRadius: "7px",
-                                background: "#fff",
-                                color: "#76538d",
-                                fontSize: "8px",
-                                fontWeight: "800",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <Paperclip size={11} /> Add files ({replyFiles.length}/5)
-                            </button>
-                            <button
-                              className="collab-primary"
-                              onClick={async () => {
-                                if (!replyDraft.trim() && replyFiles.length === 0) return;
-                                try {
-                                  setIsReplyUploadingFiles(true);
-                                  
-                                  if (replyFiles.length > 0) {
-                                    const formData = new FormData();
-                                    replyFiles.forEach((file) => {
-                                      formData.append("files", file);
-                                    });
-                                    formData.append("content", replyDraft.trim());
-                                    formData.append("taskId", taskId);
-                                    formData.append("parentCommentId", message.id);
-                                    
-                                    const xhr = new XMLHttpRequest();
-                                    
-                                    xhr.upload.addEventListener("progress", (event) => {
-                                      if (event.lengthComputable) {
-                                        replyFiles.forEach((_, idx) => {
-                                          const percentComplete = Math.round((event.loaded / event.total) * 100);
-                                          setReplyFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
-                                        });
-                                      }
-                                    });
-                                    
-                                    xhr.addEventListener("load", () => {
-                                      if (xhr.status === 200 || xhr.status === 201) {
-                                        setReplyDraft("");
-                                        setReplyFiles([]);
-                                        setReplyFileProgress({});
-                                        setReplyTo(null);
-                                        if (replyFilesRef.current) replyFilesRef.current.value = "";
-                                      } else {
-                                        setError("File upload failed");
-                                      }
-                                      setIsReplyUploadingFiles(false);
-                                    });
-                                    
-                                    xhr.addEventListener("error", () => {
-                                      setError("File upload failed");
-                                      setIsReplyUploadingFiles(false);
-                                    });
-                                    
-                                    xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/comment`);
-                                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-                                    xhr.send(formData);
-                                  } else {
-                                    const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
-                                      method: "POST",
-                                      headers: {
-                                        Authorization: `Bearer ${token}`,
-                                        "Content-Type": "application/json",
-                                      },
-                                      body: JSON.stringify({ 
-                                        content: replyDraft.trim(),
-                                        parentCommentId: message.id
-                                      }),
-                                    });
-                                    
-                                    if (response.ok) {
-                                      setReplyDraft("");
-                                      setReplyTo(null);
-                                    }
-                                    setIsReplyUploadingFiles(false);
-                                  }
-                                } catch (err) {
-                                  setError(err.message);
-                                  setIsReplyUploadingFiles(false);
-                                }
-                              }}
-                              disabled={(!replyDraft.trim() && replyFiles.length === 0) || isReplyUploadingFiles}
-                              style={{ marginTop: "0" }}
-                            >
-                              <Send size={13} /> Send reply
-                            </button>
-                            <button
-                              onClick={() => {
-                                setReplyTo(null);
-                                setReplyDraft("");
-                                setReplyFiles([]);
-                                setReplyFileProgress({});
-                              }}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "6px",
-                                padding: "9px 11px",
-                                border: "1px solid #ded2e8",
-                                borderRadius: "8px",
-                                background: "#fff",
-                                color: "#76538d",
-                                fontSize: "9px",
-                                fontWeight: "800",
-                                cursor: "pointer"
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )}
+
                     </div>
                   ))
                 ) : (
