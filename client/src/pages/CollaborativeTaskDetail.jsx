@@ -399,6 +399,21 @@ export default function CollaborativeTaskDetail() {
               </div>
             </section>
 
+            <section className="collab-card" style={{ backgroundColor: "#ffcccc", border: "3px solid red" }}>
+              <div className="collab-heading">
+                <div>
+                  <span className="collab-kicker">
+                    TEST SECTION - RED BACKGROUND
+                  </span>
+                  <h2>IF YOU SEE THIS, RENDERING WORKS</h2>
+                </div>
+              </div>
+              
+              <p style={{ color: "red", fontSize: "16px", fontWeight: "bold" }}>
+                THIS IS A TEST - If you see this red section, the component is rendering correctly.
+              </p>
+            </section>
+
             <section className="collab-card" style={{ backgroundColor: "#fff9f0" }}>
               <div className="collab-heading">
                 <div>
