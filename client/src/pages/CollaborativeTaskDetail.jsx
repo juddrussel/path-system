@@ -66,11 +66,14 @@ export default function CollaborativeTaskDetail() {
   const isChair = ADMIN_ROLES.includes(user.role);
   const api = import.meta.env.VITE_API_URL || "";
 
+  console.log("[CollaborativeTaskDetail] Component mounted. taskId:", taskId, "token exists:", !!token, "api:", api);
+
   // State
   const [task, setTask] = useState(null);
   const [collaborators, setCollaborators] = useState([]);
   const [versions, setVersions] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Awaiting Confirmation");
@@ -95,11 +98,16 @@ export default function CollaborativeTaskDetail() {
     const loadTask = async () => {
       try {
         setLoading(true);
+        console.log("[CollaborativeTaskDetail] Loading task:", taskId);
         const response = await fetch(`${api}/api/collaborative-tasks/${taskId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log("[CollaborativeTaskDetail] API Response status:", response.status);
         if (!response.ok) throw new Error("Failed to load task");
         const data = await response.json();
+        console.log("[CollaborativeTaskDetail] Full API response:", data);
+        console.log("[CollaborativeTaskDetail] Task:", data.task);
+        console.log("[CollaborativeTaskDetail] Attachments:", data.attachments);
         setTask(data.task);
         setCollaborators((data.collaborators || []).map((c, i) => ({
           ...c,
@@ -108,10 +116,12 @@ export default function CollaborativeTaskDetail() {
         })));
         setVersions(data.versions || []);
         setMessages(data.comments || []);
+        setAttachments(data.attachments || []);
         setStatus(data.task?.status || "Awaiting Confirmation");
         
         socket.emit("join_task", { taskId: parseInt(taskId) });
       } catch (err) {
+        console.error("[CollaborativeTaskDetail] Error loading task:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -387,6 +397,118 @@ export default function CollaborativeTaskDetail() {
                   <strong>{formatDate(task.deadline)}</strong>
                 </div>
               </div>
+            </section>
+
+            <section className="collab-card" style={{ backgroundColor: "#ffcccc", border: "3px solid red" }}>
+              <div className="collab-heading">
+                <div>
+                  <span className="collab-kicker">
+                    TEST SECTION - RED BACKGROUND
+                  </span>
+                  <h2>IF YOU SEE THIS, RENDERING WORKS</h2>
+                </div>
+              </div>
+              
+              <p style={{ color: "red", fontSize: "16px", fontWeight: "bold" }}>
+                THIS IS A TEST - If you see this red section, the component is rendering correctly.
+              </p>
+            </section>
+
+            <section className="collab-card" style={{ backgroundColor: "#fff9f0" }}>
+              <div className="collab-heading">
+                <div>
+                  <span className="collab-kicker">
+                    <FileText size={12} /> Instructions
+                  </span>
+                  <h2>{task.title}</h2>
+                </div>
+              </div>
+              
+              <div style={{ marginTop: "14px" }}>
+                <div style={{
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background: "#f5f0fb",
+                  borderLeft: "3px solid #7c3aed"
+                }}>
+                  <p style={{ margin: 0, color: "#5d4867", fontSize: "11px", lineHeight: "1.6" }}>
+                    {task.notes || task.description || "Complete the requested work, check source records, and provide a concise submission note for the reviewer."}
+                  </p>
+                </div>
+              </div>
+
+              {attachments.length > 0 ? (
+                <div style={{ marginTop: "14px" }}>
+                  <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
+                    Instruction attachment
+                  </span>
+                  {attachments.map((attach, idx) => (
+                    <div key={idx} style={{
+                      padding: "10px",
+                      border: "1px solid #e2d6ef",
+                      borderRadius: "8px",
+                      background: "#fbf8ff",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: idx < attachments.length - 1 ? "8px" : 0
+                    }}>
+                      <span style={{
+                        display: "grid",
+                        width: "32px",
+                        height: "32px",
+                        placeItems: "center",
+                        borderRadius: "7px",
+                        background: "#eee5fb",
+                        color: "#7043b7",
+                        fontSize: "14px",
+                        flexShrink: 0
+                      }}>
+                        📄
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <strong style={{ display: "block", color: "#5a4567", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {attach.file_name}
+                        </strong>
+                        <small style={{ display: "block", marginTop: "3px", color: "#978ba1", fontSize: "8px" }}>
+                          Uploaded by assigner
+                        </small>
+                      </div>
+                      <a
+                        href={r2ToProxyUrl(api, attach.file_url)}
+                        download={attach.file_name}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "6px 10px",
+                          borderRadius: "6px",
+                          background: "#eee5fb",
+                          color: "#7043b6",
+                          textDecoration: "none",
+                          fontSize: "8px",
+                          fontWeight: 800,
+                          whiteSpace: "nowrap",
+                          flexShrink: 0
+                        }}
+                      >
+                        <FileImage size={12} /> Open
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ marginTop: "14px", padding: "10px", borderRadius: "8px", background: "#f5f0fb", border: "1px dashed #d9cbe6" }}>
+                  <span style={{ fontSize: "8px", fontWeight: 800, color: "#9b8ba2", display: "flex", alignItems: "center", gap: "6px" }}>
+                    ℹ️ No instruction attachment
+                  </span>
+                  <small style={{ display: "block", marginTop: "4px", color: "#978ba1", fontSize: "8px" }}>
+                    The instructions above are the active task brief.
+                  </small>
+                </div>
+              )}
             </section>
 
             <section className="collab-card">

@@ -592,8 +592,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     let comments = [];
     try {
       const result = await db.query(
-        `SELECT tc.*, u.full_name, u.username FROM task_comments tc
-         JOIN users u ON tc.user_id = u.id
+        `SELECT tc.* FROM task_comments tc
          WHERE tc.task_id = ?
          ORDER BY tc.created_at ASC`,
         [taskId]
@@ -605,6 +604,22 @@ router.get("/:id", requireAuth, async (req, res) => {
       comments = [];
     }
 
+    // Fetch task attachments (instruction files from assigner)
+    let attachments = [];
+    try {
+      const result = await db.query(
+        `SELECT ta.* FROM task_attachments ta
+         WHERE ta.task_id = ?
+         ORDER BY ta.uploaded_at DESC`,
+        [taskId]
+      );
+      attachments = result[0] || [];
+      console.log(`Found ${attachments.length} task attachments`);
+    } catch (e) {
+      console.error("Error fetching attachments:", e.message);
+      attachments = [];
+    }
+
     console.log(`Successfully loaded collaborative task ${taskId}`);
     return res.json({
       task,
@@ -612,6 +627,7 @@ router.get("/:id", requireAuth, async (req, res) => {
       confirmations,
       versions,
       comments,
+      attachments,
     });
   } catch (err) {
     console.error("GET /collaborative-tasks/:id FATAL error:", err);
