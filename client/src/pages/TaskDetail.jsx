@@ -1032,6 +1032,45 @@ export default function TaskDetail() {
                   )}
                 </section>
 
+                {task?.is_collaborative && task?.instructions && (
+                  <section className="td-section">
+                    <div className="td-section-head">
+                      <span>
+                        <Icon name="list" />
+                      </span>
+                      <div>
+                        <span>Collaborative task</span>
+                        <h2>What the group needs to complete</h2>
+                      </div>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "6px 8px", borderRadius: "6px", background: "#f0e7fc", color: "#7546b5", fontSize: "9px", fontWeight: 800, whiteSpace: "nowrap" }}>
+                        Required before submission
+                      </span>
+                    </div>
+                    <p style={{ color: "#887995", fontSize: "12px", lineHeight: "1.55", margin: "0 0 16px" }}>
+                      Use this checklist as the shared source of truth while preparing the final output. Discuss questions in the thread below and make sure the latest version reflects every requirement.
+                    </p>
+                    <div style={{ display: "grid", gap: "12px", marginBottom: "16px" }}>
+                      {task.instructions.split("\n").filter(line => line.trim()).map((instruction, idx) => (
+                        <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", borderRadius: "8px", background: "#eee5fc", color: "#7043b6", fontSize: "10px", fontWeight: 800, flexShrink: 0 }}>
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                          <p style={{ margin: "0", color: "#5d4867", fontSize: "10px", lineHeight: "1.55" }}>
+                            {instruction.trim().replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '')}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ padding: "12px", border: "1px solid #e2d6ef", borderRadius: "9px", background: "#fbf8ff", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                      <Icon name="shield" style={{ color: "#7043b6", flexShrink: 0, marginTop: "2px" }} />
+                      <div>
+                        <strong style={{ display: "block", fontSize: "9px", fontWeight: 800, color: "#5d4867", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>Submission note</strong>
+                        <small style={{ display: "block", fontSize: "9px", color: "#8b7b96", lineHeight: "1.4" }}>The task will be submitted to the Program Chair / Admin only after every collaborator confirms the latest version.</small>
+                      </div>
+                    </div>
+                  </section>
+                )}
+
                 {isFacultyView && (
                   isUnderReview ? (
                     <section className="td-card">
