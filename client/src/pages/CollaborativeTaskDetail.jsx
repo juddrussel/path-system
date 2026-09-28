@@ -400,19 +400,6 @@ export default function CollaborativeTaskDetail() {
               </div>
             </section>
 
-            <section className="collab-card">
-              <div className="collab-heading">
-                <div>
-                  <span className="collab-kicker"><ListChecks size={12} /> Instructions from the Program Chair / Admin</span>
-                  <h2>What the group needs to complete</h2>
-                </div>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "6px 8px", borderRadius: "6px", background: "#f0e7fc", color: "#7546b5", fontSize: "9px", fontWeight: 800, whiteSpace: "nowrap" }}>
-                  Required before submission
-                </span>
-              </div>
-              <p className="collab-muted">
-                Use this checklist as the shared source of truth while preparing the final output. Discuss questions in the thread below and make sure the latest version reflects every requirement.
-              </p>
             {task?.instructions ? (
               <section className="collab-card">
                 <div className="collab-heading">
