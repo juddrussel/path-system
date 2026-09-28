@@ -609,9 +609,20 @@ router.get("/:id", requireAuth, async (req, res) => {
       const rootComments = [];
       
       allComments.forEach(comment => {
+        // Files might be already parsed by MySQL or still JSON string
+        let files = [];
+        if (comment.files) {
+          try {
+            files = typeof comment.files === 'string' ? JSON.parse(comment.files) : comment.files;
+          } catch (e) {
+            console.warn(`Could not parse files for comment ${comment.id}:`, e.message);
+            files = [];
+          }
+        }
+        
         commentMap[comment.id] = { 
           ...comment, 
-          files: comment.files ? JSON.parse(comment.files) : [],
+          files,
           replies: [] 
         };
       });
