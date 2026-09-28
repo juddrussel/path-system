@@ -352,19 +352,16 @@ export default function CollaborativeTaskDetail() {
         const startTime = Date.now();
         const estimateProgress = () => {
           const elapsed = Date.now() - startTime;
-          // Estimate: aggressive curve - gets to 50% in 500ms, 85% in 2s
-          const estimatedPercent = Math.min(Math.floor((elapsed / 10) * 5), 90);
+          // Start at 10%, ramp up to 90% over time
+          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
           commentFiles.forEach((_, idx) => {
-            setCommentFileProgress(prev => {
-              const current = prev[idx] ?? 0;
-              // Only update if estimate is higher
-              return { ...prev, [idx]: Math.max(current, estimatedPercent) };
-            });
+            setCommentFileProgress(prev => ({ ...prev, [idx]: estimatedPercent }));
           });
         };
         
-        // Start simulation immediately and update more frequently
-        progressInterval = setInterval(estimateProgress, 30);
+        // Start simulation immediately and update frequently
+        estimateProgress(); // Call once immediately
+        progressInterval = setInterval(estimateProgress, 20);
         
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
@@ -1138,16 +1135,14 @@ export default function CollaborativeTaskDetail() {
                                             const startTime = Date.now();
                                             const estimateProgress = () => {
                                               const elapsed = Date.now() - startTime;
-                                              const estimatedPercent = Math.min(Math.floor((elapsed / 10) * 5), 90);
+                                              const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
                                               replyFiles.forEach((_, idx) => {
-                                                setReplyFileProgress(prev => {
-                                                  const current = prev[idx] ?? 0;
-                                                  return { ...prev, [idx]: Math.max(current, estimatedPercent) };
-                                                });
+                                                setReplyFileProgress(prev => ({ ...prev, [idx]: estimatedPercent }));
                                               });
                                             };
                                             
-                                            progressInterval = setInterval(estimateProgress, 30);
+                                            estimateProgress(); // Call once immediately
+                                            progressInterval = setInterval(estimateProgress, 20);
                                             
                                             xhr.upload.addEventListener("progress", (event) => {
                                               if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
