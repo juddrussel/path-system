@@ -592,9 +592,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     let comments = [];
     try {
       const result = await db.query(
-        `SELECT tc.id, tc.task_id, tc.user_id, tc.content, tc.created_at, u.full_name, u.username 
-         FROM task_comments tc
-         LEFT JOIN users u ON tc.user_id = u.id
+        `SELECT tc.* FROM task_comments tc
          WHERE tc.task_id = ?
          ORDER BY tc.created_at ASC`,
         [taskId]
