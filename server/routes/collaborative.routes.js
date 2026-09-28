@@ -592,9 +592,13 @@ router.get("/:id", requireAuth, async (req, res) => {
     let comments = [];
     try {
       const result = await db.query(
-        `SELECT tc.* FROM task_comments tc
+        `SELECT 
+           tc.id, tc.task_id, tc.user_id, tc.content, tc.created_at,
+           u.full_name
+         FROM task_comments tc
+         LEFT JOIN users u ON tc.user_id = u.id
          WHERE tc.task_id = ?
-         ORDER BY tc.created_at ASC`,
+         ORDER BY tc.created_at DESC`,
         [taskId]
       );
       comments = result[0] || [];
@@ -690,16 +694,24 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
     const userId = req.user?.id;
     const { content } = req.body;
 
+    console.log(`[Comment] taskId=${taskId}, userId=${userId}, contentLength=${content?.length || 0}`);
+
     if (!content || !content.trim()) {
       return res.status(400).json({ message: "Comment cannot be empty" });
     }
 
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
     // Check if user is a collaborator on this task
-    const [collabCheck] = await db.query(
+    const [[collabCheck]] = await db.query(
       "SELECT id FROM task_collaborators WHERE task_id = ? AND user_id = ?",
       [taskId, userId]
     );
-    if (collabCheck.length === 0) {
+    
+    if (!collabCheck) {
+      console.log(`[Comment] User ${userId} is not a collaborator on task ${taskId}`);
       return res.status(403).json({ message: "Only collaborators can comment" });
     }
 
@@ -710,9 +722,10 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       [taskId, userId, content]
     );
 
+    console.log(`[Comment] Inserted comment id=${result.insertId}`);
+
     // Fetch user details for response
-    const [users] = await db.query("SELECT id, full_name FROM users WHERE id = ?", [userId]);
-    const user = users[0];
+    const [[user]] = await db.query("SELECT id, full_name FROM users WHERE id = ?", [userId]);
 
     const comment = {
       id: result.insertId,
@@ -725,7 +738,9 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
 
     // Broadcast to all collaborators
     const io = req.app.get("io");
-    io.to(`task_${taskId}`).emit("collaborative:comment_posted", comment);
+    if (io) {
+      io.to(`task_${taskId}`).emit("collaborative:comment_posted", comment);
+    }
 
     res.status(201).json(comment);
   } catch (err) {
