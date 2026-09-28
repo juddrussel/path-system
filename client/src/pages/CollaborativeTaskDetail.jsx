@@ -791,19 +791,36 @@ export default function CollaborativeTaskDetail() {
                           <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{message.content}</p>
                           {message.files && message.files.length > 0 && (
                             <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
-                              {message.files.map((file, idx) => (
-                                <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
-                                  <span style={{ fontSize: "12px" }}>📎</span>
+                              {message.files.map((file, idx) => {
+                                const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                return isImage ? (
                                   <a 
+                                    key={idx}
                                     href={file.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                    style={{ display: "block", maxWidth: "280px" }}
                                   >
-                                    {file.name}
+                                    <img 
+                                      src={file.url}
+                                      alt={file.name}
+                                      style={{ maxWidth: "100%", borderRadius: "6px", border: "1px solid #e2d9e9", cursor: "pointer" }}
+                                    />
                                   </a>
-                                </div>
-                              ))}
+                                ) : (
+                                  <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <span style={{ fontSize: "12px" }}>📎</span>
+                                    <a 
+                                      href={file.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                    >
+                                      {file.name}
+                                    </a>
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                           <div className="collab-thread">
@@ -830,19 +847,36 @@ export default function CollaborativeTaskDetail() {
                                 <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{reply.content}</p>
                                 {reply.files && reply.files.length > 0 && (
                                   <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
-                                    {reply.files.map((file, idx) => (
-                                      <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
-                                        <span style={{ fontSize: "12px" }}>📎</span>
+                                    {reply.files.map((file, idx) => {
+                                      const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                      return isImage ? (
                                         <a 
+                                          key={idx}
                                           href={file.url}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                          style={{ display: "block", maxWidth: "280px" }}
                                         >
-                                          {file.name}
+                                          <img 
+                                            src={file.url}
+                                            alt={file.name}
+                                            style={{ maxWidth: "100%", borderRadius: "6px", border: "1px solid #e2d9e9", cursor: "pointer" }}
+                                          />
                                         </a>
-                                      </div>
-                                    ))}
+                                      ) : (
+                                        <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                                          <span style={{ fontSize: "12px" }}>📎</span>
+                                          <a 
+                                            href={file.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                          >
+                                            {file.name}
+                                          </a>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 )}
                                 <div className="collab-thread">
