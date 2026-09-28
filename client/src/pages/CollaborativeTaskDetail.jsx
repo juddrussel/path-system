@@ -55,8 +55,22 @@ function formatDate(value) {
 const tones = ["violet", "rose", "blue", "green", "amber"];
 const getTone = (index) => tones[index % tones.length];
 
+// PDF reading URL formatter (matching TaskDetail.jsx pattern)
+const pdfReadingUrl = (value, zoom = "page-width") => {
+  if (!value) return "";
+  const [fileUrl, currentFragment = ""] = value.split("#");
+  const params = new URLSearchParams(currentFragment);
+  params.set("navpanes", "0");
+  params.set("toolbar", "0");
+  params.set("zoom", String(zoom));
+  return `${fileUrl}#${params.toString()}`;
+};
+
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Manrope:wght@400;600;700;800&display=swap');
+  /* PDF Reader Modal Styles (from TaskDetail.jsx) */
+  @keyframes td-spin { to { transform: rotate(360deg); } }
+  .td-modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(44,26,62,.24)}.td-reader{position:relative;width:min(1000px,95vw);height:min(700px,95vh);border:1px solid #e4d7ef;border-radius:16px;background:#fff;box-shadow:0 22px 50px rgba(46,25,67,.18);display:flex;flex-direction:column}.td-reader-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid #ede9fe;background:#f9f7ff}.td-reader-head>div:first-child{display:flex;flex-direction:column;min-width:0;flex:1}.td-reader-eyebrow{display:flex;align-items:center;gap:5px;color:#9a8da5;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.td-reader-eyebrow i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#7c3aed}.td-reader-head h2{margin:5px 0 3px;color:#4a3858;font:800 16px 'Manrope',sans-serif;letter-spacing:-.05em}.td-reader-head p{margin:0;color:#9b8fa1;font-size:11px}.td-reader-head-actions{display:flex;align-items:center;gap:10px;color:#9a8da5;font-size:10px;font-weight:800}.td-reader-stage{flex:1;overflow:hidden;display:flex;flex-direction:column}.td-reader-frame{display:flex;flex-direction:column;height:100%;overflow:hidden}.td-reader-toolbar{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #f0ebf3;background:#f9f7ff;font-size:11px}.td-reader-toolbar button{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #ede5f3;border-radius:6px;background:#fff;color:#8a7f96;cursor:pointer;font-weight:700}.td-reader-toolbar button:hover{background:#f0ebf3;border-color:#e0d5ef}.td-reader-toolbar button:disabled{opacity:.4;cursor:not-allowed}.td-reader-toolbar>span:first-child{color:#9a8fa1;font-weight:700}.td-reader-toolbar-spacer{flex:1}.td-reader-paper{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#f8f6fc;padding:20px}.td-reader-paper iframe,.td-reader-paper img{display:block;border:1px solid #e5dfeb;background:#fff}.td-reader-paper iframe{width:100%;height:100%;border-radius:8px}.td-reader-paper img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}.td-reader-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px;color:#9a8fa1;text-align:center}.td-reader-fallback svg{color:#c8c0d4}.td-reader-fallback strong{color:#6b5975;font:800 13px 'Manrope',sans-serif}.td-reader-fallback span{font-size:11px;max-width:300px;line-height:1.5}
   .collab-standalone{min-height:100vh;padding:32px;background:#f8f7ff;color:#4c3b58;font-family:'DM Sans','Manrope',system-ui,sans-serif;box-sizing:border-box}.collab-standalone *{box-sizing:border-box}.collab-shell{max-width:1180px;margin:0 auto}.collab-hero,.collab-card,.collab-side-card{border:1px solid #e6dcef;border-radius:16px;background:#fff;box-shadow:0 12px 28px rgba(73,44,105,.045)}.collab-hero{padding:24px 28px;background:linear-gradient(125deg,#fff,#fbf9ff 48%,#f0e8ff)}.collab-top,.collab-hero-grid,.collab-heading,.collab-person,.collab-version,.collab-composer-footer,.collab-actions{display:flex;align-items:center;justify-content:space-between;gap:14px}.collab-back,.collab-link{border:0;background:transparent;color:#76558e;font-size:12px;font-weight:800;cursor:pointer}.collab-live{color:#55957a;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.collab-live i{display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:#50b084}.collab-hero-grid{align-items:end;margin-top:34px}.collab-eyebrow,.collab-kicker{display:block;color:#947fa4;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.collab-eyebrow svg{vertical-align:-2px;margin-right:5px}.collab-hero h1{max-width:650px;margin:10px 0 9px;color:#372541;font:800 38px/1.05 'Manrope',Arial,sans-serif;letter-spacing:-.06em}.collab-hero p{max-width:650px;margin:0;color:#887995;font-size:12px;line-height:1.55}.collab-meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;color:#887995;font-size:10px}.collab-meta span{display:flex;align-items:center;gap:5px}.collab-status{width:250px;padding:17px;border:1px solid #e2d6ef;border-radius:12px;background:rgba(255,255,255,.86)}.collab-status small,.collab-status strong{display:block}.collab-status small{color:#9888a1;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.collab-status strong{margin-top:7px;color:#553d66;font:800 16px 'Manrope',Arial,sans-serif}.collab-progress{height:6px;margin-top:14px;border-radius:99px;background:#e9e0ef;overflow:hidden}.collab-progress i{display:block;height:100%;border-radius:inherit;background:#7c3aed}.collab-status em{display:block;margin-top:7px;color:#8b7b96;font-size:9px;font-style:normal}.collab-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;margin-top:16px}.collab-main,.collab-side{display:flex;flex-direction:column;gap:16px}.collab-card,.collab-side-card{padding:22px}.collab-heading{align-items:flex-start}.collab-heading h2{margin:4px 0 0;color:#4b3858;font:800 18px 'Manrope',Arial,sans-serif;letter-spacing:-.045em}.collab-count,.collab-badge{padding:6px 8px;border-radius:6px;background:#f0e7fc;color:#7546b5;font-size:9px;font-weight:800;white-space:nowrap}.collab-muted{margin:13px 0 0;color:#8f8199;font-size:10px;line-height:1.55}.collab-brief-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid #f0ebf3}.collab-brief-grid small,.collab-brief-grid strong{display:block}.collab-brief-grid small{color:#9b8da2;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.collab-brief-grid strong{margin-top:7px;color:#56405f;font-size:10px;line-height:1.35}.collab-version{margin-top:16px;padding:11px;border:1px solid #e1d5ef;border-radius:9px;background:#fbf8ff;display:flex;align-items:center;gap:9px}.collab-version>span{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#eee3fc;color:#7043b6;flex-shrink:0}.collab-version>div{min-width:0;flex:1}.collab-version strong,.collab-version small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.collab-version strong{color:#5f456d;font-size:10px}.collab-version small{margin-top:3px;color:#978aa0;font-size:8px}.collab-version em{padding:5px 7px;border-radius:5px;background:#fff3d7;color:#966f22;font-size:8px;font-style:normal;font-weight:800}.collab-people{display:grid;gap:8px;margin-top:15px}.collab-person{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #eee8f2;border-radius:9px}.collab-avatar{display:grid;width:29px;height:29px;flex:none;place-items:center;border-radius:8px;background:#eee5fb;color:#7043b7;font-size:8px;font-weight:800}.collab-avatar.rose{background:#fde9ef;color:#b45c77}.collab-avatar.blue{background:#e8f1ff;color:#5274a8}.collab-avatar.green{background:#e4f5ec;color:#4d966e}.collab-avatar.amber{background:#fef5e5;color:#9d6d2a}.collab-person-copy{min-width:0;flex:1}.collab-person-copy strong,.collab-person-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.collab-person-copy strong{color:#5a4568;font-size:10px}.collab-person-copy small{margin-top:3px;color:#978ba1;font-size:8px}.collab-person-status{display:inline-flex;align-items:center;gap:4px;color:#8d8195;font-size:8px;font-weight:800}.collab-person-status.confirmed{color:#579574}.collab-toggle{padding:5px 7px;border:1px solid #ded2e8;border-radius:6px;background:#fff;color:#76558e;font-size:8px;font-weight:800;cursor:pointer}.collab-upload{display:flex;align-items:center;gap:10px;width:100%;margin-top:16px;padding:12px;border:1px dashed #cdbbe6;border-radius:9px;background:#fff;color:#7044a3;text-align:left;cursor:pointer;position:relative}.collab-upload.selected{border-style:solid;border-color:#bfe1cd;background:#f5fbf8;color:#4d8d6c}.collab-upload>span{display:grid;width:31px;height:31px;place-items:center;border-radius:8px;background:#eee5ff;flex-shrink:0}.collab-upload>div{min-width:0;flex:1}.collab-upload strong,.collab-upload small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.collab-upload strong{font-size:10px}.collab-upload small{margin-top:3px;color:#9a8ba6;font-size:8px}.collab-label{display:block;margin-top:12px;color:#806f8b;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.collab-label textarea,.collab-composer textarea,.collab-review textarea,.collab-modal textarea{display:block;width:100%;margin-top:7px;padding:10px;border:1px solid #e2d9e9;border-radius:8px;outline:0;resize:vertical;color:#5d4867;font:10px/1.5 DM Sans,Arial,sans-serif}.collab-primary,.collab-review button{display:inline-flex;align-items:center;justify-content:center;gap:6px;margin-top:11px;padding:9px 11px;border:0;border-radius:8px;background:#7c3aed;color:#fff;font-size:9px;font-weight:800;cursor:pointer}.collab-primary:disabled,.collab-review button:disabled{background:#ddd3e5;color:#9c91a5;cursor:not-allowed}.collab-history{display:grid;gap:7px;margin-top:17px}.collab-history>div{display:flex;align-items:center;gap:9px;padding:9px;border-top:1px solid #f0ebf3}.collab-history>div>span{display:grid;width:27px;height:27px;place-items:center;border-radius:7px;background:#eee5fb;color:#7043b7;font-size:8px;font-weight:800}.collab-history>div>div{min-width:0;flex:1}.collab-history strong,.collab-history small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.collab-history strong{color:#5c4668;font-size:9px}.collab-history small{margin-top:3px;color:#998ba3;font-size:8px}.collab-history em{color:#7b5aa1;font-size:8px;font-style:normal;font-weight:800}.collab-messages{display:grid;gap:12px;margin-top:16px}.collab-message{display:flex;gap:9px;padding:11px;border:1px solid #f0ebf3;border-radius:9px;background:#fdfcff}.collab-message-content{min-width:0;flex:1}.collab-message header{display:flex;align-items:center;gap:7px}.collab-message header strong{color:#5b4766;font-size:9px}.collab-message header small{color:#a394a8;font-size:8px}.collab-message p{margin:6px 0 0;color:#75657d;font-size:9px;line-height:1.5}.collab-thread{display:flex;gap:9px;margin-top:8px}.collab-thread button{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:#7954a0;font-size:8px;font-weight:800;cursor:pointer}.collab-attachment{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 7px;margin-top:8px;padding:8px;border:1px solid #e5d9ef;border-radius:8px;background:#fbf8ff}.collab-attachment span{display:grid;width:28px;height:28px;place-items:center;grid-row:span 2;border-radius:7px;background:#eee5fb;color:#7043b7}.collab-attachment strong,.collab-attachment small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.collab-attachment strong{color:#60486f;font-size:9px}.collab-attachment small{color:#998ba3;font-size:7px}.collab-composer{margin-top:16px;border:1px solid #e4dce9;border-radius:10px;background:#fff;overflow:hidden}.collab-composer textarea{min-height:75px;margin:0;padding:11px;border:0}.collab-composer-footer{align-items:flex-end;padding:8px}.collab-composer-footer small{color:#998ba3;font-size:8px}.collab-composer-footer strong{color:#5d4867;font-size:9px}.collab-composer-actions{display:flex;gap:6px}.collab-composer-actions button{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border:0;border-radius:7px;background:#7c3aed;color:#fff;font-size:8px;font-weight:800;cursor:pointer}.collab-composer-actions button:first-child{border:1px solid #ddd1e8;background:#fff;color:#76538d}.collab-composer-actions button:disabled{opacity:.45;cursor:not-allowed}.collab-review h2,.collab-side-card h2{margin:8px 0;color:#51395d;font:800 18px/1.15 'Manrope',Arial,sans-serif;letter-spacing:-.05em}.collab-review p,.collab-side-card p{margin:0;color:#8a7996;font-size:9px;line-height:1.55}.collab-review textarea{margin-top:13px}.collab-review-actions{display:flex;gap:7px}.collab-review-actions button{flex:1}.collab-review-actions button:last-child{border:1px solid #d8c8e8;background:#fff;color:#76538d}.collab-modal-backdrop{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(44,26,62,.24)}.collab-modal{position:relative;width:min(480px,100%);padding:24px;border:1px solid #e4d7ef;border-radius:15px;background:#fff;box-shadow:0 22px 50px rgba(46,25,67,.18)}.collab-modal h2{margin:7px 0;color:#4b3656;font:800 19px 'Manrope',Arial,sans-serif}.collab-modal p{color:#8d7f97;font-size:10px;line-height:1.5}.collab-modal-close{position:absolute;top:13px;right:13px;border:0;background:transparent;color:#8d7c99;cursor:pointer}.collab-modal-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:16px}.collab-modal-actions button{padding:9px 11px;border:1px solid #ded2e8;border-radius:7px;background:#fff;color:#76538d;font-size:9px;font-weight:800;cursor:pointer}.collab-modal-actions button:last-child{border-color:#7c3aed;background:#7c3aed;color:#fff}@media(max-width:850px){.collab-standalone{padding:18px}.collab-layout{grid-template-columns:1fr}.collab-status{width:100%;max-width:330px}.collab-hero-grid{align-items:stretch;flex-direction:column}.collab-brief-grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.collab-hero{padding:20px}.collab-hero h1{font-size:29px}.collab-card,.collab-side-card{padding:17px}.collab-top{align-items:flex-start;flex-direction:column}.collab-brief-grid{grid-template-columns:1fr}.collab-person{align-items:flex-start;flex-wrap:wrap}.collab-toggle{margin-left:38px}.collab-composer-footer{align-items:stretch;flex-direction:column}.collab-composer-actions{width:100%}.collab-composer-actions button{flex:1;justify-content:center}}
 `;
 
@@ -92,6 +106,7 @@ export default function CollaborativeTaskDetail() {
   const [reviewNote, setReviewNote] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [readerZoom, setReaderZoom] = useState("page-width");
 
   const finalInputRef = useRef(null);
   const discussionInputRef = useRef(null);
@@ -832,45 +847,121 @@ export default function CollaborativeTaskDetail() {
       )}
 
       {preview && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 30, display: "grid", placeItems: "center", padding: "20px", background: "rgba(0,0,0,0.5)" }}>
-          <div style={{ position: "relative", width: "min(90vw, 900px)", height: "min(90vh, 700px)", background: "#fff", borderRadius: "12px", boxShadow: "0 20px 50px rgba(0,0,0,0.3)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-            <button
-              onClick={() => setPreview(null)}
-              style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10, border: "none", background: "transparent", color: "#666", cursor: "pointer", fontSize: "24px" }}
-            >
-              ✕
-            </button>
-            <div style={{ padding: "16px", borderBottom: "1px solid #eee", backgroundColor: "#f9f9f9" }}>
-              <strong style={{ color: "#333", fontSize: "14px" }}>{preview.file_name || preview.name}</strong>
-            </div>
-            <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {preview.file_name?.toLowerCase().match(/\.(pdf)$/i) ? (
-                <iframe
-                  src={`https://docs.google.com/gview?url=${encodeURIComponent(r2ToProxyUrl(api, preview.file_url || preview.url))}&embedded=true`}
-                  style={{ width: "100%", height: "100%", border: "none" }}
-                  title="PDF Preview"
-                />
-              ) : preview.file_name?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                <img
-                  src={r2ToProxyUrl(api, preview.file_url || preview.url)}
-                  alt="Image preview"
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-                />
-              ) : (
-                <div style={{ textAlign: "center", color: "#999", padding: "40px" }}>
-                  <p style={{ fontSize: "16px", marginBottom: "10px" }}>Preview not available</p>
-                  <p style={{ fontSize: "12px" }}>File type: {preview.file_name?.split(".").pop()}</p>
-                  <a
-                    href={r2ToProxyUrl(api, preview.file_url || preview.url)}
-                    download={preview.file_name || preview.name}
-                    style={{ display: "inline-block", marginTop: "16px", padding: "8px 16px", background: "#7043b6", color: "#fff", textDecoration: "none", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}
+        <div
+          className="td-modal"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPreview(null);
+          }}
+        >
+          <section
+            className="td-reader"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="td-preview-title"
+          >
+            <header className="td-reader-head">
+              <div>
+                <span className="td-reader-eyebrow">
+                  <i /> Inline preview
+                </span>
+                <h2 id="td-preview-title">{preview.file_name || preview.name}</h2>
+                <p>{preview.file_name || preview.name}</p>
+              </div>
+              <div className="td-reader-head-actions">
+                <span>▢ PDF</span>
+                <button
+                  type="button"
+                  onClick={() => setPreview(null)}
+                  aria-label="Close inline document preview"
+                >
+                  ✕
+                </button>
+              </div>
+            </header>
+            <div className="td-reader-stage">
+              <div className="td-reader-frame">
+                <div className="td-reader-toolbar">
+                  <button type="button" aria-label="Reader menu">
+                    ☰
+                  </button>
+                  <b>1</b>
+                  <span>/ 1</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReaderZoom((value) =>
+                        typeof value === "number"
+                          ? Math.max(60, value - 10)
+                          : 90,
+                      )
+                    }
+                    aria-label="Zoom out"
                   >
-                    Download File
-                  </a>
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReaderZoom((value) =>
+                        typeof value === "number"
+                          ? Math.min(150, value + 10)
+                          : 110,
+                      )
+                    }
+                    aria-label="Zoom in"
+                  >
+                    +
+                  </button>
+                  <span>
+                    {typeof readerZoom === "number"
+                      ? `${readerZoom}%`
+                      : "Fit width"}
+                  </span>
+                  <span className="td-reader-toolbar-spacer" />
+                  <button
+                    type="button"
+                    disabled={!preview.file_url && !preview.url}
+                    onClick={() =>
+                      window.open(
+                        r2ToProxyUrl(api, preview.file_url || preview.url),
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                    aria-label="Open file in a new tab"
+                  >
+                    ↗
+                  </button>
                 </div>
-              )}
+                <div className="td-reader-paper">
+                  {preview.file_name?.toLowerCase().match(/\.pdf$/i) ? (
+                    <iframe
+                      title={preview.file_name}
+                      src={pdfReadingUrl(
+                        r2ToProxyUrl(api, preview.file_url || preview.url),
+                        readerZoom
+                      )}
+                    />
+                  ) : preview.file_name?.toLowerCase().match(/\.(png|jpe?g|gif|webp)$/i) ? (
+                    <img src={r2ToProxyUrl(api, preview.file_url || preview.url)} alt={preview.file_name} />
+                  ) : (
+                    <div className="td-reader-fallback">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 28, height: 28 }}>
+                        <path d="M6 3h8l4 4v14H6z" />
+                        <path d="M14 3v5h5M9 13h6M9 17h6" />
+                      </svg>
+                      <strong>Preview available in a new tab</strong>
+                      <span>
+                        This document type does not support an embedded reader.
+                        Use the open control to view the uploaded file.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          </section>
         </div>
       )}
     </div>

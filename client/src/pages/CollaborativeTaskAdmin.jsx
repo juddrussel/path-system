@@ -54,8 +54,22 @@ function formatDate(value) {
 const tones = ["violet", "rose", "blue", "green", "amber"];
 const getTone = (index) => tones[index % tones.length];
 
+// PDF reading URL formatter (matching TaskDetail.jsx pattern)
+const pdfReadingUrl = (value, zoom = "page-width") => {
+  if (!value) return "";
+  const [fileUrl, currentFragment = ""] = value.split("#");
+  const params = new URLSearchParams(currentFragment);
+  params.set("navpanes", "0");
+  params.set("toolbar", "0");
+  params.set("zoom", String(zoom));
+  return `${fileUrl}#${params.toString()}`;
+};
+
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Manrope:wght@400;600;700;800&display=swap');
+  /* PDF Reader Modal Styles */
+  @keyframes td-spin { to { transform: rotate(360deg); } }
+  .td-modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(44,26,62,.24)}.td-reader{position:relative;width:min(1000px,95vw);height:min(700px,95vh);border:1px solid #e4d7ef;border-radius:16px;background:#fff;box-shadow:0 22px 50px rgba(46,25,67,.18);display:flex;flex-direction:column}.td-reader-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid #ede9fe;background:#f9f7ff}.td-reader-head>div:first-child{display:flex;flex-direction:column;min-width:0;flex:1}.td-reader-eyebrow{display:flex;align-items:center;gap:5px;color:#9a8da5;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.td-reader-eyebrow i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#7c3aed}.td-reader-head h2{margin:5px 0 3px;color:#4a3858;font:800 16px 'Manrope',sans-serif;letter-spacing:-.05em}.td-reader-head p{margin:0;color:#9b8fa1;font-size:11px}.td-reader-head-actions{display:flex;align-items:center;gap:10px;color:#9a8da5;font-size:10px;font-weight:800}.td-reader-stage{flex:1;overflow:hidden;display:flex;flex-direction:column}.td-reader-frame{display:flex;flex-direction:column;height:100%;overflow:hidden}.td-reader-toolbar{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #f0ebf3;background:#f9f7ff;font-size:11px}.td-reader-toolbar button{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #ede5f3;border-radius:6px;background:#fff;color:#8a7f96;cursor:pointer;font-weight:700}.td-reader-toolbar button:hover{background:#f0ebf3;border-color:#e0d5ef}.td-reader-toolbar button:disabled{opacity:.4;cursor:not-allowed}.td-reader-toolbar>span:first-child{color:#9a8fa1;font-weight:700}.td-reader-toolbar-spacer{flex:1}.td-reader-paper{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#f8f6fc;padding:20px}.td-reader-paper iframe,.td-reader-paper img{display:block;border:1px solid #e5dfeb;background:#fff}.td-reader-paper iframe{width:100%;height:100%;border-radius:8px}.td-reader-paper img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}.td-reader-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px;color:#9a8fa1;text-align:center}.td-reader-fallback svg{color:#c8c0d4}.td-reader-fallback strong{color:#6b5975;font:800 13px 'Manrope',sans-serif}.td-reader-fallback span{font-size:11px;max-width:300px;line-height:1.5}
   .admin-collab{min-height:100vh;padding:32px;background:#f8f7ff;color:#40344b;font-family:'DM Sans','Manrope',system-ui,sans-serif;box-sizing:border-box}.admin-collab *{box-sizing:border-box}.admin-shell{max-width:1180px;margin:0 auto}.admin-hero,.admin-card,.admin-side-card{border:1px solid #e6dcef;border-radius:16px;background:#fff;box-shadow:0 12px 28px rgba(73,44,105,.045)}.admin-hero{padding:24px 28px;background:linear-gradient(125deg,#fff,#fbf9ff 48%,#f0e8ff)}.admin-top,.admin-heading,.admin-person,.admin-file,.admin-file-actions,.admin-version-head,.admin-thread-actions,.admin-reply,.admin-decision-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}.admin-back{display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;color:#76558e;font-size:12px;font-weight:800;cursor:pointer}.admin-role{display:inline-flex;align-items:center;gap:6px;color:#6f47a9;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.admin-hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:34px;align-items:end;margin-top:32px}.admin-eyebrow,.admin-kicker{display:flex;align-items:center;gap:6px;color:#927da5;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.admin-eyebrow svg{color:#7c3aed}.admin-hero h1{margin:11px 0 9px;color:#372541;font:800 38px/1.05 'Manrope',Arial,sans-serif;letter-spacing:-.06em}.admin-hero p{max-width:620px;margin:0;color:#887995;font-size:12px;line-height:1.55}.admin-meta{display:flex;flex-wrap:wrap;gap:13px;margin-top:18px;color:#887995;font-size:10px}.admin-meta span{display:flex;align-items:center;gap:5px}.admin-status{padding:17px;border:1px solid #c7e6d1;border-radius:12px;background:#f8fdf9}.admin-status small,.admin-status strong,.admin-status em{display:block}.admin-status small{color:#6e947d;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.admin-status strong{margin-top:8px;color:#3f805e;font:800 17px 'Manrope',Arial,sans-serif}.admin-status em{margin-top:8px;color:#7b9a87;font-size:9px;font-style:normal}.admin-progress{height:6px;margin-top:13px;border-radius:99px;background:#deeee3;overflow:hidden}.admin-progress i{display:block;width:100%;height:100%;border-radius:inherit;background:#55a879}.admin-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;margin-top:16px}.admin-main,.admin-side{display:grid;align-content:start;gap:16px}.admin-card,.admin-side-card{padding:22px}.admin-heading{align-items:flex-start}.admin-heading h2{margin:5px 0 0;color:#4b3858;font:800 18px 'Manrope',Arial,sans-serif;letter-spacing:-.045em}.admin-id{padding:6px 8px;border-radius:6px;background:#f4eff9;color:#9b8ba5;font-size:8px;font-weight:800}.admin-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:17px}.admin-metrics div{padding:12px;border:1px solid #eee8f2;border-radius:9px;background:#fdfcff}.admin-metrics strong,.admin-metrics small{display:block}.admin-metrics strong{color:#5d3d76;font:800 21px 'Manrope',Arial,sans-serif;letter-spacing:-.06em}.admin-metrics small{margin-top:4px;color:#998ca3;font-size:8px}.admin-brief{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:17px;padding-top:15px;border-top:1px solid #f0ebf3}.admin-brief small,.admin-brief strong{display:block}.admin-brief small{color:#9b8da2;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.admin-brief strong{margin-top:6px;color:#56405f;font-size:10px}.admin-brief .high{color:#bb6d58}.admin-success,.admin-file-status{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:7px;background:#e7f6ed;color:#4d946f;font-size:8px;font-weight:800;white-space:nowrap}.admin-muted{margin:11px 0 0;color:#8b7d96;font-size:10px;line-height:1.55}.admin-people{display:grid;gap:7px;margin-top:16px}.admin-person{padding:10px;border:1px solid #eee8f2;border-radius:9px;background:#fdfcff;display:flex;align-items:center;gap:9px}.admin-avatar{display:grid;width:30px;height:30px;flex:none;place-items:center;border-radius:8px;font-size:8px;font-weight:800}.admin-avatar.rose{background:#fde9ef;color:#b45c77}.admin-avatar.blue{background:#e8f1ff;color:#5274a8}.admin-avatar.green{background:#e4f5ec;color:#4d966e}.admin-avatar.amber{background:#fff0d6;color:#a67526}.admin-avatar.violet{background:#eee5fb;color:#7043b7}.admin-person>div{min-width:0;flex:1}.admin-person strong,.admin-person small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-person strong{color:#5a4567;font-size:10px}.admin-person small{margin-top:3px;color:#9c8fa4;font-size:8px}.admin-confirmed{display:inline-flex;align-items:center;gap:4px;color:#4d946f;font-size:8px;font-weight:800}.admin-file{margin-top:16px;padding:12px;border:1px solid #e2d8eb;border-radius:9px;background:#fbf8ff;display:flex;align-items:flex-start;gap:12px}.admin-file-icon{display:grid;width:38px;height:38px;place-items:center;border-radius:9px;background:#eee5ff;color:#7043b7;flex-shrink:0}.admin-file>div:nth-child(2){min-width:0;flex:1}.admin-file strong,.admin-file small,.admin-file p{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-file strong{color:#5a4567;font-size:10px}.admin-file small{margin-top:4px;color:#9689a0;font-size:8px}.admin-file p{margin:6px 0 0;color:#806e8a;font-size:8px}.admin-file>button{display:grid;width:28px;height:28px;place-items:center;border:1px solid #decfea;border-radius:7px;background:#fff;color:#76538d;cursor:pointer;flex-shrink:0}.admin-file-actions{justify-content:flex-start;margin-top:9px}.admin-outline,.admin-primary{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border-radius:7px;font-size:8px;font-weight:800;cursor:pointer}.admin-outline{border:1px solid #e1d6eb;background:#fff;color:#76538d}.admin-primary{border:0;background:#7c3aed;color:#fff}.admin-versions{margin-top:18px}.admin-version-head{display:flex;align-items:center;justify-content:space-between;color:#60486f;font-size:9px;font-weight:800}.admin-version-head small{color:#9c8ea4;font-size:8px;font-weight:500}.admin-version{display:flex;align-items:flex-start;gap:9px;margin-top:7px;padding:9px;border-top:1px solid #f0ebf3}.admin-version.current{border:1px solid #cfe7d8;border-radius:8px;background:#f8fdf9;margin-top:0;padding:11px}.admin-version-number{display:grid;width:27px;height:27px;place-items:center;border-radius:7px;background:#eee5fb;color:#7043b7;font-size:8px;font-weight:800;flex-shrink:0}.admin-version>div{min-width:0;flex:1}.admin-version strong,.admin-version small,.admin-version p{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-version strong{color:#5c4668;font-size:9px}.admin-version small{margin-top:3px;color:#998ba3;font-size:8px}.admin-version p{margin:4px 0 0;color:#806f8b;font-size:8px}.admin-version em{color:#7b5aa1;font-size:8px;font-style:normal;font-weight:800}.admin-message{display:grid;grid-template-columns:30px 1fr;gap:10px;margin-top:17px}.admin-message header{display:flex;align-items:center;gap:7px}.admin-message header strong{color:#5a4567;font-size:10px}.admin-message header small{color:#a095a8;font-size:8px}.admin-message p{margin:6px 0 0;color:#746681;font-size:10px;line-height:1.55}.admin-thread-actions{justify-content:flex-start;margin-top:8px}.admin-thread-actions button{display:inline-flex;align-items:center;gap:5px;padding:0;border:0;background:transparent;color:#7953a0;font-size:8px;font-weight:800;cursor:pointer}.admin-thread-actions span{color:#a095a8;font-size:8px}.admin-reply{display:flex;align-items:flex-end;margin-top:9px;padding:9px;border:1px solid #e7d9f3;border-radius:8px;background:#faf7ff;gap:9px}.admin-reply textarea,.admin-review-note textarea,.admin-modal textarea{min-width:0;flex:1;padding:9px;border:1px solid #e3dbe9;border-radius:8px;outline:0;resize:vertical;color:#5e496b;font:9px/1.5 'DM Sans',Arial,sans-serif}.admin-reply button,.admin-decision-actions button{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border:0;border-radius:7px;background:#7c3aed;color:#fff;font-size:8px;font-weight:800;cursor:pointer;flex-shrink:0}.admin-reply button:disabled{opacity:.45;cursor:not-allowed}.admin-side-card h2{margin:8px 0 7px;color:#493358;font:800 18px/1.12 'Manrope',Arial,sans-serif;letter-spacing:-.045em}.admin-side-card>p{margin:0;color:#897b93;font-size:10px;line-height:1.55}.admin-review-note{display:block;margin-top:13px;color:#806f8b;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.admin-review-note textarea{display:block;width:100%;margin-top:7px;font-size:10px}.admin-decision-actions{margin-top:9px;display:flex;gap:7px;flex-direction:column}.admin-decision-actions button:last-child{border:1px solid #dccfe8;background:#fff;color:#76538d}.admin-timeline{position:relative;display:grid;gap:16px;margin-top:19px}.admin-timeline:before{position:absolute;top:13px;bottom:13px;left:12px;width:1px;background:#e8dff0;content:""}.admin-timeline>div{position:relative;display:grid;grid-template-columns:25px 1fr;gap:8px}.admin-timeline span{z-index:1;display:grid;width:25px;height:25px;place-items:center;border:1px solid #e2d7ec;border-radius:50%;background:#fff;color:#9f8daf}.admin-timeline span.done{border-color:#bfe3ce;background:#ebf8f0;color:#4d946f}.admin-timeline span.current{border-color:#c1a5e4;background:#f3eaff;color:#7344b4}.admin-timeline p{margin:2px 0 0}.admin-timeline strong,.admin-timeline small{display:block}.admin-timeline strong{color:#60486f;font-size:9px}.admin-timeline small{margin-top:3px;color:#9b8da3;font-size:8px}.admin-policy{display:grid;gap:13px;background:linear-gradient(145deg,#f4edff,#fff);padding:14px;border-radius:9px}.admin-policy>div{display:flex;align-items:flex-start;gap:8px;color:#7041b5}.admin-policy strong,.admin-policy small{display:block}.admin-policy strong{color:#604477;font-size:9px}.admin-policy small{margin-top:3px;color:#978aa0;font-size:8px;line-height:1.4}.admin-modal-backdrop{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(44,26,62,.24)}.admin-modal{position:relative;width:min(480px,100%);padding:24px;border:1px solid #e4d7ef;border-radius:15px;background:#fff;box-shadow:0 22px 50px rgba(46,25,67,.18)}.admin-modal-close{position:absolute;top:13px;right:13px;border:0;background:transparent;color:#8d7c99;cursor:pointer}.admin-modal h2{margin:7px 0;color:#4b3656;font:800 19px 'Manrope',Arial,sans-serif}.admin-modal p{color:#8d7f97;font-size:10px;line-height:1.5}.admin-modal textarea{display:block;width:100%;margin-top:14px;font-size:10px}.admin-modal-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:11px}.admin-modal-actions button{padding:9px 11px;border:1px solid #ded2e8;border-radius:7px;background:#fff;color:#76538d;font-size:9px;font-weight:800;cursor:pointer}.admin-modal-actions button:last-child{border-color:#7c3aed;background:#7c3aed;color:#fff}.admin-modal-actions button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:850px){.admin-collab{padding:18px}.admin-hero-grid,.admin-layout{grid-template-columns:1fr}.admin-status{max-width:350px}}@media(max-width:560px){.admin-hero{padding:20px}.admin-top{align-items:flex-start;flex-direction:column}.admin-hero h1{font-size:29px}.admin-card,.admin-side-card{padding:17px}.admin-metrics{grid-template-columns:1fr 1fr}.admin-brief{grid-template-columns:1fr 1fr}.admin-person{align-items:flex-start;flex-wrap:wrap}.admin-confirmed{margin-left:40px}.admin-file-actions,.admin-decision-actions{align-items:stretch;flex-direction:column}.admin-outline,.admin-primary,.admin-decision-actions button{justify-content:center}.admin-reply{align-items:stretch;flex-direction:column}.admin-reply button{justify-content:center}}
 `;
 
@@ -83,6 +97,7 @@ export default function CollaborativeTaskAdmin() {
   const [replyTo, setReplyTo] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
   const [preview, setPreview] = useState(null);
+  const [readerZoom, setReaderZoom] = useState("page-width");
 
   // Load task data
   useEffect(() => {
@@ -669,45 +684,121 @@ export default function CollaborativeTaskAdmin() {
       )}
 
       {preview && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 30, display: "grid", placeItems: "center", padding: "20px", background: "rgba(0,0,0,0.5)" }}>
-          <div style={{ position: "relative", width: "min(90vw, 900px)", height: "min(90vh, 700px)", background: "#fff", borderRadius: "12px", boxShadow: "0 20px 50px rgba(0,0,0,0.3)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-            <button
-              onClick={() => setPreview(null)}
-              style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10, border: "none", background: "transparent", color: "#666", cursor: "pointer", fontSize: "24px" }}
-            >
-              ✕
-            </button>
-            <div style={{ padding: "16px", borderBottom: "1px solid #eee", backgroundColor: "#f9f9f9" }}>
-              <strong style={{ color: "#333", fontSize: "14px" }}>{preview.file_name || preview.name}</strong>
-            </div>
-            <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {preview.file_name?.toLowerCase().match(/\.(pdf)$/i) ? (
-                <iframe
-                  src={`https://docs.google.com/gview?url=${encodeURIComponent(r2ToProxyUrl(api, preview.file_url || preview.url))}&embedded=true`}
-                  style={{ width: "100%", height: "100%", border: "none" }}
-                  title="PDF Preview"
-                />
-              ) : preview.file_name?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                <img
-                  src={r2ToProxyUrl(api, preview.file_url || preview.url)}
-                  alt="Image preview"
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-                />
-              ) : (
-                <div style={{ textAlign: "center", color: "#999", padding: "40px" }}>
-                  <p style={{ fontSize: "16px", marginBottom: "10px" }}>Preview not available</p>
-                  <p style={{ fontSize: "12px" }}>File type: {preview.file_name?.split(".").pop()}</p>
-                  <a
-                    href={r2ToProxyUrl(api, preview.file_url || preview.url)}
-                    download={preview.file_name || preview.name}
-                    style={{ display: "inline-block", marginTop: "16px", padding: "8px 16px", background: "#7043b7", color: "#fff", textDecoration: "none", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}
+        <div
+          className="td-modal"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPreview(null);
+          }}
+        >
+          <section
+            className="td-reader"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="td-preview-title"
+          >
+            <header className="td-reader-head">
+              <div>
+                <span className="td-reader-eyebrow">
+                  <i /> Inline preview
+                </span>
+                <h2 id="td-preview-title">{preview.file_name || preview.name}</h2>
+                <p>{preview.file_name || preview.name}</p>
+              </div>
+              <div className="td-reader-head-actions">
+                <span>▢ PDF</span>
+                <button
+                  type="button"
+                  onClick={() => setPreview(null)}
+                  aria-label="Close inline document preview"
+                >
+                  ✕
+                </button>
+              </div>
+            </header>
+            <div className="td-reader-stage">
+              <div className="td-reader-frame">
+                <div className="td-reader-toolbar">
+                  <button type="button" aria-label="Reader menu">
+                    ☰
+                  </button>
+                  <b>1</b>
+                  <span>/ 1</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReaderZoom((value) =>
+                        typeof value === "number"
+                          ? Math.max(60, value - 10)
+                          : 90,
+                      )
+                    }
+                    aria-label="Zoom out"
                   >
-                    Download File
-                  </a>
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReaderZoom((value) =>
+                        typeof value === "number"
+                          ? Math.min(150, value + 10)
+                          : 110,
+                      )
+                    }
+                    aria-label="Zoom in"
+                  >
+                    +
+                  </button>
+                  <span>
+                    {typeof readerZoom === "number"
+                      ? `${readerZoom}%`
+                      : "Fit width"}
+                  </span>
+                  <span className="td-reader-toolbar-spacer" />
+                  <button
+                    type="button"
+                    disabled={!preview.file_url && !preview.url}
+                    onClick={() =>
+                      window.open(
+                        r2ToProxyUrl(api, preview.file_url || preview.url),
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                    aria-label="Open file in a new tab"
+                  >
+                    ↗
+                  </button>
                 </div>
-              )}
+                <div className="td-reader-paper">
+                  {preview.file_name?.toLowerCase().match(/\.pdf$/i) ? (
+                    <iframe
+                      title={preview.file_name}
+                      src={pdfReadingUrl(
+                        r2ToProxyUrl(api, preview.file_url || preview.url),
+                        readerZoom
+                      )}
+                    />
+                  ) : preview.file_name?.toLowerCase().match(/\.(png|jpe?g|gif|webp)$/i) ? (
+                    <img src={r2ToProxyUrl(api, preview.file_url || preview.url)} alt={preview.file_name} />
+                  ) : (
+                    <div className="td-reader-fallback">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 28, height: 28 }}>
+                        <path d="M6 3h8l4 4v14H6z" />
+                        <path d="M14 3v5h5M9 13h6M9 17h6" />
+                      </svg>
+                      <strong>Preview available in a new tab</strong>
+                      <span>
+                        This document type does not support an embedded reader.
+                        Use the open control to view the uploaded file.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          </section>
         </div>
       )}
     </div>
