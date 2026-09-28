@@ -304,26 +304,20 @@ export default function CollaborativeTaskAdmin() {
               </p>
 
               <div style={{ display: "grid", gap: "12px" }}>
-                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                  <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>01</span>
-                  <div>
-                    <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>Reconcile the annual assessment findings against the latest course offering and faculty records.</strong>
+                {task?.instructions ? task.instructions.split("\n").filter(line => line.trim()).map((instruction, idx) => (
+                  <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                    <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <div>
+                      <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>
+                        {instruction.trim().replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '')}
+                      </strong>
+                    </div>
                   </div>
-                </div>
-
-                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                  <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>02</span>
-                  <div>
-                    <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>Correct the HIST 204 exception and confirm that all totals, sections, and supporting notes are accurate.</strong>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                  <span style={{ display: "grid", placeItems: "center", width: "30px", height: "30px", borderRadius: "8px", background: "#eee5fb", color: "#7043b7", fontSize: "11px", fontWeight: 800, flexShrink: 0 }}>03</span>
-                  <div>
-                    <strong style={{ display: "block", color: "#5a4567", fontSize: "11px", fontWeight: 700 }}>Upload one consolidated PDF as the final output, then ask every collaborator to review and confirm it.</strong>
-                  </div>
-                </div>
+                )) : (
+                  <p style={{ margin: 0, color: "#887995", fontSize: "12px" }}>No instructions provided.</p>
+                )}
               </div>
 
               <div style={{ marginTop: "16px", padding: "14px", borderRadius: "8px", border: "1px solid #dccfe8", background: "#faf7ff", display: "flex", gap: "10px", alignItems: "flex-start" }}>

@@ -1226,7 +1226,7 @@ router.post("/draft", requireAuth, requireChairOrAdmin, upload.array("attachment
 //   collaboration_mode: "together" (if not "together", falls back to regular assignment)
 //   attachments: JSON string of pre-uploaded files
 router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("attachments"), async (req, res) => {
-  const { title, doc_type, priority = "Medium", deadline, notes, collaboration_mode } = req.body;
+  const { title, doc_type, priority = "Medium", deadline, notes, collaboration_mode, instructions } = req.body;
   if (!title || !deadline) {
     return res.status(400).json({ message: "title and deadline are required." });
   }
@@ -1266,11 +1266,11 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
         `INSERT INTO tasks (
           tracking_id, faculty_id, assigned_by, 
           title, doc_type, priority, deadline, notes, status, 
-          is_collaborative, collaboration_type, confirmation_status,
+          is_collaborative, collaboration_type, confirmation_status, instructions,
           created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 1, 'together', 'awaiting', NOW(), NOW())`,
-        [tid, facultyIds[0], req.user.id, title, doc_type || null, priority, deadline, notes || null]
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 1, 'together', 'awaiting', ?, NOW(), NOW())`,
+        [tid, facultyIds[0], req.user.id, title, doc_type || null, priority, deadline, notes || null, instructions || null]
       ).then(([r]) => r);
     });
 
