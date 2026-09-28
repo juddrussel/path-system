@@ -617,8 +617,11 @@ export default function CollaborativeTaskDetail() {
   useEffect(() => {
     if (!task) return;
 
+    console.log("[Socket] Setting up listeners for task", task.id);
+
     socket.on("collaborative:confirmed", (data) => {
       if (data.taskId === task.id) {
+        console.log("[Socket] Received confirmation event", data);
         setCollaborators((prev) =>
           prev.map(c => c.user_id === data.userId ? { ...c, confirmed: true } : c)
         );
@@ -627,6 +630,7 @@ export default function CollaborativeTaskDetail() {
 
     socket.on("collaborative:withdrawn", (data) => {
       if (data.taskId === task.id) {
+        console.log("[Socket] Received withdrawn event", data);
         setCollaborators((prev) =>
           prev.map(c => c.user_id === data.userId ? { ...c, confirmed: false } : c)
         );
@@ -635,6 +639,7 @@ export default function CollaborativeTaskDetail() {
 
     socket.on("collaborative:output_updated", (data) => {
       if (data.taskId === task.id) {
+        console.log("[Socket] Received output_updated event", data);
         setVersions((prev) => [
           {
             version: data.version,
@@ -652,15 +657,17 @@ export default function CollaborativeTaskDetail() {
     });
 
     socket.on("collaborative:comment_posted", (comment) => {
+      console.log("[Socket] Received comment_posted event", comment);
       if (comment.task_id === task.id) {
         setMessages((prev) => {
           if (comment.parent_comment_id) {
+            console.log("[Socket] Processing reply with parent_id:", comment.parent_comment_id);
             // Recursively find and update the parent comment at ANY depth
             const findAndAddReply = (comments) => {
               for (let i = 0; i < comments.length; i++) {
                 if (comments[i].id === comment.parent_comment_id) {
                   // Found the parent at this level - add reply to it
-                  console.log("[Socket] Found parent comment", comment.parent_comment_id, "adding reply", comment.id);
+                  console.log("[Socket] ✓ Found parent comment", comment.parent_comment_id, "adding reply", comment.id);
                   const updatedComments = [...comments];
                   updatedComments[i] = {
                     ...updatedComments[i],
@@ -679,17 +686,18 @@ export default function CollaborativeTaskDetail() {
                   
                   if (foundMatch || updated.length > comments[i].replies.length) {
                     // Found it in nested replies - update this comment's replies
-                    console.log("[Socket] Found parent in nested level");
+                    console.log("[Socket] ✓ Found parent in nested level, updating comment", comments[i].id);
                     const updatedComments = [...comments];
                     updatedComments[i] = { ...updatedComments[i], replies: updated };
                     return updatedComments;
                   }
                 }
               }
+              console.log("[Socket] ✗ Parent not found in current level");
               return comments;
             };
             const result = findAndAddReply(prev);
-            console.log("[Socket] Updated messages, count:", result.length, "new reply parent:", comment.parent_comment_id);
+            console.log("[Socket] After update, messages count:", result.length);
             return result;
           }
           // Root comment
@@ -700,6 +708,7 @@ export default function CollaborativeTaskDetail() {
     });
 
     return () => {
+      console.log("[Socket] Cleaning up listeners for task", task.id);
       socket.off("collaborative:confirmed");
       socket.off("collaborative:withdrawn");
       socket.off("collaborative:output_updated");

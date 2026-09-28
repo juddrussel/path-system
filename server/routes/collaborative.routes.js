@@ -806,10 +806,15 @@ router.post("/:id/comment", requireAuth, upload.array("files", 5), async (req, r
       created_at: new Date().toISOString(),
     };
 
+    console.log(`[Comment] Broadcasting to room task_${taskId}:`, JSON.stringify(comment, null, 2));
+
     // Broadcast to all collaborators
     const io = req.app.get("io");
     if (io) {
       io.to(`task_${taskId}`).emit("collaborative:comment_posted", comment);
+      console.log(`[Comment] ✓ Emitted collaborative:comment_posted event`);
+    } else {
+      console.log(`[Comment] ✗ Socket.io instance not found!`);
     }
 
     res.status(201).json(comment);
