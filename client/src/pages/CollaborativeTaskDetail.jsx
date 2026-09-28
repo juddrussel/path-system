@@ -213,7 +213,7 @@ export default function CollaborativeTaskDetail() {
                 if (msg.id === comment.parent_comment_id) {
                   return {
                     ...msg,
-                    replies: [...(msg.replies || []), { ...comment, replies: [] }]
+                    replies: [...(msg.replies || []), comment]
                   };
                 }
                 // If this message has replies, search in them too
@@ -352,8 +352,8 @@ export default function CollaborativeTaskDetail() {
         const startTime = Date.now();
         const estimateProgress = () => {
           const elapsed = Date.now() - startTime;
-          // Estimate: 100ms per 10% up to 90%
-          const estimatedPercent = Math.min(Math.floor((elapsed / 100) * 10), 90);
+          // Estimate: aggressive curve - gets to 50% in 500ms, 85% in 2s
+          const estimatedPercent = Math.min(Math.floor((elapsed / 10) * 5), 90);
           commentFiles.forEach((_, idx) => {
             setCommentFileProgress(prev => {
               const current = prev[idx] ?? 0;
@@ -363,8 +363,8 @@ export default function CollaborativeTaskDetail() {
           });
         };
         
-        // Start simulation immediately
-        progressInterval = setInterval(estimateProgress, 50);
+        // Start simulation immediately and update more frequently
+        progressInterval = setInterval(estimateProgress, 30);
         
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
@@ -1138,7 +1138,7 @@ export default function CollaborativeTaskDetail() {
                                             const startTime = Date.now();
                                             const estimateProgress = () => {
                                               const elapsed = Date.now() - startTime;
-                                              const estimatedPercent = Math.min(Math.floor((elapsed / 100) * 10), 90);
+                                              const estimatedPercent = Math.min(Math.floor((elapsed / 10) * 5), 90);
                                               replyFiles.forEach((_, idx) => {
                                                 setReplyFileProgress(prev => {
                                                   const current = prev[idx] ?? 0;
@@ -1147,7 +1147,7 @@ export default function CollaborativeTaskDetail() {
                                               });
                                             };
                                             
-                                            progressInterval = setInterval(estimateProgress, 50);
+                                            progressInterval = setInterval(estimateProgress, 30);
                                             
                                             xhr.upload.addEventListener("progress", (event) => {
                                               if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
