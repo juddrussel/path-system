@@ -18,8 +18,7 @@ async function runMigration() {
       ADD COLUMN IF NOT EXISTS assignment_type ENUM('individual','collaborative') DEFAULT 'individual' AFTER is_collaborative,
       ADD COLUMN IF NOT EXISTS current_output_version INT DEFAULT 0 AFTER assignment_type,
       ADD COLUMN IF NOT EXISTS all_confirmed_at DATETIME AFTER current_output_version,
-      ADD COLUMN IF NOT EXISTS submitted_at DATETIME AFTER all_confirmed_at,
-      ADD COLUMN IF NOT EXISTS instructions LONGTEXT AFTER submitted_at
+      ADD COLUMN IF NOT EXISTS submitted_at DATETIME AFTER all_confirmed_at
     `);
     console.log("✓ tasks table updated\n");
 

@@ -1266,11 +1266,11 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
         `INSERT INTO tasks (
           tracking_id, faculty_id, assigned_by, 
           title, doc_type, priority, deadline, notes, status, 
-          is_collaborative, collaboration_type, confirmation_status, instructions,
+          is_collaborative, collaboration_type, confirmation_status,
           created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 1, 'together', 'awaiting', ?, NOW(), NOW())`,
-        [tid, facultyIds[0], req.user.id, title, doc_type || null, priority, deadline, notes || null, notes || null]
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 1, 'together', 'awaiting', NOW(), NOW())`,
+        [tid, facultyIds[0], req.user.id, title, doc_type || null, priority, deadline, notes || null]
       ).then(([r]) => r);
     });
 
