@@ -660,7 +660,7 @@ export default function CollaborativeTaskDetail() {
                 {messages.length > 0 ? (
                   messages.map((message) => (
                     <article className="collab-message" key={message.id}>
-                      <span className={`collab-avatar ${getTone(messages.indexOf(message))}`}>
+                      <span className={`collab-avatar ${getTone(message.user_id || message.sender_id || 0)}`}>
                         {initials(message.full_name)}
                       </span>
                       <div className="collab-message-content">
