@@ -436,64 +436,6 @@ export default function CollaborativeTaskDetail() {
                 </div>
               </section>
             ) : null}
-                    <div key={idx} style={{
-                      padding: "10px",
-                      border: "1px solid #e2d6ef",
-                      borderRadius: "8px",
-                      background: "#fbf8ff",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      marginBottom: idx < attachments.length - 1 ? "8px" : 0
-                    }}>
-                      <span style={{
-                        display: "grid",
-                        width: "32px",
-                        height: "32px",
-                        placeItems: "center",
-                        borderRadius: "7px",
-                        background: "#eee5fb",
-                        color: "#7043b7",
-                        fontSize: "14px",
-                        flexShrink: 0
-                      }}>
-                        📄
-                      </span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <strong style={{ display: "block", color: "#5a4567", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {attach.file_name}
-                        </strong>
-                        <small style={{ display: "block", marginTop: "3px", color: "#978ba1", fontSize: "8px" }}>
-                          Uploaded by assigner
-                        </small>
-                      </div>
-                      <a
-                        href={r2ToProxyUrl(api, attach.file_url)}
-                        download={attach.file_name}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
-                          padding: "6px 10px",
-                          borderRadius: "6px",
-                          background: "#eee5fb",
-                          color: "#7043b6",
-                          textDecoration: "none",
-                          fontSize: "8px",
-                          fontWeight: 800,
-                          whiteSpace: "nowrap",
-                          flexShrink: 0
-                        }}
-                      >
-                        <FileImage size={12} /> Open
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
 
             <section className="collab-card">
               <div className="collab-heading">
