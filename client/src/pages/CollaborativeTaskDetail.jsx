@@ -205,19 +205,30 @@ export default function CollaborativeTaskDetail() {
     socket.on("collaborative:comment_posted", (comment) => {
       if (comment.task_id === task.id) {
         setMessages((prev) => {
-          // If this is a reply to another comment, add it to the parent's replies array
           if (comment.parent_comment_id) {
-            return prev.map(msg => {
-              if (msg.id === comment.parent_comment_id) {
-                return {
-                  ...msg,
-                  replies: [...(msg.replies || []), comment]
-                };
-              }
-              return msg;
-            });
+            // Find the parent comment (could be top-level or nested)
+            const addReplyRecursive = (messages) => {
+              return messages.map(msg => {
+                // If this is the parent, add the reply
+                if (msg.id === comment.parent_comment_id) {
+                  return {
+                    ...msg,
+                    replies: [...(msg.replies || []), comment]
+                  };
+                }
+                // If this message has replies, search in them too
+                if (msg.replies && msg.replies.length > 0) {
+                  return {
+                    ...msg,
+                    replies: addReplyRecursive(msg.replies)
+                  };
+                }
+                return msg;
+              });
+            };
+            return addReplyRecursive(prev);
           }
-          // Otherwise, it's a root comment
+          // Root comment - add to top level
           return [{ ...comment, replies: [] }, ...prev];
         });
       }
@@ -895,11 +906,6 @@ export default function CollaborativeTaskDetail() {
                               })}
                             </div>
                           )}
-                          <div className="collab-thread">
-                            <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
-                              <Reply size={12} /> Reply
-                            </button>
-                          </div>
                         </div>
                       </article>
 
