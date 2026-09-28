@@ -706,6 +706,7 @@ export default function CollaborativeTaskAdmin() {
                 <p>{preview.file_name || preview.name}</p>
               </div>
               <div className="td-reader-head-actions">
+                <span>✦ AI Summary</span>
                 <span>▢ PDF</span>
                 <button
                   type="button"
@@ -772,16 +773,14 @@ export default function CollaborativeTaskAdmin() {
                   </button>
                 </div>
                 <div className="td-reader-paper">
-                  {preview.file_name?.toLowerCase().match(/\.pdf$/i) ? (
+                  {(preview.file_url || preview.url) && /\.pdf($|\?)/i.test(preview.file_url || preview.url) ? (
                     <iframe
-                      title={preview.file_name}
-                      src={pdfReadingUrl(
-                        r2ToProxyUrl(api, preview.file_url || preview.url),
-                        readerZoom
-                      )}
+                      title={preview.file_name || preview.name}
+                      src={pdfReadingUrl(r2ToProxyUrl(api, preview.file_url || preview.url), readerZoom)}
                     />
-                  ) : preview.file_name?.toLowerCase().match(/\.(png|jpe?g|gif|webp)$/i) ? (
-                    <img src={r2ToProxyUrl(api, preview.file_url || preview.url)} alt={preview.file_name} />
+                  ) : (preview.file_url || preview.url) &&
+                    /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.file_url || preview.url) ? (
+                    <img src={r2ToProxyUrl(api, preview.file_url || preview.url)} alt={preview.file_name || preview.name} />
                   ) : (
                     <div className="td-reader-fallback">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 28, height: 28 }}>
