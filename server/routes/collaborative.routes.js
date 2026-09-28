@@ -432,7 +432,7 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
 
     // Add revision request comment
     await db.query(
-      `INSERT INTO task_comments (task_id, user_id, content, created_at)
+      `INSERT INTO task_comments (task_id, sender_id, content, created_at)
        VALUES (?, ?, ?, NOW())`,
       [taskId, userId, `📝 Revision requested: ${reason}`]
     );
@@ -593,10 +593,10 @@ router.get("/:id", requireAuth, async (req, res) => {
     try {
       const result = await db.query(
         `SELECT 
-           tc.id, tc.task_id, tc.user_id, tc.content, tc.created_at,
+           tc.id, tc.task_id, tc.sender_id as user_id, tc.content, tc.created_at,
            u.full_name
          FROM task_comments tc
-         LEFT JOIN users u ON tc.user_id = u.id
+         LEFT JOIN users u ON tc.sender_id = u.id
          WHERE tc.task_id = ?
          ORDER BY tc.created_at DESC`,
         [taskId]
@@ -715,9 +715,9 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       return res.status(403).json({ message: "Only collaborators can comment" });
     }
 
-    // Insert comment into task_comments
+    // Insert comment into task_comments using sender_id (matches production schema)
     const [result] = await db.query(
-      `INSERT INTO task_comments (task_id, user_id, content, created_at) 
+      `INSERT INTO task_comments (task_id, sender_id, content, created_at) 
        VALUES (?, ?, ?, NOW())`,
       [taskId, userId, content]
     );
