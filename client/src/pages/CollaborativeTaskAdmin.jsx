@@ -309,6 +309,38 @@ export default function CollaborativeTaskAdmin() {
                 </p>
               </div>
 
+              {versions.length > 0 && versions[0].instruction_attachments && versions[0].instruction_attachments.length > 0 && (
+                <div style={{ marginTop: "12px" }}>
+                  <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
+                    Instruction attachments
+                  </span>
+                  <div style={{ display: "grid", gap: "8px" }}>
+                    {versions[0].instruction_attachments.map((file, index) => (
+                      <div key={file.id || file.file_url || file.name || index} style={{ padding: "8px", border: "1px solid #e2d6ef", borderRadius: "7px", background: "#fbf8ff", display: "flex", gap: "8px", alignItems: "center" }}>
+                        <span style={{ fontSize: "12px" }}>📄</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <strong style={{ display: "block", color: "#5a4567", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {file.file_name || file.name}
+                          </strong>
+                          <small style={{ display: "block", marginTop: "2px", color: "#978ba1", fontSize: "8px" }}>
+                            {file.size_kb || Math.round((file.file_size || 0) / 1024)} KB
+                          </small>
+                        </div>
+                        <a
+                          href={r2ToProxyUrl(api, file.file_url || file.url)}
+                          download={file.file_name || file.name}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 8px", borderRadius: "5px", background: "#eee5fb", color: "#7043b6", textDecoration: "none", fontSize: "8px", fontWeight: 800, whiteSpace: "nowrap", flexShrink: 0 }}
+                        >
+                          <Download size={12} /> Open
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div style={{ marginTop: "16px", padding: "14px", borderRadius: "8px", border: "1px solid #dccfe8", background: "#faf7ff", display: "flex", gap: "10px", alignItems: "flex-start" }}>
                 <ShieldCheck size={16} style={{ color: "#7043b7", flexShrink: 0 }} />
                 <div>
