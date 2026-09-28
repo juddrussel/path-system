@@ -1208,6 +1208,8 @@ export default function CollaborativeTaskDetail() {
                                             if (response.ok) {
                                               setReplyDraft("");
                                               setReplyTo(null);
+                                            } else {
+                                              setError("Failed to post reply");
                                             }
                                             setIsReplyUploadingFiles(false);
                                           }
