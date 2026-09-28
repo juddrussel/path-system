@@ -1005,30 +1005,38 @@ export default function CollaborativeTaskDetail() {
                                 {replyFiles.length} file(s) attached
                               </div>
                               <div style={{ display: "grid", gap: "6px" }}>
-                                {replyFiles.map((file, idx) => (
-                                  <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                      <div style={{ color: "#5d4867", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                        {file.name}
+                                {replyFiles.map((file, idx) => {
+                                  const isPdf = /\.pdf$/i.test(file.name);
+                                  const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                  const progress = replyFileProgress[idx] ?? 0;
+                                  const isUploading = progress > 0 && progress < 100;
+                                  
+                                  return (
+                                    <div key={idx} style={{ padding: "8px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
+                                      <div style={{ display: "grid", width: "32px", height: "32px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "14px", flexShrink: 0 }}>
+                                        {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
                                       </div>
-                                      {replyFileProgress[idx] !== undefined && replyFileProgress[idx] < 100 && (
-                                        <div style={{ marginTop: "3px", height: "3px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
-                                          <div style={{ height: "100%", background: "#7c3aed", width: `${replyFileProgress[idx]}%`, transition: "width 0.2s" }} />
+                                      <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ color: "#5d4867", fontSize: "9px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                          {file.name}
                                         </div>
-                                      )}
-                                      {replyFileProgress[idx] === 100 && (
-                                        <div style={{ marginTop: "3px", fontSize: "8px", color: "#579574" }}>✓ Ready</div>
-                                      )}
+                                        <div style={{ marginTop: "4px", height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                                          <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                                        </div>
+                                        <div style={{ marginTop: "4px", fontSize: "8px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
+                                          {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={() => setReplyFiles(prev => prev.filter((_, i) => i !== idx))}
+                                        disabled={isReplyUploadingFiles}
+                                        style={{ background: "none", border: "none", color: "#806f8b", cursor: isReplyUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isReplyUploadingFiles ? 0.5 : 1 }}
+                                      >
+                                        ✕
+                                      </button>
                                     </div>
-                                    <button
-                                      onClick={() => setReplyFiles(prev => prev.filter((_, i) => i !== idx))}
-                                      disabled={isReplyUploadingFiles}
-                                      style={{ background: "none", border: "none", color: "#806f8b", cursor: "pointer", fontSize: "14px" }}
-                                    >
-                                      ✕
-                                    </button>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
@@ -1197,30 +1205,38 @@ export default function CollaborativeTaskDetail() {
                       {commentFiles.length} file(s) attached
                     </div>
                     <div style={{ display: "grid", gap: "6px" }}>
-                      {commentFiles.map((file, idx) => (
-                        <div key={idx} style={{ padding: "6px", background: "#fff", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ color: "#5d4867", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                              {file.name}
+                      {commentFiles.map((file, idx) => {
+                        const isPdf = /\.pdf$/i.test(file.name);
+                        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                        const progress = commentFileProgress[idx] ?? 0;
+                        const isUploading = progress > 0 && progress < 100;
+                        
+                        return (
+                          <div key={idx} style={{ padding: "8px", background: "#fff", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ display: "grid", width: "32px", height: "32px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "14px", flexShrink: 0 }}>
+                              {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
                             </div>
-                            {commentFileProgress[idx] !== undefined && commentFileProgress[idx] < 100 && (
-                              <div style={{ marginTop: "3px", height: "3px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
-                                <div style={{ height: "100%", background: "#7c3aed", width: `${commentFileProgress[idx]}%`, transition: "width 0.2s" }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ color: "#5d4867", fontSize: "9px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {file.name}
                               </div>
-                            )}
-                            {commentFileProgress[idx] === 100 && (
-                              <div style={{ marginTop: "3px", fontSize: "8px", color: "#579574" }}>✓ Ready</div>
-                            )}
+                              <div style={{ marginTop: "4px", height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                                <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                              </div>
+                              <div style={{ marginTop: "4px", fontSize: "8px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
+                                {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => setCommentFiles(prev => prev.filter((_, i) => i !== idx))}
+                              disabled={isCommentUploadingFiles}
+                              style={{ background: "none", border: "none", color: "#806f8b", cursor: isCommentUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isCommentUploadingFiles ? 0.5 : 1 }}
+                            >
+                              ✕
+                            </button>
                           </div>
-                          <button
-                            onClick={() => setCommentFiles(prev => prev.filter((_, i) => i !== idx))}
-                            disabled={isCommentUploadingFiles}
-                            style={{ background: "none", border: "none", color: "#806f8b", cursor: "pointer", fontSize: "14px" }}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
