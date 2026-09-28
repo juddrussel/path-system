@@ -294,7 +294,7 @@ export default function CollaborativeTaskDetail() {
   const postMessage = async () => {
     if (!messageDraft.trim() && !discussionAttachment) return;
     try {
-      await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -302,9 +302,14 @@ export default function CollaborativeTaskDetail() {
         },
         body: JSON.stringify({ content: messageDraft.trim() }),
       });
-      setMessageDraft("");
-      setDiscussionAttachment(null);
-      if (discussionInputRef.current) discussionInputRef.current.value = "";
+      
+      if (response.ok) {
+        const newComment = await response.json();
+        setMessages((prev) => [newComment, ...prev]);
+        setMessageDraft("");
+        setDiscussionAttachment(null);
+        if (discussionInputRef.current) discussionInputRef.current.value = "";
+      }
     } catch (err) {
       setError(err.message);
     }
