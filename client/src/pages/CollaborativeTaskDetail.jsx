@@ -1288,14 +1288,14 @@ export default function CollaborativeTaskDetail() {
                       </div>
                       <div style={{ display: 'grid', gap: '10px' }}>
                         {revisionFiles.map((file, idx) => {
-                        const isPdf = /\.pdf$/i.test(file.file_name);
-                        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.file_name);
-                        
-                        return (
-                          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#fff', border: '1px solid #fde68a', borderRadius: '6px' }}>
-                            <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
-                              {isPdf ? 'PDF' : isImage ? '�' : '�📎'}
-                            </div>
+                          const isPdf = /\.pdf$/i.test(file.file_name);
+                          const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.file_name);
+                          
+                          return (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#fff', border: '1px solid #fde68a', borderRadius: '6px' }}>
+                              <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
+                                {isPdf ? 'PDF' : isImage ? '🖼' : ''}
+                              </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <strong style={{ display: 'block', color: '#92400e', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {file.file_name}
