@@ -1251,86 +1251,95 @@ export default function CollaborativeTaskDetail() {
 
               {versions.length > 0 && (
                 <>
-                  <div className="collab-version">
-                    <span>
-                      <FileText size={15} />
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <strong>
-                        v{versions[0].version}
-                        {versions[0].files && versions[0].files.length > 1 
-                          ? ` · ${versions[0].files.length} files`
-                          : ` · ${versions[0].file_name}`}
-                      </strong>
-                      <small>{versions[0].uploaded_by} · {formatDate(versions[0].created_at)}</small>
-                    </div>
-                    <em>{status}</em>
-                  </div>
-                  
-                  {/* Display all files in this version */}
-                  {versions[0].files && versions[0].files.length > 0 && (
-                    <div style={{ 
-                      marginTop: '12px', 
-                      display: 'grid', 
-                      gap: '8px',
-                      paddingLeft: '35px' 
-                    }}>
-                      {versions[0].files.map((file, idx) => (
-                        <div key={idx} style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '10px 12px',
-                          background: '#f8f5ff',
-                          border: '1px solid #e2d6ef',
-                          borderRadius: '8px'
-                        }}>
-                          <span style={{ fontSize: '16px' }}>📄</span>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <strong style={{
-                              display: 'block',
-                              fontSize: '11px',
-                              color: '#5a4567',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {file.file_name}
+                  {(() => {
+                    // Find the current version based on task.current_output_version
+                    const currentVersion = versions.find(v => v.version === task?.current_output_version) || versions[0];
+                    
+                    return (
+                      <>
+                        <div className="collab-version">
+                          <span>
+                            <FileText size={15} />
+                          </span>
+                          <div style={{ flex: 1 }}>
+                            <strong>
+                              v{currentVersion.version}
+                              {currentVersion.files && currentVersion.files.length > 1 
+                                ? ` · ${currentVersion.files.length} files`
+                                : ` · ${currentVersion.file_name}`}
                             </strong>
-                            <small style={{
-                              display: 'block',
-                              marginTop: '2px',
-                              fontSize: '9px',
-                              color: '#978ba1'
-                            }}>
-                              {Math.round(file.file_size / 1024)} KB
-                            </small>
+                            <small>{currentVersion.uploaded_by} · {formatDate(currentVersion.created_at)}</small>
                           </div>
-                          <a
-                            href={r2ToProxyUrl(api, file.file_url)}
-                            download={file.file_name}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "5px",
-                              padding: "6px 10px",
-                              borderRadius: "6px",
-                              background: "#eee5fb",
-                              color: "#7043b6",
-                              textDecoration: "none",
-                              fontSize: "8px",
-                              fontWeight: 800,
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            <FileImage size={12} /> Open
-                          </a>
+                          <em>{status}</em>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        
+                        {/* Display all files in this version */}
+                        {currentVersion.files && currentVersion.files.length > 0 && (
+                          <div style={{ 
+                            marginTop: '12px', 
+                            display: 'grid', 
+                            gap: '8px',
+                            paddingLeft: '35px' 
+                          }}>
+                            {currentVersion.files.map((file, idx) => (
+                              <div key={idx} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                padding: '10px 12px',
+                                background: '#f8f5ff',
+                                border: '1px solid #e2d6ef',
+                                borderRadius: '8px'
+                              }}>
+                                <span style={{ fontSize: '16px' }}>📄</span>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <strong style={{
+                                    display: 'block',
+                                    fontSize: '11px',
+                                    color: '#5a4567',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap'
+                                  }}>
+                                    {file.file_name}
+                                  </strong>
+                                  <small style={{
+                                    display: 'block',
+                                    marginTop: '2px',
+                                    fontSize: '9px',
+                                    color: '#978ba1'
+                                  }}>
+                                    {Math.round(file.file_size / 1024)} KB
+                                  </small>
+                                </div>
+                                <a
+                                  href={r2ToProxyUrl(api, file.file_url)}
+                                  download={file.file_name}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "5px",
+                                    padding: "6px 10px",
+                                    borderRadius: "6px",
+                                    background: "#eee5fb",
+                                    color: "#7043b6",
+                                    textDecoration: "none",
+                                    fontSize: "8px",
+                                    fontWeight: 800,
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  <FileImage size={12} /> Open
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </>
               )}
 
@@ -1584,7 +1593,7 @@ export default function CollaborativeTaskDetail() {
                             </strong>
                             <small>{item.upload_note || "Version uploaded"}</small>
                           </div>
-                          <em>{item.version === versions[0].version ? "Current" : "Previous"}</em>
+                          <em>{item.version === task?.current_output_version ? "Current" : "Previous"}</em>
                         </div>
                       </div>
                       
