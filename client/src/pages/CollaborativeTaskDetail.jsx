@@ -1379,6 +1379,172 @@ export default function CollaborativeTaskDetail() {
                 Every collaborator confirms the current version. Uploading a new version resets this gate and starts confirmation again.
               </p>
 
+              {/* Display current version files being confirmed */}
+              {versions.length > 0 && versions[0].version === task?.current_output_version && (
+                <div style={{ 
+                  marginTop: '16px', 
+                  marginBottom: '16px',
+                  padding: '14px',
+                  background: 'linear-gradient(135deg, #faf5ff 0%, #fefbff 100%)',
+                  border: '1px solid #e9d5ff',
+                  borderRadius: '10px'
+                }}>
+                  <div style={{ 
+                    fontSize: '10px', 
+                    fontWeight: 800, 
+                    color: '#7c3aed', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.05em',
+                    marginBottom: '10px'
+                  }}>
+                    Current version (v{task?.current_output_version}) - {versions[0].files?.length || 1} file(s)
+                  </div>
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {versions[0].files && versions[0].files.length > 0 ? (
+                      versions[0].files.map((file, idx) => {
+                        const isPdf = /\.pdf$/i.test(file.file_name);
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "10px 12px",
+                              background: "#fff",
+                              border: "1px solid #e9d5ff",
+                              borderRadius: "8px"
+                            }}
+                          >
+                            <div style={{
+                              display: 'grid',
+                              width: '32px',
+                              height: '32px',
+                              placeItems: 'center',
+                              borderRadius: '6px',
+                              background: isPdf ? '#fef5e5' : '#e8f1ff',
+                              color: isPdf ? '#9d6d2a' : '#5274a8',
+                              fontSize: '9px',
+                              fontWeight: 800,
+                              flexShrink: 0
+                            }}>
+                              {isPdf ? 'PDF' : 'FILE'}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis', 
+                                whiteSpace: 'nowrap',
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                color: '#44354f'
+                              }}>
+                                {file.file_name}
+                              </div>
+                              <div style={{
+                                fontSize: '9px',
+                                color: '#8d7f97',
+                                marginTop: '2px'
+                              }}>
+                                {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(file.file_url, '_blank');
+                              }}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                padding: '6px 10px',
+                                border: '1px solid #e9d5ff',
+                                borderRadius: '6px',
+                                background: '#fff',
+                                color: '#7c3aed',
+                                fontSize: '9px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                flexShrink: 0
+                              }}
+                            >
+                              <Download size={12} /> Download
+                            </button>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        padding: "10px 12px",
+                        background: "#fff",
+                        border: "1px solid #e9d5ff",
+                        borderRadius: "8px"
+                      }}>
+                        <div style={{
+                          display: 'grid',
+                          width: '32px',
+                          height: '32px',
+                          placeItems: 'center',
+                          borderRadius: '6px',
+                          background: /\.pdf$/i.test(versions[0].file_name) ? '#fef5e5' : '#e8f1ff',
+                          color: /\.pdf$/i.test(versions[0].file_name) ? '#9d6d2a' : '#5274a8',
+                          fontSize: '9px',
+                          fontWeight: 800,
+                          flexShrink: 0
+                        }}>
+                          {/\.pdf$/i.test(versions[0].file_name) ? 'PDF' : 'FILE'}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis', 
+                            whiteSpace: 'nowrap',
+                            fontSize: "11px",
+                            fontWeight: 700,
+                            color: '#44354f'
+                          }}>
+                            {versions[0].file_name}
+                          </div>
+                          <div style={{
+                            fontSize: '9px',
+                            color: '#8d7f97',
+                            marginTop: '2px'
+                          }}>
+                            {versions[0].file_size ? `${Math.round(versions[0].file_size / 1024)} KB` : ''}
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(versions[0].file_url, '_blank');
+                          }}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '6px 10px',
+                            border: '1px solid #e9d5ff',
+                            borderRadius: '6px',
+                            background: '#fff',
+                            color: '#7c3aed',
+                            fontSize: '9px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            flexShrink: 0
+                          }}
+                        >
+                          <Download size={12} /> Download
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="collab-people">
                 {collaborators.map((collab) => (
                   <div className="collab-person" key={collab.user_id}>
