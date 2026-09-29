@@ -557,6 +557,7 @@ export default function CollaborativeTaskDetail() {
   const [replyDraft, setReplyDraft] = useState("");
   const [showRevision, setShowRevision] = useState(false);
   const [revisionReason, setRevisionReason] = useState("");
+  const [revisionInstructions, setRevisionInstructions] = useState("");
   const [revisionFiles, setRevisionFiles] = useState([]);
   const [revisionFileProgress, setRevisionFileProgress] = useState({});
   const [revisionUploadedFiles, setRevisionUploadedFiles] = useState([]);
@@ -692,6 +693,7 @@ export default function CollaborativeTaskDetail() {
         setTask((prev) => ({
           ...prev,
           return_reason: data.reason,
+          revision_instructions: data.instructions,
           status: "Pending"
         }));
         // Set revision files from socket data
@@ -1094,10 +1096,12 @@ export default function CollaborativeTaskDetail() {
         },
         body: JSON.stringify({ 
           reason: revisionReason,
+          instructions: revisionInstructions,
           files: revisionUploadedFiles
         }),
       });
       setRevisionReason("");
+      setRevisionInstructions("");
       setRevisionFiles([]);
       setRevisionUploadedFiles([]);
       setRevisionFileProgress({});
@@ -1240,7 +1244,7 @@ export default function CollaborativeTaskDetail() {
             )}
 
             {/* Revision Notice Section */}
-            {(task.return_reason || revisionFiles.length > 0) && (
+            {(task.return_reason || task.revision_instructions || revisionFiles.length > 0) && (
               <section className="collab-card" style={{ border: '2px solid #fbbf24', background: 'linear-gradient(135deg, #fef3c7 0%, #fef9e3 100%)' }}>
                 <div className="collab-heading">
                   <div>
@@ -1249,12 +1253,35 @@ export default function CollaborativeTaskDetail() {
                   </div>
                 </div>
                 <div style={{ marginTop: '12px', padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
-                  <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: revisionFiles.length > 0 ? '12px' : '0' }}>
-                    {task.return_reason || 'Please review and resubmit.'}
-                  </p>
+                  {task.return_reason && (
+                    <div style={{ marginBottom: task.revision_instructions || revisionFiles.length > 0 ? '12px' : '0' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                        Reason
+                      </div>
+                      <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', margin: 0 }}>
+                        {task.return_reason}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {task.revision_instructions && (
+                    <div style={{ marginBottom: revisionFiles.length > 0 ? '12px' : '0', padding: '12px', background: '#fff', border: '1px solid #fde68a', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                        Instructions for Faculty
+                      </div>
+                      <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', margin: 0 }}>
+                        {task.revision_instructions}
+                      </p>
+                    </div>
+                  )}
+                  
                   {revisionFiles.length > 0 && (
-                    <div style={{ display: 'grid', gap: '10px' }}>
-                      {revisionFiles.map((file, idx) => {
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                        Attached Files ({revisionFiles.length})
+                      </div>
+                      <div style={{ display: 'grid', gap: '10px' }}>
+                        {revisionFiles.map((file, idx) => {
                         const isPdf = /\.pdf$/i.test(file.file_name);
                         const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.file_name);
                         
@@ -2141,11 +2168,26 @@ export default function CollaborativeTaskDetail() {
             <span className="collab-kicker">Revision request</span>
             <h2>What should the group revisit?</h2>
             <p>Give collaborators a clear reason. The task will return to In Progress and reset the confirmation gate.</p>
+            
+            <label style={{ display: "block", marginBottom: "8px", fontSize: "11px", fontWeight: 700, color: "#5d4867", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Reason <span style={{ color: "#dc2626" }}>*</span>
+            </label>
             <textarea
               value={revisionReason}
               onChange={(e) => setRevisionReason(e.target.value)}
-              placeholder="e.g. Update the section entries and upload a corrected final PDF…"
-              rows={5}
+              placeholder="e.g. Missing information or supporting document"
+              rows={3}
+              style={{ marginBottom: "16px" }}
+            />
+            
+            <label style={{ display: "block", marginBottom: "8px", fontSize: "11px", fontWeight: 700, color: "#5d4867", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Instructions for Faculty
+            </label>
+            <textarea
+              value={revisionInstructions}
+              onChange={(e) => setRevisionInstructions(e.target.value)}
+              placeholder="Explain what needs to be corrected before the next submission…"
+              rows={4}
             />
             
             {revisionFiles.length > 0 && (
@@ -2225,6 +2267,8 @@ export default function CollaborativeTaskDetail() {
               </button>
               <button onClick={() => {
                 setShowRevision(false);
+                setRevisionReason("");
+                setRevisionInstructions("");
                 setRevisionFiles([]);
                 setRevisionUploadedFiles([]);
                 setRevisionFileProgress({});

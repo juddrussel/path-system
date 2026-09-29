@@ -409,7 +409,7 @@ router.post("/:id/withdraw-confirmation", requireAuth, async (req, res) => {
 router.post("/:id/request-revision", requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
-    const { reason, files = [] } = req.body; // files is array of uploaded file objects
+    const { reason, instructions = "", files = [] } = req.body; // files is array of uploaded file objects
     const userId = req.user.id;
 
     if (!reason || reason.trim().length < 10) {
@@ -437,10 +437,11 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
       return res.status(403).json({ message: "You cannot request revision on this task." });
     }
 
-    // Reset task to pending and clear confirmations
+    // Reset task to pending and clear confirmations, store instructions
     await db.query(
-      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting' WHERE id = ?`,
-      [taskId]
+      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting', 
+       return_reason = ?, revision_instructions = ? WHERE id = ?`,
+      [reason, instructions, taskId]
     );
 
     await db.query(
@@ -468,6 +469,9 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
 
     // Add revision request comment with file attachment info
     let commentContent = `📝 Revision requested: ${reason}`;
+    if (instructions) {
+      commentContent += `\n\nInstructions: ${instructions}`;
+    }
     if (files.length > 0) {
       commentContent += `\n${files.length} file(s) attached`;
     }
@@ -484,6 +488,7 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
       io.to(`task_${taskId}`).emit("collaborative:revision_requested", {
         taskId,
         reason,
+        instructions,
         files: files.map(f => ({
           url: f.file_url || f.url,
           name: f.file_name || f.name,
