@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
-const express = require("express");
 const { uploadToR2, deleteFromR2 } = require("../utils/uploadToR2");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 const upload = multer({
@@ -24,7 +24,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
 // ─── POST /api/upload-files ─────────────────────────────────────────────────
 // Upload multiple files for comments (pre-upload before posting)
-router.post("/upload-files", upload.array("files", 5), async (req, res) => {
+router.post("/upload-files", requireAuth, upload.array("files", 5), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No files provided" });

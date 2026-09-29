@@ -719,37 +719,6 @@ router.get("/:id/debug", requireAuth, async (req, res) => {
   }
 });
 
-// ─── POST /api/upload-files ─────────────────────────────────────────────────
-// Upload files immediately (before posting comment)
-router.post("/upload-files", requireAuth, upload.array("files", 5), async (req, res) => {
-  try {
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: "No files provided" });
-    }
-
-    const fileUrls = [];
-    for (const file of req.files) {
-      try {
-        const { url } = await uploadToR2(file);
-        fileUrls.push({
-          url,
-          name: file.originalname,
-          size: file.size,
-          type: file.mimetype
-        });
-      } catch (uploadErr) {
-        console.error("[File Upload Error]", uploadErr);
-        return res.status(500).json({ message: "File upload to R2 failed", error: uploadErr.message });
-      }
-    }
-
-    res.status(200).json({ files: fileUrls });
-  } catch (err) {
-    console.error("[Upload Files Error]", err);
-    res.status(500).json({ message: "Failed to upload files", error: err.message });
-  }
-});
-
 // ─── POST /api/collaborative-tasks/:id/comment ──────────────────────────────
 // Add a comment/working note to a collaborative task (supports threading/replies and file attachments)
 router.post("/:id/comment", requireAuth, async (req, res) => {

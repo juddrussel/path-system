@@ -207,6 +207,8 @@ function RenderReplies({
               setReplyFiles={setReplyFiles}
               replyFileProgress={replyFileProgress}
               setReplyFileProgress={setReplyFileProgress}
+              replyUploadedFiles={replyUploadedFiles}
+              setReplyUploadedFiles={setReplyUploadedFiles}
               isReplyUploadingFiles={isReplyUploadingFiles}
               setIsReplyUploadingFiles={setIsReplyUploadingFiles}
               replyFilesRef={replyFilesRef}
@@ -260,6 +262,8 @@ function ReplyForm({
   setReplyFiles,
   replyFileProgress,
   setReplyFileProgress,
+  replyUploadedFiles,
+  setReplyUploadedFiles,
   isReplyUploadingFiles,
   setIsReplyUploadingFiles,
   replyFilesRef,
@@ -350,16 +354,78 @@ function ReplyForm({
           hidden
           multiple
           accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
-          onChange={(e) => {
+          onChange={async (e) => {
             const files = Array.from(e.target.files || []);
             if (replyFiles.length + files.length > 5) {
               setError("Maximum 5 files allowed");
               return;
             }
+            
+            // Add files to the list
             setReplyFiles(prev => [...prev, ...files]);
-            files.forEach((_, idx) => {
-              setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 0 }));
-            });
+            
+            // Start uploading immediately
+            setIsReplyUploadingFiles(true);
+            const uploadedUrls = [];
+            
+            for (let idx = 0; idx < files.length; idx++) {
+              const file = files[idx];
+              try {
+                const formData = new FormData();
+                formData.append("files", file);
+                
+                setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 10 }));
+                
+                const xhr = new XMLHttpRequest();
+                let progressInterval = null;
+                
+                const startTime = Date.now();
+                const estimateProgress = () => {
+                  const elapsed = Date.now() - startTime;
+                  const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
+                  setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: estimatedPercent }));
+                };
+                
+                progressInterval = setInterval(estimateProgress, 20);
+                
+                xhr.upload.addEventListener("progress", (event) => {
+                  if (event.lengthComputable) {
+                    const percentComplete = Math.round((event.loaded / event.total) * 100);
+                    setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: percentComplete }));
+                  }
+                });
+                
+                await new Promise((resolve, reject) => {
+                  xhr.addEventListener("load", () => {
+                    if (progressInterval) clearInterval(progressInterval);
+                    if (xhr.status === 200 || xhr.status === 201) {
+                      const response = JSON.parse(xhr.responseText);
+                      uploadedUrls.push(response.files[0]);
+                      setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 100 }));
+                      resolve();
+                    } else {
+                      reject(new Error("Upload failed"));
+                    }
+                  });
+                  
+                  xhr.addEventListener("error", () => {
+                    if (progressInterval) clearInterval(progressInterval);
+                    reject(new Error("Upload failed"));
+                  });
+                  
+                  xhr.open("POST", `${api}/api/upload-files`);
+                  xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                  xhr.send(formData);
+                });
+              } catch (err) {
+                console.error("File upload error:", err);
+                setError(`Failed to upload ${file.name}`);
+              }
+            }
+            
+            setReplyUploadedFiles(prev => [...prev, ...uploadedUrls]);
+            setIsReplyUploadingFiles(false);
+            
             if (replyFilesRef.current) replyFilesRef.current.value = "";
           }}
         />
@@ -385,110 +451,37 @@ function ReplyForm({
         <button
           className="collab-primary"
           onClick={async () => {
-            if (!replyDraft.trim() && replyFiles.length === 0) return;
+            if (!replyDraft.trim() && replyUploadedFiles.length === 0) return;
+            
             try {
-              setIsReplyUploadingFiles(true);
+              const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ 
+                  content: replyDraft.trim(),
+                  parentCommentId: reply.id,
+                  files: replyUploadedFiles
+                }),
+              });
               
-              if (replyFiles.length > 0) {
-                const formData = new FormData();
-                replyFiles.forEach((file) => {
-                  formData.append("files", file);
-                });
-                formData.append("content", replyDraft.trim());
-                formData.append("taskId", taskId);
-                formData.append("parentCommentId", reply.id);
-                
-                const initialProgress = {};
-                replyFiles.forEach((_, idx) => {
-                  initialProgress[idx] = 10;
-                });
-                setReplyFileProgress(initialProgress);
-                
-                const xhr = new XMLHttpRequest();
-                let lastProgressTime = Date.now();
-                let progressInterval = null;
-                
-                const startTime = Date.now();
-                const estimateProgress = () => {
-                  const elapsed = Date.now() - startTime;
-                  const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
-                  replyFiles.forEach((_, idx) => {
-                    setReplyFileProgress(prev => ({ ...prev, [idx]: estimatedPercent }));
-                  });
-                };
-                
-                progressInterval = setInterval(estimateProgress, 20);
-                
-                xhr.upload.addEventListener("progress", (event) => {
-                  if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
-                    const percentComplete = Math.round((event.loaded / event.total) * 100);
-                    replyFiles.forEach((_, idx) => {
-                      setReplyFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
-                    });
-                    lastProgressTime = Date.now();
-                  }
-                });
-                
-                xhr.addEventListener("load", () => {
-                  if (progressInterval) clearInterval(progressInterval);
-                  if (xhr.status === 200 || xhr.status === 201) {
-                    replyFiles.forEach((_, idx) => {
-                      setReplyFileProgress(prev => ({ ...prev, [idx]: 100 }));
-                    });
-                    setTimeout(() => {
-                      setReplyDraft("");
-                      setReplyFiles([]);
-                      setReplyFileProgress({});
-                      setReplyTo(null);
-                      if (replyFilesRef.current) replyFilesRef.current.value = "";
-                    }, 300);
-                  } else {
-                    setError("File upload failed");
-                  }
-                  setIsReplyUploadingFiles(false);
-                });
-                
-                xhr.addEventListener("error", () => {
-                  if (progressInterval) clearInterval(progressInterval);
-                  setError("File upload failed");
-                  setIsReplyUploadingFiles(false);
-                });
-                
-                xhr.addEventListener("abort", () => {
-                  if (progressInterval) clearInterval(progressInterval);
-                  setIsReplyUploadingFiles(false);
-                });
-                
-                xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/comment`);
-                xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-                xhr.send(formData);
+              if (response.ok) {
+                setReplyDraft("");
+                setReplyFiles([]);
+                setReplyFileProgress({});
+                setReplyTo(null);
+                setReplyUploadedFiles([]);
+                if (replyFilesRef.current) replyFilesRef.current.value = "";
               } else {
-                const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
-                  method: "POST",
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ 
-                    content: replyDraft.trim(),
-                    parentCommentId: reply.id
-                  }),
-                });
-                
-                if (response.ok) {
-                  setReplyDraft("");
-                  setReplyTo(null);
-                } else {
-                  setError("Failed to post reply");
-                }
-                setIsReplyUploadingFiles(false);
+                setError("Failed to post reply");
               }
             } catch (err) {
               setError(err.message);
-              setIsReplyUploadingFiles(false);
             }
           }}
-          disabled={(!replyDraft.trim() && replyFiles.length === 0) || isReplyUploadingFiles}
+          disabled={(!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles}
           style={{ marginTop: "0" }}
         >
           <Send size={13} /> Send reply
@@ -1398,6 +1391,8 @@ export default function CollaborativeTaskDetail() {
                           setReplyFiles={setReplyFiles}
                           replyFileProgress={replyFileProgress}
                           setReplyFileProgress={setReplyFileProgress}
+                          replyUploadedFiles={replyUploadedFiles}
+                          setReplyUploadedFiles={setReplyUploadedFiles}
                           isReplyUploadingFiles={isReplyUploadingFiles}
                           setIsReplyUploadingFiles={setIsReplyUploadingFiles}
                           replyFilesRef={replyFilesRef}
