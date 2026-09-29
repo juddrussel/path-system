@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket.js";
+import { resolveFileUrl as resolveFileUrlHelper } from "../utils/r2ProxyHelper";
 
 /*
   Router integration requirement (React Router v6):
@@ -84,8 +85,7 @@ const toDatetimeInput = (value) => {
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 };
 
-const resolveFileUrl = (api, value) =>
-  !value ? "" : /^https?:\/\//i.test(value) ? value : `${api}${value}`;
+const resolveFileUrl = (api, value) => resolveFileUrlHelper(api, value);
 
 const pdfReadingUrl = (value, zoom = "page-width") => {
   if (!value) return "";

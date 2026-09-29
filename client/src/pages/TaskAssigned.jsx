@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { resolveFileUrl as resolveFileUrlHelper } from "../utils/r2ProxyHelper";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
@@ -678,11 +679,8 @@ export default function TaskAssigned() {
   })();
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
   const API = import.meta.env.VITE_API_URL;
-  // Attachments/submissions now store full R2 URLs (https://...). Older rows
-  // created before the R2 migration may still have local paths like
-  // "/uploads/tasks/xyz.pdf" — those still need the API host prepended.
-  const resolveFileUrl = (u) =>
-    !u ? "" : /^https?:\/\//i.test(u) ? u : `${API}${u}`;
+  // Use R2 proxy helper to handle R2 URLs and convert them to proxied URLs
+  const resolveFileUrl = (u) => resolveFileUrlHelper(API, u);
 
   // Faculty/staff profile pictures aren't included on task/comment payloads
   // (those only carry a name), so we fetch the user directory once and join
