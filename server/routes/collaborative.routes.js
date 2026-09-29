@@ -744,7 +744,8 @@ router.get("/:id", requireAuth, async (req, res) => {
           }
         });
         
-        versions = Object.values(versionMap);
+        // Sort versions by version number DESC (latest first)
+        versions = Object.values(versionMap).sort((a, b) => b.version - a.version);
       }
       console.log(`Found ${versions.length} versions`);
     } catch (e) {
