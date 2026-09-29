@@ -77,6 +77,422 @@ const styles = `
   .admin-collab{min-height:100vh;background:#f8f7ff;color:#40344b;font-family:'DM Sans','Manrope',system-ui,sans-serif;box-sizing:border-box;display:flex;flex-direction:column}.admin-collab *{box-sizing:border-box}.admin-wrapper{flex:1;overflow:auto;padding:28px 40px 44px}@media(min-width:1100px){.admin-wrapper{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}.admin-shell{max-width:none;margin:0 auto}.admin-hero,.admin-card,.admin-side-card{border:1px solid #e6dcef;border-radius:16px;background:#fff;box-shadow:0 12px 28px rgba(73,44,105,.045)}.admin-hero{padding:24px 28px;background:linear-gradient(125deg,#fff,#fbf9ff 48%,#f0e8ff)}.admin-top,.admin-heading,.admin-person,.admin-file,.admin-file-actions,.admin-version-head,.admin-thread-actions,.admin-reply,.admin-decision-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}.admin-back{display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;color:#76558e;font-size:12px;font-weight:800;cursor:pointer}.admin-role{display:inline-flex;align-items:center;gap:6px;color:#6f47a9;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.admin-hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:34px;align-items:end;margin-top:32px}.admin-eyebrow,.admin-kicker{display:flex;align-items:center;gap:6px;color:#927da5;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.admin-eyebrow svg{color:#7c3aed}.admin-hero h1{margin:11px 0 9px;color:#372541;font:800 38px/1.05 'Manrope',Arial,sans-serif;letter-spacing:-.06em}.admin-hero p{max-width:620px;margin:0;color:#887995;font-size:12px;line-height:1.55}.admin-meta{display:flex;flex-wrap:wrap;gap:13px;margin-top:18px;color:#887995;font-size:10px}.admin-meta span{display:flex;align-items:center;gap:5px}.admin-status{padding:17px;border:1px solid #c7e6d1;border-radius:12px;background:#f8fdf9}.admin-status small,.admin-status strong,.admin-status em{display:block}.admin-status small{color:#6e947d;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.admin-status strong{margin-top:8px;color:#3f805e;font:800 17px 'Manrope',Arial,sans-serif}.admin-status em{margin-top:8px;color:#7b9a87;font-size:9px;font-style:normal}.admin-progress{height:6px;margin-top:13px;border-radius:99px;background:#deeee3;overflow:hidden}.admin-progress i{display:block;width:100%;height:100%;border-radius:inherit;background:#55a879}.admin-layout{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(280px,.56fr);align-items:start;gap:16px;margin-top:16px}.admin-main,.admin-side{display:grid;align-content:start;gap:16px}.admin-card,.admin-side-card{padding:22px}.admin-heading{align-items:flex-start}.admin-heading h2{margin:5px 0 0;color:#4b3858;font:800 18px 'Manrope',Arial,sans-serif;letter-spacing:-.045em}.admin-id{padding:6px 8px;border-radius:6px;background:#f4eff9;color:#9b8ba5;font-size:8px;font-weight:800}.admin-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:17px}.admin-metrics div{padding:12px;border:1px solid #eee8f2;border-radius:9px;background:#fdfcff}.admin-metrics strong,.admin-metrics small{display:block}.admin-metrics strong{color:#5d3d76;font:800 21px 'Manrope',Arial,sans-serif;letter-spacing:-.06em}.admin-metrics small{margin-top:4px;color:#998ca3;font-size:8px}.admin-brief{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:17px;padding-top:15px;border-top:1px solid #f0ebf3}.admin-brief small,.admin-brief strong{display:block}.admin-brief small{color:#9b8da2;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.admin-brief strong{margin-top:6px;color:#56405f;font-size:10px}.admin-brief .high{color:#bb6d58}.admin-success,.admin-file-status{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:7px;background:#e7f6ed;color:#4d946f;font-size:8px;font-weight:800;white-space:nowrap}.admin-muted{margin:11px 0 0;color:#8b7d96;font-size:10px;line-height:1.55}.admin-people{display:grid;gap:7px;margin-top:16px}.admin-person{padding:10px;border:1px solid #eee8f2;border-radius:9px;background:#fdfcff;display:flex;align-items:center;gap:9px}.admin-avatar{display:grid;width:30px;height:30px;flex:none;place-items:center;border-radius:8px;font-size:8px;font-weight:800}.admin-avatar.rose{background:#fde9ef;color:#b45c77}.admin-avatar.blue{background:#e8f1ff;color:#5274a8}.admin-avatar.green{background:#e4f5ec;color:#4d966e}.admin-avatar.amber{background:#fff0d6;color:#a67526}.admin-avatar.violet{background:#eee5fb;color:#7043b7}.admin-person>div{min-width:0;flex:1}.admin-person strong,.admin-person small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-person strong{color:#5a4567;font-size:10px}.admin-person small{margin-top:3px;color:#9c8fa4;font-size:8px}.admin-confirmed{display:inline-flex;align-items:center;gap:4px;color:#4d946f;font-size:8px;font-weight:800}.admin-file{margin-top:16px;padding:12px;border:1px solid #e2d8eb;border-radius:9px;background:#fbf8ff;display:flex;align-items:flex-start;gap:12px}.admin-file-icon{display:grid;width:38px;height:38px;place-items:center;border-radius:9px;background:#eee5ff;color:#7043b7;flex-shrink:0}.admin-file>div:nth-child(2){min-width:0;flex:1}.admin-file strong,.admin-file small,.admin-file p{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-file strong{color:#5a4567;font-size:10px}.admin-file small{margin-top:4px;color:#9689a0;font-size:8px}.admin-file p{margin:6px 0 0;color:#806e8a;font-size:8px}.admin-file>button{display:grid;width:28px;height:28px;place-items:center;border:1px solid #decfea;border-radius:7px;background:#fff;color:#76538d;cursor:pointer;flex-shrink:0}.admin-file-actions{justify-content:flex-start;margin-top:9px}.admin-outline,.admin-primary{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border-radius:7px;font-size:8px;font-weight:800;cursor:pointer}.admin-outline{border:1px solid #e1d6eb;background:#fff;color:#76538d}.admin-primary{border:0;background:#7c3aed;color:#fff}.admin-versions{margin-top:18px}.admin-version-head{display:flex;align-items:center;justify-content:space-between;color:#60486f;font-size:9px;font-weight:800}.admin-version-head small{color:#9c8ea4;font-size:8px;font-weight:500}.admin-version{display:flex;align-items:flex-start;gap:9px;margin-top:7px;padding:9px;border-top:1px solid #f0ebf3}.admin-version.current{border:1px solid #cfe7d8;border-radius:8px;background:#f8fdf9;margin-top:0;padding:11px}.admin-version-number{display:grid;width:27px;height:27px;place-items:center;border-radius:7px;background:#eee5fb;color:#7043b7;font-size:8px;font-weight:800;flex-shrink:0}.admin-version>div{min-width:0;flex:1}.admin-version strong,.admin-version small,.admin-version p{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-version strong{color:#5c4668;font-size:9px}.admin-version small{margin-top:3px;color:#998ba3;font-size:8px}.admin-version p{margin:4px 0 0;color:#806f8b;font-size:8px}.admin-version em{color:#7b5aa1;font-size:8px;font-style:normal;font-weight:800}.admin-message{display:grid;grid-template-columns:30px 1fr;gap:10px;margin-top:17px}.admin-message header{display:flex;align-items:center;gap:7px}.admin-message header strong{color:#5a4567;font-size:10px}.admin-message header small{color:#a095a8;font-size:8px}.admin-message p{margin:6px 0 0;color:#746681;font-size:10px;line-height:1.55}.admin-thread-actions{justify-content:flex-start;margin-top:8px}.admin-thread-actions button{display:inline-flex;align-items:center;gap:5px;padding:0;border:0;background:transparent;color:#7953a0;font-size:8px;font-weight:800;cursor:pointer}.admin-thread-actions span{color:#a095a8;font-size:8px}.admin-reply{display:flex;align-items:flex-end;margin-top:9px;padding:9px;border:1px solid #e7d9f3;border-radius:8px;background:#faf7ff;gap:9px}.admin-reply textarea,.admin-review-note textarea,.admin-modal textarea{min-width:0;flex:1;padding:9px;border:1px solid #e3dbe9;border-radius:8px;outline:0;resize:vertical;color:#5e496b;font:9px/1.5 'DM Sans',Arial,sans-serif}.admin-reply button,.admin-decision-actions button{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border:0;border-radius:7px;background:#7c3aed;color:#fff;font-size:8px;font-weight:800;cursor:pointer;flex-shrink:0}.admin-reply button:disabled{opacity:.45;cursor:not-allowed}.admin-side-card h2{margin:8px 0 7px;color:#493358;font:800 18px/1.12 'Manrope',Arial,sans-serif;letter-spacing:-.045em}.admin-side-card>p{margin:0;color:#897b93;font-size:10px;line-height:1.55}.admin-review-note{display:block;margin-top:13px;color:#806f8b;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.admin-review-note textarea{display:block;width:100%;margin-top:7px;font-size:10px}.admin-decision-actions{margin-top:9px;display:flex;gap:7px;flex-direction:column}.admin-decision-actions button:last-child{border:1px solid #dccfe8;background:#fff;color:#76538d}.admin-timeline{position:relative;display:grid;gap:16px;margin-top:19px}.admin-timeline:before{position:absolute;top:13px;bottom:13px;left:12px;width:1px;background:#e8dff0;content:""}.admin-timeline>div{position:relative;display:grid;grid-template-columns:25px 1fr;gap:8px}.admin-timeline span{z-index:1;display:grid;width:25px;height:25px;place-items:center;border:1px solid #e2d7ec;border-radius:50%;background:#fff;color:#9f8daf}.admin-timeline span.done{border-color:#bfe3ce;background:#ebf8f0;color:#4d946f}.admin-timeline span.current{border-color:#c1a5e4;background:#f3eaff;color:#7344b4}.admin-timeline p{margin:2px 0 0}.admin-timeline strong,.admin-timeline small{display:block}.admin-timeline strong{color:#60486f;font-size:9px}.admin-timeline small{margin-top:3px;color:#9b8da3;font-size:8px}.admin-policy{display:grid;gap:13px;background:linear-gradient(145deg,#f4edff,#fff);padding:14px;border-radius:9px}.admin-policy>div{display:flex;align-items:flex-start;gap:8px;color:#7041b5}.admin-policy strong,.admin-policy small{display:block}.admin-policy strong{color:#604477;font-size:9px}.admin-policy small{margin-top:3px;color:#978aa0;font-size:8px;line-height:1.4}.admin-modal-backdrop{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(44,26,62,.24)}.admin-modal{position:relative;width:min(480px,100%);padding:24px;border:1px solid #e4d7ef;border-radius:15px;background:#fff;box-shadow:0 22px 50px rgba(46,25,67,.18)}.admin-modal-close{position:absolute;top:13px;right:13px;border:0;background:transparent;color:#8d7c99;cursor:pointer}.admin-modal h2{margin:7px 0;color:#4b3656;font:800 19px 'Manrope',Arial,sans-serif}.admin-modal p{color:#8d7f97;font-size:10px;line-height:1.5}.admin-modal textarea{display:block;width:100%;margin-top:14px;font-size:10px}.admin-modal-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:11px}.admin-modal-actions button{padding:9px 11px;border:1px solid #ded2e8;border-radius:7px;background:#fff;color:#76538d;font-size:9px;font-weight:800;cursor:pointer}.admin-modal-actions button:last-child{border-color:#7c3aed;background:#7c3aed;color:#fff}.admin-modal-actions button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:850px){.admin-wrapper{padding:18px}.admin-hero-grid,.admin-layout{grid-template-columns:1fr}.admin-status{max-width:350px}}@media(max-width:560px){.admin-hero{padding:20px}.admin-top{align-items:flex-start;flex-direction:column}.admin-hero h1{font-size:29px}.admin-card,.admin-side-card{padding:17px}.admin-metrics{grid-template-columns:1fr 1fr}.admin-brief{grid-template-columns:1fr 1fr}.admin-person{align-items:flex-start;flex-wrap:wrap}.admin-confirmed{margin-left:40px}.admin-file-actions,.admin-decision-actions{align-items:stretch;flex-direction:column}.admin-outline,.admin-primary,.admin-decision-actions button{justify-content:center}.admin-reply{align-items:stretch;flex-direction:column}.admin-reply button{justify-content:center}}
 `;
 
+const MAX_VISUAL_DEPTH = 6;
+
+function RenderReplies({ 
+  replies, 
+  depth, 
+  replyTo, 
+  setReplyTo, 
+  getTone, 
+  initials, 
+  formatDate,
+  imageLoadingStates,
+  setImageLoadingStates,
+  replyDraft,
+  setReplyDraft,
+  replyFiles,
+  setReplyFiles,
+  replyFileProgress,
+  setReplyFileProgress,
+  replyUploadedFiles,
+  setReplyUploadedFiles,
+  isReplyUploadingFiles,
+  setIsReplyUploadingFiles,
+  replyFilesRef,
+  setError,
+  api,
+  token,
+  taskId
+}) {
+  // Only indent if we haven't reached max visual depth
+  const shouldIndent = depth <= MAX_VISUAL_DEPTH;
+  
+  return (
+    <div style={{ 
+      marginLeft: shouldIndent ? "28px" : "0", 
+      borderLeft: shouldIndent ? "2px solid #e9ddfb" : "none", 
+      paddingTop: "8px" 
+    }}>
+      {replies.map((reply) => (
+        <div key={reply.id}>
+          <article className="collab-message" style={{ background: "#fcfaff", border: "1px solid #f0ebf3" }}>
+            <span className={`collab-avatar ${getTone(reply.user_id || reply.sender_id || 0)}`}>
+              {initials(reply.full_name)}
+            </span>
+            <div className="collab-message-content">
+              <header>
+                <strong>{reply.full_name}</strong>
+                <small>{formatDate(reply.created_at)}</small>
+              </header>
+              <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{reply.content}</p>
+              {reply.files && reply.files.length > 0 && (
+                <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                  {reply.files.map((file, idx) => {
+                    const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                    const imageKey = `reply-${reply.id}-file-${idx}`;
+                    const imageLoading = imageLoadingStates[imageKey] ?? true;
+                    return isImage ? (
+                      <div 
+                        key={idx}
+                        style={{ 
+                          position: "relative",
+                          display: "inline-block",
+                          maxWidth: "280px"
+                        }}
+                      >
+                        {imageLoading && (
+                          <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: "#f5f0fb",
+                            borderRadius: "6px",
+                            border: "1px solid #e2d9e9",
+                            zIndex: 1
+                          }}>
+                            <div style={{
+                              width: "24px",
+                              height: "24px",
+                              border: "2px solid #e2d9e9",
+                              borderTopColor: "#7c3aed",
+                              borderRadius: "50%",
+                              animation: "spin 0.8s linear infinite"
+                            }} />
+                          </div>
+                        )}
+                        <a 
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: "block", maxWidth: "280px" }}
+                        >
+                          <img 
+                            src={file.url}
+                            alt={file.name}
+                            onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                            onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                            style={{ 
+                              maxWidth: "100%", 
+                              borderRadius: "6px", 
+                              border: "1px solid #e2d9e9", 
+                              cursor: "pointer",
+                              display: imageLoading ? "none" : "block"
+                            }}
+                          />
+                        </a>
+                      </div>
+                    ) : (
+                      <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "12px" }}>📎</span>
+                        <a 
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                        >
+                          {file.name}
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <div className="collab-thread">
+                <button type="button" onClick={() => setReplyTo(replyTo === reply.id ? null : reply.id)}>
+                  <Reply size={12} /> Reply
+                </button>
+              </div>
+            </div>
+          </article>
+
+          {/* Reply form for this nested reply */}
+          {replyTo === reply.id && (
+            <ReplyForm
+              reply={reply}
+              replyDraft={replyDraft}
+              setReplyDraft={setReplyDraft}
+              replyFiles={replyFiles}
+              setReplyFiles={setReplyFiles}
+              replyFileProgress={replyFileProgress}
+              setReplyFileProgress={setReplyFileProgress}
+              replyUploadedFiles={replyUploadedFiles}
+              setReplyUploadedFiles={setReplyUploadedFiles}
+              isReplyUploadingFiles={isReplyUploadingFiles}
+              setIsReplyUploadingFiles={setIsReplyUploadingFiles}
+              replyFilesRef={replyFilesRef}
+              setReplyTo={setReplyTo}
+              setError={setError}
+              api={api}
+              token={token}
+              taskId={taskId}
+            />
+          )}
+
+          {/* Recursively render this reply's replies (unlimited threading depth) */}
+          {reply.replies && reply.replies.length > 0 && (
+            <RenderReplies 
+              replies={reply.replies}
+              depth={depth + 1}
+              replyTo={replyTo}
+              setReplyTo={setReplyTo}
+              getTone={getTone}
+              initials={initials}
+              formatDate={formatDate}
+              imageLoadingStates={imageLoadingStates}
+              setImageLoadingStates={setImageLoadingStates}
+              replyDraft={replyDraft}
+              setReplyDraft={setReplyDraft}
+              replyFiles={replyFiles}
+              setReplyFiles={setReplyFiles}
+              replyFileProgress={replyFileProgress}
+              setReplyFileProgress={setReplyFileProgress}
+              replyUploadedFiles={replyUploadedFiles}
+              setReplyUploadedFiles={setReplyUploadedFiles}
+              isReplyUploadingFiles={isReplyUploadingFiles}
+              setIsReplyUploadingFiles={setIsReplyUploadingFiles}
+              replyFilesRef={replyFilesRef}
+              setError={setError}
+              api={api}
+              token={token}
+              taskId={taskId}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Reply form component (extracted for reuse)
+function ReplyForm({
+  reply,
+  replyDraft,
+  setReplyDraft,
+  replyFiles,
+  setReplyFiles,
+  replyFileProgress,
+  setReplyFileProgress,
+  replyUploadedFiles,
+  setReplyUploadedFiles,
+  isReplyUploadingFiles,
+  setIsReplyUploadingFiles,
+  replyFilesRef,
+  setReplyTo,
+  setError,
+  api,
+  token,
+  taskId
+}) {
+  
+  const uploadReplyFiles = async (filesToUpload) => {
+    try {
+      setIsReplyUploadingFiles(true);
+      const uploadedUrls = [];
+      
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i];
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        const response = await fetch(`${api}/api/collab-task/${taskId}/upload-message-file`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error("File upload failed");
+        }
+        
+        const data = await response.json();
+        uploadedUrls.push({ name: file.name, url: data.fileUrl });
+        
+        setReplyFileProgress(prev => ({ ...prev, [replyFiles.length - filesToUpload.length + i]: 100 }));
+      }
+      
+      setReplyUploadedFiles(prev => [...prev, ...uploadedUrls]);
+      setIsReplyUploadingFiles(false);
+    } catch (err) {
+      console.error("Reply file upload error:", err);
+      setError("Failed to upload reply files");
+      setIsReplyUploadingFiles(false);
+    }
+  };
+  
+  const postReply = async () => {
+    if (!replyDraft.trim() && replyUploadedFiles.length === 0) return;
+    
+    try {
+      const response = await fetch(`${api}/api/collab-task/${taskId}/messages`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          content: replyDraft.trim(),
+          parent_id: reply.id,
+          files: replyUploadedFiles
+        }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to post reply");
+      
+      setReplyDraft("");
+      setReplyTo(null);
+      setReplyFiles([]);
+      setReplyFileProgress({});
+      setReplyUploadedFiles([]);
+      
+      // Refresh messages - trigger a re-fetch from parent component
+      window.location.reload();
+    } catch (err) {
+      console.error("Post reply error:", err);
+      setError("Failed to post reply");
+    }
+  };
+  
+  return (
+    <div style={{ marginTop: "12px", padding: "12px", background: "#fbf8ff", borderRadius: "8px" }}>
+      <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
+        ↳ Reply to {reply.full_name.split(" ")[0]}
+      </div>
+      <textarea
+        key={`reply-to-${reply.id}`}
+        value={replyDraft}
+        onChange={(e) => setReplyDraft(e.target.value)}
+        placeholder={`Write your reply…`}
+        rows={2}
+        autoFocus
+        style={{
+          display: "block",
+          width: "100%",
+          padding: "10px",
+          border: "1px solid #e2d9e9",
+          borderRadius: "8px",
+          outline: "0",
+          resize: "vertical",
+          color: "#5d4867",
+          font: "10px/1.5 DM Sans,Arial,sans-serif",
+          boxSizing: "border-box",
+          marginBottom: "8px"
+        }}
+      />
+      {replyFiles.length > 0 && (
+        <div style={{ marginBottom: "8px", padding: "8px", background: "#fff", borderRadius: "6px", borderTop: "1px solid #e2d6ef" }}>
+          <div style={{ fontSize: "8px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "6px" }}>
+            {replyFiles.length} file(s) attached
+          </div>
+          <div style={{ display: "grid", gap: "6px" }}>
+            {replyFiles.map((file, idx) => {
+              const isPdf = /\.pdf$/i.test(file.name);
+              const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+              const progress = replyFileProgress[idx] ?? 0;
+              const isUploading = isReplyUploadingFiles && progress < 100;
+              
+              return (
+                <div key={idx} style={{ padding: "8px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ display: "grid", width: "32px", height: "32px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "14px", flexShrink: 0 }}>
+                    {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: "#5d4867", fontSize: "9px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {file.name}
+                    </div>
+                    <div style={{ marginTop: "4px", height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                      <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "8px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
+                      {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setReplyFiles(prev => prev.filter((_, i) => i !== idx));
+                      setReplyFileProgress(prev => {
+                        const newProgress = { ...prev };
+                        delete newProgress[idx];
+                        return newProgress;
+                      });
+                    }}
+                    disabled={isReplyUploadingFiles}
+                    style={{ background: "none", border: "none", color: "#806f8b", cursor: isReplyUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isReplyUploadingFiles ? 0.5 : 1 }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: "8px" }}>
+        <input
+          ref={replyFilesRef}
+          type="file"
+          hidden
+          multiple
+          accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+          onChange={async (e) => {
+            const files = Array.from(e.target.files || []);
+            if (replyFiles.length + files.length > 5) {
+              setError("Maximum 5 files allowed");
+              return;
+            }
+            
+            setReplyFiles(prev => [...prev, ...files]);
+            await uploadReplyFiles(files);
+            if (replyFilesRef.current) replyFilesRef.current.value = "";
+          }}
+        />
+        <button 
+          onClick={() => replyFilesRef.current?.click()}
+          disabled={isReplyUploadingFiles || replyFiles.length >= 5}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            padding: "7px 9px",
+            border: "1px solid #ddd1e8",
+            borderRadius: "7px",
+            background: "#fff",
+            color: "#76538d",
+            fontSize: "8px",
+            fontWeight: 800,
+            cursor: isReplyUploadingFiles || replyFiles.length >= 5 ? "not-allowed" : "pointer",
+            opacity: isReplyUploadingFiles || replyFiles.length >= 5 ? 0.5 : 1
+          }}
+        >
+          <Paperclip size={11} /> Add files ({replyFiles.length}/5)
+        </button>
+        <button 
+          onClick={postReply} 
+          disabled={(!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            padding: "7px 9px",
+            border: "0",
+            borderRadius: "7px",
+            background: "#7c3aed",
+            color: "#fff",
+            fontSize: "8px",
+            fontWeight: 800,
+            cursor: ((!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles) ? "not-allowed" : "pointer",
+            opacity: ((!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles) ? 0.5 : 1
+          }}
+        >
+          <Send size={12} /> Post reply
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function CollaborativeTaskAdmin() {
   const { taskId } = useParams();
   const navigate = useNavigate();
@@ -90,6 +506,17 @@ export default function CollaborativeTaskAdmin() {
   const [confirmations, setConfirmations] = useState([]);
   const [versions, setVersions] = useState([]);
   const [comments, setComments] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [messageDraft, setMessageDraft] = useState("");
+  const [commentFiles, setCommentFiles] = useState([]);
+  const [commentFileProgress, setCommentFileProgress] = useState({});
+  const [commentUploadedFiles, setCommentUploadedFiles] = useState([]);
+  const [isCommentUploadingFiles, setIsCommentUploadingFiles] = useState(false);
+  const [replyFiles, setReplyFiles] = useState([]);
+  const [replyFileProgress, setReplyFileProgress] = useState({});
+  const [replyUploadedFiles, setReplyUploadedFiles] = useState([]);
+  const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
+  const [imageLoadingStates, setImageLoadingStates] = useState({});
   const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -106,6 +533,8 @@ export default function CollaborativeTaskAdmin() {
   const [replyTo, setReplyTo] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
   const revisionFilesRef = useRef(null);
+  const commentFilesRef = useRef(null);
+  const replyFilesRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [readerZoom, setReaderZoom] = useState("page-width");
   const [expandedVersions, setExpandedVersions] = useState(new Set([]));
@@ -128,6 +557,7 @@ export default function CollaborativeTaskAdmin() {
         setConfirmations(data.confirmations || []);
         setVersions(data.versions || []);
         setComments(data.comments || []);
+        setMessages(data.comments || []); // Set messages same as comments for discussion section
         setAttachments(data.attachments || []);
         setStatus(data.task?.status || "Submitted");
         
@@ -151,6 +581,7 @@ export default function CollaborativeTaskAdmin() {
     socket.on("collaborative:comment_posted", (comment) => {
       if (comment.task_id === task?.id) {
         setComments((prev) => [comment, ...prev]);
+        setMessages((prev) => [comment, ...prev]); // Also update messages
       }
     });
 
@@ -168,6 +599,126 @@ export default function CollaborativeTaskAdmin() {
       socket.off("collaborative:auto_submitted");
     };
   }, [task?.id]);
+
+  // Upload comment files with progress tracking
+  const uploadCommentFiles = async (files) => {
+    setIsCommentUploadingFiles(true);
+    const uploadedUrls = [];
+    
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        
+        setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: 10 }));
+        
+        const xhr = new XMLHttpRequest();
+        let progressInterval = null;
+        
+        const startTime = Date.now();
+        const estimateProgress = () => {
+          const elapsed = Date.now() - startTime;
+          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
+          setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: estimatedPercent }));
+        };
+        
+        progressInterval = setInterval(estimateProgress, 20);
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: percentComplete }));
+          }
+        });
+        
+        await new Promise((resolve, reject) => {
+          xhr.addEventListener("load", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            if (xhr.status === 200 || xhr.status === 201) {
+              const response = JSON.parse(xhr.responseText);
+              uploadedUrls.push(response.files[0]);
+              setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: 100 }));
+              resolve();
+            } else {
+              reject(new Error("Upload failed"));
+            }
+          });
+          
+          xhr.addEventListener("error", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            reject(new Error("Upload failed"));
+          });
+          
+          xhr.open("POST", `${api}/api/upload-files`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.send(formData);
+        });
+      } catch (err) {
+        console.error("File upload error:", err);
+        setError(`Failed to upload ${file.name}`);
+      }
+    }
+    
+    setCommentUploadedFiles(prev => [...prev, ...uploadedUrls]);
+    setIsCommentUploadingFiles(false);
+  };
+
+  // Post new message to discussion
+  const postMessage = async () => {
+    if (!messageDraft.trim() && commentUploadedFiles.length === 0) return;
+    
+    try {
+      const optimisticComment = {
+        id: `temp-${Date.now()}`,
+        task_id: parseInt(taskId),
+        user_id: user.id,
+        sender_id: user.id,
+        content: messageDraft.trim(),
+        full_name: user.full_name,
+        parent_comment_id: null,
+        files: commentUploadedFiles,
+        created_at: new Date().toISOString(),
+        replies: []
+      };
+
+      setMessages(prev => [optimisticComment, ...prev]);
+
+      const savedDraft = messageDraft;
+      const savedFiles = commentUploadedFiles;
+      setMessageDraft("");
+      setCommentFiles([]);
+      setCommentFileProgress({});
+      setCommentUploadedFiles([]);
+      if (commentFilesRef.current) commentFilesRef.current.value = "";
+
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          content: savedDraft.trim(),
+          files: savedFiles
+        }),
+      });
+
+      if (response.ok) {
+        const realComment = await response.json();
+        setMessages(prev => prev.map(msg => 
+          msg.id === optimisticComment.id ? { ...realComment, replies: [] } : msg
+        ));
+      } else {
+        setMessages(prev => prev.filter(msg => msg.id !== optimisticComment.id));
+        setMessageDraft(savedDraft);
+        setCommentUploadedFiles(savedFiles);
+        setError("Failed to post comment");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const approveTask = async () => {
     try {
@@ -802,62 +1353,275 @@ export default function CollaborativeTaskAdmin() {
               </section>
             )}
 
-            <section className="admin-card">
-              <div className="admin-heading">
+            <section className="collab-card">
+              <div className="collab-heading">
                 <div>
-                  <span className="admin-kicker">
-                    <MessageCircle size={12} /> Shared discussion
+                  <span className="collab-kicker">
+                    <MessageCircle size={12} /> Discussion
                   </span>
-                  <h2>Group conversation</h2>
+                  <h2>Working notes & questions</h2>
                 </div>
-                <span className="admin-id">{comments.length} notes</span>
+                <span className="collab-count">{messages.length} messages</span>
               </div>
 
-              {comments.length > 0 ? (
-                comments.map((comment) => (
-                  <article className="admin-message" key={comment.id}>
-                    <span className={`admin-avatar ${getTone(comments.indexOf(comment))}`}>
-                      {initials(comment.full_name)}
-                    </span>
-                    <div>
-                      <header>
-                        <strong>{comment.full_name}</strong>
-                        <small>{formatDate(comment.created_at)}</small>
-                      </header>
-                      <p>{comment.content}</p>
-                      <div className="admin-thread-actions">
-                        <button
-                          type="button"
-                          onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                        >
-                          <Reply size={12} /> Reply internally
-                        </button>
-                      </div>
-                      {replyTo === comment.id && (
-                        <div className="admin-reply">
-                          <textarea
-                            value={replyDraft}
-                            onChange={(e) => setReplyDraft(e.target.value)}
-                            placeholder={`Reply to ${comment.full_name}…`}
-                            rows={2}
-                          />
-                          <button
-                            type="button"
-                            onClick={postReply}
-                            disabled={!replyDraft.trim()}
-                          >
-                            <Send size={13} />
-                          </button>
+              <div className="collab-messages">
+                {(() => {
+                  console.log("[Render] Messages count:", messages.length, "Messages:", messages);
+                  return null;
+                })()}
+                {messages.length > 0 ? (
+                  messages.map((message) => (
+                    <div key={message.id}>
+                      {/* Parent comment */}
+                      <article className="collab-message">
+                        <span className={`collab-avatar ${getTone(message.user_id || message.sender_id || 0)}`}>
+                          {initials(message.full_name)}
+                        </span>
+                        <div className="collab-message-content">
+                          <header>
+                            <strong>{message.full_name}</strong>
+                            <small>{formatDate(message.created_at)}</small>
+                          </header>
+                          <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{message.content}</p>
+                          {message.files && message.files.length > 0 && (
+                            <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                              {message.files.map((file, idx) => {
+                                const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                const imageKey = `msg-${message.id}-file-${idx}`;
+                                const imageLoading = imageLoadingStates[imageKey] ?? true;
+                                return isImage ? (
+                                  <div 
+                                    key={idx}
+                                    style={{ 
+                                      position: "relative",
+                                      display: "inline-block",
+                                      maxWidth: "280px"
+                                    }}
+                                  >
+                                    {imageLoading && (
+                                      <div style={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        background: "#f5f0fb",
+                                        borderRadius: "6px",
+                                        border: "1px solid #e2d9e9",
+                                        zIndex: 1
+                                      }}>
+                                        <div style={{
+                                          width: "24px",
+                                          height: "24px",
+                                          border: "2px solid #e2d9e9",
+                                          borderTopColor: "#7c3aed",
+                                          borderRadius: "50%",
+                                          animation: "spin 0.8s linear infinite"
+                                        }} />
+                                      </div>
+                                    )}
+                                    <a 
+                                      href={file.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ display: "block", maxWidth: "280px" }}
+                                    >
+                                      <img 
+                                        src={file.url}
+                                        alt={file.name}
+                                        onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                        onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                        style={{ 
+                                          maxWidth: "100%", 
+                                          borderRadius: "6px", 
+                                          border: "1px solid #e2d9e9", 
+                                          cursor: "pointer",
+                                          display: imageLoading ? "none" : "block"
+                                        }}
+                                      />
+                                    </a>
+                                  </div>
+                                ) : (
+                                  <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <span style={{ fontSize: "12px" }}>📎</span>
+                                    <a 
+                                      href={file.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                    >
+                                      {file.name}
+                                    </a>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                          <div className="collab-thread">
+                            <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
+                              <Reply size={12} /> Reply
+                            </button>
+                          </div>
                         </div>
+                      </article>
+
+                      {/* Reply form for parent comment */}
+                      {replyTo === message.id && (
+                        <ReplyForm
+                          reply={message}
+                          replyDraft={replyDraft}
+                          setReplyDraft={setReplyDraft}
+                          replyFiles={replyFiles}
+                          setReplyFiles={setReplyFiles}
+                          replyFileProgress={replyFileProgress}
+                          setReplyFileProgress={setReplyFileProgress}
+                          replyUploadedFiles={replyUploadedFiles}
+                          setReplyUploadedFiles={setReplyUploadedFiles}
+                          isReplyUploadingFiles={isReplyUploadingFiles}
+                          setIsReplyUploadingFiles={setIsReplyUploadingFiles}
+                          replyFilesRef={replyFilesRef}
+                          setReplyTo={setReplyTo}
+                          setError={setError}
+                          api={api}
+                          token={token}
+                          taskId={taskId}
+                        />
                       )}
+
+                      {/* Render nested replies recursively to support unlimited threading depth */}
+                      {message.replies && message.replies.length > 0 && (
+                        <RenderReplies 
+                          replies={message.replies} 
+                          depth={1}
+                          replyTo={replyTo}
+                          setReplyTo={setReplyTo}
+                          getTone={getTone}
+                          initials={initials}
+                          formatDate={formatDate}
+                          imageLoadingStates={imageLoadingStates}
+                          setImageLoadingStates={setImageLoadingStates}
+                          replyDraft={replyDraft}
+                          setReplyDraft={setReplyDraft}
+                          replyFiles={replyFiles}
+                          setReplyFiles={setReplyFiles}
+                          replyFileProgress={replyFileProgress}
+                          setReplyFileProgress={setReplyFileProgress}
+                          replyUploadedFiles={replyUploadedFiles}
+                          setReplyUploadedFiles={setReplyUploadedFiles}
+                          isReplyUploadingFiles={isReplyUploadingFiles}
+                          setIsReplyUploadingFiles={setIsReplyUploadingFiles}
+                          replyFilesRef={replyFilesRef}
+                          setError={setError}
+                          api={api}
+                          token={token}
+                          taskId={taskId}
+                        />
+                      )}
+
+
                     </div>
-                  </article>
-                ))
-              ) : (
-                <div style={{ padding: "12px", color: "#8d7f97", fontSize: "12px" }}>
-                  No discussion yet.
+                  ))
+                ) : (
+                  <div style={{ padding: "12px", color: "#8d7f97", fontSize: "12px" }}>
+                    No messages yet. Start the discussion!
+                  </div>
+                )}
+              </div>
+
+              <div className="collab-composer">
+                <textarea
+                  value={messageDraft}
+                  onChange={(e) => setMessageDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) postMessage();
+                  }}
+                  placeholder="Write a note, ask a question, or mention what needs checking…"
+                  rows={3}
+                />
+                {commentFiles.length > 0 && (
+                  <div style={{ marginTop: "8px", padding: "8px", background: "#fbf8ff", borderRadius: "6px", borderTop: "1px solid #e2d6ef" }}>
+                    <div style={{ fontSize: "8px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "6px" }}>
+                      {commentFiles.length} file(s) attached
+                    </div>
+                    <div style={{ display: "grid", gap: "6px" }}>
+                      {commentFiles.map((file, idx) => {
+                        const isPdf = /\.pdf$/i.test(file.name);
+                        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                        const progress = commentFileProgress[idx] ?? 0;
+                        const isUploading = isCommentUploadingFiles && progress < 100;
+                        
+                        return (
+                          <div key={idx} style={{ padding: "8px", background: "#fff", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ display: "grid", width: "32px", height: "32px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "14px", flexShrink: 0 }}>
+                              {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ color: "#5d4867", fontSize: "9px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {file.name}
+                              </div>
+                              <div style={{ marginTop: "4px", height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                                <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                              </div>
+                              <div style={{ marginTop: "4px", fontSize: "8px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
+                                {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setCommentFiles(prev => prev.filter((_, i) => i !== idx));
+                                setCommentFileProgress(prev => {
+                                  const newProgress = { ...prev };
+                                  delete newProgress[idx];
+                                  return newProgress;
+                                });
+                              }}
+                              disabled={isCommentUploadingFiles}
+                              style={{ background: "none", border: "none", color: "#806f8b", cursor: isCommentUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isCommentUploadingFiles ? 0.5 : 1 }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                <div className="collab-composer-footer">
+                  <small>Ctrl / Cmd + Enter to send</small>
+                  <span className="collab-composer-actions">
+                    <input
+                      ref={commentFilesRef}
+                      type="file"
+                      hidden
+                      multiple
+                      accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (commentFiles.length + files.length > 5) {
+                          setError("Maximum 5 files allowed");
+                          return;
+                        }
+                        setCommentFiles(prev => [...prev, ...files]);
+                        // Start uploading immediately
+                        await uploadCommentFiles(files);
+                        if (commentFilesRef.current) commentFilesRef.current.value = "";
+                      }}
+                    />
+                    <button 
+                      onClick={() => commentFilesRef.current?.click()}
+                      disabled={isCommentUploadingFiles || commentFiles.length >= 5}
+                    >
+                      <Paperclip size={13} /> Add files ({commentFiles.length}/5)
+                    </button>
+                    <button 
+                      onClick={postMessage} 
+                      disabled={(!messageDraft.trim() && commentUploadedFiles.length === 0) || isCommentUploadingFiles}
+                    >
+                      <Send size={14} /> Send message
+                    </button>
+                  </span>
                 </div>
-              )}
+              </div>
             </section>
           </main>
 
