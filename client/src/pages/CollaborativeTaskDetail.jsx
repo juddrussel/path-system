@@ -2106,39 +2106,52 @@ export default function CollaborativeTaskDetail() {
           </main>
 
           <aside className="collab-side">
-            {isChair && status === "Submitted" && (
-              <section className="collab-side-card collab-review">
-                <span className="collab-kicker">Program Chair / Admin review</span>
-                <h2>Final output is ready for review</h2>
-                <p>All collaborators confirmed the latest version. The task has been automatically submitted for chair review.</p>
-                <textarea
-                  value={reviewNote}
-                  onChange={(e) => setReviewNote(e.target.value)}
-                  placeholder="Add an internal review note…"
-                  rows={3}
-                />
-                <div className="collab-review-actions">
-                  <button onClick={() => setStatus("Approved")}>
-                    <CheckCircle2 size={14} /> Approve
-                  </button>
-                  <button onClick={() => setShowRevision(true)}>
-                    <X size={14} /> Request revision
-                  </button>
-                </div>
+            {status === "For Approval" && (
+              <section className="collab-side-card" style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #fefbff 100%)', border: '1px solid #e9d5ff' }}>
+                <span className="collab-kicker" style={{ color: '#7c3aed' }}>Program Chair / Admin review</span>
+                <h2 style={{ fontSize: '18px', marginBottom: '10px' }}>Review unlocks after submission</h2>
+                <p style={{ fontSize: '12px', lineHeight: '1.6', color: '#6b7280' }}>
+                  Once the latest output reaches 100% confirmation, the review gate opens automatically.
+                </p>
               </section>
             )}
 
-            <section className="collab-side-card">
-              <span className="collab-kicker">Revision control</span>
-              <h2>Need another pass?</h2>
-              <p>Request revision with a reason. The shared task returns to In Progress and collaborators can upload a new version.</p>
+            <section className="collab-side-card" style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #fefbff 100%)', border: '1px solid #e9d5ff' }}>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)', color: '#fff', fontSize: '20px', marginBottom: '14px' }}>
+                🔄
+              </span>
+              <span className="collab-kicker" style={{ color: '#7c3aed' }}>Revision control</span>
+              <h2 style={{ fontSize: '18px', marginBottom: '10px' }}>Need another pass?</h2>
+              <p style={{ fontSize: '12px', lineHeight: '1.6', color: '#6b7280', marginBottom: '16px' }}>
+                Request revision with a reason. The shared task returns to In Progress and collaborators can upload a new version.
+              </p>
               <button
                 className="collab-primary"
                 onClick={() => setShowRevision(true)}
-                disabled={status === "Approved"}
+                disabled={status === "Approved" || status === "For Approval"}
+                style={{ width: '100%' }}
               >
                 Request revision
               </button>
+            </section>
+
+            <section className="collab-side-card" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <span className="collab-kicker" style={{ color: '#6b7280' }}>Version policy</span>
+              <h2 style={{ fontSize: '16px', marginBottom: '14px', color: '#374151' }}>Version policy</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <Check size={16} style={{ color: '#10b981', marginTop: '2px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '12px', color: '#4b5563', lineHeight: '1.5' }}>New upload creates v2</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <Check size={16} style={{ color: '#10b981', marginTop: '2px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '12px', color: '#4b5563', lineHeight: '1.5' }}>Confirmations reset per version</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <Check size={16} style={{ color: '#10b981', marginTop: '2px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '12px', color: '#4b5563', lineHeight: '1.5' }}>Auto-submit at 4/4</span>
+                </div>
+              </div>
             </section>
           </aside>
         </div>
