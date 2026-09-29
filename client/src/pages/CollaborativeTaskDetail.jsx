@@ -1581,29 +1581,75 @@ export default function CollaborativeTaskDetail() {
               {versions.length > 0 && (
                 <div className="collab-history">
                   {versions.map((item) => (
-                    <div key={`${item.version}`}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <span>v{item.version}</span>
-                          <div>
-                            <strong>
-                              {item.files && item.files.length > 1 
-                                ? `${item.files.length} files`
-                                : item.file_name}
-                            </strong>
-                            <small>{item.upload_note || "Version uploaded"}</small>
+                    <div key={`${item.version}`} style={{ 
+                      padding: '16px',
+                      border: '1px solid #f0ebf3',
+                      borderRadius: '8px',
+                      marginBottom: '12px',
+                      background: item.version === task?.current_output_version ? '#fafafe' : '#fff'
+                    }}>
+                      {/* Version header */}
+                      <div style={{ 
+                        display: "grid",
+                        gridTemplateColumns: "auto 1fr auto",
+                        alignItems: "center",
+                        gap: "12px",
+                        marginBottom: item.files && item.files.length > 1 ? '12px' : '0'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '4px',
+                          minWidth: '80px'
+                        }}>
+                          <div style={{
+                            fontSize: '18px',
+                            fontWeight: 800,
+                            color: '#5a4567',
+                            letterSpacing: '-0.02em'
+                          }}>
+                            v{item.version}
                           </div>
-                          <em>{item.version === task?.current_output_version ? "Current" : "Previous"}</em>
+                          <div style={{
+                            fontSize: '9px',
+                            fontWeight: 800,
+                            color: '#978ba1',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                          }}>
+                            {item.files && item.files.length > 1 ? `${item.files.length} files` : '1 file'}
+                          </div>
+                          <em style={{
+                            fontSize: '9px',
+                            fontWeight: 800,
+                            color: item.version === task?.current_output_version ? '#7c3aed' : '#b8aec3',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                          }}>
+                            {item.version === task?.current_output_version ? "Current" : "Previous"}
+                          </em>
+                        </div>
+                        
+                        <div style={{ 
+                          flex: 1,
+                          minWidth: 0
+                        }}>
+                          <div style={{
+                            fontSize: '11px',
+                            color: '#978ba1',
+                            marginBottom: '2px'
+                          }}>
+                            {item.upload_note || "Version uploaded"}
+                          </div>
                         </div>
                       </div>
                       
                       {/* Show all files if multiple */}
                       {item.files && item.files.length > 0 && (
                         <div style={{ 
-                          marginTop: '8px', 
-                          marginLeft: '35px',
                           display: 'grid',
-                          gap: '6px'
+                          gap: '8px',
+                          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))'
                         }}>
                           {item.files.map((file, idx) => (
                             <a
@@ -1615,34 +1661,56 @@ export default function CollaborativeTaskDetail() {
                               style={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: "8px",
-                                padding: "6px 10px",
-                                background: "#fafafa",
-                                border: "1px solid #e8e8e8",
-                                borderRadius: "6px",
+                                gap: "10px",
+                                padding: "10px 12px",
+                                background: "#fff",
+                                border: "1px solid #e8e4ef",
+                                borderRadius: "8px",
                                 textDecoration: "none",
-                                color: "#5a4567"
+                                color: "#5a4567",
+                                transition: "all 0.15s ease",
+                                cursor: "pointer"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = '#d0c8de';
+                                e.currentTarget.style.background = '#faf9fd';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = '#e8e4ef';
+                                e.currentTarget.style.background = '#fff';
                               }}
                             >
-                              <span style={{ fontSize: "14px" }}>📄</span>
-                              <span style={{ 
+                              <span style={{ fontSize: "18px", flexShrink: 0 }}>📄</span>
+                              <div style={{ 
                                 flex: 1, 
-                                minWidth: 0, 
-                                overflow: 'hidden', 
-                                textOverflow: 'ellipsis', 
-                                whiteSpace: 'nowrap',
-                                fontSize: "10px",
-                                fontWeight: 600
+                                minWidth: 0
                               }}>
-                                {file.file_name}
-                              </span>
+                                <div style={{ 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis', 
+                                  whiteSpace: 'nowrap',
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                  color: '#4b3757',
+                                  marginBottom: '3px'
+                                }}>
+                                  {file.file_name}
+                                </div>
+                                <div style={{
+                                  fontSize: '9px',
+                                  color: '#978ba1'
+                                }}>
+                                  {Math.round(file.file_size / 1024)} KB
+                                </div>
+                              </div>
                               <span style={{
-                                padding: '3px 6px',
+                                padding: '5px 10px',
                                 background: '#eee5fb',
                                 color: '#7043b6',
-                                borderRadius: '4px',
-                                fontSize: '8px',
-                                fontWeight: 800
+                                borderRadius: '6px',
+                                fontSize: '9px',
+                                fontWeight: 800,
+                                flexShrink: 0
                               }}>
                                 Open
                               </span>
