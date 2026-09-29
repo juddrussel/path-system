@@ -96,10 +96,14 @@ export default function CollaborativeTaskAdmin() {
   const [reviewNote, setReviewNote] = useState("");
   const [revisionReason, setRevisionReason] = useState("");
   const [revisionInstruction, setRevisionInstruction] = useState("");
-  const [revisionFile, setRevisionFile] = useState(null);
+  const [revisionFiles, setRevisionFiles] = useState([]);
+  const [revisionFileProgress, setRevisionFileProgress] = useState({});
+  const [revisionUploadedFiles, setRevisionUploadedFiles] = useState([]);
+  const [isRevisionUploadingFiles, setIsRevisionUploadingFiles] = useState(false);
   const [showRevision, setShowRevision] = useState(false);
   const [replyTo, setReplyTo] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
+  const revisionFilesRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [readerZoom, setReaderZoom] = useState("page-width");
 
@@ -186,30 +190,97 @@ export default function CollaborativeTaskAdmin() {
     }
   };
 
+  const uploadRevisionFiles = async (files) => {
+    setIsRevisionUploadingFiles(true);
+    const uploadedUrls = [];
+    
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        
+        setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: 10 }));
+        
+        const xhr = new XMLHttpRequest();
+        let progressInterval = null;
+        
+        const startTime = Date.now();
+        const estimateProgress = () => {
+          const elapsed = Date.now() - startTime;
+          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
+          setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: estimatedPercent }));
+        };
+        
+        progressInterval = setInterval(estimateProgress, 20);
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: percentComplete }));
+          }
+        });
+        
+        await new Promise((resolve, reject) => {
+          xhr.addEventListener("load", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            if (xhr.status === 200 || xhr.status === 201) {
+              const response = JSON.parse(xhr.responseText);
+              uploadedUrls.push(response.files[0]);
+              setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: 100 }));
+              resolve();
+            } else {
+              reject(new Error("Upload failed"));
+            }
+          });
+          
+          xhr.addEventListener("error", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            reject(new Error("Upload failed"));
+          });
+          
+          xhr.open("POST", `${api}/api/upload-files`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.send(formData);
+        });
+      } catch (err) {
+        console.error("File upload error:", err);
+        setError(`Failed to upload ${file.name}`);
+      }
+    }
+    
+    setRevisionUploadedFiles(prev => [...prev, ...uploadedUrls]);
+    setIsRevisionUploadingFiles(false);
+  };
+
   const requestRevision = async () => {
     if (!revisionReason.trim()) return;
-    const fullReason = revisionInstruction.trim() 
-      ? `${revisionReason}\n\n${revisionInstruction}`
-      : revisionReason;
     
     try {
-      const formData = new FormData();
-      formData.append("reason", fullReason);
-      if (revisionFile) {
-        formData.append("file", revisionFile);
-      }
-
-      await fetch(`${api}/api/collaborative-tasks/${taskId}/request-revision`, {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/request-revision`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: formData,
+        body: JSON.stringify({ 
+          reason: revisionReason,
+          instructions: revisionInstruction,
+          files: revisionUploadedFiles
+        }),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to request revision");
+      }
+      
       setStatus("Revision Requested");
       setRevisionReason("");
       setRevisionInstruction("");
-      setRevisionFile(null);
+      setRevisionFiles([]);
+      setRevisionUploadedFiles([]);
+      setRevisionFileProgress({});
       setShowRevision(false);
     } catch (err) {
       setError(err.message);
@@ -822,27 +893,94 @@ export default function CollaborativeTaskAdmin() {
             <label htmlFor="admin-revision-file" style={{ display: 'block', marginTop: '14px', color: '#806f8b', fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Attach file (optional)
             </label>
-            <input
-              type="file"
-              id="admin-revision-file"
-              onChange={(e) => setRevisionFile(e.target.files[0])}
-              style={{ marginTop: '7px', padding: '8px', border: '1px solid #e2dbe9', borderRadius: '8px', fontSize: '12px', width: '100%' }}
-            />
-            {revisionFile && (
-              <div style={{ marginTop: '8px', fontSize: '12px', color: '#44354f' }}>
-                Selected: {revisionFile.name} ({(revisionFile.size / 1024).toFixed(1)} KB)
+            
+            {revisionFiles.length > 0 && (
+              <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef' }}>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
+                  {revisionFiles.length} file(s) attached
+                </div>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {revisionFiles.map((file, idx) => {
+                    const isPdf = /\.pdf$/i.test(file.name);
+                    const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                    const progress = revisionFileProgress[idx] ?? 0;
+                    const isUploading = isRevisionUploadingFiles && progress < 100;
+                    
+                    return (
+                      <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
+                          {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ color: '#5d4867', fontSize: '10px', fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {file.name}
+                          </div>
+                          <div style={{ marginTop: '6px', height: '5px', background: '#e9e0ef', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', background: '#7c3aed', width: `${progress}%`, transition: 'width 0.2s' }} />
+                          </div>
+                          <div style={{ marginTop: '4px', fontSize: '9px', color: isUploading ? '#8b7b96' : '#579574', fontWeight: 800 }}>
+                            {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRevisionFiles(prev => prev.filter((_, i) => i !== idx));
+                            setRevisionFileProgress(prev => {
+                              const newProgress = { ...prev };
+                              delete newProgress[idx];
+                              return newProgress;
+                            });
+                          }}
+                          disabled={isRevisionUploadingFiles}
+                          style={{ background: 'none', border: 'none', color: '#806f8b', cursor: isRevisionUploadingFiles ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isRevisionUploadingFiles ? 0.5 : 1 }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
+            
+            <input
+              ref={revisionFilesRef}
+              type="file"
+              hidden
+              multiple
+              accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+              onChange={async (e) => {
+                const files = Array.from(e.target.files || []);
+                if (revisionFiles.length + files.length > 5) {
+                  setError("Maximum 5 files allowed for revision request");
+                  return;
+                }
+                setRevisionFiles(prev => [...prev, ...files]);
+                await uploadRevisionFiles(files);
+                if (revisionFilesRef.current) revisionFilesRef.current.value = "";
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => revisionFilesRef.current?.click()}
+              disabled={isRevisionUploadingFiles || revisionFiles.length >= 5}
+              style={{ width: '100%', padding: '10px', border: '1px solid #e2dbe9', borderRadius: '8px', fontSize: '12px', background: '#fff', color: '#44354f', cursor: revisionFiles.length >= 5 ? 'not-allowed' : 'pointer', marginTop: '10px', opacity: revisionFiles.length >= 5 ? 0.6 : 1 }}
+            >
+              {revisionFiles.length > 0 ? `Add more files (${revisionFiles.length}/5)` : "Choose files to attach"}
+            </button>
             <div className="admin-modal-actions">
               <button type="button" onClick={() => {
                 setShowRevision(false);
                 setRevisionReason('');
                 setRevisionInstruction('');
-                setRevisionFile(null);
+                setRevisionFiles([]);
+                setRevisionUploadedFiles([]);
+                setRevisionFileProgress({});
               }}>
                 Cancel
               </button>
-              <button type="button" onClick={requestRevision} disabled={!revisionReason.trim()}>
+              <button type="button" onClick={requestRevision} disabled={!revisionReason.trim() || isRevisionUploadingFiles}>
                 Send revision request
               </button>
             </div>
