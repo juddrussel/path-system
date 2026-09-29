@@ -666,6 +666,12 @@ export default function CollaborativeTaskDetail() {
       console.log("[Socket] Received comment_posted event", comment);
       if (comment.task_id === task.id) {
         setMessages((prev) => {
+          // Skip if this is our own optimistic update (temp ID) or already exists
+          if (prev.some(msg => msg.id === comment.id)) {
+            console.log("[Socket] Comment already exists, skipping duplicate");
+            return prev;
+          }
+
           if (comment.parent_comment_id) {
             console.log("[Socket] Processing reply with parent_id:", comment.parent_comment_id);
             // Recursively find and update the parent comment at ANY depth
@@ -877,6 +883,32 @@ export default function CollaborativeTaskDetail() {
     if (!messageDraft.trim() && commentUploadedFiles.length === 0) return;
     
     try {
+      // Create optimistic comment object
+      const optimisticComment = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        task_id: parseInt(taskId),
+        user_id: user.id,
+        sender_id: user.id,
+        content: messageDraft.trim(),
+        full_name: user.full_name,
+        parent_comment_id: null,
+        files: commentUploadedFiles,
+        created_at: new Date().toISOString(),
+        replies: []
+      };
+
+      // Optimistically add to UI immediately
+      setMessages(prev => [optimisticComment, ...prev]);
+
+      // Clear form immediately for better UX
+      const savedDraft = messageDraft;
+      const savedFiles = commentUploadedFiles;
+      setMessageDraft("");
+      setCommentFiles([]);
+      setCommentFileProgress({});
+      setCommentUploadedFiles([]);
+      if (commentFilesRef.current) commentFilesRef.current.value = "";
+
       const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
         method: "POST",
         headers: {
@@ -884,18 +916,22 @@ export default function CollaborativeTaskDetail() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ 
-          content: messageDraft.trim(),
-          files: commentUploadedFiles
+          content: savedDraft.trim(),
+          files: savedFiles
         }),
       });
       
       if (response.ok) {
-        setMessageDraft("");
-        setCommentFiles([]);
-        setCommentFileProgress({});
-        setCommentUploadedFiles([]);
-        if (commentFilesRef.current) commentFilesRef.current.value = "";
+        const realComment = await response.json();
+        // Replace optimistic comment with real one from server
+        setMessages(prev => prev.map(msg => 
+          msg.id === optimisticComment.id ? { ...realComment, replies: [] } : msg
+        ));
       } else {
+        // Rollback on error
+        setMessages(prev => prev.filter(msg => msg.id !== optimisticComment.id));
+        setMessageDraft(savedDraft);
+        setCommentUploadedFiles(savedFiles);
         setError("Failed to post comment");
       }
     } catch (err) {
