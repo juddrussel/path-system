@@ -463,7 +463,13 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
       [taskId, taskId]
     );
 
-    // Store revision files in task_revision_files table
+    // Clear old revision files and store new ones in task_revision_files table
+    // Delete previous revision files for this task
+    await db.query(
+      `DELETE FROM task_revision_files WHERE task_id = ?`,
+      [taskId]
+    );
+    
     if (files.length > 0) {
       const fileValues = files.map(file => [
         taskId,
