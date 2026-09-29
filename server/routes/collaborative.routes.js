@@ -15,6 +15,7 @@ const db = require("../config/db");
 const { requireAuth } = require("../middleware/auth");
 const multer = require("multer");
 const { uploadToR2 } = require("../utils/uploadToR2");
+const { writeLog } = require("./audit.routes");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const ADMIN_ROLES = ["admin", "program_chair"];
@@ -125,6 +126,15 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
       });
     }
 
+    // Audit log
+    await writeLog({
+      userId: assignedBy,
+      action: "COLLABORATIVE_TASK_CREATED",
+      detail: `Created collaborative task "${title}" (${tracking_id}) with ${faculty_ids.length} collaborators`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
+
     return res.json({
       message: "Collaborative task created successfully.",
       task,
@@ -231,6 +241,16 @@ router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), a
       });
     }
 
+    // Audit log
+    const fileNames = req.files.map(f => f.originalname).join(', ');
+    await writeLog({
+      userId: userId,
+      action: "COLLABORATIVE_OUTPUT_UPLOADED",
+      detail: `Uploaded version ${nextVersion} for task ${taskId}: ${fileNames}`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
+
     return res.json({
       message: "Final output uploaded successfully.",
       version: nextVersion,
@@ -318,6 +338,15 @@ router.post("/:id/confirm", requireAuth, async (req, res) => {
         });
       }
 
+      // Audit log
+      await writeLog({
+        userId: userId,
+        action: "COLLABORATIVE_ALL_CONFIRMED",
+        detail: `All ${collaboratorCount} collaborators confirmed version ${currentVersion} for task ${taskId}. Auto-submitted for approval.`,
+        ipAddress: req.ip,
+        documentId: taskId
+      });
+
       return res.json({
         message: "Confirmed. All collaborators confirmed - task automatically submitted!",
         status: "For Approval",
@@ -343,6 +372,15 @@ router.post("/:id/confirm", requireAuth, async (req, res) => {
         message: `${req.user.full_name} confirmed. (${confirmedCount}/${collaboratorCount})`,
       });
     }
+
+    // Audit log
+    await writeLog({
+      userId: userId,
+      action: "COLLABORATIVE_CONFIRMED",
+      detail: `Confirmed version ${currentVersion} for task ${taskId} (${confirmedCount}/${collaboratorCount} confirmed)`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
 
     return res.json({
       message: "You confirmed the latest output.",
@@ -393,6 +431,15 @@ router.post("/:id/withdraw-confirmation", requireAuth, async (req, res) => {
         message: `${req.user.full_name} withdrew their confirmation.`,
       });
     }
+
+    // Audit log
+    await writeLog({
+      userId: userId,
+      action: "COLLABORATIVE_CONFIRMATION_WITHDRAWN",
+      detail: `Withdrew confirmation for version ${task.current_output_version} of task ${taskId}`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
 
     return res.json({
       message: "Confirmation withdrawn.",
@@ -518,6 +565,15 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
       });
     }
 
+    // Audit log
+    await writeLog({
+      userId: userId,
+      action: "COLLABORATIVE_REVISION_REQUESTED",
+      detail: `Requested revision for task ${taskId}: ${reason}${files.length > 0 ? ` (${files.length} file(s) attached)` : ''}`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
+
     return res.json({
       message: "Revision requested. Task reset to In Progress.",
       status: "Pending",
@@ -584,6 +640,15 @@ router.post("/:id/approve", requireAuth, async (req, res) => {
         message: `Task approved by ${req.user.full_name}`,
       });
     }
+
+    // Audit log
+    await writeLog({
+      userId: userId,
+      action: "COLLABORATIVE_TASK_APPROVED",
+      detail: `Approved collaborative task ${taskId}${reviewNote ? `: ${reviewNote}` : ''}`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
 
     return res.json({
       message: "Task approved successfully.",
@@ -996,6 +1061,15 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
     } else {
       console.log(`[Comment] ✗ Socket.io instance not found!`);
     }
+
+    // Audit log
+    await writeLog({
+      userId: userId,
+      action: "COLLABORATIVE_COMMENT_POSTED",
+      detail: `Posted ${parentCommentId ? 'reply' : 'comment'} on task ${taskId}${files && files.length > 0 ? ` (${files.length} file(s) attached)` : ''}`,
+      ipAddress: req.ip,
+      documentId: taskId
+    });
 
     res.status(201).json(comment);
   } catch (err) {
