@@ -440,7 +440,7 @@ export default function CollaborativeTaskAdmin() {
               </div>
             </section>
 
-            {isReadyForReview && currentVersion && (
+            {(isReadyForReview || status === "Approved") && currentVersion && (
               <section className="admin-card">
                 <div className="admin-heading">
                   <div>
