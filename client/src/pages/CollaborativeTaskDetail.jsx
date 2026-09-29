@@ -1380,8 +1380,34 @@ export default function CollaborativeTaskDetail() {
                               })}
                             </div>
                           )}
+                          <div className="collab-thread">
+                            <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
+                              <Reply size={12} /> Reply
+                            </button>
+                          </div>
                         </div>
                       </article>
+
+                      {/* Reply form for parent comment */}
+                      {replyTo === message.id && (
+                        <ReplyForm
+                          reply={message}
+                          replyDraft={replyDraft}
+                          setReplyDraft={setReplyDraft}
+                          replyFiles={replyFiles}
+                          setReplyFiles={setReplyFiles}
+                          replyFileProgress={replyFileProgress}
+                          setReplyFileProgress={setReplyFileProgress}
+                          isReplyUploadingFiles={isReplyUploadingFiles}
+                          setIsReplyUploadingFiles={setIsReplyUploadingFiles}
+                          replyFilesRef={replyFilesRef}
+                          setReplyTo={setReplyTo}
+                          setError={setError}
+                          api={api}
+                          token={token}
+                          taskId={taskId}
+                        />
+                      )}
 
                       {/* Render nested replies recursively to support unlimited threading depth */}
                       {message.replies && message.replies.length > 0 && (
