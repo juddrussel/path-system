@@ -405,11 +405,11 @@ router.post("/:id/withdraw-confirmation", requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/collaborative-tasks/:id/request-revision ────────────────────
-// Request revision from collaborators (with optional file attachment)
-router.post("/:id/request-revision", requireAuth, upload.single("file"), async (req, res) => {
+// Request revision from collaborators (with optional file attachments - up to 5 files)
+router.post("/:id/request-revision", requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
-    const { reason } = req.body;
+    const { reason, files = [] } = req.body; // files is array of uploaded file objects
     const userId = req.user.id;
 
     if (!reason || reason.trim().length < 10) {
@@ -418,16 +418,11 @@ router.post("/:id/request-revision", requireAuth, upload.single("file"), async (
       });
     }
 
-    // Upload file to R2 if provided
-    let fileUrl = null;
-    let fileName = null;
-    let fileSize = null;
-    
-    if (req.file) {
-      const r2Result = await uploadToR2(req.file);
-      fileUrl = r2Result.url;
-      fileName = req.file.originalname;
-      fileSize = req.file.size;
+    // Validate files array
+    if (files.length > 5) {
+      return res.status(400).json({
+        message: "Maximum 5 files allowed for revision request.",
+      });
     }
 
     // Verify user is chair/admin or collaborator
@@ -444,9 +439,8 @@ router.post("/:id/request-revision", requireAuth, upload.single("file"), async (
 
     // Reset task to pending and clear confirmations
     await db.query(
-      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting', 
-       revision_file_url = ?, revision_file_name = ?, revision_file_size = ? WHERE id = ?`,
-      [fileUrl, fileName, fileSize, taskId]
+      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting' WHERE id = ?`,
+      [taskId]
     );
 
     await db.query(
@@ -455,10 +449,28 @@ router.post("/:id/request-revision", requireAuth, upload.single("file"), async (
       [taskId, taskId]
     );
 
-    // Add revision request comment with file attachment if present
-    const commentContent = fileUrl 
-      ? `📝 Revision requested: ${reason}\n[Attached file: ${fileName}]`
-      : `📝 Revision requested: ${reason}`;
+    // Store revision files in task_revision_files table
+    if (files.length > 0) {
+      const fileValues = files.map(file => [
+        taskId,
+        file.file_url || file.url,
+        file.file_name || file.name,
+        file.file_size || file.size,
+        userId
+      ]);
+      
+      await db.query(
+        `INSERT INTO task_revision_files (task_id, file_url, file_name, file_size, uploaded_by)
+         VALUES ?`,
+        [fileValues]
+      );
+    }
+
+    // Add revision request comment with file attachment info
+    let commentContent = `📝 Revision requested: ${reason}`;
+    if (files.length > 0) {
+      commentContent += `\n${files.length} file(s) attached`;
+    }
       
     await db.query(
       `INSERT INTO task_comments (task_id, sender_id, content, created_at)
@@ -472,9 +484,11 @@ router.post("/:id/request-revision", requireAuth, upload.single("file"), async (
       io.to(`task_${taskId}`).emit("collaborative:revision_requested", {
         taskId,
         reason,
-        fileUrl,
-        fileName,
-        fileSize,
+        files: files.map(f => ({
+          url: f.file_url || f.url,
+          name: f.file_name || f.name,
+          size: f.file_size || f.size
+        })),
         requestedBy: req.user.full_name,
         message: `Revision requested: ${reason}`,
       });
@@ -483,8 +497,7 @@ router.post("/:id/request-revision", requireAuth, upload.single("file"), async (
     return res.json({
       message: "Revision requested. Task reset to In Progress.",
       status: "Pending",
-      fileUrl,
-      fileName,
+      files: files.length,
     });
   } catch (err) {
     console.error("POST /request-revision error:", err);
@@ -787,6 +800,33 @@ router.get("/:id", requireAuth, async (req, res) => {
       attachments = [];
     }
 
+    // Fetch revision files (files attached when requesting revision)
+    let revisionFiles = [];
+    try {
+      const tableCheck = await db.query(`
+        SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES 
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'task_revision_files'
+      `);
+      
+      if (tableCheck[0] && tableCheck[0].length > 0) {
+        const result = await db.query(
+          `SELECT 
+             trf.id, trf.file_url, trf.file_name, trf.file_size,
+             trf.uploaded_by, u.full_name, trf.created_at
+           FROM task_revision_files trf
+           JOIN users u ON trf.uploaded_by = u.id
+           WHERE trf.task_id = ?
+           ORDER BY trf.created_at DESC`,
+          [taskId]
+        );
+        revisionFiles = result[0] || [];
+        console.log(`Found ${revisionFiles.length} revision files`);
+      }
+    } catch (e) {
+      console.error("Error fetching revision files:", e.message);
+      revisionFiles = [];
+    }
+
     console.log(`Successfully loaded collaborative task ${taskId}`);
     return res.json({
       task,
@@ -795,6 +835,7 @@ router.get("/:id", requireAuth, async (req, res) => {
       versions,
       comments,
       attachments,
+      revisionFiles,
     });
   } catch (err) {
     console.error("GET /collaborative-tasks/:id FATAL error:", err);

@@ -543,6 +543,7 @@ export default function CollaborativeTaskDetail() {
   const [versions, setVersions] = useState([]);
   const [messages, setMessages] = useState([]);
   const [attachments, setAttachments] = useState([]);
+  const [revisionFiles, setRevisionFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Awaiting Confirmation");
@@ -556,6 +557,10 @@ export default function CollaborativeTaskDetail() {
   const [replyDraft, setReplyDraft] = useState("");
   const [showRevision, setShowRevision] = useState(false);
   const [revisionReason, setRevisionReason] = useState("");
+  const [revisionFiles, setRevisionFiles] = useState([]);
+  const [revisionFileProgress, setRevisionFileProgress] = useState({});
+  const [revisionUploadedFiles, setRevisionUploadedFiles] = useState([]);
+  const [isRevisionUploadingFiles, setIsRevisionUploadingFiles] = useState(false);
   const [reviewNote, setReviewNote] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -576,6 +581,7 @@ export default function CollaborativeTaskDetail() {
   const discussionInputRef = useRef(null);
   const commentFilesRef = useRef(null);
   const replyFilesRef = useRef(null);
+  const revisionFilesRef = useRef(null);
 
   // Load task data
   useEffect(() => {
@@ -601,6 +607,7 @@ export default function CollaborativeTaskDetail() {
         setVersions(data.versions || []);
         setMessages(data.comments || []);
         setAttachments(data.attachments || []);
+        setRevisionFiles(data.revisionFiles || []);
         setStatus(data.task?.status || "Awaiting Confirmation");
         
         socket.emit("join_task", { taskId: parseInt(taskId) });
@@ -685,11 +692,16 @@ export default function CollaborativeTaskDetail() {
         setTask((prev) => ({
           ...prev,
           return_reason: data.reason,
-          revision_file_url: data.fileUrl,
-          revision_file_name: data.fileName,
-          revision_file_size: data.fileSize,
           status: "Pending"
         }));
+        // Set revision files from socket data
+        if (data.files && data.files.length > 0) {
+          setRevisionFiles(data.files.map(f => ({
+            file_url: f.url,
+            file_name: f.name,
+            file_size: f.size
+          })));
+        }
       }
     });
 
@@ -932,6 +944,70 @@ export default function CollaborativeTaskDetail() {
     setIsCommentUploadingFiles(false);
   };
 
+  const uploadRevisionFiles = async (files) => {
+    setIsRevisionUploadingFiles(true);
+    const uploadedUrls = [];
+    
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        
+        // Initialize progress
+        setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: 10 }));
+        
+        const xhr = new XMLHttpRequest();
+        let progressInterval = null;
+        
+        const startTime = Date.now();
+        const estimateProgress = () => {
+          const elapsed = Date.now() - startTime;
+          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
+          setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: estimatedPercent }));
+        };
+        
+        progressInterval = setInterval(estimateProgress, 20);
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: percentComplete }));
+          }
+        });
+        
+        await new Promise((resolve, reject) => {
+          xhr.addEventListener("load", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            if (xhr.status === 200 || xhr.status === 201) {
+              const response = JSON.parse(xhr.responseText);
+              uploadedUrls.push(response.files[0]); // Get the uploaded file URL
+              setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: 100 }));
+              resolve();
+            } else {
+              reject(new Error("Upload failed"));
+            }
+          });
+          
+          xhr.addEventListener("error", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            reject(new Error("Upload failed"));
+          });
+          
+          xhr.open("POST", `${api}/api/upload-files`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.send(formData);
+        });
+      } catch (err) {
+        console.error("File upload error:", err);
+        setError(`Failed to upload ${file.name}`);
+      }
+    }
+    
+    setRevisionUploadedFiles(prev => [...prev, ...uploadedUrls]);
+    setIsRevisionUploadingFiles(false);
+  };
+
   const postMessage = async () => {
     if (!messageDraft.trim() && commentUploadedFiles.length === 0) return;
     
@@ -1016,9 +1092,15 @@ export default function CollaborativeTaskDetail() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ reason: revisionReason }),
+        body: JSON.stringify({ 
+          reason: revisionReason,
+          files: revisionUploadedFiles
+        }),
       });
       setRevisionReason("");
+      setRevisionFiles([]);
+      setRevisionUploadedFiles([]);
+      setRevisionFileProgress({});
       setShowRevision(false);
       setStatus("In Progress");
       setCollaborators((prev) => prev.map(c => ({ ...c, confirmed: false })));
@@ -1158,7 +1240,7 @@ export default function CollaborativeTaskDetail() {
             )}
 
             {/* Revision Notice Section */}
-            {(task.return_reason || task.revision_file_url) && (
+            {(task.return_reason || revisionFiles.length > 0) && (
               <section className="collab-card" style={{ border: '2px solid #fbbf24', background: 'linear-gradient(135deg, #fef3c7 0%, #fef9e3 100%)' }}>
                 <div className="collab-heading">
                   <div>
@@ -1167,66 +1249,77 @@ export default function CollaborativeTaskDetail() {
                   </div>
                 </div>
                 <div style={{ marginTop: '12px', padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
-                  <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: task.revision_file_name ? '12px' : '0' }}>
+                  <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: revisionFiles.length > 0 ? '12px' : '0' }}>
                     {task.return_reason || 'Please review and resubmit.'}
                   </p>
-                  {task.revision_file_name && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#fff', border: '1px solid #fde68a', borderRadius: '6px' }}>
-                      <span style={{ fontSize: '20px' }}>📎</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <strong style={{ display: 'block', color: '#92400e', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {task.revision_file_name}
-                        </strong>
-                        <small style={{ display: 'block', marginTop: '2px', color: '#a16207', fontSize: '10px' }}>
-                          {task.revision_file_size ? `${Math.round(task.revision_file_size / 1024)} KB` : 'Attachment from admin'}
-                        </small>
-                      </div>
-                      <a
-                        href={r2ToProxyUrl(api, task.revision_file_url)}
-                        download={task.revision_file_name}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          background: '#fbbf24',
-                          color: '#78350f',
-                          textDecoration: 'none',
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0
-                        }}
-                      >
-                        <Download size={12} /> View/Download
-                      </a>
-                      <button
-                        onClick={() => setPreview({
-                          file_url: task.revision_file_url,
-                          file_name: task.revision_file_name,
-                          name: task.revision_file_name
-                        })}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          background: '#fef3c7',
-                          border: '1px solid #fbbf24',
-                          color: '#78350f',
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          whiteSpace: 'nowrap',
-                          cursor: 'pointer',
-                          flexShrink: 0
-                        }}
-                      >
-                        <FileImage size={12} /> Preview
-                      </button>
+                  {revisionFiles.length > 0 && (
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {revisionFiles.map((file, idx) => {
+                        const isPdf = /\.pdf$/i.test(file.file_name);
+                        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.file_name);
+                        
+                        return (
+                          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#fff', border: '1px solid #fde68a', borderRadius: '6px' }}>
+                            <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
+                              {isPdf ? 'PDF' : isImage ? '�' : '�📎'}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <strong style={{ display: 'block', color: '#92400e', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {file.file_name}
+                              </strong>
+                              <small style={{ display: 'block', marginTop: '2px', color: '#a16207', fontSize: '10px' }}>
+                                {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : 'Attachment from admin'}
+                              </small>
+                            </div>
+                            <a
+                              href={r2ToProxyUrl(api, file.file_url)}
+                              download={file.file_name}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                background: '#fbbf24',
+                                color: '#78350f',
+                                textDecoration: 'none',
+                                fontSize: '10px',
+                                fontWeight: 800,
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0
+                              }}
+                            >
+                              <Download size={12} /> Download
+                            </a>
+                            <button
+                              onClick={() => setPreview({
+                                file_url: file.file_url,
+                                file_name: file.file_name,
+                                name: file.file_name
+                              })}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                background: '#fef3c7',
+                                border: '1px solid #fbbf24',
+                                color: '#78350f',
+                                fontSize: '10px',
+                                fontWeight: 800,
+                                whiteSpace: 'nowrap',
+                                cursor: 'pointer',
+                                flexShrink: 0
+                              }}
+                            >
+                              <FileImage size={12} /> Preview
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -2054,9 +2147,92 @@ export default function CollaborativeTaskDetail() {
               placeholder="e.g. Update the section entries and upload a corrected final PDF…"
               rows={5}
             />
+            
+            {revisionFiles.length > 0 && (
+              <div style={{ marginTop: "12px", padding: "12px", background: "#fbf8ff", borderRadius: "6px", border: "1px solid #e2d6ef" }}>
+                <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
+                  {revisionFiles.length} file(s) attached
+                </div>
+                <div style={{ display: "grid", gap: "8px" }}>
+                  {revisionFiles.map((file, idx) => {
+                    const isPdf = /\.pdf$/i.test(file.name);
+                    const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                    const progress = revisionFileProgress[idx] ?? 0;
+                    const isUploading = isRevisionUploadingFiles && progress < 100;
+                    
+                    return (
+                      <div key={idx} style={{ padding: "10px", background: "#fff", borderRadius: "6px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div style={{ display: "grid", width: "36px", height: "36px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "16px", flexShrink: 0 }}>
+                          {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ color: "#5d4867", fontSize: "10px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {file.name}
+                          </div>
+                          <div style={{ marginTop: "6px", height: "5px", background: "#e9e0ef", borderRadius: "3px", overflow: "hidden" }}>
+                            <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                          </div>
+                          <div style={{ marginTop: "4px", fontSize: "9px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
+                            {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setRevisionFiles(prev => prev.filter((_, i) => i !== idx));
+                            setRevisionFileProgress(prev => {
+                              const newProgress = { ...prev };
+                              delete newProgress[idx];
+                              return newProgress;
+                            });
+                          }}
+                          disabled={isRevisionUploadingFiles}
+                          style={{ background: "none", border: "none", color: "#806f8b", cursor: isRevisionUploadingFiles ? "not-allowed" : "pointer", fontSize: "18px", opacity: isRevisionUploadingFiles ? 0.5 : 1 }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            <input
+              ref={revisionFilesRef}
+              type="file"
+              hidden
+              multiple
+              accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+              onChange={async (e) => {
+                const files = Array.from(e.target.files || []);
+                if (revisionFiles.length + files.length > 5) {
+                  setError("Maximum 5 files allowed for revision request");
+                  return;
+                }
+                setRevisionFiles(prev => [...prev, ...files]);
+                await uploadRevisionFiles(files);
+                if (revisionFilesRef.current) revisionFilesRef.current.value = "";
+              }}
+            />
+            
             <div className="collab-modal-actions">
-              <button onClick={() => setShowRevision(false)}>Cancel</button>
-              <button onClick={requestRevision} disabled={!revisionReason.trim()}>
+              <button 
+                onClick={() => revisionFilesRef.current?.click()}
+                disabled={isRevisionUploadingFiles || revisionFiles.length >= 5}
+                style={{ marginRight: "auto" }}
+              >
+                <Paperclip size={14} /> {revisionFiles.length > 0 ? `Add more (${revisionFiles.length}/5)` : "Attach files"}
+              </button>
+              <button onClick={() => {
+                setShowRevision(false);
+                setRevisionFiles([]);
+                setRevisionUploadedFiles([]);
+                setRevisionFileProgress({});
+              }}>Cancel</button>
+              <button 
+                onClick={requestRevision} 
+                disabled={!revisionReason.trim() || isRevisionUploadingFiles}
+              >
                 Send request
               </button>
             </div>
