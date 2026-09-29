@@ -1597,33 +1597,58 @@ export default function CollaborativeTaskDetail() {
                 </div>
                 <span className="collab-count">v{versions.length || 0}</span>
               </div>
-              <p className="collab-muted">
-                Any collaborator can replace the current output. PATH will create the next version and reset every confirmation.
-              </p>
+              
+              {(status === "For Approval" || status === "Approved") ? (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, #fef3c7 0%, #fef9e3 100%)',
+                  border: '1px solid #fde68a',
+                  borderRadius: '10px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <ShieldCheck size={20} style={{ color: '#92400e', flexShrink: 0, marginTop: '2px' }} />
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#92400e', marginBottom: '4px' }}>
+                        {status === "Approved" ? "Task Approved" : "Under Review"}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#78350f', lineHeight: 1.5 }}>
+                        {status === "Approved" 
+                          ? "This task has been approved. New versions cannot be uploaded."
+                          : "This task is currently under review by the Program Chair/Admin. New versions cannot be uploaded until a revision is requested."}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="collab-muted">
+                    Any collaborator can replace the current output. PATH will create the next version and reset every confirmation.
+                  </p>
 
-              <input
-                ref={finalInputRef}
-                type="file"
-                multiple
-                hidden
-                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
-                onChange={(e) => {
-                  const newFiles = Array.from(e.target.files || []);
-                  setFinalFiles(prev => {
-                    const combined = [...prev, ...newFiles];
-                    // Limit to 5 files
-                    return combined.slice(0, 5);
-                  });
-                  // Reset input so the same file can be selected again if needed
-                  e.target.value = '';
-                }}
-              />
-              <button
-                className={`collab-upload ${finalFiles.length > 0 ? "selected" : ""}`}
-                onClick={() => finalInputRef.current?.click()}
-                disabled={finalFiles.length >= 5}
-                style={finalFiles.length >= 5 ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
-              >
+                  <input
+                    ref={finalInputRef}
+                    type="file"
+                    multiple
+                    hidden
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
+                    onChange={(e) => {
+                      const newFiles = Array.from(e.target.files || []);
+                      setFinalFiles(prev => {
+                        const combined = [...prev, ...newFiles];
+                        // Limit to 5 files
+                        return combined.slice(0, 5);
+                      });
+                      // Reset input so the same file can be selected again if needed
+                      e.target.value = '';
+                    }}
+                  />
+                  <button
+                    className={`collab-upload ${finalFiles.length > 0 ? "selected" : ""}`}
+                    onClick={() => finalInputRef.current?.click()}
+                    disabled={finalFiles.length >= 5}
+                    style={finalFiles.length >= 5 ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+                  >
                 <span>
                   <UploadCloud size={16} />
                 </span>
@@ -1779,6 +1804,8 @@ export default function CollaborativeTaskDetail() {
               >
                 <UploadCloud size={14} /> Upload v{(versions.length || 0) + 1} and reset confirmations
               </button>
+                </>
+              )}
 
               {versions.length > 0 && (
                 <div style={{ marginTop: '20px' }}>
