@@ -409,7 +409,20 @@ router.post("/:id/withdraw-confirmation", requireAuth, async (req, res) => {
 router.post("/:id/request-revision", requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
-    const { reason, instructions = "", files = [] } = req.body; // files is array of uploaded file objects
+    
+    // Debug logging
+    console.log("[Request Revision] Body:", req.body);
+    console.log("[Request Revision] Content-Type:", req.get("Content-Type"));
+    
+    // Check if body exists
+    if (!req.body || Object.keys(req.body).length === 0) {
+      console.error("[Request Revision] Empty body received");
+      return res.status(400).json({
+        message: "Request body is empty. Please ensure Content-Type is application/json",
+      });
+    }
+    
+    const { reason, instructions = "", files = [] } = req.body;
     const userId = req.user.id;
 
     if (!reason || reason.trim().length < 10) {
