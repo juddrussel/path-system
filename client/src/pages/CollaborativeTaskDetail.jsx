@@ -1345,29 +1345,127 @@ export default function CollaborativeTaskDetail() {
                 multiple
                 hidden
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
-                onChange={(e) => setFinalFiles(Array.from(e.target.files || []))}
+                onChange={(e) => {
+                  const newFiles = Array.from(e.target.files || []);
+                  setFinalFiles(prev => {
+                    const combined = [...prev, ...newFiles];
+                    // Limit to 5 files
+                    return combined.slice(0, 5);
+                  });
+                  // Reset input so the same file can be selected again if needed
+                  e.target.value = '';
+                }}
               />
               <button
                 className={`collab-upload ${finalFiles.length > 0 ? "selected" : ""}`}
                 onClick={() => finalInputRef.current?.click()}
+                disabled={finalFiles.length >= 5}
+                style={finalFiles.length >= 5 ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
               >
                 <span>
                   <UploadCloud size={16} />
                 </span>
                 <div>
                   <strong>
-                    {finalFiles.length > 0
+                    {finalFiles.length >= 5
+                      ? "Maximum 5 files reached"
+                      : finalFiles.length > 0
                       ? `${finalFiles.length} file${finalFiles.length > 1 ? 's' : ''} selected`
                       : "Attach a new final output"}
                   </strong>
                   <small>
-                    {finalFiles.length > 0
-                      ? finalFiles.map(f => f.name).join(', ')
+                    {finalFiles.length >= 5
+                      ? "Remove a file to add more"
+                      : finalFiles.length > 0
+                      ? "Click to add more files (up to 5 total)"
                       : "PDF, DOCX, XLSX, or CSV (up to 5 files)"}
                   </small>
                 </div>
-                <Paperclip size={14} />
+                {finalFiles.length > 0 ? (
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: '#7c3aed',
+                    color: '#fff',
+                    fontSize: '18px',
+                    fontWeight: 700,
+                    lineHeight: 1
+                  }}>+</span>
+                ) : (
+                  <Paperclip size={14} />
+                )}
               </button>
+
+              {/* Display selected files with individual remove buttons */}
+              {finalFiles.length > 0 && (
+                <div style={{
+                  marginTop: '12px',
+                  display: 'grid',
+                  gap: '8px'
+                }}>
+                  {finalFiles.map((file, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 12px',
+                      background: '#f8f5ff',
+                      border: '1px solid #e2d6ef',
+                      borderRadius: '8px'
+                    }}>
+                      <span style={{ fontSize: '16px' }}>📎</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <strong style={{
+                          display: 'block',
+                          fontSize: '11px',
+                          color: '#5a4567',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {file.name}
+                        </strong>
+                        <small style={{
+                          display: 'block',
+                          marginTop: '2px',
+                          fontSize: '9px',
+                          color: '#978ba1'
+                        }}>
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </small>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFinalFiles(prev => prev.filter((_, i) => i !== index));
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '24px',
+                          height: '24px',
+                          border: 'none',
+                          borderRadius: '50%',
+                          background: '#fee',
+                          color: '#c33',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          padding: 0
+                        }}
+                        title="Remove file"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <label className="collab-label">
                 Version note
