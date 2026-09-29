@@ -138,7 +138,7 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
 
 // ─── POST /api/collaborative-tasks/:id/upload-final-output ─────────────────
 // Upload a new final output version (any collaborator can do this)
-router.post("/:id/upload-final-output", requireAuth, upload.single("file"), async (req, res) => {
+router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const userId = req.user.id;

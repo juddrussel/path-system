@@ -548,7 +548,7 @@ export default function CollaborativeTaskDetail() {
   const [status, setStatus] = useState("Awaiting Confirmation");
   const [preview, setPreview] = useState(null);
 
-  const [finalFile, setFinalFile] = useState(null);
+  const [finalFiles, setFinalFiles] = useState([]);
   const [finalNote, setFinalNote] = useState("");
   const [messageDraft, setMessageDraft] = useState("");
   const [discussionAttachment, setDiscussionAttachment] = useState(null);
@@ -1311,7 +1311,7 @@ export default function CollaborativeTaskDetail() {
               <button
                 className="collab-primary"
                 onClick={uploadNewVersion}
-                disabled={!finalFile || isUploading}
+                disabled={finalFiles.length === 0 || isUploading}
               >
                 <UploadCloud size={14} /> Upload v{(versions.length || 0) + 1} and reset confirmations
               </button>
