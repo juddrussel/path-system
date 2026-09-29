@@ -666,9 +666,17 @@ export default function CollaborativeTaskDetail() {
       console.log("[Socket] Received comment_posted event", comment);
       if (comment.task_id === parseInt(taskId)) {
         setMessages((prev) => {
-          // Skip if this is our own optimistic update (temp ID) or already exists
+          // Skip if comment already exists (by real ID)
           if (prev.some(msg => msg.id === comment.id)) {
             console.log("[Socket] Comment already exists, skipping duplicate");
+            return prev;
+          }
+
+          // Skip if we have a pending optimistic comment (temp ID exists)
+          // This prevents socket from adding our own comment before HTTP response completes
+          const hasPendingComment = prev.some(msg => typeof msg.id === 'string' && msg.id.startsWith('temp-'));
+          if (hasPendingComment && comment.user_id === prev.find(msg => typeof msg.id === 'string' && msg.id.startsWith('temp-'))?.user_id) {
+            console.log("[Socket] Skipping socket update - we have a pending optimistic comment");
             return prev;
           }
 
