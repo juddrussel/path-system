@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Clock3,
   Download,
+  Eye,
   FileText,
   ListChecks,
   MessageCircle,
@@ -470,18 +471,45 @@ export default function CollaborativeTaskAdmin() {
                 {currentVersion.files && currentVersion.files.length > 0 ? (
                   <div style={{ display: 'grid', gap: '12px' }}>
                     {currentVersion.files.map((file, idx) => (
-                      <div key={idx}>
-                        <div className="admin-file">
-                          <span className="admin-file-icon">
-                            <FileText size={21} />
-                          </span>
-                          <div>
-                            <strong>{file.file_name}</strong>
-                            <small>
-                              PDF · {formatDate(currentVersion.created_at)} · Uploaded by {currentVersion.uploaded_by}
-                            </small>
-                            {idx === 0 && <p>{currentVersion.upload_note || "Final group output"}</p>}
-                          </div>
+                      <div key={idx} className="admin-file">
+                        <span className="admin-file-icon">
+                          <FileText size={21} />
+                        </span>
+                        <div>
+                          <strong>{file.file_name}</strong>
+                          <small>
+                            PDF · {formatDate(currentVersion.created_at)} · Uploaded by {currentVersion.uploaded_by}
+                          </small>
+                          {idx === 0 && <p>{currentVersion.upload_note || "Final group output"}</p>}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            type="button" 
+                            aria-label="Preview file"
+                            onClick={() => setPreview({ ...currentVersion, file_url: file.file_url, file_name: file.file_name })}
+                            style={{
+                              display: 'grid',
+                              placeItems: 'center',
+                              width: '36px',
+                              height: '36px',
+                              border: '1px solid #e2d9e8',
+                              borderRadius: '8px',
+                              background: '#fff',
+                              color: '#76568d',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = '#f8f5fb';
+                              e.currentTarget.style.borderColor = '#d0c4dd';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = '#fff';
+                              e.currentTarget.style.borderColor = '#e2d9e8';
+                            }}
+                          >
+                            <Eye size={15} />
+                          </button>
                           <button 
                             type="button" 
                             aria-label="Download submitted file"
@@ -497,16 +525,6 @@ export default function CollaborativeTaskAdmin() {
                             }}
                           >
                             <Download size={15} />
-                          </button>
-                        </div>
-                        
-                        <div className="admin-file-actions">
-                          <button 
-                            className="admin-outline" 
-                            type="button"
-                            onClick={() => setPreview({ ...currentVersion, file_url: file.file_url, file_name: file.file_name })}
-                          >
-                            <FileText size={13} /> Open inline preview
                           </button>
                         </div>
                       </div>
