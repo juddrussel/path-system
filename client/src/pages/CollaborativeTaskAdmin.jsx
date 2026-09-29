@@ -159,7 +159,23 @@ export default function CollaborativeTaskAdmin() {
 
   const approveTask = async () => {
     try {
-      setStatus("Approved");
+      const response = await fetch(`/api/collaborative-tasks/${taskId}/approve`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reviewNote }),
+      });
+
+      if (response.ok) {
+        setStatus("Approved");
+        setReviewNote("");
+        alert("? Task approved successfully!");
+      } else {
+        const data = await response.json();
+        setError(data.message || "Failed to approve task");
+      }
     } catch (err) {
       setError(err.message);
     }
