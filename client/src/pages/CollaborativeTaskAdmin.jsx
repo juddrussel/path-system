@@ -482,7 +482,11 @@ export default function CollaborativeTaskAdmin() {
                 </div>
 
                 <div className="admin-file-actions">
-                  <button className="admin-outline" type="button">
+                  <button 
+                    className="admin-outline" 
+                    type="button"
+                    onClick={() => setPreview(currentVersion)}
+                  >
                     <FileText size={13} /> Open inline preview
                   </button>
                   <button className="admin-outline" type="button">
