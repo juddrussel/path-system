@@ -1250,37 +1250,88 @@ export default function CollaborativeTaskDetail() {
               </p>
 
               {versions.length > 0 && (
-                <div className="collab-version">
-                  <span>
-                    <FileText size={15} />
-                  </span>
-                  <div>
-                    <strong>v{versions[0].version} · {versions[0].file_name}</strong>
-                    <small>{versions[0].uploaded_by} · {formatDate(versions[0].created_at)}</small>
+                <>
+                  <div className="collab-version">
+                    <span>
+                      <FileText size={15} />
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <strong>
+                        v{versions[0].version}
+                        {versions[0].files && versions[0].files.length > 1 
+                          ? ` · ${versions[0].files.length} files`
+                          : ` · ${versions[0].file_name}`}
+                      </strong>
+                      <small>{versions[0].uploaded_by} · {formatDate(versions[0].created_at)}</small>
+                    </div>
+                    <em>{status}</em>
                   </div>
-                  <em>{status}</em>
-                  <a
-                    href={r2ToProxyUrl(api, versions[0].file_url)}
-                    download={versions[0].file_name}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "5px",
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      background: "#eee5fb",
-                      color: "#7043b6",
-                      textDecoration: "none",
-                      fontSize: "8px",
-                      fontWeight: 800,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <FileImage size={12} /> Open
-                  </a>
-                </div>
+                  
+                  {/* Display all files in this version */}
+                  {versions[0].files && versions[0].files.length > 0 && (
+                    <div style={{ 
+                      marginTop: '12px', 
+                      display: 'grid', 
+                      gap: '8px',
+                      paddingLeft: '35px' 
+                    }}>
+                      {versions[0].files.map((file, idx) => (
+                        <div key={idx} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '10px 12px',
+                          background: '#f8f5ff',
+                          border: '1px solid #e2d6ef',
+                          borderRadius: '8px'
+                        }}>
+                          <span style={{ fontSize: '16px' }}>📄</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <strong style={{
+                              display: 'block',
+                              fontSize: '11px',
+                              color: '#5a4567',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {file.file_name}
+                            </strong>
+                            <small style={{
+                              display: 'block',
+                              marginTop: '2px',
+                              fontSize: '9px',
+                              color: '#978ba1'
+                            }}>
+                              {Math.round(file.file_size / 1024)} KB
+                            </small>
+                          </div>
+                          <a
+                            href={r2ToProxyUrl(api, file.file_url)}
+                            download={file.file_name}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "5px",
+                              padding: "6px 10px",
+                              borderRadius: "6px",
+                              background: "#eee5fb",
+                              color: "#7043b6",
+                              textDecoration: "none",
+                              fontSize: "8px",
+                              fontWeight: 800,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <FileImage size={12} /> Open
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="collab-people">
@@ -1521,37 +1572,75 @@ export default function CollaborativeTaskDetail() {
               {versions.length > 0 && (
                 <div className="collab-history">
                   {versions.map((item) => (
-                    <div key={`${item.version}-${item.file_name}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span>v{item.version}</span>
-                        <div>
-                          <strong>{item.file_name}</strong>
-                          <small>{item.upload_note || "Version uploaded"}</small>
+                    <div key={`${item.version}`}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <span>v{item.version}</span>
+                          <div>
+                            <strong>
+                              {item.files && item.files.length > 1 
+                                ? `${item.files.length} files`
+                                : item.file_name}
+                            </strong>
+                            <small>{item.upload_note || "Version uploaded"}</small>
+                          </div>
+                          <em>{item.version === versions[0].version ? "Current" : "Previous"}</em>
                         </div>
-                        <em>{item.version === versions[0].version ? "Current" : "Previous"}</em>
                       </div>
-                      <a
-                        href={r2ToProxyUrl(api, item.file_url)}
-                        download={item.file_name}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
-                          padding: "6px 10px",
-                          borderRadius: "6px",
-                          background: "#eee5fb",
-                          color: "#7043b6",
-                          textDecoration: "none",
-                          fontSize: "8px",
-                          fontWeight: 800,
-                          whiteSpace: "nowrap",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <FileImage size={12} /> Download
-                      </a>
+                      
+                      {/* Show all files if multiple */}
+                      {item.files && item.files.length > 0 && (
+                        <div style={{ 
+                          marginTop: '8px', 
+                          marginLeft: '35px',
+                          display: 'grid',
+                          gap: '6px'
+                        }}>
+                          {item.files.map((file, idx) => (
+                            <a
+                              key={idx}
+                              href={r2ToProxyUrl(api, file.file_url)}
+                              download={file.file_name}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                padding: "6px 10px",
+                                background: "#fafafa",
+                                border: "1px solid #e8e8e8",
+                                borderRadius: "6px",
+                                textDecoration: "none",
+                                color: "#5a4567"
+                              }}
+                            >
+                              <span style={{ fontSize: "14px" }}>📄</span>
+                              <span style={{ 
+                                flex: 1, 
+                                minWidth: 0, 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis', 
+                                whiteSpace: 'nowrap',
+                                fontSize: "10px",
+                                fontWeight: 600
+                              }}>
+                                {file.file_name}
+                              </span>
+                              <span style={{
+                                padding: '3px 6px',
+                                background: '#eee5fb',
+                                color: '#7043b6',
+                                borderRadius: '4px',
+                                fontSize: '8px',
+                                fontWeight: 800
+                              }}>
+                                Open
+                              </span>
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
