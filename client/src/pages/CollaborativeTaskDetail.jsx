@@ -674,6 +674,25 @@ export default function CollaborativeTaskDetail() {
       }
     });
 
+    socket.on("collaborative:revision_requested", (data) => {
+      if (data.taskId === task.id) {
+        console.log("[Socket] Received revision_requested event", data);
+        setStatus("Pending");
+        setCollaborators((prev) =>
+          prev.map(c => ({ ...c, confirmed: false }))
+        );
+        // Update task with revision details
+        setTask((prev) => ({
+          ...prev,
+          return_reason: data.reason,
+          revision_file_url: data.fileUrl,
+          revision_file_name: data.fileName,
+          revision_file_size: data.fileSize,
+          status: "Pending"
+        }));
+      }
+    });
+
     socket.on("collaborative:comment_posted", (comment) => {
       console.log("[Socket] Received comment_posted event", comment);
       if (comment.task_id === parseInt(taskId)) {
@@ -745,6 +764,7 @@ export default function CollaborativeTaskDetail() {
       socket.off("collaborative:withdrawn");
       socket.off("collaborative:output_updated");
       socket.off("collaborative:auto_submitted");
+      socket.off("collaborative:revision_requested");
       socket.off("collaborative:comment_posted");
     };
   }, [taskId]);
@@ -1129,6 +1149,82 @@ export default function CollaborativeTaskDetail() {
                     </div>
                   </div>
                 )}
+              </section>
+            )}
+
+            {/* Revision Notice Section */}
+            {(task.return_reason || task.revision_file_url) && (
+              <section className="collab-card" style={{ border: '2px solid #fbbf24', background: 'linear-gradient(135deg, #fef3c7 0%, #fef9e3 100%)' }}>
+                <div className="collab-heading">
+                  <div>
+                    <span className="collab-kicker" style={{ color: '#92400e' }}>⚠️ Revision Required</span>
+                    <h2 style={{ color: '#92400e' }}>Admin/Program Chair has requested revisions</h2>
+                  </div>
+                </div>
+                <div style={{ marginTop: '12px', padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
+                  <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: task.revision_file_name ? '12px' : '0' }}>
+                    {task.return_reason || 'Please review and resubmit.'}
+                  </p>
+                  {task.revision_file_name && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#fff', border: '1px solid #fde68a', borderRadius: '6px' }}>
+                      <span style={{ fontSize: '20px' }}>📎</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <strong style={{ display: 'block', color: '#92400e', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {task.revision_file_name}
+                        </strong>
+                        <small style={{ display: 'block', marginTop: '2px', color: '#a16207', fontSize: '10px' }}>
+                          {task.revision_file_size ? `${Math.round(task.revision_file_size / 1024)} KB` : 'Attachment from admin'}
+                        </small>
+                      </div>
+                      <a
+                        href={r2ToProxyUrl(api, task.revision_file_url)}
+                        download={task.revision_file_name}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          background: '#fbbf24',
+                          color: '#78350f',
+                          textDecoration: 'none',
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0
+                        }}
+                      >
+                        <Download size={12} /> View/Download
+                      </a>
+                      <button
+                        onClick={() => setPreview({
+                          file_url: task.revision_file_url,
+                          file_name: task.revision_file_name,
+                          name: task.revision_file_name
+                        })}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          background: '#fef3c7',
+                          border: '1px solid #fbbf24',
+                          color: '#78350f',
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          whiteSpace: 'nowrap',
+                          cursor: 'pointer',
+                          flexShrink: 0
+                        }}
+                      >
+                        <FileImage size={12} /> Preview
+                      </button>
+                    </div>
+                  )}
+                </div>
               </section>
             )}
 

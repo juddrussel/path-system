@@ -397,8 +397,8 @@ router.post("/:id/withdraw-confirmation", requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/collaborative-tasks/:id/request-revision ────────────────────
-// Request revision from collaborators
-router.post("/:id/request-revision", requireAuth, async (req, res) => {
+// Request revision from collaborators (with optional file attachment)
+router.post("/:id/request-revision", requireAuth, upload.single("file"), async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const { reason } = req.body;
@@ -408,6 +408,18 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
       return res.status(400).json({
         message: "Revision reason must be at least 10 characters.",
       });
+    }
+
+    // Upload file to R2 if provided
+    let fileUrl = null;
+    let fileName = null;
+    let fileSize = null;
+    
+    if (req.file) {
+      const r2Result = await uploadToR2(req.file);
+      fileUrl = r2Result.url;
+      fileName = req.file.originalname;
+      fileSize = req.file.size;
     }
 
     // Verify user is chair/admin or collaborator
@@ -424,8 +436,9 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
 
     // Reset task to pending and clear confirmations
     await db.query(
-      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting' WHERE id = ?`,
-      [taskId]
+      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting', 
+       revision_file_url = ?, revision_file_name = ?, revision_file_size = ? WHERE id = ?`,
+      [fileUrl, fileName, fileSize, taskId]
     );
 
     await db.query(
@@ -434,11 +447,15 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
       [taskId, taskId]
     );
 
-    // Add revision request comment
+    // Add revision request comment with file attachment if present
+    const commentContent = fileUrl 
+      ? `📝 Revision requested: ${reason}\n[Attached file: ${fileName}]`
+      : `📝 Revision requested: ${reason}`;
+      
     await db.query(
       `INSERT INTO task_comments (task_id, sender_id, content, created_at)
        VALUES (?, ?, ?, NOW())`,
-      [taskId, userId, `📝 Revision requested: ${reason}`]
+      [taskId, userId, commentContent]
     );
 
     // Broadcast revision request
@@ -447,6 +464,9 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
       io.to(`task_${taskId}`).emit("collaborative:revision_requested", {
         taskId,
         reason,
+        fileUrl,
+        fileName,
+        fileSize,
         requestedBy: req.user.full_name,
         message: `Revision requested: ${reason}`,
       });
@@ -455,6 +475,8 @@ router.post("/:id/request-revision", requireAuth, async (req, res) => {
     return res.json({
       message: "Revision requested. Task reset to In Progress.",
       status: "Pending",
+      fileUrl,
+      fileName,
     });
   } catch (err) {
     console.error("POST /request-revision error:", err);

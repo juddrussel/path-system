@@ -95,6 +95,7 @@ export default function CollaborativeTaskAdmin() {
   const [reviewNote, setReviewNote] = useState("");
   const [revisionReason, setRevisionReason] = useState("");
   const [revisionInstruction, setRevisionInstruction] = useState("");
+  const [revisionFile, setRevisionFile] = useState(null);
   const [showRevision, setShowRevision] = useState(false);
   const [replyTo, setReplyTo] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
@@ -191,17 +192,23 @@ export default function CollaborativeTaskAdmin() {
       : revisionReason;
     
     try {
+      const formData = new FormData();
+      formData.append("reason", fullReason);
+      if (revisionFile) {
+        formData.append("file", revisionFile);
+      }
+
       await fetch(`${api}/api/collaborative-tasks/${taskId}/request-revision`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ reason: fullReason }),
+        body: formData,
       });
       setStatus("Revision Requested");
       setRevisionReason("");
       setRevisionInstruction("");
+      setRevisionFile(null);
       setShowRevision(false);
     } catch (err) {
       setError(err.message);
@@ -733,11 +740,26 @@ export default function CollaborativeTaskAdmin() {
               rows={4}
               style={{ marginTop: '7px' }}
             />
+            <label htmlFor="admin-revision-file" style={{ display: 'block', marginTop: '14px', color: '#806f8b', fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+              Attach file (optional)
+            </label>
+            <input
+              type="file"
+              id="admin-revision-file"
+              onChange={(e) => setRevisionFile(e.target.files[0])}
+              style={{ marginTop: '7px', padding: '8px', border: '1px solid #e2dbe9', borderRadius: '8px', fontSize: '12px', width: '100%' }}
+            />
+            {revisionFile && (
+              <div style={{ marginTop: '8px', fontSize: '12px', color: '#44354f' }}>
+                Selected: {revisionFile.name} ({(revisionFile.size / 1024).toFixed(1)} KB)
+              </div>
+            )}
             <div className="admin-modal-actions">
               <button type="button" onClick={() => {
                 setShowRevision(false);
                 setRevisionReason('');
                 setRevisionInstruction('');
+                setRevisionFile(null);
               }}>
                 Cancel
               </button>
