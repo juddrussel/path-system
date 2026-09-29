@@ -148,7 +148,6 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/collaborative-tasks", collaborativeRoutes);
-app.use("/api/upload-files", collaborativeRoutes); // For immediate file uploads
 app.use("/api/audit", auditRoutes);
 app.use("/api/forms", formRoutes);
 app.use("/api/categories", categoryRoutes);

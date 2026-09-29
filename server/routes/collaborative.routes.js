@@ -676,9 +676,6 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 module.exports = router;
-
-
-// ─── GET /api/collaborative-tasks/:id/debug ────────────────────────────────
 // Debug endpoint to see raw data in database
 router.get("/:id/debug", requireAuth, async (req, res) => {
   try {
