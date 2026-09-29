@@ -923,15 +923,24 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    // Check if user is a collaborator on this task
+    // Check if user is a collaborator, assigner, or admin/program chair
     const [[collabCheck]] = await db.query(
       "SELECT id FROM task_collaborators WHERE task_id = ? AND user_id = ?",
       [taskId, userId]
     );
     
-    if (!collabCheck) {
-      console.log(`[Comment] User ${userId} is not a collaborator on task ${taskId}`);
-      return res.status(403).json({ message: "Only collaborators can comment" });
+    // Check if user is the assigner
+    const [[taskCheck]] = await db.query(
+      "SELECT assigned_by FROM tasks WHERE id = ?",
+      [taskId]
+    );
+    
+    const isAssigner = taskCheck && taskCheck.assigned_by === userId;
+    const isAdmin = ADMIN_ROLES.includes(req.user?.role);
+    
+    if (!collabCheck && !isAssigner && !isAdmin) {
+      console.log(`[Comment] User ${userId} is not a collaborator, assigner, or admin on task ${taskId}`);
+      return res.status(403).json({ message: "Only collaborators, assigners, or admins can comment" });
     }
 
     // If replying to a comment, verify the parent comment exists and belongs to this task
