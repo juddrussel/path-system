@@ -287,9 +287,12 @@ router.post("/:id/confirm", requireAuth, async (req, res) => {
       [taskId, currentVersion]
     );
 
+    console.log(`[Confirm] Task ${taskId} v${currentVersion}: ${confirmedCount}/${collaboratorCount} confirmed`);
+
     const allConfirmed = confirmedCount >= collaboratorCount;
 
     if (allConfirmed) {
+      console.log(`[Confirm] ALL CONFIRMED! Auto-submitting task ${taskId}`);
       // Automatically submit task
       await db.query(
         `UPDATE tasks SET status = 'For Approval', confirmation_status = 'both_confirmed', 
@@ -300,6 +303,7 @@ router.post("/:id/confirm", requireAuth, async (req, res) => {
       // Broadcast automatic submission
       const io = req.app.get("io");
       if (io) {
+        console.log(`[Confirm] Broadcasting auto_submitted event for task ${taskId}`);
         io.to(`task_${taskId}`).emit("collaborative:auto_submitted", {
           taskId,
           message: "All collaborators confirmed. Task automatically submitted for review.",
