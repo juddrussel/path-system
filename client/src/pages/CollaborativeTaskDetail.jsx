@@ -558,7 +558,6 @@ export default function CollaborativeTaskDetail() {
   const [showRevision, setShowRevision] = useState(false);
   const [revisionReason, setRevisionReason] = useState("");
   const [revisionInstructions, setRevisionInstructions] = useState("");
-  const [revisionFiles, setRevisionFiles] = useState([]);
   const [revisionFileProgress, setRevisionFileProgress] = useState({});
   const [revisionUploadedFiles, setRevisionUploadedFiles] = useState([]);
   const [isRevisionUploadingFiles, setIsRevisionUploadingFiles] = useState(false);
