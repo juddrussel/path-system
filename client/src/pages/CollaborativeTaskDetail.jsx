@@ -1810,17 +1810,17 @@ export default function CollaborativeTaskDetail() {
               </button>
 
               {versions.length > 0 && (
-                <div className="collab-history">
+                <div style={{ marginTop: '20px' }}>
                   <div style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
-                    marginBottom: '12px',
-                    paddingBottom: '8px',
+                    marginBottom: '14px',
+                    paddingBottom: '10px',
                     borderBottom: '1px solid #e9e0ef'
                   }}>
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#44354f' }}>Version history</span>
-                    <small style={{ fontSize: '10px', color: '#8d7f97' }}>Latest first</small>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#44354f' }}>Version history</span>
+                    <small style={{ fontSize: '10px', color: '#8d7f97', fontWeight: 600 }}>Latest first</small>
                   </div>
                   {versions.map((item) => {
                     const isExpanded = expandedVersions.has(item.version);
@@ -1840,11 +1840,12 @@ export default function CollaborativeTaskDetail() {
                       <div 
                         key={`output-${item.version}`} 
                         style={{ 
-                          padding: '12px',
+                          padding: '14px 16px',
                           border: item.version === task?.current_output_version ? '2px solid #7c3aed' : '1px solid #e9e0ef',
-                          borderRadius: '8px',
-                          marginBottom: '8px',
-                          background: '#fff'
+                          borderRadius: '10px',
+                          marginBottom: '10px',
+                          background: '#fff',
+                          transition: 'all 0.15s ease'
                         }}
                       >
                         {/* Version header - clickable */}
@@ -1852,7 +1853,7 @@ export default function CollaborativeTaskDetail() {
                           style={{ 
                             display: "flex",
                             alignItems: "center",
-                            gap: "12px",
+                            gap: "14px",
                             cursor: 'pointer'
                           }}
                           onClick={toggleExpand}
@@ -1861,13 +1862,14 @@ export default function CollaborativeTaskDetail() {
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            minWidth: '32px',
-                            height: '32px',
-                            borderRadius: '6px',
+                            minWidth: '38px',
+                            height: '38px',
+                            borderRadius: '8px',
                             background: item.version === task?.current_output_version ? '#7c3aed' : '#e9e0ef',
                             color: item.version === task?.current_output_version ? '#fff' : '#44354f',
-                            fontSize: '11px',
-                            fontWeight: 700
+                            fontSize: '12px',
+                            fontWeight: 800,
+                            flexShrink: 0
                           }}>
                             v{item.version}
                           </span>
@@ -1876,31 +1878,32 @@ export default function CollaborativeTaskDetail() {
                             flex: 1,
                             minWidth: 0
                           }}>
-                            <strong style={{ display: 'block', fontSize: '12px', color: '#44354f' }}>
+                            <strong style={{ display: 'block', fontSize: '13px', color: '#44354f', marginBottom: '4px' }}>
                               {item.files && item.files.length > 1
                                 ? `${item.files.length} files`
                                 : item.file_name}
                             </strong>
-                            <small style={{ display: 'block', fontSize: '10px', color: '#8d7f97', marginTop: '2px' }}>
+                            <small style={{ display: 'block', fontSize: '11px', color: '#8d7f97' }}>
                               {formatDate(item.created_at)} · {item.uploaded_by}
                             </small>
                             {item.upload_note && (
-                              <p style={{ margin: '4px 0 0', fontSize: '10px', color: '#978ba1' }}>
+                              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#978ba1', lineHeight: 1.4 }}>
                                 {item.upload_note}
                               </p>
                             )}
                           </div>
                           
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                             <em style={{ 
-                              fontSize: '10px', 
+                              fontSize: '11px', 
                               color: item.version === task?.current_output_version ? '#7c3aed' : '#8d7f97',
-                              fontWeight: item.version === task?.current_output_version ? 600 : 400
+                              fontWeight: item.version === task?.current_output_version ? 700 : 500,
+                              fontStyle: 'normal'
                             }}>
                               {item.version === task?.current_output_version ? "Current" : "Previous"}
                             </em>
                             {item.files && item.files.length > 0 && (
-                              isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+                              isExpanded ? <ChevronDown size={18} color="#7c3aed" /> : <ChevronRight size={18} color="#8d7f97" />
                             )}
                           </div>
                         </div>
@@ -1908,12 +1911,12 @@ export default function CollaborativeTaskDetail() {
                         {/* Collapsible files section */}
                         {isExpanded && item.files && item.files.length > 0 && (
                           <div style={{ 
-                            marginTop: '12px', 
-                            marginLeft: '40px',
+                            marginTop: '14px', 
+                            marginLeft: '52px',
                             display: 'grid',
-                            gap: '8px',
-                            paddingLeft: '12px',
-                            borderLeft: '2px solid #e9e0ef'
+                            gap: '10px',
+                            paddingLeft: '14px',
+                            borderLeft: '3px solid #e9e0ef'
                           }}>
                             {item.files.map((file, idx) => {
                               const isPdf = /\.pdf$/i.test(file.file_name);
@@ -1923,24 +1926,25 @@ export default function CollaborativeTaskDetail() {
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "10px",
-                                    padding: "8px 12px",
+                                    gap: "12px",
+                                    padding: "10px 14px",
                                     background: "#fbf8ff",
                                     border: "1px solid #e9e0ef",
-                                    borderRadius: "6px"
+                                    borderRadius: "8px"
                                   }}
                                 >
                                   <div style={{
                                     display: 'grid',
-                                    width: '32px',
-                                    height: '32px',
+                                    width: '36px',
+                                    height: '36px',
                                     placeItems: 'center',
-                                    borderRadius: '5px',
+                                    borderRadius: '6px',
                                     background: isPdf ? '#fef5e5' : '#e8f1ff',
                                     color: isPdf ? '#9d6d2a' : '#5274a8',
-                                    fontSize: '11px',
+                                    fontSize: '10px',
                                     fontWeight: 800,
-                                    flexShrink: 0
+                                    flexShrink: 0,
+                                    letterSpacing: '0.02em'
                                   }}>
                                     {isPdf ? 'PDF' : 'FILE'}
                                   </div>
@@ -1952,16 +1956,16 @@ export default function CollaborativeTaskDetail() {
                                       overflow: 'hidden', 
                                       textOverflow: 'ellipsis', 
                                       whiteSpace: 'nowrap',
-                                      fontSize: "11px",
+                                      fontSize: "12px",
                                       fontWeight: 600,
-                                      color: '#44354f'
+                                      color: '#44354f',
+                                      marginBottom: '3px'
                                     }}>
                                       {file.file_name}
                                     </div>
                                     <div style={{
                                       fontSize: '10px',
-                                      color: '#8d7f97',
-                                      marginTop: '2px'
+                                      color: '#8d7f97'
                                     }}>
                                       {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
                                     </div>
@@ -1972,8 +1976,8 @@ export default function CollaborativeTaskDetail() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     style={{
-                                      padding: '6px 10px',
-                                      borderRadius: '5px',
+                                      padding: '7px 12px',
+                                      borderRadius: '6px',
                                       background: '#7c3aed',
                                       color: '#fff',
                                       textDecoration: 'none',
@@ -1981,11 +1985,11 @@ export default function CollaborativeTaskDetail() {
                                       fontWeight: 700,
                                       display: 'inline-flex',
                                       alignItems: 'center',
-                                      gap: '4px',
+                                      gap: '5px',
                                       flexShrink: 0
                                     }}
                                   >
-                                    <Download size={11} />
+                                    <Download size={12} />
                                   </a>
                                   <button
                                     onClick={(e) => {
@@ -1997,8 +2001,8 @@ export default function CollaborativeTaskDetail() {
                                       });
                                     }}
                                     style={{
-                                      padding: '6px 10px',
-                                      borderRadius: '5px',
+                                      padding: '7px 12px',
+                                      borderRadius: '6px',
                                       background: '#fff',
                                       border: '1px solid #e9e0ef',
                                       color: '#7c3aed',
@@ -2006,12 +2010,12 @@ export default function CollaborativeTaskDetail() {
                                       fontWeight: 700,
                                       display: 'inline-flex',
                                       alignItems: 'center',
-                                      gap: '4px',
+                                      gap: '5px',
                                       cursor: 'pointer',
                                       flexShrink: 0
                                     }}
                                   >
-                                    <FileImage size={11} /> Open
+                                    <FileImage size={12} /> Open
                                   </button>
                                 </div>
                               );
