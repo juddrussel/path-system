@@ -664,7 +664,7 @@ export default function CollaborativeTaskDetail() {
 
     socket.on("collaborative:comment_posted", (comment) => {
       console.log("[Socket] Received comment_posted event", comment);
-      if (comment.task_id === task.id) {
+      if (comment.task_id === parseInt(taskId)) {
         setMessages((prev) => {
           // Skip if this is our own optimistic update (temp ID) or already exists
           if (prev.some(msg => msg.id === comment.id)) {
@@ -726,7 +726,7 @@ export default function CollaborativeTaskDetail() {
       socket.off("collaborative:output_updated");
       socket.off("collaborative:comment_posted");
     };
-  }, [task]);
+  }, [taskId]);
 
   // Handlers
   const toggleConfirmation = (userId) => {
