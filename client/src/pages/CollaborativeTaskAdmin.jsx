@@ -470,45 +470,47 @@ export default function CollaborativeTaskAdmin() {
                 {currentVersion.files && currentVersion.files.length > 0 ? (
                   <div style={{ display: 'grid', gap: '12px' }}>
                     {currentVersion.files.map((file, idx) => (
-                      <div className="admin-file" key={idx}>
-                        <span className="admin-file-icon">
-                          <FileText size={21} />
-                        </span>
-                        <div>
-                          <strong>{file.file_name}</strong>
-                          <small>
-                            PDF · {formatDate(currentVersion.created_at)} · Uploaded by {currentVersion.uploaded_by}
-                          </small>
-                          {idx === 0 && <p>{currentVersion.upload_note || "Final group output"}</p>}
+                      <div key={idx}>
+                        <div className="admin-file">
+                          <span className="admin-file-icon">
+                            <FileText size={21} />
+                          </span>
+                          <div>
+                            <strong>{file.file_name}</strong>
+                            <small>
+                              PDF · {formatDate(currentVersion.created_at)} · Uploaded by {currentVersion.uploaded_by}
+                            </small>
+                            {idx === 0 && <p>{currentVersion.upload_note || "Final group output"}</p>}
+                          </div>
+                          <button 
+                            type="button" 
+                            aria-label="Download submitted file"
+                            onClick={() => {
+                              const url = r2ToProxyUrl(api, file.file_url);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = file.file_name;
+                              a.target = '_blank';
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                            }}
+                          >
+                            <Download size={15} />
+                          </button>
                         </div>
-                        <button 
-                          type="button" 
-                          aria-label="Download submitted file"
-                          onClick={() => {
-                            const url = r2ToProxyUrl(api, file.file_url);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = file.file_name;
-                            a.target = '_blank';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                          }}
-                        >
-                          <Download size={15} />
-                        </button>
+                        
+                        <div className="admin-file-actions">
+                          <button 
+                            className="admin-outline" 
+                            type="button"
+                            onClick={() => setPreview({ ...currentVersion, file_url: file.file_url, file_name: file.file_name })}
+                          >
+                            <FileText size={13} /> Open inline preview
+                          </button>
+                        </div>
                       </div>
                     ))}
-                    
-                    <div className="admin-file-actions">
-                      <button 
-                        className="admin-outline" 
-                        type="button"
-                        onClick={() => setPreview(currentVersion.files[0] ? { ...currentVersion, file_url: currentVersion.files[0].file_url, file_name: currentVersion.files[0].file_name } : currentVersion)}
-                      >
-                        <FileText size={13} /> Open inline preview (first file)
-                      </button>
-                    </div>
                   </div>
                 ) : (
                   <>
