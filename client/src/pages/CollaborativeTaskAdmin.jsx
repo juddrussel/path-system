@@ -582,8 +582,41 @@ export default function CollaborativeTaskAdmin() {
   useEffect(() => {
     socket.on("collaborative:comment_posted", (comment) => {
       if (comment.task_id === task?.id) {
-        setComments((prev) => [comment, ...prev]);
-        setMessages((prev) => [comment, ...prev]); // Also update messages
+        setMessages((prev) => {
+          // Skip if comment already exists (by real ID)
+          if (prev.some(msg => msg.id === comment.id)) {
+            console.log("[Socket] Comment already exists, skipping duplicate");
+            return prev;
+          }
+
+          // Skip if we have a pending optimistic comment (temp ID exists) from same user
+          const hasPendingComment = prev.some(msg => 
+            typeof msg.id === 'string' && 
+            msg.id.startsWith('temp-') && 
+            (msg.user_id === comment.user_id || msg.sender_id === comment.sender_id)
+          );
+          
+          if (hasPendingComment) {
+            console.log("[Socket] Skipping socket update - we have a pending optimistic comment from same user");
+            return prev;
+          }
+
+          // Add the comment (support threading if needed in future)
+          if (comment.parent_comment_id) {
+            // For now, threading not fully implemented on admin side
+            console.log("[Socket] Reply comment received:", comment.id);
+          }
+          
+          return [{ ...comment, replies: comment.replies || [] }, ...prev];
+        });
+        
+        setComments((prev) => {
+          // Skip if comment already exists
+          if (prev.some(msg => msg.id === comment.id)) {
+            return prev;
+          }
+          return [{ ...comment, replies: comment.replies || [] }, ...prev];
+        });
       }
     });
 
