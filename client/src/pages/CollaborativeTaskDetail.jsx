@@ -817,12 +817,17 @@ export default function CollaborativeTaskDetail() {
   };
 
   const uploadNewVersion = async () => {
-    if (!finalFile) return;
+    if (finalFiles.length === 0) return;
     try {
       setIsUploading(true);
       setUploadProgress(0);
       const formData = new FormData();
-      formData.append("file", finalFile);
+      
+      // Append all files
+      finalFiles.forEach(file => {
+        formData.append("files", file);
+      });
+      
       formData.append("note", finalNote);
 
       const xhr = new XMLHttpRequest();
@@ -838,7 +843,7 @@ export default function CollaborativeTaskDetail() {
       // Handle completion
       xhr.addEventListener("load", () => {
         if (xhr.status === 200) {
-          setFinalFile(null);
+          setFinalFiles([]);
           setFinalNote("");
           setUploadProgress(0);
           if (finalInputRef.current) finalInputRef.current.value = "";
@@ -1337,12 +1342,13 @@ export default function CollaborativeTaskDetail() {
               <input
                 ref={finalInputRef}
                 type="file"
+                multiple
                 hidden
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
-                onChange={(e) => setFinalFile(e.target.files?.[0])}
+                onChange={(e) => setFinalFiles(Array.from(e.target.files || []))}
               />
               <button
-                className={`collab-upload ${finalFile ? "selected" : ""}`}
+                className={`collab-upload ${finalFiles.length > 0 ? "selected" : ""}`}
                 onClick={() => finalInputRef.current?.click()}
               >
                 <span>
@@ -1350,12 +1356,14 @@ export default function CollaborativeTaskDetail() {
                 </span>
                 <div>
                   <strong>
-                    {finalFile ? finalFile.name : "Attach a new final output"}
+                    {finalFiles.length > 0
+                      ? `${finalFiles.length} file${finalFiles.length > 1 ? 's' : ''} selected`
+                      : "Attach a new final output"}
                   </strong>
                   <small>
-                    {finalFile
-                      ? `${(finalFile.size / 1024 / 1024).toFixed(2)} MB selected`
-                      : "PDF, DOCX, XLSX, or CSV"}
+                    {finalFiles.length > 0
+                      ? finalFiles.map(f => f.name).join(', ')
+                      : "PDF, DOCX, XLSX, or CSV (up to 5 files)"}
                   </small>
                 </div>
                 <Paperclip size={14} />
@@ -1381,7 +1389,7 @@ export default function CollaborativeTaskDetail() {
                 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                     <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                      Uploading {finalFile?.name}...
+                      Uploading {finalFiles.length} file{finalFiles.length > 1 ? 's' : ''}...
                     </span>
                     <span style={{ fontSize: "11px", fontWeight: 800, color: "#7c3aed" }}>
                       {uploadProgress}%
