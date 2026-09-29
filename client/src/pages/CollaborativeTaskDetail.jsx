@@ -882,6 +882,8 @@ export default function CollaborativeTaskDetail() {
   const postMessage = async () => {
     if (!messageDraft.trim() && commentUploadedFiles.length === 0) return;
     
+    console.log("[postMessage] Starting with:", { messageDraft, files: commentUploadedFiles.length, user });
+    
     try {
       // Create optimistic comment object
       const optimisticComment = {
@@ -897,8 +899,15 @@ export default function CollaborativeTaskDetail() {
         replies: []
       };
 
+      console.log("[postMessage] Created optimistic comment:", optimisticComment);
+
       // Optimistically add to UI immediately
-      setMessages(prev => [optimisticComment, ...prev]);
+      setMessages(prev => {
+        console.log("[postMessage] Adding to messages. Current count:", prev.length);
+        const updated = [optimisticComment, ...prev];
+        console.log("[postMessage] New count:", updated.length);
+        return updated;
+      });
 
       // Clear form immediately for better UX
       const savedDraft = messageDraft;
@@ -908,6 +917,8 @@ export default function CollaborativeTaskDetail() {
       setCommentFileProgress({});
       setCommentUploadedFiles([]);
       if (commentFilesRef.current) commentFilesRef.current.value = "";
+
+      console.log("[postMessage] Sending to server...");
 
       const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
         method: "POST",
@@ -921,13 +932,17 @@ export default function CollaborativeTaskDetail() {
         }),
       });
       
+      console.log("[postMessage] Server response:", response.status);
+
       if (response.ok) {
         const realComment = await response.json();
+        console.log("[postMessage] Got real comment from server:", realComment);
         // Replace optimistic comment with real one from server
         setMessages(prev => prev.map(msg => 
           msg.id === optimisticComment.id ? { ...realComment, replies: [] } : msg
         ));
       } else {
+        console.error("[postMessage] Server error:", response.status);
         // Rollback on error
         setMessages(prev => prev.filter(msg => msg.id !== optimisticComment.id));
         setMessageDraft(savedDraft);
@@ -1325,6 +1340,10 @@ export default function CollaborativeTaskDetail() {
               </div>
 
               <div className="collab-messages">
+                {(() => {
+                  console.log("[Render] Messages count:", messages.length, "Messages:", messages);
+                  return null;
+                })()}
                 {messages.length > 0 ? (
                   messages.map((message) => (
                     <div key={message.id}>
