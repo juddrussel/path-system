@@ -2116,25 +2116,6 @@ export default function CollaborativeTaskDetail() {
               </section>
             )}
 
-            <section className="collab-side-card" style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #fefbff 100%)', border: '1px solid #e9d5ff' }}>
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)', color: '#fff', fontSize: '20px', marginBottom: '14px' }}>
-                🔄
-              </span>
-              <span className="collab-kicker" style={{ color: '#7c3aed' }}>Revision control</span>
-              <h2 style={{ fontSize: '18px', marginBottom: '10px' }}>Need another pass?</h2>
-              <p style={{ fontSize: '12px', lineHeight: '1.6', color: '#6b7280', marginBottom: '16px' }}>
-                Request revision with a reason. The shared task returns to In Progress and collaborators can upload a new version.
-              </p>
-              <button
-                className="collab-primary"
-                onClick={() => setShowRevision(true)}
-                disabled={status === "Approved" || status === "For Approval"}
-                style={{ width: '100%' }}
-              >
-                Request revision
-              </button>
-            </section>
-
             <section className="collab-side-card" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
               <span className="collab-kicker" style={{ color: '#6b7280' }}>Version policy</span>
               <h2 style={{ fontSize: '16px', marginBottom: '14px', color: '#374151' }}>Version policy</h2>
