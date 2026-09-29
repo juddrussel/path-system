@@ -997,6 +997,8 @@ function TaskAssignmentInner() {
                       }))
                     }
                     placeholder="What should the reviewer check, decide, or return? Add decision context so the handoff can move without a follow-up."
+                    rows={6}
+                    style={{ minHeight: '120px', resize: 'vertical' }}
                   />
                 </label>
               </section>
