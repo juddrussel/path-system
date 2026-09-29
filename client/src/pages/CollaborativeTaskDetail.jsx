@@ -1380,7 +1380,7 @@ export default function CollaborativeTaskDetail() {
               </p>
 
               {/* Display current version files being confirmed */}
-              {versions.length > 0 && versions[0].version === task?.current_output_version && (
+              {versions.length > 0 && (
                 <div style={{ 
                   marginTop: '16px', 
                   marginBottom: '16px',
@@ -1397,7 +1397,7 @@ export default function CollaborativeTaskDetail() {
                     letterSpacing: '0.05em',
                     marginBottom: '10px'
                   }}>
-                    Current version (v{task?.current_output_version}) - {versions[0].files?.length || 1} file(s)
+                    Current version (v{versions[0].version}) - {versions[0].files?.length || 1} file(s)
                   </div>
                   <div style={{ display: 'grid', gap: '8px' }}>
                     {versions[0].files && versions[0].files.length > 0 ? (
