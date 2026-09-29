@@ -1089,7 +1089,7 @@ export default function CollaborativeTaskDetail() {
     if (!revisionReason.trim()) return;
     try {
       // Send revision request with reason, instructions, and files (v2)
-      await fetch(`${api}/api/collaborative-tasks/${taskId}/request-revision`, {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/request-revision`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1101,6 +1101,11 @@ export default function CollaborativeTaskDetail() {
           files: revisionUploadedFiles
         }),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to request revision");
+      }
       setRevisionReason("");
       setRevisionInstructions("");
       setRevisionFiles([]);
