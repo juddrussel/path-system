@@ -1322,6 +1322,7 @@ export default function DocumentReview() {
                         type="button"
                         className="doc-ai-button"
                         onClick={generateBrief}
+                        style={{ display: 'none' }}
                       >
                         ✦ AI Summary
                       </button>
