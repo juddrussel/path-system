@@ -3,6 +3,8 @@ import {
   ArrowLeft,
   Check,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
   Clock3,
   Download,
   FileImage,
@@ -541,6 +543,7 @@ export default function CollaborativeTaskDetail() {
   const [task, setTask] = useState(null);
   const [collaborators, setCollaborators] = useState([]);
   const [versions, setVersions] = useState([]);
+  const [expandedVersions, setExpandedVersions] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [attachments, setAttachments] = useState([]);
   const [revisionFiles, setRevisionFiles] = useState([]);
@@ -1376,97 +1379,199 @@ export default function CollaborativeTaskDetail() {
               </p>
 
               {versions.length > 0 && (
-                <>
-                  {(() => {
-                    // Find the current version based on task.current_output_version
-                    const currentVersion = versions.find(v => v.version === task?.current_output_version) || versions[0];
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '12px',
+                    paddingBottom: '8px',
+                    borderBottom: '1px solid #e9e0ef'
+                  }}>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#44354f' }}>Version history</span>
+                    <small style={{ fontSize: '10px', color: '#8d7f97' }}>Latest first</small>
+                  </div>
+                  {versions.map((item) => {
+                    const isExpanded = expandedVersions.has(item.version);
+                    const toggleExpand = () => {
+                      setExpandedVersions(prev => {
+                        const newSet = new Set(prev);
+                        if (newSet.has(item.version)) {
+                          newSet.delete(item.version);
+                        } else {
+                          newSet.add(item.version);
+                        }
+                        return newSet;
+                      });
+                    };
                     
                     return (
-                      <>
-                        <div className="collab-version">
-                          <span>
-                            <FileText size={15} />
+                      <div
+                        className="collab-version"
+                        key={`version-${item.version}`}
+                        style={{ 
+                          flexDirection: 'column', 
+                          gap: '8px',
+                          marginBottom: '8px',
+                          border: item.version === task?.current_output_version ? '2px solid #7c3aed' : '1px solid #e9e0ef',
+                          borderRadius: '8px',
+                          padding: '12px'
+                        }}
+                      >
+                        <div 
+                          style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '12px', 
+                            cursor: 'pointer', 
+                            width: '100%' 
+                          }} 
+                          onClick={toggleExpand}
+                        >
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '32px',
+                            height: '32px',
+                            borderRadius: '6px',
+                            background: item.version === task?.current_output_version ? '#7c3aed' : '#e9e0ef',
+                            color: item.version === task?.current_output_version ? '#fff' : '#44354f',
+                            fontSize: '11px',
+                            fontWeight: 700
+                          }}>
+                            v{item.version}
                           </span>
                           <div style={{ flex: 1 }}>
-                            <strong>
-                              v{currentVersion.version}
-                              {currentVersion.files && currentVersion.files.length > 1 
-                                ? ` · ${currentVersion.files.length} files`
-                                : ` · ${currentVersion.file_name}`}
+                            <strong style={{ display: 'block', fontSize: '12px', color: '#44354f' }}>
+                              {item.files && item.files.length > 1
+                                ? `${item.files.length} files`
+                                : item.file_name}
                             </strong>
-                            <small>{currentVersion.uploaded_by} · {formatDate(currentVersion.created_at)}</small>
+                            <small style={{ display: 'block', fontSize: '10px', color: '#8d7f97', marginTop: '2px' }}>
+                              {formatDate(item.created_at)} · {item.uploaded_by}
+                            </small>
                           </div>
-                          <em>{status}</em>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <em style={{ 
+                              fontSize: '10px', 
+                              color: item.version === task?.current_output_version ? '#7c3aed' : '#8d7f97',
+                              fontWeight: item.version === task?.current_output_version ? 600 : 400
+                            }}>
+                              {item.version === task?.current_output_version ? "Current" : "Previous"}
+                            </em>
+                            {item.files && item.files.length > 0 && (
+                              isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+                            )}
+                          </div>
                         </div>
                         
-                        {/* Display all files in this version */}
-                        {currentVersion.files && currentVersion.files.length > 0 && (
+                        {isExpanded && item.files && item.files.length > 0 && (
                           <div style={{ 
-                            marginTop: '12px', 
+                            marginTop: '8px', 
+                            marginLeft: '40px',
                             display: 'grid', 
                             gap: '8px',
-                            paddingLeft: '35px' 
+                            paddingLeft: '12px',
+                            borderLeft: '2px solid #e9e0ef'
                           }}>
-                            {currentVersion.files.map((file, idx) => (
-                              <div key={idx} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                padding: '10px 12px',
-                                background: '#f8f5ff',
-                                border: '1px solid #e2d6ef',
-                                borderRadius: '8px'
-                              }}>
-                                <span style={{ fontSize: '16px' }}>📄</span>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <strong style={{
-                                    display: 'block',
+                            {item.files.map((file, idx) => {
+                              const isPdf = /\.pdf$/i.test(file.file_name);
+                              return (
+                                <div key={idx} style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '10px',
+                                  padding: '8px 12px',
+                                  background: '#fbf8ff',
+                                  borderRadius: '6px',
+                                  border: '1px solid #e9e0ef'
+                                }}>
+                                  <div style={{
+                                    display: 'grid',
+                                    width: '32px',
+                                    height: '32px',
+                                    placeItems: 'center',
+                                    borderRadius: '5px',
+                                    background: isPdf ? '#fef5e5' : '#e8f1ff',
+                                    color: isPdf ? '#9d6d2a' : '#5274a8',
                                     fontSize: '11px',
-                                    color: '#5a4567',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap'
-                                  }}>
-                                    {file.file_name}
-                                  </strong>
-                                  <small style={{
-                                    display: 'block',
-                                    marginTop: '2px',
-                                    fontSize: '9px',
-                                    color: '#978ba1'
-                                  }}>
-                                    {Math.round(file.file_size / 1024)} KB
-                                  </small>
-                                </div>
-                                <a
-                                  href={r2ToProxyUrl(api, file.file_url)}
-                                  download={file.file_name}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "5px",
-                                    padding: "6px 10px",
-                                    borderRadius: "6px",
-                                    background: "#eee5fb",
-                                    color: "#7043b6",
-                                    textDecoration: "none",
-                                    fontSize: "8px",
                                     fontWeight: 800,
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  <FileImage size={12} /> Open
-                                </a>
-                              </div>
-                            ))}
+                                    flexShrink: 0
+                                  }}>
+                                    {isPdf ? 'PDF' : 'FILE'}
+                                  </div>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{
+                                      fontSize: '11px',
+                                      fontWeight: 600,
+                                      color: '#44354f',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap'
+                                    }}>
+                                      {file.file_name}
+                                    </div>
+                                    <div style={{ fontSize: '10px', color: '#8d7f97', marginTop: '2px' }}>
+                                      {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
+                                    </div>
+                                  </div>
+                                  <a
+                                    href={r2ToProxyUrl(api, file.file_url)}
+                                    download={file.file_name}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      padding: '6px 10px',
+                                      borderRadius: '5px',
+                                      background: '#7c3aed',
+                                      color: '#fff',
+                                      textDecoration: 'none',
+                                      fontSize: '10px',
+                                      fontWeight: 700,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      flexShrink: 0
+                                    }}
+                                  >
+                                    <Download size={11} />
+                                  </a>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPreview({
+                                        file_url: file.file_url,
+                                        file_name: file.file_name,
+                                        name: file.file_name
+                                      });
+                                    }}
+                                    style={{
+                                      padding: '6px 10px',
+                                      borderRadius: '5px',
+                                      background: '#fff',
+                                      border: '1px solid #e9e0ef',
+                                      color: '#7c3aed',
+                                      fontSize: '10px',
+                                      fontWeight: 700,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      cursor: 'pointer',
+                                      flexShrink: 0
+                                    }}
+                                  >
+                                    <FileImage size={11} /> Open
+                                  </button>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
-                      </>
+                      </div>
                     );
-                  })()}
-                </>
+                  })}
+                </div>
               )}
 
               <div className="collab-people">
