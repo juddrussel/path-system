@@ -4,6 +4,8 @@ import {
   ArrowUpRight,
   Check,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
   Clock3,
   Download,
   Eye,
@@ -106,6 +108,7 @@ export default function CollaborativeTaskAdmin() {
   const revisionFilesRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [readerZoom, setReaderZoom] = useState("page-width");
+  const [expandedVersions, setExpandedVersions] = useState(new Set([]));
 
   // Load task data
   useEffect(() => {
@@ -650,26 +653,149 @@ export default function CollaborativeTaskAdmin() {
                       <span>Version history</span>
                       <small>Latest first</small>
                     </div>
-                    {versions.map((item) => (
-                      <div
-                        className={`admin-version ${item.version === task?.current_output_version ? "current" : ""}`}
-                        key={`${item.version}`}
-                      >
-                        <span className="admin-version-number">v{item.version}</span>
-                        <div>
-                          <strong>
-                            {item.files && item.files.length > 1
-                              ? `${item.files.length} files`
-                              : item.file_name}
-                          </strong>
-                          <small>
-                            {formatDate(item.created_at)} · {item.uploaded_by}
-                          </small>
-                          <p>{item.upload_note || "Version uploaded"}</p>
+                    {versions.map((item) => {
+                      const isExpanded = expandedVersions.has(item.version);
+                      const toggleExpand = () => {
+                        setExpandedVersions(prev => {
+                          const newSet = new Set(prev);
+                          if (newSet.has(item.version)) {
+                            newSet.delete(item.version);
+                          } else {
+                            newSet.add(item.version);
+                          }
+                          return newSet;
+                        });
+                      };
+                      
+                      return (
+                        <div
+                          className={`admin-version ${item.version === task?.current_output_version ? "current" : ""}`}
+                          key={`${item.version}`}
+                          style={{ flexDirection: 'column', gap: '8px' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', width: '100%' }} onClick={toggleExpand}>
+                            <span className="admin-version-number">v{item.version}</span>
+                            <div style={{ flex: 1 }}>
+                              <strong>
+                                {item.files && item.files.length > 1
+                                  ? `${item.files.length} files`
+                                  : item.file_name}
+                              </strong>
+                              <small>
+                                {formatDate(item.created_at)} · {item.uploaded_by}
+                              </small>
+                              <p>{item.upload_note || "Version uploaded"}</p>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <em>{item.version === task?.current_output_version ? "Current" : "Previous"}</em>
+                              {item.files && item.files.length > 0 && (
+                                isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+                              )}
+                            </div>
+                          </div>
+                          
+                          {isExpanded && item.files && item.files.length > 0 && (
+                            <div style={{ 
+                              marginTop: '8px', 
+                              marginLeft: '40px',
+                              display: 'grid', 
+                              gap: '8px',
+                              paddingLeft: '12px',
+                              borderLeft: '2px solid #e9e0ef'
+                            }}>
+                              {item.files.map((file, idx) => {
+                                const isPdf = /\.pdf$/i.test(file.file_name);
+                                return (
+                                  <div key={idx} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    padding: '8px 12px',
+                                    background: '#fbf8ff',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e9e0ef'
+                                  }}>
+                                    <div style={{
+                                      display: 'grid',
+                                      width: '32px',
+                                      height: '32px',
+                                      placeItems: 'center',
+                                      borderRadius: '5px',
+                                      background: isPdf ? '#fef5e5' : '#e8f1ff',
+                                      color: isPdf ? '#9d6d2a' : '#5274a8',
+                                      fontSize: '11px',
+                                      fontWeight: 800,
+                                      flexShrink: 0
+                                    }}>
+                                      {isPdf ? 'PDF' : 'FILE'}
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <div style={{
+                                        fontSize: '11px',
+                                        fontWeight: 600,
+                                        color: '#44354f',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap'
+                                      }}>
+                                        {file.file_name}
+                                      </div>
+                                      <div style={{ fontSize: '10px', color: '#8d7f97', marginTop: '2px' }}>
+                                        {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
+                                      </div>
+                                    </div>
+                                    <a
+                                      href={r2ToProxyUrl(api, file.file_url)}
+                                      download={file.file_name}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{
+                                        padding: '6px 10px',
+                                        borderRadius: '5px',
+                                        background: '#7c3aed',
+                                        color: '#fff',
+                                        textDecoration: 'none',
+                                        fontSize: '10px',
+                                        fontWeight: 700,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        flexShrink: 0
+                                      }}
+                                    >
+                                      <Download size={11} />
+                                    </a>
+                                    <button
+                                      onClick={() => setPreview({
+                                        file_url: file.file_url,
+                                        file_name: file.file_name,
+                                        name: file.file_name
+                                      })}
+                                      style={{
+                                        padding: '6px 10px',
+                                        borderRadius: '5px',
+                                        background: '#fff',
+                                        border: '1px solid #e9e0ef',
+                                        color: '#7c3aed',
+                                        fontSize: '10px',
+                                        fontWeight: 700,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        cursor: 'pointer',
+                                        flexShrink: 0
+                                      }}
+                                    >
+                                      <Eye size={11} />
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                        <em>{item.version === task?.current_output_version ? "Current" : "Previous"}</em>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </section>
