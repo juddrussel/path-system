@@ -1249,7 +1249,6 @@ export default function TaskDetail() {
                           </small>
                         </div>
                         <div>
-                          <span>✦ AI Summary</span>
                           <span>▢ PDF</span>
                           <button
                             type="button"
@@ -2147,7 +2146,6 @@ export default function TaskDetail() {
                 <p>{preview.name}</p>
               </div>
               <div className="td-reader-head-actions">
-                <span>✦ AI Summary</span>
                 <span>▢ PDF</span>
                 <button
                   type="button"

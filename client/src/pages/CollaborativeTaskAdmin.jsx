@@ -772,7 +772,6 @@ export default function CollaborativeTaskAdmin() {
                 <p>{preview.file_name || preview.name}</p>
               </div>
               <div className="td-reader-head-actions">
-                <span>✦ AI Summary</span>
                 <span>▢ PDF</span>
                 <button
                   type="button"
