@@ -275,6 +275,7 @@ function TaskAssignmentInner() {
   const [search, setSearch] = useState("");
   const pickerRef = useRef(null);
   const attachmentInputRef = useRef(null);
+  const notesTextareaRef = useRef(null);
   const [form, setForm] = useState({
     title: "",
     doc_type: "",
@@ -386,6 +387,14 @@ function TaskAssignmentInner() {
     document.addEventListener("mousedown", closePicker);
     return () => document.removeEventListener("mousedown", closePicker);
   }, []);
+
+  // Auto-resize textarea when notes content changes
+  useEffect(() => {
+    if (notesTextareaRef.current) {
+      notesTextareaRef.current.style.height = 'auto';
+      notesTextareaRef.current.style.height = notesTextareaRef.current.scrollHeight + 'px';
+    }
+  }, [form.notes]);
 
   const uploadFileToR2 = (entry) =>
     new Promise((resolve) => {
@@ -989,16 +998,21 @@ function TaskAssignmentInner() {
                 <label className="path-assignment-notes">
                   Context and objectives
                   <textarea
+                    ref={notesTextareaRef}
                     value={form.notes}
-                    onChange={(event) =>
+                    onChange={(event) => {
                       setForm((current) => ({
                         ...current,
                         notes: event.target.value,
-                      }))
-                    }
+                      }));
+                    }}
                     placeholder="What should the reviewer check, decide, or return? Add decision context so the handoff can move without a follow-up."
-                    rows={6}
-                    style={{ minHeight: '120px', resize: 'vertical' }}
+                    rows={3}
+                    style={{ 
+                      minHeight: '80px', 
+                      resize: 'none',
+                      overflow: 'hidden'
+                    }}
                   />
                 </label>
               </section>
