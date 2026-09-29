@@ -1252,7 +1252,7 @@ export default function CollaborativeTaskDetail() {
             )}
 
             {/* Revision Notice Section */}
-            {(task.return_reason || task.revision_instructions || revisionFiles.length > 0) && status !== "Approved" && (
+            {(task.return_reason || task.revision_instructions || revisionFiles.length > 0) && status !== "Approved" && status !== "For Approval" && (
               <section className="collab-card" style={{ border: '2px solid #fbbf24', background: 'linear-gradient(135deg, #fef3c7 0%, #fef9e3 100%)' }}>
                 <div className="collab-heading">
                   <div>
