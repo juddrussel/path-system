@@ -142,8 +142,18 @@ export default function CollaborativeTaskAdmin() {
       }
     });
 
+    socket.on("collaborative:auto_submitted", (data) => {
+      if (data.taskId === task?.id) {
+        console.log("[Admin] Task auto-submitted, updating status");
+        setStatus("For Approval");
+        // Reload task to get latest data
+        window.location.reload();
+      }
+    });
+
     return () => {
       socket.off("collaborative:comment_posted");
+      socket.off("collaborative:auto_submitted");
     };
   }, [task?.id]);
 
