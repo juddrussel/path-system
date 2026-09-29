@@ -35,6 +35,7 @@ const { router: taskRoutes, setupTypingEvents, startDeadlineReminderJob } = requ
 const { router: notificationRoutes } = require("./routes/notification.routes");
 const collaborativeRoutes = require("./routes/collaborative.routes");
 const formRoutes = require("./routes/form.routes");
+const migrationRoutes = require("./routes/migration.routes"); // TEMPORARY - DELETE AFTER MIGRATION
 const categoryRoutes = require("./routes/category.routes");
 const workflowRoutes = require("./routes/workflow.routes");
 const facultyRoutes = require("./routes/facultyRoutes");
@@ -150,6 +151,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/collaborative-tasks", collaborativeRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/forms", formRoutes);
+app.use("/api/migration", migrationRoutes); // TEMPORARY - DELETE AFTER RUNNING MIGRATION
 app.use("/api/categories", categoryRoutes);
 app.use("/api/workflows", workflowRoutes);
 app.use("/api/faculty", facultyRoutes(db));
