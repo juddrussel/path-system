@@ -144,8 +144,8 @@ router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), a
     const userId = req.user.id;
     const { note } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ message: "File is required." });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "At least one file is required." });
     }
 
     // Verify user is a collaborator
@@ -167,15 +167,17 @@ router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), a
 
     const nextVersion = currentVersion + 1;
 
-    // Upload file to R2
-    const { url: fileUrl } = await uploadToR2(req.file);
+    // Upload all files to R2 and insert records
+    for (const file of req.files) {
+      const { url: fileUrl } = await uploadToR2(file);
 
-    // Insert final output record
-    await db.query(
-      `INSERT INTO task_final_outputs (task_id, version, file_url, file_name, file_size, uploaded_by, upload_note)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [taskId, nextVersion, fileUrl, req.file.originalname, req.file.size, userId, note || ""]
-    );
+      // Insert final output record for each file
+      await db.query(
+        `INSERT INTO task_final_outputs (task_id, version, file_url, file_name, file_size, uploaded_by, upload_note)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [taskId, nextVersion, fileUrl, file.originalname, file.size, userId, note || ""]
+      );
+    }
 
     // Update task's current version
     await db.query(
@@ -217,20 +219,22 @@ router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), a
     // Broadcast update
     const io = req.app.get("io");
     if (io) {
+      const fileNames = req.files.map(f => f.originalname).join(', ');
       io.to(`task_${taskId}`).emit("collaborative:output_updated", {
         taskId,
         version: nextVersion,
-        fileName: req.file.originalname,
+        fileName: fileNames,
+        fileCount: req.files.length,
         uploadedBy: req.user.full_name,
         uploadedAt: new Date().toISOString(),
-        message: `New final output v${nextVersion} uploaded. All confirmations reset.`,
+        message: `New final output v${nextVersion} uploaded (${req.files.length} file${req.files.length > 1 ? 's' : ''}). All confirmations reset.`,
       });
     }
 
     return res.json({
       message: "Final output uploaded successfully.",
       version: nextVersion,
-      fileUrl,
+      fileCount: req.files.length,
     });
   } catch (err) {
     console.error("POST /upload-final-output error:", err);
