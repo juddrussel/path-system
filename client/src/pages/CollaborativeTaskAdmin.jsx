@@ -159,7 +159,7 @@ export default function CollaborativeTaskAdmin() {
 
   const approveTask = async () => {
     try {
-      const response = await fetch(`/api/collaborative-tasks/${taskId}/approve`, {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/approve`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
