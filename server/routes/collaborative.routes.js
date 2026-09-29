@@ -295,7 +295,7 @@ router.post("/:id/confirm", requireAuth, async (req, res) => {
       console.log(`[Confirm] ALL CONFIRMED! Auto-submitting task ${taskId}`);
       // Automatically submit task
       await db.query(
-        `UPDATE tasks SET status = 'For Approval', confirmation_status = 'both_confirmed', 
+        `UPDATE tasks SET status = 'For Approval', confirmation_status = 'confirmed', 
                          all_confirmed_at = ?, submitted_at = ? WHERE id = ?`,
         [now, now, taskId]
       );
