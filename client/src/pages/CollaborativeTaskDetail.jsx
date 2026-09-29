@@ -305,7 +305,7 @@ function ReplyForm({
               const isPdf = /\.pdf$/i.test(file.name);
               const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
               const progress = replyFileProgress[idx] ?? 0;
-              const isUploading = progress < 100;
+              const isUploading = isReplyUploadingFiles && progress < 100;
               
               return (
                 <div key={idx} style={{ padding: "8px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
@@ -1444,7 +1444,7 @@ export default function CollaborativeTaskDetail() {
                         const isPdf = /\.pdf$/i.test(file.name);
                         const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
                         const progress = commentFileProgress[idx] ?? 0;
-                        const isUploading = progress < 100;
+                        const isUploading = isCommentUploadingFiles && progress < 100;
                         
                         return (
                           <div key={idx} style={{ padding: "8px", background: "#fff", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
