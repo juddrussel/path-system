@@ -1296,62 +1296,62 @@ export default function CollaborativeTaskDetail() {
                               <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
                                 {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
                               </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <strong style={{ display: 'block', color: '#92400e', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {file.file_name}
-                              </strong>
-                              <small style={{ display: 'block', marginTop: '2px', color: '#a16207', fontSize: '10px' }}>
-                                {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : 'Attachment from admin'}
-                              </small>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <strong style={{ display: 'block', color: '#92400e', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {file.file_name}
+                                </strong>
+                                <small style={{ display: 'block', marginTop: '2px', color: '#a16207', fontSize: '10px' }}>
+                                  {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : 'Attachment from admin'}
+                                </small>
+                              </div>
+                              <a
+                                href={r2ToProxyUrl(api, file.file_url)}
+                                download={file.file_name}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  padding: '6px 12px',
+                                  borderRadius: '6px',
+                                  background: '#fbbf24',
+                                  color: '#78350f',
+                                  textDecoration: 'none',
+                                  fontSize: '10px',
+                                  fontWeight: 800,
+                                  whiteSpace: 'nowrap',
+                                  flexShrink: 0
+                                }}
+                              >
+                                <Download size={12} /> Download
+                              </a>
+                              <button
+                                onClick={() => setPreview({
+                                  file_url: file.file_url,
+                                  file_name: file.file_name,
+                                  name: file.file_name
+                                })}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  padding: '6px 12px',
+                                  borderRadius: '6px',
+                                  background: '#fef3c7',
+                                  border: '1px solid #fbbf24',
+                                  color: '#78350f',
+                                  fontSize: '10px',
+                                  fontWeight: 800,
+                                  whiteSpace: 'nowrap',
+                                  cursor: 'pointer',
+                                  flexShrink: 0
+                                }}
+                              >
+                                <FileImage size={12} /> Preview
+                              </button>
                             </div>
-                            <a
-                              href={r2ToProxyUrl(api, file.file_url)}
-                              download={file.file_name}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                padding: '6px 12px',
-                                borderRadius: '6px',
-                                background: '#fbbf24',
-                                color: '#78350f',
-                                textDecoration: 'none',
-                                fontSize: '10px',
-                                fontWeight: 800,
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0
-                              }}
-                            >
-                              <Download size={12} /> Download
-                            </a>
-                            <button
-                              onClick={() => setPreview({
-                                file_url: file.file_url,
-                                file_name: file.file_name,
-                                name: file.file_name
-                              })}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                padding: '6px 12px',
-                                borderRadius: '6px',
-                                background: '#fef3c7',
-                                border: '1px solid #fbbf24',
-                                color: '#78350f',
-                                fontSize: '10px',
-                                fontWeight: 800,
-                                whiteSpace: 'nowrap',
-                                cursor: 'pointer',
-                                flexShrink: 0
-                              }}
-                            >
-                              <FileImage size={12} /> Preview
-                            </button>
-                          </div>
-                        );
+                          );
                       })}
                     </div>
                   )}
