@@ -494,12 +494,8 @@ router.post("/:id/approve", requireAuth, async (req, res) => {
 
     // Update task status to Approved
     await db.query(
-      `UPDATE tasks SET 
-        status = 'Approved',
-        reviewed_by = ?,
-        reviewed_at = NOW()
-       WHERE id = ?`,
-      [userId, taskId]
+      `UPDATE tasks SET status = 'Approved' WHERE id = ?`,
+      [taskId]
     );
 
     // Add approval comment if note provided
