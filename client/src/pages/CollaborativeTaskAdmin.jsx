@@ -241,7 +241,10 @@ export default function CollaborativeTaskAdmin() {
   const confirmedCount = collaborators.filter(c => 
     confirmations.some(conf => conf.user_id === c.user_id && conf.status === "confirmed")
   ).length;
-  const currentVersion = versions[0];
+  
+  // Find the current version based on task.current_output_version
+  const currentVersion = versions.find(v => v.version === task?.current_output_version) || versions[0];
+  
   const allConfirmed = confirmedCount === collaborators.length && collaborators.length > 0;
   const isReadyForReview = task.status === "For Approval" && allConfirmed;
 
@@ -452,51 +455,103 @@ export default function CollaborativeTaskAdmin() {
                 <div className="admin-heading">
                   <div>
                     <span className="admin-kicker">Submitted final output</span>
-                    <h2>{currentVersion.file_name}</h2>
+                    <h2>
+                      {currentVersion.files && currentVersion.files.length > 1
+                        ? `Version ${currentVersion.version} · ${currentVersion.files.length} files`
+                        : currentVersion.file_name}
+                    </h2>
                   </div>
                   <span className="admin-file-status">
                     <CheckCircle2 size={12} /> Latest version
                   </span>
                 </div>
 
-                <div className="admin-file">
-                  <span className="admin-file-icon">
-                    <FileText size={21} />
-                  </span>
-                  <div>
-                    <strong>{currentVersion.file_name}</strong>
-                    <small>
-                      PDF · {formatDate(currentVersion.created_at)} · Uploaded by {currentVersion.uploaded_by}
-                    </small>
-                    <p>{currentVersion.upload_note || "Final group output"}</p>
+                {/* Display all files */}
+                {currentVersion.files && currentVersion.files.length > 0 ? (
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    {currentVersion.files.map((file, idx) => (
+                      <div className="admin-file" key={idx}>
+                        <span className="admin-file-icon">
+                          <FileText size={21} />
+                        </span>
+                        <div>
+                          <strong>{file.file_name}</strong>
+                          <small>
+                            PDF · {formatDate(currentVersion.created_at)} · Uploaded by {currentVersion.uploaded_by}
+                          </small>
+                          {idx === 0 && <p>{currentVersion.upload_note || "Final group output"}</p>}
+                        </div>
+                        <button 
+                          type="button" 
+                          aria-label="Download submitted file"
+                          onClick={() => {
+                            const url = r2ToProxyUrl(api, file.file_url);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = file.file_name;
+                            a.target = '_blank';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                          }}
+                        >
+                          <Download size={15} />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    <div className="admin-file-actions">
+                      <button 
+                        className="admin-outline" 
+                        type="button"
+                        onClick={() => setPreview(currentVersion.files[0] ? { ...currentVersion, file_url: currentVersion.files[0].file_url, file_name: currentVersion.files[0].file_name } : currentVersion)}
+                      >
+                        <FileText size={13} /> Open inline preview (first file)
+                      </button>
+                    </div>
                   </div>
-                  <button 
-                    type="button" 
-                    aria-label="Download submitted file"
-                    onClick={() => {
-                      const url = r2ToProxyUrl(api, currentVersion.file_url);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = currentVersion.file_name;
-                      a.target = '_blank';
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                    }}
-                  >
-                    <Download size={15} />
-                  </button>
-                </div>
+                ) : (
+                  <>
+                    <div className="admin-file">
+                      <span className="admin-file-icon">
+                        <FileText size={21} />
+                      </span>
+                      <div>
+                        <strong>{currentVersion.file_name}</strong>
+                        <small>
+                          PDF · {formatDate(currentVersion.created_at)} · Uploaded by {currentVersion.uploaded_by}
+                        </small>
+                        <p>{currentVersion.upload_note || "Final group output"}</p>
+                      </div>
+                      <button 
+                        type="button" 
+                        aria-label="Download submitted file"
+                        onClick={() => {
+                          const url = r2ToProxyUrl(api, currentVersion.file_url);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = currentVersion.file_name;
+                          a.target = '_blank';
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                        }}
+                      >
+                        <Download size={15} />
+                      </button>
+                    </div>
 
-                <div className="admin-file-actions">
-                  <button 
-                    className="admin-outline" 
-                    type="button"
-                    onClick={() => setPreview(currentVersion)}
-                  >
-                    <FileText size={13} /> Open inline preview
-                  </button>
-                </div>
+                    <div className="admin-file-actions">
+                      <button 
+                        className="admin-outline" 
+                        type="button"
+                        onClick={() => setPreview(currentVersion)}
+                      >
+                        <FileText size={13} /> Open inline preview
+                      </button>
+                    </div>
+                  </>
+                )}
 
                 {versions.length > 0 && (
                   <div className="admin-versions">
@@ -504,20 +559,24 @@ export default function CollaborativeTaskAdmin() {
                       <span>Version history</span>
                       <small>Latest first</small>
                     </div>
-                    {versions.map((item, idx) => (
+                    {versions.map((item) => (
                       <div
-                        className={`admin-version ${idx === 0 ? "current" : ""}`}
-                        key={`${item.version}-${item.file_name}`}
+                        className={`admin-version ${item.version === task?.current_output_version ? "current" : ""}`}
+                        key={`${item.version}`}
                       >
                         <span className="admin-version-number">v{item.version}</span>
                         <div>
-                          <strong>{item.file_name}</strong>
+                          <strong>
+                            {item.files && item.files.length > 1
+                              ? `${item.files.length} files`
+                              : item.file_name}
+                          </strong>
                           <small>
                             {formatDate(item.created_at)} · {item.uploaded_by}
                           </small>
                           <p>{item.upload_note || "Version uploaded"}</p>
                         </div>
-                        <em>{idx === 0 ? "Current" : "Previous"}</em>
+                        <em>{item.version === task?.current_output_version ? "Current" : "Previous"}</em>
                       </div>
                     ))}
                   </div>
