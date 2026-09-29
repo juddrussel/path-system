@@ -1811,146 +1811,216 @@ export default function CollaborativeTaskDetail() {
 
               {versions.length > 0 && (
                 <div className="collab-history">
-                  {versions.map((item) => (
-                    <div key={`${item.version}`} style={{ 
-                      padding: '16px',
-                      border: '1px solid #f0ebf3',
-                      borderRadius: '8px',
-                      marginBottom: '12px',
-                      background: item.version === task?.current_output_version ? '#fafafe' : '#fff'
-                    }}>
-                      {/* Version header */}
-                      <div style={{ 
-                        display: "grid",
-                        gridTemplateColumns: "auto 1fr auto",
-                        alignItems: "center",
-                        gap: "12px",
-                        marginBottom: item.files && item.files.length > 1 ? '12px' : '0'
-                      }}>
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '4px',
-                          minWidth: '80px'
-                        }}>
-                          <div style={{
-                            fontSize: '18px',
-                            fontWeight: 800,
-                            color: '#5a4567',
-                            letterSpacing: '-0.02em'
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '12px',
+                    paddingBottom: '8px',
+                    borderBottom: '1px solid #e9e0ef'
+                  }}>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#44354f' }}>Version history</span>
+                    <small style={{ fontSize: '10px', color: '#8d7f97' }}>Latest first</small>
+                  </div>
+                  {versions.map((item) => {
+                    const isExpanded = expandedVersions.has(item.version);
+                    const toggleExpand = () => {
+                      setExpandedVersions(prev => {
+                        const newSet = new Set(prev);
+                        if (newSet.has(item.version)) {
+                          newSet.delete(item.version);
+                        } else {
+                          newSet.add(item.version);
+                        }
+                        return newSet;
+                      });
+                    };
+                    
+                    return (
+                      <div 
+                        key={`output-${item.version}`} 
+                        style={{ 
+                          padding: '12px',
+                          border: item.version === task?.current_output_version ? '2px solid #7c3aed' : '1px solid #e9e0ef',
+                          borderRadius: '8px',
+                          marginBottom: '8px',
+                          background: '#fff'
+                        }}
+                      >
+                        {/* Version header - clickable */}
+                        <div 
+                          style={{ 
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                            cursor: 'pointer'
+                          }}
+                          onClick={toggleExpand}
+                        >
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '32px',
+                            height: '32px',
+                            borderRadius: '6px',
+                            background: item.version === task?.current_output_version ? '#7c3aed' : '#e9e0ef',
+                            color: item.version === task?.current_output_version ? '#fff' : '#44354f',
+                            fontSize: '11px',
+                            fontWeight: 700
                           }}>
                             v{item.version}
-                          </div>
-                          <div style={{
-                            fontSize: '9px',
-                            fontWeight: 800,
-                            color: '#978ba1',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
+                          </span>
+                          
+                          <div style={{ 
+                            flex: 1,
+                            minWidth: 0
                           }}>
-                            {item.files && item.files.length > 1 ? `${item.files.length} files` : '1 file'}
+                            <strong style={{ display: 'block', fontSize: '12px', color: '#44354f' }}>
+                              {item.files && item.files.length > 1
+                                ? `${item.files.length} files`
+                                : item.file_name}
+                            </strong>
+                            <small style={{ display: 'block', fontSize: '10px', color: '#8d7f97', marginTop: '2px' }}>
+                              {formatDate(item.created_at)} · {item.uploaded_by}
+                            </small>
+                            {item.upload_note && (
+                              <p style={{ margin: '4px 0 0', fontSize: '10px', color: '#978ba1' }}>
+                                {item.upload_note}
+                              </p>
+                            )}
                           </div>
-                          <em style={{
-                            fontSize: '9px',
-                            fontWeight: 800,
-                            color: item.version === task?.current_output_version ? '#7c3aed' : '#b8aec3',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
-                          }}>
-                            {item.version === task?.current_output_version ? "Current" : "Previous"}
-                          </em>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <em style={{ 
+                              fontSize: '10px', 
+                              color: item.version === task?.current_output_version ? '#7c3aed' : '#8d7f97',
+                              fontWeight: item.version === task?.current_output_version ? 600 : 400
+                            }}>
+                              {item.version === task?.current_output_version ? "Current" : "Previous"}
+                            </em>
+                            {item.files && item.files.length > 0 && (
+                              isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+                            )}
+                          </div>
                         </div>
                         
-                        <div style={{ 
-                          flex: 1,
-                          minWidth: 0
-                        }}>
-                          <div style={{
-                            fontSize: '11px',
-                            color: '#978ba1',
-                            marginBottom: '2px'
+                        {/* Collapsible files section */}
+                        {isExpanded && item.files && item.files.length > 0 && (
+                          <div style={{ 
+                            marginTop: '12px', 
+                            marginLeft: '40px',
+                            display: 'grid',
+                            gap: '8px',
+                            paddingLeft: '12px',
+                            borderLeft: '2px solid #e9e0ef'
                           }}>
-                            {item.upload_note || "Version uploaded"}
+                            {item.files.map((file, idx) => {
+                              const isPdf = /\.pdf$/i.test(file.file_name);
+                              return (
+                                <div
+                                  key={idx}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    padding: "8px 12px",
+                                    background: "#fbf8ff",
+                                    border: "1px solid #e9e0ef",
+                                    borderRadius: "6px"
+                                  }}
+                                >
+                                  <div style={{
+                                    display: 'grid',
+                                    width: '32px',
+                                    height: '32px',
+                                    placeItems: 'center',
+                                    borderRadius: '5px',
+                                    background: isPdf ? '#fef5e5' : '#e8f1ff',
+                                    color: isPdf ? '#9d6d2a' : '#5274a8',
+                                    fontSize: '11px',
+                                    fontWeight: 800,
+                                    flexShrink: 0
+                                  }}>
+                                    {isPdf ? 'PDF' : 'FILE'}
+                                  </div>
+                                  <div style={{ 
+                                    flex: 1, 
+                                    minWidth: 0
+                                  }}>
+                                    <div style={{ 
+                                      overflow: 'hidden', 
+                                      textOverflow: 'ellipsis', 
+                                      whiteSpace: 'nowrap',
+                                      fontSize: "11px",
+                                      fontWeight: 600,
+                                      color: '#44354f'
+                                    }}>
+                                      {file.file_name}
+                                    </div>
+                                    <div style={{
+                                      fontSize: '10px',
+                                      color: '#8d7f97',
+                                      marginTop: '2px'
+                                    }}>
+                                      {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
+                                    </div>
+                                  </div>
+                                  <a
+                                    href={r2ToProxyUrl(api, file.file_url)}
+                                    download={file.file_name}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      padding: '6px 10px',
+                                      borderRadius: '5px',
+                                      background: '#7c3aed',
+                                      color: '#fff',
+                                      textDecoration: 'none',
+                                      fontSize: '10px',
+                                      fontWeight: 700,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      flexShrink: 0
+                                    }}
+                                  >
+                                    <Download size={11} />
+                                  </a>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPreview({
+                                        file_url: file.file_url,
+                                        file_name: file.file_name,
+                                        name: file.file_name
+                                      });
+                                    }}
+                                    style={{
+                                      padding: '6px 10px',
+                                      borderRadius: '5px',
+                                      background: '#fff',
+                                      border: '1px solid #e9e0ef',
+                                      color: '#7c3aed',
+                                      fontSize: '10px',
+                                      fontWeight: 700,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      cursor: 'pointer',
+                                      flexShrink: 0
+                                    }}
+                                  >
+                                    <FileImage size={11} /> Open
+                                  </button>
+                                </div>
+                              );
+                            })}
                           </div>
-                        </div>
+                        )}
                       </div>
-                      
-                      {/* Show all files if multiple */}
-                      {item.files && item.files.length > 0 && (
-                        <div style={{ 
-                          display: 'grid',
-                          gap: '8px',
-                          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))'
-                        }}>
-                          {item.files.map((file, idx) => (
-                            <a
-                              key={idx}
-                              href={r2ToProxyUrl(api, file.file_url)}
-                              download={file.file_name}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
-                                padding: "10px 12px",
-                                background: "#fff",
-                                border: "1px solid #e8e4ef",
-                                borderRadius: "8px",
-                                textDecoration: "none",
-                                color: "#5a4567",
-                                transition: "all 0.15s ease",
-                                cursor: "pointer"
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor = '#d0c8de';
-                                e.currentTarget.style.background = '#faf9fd';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor = '#e8e4ef';
-                                e.currentTarget.style.background = '#fff';
-                              }}
-                            >
-                              <span style={{ fontSize: "18px", flexShrink: 0 }}>📄</span>
-                              <div style={{ 
-                                flex: 1, 
-                                minWidth: 0
-                              }}>
-                                <div style={{ 
-                                  overflow: 'hidden', 
-                                  textOverflow: 'ellipsis', 
-                                  whiteSpace: 'nowrap',
-                                  fontSize: "11px",
-                                  fontWeight: 700,
-                                  color: '#4b3757',
-                                  marginBottom: '3px'
-                                }}>
-                                  {file.file_name}
-                                </div>
-                                <div style={{
-                                  fontSize: '9px',
-                                  color: '#978ba1'
-                                }}>
-                                  {Math.round(file.file_size / 1024)} KB
-                                </div>
-                              </div>
-                              <span style={{
-                                padding: '5px 10px',
-                                background: '#eee5fb',
-                                color: '#7043b6',
-                                borderRadius: '6px',
-                                fontSize: '9px',
-                                fontWeight: 800,
-                                flexShrink: 0
-                              }}>
-                                Open
-                              </span>
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </section>
