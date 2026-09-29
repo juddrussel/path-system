@@ -607,7 +607,7 @@ export default function CollaborativeTaskAdmin() {
             console.log("[Socket] Reply comment received:", comment.id);
           }
           
-          return [{ ...comment, replies: comment.replies || [] }, ...prev];
+          return [...prev, { ...comment, replies: comment.replies || [] }];
         });
         
         setComments((prev) => {
@@ -615,7 +615,7 @@ export default function CollaborativeTaskAdmin() {
           if (prev.some(msg => msg.id === comment.id)) {
             return prev;
           }
-          return [{ ...comment, replies: comment.replies || [] }, ...prev];
+          return [...prev, { ...comment, replies: comment.replies || [] }];
         });
       }
     });
@@ -717,7 +717,7 @@ export default function CollaborativeTaskAdmin() {
         replies: []
       };
 
-      setMessages(prev => [optimisticComment, ...prev]);
+      setMessages(prev => [...prev, optimisticComment]);
 
       const savedDraft = messageDraft;
       const savedFiles = commentUploadedFiles;

@@ -769,7 +769,7 @@ export default function CollaborativeTaskDetail() {
           }
           // Root comment
           console.log("[Socket] Adding root comment", comment.id);
-          return [{ ...comment, replies: [] }, ...prev];
+          return [...prev, { ...comment, replies: [] }];
         });
       }
     });
@@ -1034,10 +1034,10 @@ export default function CollaborativeTaskDetail() {
 
       console.log("[postMessage] Created optimistic comment:", optimisticComment);
 
-      // Optimistically add to UI immediately
+      // Optimistically add to UI immediately (at the end)
       setMessages(prev => {
         console.log("[postMessage] Adding to messages. Current count:", prev.length);
-        const updated = [optimisticComment, ...prev];
+        const updated = [...prev, optimisticComment];
         console.log("[postMessage] New count:", updated.length);
         return updated;
       });
