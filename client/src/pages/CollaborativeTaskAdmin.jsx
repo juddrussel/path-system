@@ -94,6 +94,7 @@ export default function CollaborativeTaskAdmin() {
 
   const [reviewNote, setReviewNote] = useState("");
   const [revisionReason, setRevisionReason] = useState("");
+  const [revisionInstruction, setRevisionInstruction] = useState("");
   const [showRevision, setShowRevision] = useState(false);
   const [replyTo, setReplyTo] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
@@ -185,6 +186,10 @@ export default function CollaborativeTaskAdmin() {
 
   const requestRevision = async () => {
     if (!revisionReason.trim()) return;
+    const fullReason = revisionInstruction.trim() 
+      ? `${revisionReason}\n\n${revisionInstruction}`
+      : revisionReason;
+    
     try {
       await fetch(`${api}/api/collaborative-tasks/${taskId}/request-revision`, {
         method: "POST",
@@ -192,10 +197,11 @@ export default function CollaborativeTaskAdmin() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ reason: revisionReason }),
+        body: JSON.stringify({ reason: fullReason }),
       });
       setStatus("Revision Requested");
       setRevisionReason("");
+      setRevisionInstruction("");
       setShowRevision(false);
     } catch (err) {
       setError(err.message);
@@ -698,14 +704,40 @@ export default function CollaborativeTaskAdmin() {
               This changes the task status to Revision Requested and notifies every collaborator to upload a new
               version.
             </p>
-            <textarea
+            <label htmlFor="admin-return-reason" style={{ display: 'block', marginTop: '14px', color: '#806f8b', fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+              Reason <em style={{ color: '#dc2626', fontStyle: 'normal', fontWeight: 700 }}>required</em>
+            </label>
+            <select
+              id="admin-return-reason"
               value={revisionReason}
               onChange={(e) => setRevisionReason(e.target.value)}
-              placeholder="e.g. Please correct the HIST 204 totals and resubmit the PDF…"
-              rows={5}
+              required
+              style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2dbe9', borderRadius: '8px', fontSize: '12px', fontFamily: 'inherit', color: revisionReason ? '#44354f' : '#9a8fa3', background: '#fff', outline: 'none', marginTop: '7px', marginBottom: '10px', cursor: 'pointer' }}
+            >
+              <option value="" disabled>Select a reason</option>
+              <option>Missing information or supporting document</option>
+              <option>Template or format correction required</option>
+              <option>Content needs clarification</option>
+              <option>Required approval or endorsement is missing</option>
+              <option>Other revision needed</option>
+            </select>
+            <label htmlFor="admin-return-instruction" style={{ display: 'block', marginTop: '8px', color: '#806f8b', fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+              Instructions for faculty
+            </label>
+            <textarea
+              id="admin-return-instruction"
+              value={revisionInstruction}
+              onChange={(e) => setRevisionInstruction(e.target.value)}
+              placeholder="Explain what needs to be corrected before the next submission…"
+              rows={4}
+              style={{ marginTop: '7px' }}
             />
             <div className="admin-modal-actions">
-              <button type="button" onClick={() => setShowRevision(false)}>
+              <button type="button" onClick={() => {
+                setShowRevision(false);
+                setRevisionReason('');
+                setRevisionInstruction('');
+              }}>
                 Cancel
               </button>
               <button type="button" onClick={requestRevision} disabled={!revisionReason.trim()}>
