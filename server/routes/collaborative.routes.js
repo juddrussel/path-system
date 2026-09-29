@@ -238,7 +238,11 @@ router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), a
     });
   } catch (err) {
     console.error("POST /upload-final-output error:", err);
-    return res.status(500).json({ message: "Internal server error." });
+    console.error("Error stack:", err.stack);
+    return res.status(500).json({ 
+      message: "Internal server error.", 
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+    });
   }
 });
 
@@ -673,10 +677,37 @@ router.get("/:id", requireAuth, async (req, res) => {
            FROM task_final_outputs tfo
            JOIN users u ON tfo.uploaded_by = u.id
            WHERE tfo.task_id = ?
-           ORDER BY tfo.version DESC`,
+           ORDER BY tfo.version DESC, tfo.created_at ASC`,
           [taskId]
         );
-        versions = result[0] || [];
+        const allFiles = result[0] || [];
+        
+        // Group files by version
+        const versionMap = {};
+        allFiles.forEach(file => {
+          if (!versionMap[file.version]) {
+            versionMap[file.version] = {
+              version: file.version,
+              uploaded_by: file.full_name,
+              upload_note: file.upload_note,
+              created_at: file.created_at,
+              files: []
+            };
+          }
+          versionMap[file.version].files.push({
+            file_url: file.file_url,
+            file_name: file.file_name,
+            file_size: file.file_size
+          });
+          // For backwards compatibility, add first file properties to version object
+          if (versionMap[file.version].files.length === 1) {
+            versionMap[file.version].file_url = file.file_url;
+            versionMap[file.version].file_name = file.file_name;
+            versionMap[file.version].file_size = file.file_size;
+          }
+        });
+        
+        versions = Object.values(versionMap);
       }
       console.log(`Found ${versions.length} versions`);
     } catch (e) {
