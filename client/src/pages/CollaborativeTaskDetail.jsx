@@ -662,6 +662,18 @@ export default function CollaborativeTaskDetail() {
       }
     });
 
+    socket.on("collaborative:auto_submitted", (data) => {
+      if (data.taskId === task.id) {
+        console.log("[Socket] Received auto_submitted event", data);
+        setStatus("For Approval");
+        setCollaborators((prev) =>
+          prev.map(c => ({ ...c, confirmed: true }))
+        );
+        // Show success message
+        alert("🎉 All collaborators confirmed! Task automatically submitted to Program Chair/Admin for review.");
+      }
+    });
+
     socket.on("collaborative:comment_posted", (comment) => {
       console.log("[Socket] Received comment_posted event", comment);
       if (comment.task_id === parseInt(taskId)) {
@@ -732,6 +744,7 @@ export default function CollaborativeTaskDetail() {
       socket.off("collaborative:confirmed");
       socket.off("collaborative:withdrawn");
       socket.off("collaborative:output_updated");
+      socket.off("collaborative:auto_submitted");
       socket.off("collaborative:comment_posted");
     };
   }, [taskId]);
@@ -748,15 +761,22 @@ export default function CollaborativeTaskDetail() {
 
   const handleConfirm = async (userId = user.id) => {
     try {
-      await fetch(`${api}/api/collaborative-tasks/${taskId}/confirm`, {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/confirm`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      const data = await response.json();
+      
       setCollaborators((prev) =>
         prev.map(c => c.user_id === userId ? { ...c, confirmed: true } : c)
       );
-      const allConfirmed = collaborators.every(c => c.user_id === userId || c.confirmed);
-      if (allConfirmed) setStatus("Submitted");
+      
+      // Check if auto-submitted
+      if (data.autoSubmitted) {
+        setStatus("For Approval");
+        alert("🎉 All collaborators confirmed! Task automatically submitted to Program Chair/Admin for review.");
+      }
     } catch (err) {
       setError(err.message);
     }
