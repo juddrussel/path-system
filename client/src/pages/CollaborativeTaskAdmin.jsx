@@ -489,9 +489,6 @@ export default function CollaborativeTaskAdmin() {
                   >
                     <FileText size={13} /> Open inline preview
                   </button>
-                  <button className="admin-outline" type="button">
-                    <ArrowUpRight size={13} /> View submission record
-                  </button>
                 </div>
 
                 {versions.length > 0 && (
