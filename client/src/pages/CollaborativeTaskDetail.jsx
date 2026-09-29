@@ -1352,7 +1352,8 @@ export default function CollaborativeTaskDetail() {
                               </button>
                             </div>
                           );
-                      })}
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
