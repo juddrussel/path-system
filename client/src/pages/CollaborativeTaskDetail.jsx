@@ -86,6 +86,8 @@ function RenderReplies({
   setReplyFiles,
   replyFileProgress,
   setReplyFileProgress,
+  replyUploadedFiles,
+  setReplyUploadedFiles,
   isReplyUploadingFiles,
   setIsReplyUploadingFiles,
   replyFilesRef,
@@ -238,6 +240,8 @@ function RenderReplies({
               setReplyFiles={setReplyFiles}
               replyFileProgress={replyFileProgress}
               setReplyFileProgress={setReplyFileProgress}
+              replyUploadedFiles={replyUploadedFiles}
+              setReplyUploadedFiles={setReplyUploadedFiles}
               isReplyUploadingFiles={isReplyUploadingFiles}
               setIsReplyUploadingFiles={setIsReplyUploadingFiles}
               replyFilesRef={replyFilesRef}
@@ -1422,6 +1426,8 @@ export default function CollaborativeTaskDetail() {
                           setReplyFiles={setReplyFiles}
                           replyFileProgress={replyFileProgress}
                           setReplyFileProgress={setReplyFileProgress}
+                          replyUploadedFiles={replyUploadedFiles}
+                          setReplyUploadedFiles={setReplyUploadedFiles}
                           isReplyUploadingFiles={isReplyUploadingFiles}
                           setIsReplyUploadingFiles={setIsReplyUploadingFiles}
                           replyFilesRef={replyFilesRef}
