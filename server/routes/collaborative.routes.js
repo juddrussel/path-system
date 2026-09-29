@@ -722,17 +722,48 @@ router.get("/:id/debug", requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/upload-files ─────────────────────────────────────────────────
+// Upload files immediately (before posting comment)
+router.post("/upload-files", requireAuth, upload.array("files", 5), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files provided" });
+    }
+
+    const fileUrls = [];
+    for (const file of req.files) {
+      try {
+        const { url } = await uploadToR2(file);
+        fileUrls.push({
+          url,
+          name: file.originalname,
+          size: file.size,
+          type: file.mimetype
+        });
+      } catch (uploadErr) {
+        console.error("[File Upload Error]", uploadErr);
+        return res.status(500).json({ message: "File upload to R2 failed", error: uploadErr.message });
+      }
+    }
+
+    res.status(200).json({ files: fileUrls });
+  } catch (err) {
+    console.error("[Upload Files Error]", err);
+    res.status(500).json({ message: "Failed to upload files", error: err.message });
+  }
+});
+
 // ─── POST /api/collaborative-tasks/:id/comment ──────────────────────────────
 // Add a comment/working note to a collaborative task (supports threading/replies and file attachments)
-router.post("/:id/comment", requireAuth, upload.array("files", 5), async (req, res) => {
+router.post("/:id/comment", requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const userId = req.user?.id;
-    const { content, parentCommentId } = req.body;
+    const { content, parentCommentId, files } = req.body; // files are now pre-uploaded URLs
 
-    console.log(`[Comment] taskId=${taskId}, userId=${userId}, parentId=${parentCommentId}, contentLength=${content?.length || 0}, files=${req.files?.length || 0}`);
+    console.log(`[Comment] taskId=${taskId}, userId=${userId}, parentId=${parentCommentId}, contentLength=${content?.length || 0}, preUploadedFiles=${files?.length || 0}`);
 
-    if ((!content || !content.trim()) && (!req.files || req.files.length === 0)) {
+    if ((!content || !content.trim()) && (!files || files.length === 0)) {
       return res.status(400).json({ message: "Comment cannot be empty and must have content or files" });
     }
 
@@ -762,34 +793,15 @@ router.post("/:id/comment", requireAuth, upload.array("files", 5), async (req, r
       }
     }
 
-    // Upload files if present
-    let fileUrls = [];
-    if (req.files && req.files.length > 0) {
-      try {
-        for (const file of req.files) {
-          const { url } = await uploadToR2(file);
-          fileUrls.push({
-            url,
-            name: file.originalname,
-            size: file.size,
-            type: file.mimetype
-          });
-        }
-      } catch (uploadErr) {
-        console.error("[Comment File Upload Error]", uploadErr);
-        return res.status(500).json({ message: "File upload failed", error: uploadErr.message });
-      }
-    }
-
-    // Insert comment into task_comments using sender_id (matches production schema)
-    const filesJson = fileUrls.length > 0 ? JSON.stringify(fileUrls) : null;
+    // Insert comment into task_comments using sender_id (files are already uploaded)
+    const filesJson = files && files.length > 0 ? JSON.stringify(files) : null;
     const [result] = await db.query(
       `INSERT INTO task_comments (task_id, sender_id, parent_comment_id, content, files, created_at) 
        VALUES (?, ?, ?, ?, ?, NOW())`,
       [taskId, userId, parentCommentId || null, content || "", filesJson]
     );
 
-    console.log(`[Comment] Inserted comment id=${result.insertId} with ${fileUrls.length} files`);
+    console.log(`[Comment] Inserted comment id=${result.insertId} with ${files?.length || 0} pre-uploaded files`);
 
     // Fetch user details for response
     const [[user]] = await db.query("SELECT id, full_name FROM users WHERE id = ?", [userId]);
@@ -802,7 +814,7 @@ router.post("/:id/comment", requireAuth, upload.array("files", 5), async (req, r
       content: content || "",
       full_name: user?.full_name || "Unknown",
       parent_comment_id: parentCommentId || null,
-      files: fileUrls,
+      files: files || [],
       created_at: new Date().toISOString(),
     };
 

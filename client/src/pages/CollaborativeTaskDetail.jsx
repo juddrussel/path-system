@@ -324,7 +324,14 @@ function ReplyForm({
                     </div>
                   </div>
                   <button
-                    onClick={() => setReplyFiles(prev => prev.filter((_, i) => i !== idx))}
+                    onClick={() => {
+                      setReplyFiles(prev => prev.filter((_, i) => i !== idx));
+                      setReplyFileProgress(prev => {
+                        const newProgress = { ...prev };
+                        delete newProgress[idx];
+                        return newProgress;
+                      });
+                    }}
                     disabled={isReplyUploadingFiles}
                     style={{ background: "none", border: "none", color: "#806f8b", cursor: isReplyUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isReplyUploadingFiles ? 0.5 : 1 }}
                   >
@@ -560,9 +567,11 @@ export default function CollaborativeTaskDetail() {
   // Comment file upload state
   const [commentFiles, setCommentFiles] = useState([]);
   const [commentFileProgress, setCommentFileProgress] = useState({});
+  const [commentUploadedFiles, setCommentUploadedFiles] = useState([]); // Store uploaded file URLs
   const [isCommentUploadingFiles, setIsCommentUploadingFiles] = useState(false);
   const [replyFiles, setReplyFiles] = useState([]);
   const [replyFileProgress, setReplyFileProgress] = useState({});
+  const [replyUploadedFiles, setReplyUploadedFiles] = useState([]); // Store uploaded file URLs
   const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
   const [imageLoadingStates, setImageLoadingStates] = useState({});
 
@@ -803,109 +812,97 @@ export default function CollaborativeTaskDetail() {
     }
   };
 
-  const postMessage = async () => {
-    if (!messageDraft.trim() && commentFiles.length === 0) return;
+  const uploadCommentFiles = async (files) => {
+    setIsCommentUploadingFiles(true);
+    const uploadedUrls = [];
     
-    try {
-      setIsCommentUploadingFiles(true);
-      
-      if (commentFiles.length > 0) {
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      try {
         const formData = new FormData();
-        commentFiles.forEach((file, idx) => {
-          formData.append("files", file);
-        });
-        formData.append("content", messageDraft.trim());
-        formData.append("taskId", taskId);
+        formData.append("files", file);
         
-        // Initialize all progress to 10% immediately
-        const initialProgress = {};
-        commentFiles.forEach((_, idx) => {
-          initialProgress[idx] = 10;
-        });
-        setCommentFileProgress(initialProgress);
+        // Initialize progress
+        setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: 10 }));
         
-        // Create XMLHttpRequest with progress tracking
         const xhr = new XMLHttpRequest();
-        let lastProgressTime = Date.now();
         let progressInterval = null;
         
-        // Simulated progress if real progress doesn't fire
         const startTime = Date.now();
         const estimateProgress = () => {
           const elapsed = Date.now() - startTime;
-          // Start at 10%, ramp up to 90% over time
           const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
-          commentFiles.forEach((_, idx) => {
-            setCommentFileProgress(prev => ({ ...prev, [idx]: estimatedPercent }));
-          });
+          setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: estimatedPercent }));
         };
         
-        // Start simulation immediately and update frequently
         progressInterval = setInterval(estimateProgress, 20);
         
         xhr.upload.addEventListener("progress", (event) => {
-          if (event.lengthComputable && Date.now() - lastProgressTime > 50) {
+          if (event.lengthComputable) {
             const percentComplete = Math.round((event.loaded / event.total) * 100);
-            commentFiles.forEach((_, idx) => {
-              setCommentFileProgress(prev => ({ ...prev, [idx]: percentComplete }));
-            });
-            lastProgressTime = Date.now();
+            setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: percentComplete }));
           }
         });
         
-        xhr.addEventListener("load", () => {
-          if (progressInterval) clearInterval(progressInterval);
-          if (xhr.status === 200 || xhr.status === 201) {
-            // Set to 100% immediately on success
-            commentFiles.forEach((_, idx) => {
-              setCommentFileProgress(prev => ({ ...prev, [idx]: 100 }));
-            });
-            // Clear after a short delay so user sees 100%
-            setTimeout(() => {
-              setMessageDraft("");
-              setCommentFiles([]);
-              setCommentFileProgress({});
-              if (commentFilesRef.current) commentFilesRef.current.value = "";
-            }, 300);
-          } else {
-            setError("File upload failed");
-          }
-          setIsCommentUploadingFiles(false);
+        await new Promise((resolve, reject) => {
+          xhr.addEventListener("load", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            if (xhr.status === 200 || xhr.status === 201) {
+              const response = JSON.parse(xhr.responseText);
+              uploadedUrls.push(response.files[0]); // Get the uploaded file URL
+              setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: 100 }));
+              resolve();
+            } else {
+              reject(new Error("Upload failed"));
+            }
+          });
+          
+          xhr.addEventListener("error", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            reject(new Error("Upload failed"));
+          });
+          
+          xhr.open("POST", `${api}/api/upload-files`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.send(formData);
         });
-        
-        xhr.addEventListener("error", () => {
-          if (progressInterval) clearInterval(progressInterval);
-          setError("File upload failed");
-          setIsCommentUploadingFiles(false);
-        });
-        
-        xhr.addEventListener("abort", () => {
-          if (progressInterval) clearInterval(progressInterval);
-          setIsCommentUploadingFiles(false);
-        });
-        
-        xhr.open("POST", `${api}/api/collaborative-tasks/${taskId}/comment`);
-        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-        xhr.send(formData);
+      } catch (err) {
+        console.error("File upload error:", err);
+        setError(`Failed to upload ${file.name}`);
+      }
+    }
+    
+    setCommentUploadedFiles(prev => [...prev, ...uploadedUrls]);
+    setIsCommentUploadingFiles(false);
+  };
+
+  const postMessage = async () => {
+    if (!messageDraft.trim() && commentUploadedFiles.length === 0) return;
+    
+    try {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          content: messageDraft.trim(),
+          files: commentUploadedFiles
+        }),
+      });
+      
+      if (response.ok) {
+        setMessageDraft("");
+        setCommentFiles([]);
+        setCommentFileProgress({});
+        setCommentUploadedFiles([]);
+        if (commentFilesRef.current) commentFilesRef.current.value = "";
       } else {
-        // No files, just send text comment
-        const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ content: messageDraft.trim() }),
-        });
-        
-        if (response.ok) {
-          setMessageDraft("");
-        }
-        setIsCommentUploadingFiles(false);
+        setError("Failed to post comment");
       }
     } catch (err) {
       setError(err.message);
-      setIsCommentUploadingFiles(false);
     }
   };
 
@@ -1463,7 +1460,14 @@ export default function CollaborativeTaskDetail() {
                               </div>
                             </div>
                             <button
-                              onClick={() => setCommentFiles(prev => prev.filter((_, i) => i !== idx))}
+                              onClick={() => {
+                                setCommentFiles(prev => prev.filter((_, i) => i !== idx));
+                                setCommentFileProgress(prev => {
+                                  const newProgress = { ...prev };
+                                  delete newProgress[idx];
+                                  return newProgress;
+                                });
+                              }}
                               disabled={isCommentUploadingFiles}
                               style={{ background: "none", border: "none", color: "#806f8b", cursor: isCommentUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isCommentUploadingFiles ? 0.5 : 1 }}
                             >
@@ -1484,17 +1488,15 @@ export default function CollaborativeTaskDetail() {
                       hidden
                       multiple
                       accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const files = Array.from(e.target.files || []);
                         if (commentFiles.length + files.length > 5) {
                           setError("Maximum 5 files allowed");
                           return;
                         }
                         setCommentFiles(prev => [...prev, ...files]);
-                        // Initialize progress for new files
-                        files.forEach((_, idx) => {
-                          setCommentFileProgress(prev => ({ ...prev, [commentFiles.length + idx]: 0 }));
-                        });
+                        // Start uploading immediately
+                        await uploadCommentFiles(files);
                         if (commentFilesRef.current) commentFilesRef.current.value = "";
                       }}
                     />
@@ -1506,7 +1508,7 @@ export default function CollaborativeTaskDetail() {
                     </button>
                     <button 
                       onClick={postMessage} 
-                      disabled={(!messageDraft.trim() && commentFiles.length === 0) || isCommentUploadingFiles}
+                      disabled={(!messageDraft.trim() && commentUploadedFiles.length === 0) || isCommentUploadingFiles}
                     >
                       <Send size={14} /> Send message
                     </button>
