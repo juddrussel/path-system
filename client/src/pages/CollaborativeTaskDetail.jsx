@@ -1088,6 +1088,7 @@ export default function CollaborativeTaskDetail() {
   const requestRevision = async () => {
     if (!revisionReason.trim()) return;
     try {
+      // Send revision request with reason, instructions, and files (v2)
       await fetch(`${api}/api/collaborative-tasks/${taskId}/request-revision`, {
         method: "POST",
         headers: {
