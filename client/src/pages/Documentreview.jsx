@@ -2206,7 +2206,7 @@ export default function DocumentReview() {
                 </label>
                 
                 {decisionFiles.length > 0 && (
-                  <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef' }}>
+                  <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef', maxWidth: '100%', overflow: 'hidden' }}>
                     <div style={{ fontSize: '9px', fontWeight: 800, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
                       {decisionFiles.length} file(s) attached
                     </div>
@@ -2218,11 +2218,11 @@ export default function DocumentReview() {
                         const isUploading = isDecisionUploadingFiles && progress < 100;
                         
                         return (
-                          <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                             <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
                               {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
                             </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                               <div style={{ color: '#5d4867', fontSize: '10px', fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {file.name}
                               </div>
@@ -2244,7 +2244,7 @@ export default function DocumentReview() {
                                 });
                               }}
                               disabled={isDecisionUploadingFiles}
-                              style={{ background: 'none', border: 'none', color: '#806f8b', cursor: isDecisionUploadingFiles ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isDecisionUploadingFiles ? 0.5 : 1 }}
+                              style={{ background: 'none', border: 'none', color: '#806f8b', cursor: isDecisionUploadingFiles ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isDecisionUploadingFiles ? 0.5 : 1, flexShrink: 0 }}
                             >
                               ✕
                             </button>
