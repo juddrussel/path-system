@@ -896,200 +896,206 @@ export default function CollaborativeTaskAdmin() {
 
   if (loading) return (
     <div style={{ 
-      padding: "32px 48px", 
-      maxWidth: "100%", 
       minHeight: "100vh",
       background: "#f9fafb"
     }}>
-      {/* Back button and header skeleton */}
-      <div style={{ marginBottom: "32px" }}>
+      {/* Purple gradient header skeleton */}
+      <div style={{
+        background: "linear-gradient(135deg, #6B46C1 0%, #553C9A 100%)",
+        padding: "48px 48px 80px 48px",
+        position: "relative",
+        marginBottom: "-40px"
+      }}>
         <div style={{ 
-          background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-          backgroundSize: "200% 100%",
-          animation: "shimmer 1.5s infinite",
+          background: "rgba(255, 255, 255, 0.2)",
           height: "36px",
           borderRadius: "8px",
-          width: "120px",
+          width: "200px",
           marginBottom: "24px"
         }} />
         <div style={{ 
-          background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-          backgroundSize: "200% 100%",
-          animation: "shimmer 1.5s infinite",
-          height: "48px",
+          background: "rgba(255, 255, 255, 0.25)",
+          height: "40px",
           borderRadius: "8px",
-          width: "70%",
+          width: "60%",
           marginBottom: "16px"
         }} />
         <div style={{ 
-          background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-          backgroundSize: "200% 100%",
-          animation: "shimmer 1.5s infinite",
+          background: "rgba(255, 255, 255, 0.2)",
           height: "24px",
           borderRadius: "8px",
-          width: "40%"
+          width: "35%"
         }} />
       </div>
-      
-      {/* Main content skeleton */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 450px", gap: "32px" }}>
-        {/* Left column */}
-        <div>
-          {/* Task info card */}
-          <div style={{ 
-            background: "#fff",
-            borderRadius: "16px",
-            padding: "32px",
-            marginBottom: "32px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            minHeight: "300px"
-          }}>
-            <div style={{ 
-              background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-              backgroundSize: "200% 100%",
-              animation: "shimmer 1.5s infinite",
-              height: "28px",
-              borderRadius: "6px",
-              marginBottom: "24px",
-              width: "35%"
-            }} />
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} style={{ 
+
+      {/* Content area */}
+      <div style={{ padding: "0 48px 48px 48px" }}>
+        {/* Stats cards row */}
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(3, 1fr)", 
+          gap: "24px",
+          marginBottom: "32px"
+        }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{
+              background: "#fff",
+              borderRadius: "16px",
+              padding: "24px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              minHeight: "120px"
+            }}>
+              <div style={{ 
                 background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
                 backgroundSize: "200% 100%",
                 animation: "shimmer 1.5s infinite",
-                height: "22px",
-                borderRadius: "4px",
-                marginBottom: "20px",
-                width: i === 6 ? "50%" : i === 5 ? "65%" : "100%"
+                height: "20px",
+                borderRadius: "6px",
+                marginBottom: "16px",
+                width: "60%"
               }} />
-            ))}
-          </div>
-          
-          {/* Collaborators skeleton */}
-          <div style={{ 
-            background: "#fff",
-            borderRadius: "16px",
-            padding: "32px",
-            marginBottom: "32px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            minHeight: "250px"
-          }}>
+              <div style={{ 
+                background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                backgroundSize: "200% 100%",
+                animation: "shimmer 1.5s infinite",
+                height: "32px",
+                borderRadius: "6px",
+                width: "45%"
+              }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Main content grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 450px", gap: "32px" }}>
+          {/* Left column */}
+          <div>
+            {/* Large table skeleton */}
             <div style={{ 
-              background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-              backgroundSize: "200% 100%",
-              animation: "shimmer 1.5s infinite",
-              height: "28px",
-              borderRadius: "6px",
-              marginBottom: "24px",
-              width: "30%"
-            }} />
-            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} style={{ 
-                  background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 1.5s infinite",
-                  width: "120px",
-                  height: "120px",
-                  borderRadius: "12px"
-                }} />
+              background: "#fff",
+              borderRadius: "16px",
+              padding: "32px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              minHeight: "500px"
+            }}>
+              <div style={{ 
+                background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                backgroundSize: "200% 100%",
+                animation: "shimmer 1.5s infinite",
+                height: "28px",
+                borderRadius: "6px",
+                marginBottom: "32px",
+                width: "40%"
+              }} />
+              
+              {/* Table header */}
+              <div style={{ 
+                display: "grid",
+                gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                gap: "16px",
+                marginBottom: "20px",
+                paddingBottom: "16px",
+                borderBottom: "1px solid #e5e7eb"
+              }}>
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} style={{ 
+                    background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "shimmer 1.5s infinite",
+                    height: "20px",
+                    borderRadius: "4px"
+                  }} />
+                ))}
+              </div>
+
+              {/* Table rows */}
+              {[1, 2, 3, 4, 5, 6].map(rowIndex => (
+                <div key={rowIndex} style={{ 
+                  display: "grid",
+                  gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                  gap: "16px",
+                  marginBottom: "16px",
+                  paddingBottom: "16px",
+                  borderBottom: "1px solid #f3f4f6"
+                }}>
+                  {[1, 2, 3, 4, 5].map(colIndex => (
+                    <div key={colIndex} style={{ 
+                      background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                      backgroundSize: "200% 100%",
+                      animation: "shimmer 1.5s infinite",
+                      height: colIndex === 5 ? "32px" : "18px",
+                      borderRadius: colIndex === 5 ? "6px" : "4px",
+                      width: colIndex === 1 ? "85%" : "100%"
+                    }} />
+                  ))}
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Versions skeleton */}
-          <div style={{ 
-            background: "#fff",
-            borderRadius: "16px",
-            padding: "32px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            minHeight: "200px"
-          }}>
+          {/* Right column */}
+          <div>
             <div style={{ 
-              background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-              backgroundSize: "200% 100%",
-              animation: "shimmer 1.5s infinite",
-              height: "28px",
-              borderRadius: "6px",
-              marginBottom: "24px",
-              width: "25%"
-            }} />
-            {[1, 2].map(i => (
-              <div key={i} style={{ 
+              background: "#fff",
+              borderRadius: "16px",
+              padding: "32px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              minHeight: "500px",
+              position: "sticky",
+              top: "32px"
+            }}>
+              <div style={{ 
                 background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
                 backgroundSize: "200% 100%",
                 animation: "shimmer 1.5s infinite",
-                height: "80px",
-                borderRadius: "8px",
-                marginBottom: "16px"
+                height: "28px",
+                borderRadius: "6px",
+                marginBottom: "24px",
+                width: "50%"
               }} />
-            ))}
-          </div>
-        </div>
-        
-        {/* Right column - Discussion */}
-        <div>
-          <div style={{ 
-            background: "#fff",
-            borderRadius: "16px",
-            padding: "32px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            minHeight: "calc(100vh - 200px)",
-            position: "sticky",
-            top: "32px"
-          }}>
-            <div style={{ 
-              background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-              backgroundSize: "200% 100%",
-              animation: "shimmer 1.5s infinite",
-              height: "28px",
-              borderRadius: "6px",
-              marginBottom: "24px",
-              width: "50%"
-            }} />
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{ marginBottom: "24px" }}>
-                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                  <div style={{ 
-                    background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "shimmer 1.5s infinite",
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "50%",
-                    flexShrink: 0
-                  }} />
-                  <div style={{ flex: 1 }}>
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} style={{ marginBottom: "24px" }}>
+                  <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
                     <div style={{ 
                       background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
                       backgroundSize: "200% 100%",
                       animation: "shimmer 1.5s infinite",
-                      height: "18px",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      width: "65%"
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "50%",
+                      flexShrink: 0
                     }} />
-                    <div style={{ 
-                      background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                      backgroundSize: "200% 100%",
-                      animation: "shimmer 1.5s infinite",
-                      height: "60px",
-                      borderRadius: "8px",
-                      marginBottom: "10px"
-                    }} />
-                    <div style={{ 
-                      background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                      backgroundSize: "200% 100%",
-                      animation: "shimmer 1.5s infinite",
-                      height: "14px",
-                      borderRadius: "4px",
-                      width: "35%"
-                    }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ 
+                        background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "shimmer 1.5s infinite",
+                        height: "18px",
+                        borderRadius: "4px",
+                        marginBottom: "10px",
+                        width: "65%"
+                      }} />
+                      <div style={{ 
+                        background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "shimmer 1.5s infinite",
+                        height: "60px",
+                        borderRadius: "8px",
+                        marginBottom: "10px"
+                      }} />
+                      <div style={{ 
+                        background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "shimmer 1.5s infinite",
+                        height: "14px",
+                        borderRadius: "4px",
+                        width: "35%"
+                      }} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
