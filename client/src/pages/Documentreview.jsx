@@ -1895,11 +1895,11 @@ export default function DocumentReview() {
                           </div>
                           
                           {(form.revision_instruction || form.return_instruction || form.return_reason) && (
-                            <div style={{ marginTop: '16px', padding: '14px', background: '#fff9ef', border: '1px solid #edd9bb', borderRadius: '8px' }}>
+                            <div style={{ marginTop: '16px', padding: '14px', background: '#fff9ef', border: '1px solid #edd9bb', borderRadius: '8px', maxWidth: '100%', overflow: 'hidden' }}>
                               <div style={{ fontSize: '10px', fontWeight: 800, color: '#996d37', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px' }}>
                                 Chair's Revision Instructions
                               </div>
-                              <p style={{ margin: 0, fontSize: '12px', color: '#70543a', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                              <p style={{ margin: 0, fontSize: '12px', color: '#70543a', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
                                 {form.revision_instruction || form.return_instruction || form.return_reason}
                               </p>
                               
@@ -1935,11 +1935,12 @@ export default function DocumentReview() {
                                                 border: '1px solid #edd9bb',
                                                 borderRadius: '6px',
                                                 textDecoration: 'none',
-                                                transition: 'all 0.2s'
+                                                transition: 'all 0.2s',
+                                                minWidth: 0
                                               }}
                                             >
                                               <span style={{ fontSize: '20px', flexShrink: 0 }}>{fileIcon}</span>
-                                              <div style={{ flex: 1, minWidth: 0 }}>
+                                              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                                                 <div style={{ fontSize: '11px', fontWeight: 800, color: '#70543a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                   {file.name}
                                                 </div>
@@ -1947,7 +1948,7 @@ export default function DocumentReview() {
                                                   {file.size ? `${Math.round(file.size / 1024)} KB` : 'Click to view'}
                                                 </div>
                                               </div>
-                                              <span style={{ fontSize: '14px', color: '#996d37' }}>→</span>
+                                              <span style={{ fontSize: '14px', color: '#996d37', flexShrink: 0 }}>→</span>
                                             </a>
                                           );
                                         })}
