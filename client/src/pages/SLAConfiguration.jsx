@@ -869,7 +869,7 @@ export default function SLAConfiguration() {
   const statAccent = { "Total Rules": COLORS.primary, "Active Rules": COLORS.success, "Near Deadline": COLORS.warning, "Overdue": COLORS.danger };
 
   if (loading) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "40px 0", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`
         @keyframes sla-sk-shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
         @keyframes sla-sk-fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
