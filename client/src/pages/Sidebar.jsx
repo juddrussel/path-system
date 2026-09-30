@@ -1,6 +1,7 @@
 import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logoImg from "../assets/logo.png";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL || "";
 const API_BASE = `${API}/api`;
@@ -15,8 +16,8 @@ function getUser() {
 
 function fullAvatarUrl(url) {
   if (!url) return null;
-  if (url.startsWith("http")) return url;
-  return `${API}${url}`;
+  // Use R2 proxy helper for consistent file URL resolution
+  return resolveFileUrl(API, url);
 }
 
 const ROLE_LABELS = {

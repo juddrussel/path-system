@@ -9,12 +9,14 @@ import {
 } from "lucide-react";
 
 const API        = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
-const SERVER_URL =  import.meta.env.VITE_API_URL  || "http://localhost:5000";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
+
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function fullAvatarUrl(url) {
   if (!url) return null;
-  if (url.startsWith("http")) return url;
-  return `${SERVER_URL}${url}`;
+  // Use R2 proxy helper for consistent file URL resolution
+  return resolveFileUrl(SERVER_URL, url);
 }
 function initials(name = "") {
   const parts = String(name).trim().split(/\s+/).filter(Boolean);

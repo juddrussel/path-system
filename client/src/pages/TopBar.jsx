@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 // Decodes the current user's id straight from the JWT — used to filter out
 // a user's own messages from the incoming-message popup (send_message is
@@ -31,8 +32,8 @@ const SERVER_URL = import.meta.env.VITE_API_URL  || "http://localhost:5000";
 
 function fullAvatarUrl(url) {
   if (!url) return null;
-  if (url.startsWith("http")) return url;
-  return `${SERVER_URL}${url}`;
+  // Use R2 proxy helper for consistent file URL resolution
+  return resolveFileUrl(SERVER_URL, url);
 }
 
 function authHeaders() {
