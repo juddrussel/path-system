@@ -575,35 +575,56 @@ router.post("/:id/approve", requireAuth, requireReviewer, async (req, res) => {
 
 // ─── POST /api/forms/:id/reject ──────────────────────────────────────────────
 router.post("/:id/reject", requireAuth, requireReviewer, async (req, res) => {
-  const { note = "" } = req.body;
-  if (!note.trim()) return res.status(400).json({ message: "A rejection reason is required." });
+  const { reason, instructions, files, note } = req.body;
+  
+  // Support both old format (note) and new format (reason + instructions)
+  const rejectionReason = reason || note;
+  const rejectionInstructions = instructions || '';
+  
+  if (!rejectionReason || !rejectionReason.trim()) {
+    return res.status(400).json({ message: "A rejection reason is required." });
+  }
 
   try {
     const [rows] = await db.query("SELECT * FROM form_submissions WHERE id = ?", [req.params.id]);
     if (!rows.length) return res.status(404).json({ message: "Form not found." });
 
+    const form = rows[0];
+    
+    // Create structured note for old review_note field
+    const structuredNote = `Reason: ${rejectionReason}\n\nExplanation: ${rejectionInstructions}`;
+
     await db.query(
       `UPDATE form_submissions
-       SET status = 'Rejected', review_note = ?, reviewed_by = ?, reviewed_at = NOW(), updated_at = NOW()
+       SET status = 'Rejected', 
+           review_note = ?, 
+           return_reason = ?,
+           revision_instruction = ?,
+           revision_files = ?,
+           reviewed_by = ?, 
+           reviewed_at = NOW(), 
+           updated_at = NOW()
        WHERE id = ?`,
-      [note, req.user.id, req.params.id]
+      [structuredNote, rejectionReason, rejectionInstructions, JSON.stringify(files || []), req.user.id, req.params.id]
     );
 
     const io = req.app.get("io");
     if (io) {
-      io.to(`user_${rows[0].submitted_by}`).emit("form_status_update", {
-        tracking_id: rows[0].tracking_id,
+      io.to(`user_${form.submitted_by}`).emit("form_status_update", {
+        tracking_id: form.tracking_id,
         status: "Rejected",
-        review_note: note,
+        reason: rejectionReason,
+        instructions: rejectionInstructions,
+        review_note: structuredNote,
       });
     }
 
     await notify(io, {
-      userId: rows[0].submitted_by,
+      userId: form.submitted_by,
       type: "form_rejected",
       title: "Form Rejected",
-      message: `Your form ${rows[0].tracking_id} was rejected: "${note}".`,
-      trackingId: rows[0].tracking_id,
+      message: `Your form ${form.tracking_id} was rejected: ${rejectionReason}`,
+      trackingId: form.tracking_id,
     });
 
     try {
@@ -611,6 +632,20 @@ router.post("/:id/reject", requireAuth, requireReviewer, async (req, res) => {
         subjectType: "form_submission",
         subjectId:   Number(req.params.id),
         edgeLabel:   "Rejected",
+        actionTaken: "Reject",
+        performedBy: req.user.id,
+        notes:       structuredNote,
+      });
+    } catch (wfErr) {
+      console.error(`[workflow] advance failed for form_submission ${req.params.id}:`, wfErr);
+    }
+
+    return res.json({ message: "Form rejected.", form: { ...form, status: "Rejected" } });
+  } catch (err) {
+    console.error("POST /forms/:id/reject error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
         actionTaken: "Rejection",
         performedBy: req.user.id,
         notes:       note,
