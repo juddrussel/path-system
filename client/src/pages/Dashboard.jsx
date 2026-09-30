@@ -4311,7 +4311,7 @@ export default function Dashboard() {
                               if (row.sourceType === "task") {
                                 // Route to collaborative task admin page if task is collaborative
                                 if (row.isCollaborative) {
-                                  navigate(`/collaborative-tasks/${row.numericId}/admin`);
+                                  navigate(`/collaborative-task/${row.numericId}/admin`);
                                 } else {
                                   navigate(`/task-details/${row.numericId}`, { state: { task: row, returnTo: "/dashboard" } });
                                 }
