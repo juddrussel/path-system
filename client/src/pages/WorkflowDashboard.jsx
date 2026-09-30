@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
-import PageSkeleton from "../components/PageSkeleton";
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
@@ -635,7 +634,9 @@ export default function WorkflowDashboard() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
             <CreateWorkflowCard onClick={() => navigate("/workflow-designer")} />
             {loading ? (
-              <PageSkeleton />
+              <div style={{ gridColumn: "span 2", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: 12 }}>
+                Loading workflows...
+              </div>
             ) : filtered.length === 0 ? (
               <div style={{ gridColumn: "span 2", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: 12 }}>
                 No workflows match your search.

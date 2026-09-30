@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import PageSkeleton from "../components/PageSkeleton";
 import {
   FileText,
   Clock,
@@ -2227,7 +2226,18 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
           </button>
         </header>
         {loading ? (
-          <PageSkeleton />
+          <div style={{ padding: "20px 19px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {[0,1,2].map(i => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f4f0fc" }}>
+                <div className="db-q-skel" style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0 }} />
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div className="db-q-skel" style={{ height: 11, width: `${65 - i * 8}%` }} />
+                  <div className="db-q-skel" style={{ height: 9, width: `${45 - i * 6}%` }} />
+                </div>
+                <div className="db-q-skel" style={{ width: 60, height: 20, borderRadius: 99 }} />
+              </div>
+            ))}
+          </div>
         ) : (
           active.slice(0, 5).map((row) => (
             <button
@@ -2270,7 +2280,18 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
         </header>
 
         {tasksLoading ? (
-          <PageSkeleton />
+          <div style={{ padding: "20px 19px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {[0,1,2].map(i => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f4f0fc" }}>
+                <div className="db-q-skel" style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0 }} />
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div className="db-q-skel" style={{ height: 11, width: `${65 - i * 8}%` }} />
+                  <div className="db-q-skel" style={{ height: 9, width: `${45 - i * 6}%` }} />
+                </div>
+                <div className="db-q-skel" style={{ width: 60, height: 20, borderRadius: 99 }} />
+              </div>
+            ))}
+          </div>
         ) : tasks.length === 0 ? (
           <p className="faculty-list-empty">
             No tasks have been assigned to you yet.
@@ -4258,7 +4279,28 @@ export default function Dashboard() {
                   >
                     <div>
                       {itemsLoading ? (
-                        <PageSkeleton />
+                        <div style={{ padding: "32px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                          <style>{`
+                            @keyframes db-q-shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+                            @keyframes db-q-spin { to { transform: rotate(360deg); } }
+                            .db-q-skel { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:400px 100%; animation: db-q-shimmer 1.4s ease-in-out infinite; border-radius:7px; }
+                          `}</style>
+                          <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid #ede9fe", borderTopColor: "#7c3aed", animation: "db-q-spin 0.75s linear infinite" }} />
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#9080a0" }}>Loading priority queue…</span>
+                          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+                            {[0,1,2].map(i => (
+                              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f4f0fc" }}>
+                                <div className="db-q-skel" style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0 }} />
+                                <div className="db-q-skel" style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0 }} />
+                                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                                  <div className="db-q-skel" style={{ height: 11, width: `${70 - i * 10}%` }} />
+                                  <div className="db-q-skel" style={{ height: 9, width: `${50 - i * 8}%` }} />
+                                </div>
+                                <div className="db-q-skel" style={{ width: 50, height: 20, borderRadius: 99 }} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       ) : (
                         trackedPageItems.slice(0, 5).map((row, index) => (
                           <button
@@ -4608,7 +4650,22 @@ export default function Dashboard() {
                   <div className="path-performance-content">
                     <div>
                       {facultyLoading ? (
-                        <PageSkeleton />
+                        <div style={{ padding: "24px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                          <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid #ede9fe", borderTopColor: "#7c3aed", animation: "db-q-spin 0.75s linear infinite" }} />
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#9080a0" }}>Loading faculty performance…</span>
+                          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
+                            {[0,1,2,3].map(i => (
+                              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div className="db-q-skel" style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0 }} />
+                                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
+                                  <div className="db-q-skel" style={{ height: 11, width: `${70 - i * 10}%` }} />
+                                  <div className="db-q-skel" style={{ height: 8, width: `${50 - i * 7}%` }} />
+                                </div>
+                                <div className="db-q-skel" style={{ width: 45, height: 18, borderRadius: 6 }} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       ) : FACULTY_WORKLOAD.length === 0 ? (
                         <ListEmptyState
                           icon={Users}

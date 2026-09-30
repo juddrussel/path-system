@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageSkeleton from "../components/PageSkeleton";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -559,7 +558,11 @@ export default function AuditTrail() {
                   </div>
                   <div className="path-audit-records">
                     {loading ? (
-                      <PageSkeleton />
+                      <div className="path-audit-empty">
+                        <RefreshCw className="path-audit-spin" size={18} />
+                        <strong>Loading audit activity</strong>
+                        <span>Retrieving the latest ledger records.</span>
+                      </div>
                     ) : !pageItems.length ? (
                       <div className="path-audit-empty">
                         <History size={22} />
