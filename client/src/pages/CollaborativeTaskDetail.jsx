@@ -1122,75 +1122,79 @@ export default function CollaborativeTaskDetail() {
   };
 
   if (loading) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`
         @keyframes collab-sk-shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
         @keyframes collab-sk-fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes collab-sk-spin { to { transform: rotate(360deg); } }
         .collab-sk { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:600px 100%; animation: collab-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
         .collab-sk-dark { background: linear-gradient(90deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.22) 45%,rgba(255,255,255,0.1) 90%); background-size:600px 100%; animation: collab-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
-        .collab-sk-wrap { width: min(1200px,94vw); display: flex; flex-direction: column; gap: 20px; animation: collab-sk-fadein 0.3s ease both; }
-        .collab-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); border-radius:14px; padding:32px 36px; display:flex; flex-direction:column; gap:16px; }
-        .collab-sk-grid { display:grid; grid-template-columns:1fr 400px; gap:24px; }
-        .collab-sk-card { background:#fff; border:1px solid #e8e1f5; border-radius:12px; padding:24px; display:flex; flex-direction:column; gap:14px; box-shadow:0 4px 14px rgba(76,29,149,0.06); }
+        .collab-sk-wrap { width: 100%; display: flex; flex-direction: column; animation: collab-sk-fadein 0.3s ease both; }
+        .collab-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); padding:32px 48px; display:flex; flex-direction:column; gap:12px; }
+        .collab-sk-content { padding: 32px 48px; display: flex; flex-direction: column; gap: 24px; }
+        .collab-sk-grid { display:grid; grid-template-columns:1fr 420px; gap:32px; }
+        .collab-sk-card { background:#fff; border:1px solid #e8e1f5; border-radius:12px; padding:28px; display:flex; flex-direction:column; gap:16px; box-shadow:0 4px 14px rgba(76,29,149,0.06); }
         .collab-sk-spin { width:16px; height:16px; border-radius:50%; flex-shrink:0; border:2px solid rgba(255,255,255,0.2); border-top-color:#c4b5fd; animation:collab-sk-spin 0.75s linear infinite; }
       `}</style>
       <div className="collab-sk-wrap">
-        {/* Hero Section */}
+        {/* Hero Section - Full Width */}
         <div className="collab-sk-hero">
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div className="collab-sk-spin" />
-            <span style={{ color:"rgba(196,181,253,0.7)", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase" }}>Loading Collaborative Task</span>
+            <span style={{ color:"rgba(196,181,253,0.7)", fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase" }}>Loading Collaborative Task</span>
           </div>
-          <div className="collab-sk-dark" style={{ height:28, width:"55%" }} />
-          <div className="collab-sk-dark" style={{ height:16, width:"35%" }} />
+          <div className="collab-sk-dark" style={{ height:32, width:"50%", maxWidth:"600px" }} />
+          <div className="collab-sk-dark" style={{ height:18, width:"30%", maxWidth:"350px" }} />
         </div>
 
-        {/* Main Content Grid */}
-        <div className="collab-sk-grid">
-          {/* Left Column */}
-          <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
-            {/* Task Info Card */}
-            <div className="collab-sk-card" style={{ minHeight:280 }}>
-              <div className="collab-sk" style={{ height:20, width:"30%" }} />
-              {[60,70,55,65,50,45].map((w,i) => (
-                <div key={i} className="collab-sk" style={{ height:14, width:`${w}%` }} />
-              ))}
-            </div>
+        {/* Content Area */}
+        <div className="collab-sk-content">
+          {/* Main Content Grid */}
+          <div className="collab-sk-grid">
+            {/* Left Column */}
+            <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+              {/* Task Info Card */}
+              <div className="collab-sk-card" style={{ minHeight:320 }}>
+                <div className="collab-sk" style={{ height:22, width:"32%" }} />
+                {[65,75,58,68,52,48,55].map((w,i) => (
+                  <div key={i} className="collab-sk" style={{ height:16, width:`${w}%` }} />
+                ))}
+              </div>
 
-            {/* Collaborators Card */}
-            <div className="collab-sk-card" style={{ minHeight:200 }}>
-              <div className="collab-sk" style={{ height:20, width:"35%" }} />
-              <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="collab-sk" style={{ width:90, height:90, borderRadius:10 }} />
+              {/* Collaborators Card */}
+              <div className="collab-sk-card" style={{ minHeight:220 }}>
+                <div className="collab-sk" style={{ height:22, width:"38%" }} />
+                <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className="collab-sk" style={{ width:100, height:100, borderRadius:10 }} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Versions Card */}
+              <div className="collab-sk-card" style={{ minHeight:200 }}>
+                <div className="collab-sk" style={{ height:22, width:"28%" }} />
+                {[1,2].map(i => (
+                  <div key={i} className="collab-sk" style={{ height:80, borderRadius:10 }} />
                 ))}
               </div>
             </div>
 
-            {/* Versions Card */}
-            <div className="collab-sk-card" style={{ minHeight:180 }}>
-              <div className="collab-sk" style={{ height:20, width:"25%" }} />
-              {[1,2].map(i => (
-                <div key={i} className="collab-sk" style={{ height:70, borderRadius:10 }} />
-              ))}
-            </div>
-          </div>
-
-          {/* Right Column - Discussion */}
-          <div>
-            <div className="collab-sk-card" style={{ minHeight:600 }}>
-              <div className="collab-sk" style={{ height:20, width:"45%" }} />
-              {[1,2,3,4].map(i => (
-                <div key={i} style={{ display:"flex", gap:12, marginTop:12 }}>
-                  <div className="collab-sk" style={{ width:44, height:44, borderRadius:"50%", flexShrink:0 }} />
-                  <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
-                    <div className="collab-sk" style={{ height:14, width:"60%" }} />
-                    <div className="collab-sk" style={{ height:50, borderRadius:8 }} />
-                    <div className="collab-sk" style={{ height:10, width:"30%" }} />
+            {/* Right Column - Discussion */}
+            <div>
+              <div className="collab-sk-card" style={{ minHeight:"calc(100vh - 250px)", position:"sticky", top:"24px" }}>
+                <div className="collab-sk" style={{ height:22, width:"48%" }} />
+                {[1,2,3,4].map(i => (
+                  <div key={i} style={{ display:"flex", gap:14, marginTop:14 }}>
+                    <div className="collab-sk" style={{ width:46, height:46, borderRadius:"50%", flexShrink:0 }} />
+                    <div style={{ flex:1, display:"flex", flexDirection:"column", gap:10 }}>
+                      <div className="collab-sk" style={{ height:15, width:"62%" }} />
+                      <div className="collab-sk" style={{ height:55, borderRadius:8 }} />
+                      <div className="collab-sk" style={{ height:11, width:"32%" }} />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
