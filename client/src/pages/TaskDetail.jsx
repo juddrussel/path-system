@@ -730,115 +730,102 @@ export default function TaskDetail() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "40px 0", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
         <style>{`
-          @keyframes td-spin { to { transform: rotate(360deg); } }
-          @keyframes td-shimmer {
-            0%   { background-position: -400px 0; }
-            100% { background-position:  400px 0; }
-          }
-          @keyframes td-fadein {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-          .td-skel {
-            background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 40%, #ede9fe 80%);
-            background-size: 400px 100%;
-            animation: td-shimmer 1.4s ease-in-out infinite;
-            border-radius: 7px;
-          }
-          .td-load-card {
-            background: #fff;
-            border: 1px solid #e8e1f5;
-            border-radius: 18px;
-            box-shadow: 0 12px 40px rgba(76,29,149,0.09);
-            width: min(580px, 92vw);
-            overflow: hidden;
-            animation: td-fadein 0.35s ease both;
-          }
-          .td-load-header {
-            background: linear-gradient(135deg, #2d0a5e 0%, #4a1272 50%, #6b21a8 100%);
-            padding: 28px 28px 24px;
-            display: flex; flex-direction: column; gap: 14px;
-          }
-          .td-load-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
-          .td-load-row  { display: flex; gap: 10px; align-items: center; }
-          .td-skel-light {
-            background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.3) 40%, rgba(255,255,255,0.15) 80%);
-            background-size: 400px 100%;
-            animation: td-shimmer 1.4s ease-in-out infinite;
-            border-radius: 7px;
-          }
-          .td-load-spinner-wrap {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 4px;
-          }
-          .td-spin-ring {
-            width: 20px; height: 20px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.25);
-            border-top-color: #c4b5fd;
-            animation: td-spin 0.75s linear infinite;
-            flex-shrink: 0;
-          }
+          @keyframes sla-sk-shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+          @keyframes sla-sk-fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes sla-sk-spin { to { transform: rotate(360deg); } }
+          .sla-sk { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
+          .sla-sk-dark { background: linear-gradient(90deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.22) 45%,rgba(255,255,255,0.1) 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
+          .sla-sk-wrap { width: min(1400px,95vw); display: flex; flex-direction: column; gap: 0; animation: sla-sk-fadein 0.3s ease both; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 40px rgba(76,29,149,0.12); }
+          .sla-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); padding:36px 40px; display:flex; flex-direction:column; gap:20px; }
+          .sla-sk-content { padding: 32px 40px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; }
+          .sla-sk-left { display: flex; flex-direction: column; gap: 24px; }
+          .sla-sk-card { background:#faf8fc; border:1px solid #e8e1f5; border-radius:12px; padding:24px; display:flex; flex-direction:column; gap:14px; }
+          .sla-sk-right { display: flex; flex-direction: column; }
+          .sla-sk-panel { background:#faf8fc; border:1px solid #e8e1f5; border-radius:12px; padding:24px; display:flex; flex-direction:column; gap:16px; min-height: 600px; }
+          .sla-sk-spin { width:16px; height:16px; border-radius:50%; flex-shrink:0; border:2px solid rgba(255,255,255,0.2); border-top-color:#c4b5fd; animation:sla-sk-spin 0.75s linear infinite; }
         `}</style>
-
-        <div className="td-load-card">
-          {/* Header — mimics the violet task header */}
-          <div className="td-load-header">
-            <div className="td-load-spinner-wrap">
-              <div className="td-spin-ring" />
-              <span style={{ color: "rgba(196,181,253,0.8)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                Loading task details
-              </span>
+        <div className="sla-sk-wrap">
+          {/* Hero Section */}
+          <div className="sla-sk-hero">
+            {/* Top row */}
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div className="sla-sk-dark" style={{ height:32, width:180, borderRadius:8 }} />
+              <div className="sla-sk-dark" style={{ height:28, width:160, borderRadius:8 }} />
             </div>
-            {/* Title skeleton */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div className="td-skel-light" style={{ height: 22, width: "65%" }} />
-              <div className="td-skel-light" style={{ height: 13, width: "45%" }} />
-            </div>
-            {/* Chips row */}
-            <div className="td-load-row" style={{ gap: 8 }}>
-              <div className="td-skel-light" style={{ height: 24, width: 72, borderRadius: 99 }} />
-              <div className="td-skel-light" style={{ height: 24, width: 88, borderRadius: 99 }} />
-              <div className="td-skel-light" style={{ height: 24, width: 60, borderRadius: 99 }} />
+            
+            {/* Hero grid */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 280px", gap:32, marginTop:8 }}>
+              <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                <div className="sla-sk-dark" style={{ height:14, width:240, borderRadius:6 }} />
+                <div className="sla-sk-dark" style={{ height:36, width:"75%", borderRadius:8 }} />
+                <div style={{ display:"flex", gap:20, marginTop:8 }}>
+                  <div className="sla-sk-dark" style={{ height:16, width:150, borderRadius:6 }} />
+                  <div className="sla-sk-dark" style={{ height:16, width:120, borderRadius:6 }} />
+                  <div className="sla-sk-dark" style={{ height:16, width:130, borderRadius:6 }} />
+                </div>
+              </div>
+              
+              <div style={{ display:"flex", flexDirection:"column", gap:10, background:"rgba(255,255,255,0.1)", borderRadius:12, padding:20, border:"1px solid rgba(255,255,255,0.15)" }}>
+                <div className="sla-sk-dark" style={{ height:12, width:100, borderRadius:4 }} />
+                <div className="sla-sk-dark" style={{ height:24, width:140, borderRadius:6 }} />
+                <div className="sla-sk-dark" style={{ height:8, width:"100%", borderRadius:99 }} />
+                <div className="sla-sk-dark" style={{ height:12, width:130, borderRadius:4 }} />
+              </div>
             </div>
           </div>
 
-          {/* Body — mimics the description + meta sections */}
-          <div className="td-load-body">
-            {/* Avatar + name row */}
-            <div className="td-load-row">
-              <div className="td-skel" style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0 }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                <div className="td-skel" style={{ height: 13, width: "55%" }} />
-                <div className="td-skel" style={{ height: 11, width: "35%" }} />
+          {/* Content Area */}
+          <div className="sla-sk-content">
+            {/* Left Column */}
+            <div className="sla-sk-left">
+              <div className="sla-sk-card" style={{ minHeight:240 }}>
+                <div className="sla-sk" style={{ height:18, width:"40%", marginBottom:6 }} />
+                {[70,65,58,63,52].map((w,i) => (
+                  <div key={i} className="sla-sk" style={{ height:14, width:`${w}%` }} />
+                ))}
+              </div>
+
+              <div className="sla-sk-card" style={{ minHeight:200 }}>
+                <div className="sla-sk" style={{ height:18, width:"35%", marginBottom:8 }} />
+                <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+                  {[1,2,3,4].map(i => (
+                    <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+                      <div className="sla-sk" style={{ width:80, height:80, borderRadius:10 }} />
+                      <div className="sla-sk" style={{ width:70, height:10, borderRadius:4 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="sla-sk-card" style={{ minHeight:180 }}>
+                <div className="sla-sk" style={{ height:18, width:"32%", marginBottom:8 }} />
+                {[1,2].map(i => (
+                  <div key={i} className="sla-sk" style={{ height:70, borderRadius:8 }} />
+                ))}
               </div>
             </div>
 
-            {/* Divider */}
-            <div style={{ height: 1, background: "#f0eafc" }} />
-
-            {/* Description lines */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div className="td-skel" style={{ height: 12, width: "90%" }} />
-              <div className="td-skel" style={{ height: 12, width: "80%" }} />
-              <div className="td-skel" style={{ height: 12, width: "60%" }} />
-            </div>
-
-            {/* Meta grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[80, 65, 70, 55].map((w, i) => (
-                <div key={i} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                  <div className="td-skel" style={{ height: 10, width: `${w * 0.6}%` }} />
-                  <div className="td-skel" style={{ height: 14, width: `${w}%` }} />
+            {/* Right Column */}
+            <div className="sla-sk-right">
+              <div className="sla-sk-panel">
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                  <div className="sla-sk-spin" />
+                  <div className="sla-sk" style={{ height:18, width:120 }} />
                 </div>
-              ))}
-            </div>
-
-            {/* Action buttons */}
-            <div className="td-load-row" style={{ marginTop: 4 }}>
-              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
-              <div className="td-skel" style={{ height: 36, flex: 1, borderRadius: 9 }} />
+                
+                {[1,2,3,4].map(i => (
+                  <div key={i} style={{ display:"flex", gap:12, paddingTop:12, borderTop: i > 1 ? "1px solid #ede9fe" : "none" }}>
+                    <div className="sla-sk" style={{ width:42, height:42, borderRadius:"50%", flexShrink:0 }} />
+                    <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
+                      <div className="sla-sk" style={{ height:14, width:"55%" }} />
+                      <div className="sla-sk" style={{ height:48, borderRadius:8 }} />
+                      <div className="sla-sk" style={{ height:10, width:"28%" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
