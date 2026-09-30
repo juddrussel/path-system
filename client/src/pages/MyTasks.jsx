@@ -671,7 +671,7 @@ function PathTasksWorkspace({
   };
 
   return (
-    <div className="path-task-shell" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+    <div className="path-task-shell">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
         .path-task-date,.path-assigned-date{font-size: 12px!important;color:#4c3e57!important;color-scheme:light}.path-task-date::-webkit-datetime-edit,.path-task-date::-webkit-datetime-edit-fields-wrapper,.path-task-date::-webkit-datetime-edit-text,.path-task-date::-webkit-datetime-edit-month-field,.path-task-date::-webkit-datetime-edit-day-field,.path-task-date::-webkit-datetime-edit-year-field,.path-assigned-date::-webkit-datetime-edit,.path-assigned-date::-webkit-datetime-edit-fields-wrapper,.path-assigned-date::-webkit-datetime-edit-text,.path-assigned-date::-webkit-datetime-edit-month-field,.path-assigned-date::-webkit-datetime-edit-day-field,.path-assigned-date::-webkit-datetime-edit-year-field{font-size: 12px!important;color:#4c3e57!important}.path-task-date::-webkit-calendar-picker-indicator,.path-assigned-date::-webkit-calendar-picker-indicator{cursor:pointer;opacity:1;filter:invert(25%) sepia(20%) saturate(500%) hue-rotate(240deg)}
