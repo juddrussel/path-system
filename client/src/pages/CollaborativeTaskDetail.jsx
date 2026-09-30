@@ -1121,7 +1121,139 @@ export default function CollaborativeTaskDetail() {
     }
   };
 
-  if (loading) return <div style={{ padding: "32px", textAlign: "center" }}>Loading...</div>;
+  if (loading) return (
+    <div style={{ padding: "32px", maxWidth: "1400px", margin: "0 auto" }}>
+      {/* Header skeleton */}
+      <div style={{ 
+        background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+        backgroundSize: "200% 100%",
+        animation: "shimmer 1.5s infinite",
+        height: "40px",
+        borderRadius: "8px",
+        marginBottom: "24px",
+        width: "60%"
+      }} />
+      
+      {/* Main content skeleton */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "24px" }}>
+        {/* Left column */}
+        <div>
+          {/* Task info card */}
+          <div style={{ 
+            background: "#fff",
+            borderRadius: "12px",
+            padding: "24px",
+            marginBottom: "24px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+          }}>
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} style={{ 
+                background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                backgroundSize: "200% 100%",
+                animation: "shimmer 1.5s infinite",
+                height: "20px",
+                borderRadius: "4px",
+                marginBottom: "16px",
+                width: i === 4 ? "40%" : "100%"
+              }} />
+            ))}
+          </div>
+          
+          {/* Collaborators skeleton */}
+          <div style={{ 
+            background: "#fff",
+            borderRadius: "12px",
+            padding: "24px",
+            marginBottom: "24px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+          }}>
+            <div style={{ 
+              background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 1.5s infinite",
+              height: "24px",
+              borderRadius: "4px",
+              marginBottom: "16px",
+              width: "30%"
+            }} />
+            <div style={{ display: "flex", gap: "12px" }}>
+              {[1, 2, 3].map(i => (
+                <div key={i} style={{ 
+                  background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                  backgroundSize: "200% 100%",
+                  animation: "shimmer 1.5s infinite",
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "8px"
+                }} />
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Right column */}
+        <div>
+          {/* Discussion skeleton */}
+          <div style={{ 
+            background: "#fff",
+            borderRadius: "12px",
+            padding: "24px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+          }}>
+            <div style={{ 
+              background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 1.5s infinite",
+              height: "24px",
+              borderRadius: "4px",
+              marginBottom: "16px",
+              width: "40%"
+            }} />
+            {[1, 2].map(i => (
+              <div key={i} style={{ marginBottom: "16px" }}>
+                <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "8px" }}>
+                  <div style={{ 
+                    background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "shimmer 1.5s infinite",
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%"
+                  }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ 
+                      background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                      backgroundSize: "200% 100%",
+                      animation: "shimmer 1.5s infinite",
+                      height: "16px",
+                      borderRadius: "4px",
+                      marginBottom: "8px",
+                      width: "60%"
+                    }} />
+                    <div style={{ 
+                      background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+                      backgroundSize: "200% 100%",
+                      animation: "shimmer 1.5s infinite",
+                      height: "14px",
+                      borderRadius: "4px",
+                      width: "30%"
+                    }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+      `}</style>
+    </div>
+  );
   if (error) return <div style={{ padding: "32px", textAlign: "center", color: "#d32f2f" }}>Error: {error}</div>;
   if (!task) return <div style={{ padding: "32px", textAlign: "center" }}>Task not found</div>;
 
