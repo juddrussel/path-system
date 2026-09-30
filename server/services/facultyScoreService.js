@@ -26,6 +26,8 @@
  */
 
 const DONE_STATUSES = ["approved", "rejected", "archived", "completed", "registered", "received"];
+const ACTIVE_STATUSES = ["for approval", "returned for revision", "under review", "in progress", "return for revision"];
+const PENDING_STATUS = "pending";
 
 // Tune these to change how harshly outstanding work affects the score.
 const ACTIVE_PENALTY = 1;   // points lost per item still in progress, on time
@@ -33,12 +35,14 @@ const OVERDUE_PENALTY = 5;  // points lost per item past its deadline
 
 /**
  * Builds one UNION ALL query across tasks / collaborative_tasks / form_submissions.
- * Each branch must return: (user_id, is_done, is_overdue)
+ * Each branch must return: (user_id, is_done, is_active, is_pending, is_overdue)
  */
 function buildSourceQuery() {
   return `
     SELECT t.faculty_id AS user_id,
            LOWER(t.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
+           LOWER(t.status) IN (${ACTIVE_STATUSES.map(() => "?").join(",")}) AS is_active,
+           LOWER(t.status) = ? AS is_pending,
            (t.deadline IS NOT NULL AND t.deadline < NOW() AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})) AS is_overdue
       FROM tasks t
       JOIN users u ON u.id = t.faculty_id
@@ -49,6 +53,8 @@ function buildSourceQuery() {
 
     SELECT tc.user_id AS user_id,
            LOWER(ct.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
+           LOWER(ct.status) IN (${ACTIVE_STATUSES.map(() => "?").join(",")}) AS is_active,
+           LOWER(ct.status) = ? AS is_pending,
            (ct.deadline IS NOT NULL AND ct.deadline < NOW() AND LOWER(ct.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})) AS is_overdue
       FROM task_collaborators tc
       JOIN collaborative_tasks ct ON ct.id = tc.task_id
@@ -60,6 +66,8 @@ function buildSourceQuery() {
 
     SELECT fs.submitted_by AS user_id,
            LOWER(fs.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
+           LOWER(fs.status) IN (${ACTIVE_STATUSES.map(() => "?").join(",")}) AS is_active,
+           LOWER(fs.status) = ? AS is_pending,
            FALSE AS is_overdue
       FROM form_submissions fs
       JOIN users u ON u.id = fs.submitted_by
@@ -141,22 +149,28 @@ async function recalculateAllScores(pool, opts = {}) {
   const { keepHistory = true } = opts;
 
   // Placeholder order must match buildSourceQuery()'s `?` occurrences exactly:
-  // tasks.is_done, tasks.is_overdue(NOT IN), 
-  // collaborative_tasks.is_done, collaborative_tasks.is_overdue(NOT IN),
-  // form_submissions.is_done
+  // tasks: is_done, is_active, is_pending, is_overdue(NOT IN)
+  // collaborative_tasks: is_done, is_active, is_pending, is_overdue(NOT IN)
+  // form_submissions: is_done, is_active, is_pending
   const params = [
-    ...DONE_STATUSES,  // tasks.is_done
-    ...DONE_STATUSES,  // tasks.is_overdue NOT IN
-    ...DONE_STATUSES,  // collaborative_tasks.is_done
-    ...DONE_STATUSES,  // collaborative_tasks.is_overdue NOT IN
-    ...DONE_STATUSES,  // form_submissions.is_done
+    ...DONE_STATUSES,    // tasks.is_done
+    ...ACTIVE_STATUSES,  // tasks.is_active
+    PENDING_STATUS,      // tasks.is_pending
+    ...DONE_STATUSES,    // tasks.is_overdue NOT IN
+    ...DONE_STATUSES,    // collaborative_tasks.is_done
+    ...ACTIVE_STATUSES,  // collaborative_tasks.is_active
+    PENDING_STATUS,      // collaborative_tasks.is_pending
+    ...DONE_STATUSES,    // collaborative_tasks.is_overdue NOT IN
+    ...DONE_STATUSES,    // form_submissions.is_done
+    ...ACTIVE_STATUSES,  // form_submissions.is_active
+    PENDING_STATUS,      // form_submissions.is_pending
   ];
 
   const [rows] = await pool.query(
     `SELECT user_id,
-            SUM(is_done = 0 AND is_overdue = 0) AS active_count,
+            SUM(is_active = 1)                  AS active_count,
             SUM(is_done = 1)                    AS completed_count,
-            SUM(is_done = 0)                    AS pending_count,
+            SUM(is_pending = 1)                 AS pending_count,
             SUM(is_overdue = 1)                 AS overdue_count
        FROM (${buildSourceQuery()}) AS combined
       GROUP BY user_id`,
@@ -213,4 +227,4 @@ async function recalculateAllScores(pool, opts = {}) {
   return { updated: updates.length, updatedAt: now };
 }
 
-module.exports = { recalculateAllScores, computeScore, getDelayedDocuments, DONE_STATUSES };
+module.exports = { recalculateAllScores, computeScore, getDelayedDocuments, DONE_STATUSES, ACTIVE_STATUSES, PENDING_STATUS };
