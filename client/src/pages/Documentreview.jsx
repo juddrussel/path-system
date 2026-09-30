@@ -1899,9 +1899,28 @@ export default function DocumentReview() {
                               <div style={{ fontSize: '10px', fontWeight: 800, color: '#996d37', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px' }}>
                                 Chair's Revision Instructions
                               </div>
-                              <p style={{ margin: 0, fontSize: '12px', color: '#70543a', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-                                {form.revision_instruction || form.return_instruction || form.return_reason}
-                              </p>
+                              
+                              {form.return_reason && (
+                                <div style={{ marginBottom: '12px' }}>
+                                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#996d37', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                    Reason
+                                  </div>
+                                  <p style={{ margin: 0, fontSize: '11px', color: '#70543a', fontWeight: 600 }}>
+                                    {form.return_reason}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              {(form.revision_instruction || form.return_instruction) && (
+                                <div>
+                                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#996d37', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                    Instructions
+                                  </div>
+                                  <p style={{ margin: 0, fontSize: '12px', color: '#70543a', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                                    {form.revision_instruction || form.return_instruction}
+                                  </p>
+                                </div>
+                              )}
                               
                               {form.revision_files && (() => {
                                 try {
