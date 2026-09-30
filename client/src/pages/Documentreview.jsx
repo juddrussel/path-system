@@ -2048,7 +2048,7 @@ export default function DocumentReview() {
                 <Panel className="doc-decision" id="review-decision">
                   <Label>Reviewer decision</Label>
                   <h2>
-                    {approved ? "Document approved" : rejected ? "Submission rejected" : "Choose the next step"}
+                    {approved ? "Document approved" : rejected ? "Submission rejected" : status === "Returned" ? "Awaiting resubmission" : "Choose the next step"}
                   </h2>
                   {approved ? (
                     <div className="doc-approved-notice doc-approved-reviewer">
@@ -2077,6 +2077,35 @@ export default function DocumentReview() {
                             <strong>Rejection reason</strong>
                             <br />
                             {form.review_note}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : status === "Returned" ? (
+                    <div className="doc-approved-notice" style={{ borderColor: "#fcd34d", background: "#fffbeb" }}>
+                      <span style={{ color: "#d97706" }}>↻</span>
+                      <div>
+                        <strong style={{ color: "#92400e" }}>Waiting for faculty resubmission</strong>
+                        <p>
+                          This form was returned for revision{" "}
+                          {shortTime(form.updated_at, "recently")}. You cannot make further decisions until the faculty resubmits their work.
+                        </p>
+                        {(form.return_reason || form.revision_instruction) && (
+                          <div className="doc-decision-note" style={{ marginTop: 10 }}>
+                            <strong>Your revision request</strong>
+                            <br />
+                            {form.return_reason && (
+                              <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '10px', fontWeight: 700, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Reason:</span>
+                                <div style={{ marginTop: '4px', fontSize: '12px', color: '#5d4867' }}>{form.return_reason}</div>
+                              </div>
+                            )}
+                            {form.revision_instruction && (
+                              <div style={{ marginTop: '8px' }}>
+                                <span style={{ fontSize: '10px', fontWeight: 700, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Instructions:</span>
+                                <div style={{ marginTop: '4px', fontSize: '12px', color: '#5d4867', whiteSpace: 'pre-wrap' }}>{form.revision_instruction}</div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
