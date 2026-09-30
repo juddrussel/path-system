@@ -714,7 +714,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     try {
       const result = await db.query(
         `SELECT 
-           tc.user_id, u.full_name, u.username,
+           tc.user_id, u.full_name, u.username, u.avatar_url as profile_picture,
            tc.role, tc.created_at,
            tc.confirmed_at, tc.current_version_confirmed
          FROM task_collaborators tc
@@ -825,7 +825,7 @@ router.get("/:id", requireAuth, async (req, res) => {
         `SELECT 
            tc.id, tc.task_id, tc.sender_id as user_id, tc.parent_comment_id, 
            tc.content, tc.files, tc.created_at,
-           u.full_name
+           u.full_name, u.avatar_url as profile_picture
          FROM task_comments tc
          LEFT JOIN users u ON tc.sender_id = u.id
          WHERE tc.task_id = ?
@@ -1037,7 +1037,7 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
     console.log(`[Comment] Inserted comment id=${result.insertId} with ${files?.length || 0} pre-uploaded files`);
 
     // Fetch user details for response
-    const [[user]] = await db.query("SELECT id, full_name FROM users WHERE id = ?", [userId]);
+    const [[user]] = await db.query("SELECT id, full_name, avatar_url FROM users WHERE id = ?", [userId]);
 
     const comment = {
       id: result.insertId,
@@ -1046,6 +1046,7 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       sender_id: userId,
       content: content || "",
       full_name: user?.full_name || "Unknown",
+      profile_picture: user?.avatar_url || null,
       parent_comment_id: parentCommentId || null,
       files: files || [],
       created_at: new Date().toISOString(),
