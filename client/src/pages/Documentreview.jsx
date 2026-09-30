@@ -605,8 +605,9 @@ export default function DocumentReview() {
     setSubmitting(true);
     try {
       const endpoint = isReturn ? `/api/forms/${form.id}/request-revision` : `/api/forms/${form.id}/reject`;
+      const method = isReturn ? "PATCH" : "POST";
       const response = await fetch(`${API}${endpoint}`, {
-        method: "POST",
+        method,
         headers: {
           ...headers,
           "Content-Type": "application/json",
