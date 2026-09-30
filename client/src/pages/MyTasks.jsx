@@ -1640,24 +1640,7 @@ function PathAssignedWorkspace({
                             Due<strong>{fmtDeadline(selected.deadline)}</strong>
                           </span>
                         </div>
-                        <div className="path-assigned-note">
-                          <Icon.Check />
-                          <span>
-                            <strong>Recommended next step</strong>
-                            <small>
-                              {selected.notes ||
-                                "Open the source document, validate the required fields, then record an accountable decision."}
-                            </small>
-                          </span>
-                        </div>
                         <div className="path-assigned-detail-actions">
-                          <button
-                            type="button"
-                            onClick={() => handleApprove(selected.id)}
-                            disabled={isComplete(selected)}
-                          >
-                            Mark complete
-                          </button>
                           <button
                             className="violet"
                             type="button"
