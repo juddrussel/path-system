@@ -2666,6 +2666,7 @@ export default function Dashboard() {
               id: t.tracking_id || `TSK-${t.id}`,
               numericId: t.id,
               sourceType: "task",
+              isCollaborative: t.is_collaborative || false,
               title: t.title,
               person: nameOf(t.faculty_id),
               date: fmtDate(t.deadline || rawDate),
@@ -4308,7 +4309,12 @@ export default function Dashboard() {
                             type="button"
                             onClick={() => {
                               if (row.sourceType === "task") {
-                                navigate(`/task-details/${row.numericId}`, { state: { task: row, returnTo: "/dashboard" } });
+                                // Route to collaborative task admin page if task is collaborative
+                                if (row.isCollaborative) {
+                                  navigate(`/collaborative-tasks/${row.numericId}/admin`);
+                                } else {
+                                  navigate(`/task-details/${row.numericId}`, { state: { task: row, returnTo: "/dashboard" } });
+                                }
                               } else if (row.sourceType === "form") {
                                 navigate(`/document-review/${row.numericId}`, { state: { form: row } });
                               } else {
