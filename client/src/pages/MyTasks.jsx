@@ -703,6 +703,7 @@ function PathTasksWorkspace({
         @media(min-width:1100px){.path-task-body{padding-left:clamp(48px,5vw,84px);padding-right:clamp(48px,5vw,84px)}}
         @media(max-width:900px){.path-task-body{padding:20px}.path-task-hero{align-items:flex-start;flex-direction:column}.path-task-hero-card{width:100%}.path-task-stats{grid-template-columns:repeat(2,1fr)}.path-task-stat:nth-child(2){border-right:0}.path-task-stat:nth-child(-n+2){border-bottom:1px solid #ebe5f0}.path-task-focus{grid-template-columns:1fr}.path-task-health{border-top:1px solid #ece5f0;border-left:0}.path-task-table-head{display:none}.path-task-table-row{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px 12px}.path-task-table-row .path-task-deadline{display:none}.path-task-table-row .path-task-badge{grid-column:1;grid-row:2;width:max-content}.path-task-support-row{grid-template-columns:30px minmax(0,1fr) auto 12px;padding:0 13px}.path-task-support-row .path-task-sla{display:none}.path-task-controls{flex-wrap:wrap}.path-task-search{min-width:100%}.path-task-controls select,.path-task-date{flex:1;max-width:none}}
         @media(max-width:620px){.path-task-body{padding:18px 16px}.path-task-hero{padding:20px}.path-task-hero h1{font-size: 25px}.path-task-role{align-items:flex-start;flex-direction:column;gap:9px}.path-task-register-head{align-items:flex-start;flex-direction:column}.path-task-support-head{align-items:flex-start}.path-task-detail{width:100vw}.path-task-detail-grid{grid-template-columns:1fr}.path-task-controls select{min-width:0}.path-task-footer{gap:9px}.path-task-footer > span{max-width:190px}.path-task-stats{margin-bottom:12px}.path-task-stat{min-height:82px;padding:13px}.path-task-stat strong{font-size: 22px}}
+        .path-task-view-assigned-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:2px solid #7c3aed;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;font-size:13px;font-weight:800;letter-spacing:-.02em;cursor:pointer;box-shadow:0 4px 14px rgba(124,58,237,.28);transition:all .2s ease}.path-task-view-assigned-btn:hover{background:linear-gradient(135deg,#6d28d9,#7c3aed);box-shadow:0 6px 18px rgba(124,58,237,.38);transform:translateY(-1px)}.path-task-view-assigned-btn svg{flex-shrink:0}
       `}</style>
       <main className="path-task-canvas">
         
@@ -1002,11 +1003,18 @@ function PathTasksWorkspace({
               <footer className="path-task-footer path-task-handoff-footer">
                 <span>{activeCount} active handoffs remain in your desk.</span>
                 <button
-                  className="path-task-text-btn"
+                  className="path-task-view-assigned-btn"
                   type="button"
                   onClick={onViewAssigned}
                 >
-                  View all assigned tasks ↗
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <rect x="2" y="2" width="12" height="12" rx="2" />
+                    <path d="M2 6h12M6 2v12" strokeLinecap="round" />
+                  </svg>
+                  View all assigned tasks
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 3l5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
               </footer>
             </section>
