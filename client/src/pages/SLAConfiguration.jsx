@@ -876,7 +876,7 @@ export default function SLAConfiguration() {
         @keyframes sla-sk-spin { to { transform: rotate(360deg); } }
         .sla-sk { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
         .sla-sk-dark { background: linear-gradient(90deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.22) 45%,rgba(255,255,255,0.1) 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
-        .sla-sk-wrap { width: min(900px,94vw); display: flex; flex-direction: column; gap: 0; animation: sla-sk-fadein 0.3s ease both; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 40px rgba(76,29,149,0.12); }
+        .sla-sk-wrap { width: min(1400px,95vw); display: flex; flex-direction: column; gap: 0; animation: sla-sk-fadein 0.3s ease both; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 40px rgba(76,29,149,0.12); }
         .sla-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); padding:26px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
         .sla-sk-content { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
         .sla-sk-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
