@@ -1100,7 +1100,7 @@ export default function TaskDetail() {
                         </p>
                       </div>
                     </div>
-                    {attachments.length > 0 && (
+                    {attachments.length > 0 ? (
                       <div style={{ marginTop: "12px" }}>
                         <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
                           Instruction attachments
@@ -1130,7 +1130,7 @@ export default function TaskDetail() {
                           ))}
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </section>
                 )}
 
