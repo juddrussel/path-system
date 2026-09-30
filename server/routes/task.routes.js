@@ -999,6 +999,27 @@ router.get("/assigned-by-me", requireAuth, requireChairOrAdmin, async (req, res)
   }
 });
 
+// ─── GET /api/tasks/archived-by-me ───────────────────────────────────────────
+// Returns tasks the current user has personally archived (per-user, not global)
+router.get("/archived-by-me", requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT t.*, uta.archived_at,
+              u.full_name AS faculty_name, u.email AS faculty_email
+       FROM user_task_archives uta
+       JOIN tasks t ON t.id = uta.task_id
+       LEFT JOIN users u ON u.id = t.faculty_id
+       WHERE uta.user_id = ?
+       ORDER BY uta.archived_at DESC`,
+      [req.user.id]
+    );
+    return res.json({ tasks: rows });
+  } catch (err) {
+    console.error("GET /tasks/archived-by-me error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // ─── GET /api/tasks/:id ───────────────────────────────────────────────────────
 router.get("/:id", requireAuth, async (req, res) => {
   try {
@@ -2338,26 +2359,6 @@ router.delete("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
   }
 });
 
-// ─── GET /api/tasks/archived-by-me ───────────────────────────────────────────
-// Returns tasks the current user has personally archived (per-user, not global)
-router.get("/archived-by-me", requireAuth, async (req, res) => {
-  try {
-    const [rows] = await db.query(
-      `SELECT t.*, uta.archived_at,
-              u.full_name AS faculty_name, u.email AS faculty_email
-       FROM user_task_archives uta
-       JOIN tasks t ON t.id = uta.task_id
-       LEFT JOIN users u ON u.id = t.faculty_id
-       WHERE uta.user_id = ?
-       ORDER BY uta.archived_at DESC`,
-      [req.user.id]
-    );
-    return res.json({ tasks: rows });
-  } catch (err) {
-    console.error("GET /tasks/archived-by-me error:", err);
-    return res.status(500).json({ message: "Internal server error." });
-  }
-});
 
 // ─── POST /api/tasks/:id/archive-for-me ──────────────────────────────────────
 // Archives a task only for the current user — does NOT change the task status
