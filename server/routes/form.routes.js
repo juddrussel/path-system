@@ -646,20 +646,6 @@ router.post("/:id/reject", requireAuth, requireReviewer, async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 });
-        actionTaken: "Rejection",
-        performedBy: req.user.id,
-        notes:       note,
-      });
-    } catch (wfErr) {
-      console.error(`[workflow] advance failed for form_submission ${req.params.id}:`, wfErr);
-    }
-
-    return res.json({ message: "Form rejected." });
-  } catch (err) {
-    console.error("POST /forms/:id/reject error:", err);
-    return res.status(500).json({ message: "Internal server error." });
-  }
-});
 
 // ── POST /api/forms/:id/revise ───────────────────────────────────────────────
 router.post("/:id/revise", requireAuth, requireReviewer, async (req, res) => {
