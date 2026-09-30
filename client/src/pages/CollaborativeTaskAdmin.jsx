@@ -22,6 +22,9 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
 import { r2ToProxyUrl } from "../utils/r2ProxyHelper.js";
+import { resolveFileUrl } from "../utils/r2ProxyHelper.js";
+
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 const ADMIN_ROLES = ["admin", "program_chair"];
 
@@ -41,6 +44,34 @@ function initials(value) {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+}
+
+// Avatar component that shows profile picture if available, otherwise initials
+function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
+  if (profilePicture) {
+    const avatarUrl = resolveFileUrl(SERVER_URL, profilePicture);
+    return (
+      <img
+        src={avatarUrl}
+        alt={fullName}
+        className="collab-avatar-img"
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          flexShrink: 0
+        }}
+      />
+    );
+  }
+  
+  // Fallback to initials
+  return (
+    <span className={`collab-avatar ${getTone(userId || 0)}`}>
+      {initials(fullName)}
+    </span>
+  );
 }
 
 function formatDate(value) {
@@ -119,9 +150,11 @@ function RenderReplies({
       {replies.map((reply) => (
         <div key={reply.id}>
           <article className="collab-message" style={{ background: "#fcfaff", border: "1px solid #f0ebf3" }}>
-            <span className={`collab-avatar ${getTone(reply.user_id || reply.sender_id || 0)}`}>
-              {initials(reply.full_name)}
-            </span>
+            <Avatar 
+              profilePicture={reply.profilePicture || reply.profile_picture}
+              fullName={reply.full_name}
+              userId={reply.user_id || reply.sender_id || reply.userId}
+            />
             <div className="collab-message-content">
               <header>
                 <strong>{reply.full_name}</strong>
@@ -1194,9 +1227,11 @@ export default function CollaborativeTaskAdmin() {
                   const isConfirmed = confirmations.some(conf => conf.user_id === collab.user_id && conf.status === "confirmed");
                   return (
                     <div className="admin-person" key={collab.user_id}>
-                      <span className={`admin-avatar ${collab.tone}`}>
-                        {initials(collab.full_name)}
-                      </span>
+                      <Avatar 
+                        profilePicture={collab.profile_picture}
+                        fullName={collab.full_name}
+                        userId={collab.user_id}
+                      />
                       <div>
                         <strong>{collab.full_name}</strong>
                         <small>{collab.role}</small>
@@ -1515,9 +1550,11 @@ export default function CollaborativeTaskAdmin() {
                     <div key={message.id}>
                       {/* Parent comment */}
                       <article className="collab-message">
-                        <span className={`collab-avatar ${getTone(message.user_id || message.sender_id || 0)}`}>
-                          {initials(message.full_name)}
-                        </span>
+                        <Avatar 
+                          profilePicture={message.profilePicture || message.profile_picture}
+                          fullName={message.full_name}
+                          userId={message.user_id || message.sender_id || message.userId}
+                        />
                         <div className="collab-message-content">
                           <header>
                             <strong>{message.full_name}</strong>

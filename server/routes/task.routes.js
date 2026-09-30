@@ -2614,7 +2614,7 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
     // Fetch the newly created comment with user info
     const [comments] = await db.query(
       `SELECT tc.id, tc.task_id, tc.sender_id, tc.parent_comment_id, tc.content, tc.files, tc.created_at, 
-              u.full_name, u.email
+              u.full_name, u.email, u.profile_picture
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
        WHERE tc.id = ?`,
@@ -2629,6 +2629,7 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       userName: comment.full_name,
       userEmail: comment.email,
       userRole: "Faculty lead",
+      profilePicture: comment.profile_picture,
       parentCommentId: comment.parent_comment_id,
       content: comment.content,
       files: pendingFiles, // Show pending files immediately
@@ -2731,7 +2732,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     // Fetch all top-level comments with their replies
     const [allComments] = await db.query(
       `SELECT tc.id, tc.task_id, tc.sender_id, tc.parent_comment_id, tc.content, tc.files, tc.created_at, 
-              u.full_name, u.email
+              u.full_name, u.email, u.profile_picture
        FROM task_comments tc
        JOIN users u ON u.id = tc.sender_id
        WHERE tc.task_id = ?
@@ -2768,6 +2769,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
         userName: comment.full_name,
         userEmail: comment.email,
         userRole: "Faculty lead",
+        profilePicture: comment.profile_picture,
         parentCommentId: comment.parent_comment_id,
         content: comment.content,
         files: parsedFiles,
@@ -2951,7 +2953,7 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
     // Add primary faculty
     if (task.faculty_id) {
       const [facultyRows] = await db.query(
-        "SELECT id, full_name, email FROM users WHERE id = ?",
+        "SELECT id, full_name, email, profile_picture FROM users WHERE id = ?",
         [task.faculty_id]
       );
       if (facultyRows.length > 0) {
@@ -2960,6 +2962,7 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
           userId: user.id,
           fullName: user.full_name,
           email: user.email,
+          profilePicture: user.profile_picture,
           role: "primary",
           confirmedAt: null,
         });
@@ -2969,7 +2972,7 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
     // Add secondary faculty (if any)
     if (task.collaborator_id) {
       const [facultyRows] = await db.query(
-        "SELECT id, full_name, email FROM users WHERE id = ?",
+        "SELECT id, full_name, email, profile_picture FROM users WHERE id = ?",
         [task.collaborator_id]
       );
       if (facultyRows.length > 0) {
@@ -2978,6 +2981,7 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
           userId: user.id,
           fullName: user.full_name,
           email: user.email,
+          profilePicture: user.profile_picture,
           role: "secondary",
           confirmedAt: null,
         });
@@ -2987,7 +2991,7 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
     // Add multi-collaborators from task_collaborators table
     if (task.is_collaborative) {
       const [multisRows] = await db.query(
-        `SELECT tc.user_id, tc.confirmed_at, u.full_name, u.email
+        `SELECT tc.user_id, tc.confirmed_at, u.full_name, u.email, u.profile_picture
          FROM task_collaborators tc
          JOIN users u ON u.id = tc.user_id
          WHERE tc.task_id = ?`,
@@ -2999,6 +3003,7 @@ router.get("/:id/collaborators", requireAuth, async (req, res) => {
           userId: row.user_id,
           fullName: row.full_name,
           email: row.email,
+          profilePicture: row.profile_picture,
           role: "collaborator",
           confirmedAt: row.confirmed_at,
         });
