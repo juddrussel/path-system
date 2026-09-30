@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL || "";
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -594,7 +594,7 @@ function DetailDrawer({ doc, onClose }) {
                   <div style={{ marginTop: 8, paddingTop: 16, borderTop: "1px solid #f0f0f0" }}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: "#374151", marginBottom: 10 }}>Attachments</div>
                     {doc.attachments.map((att, i) => (
-                      <a key={i} href={att.file_url || att.url || "#"} target="_blank" rel="noreferrer"
+                      <a key={i} href={resolveFileUrl(SERVER_URL, att.file_url || att.url)} target="_blank" rel="noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#fafafa", border: "1px solid #f0f0f0", marginBottom: 6, textDecoration: "none", color: "#374151" }}>
                         <div style={{ width: 30, height: 30, borderRadius: 6, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon.Doc /></div>
                         <div style={{ flex: 1, minWidth: 0 }}>
