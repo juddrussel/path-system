@@ -1883,15 +1883,85 @@ export default function DocumentReview() {
                   ) : (
                     <>
                       {canSubmitReplacement && (
-                        <div className="doc-submitted-file">
-                          <i>↩</i>
-                          <div>
-                            <strong>
-                              {form.file_name || "Current submission"}
-                            </strong>
-                            <span>Returned · attach a replacement below</span>
+                        <>
+                          <div className="doc-submitted-file">
+                            <i>↩</i>
+                            <div>
+                              <strong>
+                                {form.file_name || "Current submission"}
+                              </strong>
+                              <span>Returned · attach a replacement below</span>
+                            </div>
                           </div>
-                        </div>
+                          
+                          {(form.revision_instruction || form.return_instruction || form.return_reason) && (
+                            <div style={{ marginTop: '16px', padding: '14px', background: '#fff9ef', border: '1px solid #edd9bb', borderRadius: '8px' }}>
+                              <div style={{ fontSize: '10px', fontWeight: 800, color: '#996d37', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                                Chair's Revision Instructions
+                              </div>
+                              <p style={{ margin: 0, fontSize: '12px', color: '#70543a', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                {form.revision_instruction || form.return_instruction || form.return_reason}
+                              </p>
+                              
+                              {form.revision_files && (() => {
+                                try {
+                                  const files = typeof form.revision_files === 'string' 
+                                    ? JSON.parse(form.revision_files) 
+                                    : form.revision_files;
+                                  return Array.isArray(files) && files.length > 0 ? (
+                                    <div style={{ marginTop: '12px' }}>
+                                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#996d37', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                                        Attached Reference Files
+                                      </div>
+                                      <div style={{ display: 'grid', gap: '8px' }}>
+                                        {files.map((file, idx) => {
+                                          const isPdf = /\.pdf$/i.test(file.name);
+                                          const isDoc = /\.(doc|docx)$/i.test(file.name);
+                                          const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                          const fileIcon = isPdf ? '📄' : isDoc ? '📝' : isImage ? '🖼️' : '📎';
+                                          
+                                          return (
+                                            <a
+                                              key={idx}
+                                              href={file.url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '10px',
+                                                padding: '10px 12px',
+                                                background: '#fffaf0',
+                                                border: '1px solid #edd9bb',
+                                                borderRadius: '6px',
+                                                textDecoration: 'none',
+                                                transition: 'all 0.2s'
+                                              }}
+                                            >
+                                              <span style={{ fontSize: '20px', flexShrink: 0 }}>{fileIcon}</span>
+                                              <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontSize: '11px', fontWeight: 800, color: '#70543a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                  {file.name}
+                                                </div>
+                                                <div style={{ fontSize: '9px', color: '#9a7d5a', marginTop: '2px' }}>
+                                                  {file.size ? `${Math.round(file.size / 1024)} KB` : 'Click to view'}
+                                                </div>
+                                              </div>
+                                              <span style={{ fontSize: '14px', color: '#996d37' }}>→</span>
+                                            </a>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  ) : null;
+                                } catch (e) {
+                                  console.error('Error parsing revision_files:', e);
+                                  return null;
+                                }
+                              })()}
+                            </div>
+                          )}
+                        </>
                       )}
                       <input
                         ref={submissionFileRef}
