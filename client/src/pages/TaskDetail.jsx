@@ -1319,8 +1319,8 @@ export default function TaskDetail() {
                           : "Submit for chair review"}
                     </button>
                   </section>
-                  )
-                )}
+                )
+              )}
 
                 {latestSubmission && (
                   <section className="td-card">
