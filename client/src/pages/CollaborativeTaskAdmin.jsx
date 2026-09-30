@@ -895,203 +895,72 @@ export default function CollaborativeTaskAdmin() {
   };
 
   if (loading) return (
-    <div style={{ 
-      minHeight: "100vh",
-      background: "#f9fafb"
-    }}>
-      {/* Purple gradient header skeleton */}
-      <div style={{
-        background: "linear-gradient(135deg, #6B46C1 0%, #553C9A 100%)",
-        padding: "48px 48px 80px 48px",
-        position: "relative",
-        marginBottom: "-40px"
-      }}>
-        <div style={{ 
-          background: "rgba(255, 255, 255, 0.2)",
-          height: "36px",
-          borderRadius: "8px",
-          width: "200px",
-          marginBottom: "24px"
-        }} />
-        <div style={{ 
-          background: "rgba(255, 255, 255, 0.25)",
-          height: "40px",
-          borderRadius: "8px",
-          width: "60%",
-          marginBottom: "16px"
-        }} />
-        <div style={{ 
-          background: "rgba(255, 255, 255, 0.2)",
-          height: "24px",
-          borderRadius: "8px",
-          width: "35%"
-        }} />
-      </div>
-
-      {/* Content area */}
-      <div style={{ padding: "0 48px 48px 48px" }}>
-        {/* Stats cards row */}
-        <div style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(3, 1fr)", 
-          gap: "24px",
-          marginBottom: "32px"
-        }}>
-          {[1, 2, 3].map(i => (
-            <div key={i} style={{
-              background: "#fff",
-              borderRadius: "16px",
-              padding: "24px",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              minHeight: "120px"
-            }}>
-              <div style={{ 
-                background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                backgroundSize: "200% 100%",
-                animation: "shimmer 1.5s infinite",
-                height: "20px",
-                borderRadius: "6px",
-                marginBottom: "16px",
-                width: "60%"
-              }} />
-              <div style={{ 
-                background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                backgroundSize: "200% 100%",
-                animation: "shimmer 1.5s infinite",
-                height: "32px",
-                borderRadius: "6px",
-                width: "45%"
-              }} />
-            </div>
-          ))}
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`
+        @keyframes collab-sk-shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+        @keyframes collab-sk-fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes collab-sk-spin { to { transform: rotate(360deg); } }
+        .collab-sk { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:600px 100%; animation: collab-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
+        .collab-sk-dark { background: linear-gradient(90deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.22) 45%,rgba(255,255,255,0.1) 90%); background-size:600px 100%; animation: collab-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
+        .collab-sk-wrap { width: min(1200px,94vw); display: flex; flex-direction: column; gap: 20px; animation: collab-sk-fadein 0.3s ease both; }
+        .collab-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); border-radius:14px; padding:32px 36px; display:flex; flex-direction:column; gap:16px; }
+        .collab-sk-grid { display:grid; grid-template-columns:1fr 400px; gap:24px; }
+        .collab-sk-card { background:#fff; border:1px solid #e8e1f5; border-radius:12px; padding:24px; display:flex; flex-direction:column; gap:14px; box-shadow:0 4px 14px rgba(76,29,149,0.06); }
+        .collab-sk-spin { width:16px; height:16px; border-radius:50%; flex-shrink:0; border:2px solid rgba(255,255,255,0.2); border-top-color:#c4b5fd; animation:collab-sk-spin 0.75s linear infinite; }
+      `}</style>
+      <div className="collab-sk-wrap">
+        {/* Hero Section */}
+        <div className="collab-sk-hero">
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <div className="collab-sk-spin" />
+            <span style={{ color:"rgba(196,181,253,0.7)", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase" }}>Loading Collaborative Task</span>
+          </div>
+          <div className="collab-sk-dark" style={{ height:28, width:"55%" }} />
+          <div className="collab-sk-dark" style={{ height:16, width:"35%" }} />
         </div>
 
-        {/* Main content grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 450px", gap: "32px" }}>
-          {/* Left column */}
-          <div>
-            {/* Large table skeleton */}
-            <div style={{ 
-              background: "#fff",
-              borderRadius: "16px",
-              padding: "32px",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              minHeight: "500px"
-            }}>
-              <div style={{ 
-                background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                backgroundSize: "200% 100%",
-                animation: "shimmer 1.5s infinite",
-                height: "28px",
-                borderRadius: "6px",
-                marginBottom: "32px",
-                width: "40%"
-              }} />
-              
-              {/* Table header */}
-              <div style={{ 
-                display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
-                gap: "16px",
-                marginBottom: "20px",
-                paddingBottom: "16px",
-                borderBottom: "1px solid #e5e7eb"
-              }}>
-                {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} style={{ 
-                    background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "shimmer 1.5s infinite",
-                    height: "20px",
-                    borderRadius: "4px"
-                  }} />
+        {/* Main Content Grid */}
+        <div className="collab-sk-grid">
+          {/* Left Column */}
+          <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+            {/* Task Info Card */}
+            <div className="collab-sk-card" style={{ minHeight:280 }}>
+              <div className="collab-sk" style={{ height:20, width:"30%" }} />
+              {[60,70,55,65,50,45].map((w,i) => (
+                <div key={i} className="collab-sk" style={{ height:14, width:`${w}%` }} />
+              ))}
+            </div>
+
+            {/* Collaborators Card */}
+            <div className="collab-sk-card" style={{ minHeight:200 }}>
+              <div className="collab-sk" style={{ height:20, width:"35%" }} />
+              <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="collab-sk" style={{ width:90, height:90, borderRadius:10 }} />
                 ))}
               </div>
+            </div>
 
-              {/* Table rows */}
-              {[1, 2, 3, 4, 5, 6].map(rowIndex => (
-                <div key={rowIndex} style={{ 
-                  display: "grid",
-                  gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
-                  gap: "16px",
-                  marginBottom: "16px",
-                  paddingBottom: "16px",
-                  borderBottom: "1px solid #f3f4f6"
-                }}>
-                  {[1, 2, 3, 4, 5].map(colIndex => (
-                    <div key={colIndex} style={{ 
-                      background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                      backgroundSize: "200% 100%",
-                      animation: "shimmer 1.5s infinite",
-                      height: colIndex === 5 ? "32px" : "18px",
-                      borderRadius: colIndex === 5 ? "6px" : "4px",
-                      width: colIndex === 1 ? "85%" : "100%"
-                    }} />
-                  ))}
-                </div>
+            {/* Versions Card */}
+            <div className="collab-sk-card" style={{ minHeight:180 }}>
+              <div className="collab-sk" style={{ height:20, width:"25%" }} />
+              {[1,2].map(i => (
+                <div key={i} className="collab-sk" style={{ height:70, borderRadius:10 }} />
               ))}
             </div>
           </div>
 
-          {/* Right column */}
+          {/* Right Column - Discussion */}
           <div>
-            <div style={{ 
-              background: "#fff",
-              borderRadius: "16px",
-              padding: "32px",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              minHeight: "500px",
-              position: "sticky",
-              top: "32px"
-            }}>
-              <div style={{ 
-                background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                backgroundSize: "200% 100%",
-                animation: "shimmer 1.5s infinite",
-                height: "28px",
-                borderRadius: "6px",
-                marginBottom: "24px",
-                width: "50%"
-              }} />
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} style={{ marginBottom: "24px" }}>
-                  <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                    <div style={{ 
-                      background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                      backgroundSize: "200% 100%",
-                      animation: "shimmer 1.5s infinite",
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      flexShrink: 0
-                    }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ 
-                        background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                        backgroundSize: "200% 100%",
-                        animation: "shimmer 1.5s infinite",
-                        height: "18px",
-                        borderRadius: "4px",
-                        marginBottom: "10px",
-                        width: "65%"
-                      }} />
-                      <div style={{ 
-                        background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                        backgroundSize: "200% 100%",
-                        animation: "shimmer 1.5s infinite",
-                        height: "60px",
-                        borderRadius: "8px",
-                        marginBottom: "10px"
-                      }} />
-                      <div style={{ 
-                        background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                        backgroundSize: "200% 100%",
-                        animation: "shimmer 1.5s infinite",
-                        height: "14px",
-                        borderRadius: "4px",
-                        width: "35%"
-                      }} />
-                    </div>
+            <div className="collab-sk-card" style={{ minHeight:600 }}>
+              <div className="collab-sk" style={{ height:20, width:"45%" }} />
+              {[1,2,3,4].map(i => (
+                <div key={i} style={{ display:"flex", gap:12, marginTop:12 }}>
+                  <div className="collab-sk" style={{ width:44, height:44, borderRadius:"50%", flexShrink:0 }} />
+                  <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
+                    <div className="collab-sk" style={{ height:14, width:"60%" }} />
+                    <div className="collab-sk" style={{ height:50, borderRadius:8 }} />
+                    <div className="collab-sk" style={{ height:10, width:"30%" }} />
                   </div>
                 </div>
               ))}
@@ -1099,13 +968,6 @@ export default function CollaborativeTaskAdmin() {
           </div>
         </div>
       </div>
-      
-      <style>{`
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-      `}</style>
     </div>
   );
   if (error) return <div style={{ padding: "32px", textAlign: "center", color: "#d32f2f" }}>Error: {error}</div>;
