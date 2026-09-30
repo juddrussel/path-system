@@ -2622,6 +2622,12 @@ export default function Dashboard() {
           const data = await res.json();
           const documents = data.documents || data || [];
           (Array.isArray(documents) ? documents : []).forEach((d) => {
+            // For admin/program chair: skip tracking documents in priority queue
+            // They should focus on tasks they assigned and forms they're handling
+            if (ADMIN_NAV_ROLES.includes(user.role)) {
+              return;
+            }
+            
             const rawDate = d.submitted_at || d.created_at;
             const status = displayStatus(d.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
@@ -2654,6 +2660,13 @@ export default function Dashboard() {
           const data = await res.json();
           const tasks = data.tasks ?? data ?? [];
           (Array.isArray(tasks) ? tasks : []).forEach((t) => {
+            // For admin/program chair: only show tasks THEY assigned
+            if (ADMIN_NAV_ROLES.includes(user.role)) {
+              if (t.assigned_by !== user.id) {
+                return; // Skip tasks not assigned by current user
+              }
+            }
+            
             const rawDate = t.created_at || t.deadline;
             const status = displayStatus(t.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
@@ -2697,6 +2710,15 @@ export default function Dashboard() {
           const data = await res.json();
           const forms = data.forms ?? data ?? [];
           (Array.isArray(forms) ? forms : []).forEach((f) => {
+            // For admin/program chair: only show forms they're handling (reviewed_by matches their ID or pending without reviewer)
+            if (ADMIN_NAV_ROLES.includes(user.role)) {
+              const isTheirForm = f.reviewed_by === user.id || 
+                                  (f.status === 'Pending' && !f.reviewed_by);
+              if (!isTheirForm) {
+                return; // Skip forms not handled by current user
+              }
+            }
+            
             const rawDate = f.filing_date || f.created_at;
             const status = displayStatus(f.status);
             const done = ["Approved", "Rejected", "Archived"].includes(status);
