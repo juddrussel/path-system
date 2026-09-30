@@ -1216,6 +1216,10 @@ function PathTasksWorkspace({
 function PathAssignedWorkspace({
   user,
   tasks,
+  allTasks,
+  assignedPage,
+  setAssignedPage,
+  totalAssignedPages,
   allStatuses,
   stats,
   loading,
@@ -1246,10 +1250,10 @@ function PathAssignedWorkspace({
   const isOverdue = (task) =>
     (task.status || "").toLowerCase() === "overdue" ||
     task.priority?.toLowerCase() === "high";
-  const activeTasks = tasks.filter((task) => !isComplete(task));
-  const overdueCount = tasks.filter(isOverdue).length;
+  const activeTasks = allTasks.filter((task) => !isComplete(task));
+  const overdueCount = allTasks.filter(isOverdue).length;
   const dueTodayCount = stats.dueToday || 0;
-  const readyCount = tasks.filter(
+  const readyCount = allTasks.filter(
     (task) =>
       !isComplete(task) &&
       ["pending approval", "for approval", "in review"].includes(
@@ -1257,13 +1261,13 @@ function PathAssignedWorkspace({
       ),
   ).length;
   const queueSnapshot = activeTasks.slice(0, 3);
-  const completedCount = tasks.filter(isComplete).length;
-  const completionRate = tasks.length
-    ? Math.round((completedCount / tasks.length) * 100)
+  const completedCount = allTasks.filter(isComplete).length;
+  const completionRate = allTasks.length
+    ? Math.round((completedCount / allTasks.length) * 100)
     : 0;
   const docTypes = [
     "All",
-    ...Array.from(new Set(tasks.map((task) => task.doc_type).filter(Boolean))),
+    ...Array.from(new Set(allTasks.map((task) => task.doc_type).filter(Boolean))),
   ];
   // Derive the status filter's options from allStatuses (every status value
   // seen across fetches so far), not from `tasks` — `tasks` only holds the
@@ -1287,7 +1291,7 @@ function PathAssignedWorkspace({
         "Priority",
         "Deadline",
       ],
-      ...tasks.map((task) => [
+      ...allTasks.map((task) => [
         task.tracking_id || task.id || "",
         task.title || "",
         task.doc_type || "",
@@ -1486,7 +1490,7 @@ function PathAssignedWorkspace({
                       <i /> Decision queue
                     </span>
                     <h2>
-                      Task feed <b>{tasks.length}</b>
+                      Task feed <b>{allTasks.length}</b>
                     </h2>
                     <p>Choose a handoff to open its decision brief.</p>
                   </div>
@@ -1503,38 +1507,92 @@ function PathAssignedWorkspace({
                     <p>Loading assigned work…</p>
                   </div>
                 ) : tasks.length ? (
-                  tasks.map((task) => (
-                    <button
-                      className={`path-assigned-row ${selected?.id === task.id ? "active" : ""}`}
-                      type="button"
-                      key={task.id}
-                      onClick={() => openTask(task)}
-                    >
-                      <div className="path-assigned-row-top">
-                        <span className="path-assigned-id">
-                          {task.tracking_id || `TASK-${task.id}`}
-                        </span>
-                        <span
-                          className={`path-assigned-date ${isOverdue(task) ? "late" : ""}`}
+                  <>
+                    {tasks.map((task) => (
+                      <button
+                        className={`path-assigned-row ${selected?.id === task.id ? "active" : ""}`}
+                        type="button"
+                        key={task.id}
+                        onClick={() => openTask(task)}
+                      >
+                        <div className="path-assigned-row-top">
+                          <span className="path-assigned-id">
+                            {task.tracking_id || `TASK-${task.id}`}
+                          </span>
+                          <span
+                            className={`path-assigned-date ${isOverdue(task) ? "late" : ""}`}
+                          >
+                            {isOverdue(task)
+                              ? "Needs attention"
+                              : fmtDeadline(task.deadline)}
+                          </span>
+                        </div>
+                        <h3>{task.title || "Untitled task"}</h3>
+                        <div className="path-assigned-row-bottom">
+                          <span>{task.doc_type || "Workflow task"}</span>
+                          <span
+                            className={`path-assigned-priority ${(task.priority || "medium").toLowerCase()}`}
+                          >
+                            {task.priority || "Medium"}
+                          </span>
+                          <span>{task.status || "To do"}</span>
+                        </div>
+                        <span className="path-assigned-arrow">›</span>
+                      </button>
+                    ))}
+                    {totalAssignedPages > 1 && (
+                      <div style={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        gap: "8px", 
+                        padding: "16px", 
+                        borderTop: "1px solid #ede8f2" 
+                      }}>
+                        <button
+                          onClick={() => setAssignedPage((p) => Math.max(1, p - 1))}
+                          disabled={assignedPage === 1}
+                          style={{
+                            padding: "6px 12px",
+                            border: "1px solid #e2dbe9",
+                            borderRadius: "6px",
+                            background: assignedPage === 1 ? "#f5f3f8" : "#fff",
+                            color: assignedPage === 1 ? "#b0a5b8" : "#6b4e93",
+                            fontSize: "12px",
+                            fontWeight: "700",
+                            cursor: assignedPage === 1 ? "not-allowed" : "pointer",
+                            opacity: assignedPage === 1 ? 0.5 : 1,
+                          }}
                         >
-                          {isOverdue(task)
-                            ? "Needs attention"
-                            : fmtDeadline(task.deadline)}
+                          ← Prev
+                        </button>
+                        <span style={{ 
+                          color: "#8870a4", 
+                          fontSize: "12px", 
+                          fontWeight: "700" 
+                        }}>
+                          Page {assignedPage} of {totalAssignedPages}
                         </span>
-                      </div>
-                      <h3>{task.title || "Untitled task"}</h3>
-                      <div className="path-assigned-row-bottom">
-                        <span>{task.doc_type || "Workflow task"}</span>
-                        <span
-                          className={`path-assigned-priority ${(task.priority || "medium").toLowerCase()}`}
+                        <button
+                          onClick={() => setAssignedPage((p) => Math.min(totalAssignedPages, p + 1))}
+                          disabled={assignedPage === totalAssignedPages}
+                          style={{
+                            padding: "6px 12px",
+                            border: "1px solid #e2dbe9",
+                            borderRadius: "6px",
+                            background: assignedPage === totalAssignedPages ? "#f5f3f8" : "#fff",
+                            color: assignedPage === totalAssignedPages ? "#b0a5b8" : "#6b4e93",
+                            fontSize: "12px",
+                            fontWeight: "700",
+                            cursor: assignedPage === totalAssignedPages ? "not-allowed" : "pointer",
+                            opacity: assignedPage === totalAssignedPages ? 0.5 : 1,
+                          }}
                         >
-                          {task.priority || "Medium"}
-                        </span>
-                        <span>{task.status || "To do"}</span>
+                          Next →
+                        </button>
                       </div>
-                      <span className="path-assigned-arrow">›</span>
-                    </button>
-                  ))
+                    )}
+                  </>
                 ) : (
                   <div className="path-assigned-empty">
                     <p>No assigned tasks match the current filters.</p>
@@ -2357,6 +2415,7 @@ export default function MyTasks() {
 
   // page state for task feed pagination
   const [taskPage, setTaskPage] = useState(1);
+  const [assignedPage, setAssignedPage] = useState(1);
   const PER_PAGE = 5;
   const pagedTasks = filteredTasks.slice(
     (taskPage - 1) * PER_PAGE,
@@ -2368,6 +2427,17 @@ export default function MyTasks() {
   );
 
   const isAssignedView = searchParams.get("view") === "assigned";
+  
+  // Pagination for assigned view
+  const pagedAssignedTasks = tasks.slice(
+    (assignedPage - 1) * PER_PAGE,
+    assignedPage * PER_PAGE,
+  );
+  const totalAssignedPages = Math.max(
+    1,
+    Math.ceil(tasks.length / PER_PAGE),
+  );
+  
   const openAssignedView = () => {
     const next = new URLSearchParams(searchParams);
     next.set("view", "assigned");
@@ -2385,7 +2455,11 @@ export default function MyTasks() {
     return (
       <PathAssignedWorkspace
         user={user}
-        tasks={tasks}
+        tasks={pagedAssignedTasks}
+        allTasks={tasks}
+        assignedPage={assignedPage}
+        setAssignedPage={setAssignedPage}
+        totalAssignedPages={totalAssignedPages}
         allStatuses={allStatuses}
         stats={stats}
         loading={loading}
