@@ -42,8 +42,8 @@ const db = require('./config/db');
 ```
 
 ## What Changes
-- **Before**: `status ENUM('Draft', 'Pending', 'Revision', 'Approved', 'Rejected')`
-- **After**: `status ENUM('Draft', 'Pending', 'Revision', 'Approved', 'Rejected', 'Withdrawn')`
+- **Before**: `status ENUM('Draft', 'Pending', 'Reviewing', 'Revision', 'Approved', 'Rejected')`
+- **After**: `status ENUM('Draft', 'Pending', 'Reviewing', 'Revision', 'Approved', 'Rejected', 'Withdrawn')`
 
 ## Verification
 After running the migration, verify with:

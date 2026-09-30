@@ -6,8 +6,9 @@
 -- WHERE TABLE_NAME = 'form_submissions' AND COLUMN_NAME = 'status';
 
 -- Alter the status column to include 'Withdrawn'
+-- Note: Including all existing values to ensure no data loss
 ALTER TABLE form_submissions 
-MODIFY COLUMN status ENUM('Draft', 'Pending', 'Revision', 'Approved', 'Rejected', 'Withdrawn') 
+MODIFY COLUMN status ENUM('Draft', 'Pending', 'Reviewing', 'Revision', 'Approved', 'Rejected', 'Withdrawn') 
 DEFAULT 'Pending';
 
 -- Verify the change
