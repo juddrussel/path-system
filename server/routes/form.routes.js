@@ -867,6 +867,23 @@ router.post("/:id/withdraw", requireAuth, async (req, res) => {
 
     console.log(`[FORM_WITHDRAWN] Form ${req.params.id} withdrawn by user_${req.user.id}`);
 
+    // Log audit trail
+    try {
+      await db.query(
+        `INSERT INTO audit_log (user_id, action, detail, ip_address, document_id, timestamp)
+         VALUES (?, ?, ?, ?, ?, NOW())`,
+        [
+          req.user.id,
+          'FORM_WITHDRAWN',
+          `Form ${form.tracking_id} withdrawn by ${req.user.username || req.user.full_name}`,
+          req.ip,
+          form.id
+        ]
+      );
+    } catch (auditErr) {
+      console.error('Audit log error:', auditErr);
+    }
+
     // Notify program chairs that the form was withdrawn
     const io = req.app.get("io");
     if (io) {

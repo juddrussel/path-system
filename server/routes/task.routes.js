@@ -2368,12 +2368,33 @@ router.delete("/:id", requireAuth, requireChairOrAdmin, async (req, res) => {
 // Archives a task only for the current user — does NOT change the task status
 router.post("/:id/archive-for-me", requireAuth, async (req, res) => {
   try {
-    const [tasks] = await db.query("SELECT id FROM tasks WHERE id = ?", [req.params.id]);
+    const [tasks] = await db.query("SELECT id, title FROM tasks WHERE id = ?", [req.params.id]);
     if (!tasks.length) return res.status(404).json({ message: "Task not found." });
+    
+    const task = tasks[0];
+    
     await db.query(
       `INSERT IGNORE INTO user_task_archives (user_id, task_id) VALUES (?, ?)`,
       [req.user.id, req.params.id]
     );
+    
+    // Log audit trail
+    try {
+      await db.query(
+        `INSERT INTO audit_log (user_id, action, detail, ip_address, document_id, timestamp)
+         VALUES (?, ?, ?, ?, ?, NOW())`,
+        [
+          req.user.id,
+          'TASK_ARCHIVED',
+          `Task "${task.title}" (ID: ${task.id}) archived by user`,
+          req.ip,
+          task.id
+        ]
+      );
+    } catch (auditErr) {
+      console.error('Audit log error:', auditErr);
+    }
+    
     return res.json({ message: "Task archived for you." });
   } catch (err) {
     console.error("POST /tasks/:id/archive-for-me error:", err);
@@ -2385,10 +2406,33 @@ router.post("/:id/archive-for-me", requireAuth, async (req, res) => {
 // Removes the per-user archive entry (restores to normal view for this user)
 router.delete("/:id/archive-for-me", requireAuth, async (req, res) => {
   try {
+    const [tasks] = await db.query("SELECT id, title FROM tasks WHERE id = ?", [req.params.id]);
+    const task = tasks[0];
+    
     await db.query(
       "DELETE FROM user_task_archives WHERE user_id = ? AND task_id = ?",
       [req.user.id, req.params.id]
     );
+    
+    // Log audit trail
+    if (task) {
+      try {
+        await db.query(
+          `INSERT INTO audit_log (user_id, action, detail, ip_address, document_id, timestamp)
+           VALUES (?, ?, ?, ?, ?, NOW())`,
+          [
+            req.user.id,
+            'TASK_UNARCHIVED',
+            `Task "${task.title}" (ID: ${task.id}) unarchived by user`,
+            req.ip,
+            task.id
+          ]
+        );
+      } catch (auditErr) {
+        console.error('Audit log error:', auditErr);
+      }
+    }
+    
     return res.json({ message: "Task unarchived for you." });
   } catch (err) {
     console.error("DELETE /tasks/:id/archive-for-me error:", err);
