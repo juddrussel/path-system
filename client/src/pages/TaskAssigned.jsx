@@ -1047,13 +1047,23 @@ export default function TaskAssigned() {
   const handleArchiveSingle = async (taskId) => {
     setActionLoading("archive");
     try {
-      await fetch(`${API}/api/tasks/${taskId}/archive-for-me`, {
+      const response = await fetch(`${API}/api/tasks/${taskId}/archive-for-me`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("Archive failed:", error);
+        pushToast("Error", error.message || "Could not archive task.", "error");
+        return;
+      }
+      
       fetchTasks();
-    } catch {
-      // non-fatal
+      pushToast("Success", "Task archived successfully.", "success");
+    } catch (error) {
+      console.error("Archive error:", error);
+      pushToast("Error", "Could not archive task.", "error");
     } finally {
       setActionLoading(null);
     }
@@ -1325,14 +1335,27 @@ export default function TaskAssigned() {
 
   const handleArchive = async () => {
     if (!checkedIds.length) return;
-    await Promise.all(
-      checkedIds.map((id) =>
-        fetch(`${API}/api/tasks/${id}/archive`, {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ),
-    );
+    try {
+      const results = await Promise.all(
+        checkedIds.map((id) =>
+          fetch(`${API}/api/tasks/${id}/archive`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        ),
+      );
+      
+      const failedCount = results.filter(r => !r.ok).length;
+      if (failedCount > 0) {
+        pushToast("Warning", `${failedCount} task(s) could not be archived.`, "error");
+      } else {
+        pushToast("Success", `${checkedIds.length} task(s) archived successfully.`, "success");
+      }
+    } catch (error) {
+      console.error("Batch archive error:", error);
+      pushToast("Error", "Could not archive tasks.", "error");
+    }
+    
     setCheckedIds([]);
     setSelectAll(false);
     fetchTasks();
