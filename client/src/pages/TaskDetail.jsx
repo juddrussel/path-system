@@ -236,6 +236,11 @@ export default function TaskDetail() {
   const [returnInstruction, setReturnInstruction] = useState("");
   const [returnReason, setReturnReason] = useState("");
   const [returnError, setReturnError] = useState("");
+  const [returnFiles, setReturnFiles] = useState([]);
+  const [returnFileProgress, setReturnFileProgress] = useState({});
+  const [returnUploadedFiles, setReturnUploadedFiles] = useState([]);
+  const [isReturnUploadingFiles, setIsReturnUploadingFiles] = useState(false);
+  const returnFilesRef = useRef(null);
   const [deciding, setDeciding] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [deadlineDraft, setDeadlineDraft] = useState("");
@@ -474,6 +479,44 @@ export default function TaskDetail() {
     }
   };
 
+  const uploadReturnFiles = async (files) => {
+    setIsReturnUploadingFiles(true);
+    const uploaded = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      try {
+        const response = await fetch(`${api}/api/tasks/${task.id}/upload-revision-file`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+        
+        if (!response.ok) throw new Error("File upload failed");
+        
+        const data = await response.json();
+        uploaded.push({
+          url: data.fileUrl || data.url,
+          name: file.name,
+          size: file.size
+        });
+        
+        setReturnFileProgress(prev => ({ ...prev, [returnFiles.length + i]: 100 }));
+      } catch (err) {
+        console.error("Upload error:", err);
+        setReturnFileProgress(prev => ({ ...prev, [returnFiles.length + i]: 0 }));
+      }
+    }
+    
+    setReturnUploadedFiles(prev => [...prev, ...uploaded]);
+    setIsReturnUploadingFiles(false);
+  };
+
   const returnTask = async (event) => {
     event.preventDefault();
     if (!canReturn || deciding) return;
@@ -489,15 +532,22 @@ export default function TaskDetail() {
     }
     setDeciding(true);
     setReturnError("");
-    const structuredInstruction = `Reason: ${returnReason}\n\nReviewer direction: ${returnInstruction.trim()}`;
     try {
-      await postStatus("/return", { instruction: structuredInstruction });
+      await postStatus("/request-revision", { 
+        reason: returnReason,
+        instructions: returnInstruction.trim(),
+        files: returnUploadedFiles
+      });
       updateTask({
         status: "Returned for revision",
-        revision_instruction: structuredInstruction,
+        return_reason: returnReason,
+        revision_instruction: returnInstruction.trim(),
       });
       setReturnInstruction("");
       setReturnReason("");
+      setReturnFiles([]);
+      setReturnUploadedFiles([]);
+      setReturnFileProgress({});
       setReturnOpen(false);
       await loadTask();
     } catch (decisionError) {
@@ -2042,6 +2092,87 @@ export default function TaskDetail() {
                         placeholder="Explain what needs to be corrected before the next submission…"
                         autoFocus
                       />
+                      
+                      <label htmlFor="td-return-file" style={{ display: 'block', marginTop: '14px', color: '#806f8b', fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                        Attach file (optional)
+                      </label>
+                      
+                      {returnFiles.length > 0 && (
+                        <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef' }}>
+                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
+                            {returnFiles.length} file(s) attached
+                          </div>
+                          <div style={{ display: 'grid', gap: '8px' }}>
+                            {returnFiles.map((file, idx) => {
+                              const isPdf = /\.pdf$/i.test(file.name);
+                              const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                              const progress = returnFileProgress[idx] ?? 0;
+                              const isUploading = isReturnUploadingFiles && progress < 100;
+                              
+                              return (
+                                <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
+                                    {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
+                                  </div>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ color: '#5d4867', fontSize: '10px', fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {file.name}
+                                    </div>
+                                    <div style={{ marginTop: '6px', height: '5px', background: '#e9e0ef', borderRadius: '3px', overflow: 'hidden' }}>
+                                      <div style={{ height: '100%', background: '#7c3aed', width: `${progress}%`, transition: 'width 0.2s' }} />
+                                    </div>
+                                    <div style={{ marginTop: '4px', fontSize: '9px', color: isUploading ? '#8b7b96' : '#579574', fontWeight: 800 }}>
+                                      {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setReturnFiles(prev => prev.filter((_, i) => i !== idx));
+                                      setReturnFileProgress(prev => {
+                                        const newProgress = { ...prev };
+                                        delete newProgress[idx];
+                                        return newProgress;
+                                      });
+                                    }}
+                                    disabled={isReturnUploadingFiles}
+                                    style={{ background: 'none', border: 'none', color: '#806f8b', cursor: isReturnUploadingFiles ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isReturnUploadingFiles ? 0.5 : 1 }}
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <input
+                        ref={returnFilesRef}
+                        type="file"
+                        hidden
+                        multiple
+                        accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+                        onChange={async (e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (returnFiles.length + files.length > 5) {
+                            setReturnError("Maximum 5 files allowed for revision request");
+                            return;
+                          }
+                          setReturnFiles(prev => [...prev, ...files]);
+                          await uploadReturnFiles(files);
+                          if (returnFilesRef.current) returnFilesRef.current.value = "";
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => returnFilesRef.current?.click()}
+                        disabled={isReturnUploadingFiles || returnFiles.length >= 5}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #e2dbe9', borderRadius: '8px', fontSize: '12px', background: '#fff', color: '#44354f', cursor: returnFiles.length >= 5 ? 'not-allowed' : 'pointer', marginTop: '10px', marginBottom: '10px', opacity: returnFiles.length >= 5 ? 0.6 : 1 }}
+                      >
+                        {returnFiles.length > 0 ? `Add more files (${returnFiles.length}/5)` : "Choose files to attach"}
+                      </button>
+                      
                       {returnError && (
                         <p className="td-field-error">{returnError}</p>
                       )}
@@ -2053,11 +2184,14 @@ export default function TaskDetail() {
                             setReturnError("");
                             setReturnReason("");
                             setReturnInstruction("");
+                            setReturnFiles([]);
+                            setReturnUploadedFiles([]);
+                            setReturnFileProgress({});
                           }}
                         >
                           Cancel
                         </button>
-                        <button type="submit" disabled={deciding}>
+                        <button type="submit" disabled={deciding || isReturnUploadingFiles}>
                           Send instruction
                         </button>
                       </div>

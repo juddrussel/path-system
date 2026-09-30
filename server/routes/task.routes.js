@@ -1683,6 +1683,114 @@ router.patch("/:id/return", requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/tasks/:id/upload-revision-file ─────────────────────────────────
+// Handles file upload for revision requests (temporary upload before actual request-revision call)
+router.post("/:id/upload-revision-file", requireAuth, upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file provided." });
+    }
+
+    const uploaded = await uploadToR2(req.file);
+    return res.json({
+      fileUrl: uploaded.url,
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+    });
+  } catch (err) {
+    console.error("Upload revision file error:", err);
+    return res.status(500).json({ message: "Failed to upload file." });
+  }
+});
+
+// ─── POST /api/tasks/:id/request-revision ─────────────────────────────────────
+// Enhanced return for revision with reason, instructions, and optional file attachments
+router.post("/:id/request-revision", requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
+    const task = rows[0];
+    
+    const { reason, instructions, files } = req.body;
+    
+    if (!reason) {
+      return res.status(400).json({ message: "Reason is required." });
+    }
+    
+    // Store structured revision data
+    const revisionData = {
+      reason,
+      instructions: instructions || "",
+      files: files || [],
+      requested_by: req.user.id,
+      requested_at: new Date().toISOString(),
+    };
+    
+    // For collaborative tasks, reset confirmation status
+    const resetConfirmation = task.is_collaborative 
+      ? ", confirmation_status = 'awaiting', user1_confirmed_at = NULL, user2_confirmed_at = NULL" 
+      : "";
+    
+    await db.query(
+      `UPDATE tasks SET 
+        status = 'Returned for revision',
+        return_reason = ?,
+        revision_instruction = ?,
+        revision_files = ?,
+        updated_at = NOW()
+        ${resetConfirmation}
+      WHERE id = ?`,
+      [reason, instructions, JSON.stringify(files), req.params.id]
+    );
+    
+    await writeLog({ 
+      userId: req.user.id, 
+      action: "TASK_REVISION_REQUESTED", 
+      detail: `Requested revision for task ${task.tracking_id}: ${reason}`, 
+      ipAddress: req.ip 
+    });
+
+    const io = req.app.get("io");
+    const actorName = req.user.full_name || req.user.username;
+    
+    if (io) {
+      const payload = { 
+        taskId: parseInt(req.params.id), 
+        newStatus: "Returned for revision", 
+        reason,
+        instructions,
+        files,
+        updatedBy: actorName 
+      };
+      
+      io.to(`user_${task.faculty_id}`).emit("task:status_changed", payload);
+      io.to(`user_${task.assigned_by}`).emit("task:status_changed", payload);
+      
+      if (task.is_collaborative && task.collaborator_id) {
+        io.to(`user_${task.collaborator_id}`).emit("task:status_changed", payload);
+      }
+    }
+    
+    // Send notifications to all involved parties
+    for (const uid of new Set([task.faculty_id, task.assigned_by, task.is_collaborative ? task.collaborator_id : null].filter(Boolean))) {
+      if (!uid || uid === req.user.id) continue;
+      await notify(io, {
+        userId: uid,
+        type: "task_status_changed",
+        title: "Revision Requested",
+        message: `${actorName} requested revision for "${task.title}" (${task.tracking_id}): ${reason}`,
+        taskId: task.id,
+        trackingId: task.tracking_id,
+      });
+    }
+
+    return res.json({ message: "Revision requested successfully.", task: { ...task, status: "Returned for revision" } });
+  } catch (err) {
+    console.error("Request revision error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // ─── PATCH /api/tasks/:id/done ────────────────────────────────────────────────
 // FIX: this used to blindly set status = 'For Approval' on any task id it
 // was given, with no check on the task's current status. That meant a bulk

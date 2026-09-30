@@ -680,6 +680,108 @@ router.post("/:id/revise", requireAuth, requireReviewer, async (req, res) => {
   }
 });
 
+// ── POST /api/forms/:id/upload-revision-file ─────────────────────────────────
+// Handles file upload for document revision requests (temporary upload before actual request-revision call)
+router.post("/:id/upload-revision-file", requireAuth, requireReviewer, upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file provided." });
+    }
+
+    const uploaded = await uploadOneToR2(req.file);
+    return res.json({
+      fileUrl: uploaded.url,
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+    });
+  } catch (err) {
+    console.error("Upload revision file error:", err);
+    return res.status(500).json({ message: "Failed to upload file." });
+  }
+});
+
+// ── POST /api/forms/:id/request-revision ─────────────────────────────────────
+// Enhanced revision request with reason, instructions, and optional file attachments
+router.post("/:id/request-revision", requireAuth, requireReviewer, async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM form_submissions WHERE id = ?", [req.params.id]);
+    if (!rows.length) return res.status(404).json({ message: "Form not found." });
+    
+    const form = rows[0];
+    const { reason, instructions, files } = req.body;
+    
+    if (!reason) {
+      return res.status(400).json({ message: "Reason is required." });
+    }
+    
+    // Store structured revision data
+    const revisionData = {
+      reason,
+      instructions: instructions || "",
+      files: files || [],
+      requested_by: req.user.id,
+      requested_at: new Date().toISOString(),
+    };
+    
+    const structuredNote = `Reason: ${reason}\n\nReviewer direction: ${instructions || ""}`;
+    
+    await db.query(
+      `UPDATE form_submissions
+       SET status = 'Revision', 
+           review_note = ?,
+           return_reason = ?,
+           revision_instruction = ?,
+           revision_files = ?,
+           reviewed_by = ?, 
+           reviewed_at = NOW(), 
+           updated_at = NOW()
+       WHERE id = ?`,
+      [structuredNote, reason, instructions, JSON.stringify(files), req.user.id, req.params.id]
+    );
+
+    console.log(`[REVISION_REQUESTED] Form ${req.params.id} set to Revision. Notifying user_${form.submitted_by}`);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`user_${form.submitted_by}`).emit("form_status_update", {
+        tracking_id: form.tracking_id,
+        status: "Revision",
+        reason,
+        instructions,
+        files,
+        review_note: structuredNote,
+      });
+      console.log(`[REVISION_REQUESTED] Socket emit sent to user_${form.submitted_by}`);
+    }
+
+    await notify(io, {
+      userId: form.submitted_by,
+      type: "form_revision",
+      title: "Revision Requested",
+      message: `Your form ${form.tracking_id} needs revision: ${reason}`,
+      trackingId: form.tracking_id,
+    });
+
+    try {
+      await workflowExecution.advanceWorkflow({
+        subjectType: "form_submission",
+        subjectId:   Number(req.params.id),
+        edgeLabel:   "Revision",
+        actionTaken: "Return for Revision",
+        performedBy: req.user.id,
+        notes:       structuredNote,
+      });
+    } catch (wfErr) {
+      console.error(`[workflow] advance failed for form_submission ${req.params.id}:`, wfErr);
+    }
+
+    return res.json({ message: "Revision requested successfully.", form: { ...form, status: "Revision" } });
+  } catch (err) {
+    console.error("POST /forms/:id/request-revision error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // ── POST /api/forms/:id/resubmit ────────────────────────────────────────────
 router.post("/:id/resubmit", requireAuth, upload.single("file"), async (req, res) => {
   try {
