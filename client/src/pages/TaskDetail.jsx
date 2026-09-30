@@ -1190,7 +1190,7 @@ export default function TaskDetail() {
                             const files = typeof task.revision_files === 'string' 
                               ? JSON.parse(task.revision_files) 
                               : task.revision_files;
-                            return Array.isArray(files) && files.length > 0 && (
+                            return Array.isArray(files) && files.length > 0 ? (
                               <div style={{ marginTop: '12px' }}>
                                 <span style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#996d37', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px' }}>
                                   Attached Reference Files
@@ -1244,7 +1244,7 @@ export default function TaskDetail() {
                                   })}
                                 </div>
                               </div>
-                            );
+                            ) : null;
                           } catch (e) {
                             console.error('Error parsing revision_files:', e);
                             return null;
