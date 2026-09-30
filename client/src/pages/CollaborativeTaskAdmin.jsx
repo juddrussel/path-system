@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
-import { r2ToProxyUrl } from "../utils/r2ProxyHelper.js";
+import { r2ToProxyUrl, resolveFileUrl } from "../utils/r2ProxyHelper.js";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -46,15 +46,10 @@ function initials(value) {
     .toUpperCase();
 }
 
-// Helper to construct full avatar URL - use proxy for R2 URLs
+// Helper to construct full avatar URL - use resolveFileUrl which handles R2 URLs properly
 function fullAvatarUrl(url) {
   if (!url) return null;
-  if (url.startsWith("http")) {
-    // If it's an R2 URL, route through proxy
-    return r2ToProxyUrl(api, url);
-  }
-  // Legacy: direct server path
-  return `${SERVER_URL}${url}`;
+  return resolveFileUrl(SERVER_URL, url);
 }
 
 // Avatar component that shows profile picture if available, otherwise initials
