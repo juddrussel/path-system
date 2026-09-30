@@ -23,6 +23,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
 import { r2ToProxyUrl } from "../utils/r2ProxyHelper.js";
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
+const api = SERVER_URL;
+
 const ADMIN_ROLES = ["admin", "program_chair"];
 
 function getUser(token) {
@@ -43,10 +46,14 @@ function initials(value) {
     .toUpperCase();
 }
 
-// Helper to construct full avatar URL (matching UserManagement.jsx pattern)
+// Helper to construct full avatar URL - use proxy for R2 URLs
 function fullAvatarUrl(url) {
   if (!url) return null;
-  if (url.startsWith("http")) return url;
+  if (url.startsWith("http")) {
+    // If it's an R2 URL, route through proxy
+    return r2ToProxyUrl(api, url);
+  }
+  // Legacy: direct server path
   return `${SERVER_URL}${url}`;
 }
 
