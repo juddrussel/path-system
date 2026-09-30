@@ -2088,11 +2088,25 @@ export default function DocumentReview() {
                         revision direction, or record a formal rejection.
                       </p>
                       {/revision|rejected|returned/i.test(status) &&
-                        form.review_note && (
+                        (form.review_note || form.return_reason || form.revision_instruction) && (
                           <div className="doc-decision-note">
                             <strong>Previous review direction</strong>
                             <br />
-                            {form.review_note}
+                            {form.return_reason && (
+                              <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '10px', fontWeight: 700, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Reason:</span>
+                                <div style={{ marginTop: '4px', fontSize: '12px', color: '#5d4867' }}>{form.return_reason}</div>
+                              </div>
+                            )}
+                            {form.revision_instruction && (
+                              <div style={{ marginTop: '8px' }}>
+                                <span style={{ fontSize: '10px', fontWeight: 700, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Reviewer direction:</span>
+                                <div style={{ marginTop: '4px', fontSize: '12px', color: '#5d4867', whiteSpace: 'pre-wrap' }}>{form.revision_instruction}</div>
+                              </div>
+                            )}
+                            {!form.return_reason && !form.revision_instruction && form.review_note && (
+                              <div style={{ marginTop: '8px', fontSize: '12px', color: '#5d4867' }}>{form.review_note}</div>
+                            )}
                           </div>
                         )}
                       <label htmlFor="review-note">
