@@ -1185,7 +1185,7 @@ export default function TaskDetail() {
                             task.return_instruction ||
                             task.return_reason}
                         </p>
-                        {task.revision_files && (() => {
+                        {task.revision_files ? (() => {
                           try {
                             const files = typeof task.revision_files === 'string' 
                               ? JSON.parse(task.revision_files) 
@@ -1249,7 +1249,7 @@ export default function TaskDetail() {
                             console.error('Error parsing revision_files:', e);
                             return null;
                           }
-                        })()}
+                        })() : null}
                       </div>
                     )}
                     <input
