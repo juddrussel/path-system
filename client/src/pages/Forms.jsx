@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { io as socketIO } from "socket.io-client";
 import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import PageSkeleton from "../components/PageSkeleton";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -1145,9 +1146,7 @@ function FacultySubmissionsWorkspace({
                 <span />
               </div>
               {loading ? (
-                <div className="faculty-submissions-empty">
-                  <strong>Loading your submissions…</strong>
-                </div>
+                <PageSkeleton />
               ) : visible.length ? (
                 visible.map((row) => {
                   const status = statusFor(row);
@@ -3818,10 +3817,7 @@ export default function Forms() {
                     <span />
                   </div>
                   {loading ? (
-                    <div className="path-review-empty">
-                      <strong>Loading review queue</strong>
-                      <span>Fetching assigned form submissions.</span>
-                    </div>
+                    <PageSkeleton />
                   ) : reviewVisibleForms.length ? (
                     reviewVisibleForms.map((form) => {
                       const name =

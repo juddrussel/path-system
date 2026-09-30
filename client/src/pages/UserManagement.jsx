@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
+import PageSkeleton from "../components/PageSkeleton";
 
 // ─── API CONFIG ────────────────────────────────────────────────────────────────
 const API_BASE =
@@ -1827,9 +1828,7 @@ export default function UserManagement() {
           )}
 
           {loading ? (
-            <div className="flex items-center justify-center py-20 gap-2 text-sm text-gray-400">
-              <Spinner /> Loading…
-            </div>
+            <PageSkeleton />
           ) : (
             <>
               {/* ══ USERS TAB ══════════════════════════════════════════════════════ */}

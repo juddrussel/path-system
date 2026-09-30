@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import { resolveFileUrl as resolveFileUrlUtil } from "../utils/r2ProxyHelper";
+import PageSkeleton from "../components/PageSkeleton";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
@@ -920,16 +921,7 @@ function PathTasksWorkspace({
                   <span>Priority</span>
                 </div>
                 {loading ? (
-                  <div
-                    style={{
-                      padding: 34,
-                      textAlign: "center",
-                      color: "#9b8fa4",
-                      fontSize: 12,
-                    }}
-                  >
-                    Loading assigned work…
-                  </div>
+                  <PageSkeleton />
                 ) : pagedTasks.length === 0 ? (
                   <div
                     style={{
@@ -1499,9 +1491,7 @@ function PathAssignedWorkspace({
                   </button>
                 </header>
                 {loading ? (
-                  <div className="path-assigned-empty">
-                    <p>Loading assigned work…</p>
-                  </div>
+                  <PageSkeleton />
                 ) : tasks.length ? (
                   tasks.map((task) => (
                     <button
@@ -3010,16 +3000,7 @@ export default function MyTasks() {
               {/* Task rows */}
               <div style={{ flex: 1, overflowY: "auto" }}>
                 {loading ? (
-                  <div
-                    style={{
-                      padding: 32,
-                      textAlign: "center",
-                      color: "#aaa",
-                      fontSize: 13,
-                    }}
-                  >
-                    Loading tasks...
-                  </div>
+                  <PageSkeleton />
                 ) : pagedTasks.length === 0 ? (
                   <div
                     style={{

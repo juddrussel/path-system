@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import PageSkeleton from "../components/PageSkeleton";
 
 import { socket, connectSocket } from "./socket";
 import {
@@ -685,11 +686,7 @@ export default function Notifications() {
                   </div>
                 </div>
                 {loading ? (
-                  <div className="notifications-empty">
-                    <Bell size={22} />
-                    <strong>Loading notifications</strong>
-                    <span>Syncing your latest workspace activity.</span>
-                  </div>
+                  <PageSkeleton />
                 ) : (
                   Object.entries(grouped).map(([group, items]) => (
                     <div className="notification-group" key={group}>
