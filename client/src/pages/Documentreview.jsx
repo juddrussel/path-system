@@ -286,6 +286,11 @@ export default function DocumentReview() {
   const [decisionForm, setDecisionForm] = useState(null);
   const [decisionReason, setDecisionReason] = useState("");
   const [decisionNote, setDecisionNote] = useState("");
+  const [decisionFiles, setDecisionFiles] = useState([]);
+  const [decisionFileProgress, setDecisionFileProgress] = useState({});
+  const [decisionUploadedFiles, setDecisionUploadedFiles] = useState([]);
+  const [isDecisionUploadingFiles, setIsDecisionUploadingFiles] = useState(false);
+  const decisionFilesRef = useRef(null);
   const [submissionFile, setSubmissionFile] = useState(null);
   const [submissionNote, setSubmissionNote] = useState("");
   const [withdrawing, setWithdrawing] = useState(false);
@@ -545,10 +550,49 @@ export default function DocumentReview() {
     }
   };
 
+  const uploadDecisionFiles = async (files) => {
+    setIsDecisionUploadingFiles(true);
+    const uploaded = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      try {
+        const response = await fetch(`${API}/api/forms/${form.id}/upload-revision-file`, {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+        
+        if (!response.ok) throw new Error("File upload failed");
+        
+        const data = await response.json();
+        uploaded.push({
+          url: data.fileUrl || data.url,
+          name: file.name,
+          size: file.size
+        });
+        
+        setDecisionFileProgress(prev => ({ ...prev, [decisionFiles.length + i]: 100 }));
+      } catch (err) {
+        console.error("Upload error:", err);
+        setDecisionFileProgress(prev => ({ ...prev, [decisionFiles.length + i]: 0 }));
+      }
+    }
+    
+    setDecisionUploadedFiles(prev => [...prev, ...uploaded]);
+    setIsDecisionUploadingFiles(false);
+  };
+
   const openDecisionForm = (kind) => {
     setDecisionForm(kind);
     setDecisionReason("");
     setDecisionNote("");
+    setDecisionFiles([]);
+    setDecisionUploadedFiles([]);
+    setDecisionFileProgress({});
   };
   const submitStructuredDecision = async (event) => {
     event.preventDefault();
@@ -557,13 +601,49 @@ export default function DocumentReview() {
     if (!decisionNote.trim())
       return notify("Add clear direction for the submitter.", "error");
     const isReturn = decisionForm === "return";
-    const structuredNote = `Reason: ${decisionReason}\n\nReviewer direction: ${decisionNote.trim()}`;
-    await decision(
-      isReturn ? "revise" : "reject",
-      null,
-      isReturn ? "Revision requested." : "Form rejected.",
-      structuredNote,
-    );
+    
+    setSubmitting(true);
+    try {
+      const endpoint = isReturn ? `/api/forms/${form.id}/request-revision` : `/api/forms/${form.id}/reject`;
+      const response = await fetch(`${API}${endpoint}`, {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reason: decisionReason,
+          instructions: decisionNote.trim(),
+          files: decisionUploadedFiles
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to ${isReturn ? 'request revision' : 'reject'}`);
+      }
+      
+      const data = await response.json();
+      const updated = data.form || data;
+      const statusAfterDecision = isReturn ? "Returned" : "Rejected";
+      
+      setForm((current) => {
+        const nextForm = { ...current, ...updated, status: statusAfterDecision };
+        return nextForm;
+      });
+      
+      setDecisionForm(null);
+      setDecisionReason("");
+      setDecisionNote("");
+      setDecisionFiles([]);
+      setDecisionUploadedFiles([]);
+      setDecisionFileProgress({});
+      notify(isReturn ? "Revision requested." : "Form rejected.", "success");
+    } catch (err) {
+      notify(err.message || "Could not reach the server. Please try again.", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
   const submitFacultyFile = async () => {
     if (!submissionFile)
@@ -2046,6 +2126,91 @@ export default function DocumentReview() {
               }
               required
             />
+            
+            {decisionForm === "return" && (
+              <>
+                <label htmlFor="decision-file" style={{ display: 'block', marginTop: '14px', color: '#806f8b', fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                  Attach file (optional)
+                </label>
+                
+                {decisionFiles.length > 0 && (
+                  <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef' }}>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
+                      {decisionFiles.length} file(s) attached
+                    </div>
+                    <div style={{ display: 'grid', gap: '8px' }}>
+                      {decisionFiles.map((file, idx) => {
+                        const isPdf = /\.pdf$/i.test(file.name);
+                        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                        const progress = decisionFileProgress[idx] ?? 0;
+                        const isUploading = isDecisionUploadingFiles && progress < 100;
+                        
+                        return (
+                          <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
+                              {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ color: '#5d4867', fontSize: '10px', fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {file.name}
+                              </div>
+                              <div style={{ marginTop: '6px', height: '5px', background: '#e9e0ef', borderRadius: '3px', overflow: 'hidden' }}>
+                                <div style={{ height: '100%', background: '#7c3aed', width: `${progress}%`, transition: 'width 0.2s' }} />
+                              </div>
+                              <div style={{ marginTop: '4px', fontSize: '9px', color: isUploading ? '#8b7b96' : '#579574', fontWeight: 800 }}>
+                                {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDecisionFiles(prev => prev.filter((_, i) => i !== idx));
+                                setDecisionFileProgress(prev => {
+                                  const newProgress = { ...prev };
+                                  delete newProgress[idx];
+                                  return newProgress;
+                                });
+                              }}
+                              disabled={isDecisionUploadingFiles}
+                              style={{ background: 'none', border: 'none', color: '#806f8b', cursor: isDecisionUploadingFiles ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isDecisionUploadingFiles ? 0.5 : 1 }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                
+                <input
+                  ref={decisionFilesRef}
+                  type="file"
+                  hidden
+                  multiple
+                  accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (decisionFiles.length + files.length > 5) {
+                      notify("Maximum 5 files allowed for revision request", "error");
+                      return;
+                    }
+                    setDecisionFiles(prev => [...prev, ...files]);
+                    await uploadDecisionFiles(files);
+                    if (decisionFilesRef.current) decisionFilesRef.current.value = "";
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => decisionFilesRef.current?.click()}
+                  disabled={isDecisionUploadingFiles || decisionFiles.length >= 5}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #e2dbe9', borderRadius: '8px', fontSize: '12px', background: '#fff', color: '#44354f', cursor: decisionFiles.length >= 5 ? 'not-allowed' : 'pointer', marginTop: '10px', marginBottom: '10px', opacity: decisionFiles.length >= 5 ? 0.6 : 1 }}
+                >
+                  {decisionFiles.length > 0 ? `Add more files (${decisionFiles.length}/5)` : "Choose files to attach"}
+                </button>
+              </>
+            )}
+            
             <div className="doc-decision-modal-actions">
               <button
                 type="button"
@@ -2054,7 +2219,7 @@ export default function DocumentReview() {
               >
                 Cancel
               </button>
-              <button type="submit" disabled={submitting}>
+              <button type="submit" disabled={submitting || isDecisionUploadingFiles}>
                 {submitting
                   ? "Saving…"
                   : decisionForm === "return"
