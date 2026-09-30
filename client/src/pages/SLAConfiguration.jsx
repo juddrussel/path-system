@@ -876,12 +876,13 @@ export default function SLAConfiguration() {
         @keyframes sla-sk-spin { to { transform: rotate(360deg); } }
         .sla-sk { background: linear-gradient(90deg,#ede9fe 0%,#f5f3ff 45%,#ede9fe 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
         .sla-sk-dark { background: linear-gradient(90deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.22) 45%,rgba(255,255,255,0.1) 90%); background-size:600px 100%; animation: sla-sk-shimmer 1.5s ease-in-out infinite; border-radius: 7px; }
-        .sla-sk-wrap { width: min(900px,94vw); display: flex; flex-direction: column; gap: 16px; animation: sla-sk-fadein 0.3s ease both; }
-        .sla-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); border-radius:14px; padding:26px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+        .sla-sk-wrap { width: min(900px,94vw); display: flex; flex-direction: column; gap: 0; animation: sla-sk-fadein 0.3s ease both; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 40px rgba(76,29,149,0.12); }
+        .sla-sk-hero { background: linear-gradient(135deg,#2d0a5e 0%,#4a1272 50%,#6b21a8 100%); padding:26px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+        .sla-sk-content { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
         .sla-sk-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-        .sla-sk-card { background:#fff; border:1px solid #e8e1f5; border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:10px; box-shadow:0 4px 14px rgba(76,29,149,0.06); }
-        .sla-sk-table { background:#fff; border:1px solid #e8e1f5; border-radius:14px; overflow:hidden; box-shadow:0 4px 14px rgba(76,29,149,0.05); }
-        .sla-sk-thead { background:#f8f6ff; padding:12px 20px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr 80px; gap:16px; align-items:center; border-bottom:1px solid #ede9fe; }
+        .sla-sk-card { background:#faf8fc; border:1px solid #e8e1f5; border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:10px; }
+        .sla-sk-table { background:#faf8fc; border:1px solid #e8e1f5; border-radius:14px; overflow:hidden; }
+        .sla-sk-thead { background:#f3f0f8; padding:12px 20px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr 80px; gap:16px; align-items:center; border-bottom:1px solid #ede9fe; }
         .sla-sk-row { padding:14px 20px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr 80px; gap:16px; align-items:center; border-bottom:1px solid #f4f0fc; }
         .sla-sk-row:last-child { border-bottom:none; }
         .sla-sk-spin { width:16px; height:16px; border-radius:50%; flex-shrink:0; border:2px solid rgba(255,255,255,0.2); border-top-color:#c4b5fd; animation:sla-sk-spin 0.75s linear infinite; }
@@ -901,39 +902,41 @@ export default function SLAConfiguration() {
             <div className="sla-sk-dark" style={{ height:34, width:80, borderRadius:8 }} />
           </div>
         </div>
-        <div className="sla-sk-stats">
-          {[["60%","80%","55%"],["50%","70%","45%"],["65%","75%","50%"]].map((w,i) => (
-            <div className="sla-sk-card" key={i}>
-              <div className="sla-sk" style={{ height:10, width:w[0] }} />
-              <div className="sla-sk" style={{ height:28, width:w[1] }} />
-              <div className="sla-sk" style={{ height:10, width:w[2] }} />
-            </div>
-          ))}
-        </div>
-        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-          <div className="sla-sk" style={{ height:34, flex:1, borderRadius:8 }} />
-          <div className="sla-sk" style={{ height:34, width:130, borderRadius:8 }} />
-          <div className="sla-sk" style={{ height:34, width:100, borderRadius:8 }} />
-        </div>
-        <div className="sla-sk-table">
-          <div className="sla-sk-thead">
-            {["45%","60%","55%","50%","70%"].map((w,i) => <div key={i} className="sla-sk" style={{ height:10, width:w }} />)}
+        <div className="sla-sk-content">
+          <div className="sla-sk-stats">
+            {[["60%","80%","55%"],["50%","70%","45%"],["65%","75%","50%"]].map((w,i) => (
+              <div className="sla-sk-card" key={i}>
+                <div className="sla-sk" style={{ height:10, width:w[0] }} />
+                <div className="sla-sk" style={{ height:28, width:w[1] }} />
+                <div className="sla-sk" style={{ height:10, width:w[2] }} />
+              </div>
+            ))}
           </div>
-          {[0,1,2,3,4].map(row => (
-            <div className="sla-sk-row" key={row}>
-              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-                <div className="sla-sk" style={{ height:12, width:"70%" }} />
-                <div className="sla-sk" style={{ height:9, width:"45%" }} />
-              </div>
-              <div className="sla-sk" style={{ height:11, width:"60%" }} />
-              <div className="sla-sk" style={{ height:11, width:"55%" }} />
-              <div className="sla-sk" style={{ height:22, width:60, borderRadius:99 }} />
-              <div style={{ display:"flex", gap:6 }}>
-                <div className="sla-sk" style={{ height:26, width:26, borderRadius:7 }} />
-                <div className="sla-sk" style={{ height:26, width:26, borderRadius:7 }} />
-              </div>
+          <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+            <div className="sla-sk" style={{ height:34, flex:1, borderRadius:8 }} />
+            <div className="sla-sk" style={{ height:34, width:130, borderRadius:8 }} />
+            <div className="sla-sk" style={{ height:34, width:100, borderRadius:8 }} />
+          </div>
+          <div className="sla-sk-table">
+            <div className="sla-sk-thead">
+              {["45%","60%","55%","50%","70%"].map((w,i) => <div key={i} className="sla-sk" style={{ height:10, width:w }} />)}
             </div>
-          ))}
+            {[0,1,2,3,4].map(row => (
+              <div className="sla-sk-row" key={row}>
+                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  <div className="sla-sk" style={{ height:12, width:"70%" }} />
+                  <div className="sla-sk" style={{ height:9, width:"45%" }} />
+                </div>
+                <div className="sla-sk" style={{ height:11, width:"60%" }} />
+                <div className="sla-sk" style={{ height:11, width:"55%" }} />
+                <div className="sla-sk" style={{ height:22, width:60, borderRadius:99 }} />
+                <div style={{ display:"flex", gap:6 }}>
+                  <div className="sla-sk" style={{ height:26, width:26, borderRadius:7 }} />
+                  <div className="sla-sk" style={{ height:26, width:26, borderRadius:7 }} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
