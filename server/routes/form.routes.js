@@ -856,7 +856,7 @@ router.post("/:id/withdraw", requireAuth, async (req, res) => {
       });
     }
 
-    // Soft delete: mark as withdrawn instead of deleting the record
+    // Mark as withdrawn instead of deleting the record
     await db.query(
       `UPDATE form_submissions
        SET status = 'Withdrawn', 
