@@ -23,7 +23,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
 import { r2ToProxyUrl, resolveFileUrl } from "../utils/r2ProxyHelper.js";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
 
 const ADMIN_ROLES = ["admin", "program_chair"];
