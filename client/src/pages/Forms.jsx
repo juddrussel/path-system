@@ -2596,8 +2596,10 @@ export default function Forms() {
         .path-faculty-summary-card [style*="padding: 8px 0"]>span:first-child{color:#928699!important;font-size: 12px!important}
         .path-faculty-missing-note{display:flex;align-items:center;gap:7px;margin:5px 0 16px;color:#9d711f;font-size: 12px;font-weight:800}
         .path-faculty-missing-note i{width:6px;height:6px;border-radius:50%;background:#a97724}
+        .path-faculty-missing-note.complete{color:#16a34a}
+        .path-faculty-missing-note.complete i{background:#16a34a}
         .path-faculty-summary-card button{border-radius:7px!important;font-family:'DM Sans',sans-serif!important;font-size: 12px!important}
-        .path-faculty-summary-card .path-faculty-submit-button{background:#a976e7!important;box-shadow:none!important}
+        .path-faculty-summary-card .path-faculty-submit-button{box-shadow:none!important}
         .path-faculty-summary-card .path-faculty-draft-button,.path-faculty-summary-card .path-faculty-cancel-button{background:#fff!important;border-color:#e5dfea!important;box-shadow:none!important}
         .path-faculty-summary-card button:active{transform:scale(.97)}
         .path-faculty-summary-aside>div:last-child{margin-top:12px!important;padding:12px 0 0!important;border:0!important;border-top:1px solid #eee8f3!important;border-radius:0!important;background:transparent!important}
@@ -3635,7 +3637,7 @@ export default function Forms() {
                         </span>
                       </div>
                     ))}
-                    <div className="path-faculty-missing-note">
+                    <div className={`path-faculty-missing-note${wizardMissingCount === 0 && wizardFormType ? ' complete' : ''}`}>
                       <i />
                       <span>
                         {wizardMissingCount === 0 && wizardFormType
