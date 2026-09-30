@@ -1082,7 +1082,7 @@ export default function TaskDetail() {
                   )}
                 </section>
 
-                {task?.is_collaborative && task?.notes && (
+                {task?.is_collaborative && task?.notes ? (
                   <section className="td-section">
                     <div className="td-section-head">
                       <span>
@@ -1132,7 +1132,7 @@ export default function TaskDetail() {
                       </div>
                     ) : null}
                   </section>
-                )}
+                ) : null}
 
                 {isFacultyView && (
                   isUnderReview ? (
