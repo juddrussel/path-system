@@ -895,7 +895,7 @@ export default function CollaborativeTaskAdmin() {
   };
 
   if (loading) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "40px 0", background: "#f8f7ff", fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`
         @keyframes collab-sk-shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
         @keyframes collab-sk-fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
