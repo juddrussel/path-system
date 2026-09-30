@@ -48,19 +48,33 @@ function initials(value) {
 
 // Helper to construct full avatar URL - use proxy for R2 URLs
 function fullAvatarUrl(url) {
+  console.log('[fullAvatarUrl] Input:', url);
   if (!url) return null;
   if (url.startsWith("http")) {
     // If it's an R2 URL, route through proxy
-    return r2ToProxyUrl(api, url);
+    const proxyUrl = r2ToProxyUrl(api, url);
+    console.log('[fullAvatarUrl] R2 URL -> Proxy:', url, '->', proxyUrl);
+    return proxyUrl;
   }
   // Legacy: direct server path
-  return `${SERVER_URL}${url}`;
+  const fullUrl = `${SERVER_URL}${url}`;
+  console.log('[fullAvatarUrl] Server path:', url, '->', fullUrl);
+  return fullUrl;
 }
 
 // Avatar component that shows profile picture if available, otherwise initials
 function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
   const [imgFailed, setImgFailed] = React.useState(false);
   const src = fullAvatarUrl(profilePicture);
+  
+  // Debug logging
+  console.log('[Avatar Debug]', {
+    profilePicture,
+    fullName,
+    userId,
+    src,
+    imgFailed
+  });
   
   if (src && !imgFailed) {
     return (
@@ -75,12 +89,19 @@ function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
           objectFit: "cover",
           flexShrink: 0
         }}
-        onError={() => setImgFailed(true)}
+        onError={() => {
+          console.log('[Avatar] Image load failed for:', src);
+          setImgFailed(true);
+        }}
+        onLoad={() => {
+          console.log('[Avatar] Image loaded successfully:', src);
+        }}
       />
     );
   }
   
   // Fallback to initials
+  console.log('[Avatar] Using initials fallback for:', fullName);
   return (
     <span className={`collab-avatar ${getTone(userId || 0)}`}>
       {initials(fullName)}
@@ -655,6 +676,7 @@ export default function CollaborativeTaskDetail() {
           tone: getTone(i),
         })));
         setVersions(data.versions || []);
+        console.log('[API Response] Comments data:', data.comments);
         setMessages(data.comments || []);
         setAttachments(data.attachments || []);
         setRevisionFiles(data.revisionFiles || []);
