@@ -700,9 +700,9 @@ router.post("/:id/upload-revision-file", requireAuth, requireReviewer, upload.si
   }
 });
 
-// ── POST /api/forms/:id/request-revision ─────────────────────────────────────
+// ── PATCH /api/forms/:id/request-revision ────────────────────────────────────
 // Enhanced revision request with reason, instructions, and optional file attachments
-router.post("/:id/request-revision", requireAuth, requireReviewer, async (req, res) => {
+router.patch("/:id/request-revision", requireAuth, requireReviewer, async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM form_submissions WHERE id = ?", [req.params.id]);
     if (!rows.length) return res.status(404).json({ message: "Form not found." });

@@ -1683,7 +1683,7 @@ router.patch("/:id/return", requireAuth, async (req, res) => {
   }
 });
 
-// ─── POST /api/tasks/:id/upload-revision-file ─────────────────────────────────
+// ─── PATCH /api/tasks/:id/upload-revision-file ────────────────────────────────
 // Handles file upload for revision requests (temporary upload before actual request-revision call)
 router.post("/:id/upload-revision-file", requireAuth, upload.single("file"), async (req, res) => {
   try {
@@ -1703,9 +1703,9 @@ router.post("/:id/upload-revision-file", requireAuth, upload.single("file"), asy
   }
 });
 
-// ─── POST /api/tasks/:id/request-revision ─────────────────────────────────────
+// ─── PATCH /api/tasks/:id/request-revision ────────────────────────────────────
 // Enhanced return for revision with reason, instructions, and optional file attachments
-router.post("/:id/request-revision", requireAuth, async (req, res) => {
+router.patch("/:id/request-revision", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
