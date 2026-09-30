@@ -1558,7 +1558,7 @@ export default function CollaborativeTaskDetail() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                window.open(file.file_url, '_blank');
+                                window.open(r2ToProxyUrl(api, file.file_url), '_blank');
                               }}
                               style={{
                                 display: 'inline-flex',
@@ -1626,7 +1626,7 @@ export default function CollaborativeTaskDetail() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(versions[0].file_url, '_blank');
+                            window.open(r2ToProxyUrl(api, versions[0].file_url), '_blank');
                           }}
                           style={{
                             display: 'inline-flex',
