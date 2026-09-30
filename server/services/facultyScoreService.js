@@ -1,14 +1,16 @@
 /**
  * facultyScoreService.js
  *
- * Computes a performance score per faculty member from the two sources
- * the department tracks (tasks, form_submissions) and writes the result
- * back onto `users`.
+ * Computes a performance score per faculty member from three sources
+ * the department tracks (tasks, collaborative_tasks, form_submissions) 
+ * and writes the result back onto `users`.
  *
- * Table/column names used below (confirmed from DESCRIBE output):
- *   tasks:            faculty_id, status, deadline
- *   form_submissions: submitted_by, status (no deadline column — forms
- *                      never count as overdue, only pending/active)
+ * Table/column names used below:
+ *   tasks:                faculty_id, status, deadline
+ *   collaborative_tasks:  status, deadline (linked via task_collaborators)
+ *   task_collaborators:   user_id, task_id
+ *   form_submissions:     submitted_by, status (no deadline column — forms
+ *                         never count as overdue, only pending/active)
  *
  * Scoring formula (feel free to tune the weights):
  *   Every faculty member starts at 100%.
@@ -30,7 +32,7 @@ const ACTIVE_PENALTY = 1;   // points lost per item still in progress, on time
 const OVERDUE_PENALTY = 5;  // points lost per item past its deadline
 
 /**
- * Builds one UNION ALL query across tasks / form_submissions.
+ * Builds one UNION ALL query across tasks / collaborative_tasks / form_submissions.
  * Each branch must return: (user_id, is_done, is_overdue)
  */
 function buildSourceQuery() {
@@ -41,6 +43,17 @@ function buildSourceQuery() {
       FROM tasks t
       JOIN users u ON u.id = t.faculty_id
      WHERE t.faculty_id IS NOT NULL
+       AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
+
+    UNION ALL
+
+    SELECT tc.user_id AS user_id,
+           LOWER(ct.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
+           (ct.deadline IS NOT NULL AND ct.deadline < NOW() AND LOWER(ct.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})) AS is_overdue
+      FROM task_collaborators tc
+      JOIN collaborative_tasks ct ON ct.id = tc.task_id
+      JOIN users u ON u.id = tc.user_id
+     WHERE tc.user_id IS NOT NULL
        AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
 
     UNION ALL
@@ -67,6 +80,7 @@ function computeScore({ active, overdue }) {
 /**
  * Returns the actual list of overdue tasks — one row per delayed document,
  * with the faculty member's name attached — for a "delayed by faculty" table.
+ * Includes both regular tasks and collaborative tasks.
  * Only tasks have deadlines, so form_submissions are not included here.
  *
  * @param {import('mysql2/promise').Pool} pool
@@ -81,15 +95,37 @@ async function getDelayedDocuments(pool) {
             t.status,
             t.faculty_id,
             u.full_name AS faculty_name,
-            DATEDIFF(CURDATE(), t.deadline) AS days_overdue
+            DATEDIFF(CURDATE(), t.deadline) AS days_overdue,
+            FALSE AS is_collaborative
        FROM tasks t
        JOIN users u ON u.id = t.faculty_id
       WHERE t.deadline IS NOT NULL
         AND t.deadline < NOW()
         AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
         AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
-      ORDER BY t.deadline ASC`,
-    DONE_STATUSES
+
+    UNION ALL
+
+    SELECT ct.id,
+            ct.title,
+            ct.doc_type,
+            ct.priority,
+            ct.deadline,
+            ct.status,
+            tc.user_id AS faculty_id,
+            u.full_name AS faculty_name,
+            DATEDIFF(CURDATE(), ct.deadline) AS days_overdue,
+            TRUE AS is_collaborative
+       FROM collaborative_tasks ct
+       JOIN task_collaborators tc ON tc.task_id = ct.id
+       JOIN users u ON u.id = tc.user_id
+      WHERE ct.deadline IS NOT NULL
+        AND ct.deadline < NOW()
+        AND LOWER(ct.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
+        AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
+
+      ORDER BY deadline ASC`,
+    [...DONE_STATUSES, ...DONE_STATUSES]
   );
   return rows;
 }
@@ -105,11 +141,15 @@ async function recalculateAllScores(pool, opts = {}) {
   const { keepHistory = true } = opts;
 
   // Placeholder order must match buildSourceQuery()'s `?` occurrences exactly:
-  // tasks.is_done, tasks.is_overdue(NOT IN), form_submissions.is_done
+  // tasks.is_done, tasks.is_overdue(NOT IN), 
+  // collaborative_tasks.is_done, collaborative_tasks.is_overdue(NOT IN),
+  // form_submissions.is_done
   const params = [
-    ...DONE_STATUSES,
-    ...DONE_STATUSES,
-    ...DONE_STATUSES,
+    ...DONE_STATUSES,  // tasks.is_done
+    ...DONE_STATUSES,  // tasks.is_overdue NOT IN
+    ...DONE_STATUSES,  // collaborative_tasks.is_done
+    ...DONE_STATUSES,  // collaborative_tasks.is_overdue NOT IN
+    ...DONE_STATUSES,  // form_submissions.is_done
   ];
 
   const [rows] = await pool.query(
