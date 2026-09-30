@@ -398,6 +398,7 @@ router.get("/my", requireAuth, async (req, res) => {
        FROM form_submissions fs
        LEFT JOIN users u ON u.id = fs.submitted_by
        WHERE fs.submitted_by = ?
+         AND fs.status != 'Withdrawn'
          AND (fs.tracking_id LIKE ? OR fs.full_name LIKE ? OR fs.student_id LIKE ? OR fs.category LIKE ?)
        ORDER BY fs.created_at DESC
        LIMIT ? OFFSET ?`,
@@ -407,11 +408,12 @@ router.get("/my", requireAuth, async (req, res) => {
     const [[{ total_count }]] = await db.query(
       `SELECT COUNT(*) AS total_count FROM form_submissions
        WHERE submitted_by = ?
+         AND status != 'Withdrawn'
          AND (tracking_id LIKE ? OR full_name LIKE ? OR student_id LIKE ? OR category LIKE ?)`,
       [req.user.id, like, like, like, like]
     );
 
-    const stats = await buildStats("submitted_by = ?", [req.user.id]);
+    const stats = await buildStats("submitted_by = ? AND status != 'Withdrawn'", [req.user.id]);
 
     return res.json({
       forms,
@@ -449,7 +451,8 @@ router.get("/all", requireAuth, requireReviewer, async (req, res) => {
        FROM form_submissions fs
        LEFT JOIN users u ON u.id = fs.submitted_by
        LEFT JOIN users r ON r.id = fs.reviewed_by
-       WHERE (fs.tracking_id LIKE ? OR fs.full_name LIKE ? OR fs.student_id LIKE ? OR fs.category LIKE ?)
+       WHERE fs.status != 'Withdrawn'
+         AND (fs.tracking_id LIKE ? OR fs.full_name LIKE ? OR fs.student_id LIKE ? OR fs.category LIKE ?)
          ${statusFilter}
        ORDER BY
          CASE fs.status WHEN 'Pending' THEN 0 WHEN 'Reviewing' THEN 1 ELSE 2 END,
@@ -460,12 +463,13 @@ router.get("/all", requireAuth, requireReviewer, async (req, res) => {
 
     const [[{ total_count }]] = await db.query(
       `SELECT COUNT(*) AS total_count FROM form_submissions fs
-       WHERE (fs.tracking_id LIKE ? OR fs.full_name LIKE ? OR fs.student_id LIKE ? OR fs.category LIKE ?)
+       WHERE fs.status != 'Withdrawn'
+         AND (fs.tracking_id LIKE ? OR fs.full_name LIKE ? OR fs.student_id LIKE ? OR fs.category LIKE ?)
          ${statusFilter}`,
       [like, like, like, like, ...statusParam]
     );
 
-    const stats = await buildStats();
+    const stats = await buildStats("status != 'Withdrawn'");
 
     return res.json({
       forms,
@@ -828,6 +832,67 @@ router.post("/:id/resubmit", requireAuth, upload.single("file"), async (req, res
     return res.status(200).json({ message: "Form resubmitted successfully.", form: updated[0] });
   } catch (err) {
     console.error("POST /forms/:id/resubmit error:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ── POST /api/forms/:id/withdraw ────────────────────────────────────────────
+// Faculty can withdraw their submission if it hasn't been returned for revision
+router.post("/:id/withdraw", requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM form_submissions WHERE id = ?", [req.params.id]);
+    if (!rows.length) return res.status(404).json({ message: "Form not found." });
+
+    const form = rows[0];
+
+    // Only the submitter can withdraw
+    if (form.submitted_by !== req.user.id)
+      return res.status(403).json({ message: "Forbidden." });
+
+    // Check if form has been returned for revision (has revision_instruction)
+    if (form.revision_instruction && form.revision_instruction.trim()) {
+      return res.status(400).json({ 
+        message: "Cannot withdraw a form that has been returned for revision. Please resubmit instead." 
+      });
+    }
+
+    // Soft delete: mark as withdrawn instead of deleting the record
+    await db.query(
+      `UPDATE form_submissions
+       SET status = 'Withdrawn', 
+           updated_at = NOW()
+       WHERE id = ?`,
+      [req.params.id]
+    );
+
+    console.log(`[FORM_WITHDRAWN] Form ${req.params.id} withdrawn by user_${req.user.id}`);
+
+    // Notify program chairs that the form was withdrawn
+    const io = req.app.get("io");
+    if (io) {
+      io.to("program_chairs").emit("form_status_update", {
+        tracking_id: form.tracking_id,
+        status: "Withdrawn",
+        form_id: form.id,
+      });
+      console.log(`[FORM_WITHDRAWN] Socket emit sent to program_chairs`);
+    }
+
+    // Create notification for reviewers
+    await notify(io, {
+      userId: form.reviewed_by || req.user.id,
+      type: "form_withdrawn",
+      title: "Form Withdrawn",
+      message: `Form ${form.tracking_id} has been withdrawn by the submitter`,
+      trackingId: form.tracking_id,
+    });
+
+    return res.json({ 
+      message: "Form withdrawn successfully.", 
+      form: { ...form, status: "Withdrawn" } 
+    });
+  } catch (err) {
+    console.error("POST /forms/:id/withdraw error:", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
