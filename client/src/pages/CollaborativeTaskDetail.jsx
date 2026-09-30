@@ -22,9 +22,6 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
 import { r2ToProxyUrl } from "../utils/r2ProxyHelper.js";
-import { resolveFileUrl } from "../utils/r2ProxyHelper.js";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 const ADMIN_ROLES = ["admin", "program_chair"];
 
@@ -46,13 +43,22 @@ function initials(value) {
     .toUpperCase();
 }
 
+// Helper to construct full avatar URL (matching UserManagement.jsx pattern)
+function fullAvatarUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${SERVER_URL}${url}`;
+}
+
 // Avatar component that shows profile picture if available, otherwise initials
 function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
-  if (profilePicture) {
-    const avatarUrl = resolveFileUrl(SERVER_URL, profilePicture);
+  const [imgFailed, setImgFailed] = React.useState(false);
+  const src = fullAvatarUrl(profilePicture);
+  
+  if (src && !imgFailed) {
     return (
       <img
-        src={avatarUrl}
+        src={src}
         alt={fullName}
         className="collab-avatar-img"
         style={{
@@ -62,6 +68,7 @@ function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
           objectFit: "cover",
           flexShrink: 0
         }}
+        onError={() => setImgFailed(true)}
       />
     );
   }
