@@ -2627,6 +2627,7 @@ export default function Dashboard() {
             const done = ["Approved", "Rejected", "Archived"].includes(status);
             merged.push({
               id: d.tracking_id || d.document_id || `DOC-${d.id}`,
+              numericId: d.id,
               sourceType: "document",
               title: d.title || d.document_type || "Document",
               person:
@@ -4315,7 +4316,8 @@ export default function Dashboard() {
                                 } else {
                                   navigate(`/task-details/${row.numericId}`, { state: { task: row, returnTo: "/dashboard" } });
                                 }
-                              } else if (row.sourceType === "form") {
+                              } else if (row.sourceType === "form" || row.sourceType === "document") {
+                                // Both forms and documents go to document-review
                                 navigate(`/document-review/${row.numericId}`, { state: { form: row } });
                               } else {
                                 navigate("/tracking", { state: { tracking_id: row.id } });
