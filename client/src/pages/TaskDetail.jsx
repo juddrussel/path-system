@@ -1185,61 +1185,71 @@ export default function TaskDetail() {
                             task.return_instruction ||
                             task.return_reason}
                         </p>
-                        {task.revision_files && JSON.parse(task.revision_files).length > 0 && (
-                          <div style={{ marginTop: '12px' }}>
-                            <span style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#996d37', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                              Attached Reference Files
-                            </span>
-                            <div style={{ display: 'grid', gap: '8px' }}>
-                              {JSON.parse(task.revision_files).map((file, idx) => {
-                                const isPdf = /\.pdf$/i.test(file.name);
-                                const isDoc = /\.(doc|docx)$/i.test(file.name);
-                                const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-                                const fileIcon = isPdf ? '📄' : isDoc ? '📝' : isImage ? '🖼️' : '📎';
-                                
-                                return (
-                                  <a
-                                    key={idx}
-                                    href={file.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '10px',
-                                      padding: '10px 12px',
-                                      background: '#fff9ef',
-                                      border: '1px solid #edd9bb',
-                                      borderRadius: '8px',
-                                      textDecoration: 'none',
-                                      transition: 'all 0.2s',
-                                      cursor: 'pointer'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.background = '#fff4e0';
-                                      e.currentTarget.style.borderColor = '#d4ba8f';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.background = '#fff9ef';
-                                      e.currentTarget.style.borderColor = '#edd9bb';
-                                    }}
-                                  >
-                                    <span style={{ fontSize: '20px', flexShrink: 0 }}>{fileIcon}</span>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#70543a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {file.name}
-                                      </div>
-                                      <div style={{ fontSize: '10px', color: '#9a7d5a', marginTop: '2px' }}>
-                                        {file.size ? `${Math.round(file.size / 1024)} KB` : 'Click to view'}
-                                      </div>
-                                    </div>
-                                    <Icon name="preview" />
-                                  </a>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
+                        {task.revision_files && (() => {
+                          try {
+                            const files = typeof task.revision_files === 'string' 
+                              ? JSON.parse(task.revision_files) 
+                              : task.revision_files;
+                            return Array.isArray(files) && files.length > 0 && (
+                              <div style={{ marginTop: '12px' }}>
+                                <span style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#996d37', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                                  Attached Reference Files
+                                </span>
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                  {files.map((file, idx) => {
+                                    const isPdf = /\.pdf$/i.test(file.name);
+                                    const isDoc = /\.(doc|docx)$/i.test(file.name);
+                                    const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                    const fileIcon = isPdf ? '📄' : isDoc ? '📝' : isImage ? '🖼️' : '📎';
+                                    
+                                    return (
+                                      <a
+                                        key={idx}
+                                        href={file.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '10px',
+                                          padding: '10px 12px',
+                                          background: '#fff9ef',
+                                          border: '1px solid #edd9bb',
+                                          borderRadius: '8px',
+                                          textDecoration: 'none',
+                                          transition: 'all 0.2s',
+                                          cursor: 'pointer'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.background = '#fff4e0';
+                                          e.currentTarget.style.borderColor = '#d4ba8f';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.background = '#fff9ef';
+                                          e.currentTarget.style.borderColor = '#edd9bb';
+                                        }}
+                                      >
+                                        <span style={{ fontSize: '20px', flexShrink: 0 }}>{fileIcon}</span>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                          <div style={{ fontSize: '12px', fontWeight: 800, color: '#70543a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {file.name}
+                                          </div>
+                                          <div style={{ fontSize: '10px', color: '#9a7d5a', marginTop: '2px' }}>
+                                            {file.size ? `${Math.round(file.size / 1024)} KB` : 'Click to view'}
+                                          </div>
+                                        </div>
+                                        <Icon name="preview" />
+                                      </a>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          } catch (e) {
+                            console.error('Error parsing revision_files:', e);
+                            return null;
+                          }
+                        })()}
                       </div>
                     )}
                     <input
