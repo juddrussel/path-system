@@ -166,13 +166,13 @@ function RenderReplies({
                           </div>
                         )}
                         <a 
-                          href={file.url}
+                          href={r2ToProxyUrl(api, file.url)}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ display: "block", maxWidth: "280px" }}
                         >
                           <img 
-                            src={file.url}
+                            src={r2ToProxyUrl(api, file.url)}
                             alt={file.name}
                             onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                             onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -190,7 +190,7 @@ function RenderReplies({
                       <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                         <span style={{ fontSize: "12px" }}>📎</span>
                         <a 
-                          href={file.url}
+                          href={r2ToProxyUrl(api, file.url)}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
@@ -1562,13 +1562,13 @@ export default function CollaborativeTaskAdmin() {
                                       </div>
                                     )}
                                     <a 
-                                      href={file.url}
+                                      href={r2ToProxyUrl(api, file.url)}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       style={{ display: "block", maxWidth: "280px" }}
                                     >
                                       <img 
-                                        src={file.url}
+                                        src={r2ToProxyUrl(api, file.url)}
                                         alt={file.name}
                                         onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                                         onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -1586,7 +1586,7 @@ export default function CollaborativeTaskAdmin() {
                                   <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                                     <span style={{ fontSize: "12px" }}>📎</span>
                                     <a 
-                                      href={file.url}
+                                      href={r2ToProxyUrl(api, file.url)}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
