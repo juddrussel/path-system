@@ -965,6 +965,10 @@ router.get("/assigned-by-me", requireAuth, requireChairOrAdmin, async (req, res)
       params.push(`%${q}%`, `%${q}%`, `%${q}%`);
     }
 
+    // Exclude tasks archived by the current user
+    conditions.push("NOT EXISTS (SELECT 1 FROM user_task_archives WHERE user_id = ? AND task_id = t.id)");
+    params.push(req.user.id);
+
     const where = `WHERE ${conditions.join(" AND ")}`;
 
     const [rows] = await db.query(
