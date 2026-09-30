@@ -253,6 +253,15 @@ function fileKind(name = "") {
   return extension ? extension.slice(0, 4).toUpperCase() : "FILE";
 }
 
+function formatRole(role = "") {
+  const normalized = role.toLowerCase().trim();
+  if (normalized === "faculty") return "Faculty";
+  if (normalized === "admin") return "Admin";
+  if (normalized === "program chair" || normalized === "program_chair") return "Program Chair";
+  // Fallback: capitalize first letter of each word
+  return role.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+}
+
 function TaskAssignmentInner() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -304,7 +313,10 @@ function TaskAssignmentInner() {
         headers: authHeaders,
       });
       const data = await response.json();
-      setFacultyList(data.users || data || []);
+      // Filter out the current user from the faculty list
+      const allFaculty = data.users || data || [];
+      const filteredFaculty = allFaculty.filter(member => member.id !== user.id);
+      setFacultyList(filteredFaculty);
     } catch {
       setFacultyList([]);
     }
@@ -813,7 +825,7 @@ function TaskAssignmentInner() {
                             />
                             <span>
                               {member.full_name}
-                              <small> · Faculty reviewer</small>
+                              <small> · {formatRole(member.role)}</small>
                             </span>
                           </label>
                         ))}
@@ -1230,7 +1242,7 @@ function TaskAssignmentInner() {
                         <strong>{member.full_name}</strong>
                         <small>
                           {member.active} active handoff
-                          {member.active === 1 ? "" : "s"} · Faculty reviewer
+                          {member.active === 1 ? "" : "s"} · {formatRole(member.role)}
                         </small>
                       </span>
                       <em className={member.load >= 75 ? "busy" : ""}>
