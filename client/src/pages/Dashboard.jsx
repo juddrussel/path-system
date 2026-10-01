@@ -3244,7 +3244,9 @@ export default function Dashboard() {
     return "Pending";
   };
   const trackingBuckets = { Approved: 0, Pending: 0, Returned: 0, Rejected: 0 };
-  myItems.forEach((t) => {
+  // For admin/program chair, show ALL tracked items; for faculty, show only their items
+  const itemsForTracking = canViewAdminNav ? trackedItems : myItems;
+  itemsForTracking.forEach((t) => {
     trackingBuckets[trackingBucketOf(t.status)]++;
   });
   const trackingOverviewData = [
@@ -3281,7 +3283,8 @@ export default function Dashboard() {
     "polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)";
 
   const DONE_FOR_DEADLINES = ["Approved", "Completed", "Archived", "Rejected"];
-  const upcomingDeadlines = myItems
+  // For admin/program chair, show ALL deadlines; for faculty, show only their deadlines
+  const upcomingDeadlines = itemsForTracking
     .filter((t) => !DONE_FOR_DEADLINES.includes(t.status) && t.dateObj)
     .map((t) => ({ ...t, daysLeft: Math.ceil((t.dateObj - now) / 86400000) }))
     .sort((a, b) => a.daysLeft - b.daysLeft)
