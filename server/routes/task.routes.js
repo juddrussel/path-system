@@ -874,9 +874,11 @@ router.get("/my", requireAuth, async (req, res) => {
   try {
     const { q = "", status = "", priority = "", doc_type = "", date = "" } = req.query;
 
-    // For faculty: only show tasks assigned TO them (faculty_id = current user)
-    const conditions = ["t.faculty_id = ?"];
-    const params     = [req.user.id];
+    // For faculty: show tasks where they are either:
+    // 1. The primary faculty (faculty_id)
+    // 2. A collaborator (in task_collaborators table)
+    const conditions = ["(t.faculty_id = ? OR tc.user_id = ?)"];
+    const params     = [req.user.id, req.user.id];
 
     if (status)   { conditions.push("t.status = ?");              params.push(status); }
     if (priority) { conditions.push("t.priority = ?");            params.push(priority); }
@@ -890,7 +892,7 @@ router.get("/my", requireAuth, async (req, res) => {
     const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
     const [rows] = await db.query(
-      `SELECT
+      `SELECT DISTINCT
          t.*,
          u1.full_name AS faculty_name,
          u1.email     AS faculty_email,
@@ -900,6 +902,7 @@ router.get("/my", requireAuth, async (req, res) => {
        LEFT JOIN users u1 ON u1.id = t.faculty_id
        LEFT JOIN users u2 ON u2.id = t.assigned_by
        LEFT JOIN users u3 ON u3.id = t.collaborator_id
+       LEFT JOIN task_collaborators tc ON tc.task_id = t.id
        ${where}
        ORDER BY t.created_at DESC`,
       params
