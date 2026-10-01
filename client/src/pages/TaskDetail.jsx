@@ -2021,103 +2021,105 @@ export default function TaskDetail() {
               </main>
 
               <aside className="td-side">
-                <section className="td-decision">
-                  <div className="td-decision-head">
-                    <span>Decision station</span>
-                    <div className={`td-state ${decisionStatus.tone}`}>
-                      <Icon name="shield" size={13} /> {decisionStatus.label}
-                    </div>
-                  </div>
-                  <h2>Move the handoff forward deliberately.</h2>
-                  <p>
-                    {isFacultyView
-                      ? "Prepare the required file and note, then send the completed work for review."
-                      : !hasFacultySubmission
-                        ? "Faculty has not submitted a completed file and note yet. Approval and return actions remain locked until evidence is received."
-                        : status.tone === "review"
-                          ? "Review the evidence and record an approval or a clear revision instruction."
-                          : "Decision controls unlock when the faculty submission is ready for review."}
-                  </p>
-                  <div className="td-action-buttons">
-                    {isFacultyView ? (
-                      <>
-                        <button
-                          className="td-approve"
-                          type="button"
-                          disabled={isUnderReview}
-                          title={isUnderReview ? "Your submission is currently under review." : undefined}
-                          onClick={() =>
-                            !isUnderReview && submissionPanelRef.current?.scrollIntoView({
-                              behavior: "smooth",
-                              block: "center",
-                            })
-                          }
-                          style={isUnderReview ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
-                        >
-                          <Icon name="send" size={14} /> {isUnderReview ? "Under review" : "Prepare submission"}
-                        </button>
-                        <button
-                          className="td-return"
-                          type="button"
-                          onClick={goBack}
-                        >
-                          Save for later
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          className="td-approve"
-                          type="button"
-                          disabled={!canApprove || deciding}
-                          title={
-                            !canApprove
-                              ? "Faculty submission is required before approval."
-                              : undefined
-                          }
-                          onClick={approveTask}
-                        >
-                          <Icon name="check" size={14} />{" "}
-                          {deciding ? "Saving…" : "Approve task"}
-                        </button>
-                        <button
-                          className="td-return"
-                          type="button"
-                          disabled={!canReturn || deciding}
-                          title={
-                            !canReturn
-                              ? "Faculty submission is required before a revision request."
-                              : undefined
-                          }
-                          onClick={() => {
-                            setReturnOpen(true);
-                            setReturnError("");
-                          }}
-                        >
-                          <Icon name="return" size={14} /> Return for revision
-                        </button>
-                      </>
-                    )}
-                  </div>
-                  {!isFacultyView && !hasFacultySubmission && (
-                    <div className="td-no-submission">
-                      <Icon name="shield" size={15} />
-                      <div>
-                        <strong>Faculty submission required</strong>
-                        <p>
-                          Faculty has not submitted a completed file and note
-                          yet. Approval and return actions will unlock after the
-                          submission enters review.
-                        </p>
+                {/* Hide Decision Station when task is approved/completed */}
+                {!(/approved|received|completed|done/.test((task.status || "").toLowerCase())) && (
+                  <section className="td-decision">
+                    <div className="td-decision-head">
+                      <span>Decision station</span>
+                      <div className={`td-state ${decisionStatus.tone}`}>
+                        <Icon name="shield" size={13} /> {decisionStatus.label}
                       </div>
                     </div>
-                  )}
-                  {!isFacultyView && returnOpen && (
-                    <form className="td-return-form" onSubmit={returnTask}>
-                      <label htmlFor="td-return-reason">
-                        Reason <em style={{ color: "#dc2626", fontStyle: "normal", fontWeight: 700 }}>required</em>
-                      </label>
-                      <select
+                    <h2>Move the handoff forward deliberately.</h2>
+                    <p>
+                      {isFacultyView
+                        ? "Prepare the required file and note, then send the completed work for review."
+                        : !hasFacultySubmission
+                          ? "Faculty has not submitted a completed file and note yet. Approval and return actions remain locked until evidence is received."
+                          : status.tone === "review"
+                            ? "Review the evidence and record an approval or a clear revision instruction."
+                            : "Decision controls unlock when the faculty submission is ready for review."}
+                    </p>
+                    <div className="td-action-buttons">
+                      {isFacultyView ? (
+                        <>
+                          <button
+                            className="td-approve"
+                            type="button"
+                            disabled={isUnderReview}
+                            title={isUnderReview ? "Your submission is currently under review." : undefined}
+                            onClick={() =>
+                              !isUnderReview && submissionPanelRef.current?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                              })
+                            }
+                            style={isUnderReview ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
+                          >
+                            <Icon name="send" size={14} /> {isUnderReview ? "Under review" : "Prepare submission"}
+                          </button>
+                          <button
+                            className="td-return"
+                            type="button"
+                            onClick={goBack}
+                          >
+                            Save for later
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="td-approve"
+                            type="button"
+                            disabled={!canApprove || deciding}
+                            title={
+                              !canApprove
+                                ? "Faculty submission is required before approval."
+                                : undefined
+                            }
+                            onClick={approveTask}
+                          >
+                            <Icon name="check" size={14} />{" "}
+                            {deciding ? "Saving…" : "Approve task"}
+                          </button>
+                          <button
+                            className="td-return"
+                            type="button"
+                            disabled={!canReturn || deciding}
+                            title={
+                              !canReturn
+                                ? "Faculty submission is required before a revision request."
+                                : undefined
+                            }
+                            onClick={() => {
+                              setReturnOpen(true);
+                              setReturnError("");
+                            }}
+                          >
+                            <Icon name="return" size={14} /> Return for revision
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    {!isFacultyView && !hasFacultySubmission && (
+                      <div className="td-no-submission">
+                        <Icon name="shield" size={15} />
+                        <div>
+                          <strong>Faculty submission required</strong>
+                          <p>
+                            Faculty has not submitted a completed file and note
+                            yet. Approval and return actions will unlock after the
+                            submission enters review.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {!isFacultyView && returnOpen && (
+                      <form className="td-return-form" onSubmit={returnTask}>
+                        <label htmlFor="td-return-reason">
+                          Reason <em style={{ color: "#dc2626", fontStyle: "normal", fontWeight: 700 }}>required</em>
+                        </label>
+                        <select
                         id="td-return-reason"
                         value={returnReason}
                         onChange={(event) => { setReturnReason(event.target.value); setReturnError(""); }}
@@ -2250,6 +2252,8 @@ export default function TaskDetail() {
                     </form>
                   )}
                 </section>
+                )}
+
                 <section className="td-side-card">
                   <span className="td-side-label">Submission readiness</span>
                   <div className="td-readiness">
