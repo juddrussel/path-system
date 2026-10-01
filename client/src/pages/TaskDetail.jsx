@@ -1122,7 +1122,27 @@ export default function TaskDetail() {
                 ) : null}
 
                 {isFacultyView && (
-                  isUnderReview ? (
+                  (/approved|received|completed|done/.test((task.status || "").toLowerCase())) ? (
+                    <section className="td-card">
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 20px", textAlign: "center" }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 14, background: "#e6f5ed", border: "1.5px solid #c8e6d7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, color: "#378259" }}>
+                          ✓
+                        </div>
+                        <div>
+                          <strong style={{ display: "block", fontSize: 15, fontWeight: 800, color: "#27213a", marginBottom: 6, fontFamily: "Manrope,'DM Sans',sans-serif" }}>
+                            Task has been approved
+                          </strong>
+                          <p style={{ margin: 0, fontSize: 12, color: "#6b5f76", lineHeight: 1.6 }}>
+                            This task has been completed and approved by the program chair. No further submissions are needed.
+                          </p>
+                        </div>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 99, background: "#e6f5ed", border: "1px solid #c8e6d7", color: "#2d6945", fontSize: 11, fontWeight: 800 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#51ab83", display: "inline-block", boxShadow: "0 0 0 3px rgba(81,171,131,0.2)" }} />
+                          Approved & Closed
+                        </div>
+                      </div>
+                    </section>
+                  ) : isUnderReview ? (
                     <section className="td-card">
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 20px", textAlign: "center" }}>
                         <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdf4", border: "1.5px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center" }}>
