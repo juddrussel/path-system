@@ -2033,7 +2033,10 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
   const cards = [
     {
       label: "Tasks assigned",
-      value: tasksAll.length,
+      value: tasksAll.filter(t => {
+        const s = String(t.status || "").toLowerCase();
+        return !/approved|received|completed|archived/.test(s);
+      }).length,
       detail: "Assigned to you",
       icon: ClipboardList,
       color: "#0284c7",
