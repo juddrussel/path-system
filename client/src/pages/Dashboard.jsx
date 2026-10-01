@@ -2056,6 +2056,16 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
       color: "#c26b4d",
     },
     {
+      label: "Approved",
+      value: tasksAll.filter(t => {
+        const s = String(t.status || "").toLowerCase();
+        return /approved|received/.test(s);
+      }).length,
+      detail: "Successfully completed",
+      icon: CheckCircle2,
+      color: "#16a34a",
+    },
+    {
       label: "Overdue",
       value: overdueCount,
       detail: "Past their deadline",
