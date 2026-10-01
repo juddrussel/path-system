@@ -1408,63 +1408,6 @@ export default function DocumentReview() {
                   )}
                 </Panel>
               )}
-              <Panel className="doc-summary">
-                <div className="doc-head">
-                  <div>
-                    <Label>Document intelligence</Label>
-                    <h2>Review brief</h2>
-                  </div>
-                  <button type="button" onClick={generateBrief}>
-                    Generate brief
-                  </button>
-                </div>
-                {brief ? (
-                  <p>{brief}</p>
-                ) : (
-                  <div className="doc-empty-note">
-                    <i>⌁</i>
-                    <span>
-                      Create a concise review brief from the available document
-                      metadata and submitted fields. It supports your decision
-                      without changing the original record.
-                    </span>
-                  </div>
-                )}
-              </Panel>
-              <Panel className="doc-comments">
-                <div className="doc-head">
-                  <div>
-                    <Label>Review discussion</Label>
-                    <h2>Reviewer comments</h2>
-                  </div>
-                  <span className="doc-count">{comments.length}</span>
-                </div>
-                {comments.length ? (
-                  comments.map((comment, index) => (
-                    <div className="doc-comment" key={comment.id || index}>
-                      <span className="doc-avatar">
-                        {initials(
-                          comment.sender_name || comment.user || "Reviewer",
-                        )}
-                      </span>
-                      <div>
-                        <strong>
-                          {comment.sender_name || comment.user || "Reviewer"}
-                          <span>{shortTime(comment.created_at)}</span>
-                        </strong>
-                        <p>
-                          {comment.content || comment.note || comment.message}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="doc-comment-empty">
-                    No threaded comments have been recorded. Use the decision
-                    note to leave review direction for this form.
-                  </p>
-                )}
-              </Panel>
               <section className="doc-workflow">
                 <Panel className="doc-history doc-lineage-card">
                   <div className="doc-head">
