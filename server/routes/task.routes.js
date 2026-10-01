@@ -889,6 +889,8 @@ router.get("/my", requireAuth, async (req, res) => {
 
     const filterWhere = filterConditions.length ? `AND ${filterConditions.join(" AND ")}` : "";
 
+    console.log('[DEBUG] /api/tasks/my - User ID:', req.user.id);
+
     // Query: Tasks where user is primary faculty OR tasks where user is a collaborator
     const [rows] = await db.query(
       `SELECT DISTINCT
@@ -911,6 +913,11 @@ router.get("/my", requireAuth, async (req, res) => {
        ORDER BY t.created_at DESC`,
       [req.user.id, req.user.id, ...filterParams]
     );
+
+    console.log('[DEBUG] /api/tasks/my - Found', rows.length, 'tasks');
+    rows.forEach(r => {
+      console.log(`  - Task ${r.id}: faculty_id=${r.faculty_id}, tracking_id=${r.tracking_id}`);
+    });
 
     const tasks = await enrichTasks(rows);
 
