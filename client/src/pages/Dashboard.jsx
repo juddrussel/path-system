@@ -1991,7 +1991,7 @@ function QuickActionsPanel({ navigate, actions = ADMIN_QUICK_ACTIONS }) {
   );
 }
 
-function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tasksAll = [], tasksLoading, tasksPage, tasksTotalPages, setTasksPage, navigate }) {
+function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tasksAll = [], tasksAllUnfiltered = [], tasksLoading, tasksPage, tasksTotalPages, setTasksPage, navigate }) {
   const statusOf = (row) => String(row.status || "").toLowerCase();
 
   // Combine forms + tasks for accurate counts
@@ -2057,7 +2057,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
     },
     {
       label: "Approved",
-      value: tasksAll.filter(t => {
+      value: tasksAllUnfiltered.filter(t => {
         const s = String(t.status || "").toLowerCase();
         return /approved|received/.test(s);
       }).length,
@@ -3663,7 +3663,7 @@ export default function Dashboard() {
         >
           {isFacultyDashboard ? (
             (() => {
-              // Filter out completed/approved tasks
+              // Filter out completed/approved tasks for display
               const activeTasks = myTasksData.filter(t => {
                 const s = String(t.status || "").toLowerCase();
                 return !/approved|received|completed|archived/.test(s);
@@ -3676,6 +3676,7 @@ export default function Dashboard() {
                   tasksLoading={myTasksDataLoading}
                   tasks={activeTasks.slice(0, 5)}
                   tasksAll={activeTasks}
+                  tasksAllUnfiltered={myTasksData}
                   tasksPage={myTasksPage}
                   tasksTotalPages={Math.max(1, Math.ceil(activeTasks.length / 5))}
                   setTasksPage={setMyTasksPage}
