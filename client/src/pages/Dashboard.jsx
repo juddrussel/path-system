@@ -3652,18 +3652,27 @@ export default function Dashboard() {
           }}
         >
           {isFacultyDashboard ? (
-            <FacultyDashboardOverview
-              displayName={displayName}
-              forms={myFormsData}
-              loading={myFormsDataLoading}
-              tasksLoading={myTasksDataLoading}
-              tasks={myTasksData.slice(0, 5)}
-              tasksAll={myTasksData}
-              tasksPage={myTasksPage}
-              tasksTotalPages={Math.max(1, Math.ceil(myTasksData.length / 5))}
-              setTasksPage={setMyTasksPage}
-              navigate={navigate}
-            />
+            (() => {
+              // Filter out completed/approved tasks
+              const activeTasks = myTasksData.filter(t => {
+                const s = String(t.status || "").toLowerCase();
+                return !/approved|received|completed|archived/.test(s);
+              });
+              return (
+                <FacultyDashboardOverview
+                  displayName={displayName}
+                  forms={myFormsData}
+                  loading={myFormsDataLoading}
+                  tasksLoading={myTasksDataLoading}
+                  tasks={activeTasks.slice(0, 5)}
+                  tasksAll={activeTasks}
+                  tasksPage={myTasksPage}
+                  tasksTotalPages={Math.max(1, Math.ceil(activeTasks.length / 5))}
+                  setTasksPage={setMyTasksPage}
+                  navigate={navigate}
+                />
+              );
+            })()
           ) : (
             <>
               {/* ── Welcome Header ── */}
