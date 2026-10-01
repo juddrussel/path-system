@@ -874,9 +874,12 @@ router.get("/my", requireAuth, async (req, res) => {
   try {
     const { q = "", status = "", priority = "", doc_type = "", date = "" } = req.query;
 
-    // For faculty: only show tasks assigned TO them (faculty_id = current user)
-    const conditions = ["t.faculty_id = ?"];
-    const params     = [req.user.id];
+    // For faculty: show tasks assigned TO them (faculty_id = current user)
+    // PLUS collaborative tasks where they are a collaborator
+    const conditions = [
+      "(t.faculty_id = ? OR EXISTS (SELECT 1 FROM task_collaborators tc WHERE tc.task_id = t.id AND tc.user_id = ?))"
+    ];
+    const params     = [req.user.id, req.user.id];
 
     if (status)   { conditions.push("t.status = ?");              params.push(status); }
     if (priority) { conditions.push("t.priority = ?");            params.push(priority); }
