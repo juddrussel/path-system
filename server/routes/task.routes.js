@@ -874,39 +874,23 @@ router.get("/my", requireAuth, async (req, res) => {
   try {
     const { q = "", status = "", priority = "", doc_type = "", date = "" } = req.query;
 
-    // Build filter conditions (excluding the main user filter)
-    const filterConditions = [];
-    const filterParams = [];
+    // For faculty: only show tasks assigned TO them (faculty_id = current user)
+    const conditions = ["t.faculty_id = ?"];
+    const params     = [req.user.id];
 
-    if (status)   { filterConditions.push("t.status = ?");              filterParams.push(status); }
-    if (priority) { filterConditions.push("t.priority = ?");            filterParams.push(priority); }
-    if (doc_type) { filterConditions.push("t.doc_type = ?");            filterParams.push(doc_type); }
-    if (date)     { filterConditions.push("DATE(t.created_at) = ?");    filterParams.push(date); }
+    if (status)   { conditions.push("t.status = ?");              params.push(status); }
+    if (priority) { conditions.push("t.priority = ?");            params.push(priority); }
+    if (doc_type) { conditions.push("t.doc_type = ?");            params.push(doc_type); }
+    if (date)     { conditions.push("DATE(t.created_at) = ?");    params.push(date); }
     if (q)        {
-      filterConditions.push("(t.title LIKE ? OR t.tracking_id LIKE ? OR u2.full_name LIKE ?)");
-      filterParams.push(`%${q}%`, `%${q}%`, `%${q}%`);
+      conditions.push("(t.title LIKE ? OR t.tracking_id LIKE ? OR u2.full_name LIKE ?)");
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`);
     }
 
-    const filterWhere = filterConditions.length ? `AND ${filterConditions.join(" AND ")}` : "";
+    const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    console.log('[DEBUG] /api/tasks/my - User ID:', req.user.id);
-
-    // Check what's in task_collaborators for this user
-    const [collabCheck] = await db.query(
-      `SELECT tc.*, t.title, t.tracking_id 
-       FROM task_collaborators tc 
-       JOIN tasks t ON t.id = tc.task_id
-       WHERE tc.user_id = ?`,
-      [req.user.id]
-    );
-    console.log('[DEBUG] /api/tasks/my - Collaborator entries:');
-    collabCheck.forEach(c => {
-      console.log(`  - Task ${c.task_id} (${c.tracking_id}): ${c.title}`);
-    });
-
-    // Query: Tasks where user is primary faculty OR tasks where user is a collaborator
     const [rows] = await db.query(
-      `SELECT DISTINCT
+      `SELECT
          t.*,
          u1.full_name AS faculty_name,
          u1.email     AS faculty_email,
@@ -916,21 +900,10 @@ router.get("/my", requireAuth, async (req, res) => {
        LEFT JOIN users u1 ON u1.id = t.faculty_id
        LEFT JOIN users u2 ON u2.id = t.assigned_by
        LEFT JOIN users u3 ON u3.id = t.collaborator_id
-       WHERE (
-         t.faculty_id = ?
-         OR t.id IN (
-           SELECT task_id FROM task_collaborators WHERE user_id = ?
-         )
-       )
-       ${filterWhere}
+       ${where}
        ORDER BY t.created_at DESC`,
-      [req.user.id, req.user.id, ...filterParams]
+      params
     );
-
-    console.log('[DEBUG] /api/tasks/my - Found', rows.length, 'tasks');
-    rows.forEach(r => {
-      console.log(`  - Task ${r.id}: faculty_id=${r.faculty_id}, tracking_id=${r.tracking_id}`);
-    });
 
     const tasks = await enrichTasks(rows);
 
