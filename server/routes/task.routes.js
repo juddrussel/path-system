@@ -874,23 +874,22 @@ router.get("/my", requireAuth, async (req, res) => {
   try {
     const { q = "", status = "", priority = "", doc_type = "", date = "" } = req.query;
 
-    // For faculty: show tasks where they are either:
-    // 1. The primary faculty (faculty_id)
-    // 2. A collaborator in a collaborative task (in task_collaborators table)
-    const conditions = ["(t.faculty_id = ? OR (tc.user_id = ? AND tc.user_id IS NOT NULL))"];
-    const params     = [req.user.id, req.user.id];
+    // Build filter conditions (excluding the main user filter)
+    const filterConditions = [];
+    const filterParams = [];
 
-    if (status)   { conditions.push("t.status = ?");              params.push(status); }
-    if (priority) { conditions.push("t.priority = ?");            params.push(priority); }
-    if (doc_type) { conditions.push("t.doc_type = ?");            params.push(doc_type); }
-    if (date)     { conditions.push("DATE(t.created_at) = ?");    params.push(date); }
+    if (status)   { filterConditions.push("t.status = ?");              filterParams.push(status); }
+    if (priority) { filterConditions.push("t.priority = ?");            filterParams.push(priority); }
+    if (doc_type) { filterConditions.push("t.doc_type = ?");            filterParams.push(doc_type); }
+    if (date)     { filterConditions.push("DATE(t.created_at) = ?");    filterParams.push(date); }
     if (q)        {
-      conditions.push("(t.title LIKE ? OR t.tracking_id LIKE ? OR u2.full_name LIKE ?)");
-      params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+      filterConditions.push("(t.title LIKE ? OR t.tracking_id LIKE ? OR u2.full_name LIKE ?)");
+      filterParams.push(`%${q}%`, `%${q}%`, `%${q}%`);
     }
 
-    const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const filterWhere = filterConditions.length ? `AND ${filterConditions.join(" AND ")}` : "";
 
+    // Query: Tasks where user is primary faculty OR tasks where user is a collaborator
     const [rows] = await db.query(
       `SELECT DISTINCT
          t.*,
@@ -902,10 +901,15 @@ router.get("/my", requireAuth, async (req, res) => {
        LEFT JOIN users u1 ON u1.id = t.faculty_id
        LEFT JOIN users u2 ON u2.id = t.assigned_by
        LEFT JOIN users u3 ON u3.id = t.collaborator_id
-       LEFT JOIN task_collaborators tc ON tc.task_id = t.id
-       ${where}
+       WHERE (
+         t.faculty_id = ?
+         OR t.id IN (
+           SELECT task_id FROM task_collaborators WHERE user_id = ?
+         )
+       )
+       ${filterWhere}
        ORDER BY t.created_at DESC`,
-      params
+      [req.user.id, req.user.id, ...filterParams]
     );
 
     const tasks = await enrichTasks(rows);
