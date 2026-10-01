@@ -602,6 +602,8 @@ function StatusBadge({ s }) {
     border: "#e5e7eb",
     dot: "#9ca3af",
   };
+  // Map status to display text (e.g., "received" -> "Approved")
+  const displayText = REAL_STATUS_DISPLAY[s?.toLowerCase()] || s;
   return (
     <span
       style={{
@@ -630,7 +632,7 @@ function StatusBadge({ s }) {
           boxShadow: `0 0 0 2px ${cfg.bg}`,
         }}
       />
-      {s}
+      {displayText}
     </span>
   );
 }
