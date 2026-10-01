@@ -2021,8 +2021,31 @@ export default function TaskDetail() {
               </main>
 
               <aside className="td-side">
-                {/* Hide Decision Station when task is approved/completed */}
-                {!(/approved|received|completed|done/.test((task.status || "").toLowerCase())) && (
+                {/* Show approval card when task is approved/completed, otherwise show Decision Station */}
+                {(/approved|received|completed|done/.test((task.status || "").toLowerCase())) ? (
+                  <section className="td-decision" style={{ background: 'linear-gradient(150deg, #e6f5ed, #f5fbf8 58%, #fff)', borderColor: '#c8e6d7' }}>
+                    <div className="td-decision-head" style={{ borderColor: '#d4eddf' }}>
+                      <span style={{ color: '#3d8b5e' }}>Task Status</span>
+                      <div className="td-state approved">
+                        <Icon name="shield" size={13} /> Approved
+                      </div>
+                    </div>
+                    <div style={{ padding: '20px 15px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                        <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '8px', background: '#dff4e7', color: '#378259', fontSize: '18px' }}>
+                          ✓
+                        </div>
+                        <div>
+                          <strong style={{ display: 'block', color: '#2d6945', fontSize: '14px', fontWeight: 800, marginBottom: '2px' }}>Task Completed</strong>
+                          <span style={{ color: '#5a9371', fontSize: '11px' }}>This task has been approved and closed successfully.</span>
+                        </div>
+                      </div>
+                      <p style={{ margin: '0', padding: '12px', background: '#f0f9f3', borderRadius: '8px', border: '1px solid #d8eee0', color: '#3d7554', fontSize: '11px', lineHeight: '1.5' }}>
+                        No further action is required. The work has been reviewed and accepted by the program chair or administrator.
+                      </p>
+                    </div>
+                  </section>
+                ) : (
                   <section className="td-decision">
                     <div className="td-decision-head">
                       <span>Decision station</span>
