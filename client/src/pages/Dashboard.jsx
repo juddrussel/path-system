@@ -3243,17 +3243,29 @@ export default function Dashboard() {
     if (status === "Returned") return "Returned";
     return "Pending";
   };
-  const trackingBuckets = { Approved: 0, Pending: 0, Returned: 0, Rejected: 0 };
+  
   // For admin/program chair, show ALL tracked items; for faculty, show only their items
   const itemsForTracking = canViewAdminNav ? trackedItems : myItems;
-  itemsForTracking.forEach((t) => {
-    trackingBuckets[trackingBucketOf(t.status)]++;
-  });
+  
+  // Count by status using the same approach as Reports.jsx
+  const approvedCount = itemsForTracking.filter((t) => 
+    t.status === "Approved" || t.status === "Completed" || t.status === "Archived" || t.status === "Received"
+  ).length;
+  const pendingCount = itemsForTracking.filter((t) => 
+    t.status === "Pending" || t.status === "Under Review" || t.status === "For Approval" || t.status === "Delayed"
+  ).length;
+  const returnedCount = itemsForTracking.filter((t) => 
+    t.status === "Returned"
+  ).length;
+  const rejectedCount = itemsForTracking.filter((t) => 
+    t.status === "Rejected"
+  ).length;
+  
   const trackingOverviewData = [
-    { name: "Approved", value: trackingBuckets.Approved, color: "#22c55e" },
-    { name: "Pending", value: trackingBuckets.Pending, color: "#f59e0b" },
-    { name: "Returned", value: trackingBuckets.Returned, color: "#6366f1" },
-    { name: "Rejected", value: trackingBuckets.Rejected, color: "#ef4444" },
+    { name: "Approved", value: approvedCount, color: "#22c55e" },
+    { name: "Pending", value: pendingCount, color: "#f59e0b" },
+    { name: "Returned", value: returnedCount, color: "#6366f1" },
+    { name: "Rejected", value: rejectedCount, color: "#ef4444" },
   ];
   const trackingOverviewTotal = trackingOverviewData.reduce(
     (s, d) => s + d.value,
