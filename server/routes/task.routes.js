@@ -891,6 +891,19 @@ router.get("/my", requireAuth, async (req, res) => {
 
     console.log('[DEBUG] /api/tasks/my - User ID:', req.user.id);
 
+    // Check what's in task_collaborators for this user
+    const [collabCheck] = await db.query(
+      `SELECT tc.*, t.title, t.tracking_id 
+       FROM task_collaborators tc 
+       JOIN tasks t ON t.id = tc.task_id
+       WHERE tc.user_id = ?`,
+      [req.user.id]
+    );
+    console.log('[DEBUG] /api/tasks/my - Collaborator entries:');
+    collabCheck.forEach(c => {
+      console.log(`  - Task ${c.task_id} (${c.tracking_id}): ${c.title}`);
+    });
+
     // Query: Tasks where user is primary faculty OR tasks where user is a collaborator
     const [rows] = await db.query(
       `SELECT DISTINCT
