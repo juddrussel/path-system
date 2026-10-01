@@ -876,8 +876,8 @@ router.get("/my", requireAuth, async (req, res) => {
 
     // For faculty: show tasks where they are either:
     // 1. The primary faculty (faculty_id)
-    // 2. A collaborator (in task_collaborators table)
-    const conditions = ["(t.faculty_id = ? OR tc.user_id = ?)"];
+    // 2. A collaborator in a collaborative task (in task_collaborators table)
+    const conditions = ["(t.faculty_id = ? OR (tc.user_id = ? AND tc.user_id IS NOT NULL))"];
     const params     = [req.user.id, req.user.id];
 
     if (status)   { conditions.push("t.status = ?");              params.push(status); }
