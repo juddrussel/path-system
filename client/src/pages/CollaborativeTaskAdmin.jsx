@@ -1175,14 +1175,14 @@ export default function CollaborativeTaskAdmin() {
               </p>
 
               <div style={{ padding: "14px", borderRadius: "8px", border: "1px solid #dccfe8", background: "#faf7ff" }}>
-                <p style={{ margin: "0", color: "#5d4867", fontSize: "11px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+                <p style={{ margin: "0", color: "#5d4867", fontSize: "13px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
                   {task?.notes || "No instructions provided."}
                 </p>
               </div>
 
               {attachments.length > 0 && (
                 <div style={{ marginTop: "12px" }}>
-                  <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
                     Instruction attachments
                   </span>
                   <div style={{ display: "grid", gap: "8px" }}>
@@ -1957,7 +1957,7 @@ export default function CollaborativeTaskAdmin() {
               <option>Required approval or endorsement is missing</option>
               <option>Other revision needed</option>
             </select>
-            <label htmlFor="admin-return-instruction" style={{ display: 'block', marginTop: '8px', color: '#806f8b', fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+            <label htmlFor="admin-return-instruction" style={{ display: 'block', marginTop: '8px', color: '#806f8b', fontSize: '12px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Instructions for faculty
             </label>
             <textarea

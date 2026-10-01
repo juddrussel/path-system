@@ -1392,7 +1392,7 @@ export default function CollaborativeTaskDetail() {
                 </div>
                 {attachments.length > 0 && (
                   <div style={{ marginTop: "12px" }}>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", display: "block", marginBottom: "8px" }}>
                       Instruction attachments
                     </span>
                     <div style={{ display: "grid", gap: "8px" }}>
@@ -1433,7 +1433,7 @@ export default function CollaborativeTaskDetail() {
                 <div style={{ marginTop: '12px', padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
                   {task.return_reason && (
                     <div style={{ marginBottom: task.revision_instructions || revisionFiles.length > 0 ? '12px' : '0' }}>
-                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
                         Reason
                       </div>
                       <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', margin: 0 }}>
@@ -1444,7 +1444,7 @@ export default function CollaborativeTaskDetail() {
                   
                   {task.revision_instructions && (
                     <div style={{ marginBottom: revisionFiles.length > 0 ? '12px' : '0', padding: '12px', background: '#fff', border: '1px solid #fde68a', borderRadius: '6px' }}>
-                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
                         Instructions for Faculty
                       </div>
                       <p style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap', margin: 0 }}>
@@ -2530,7 +2530,7 @@ export default function CollaborativeTaskDetail() {
               style={{ marginBottom: "16px" }}
             />
             
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "11px", fontWeight: 700, color: "#5d4867", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontSize: "12px", fontWeight: 700, color: "#5d4867", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Instructions for Faculty
             </label>
             <textarea
