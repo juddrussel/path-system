@@ -16,13 +16,22 @@ const getToken = () => {
 /**
  * Fetch file with authentication and create a blob URL for iframe use
  * @param {string} apiUrl - Base API URL
- * @param {string} key - R2 object key
+ * @param {string} value - R2 URL or key
  * @returns {Promise<string>} - Blob URL that can be used in iframe src
  */
-export async function createAuthenticatedBlobUrl(apiUrl, key) {
+export async function createAuthenticatedBlobUrl(apiUrl, value) {
   const token = getToken();
   if (!token) {
     throw new Error('No authentication token available');
+  }
+  
+  // Extract the key from the value (handle both full R2 URLs and keys)
+  let key = value;
+  if (/^https?:\/\//i.test(value) && value.includes("r2.dev")) {
+    const match = value.match(/r2\.dev\/(.+)$/);
+    if (match) {
+      key = match[1];
+    }
   }
   
   try {
