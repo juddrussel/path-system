@@ -641,13 +641,15 @@ export default function TaskDetail() {
   const uploadSubmissionFiles = async (files) => {
     setIsSubmissionUploadingFiles(true);
     const uploadedUrls = [];
+    const baseIndex = submissionFiles.length - files.length; // Get the starting index for these new files
     
     for (const [idx, file] of files.entries()) {
+      const fileIndex = baseIndex + idx;
       try {
         const startTime = Date.now();
         
         // Initialize progress
-        setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: 10 }));
+        setSubmissionFileProgress(prev => ({ ...prev, [fileIndex]: 10 }));
         
         const xhr = new XMLHttpRequest();
         xhr.open('POST', `${api}/api/upload`);
@@ -656,14 +658,14 @@ export default function TaskDetail() {
         const simulateProgress = setInterval(() => {
           const elapsed = Date.now() - startTime;
           const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
-          setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: estimatedPercent }));
+          setSubmissionFileProgress(prev => ({ ...prev, [fileIndex]: estimatedPercent }));
         }, 100);
         
         xhr.upload.addEventListener('progress', (event) => {
           clearInterval(simulateProgress);
           if (event.lengthComputable) {
             const percentComplete = Math.round((event.loaded / event.total) * 100);
-            setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: percentComplete }));
+            setSubmissionFileProgress(prev => ({ ...prev, [fileIndex]: percentComplete }));
           }
         });
         
@@ -671,10 +673,17 @@ export default function TaskDetail() {
           xhr.onload = () => {
             clearInterval(simulateProgress);
             if (xhr.status >= 200 && xhr.status < 300) {
-              const response = JSON.parse(xhr.responseText);
-              uploadedUrls.push(response.files[0]); // Get the uploaded file URL
-              setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: 100 }));
-              resolve();
+              try {
+                const response = JSON.parse(xhr.responseText);
+                // Handle different response formats
+                const uploadedFile = response.files?.[0] || response.file || { url: response.url, name: file.name };
+                uploadedUrls.push(uploadedFile);
+                setSubmissionFileProgress(prev => ({ ...prev, [fileIndex]: 100 }));
+                resolve();
+              } catch (parseError) {
+                console.error('Parse error:', parseError);
+                reject(new Error('Upload response parse failed'));
+              }
             } else {
               reject(new Error('Upload failed'));
             }
@@ -690,6 +699,7 @@ export default function TaskDetail() {
         });
       } catch (error) {
         console.error('File upload error:', error);
+        setSubmissionFileProgress(prev => ({ ...prev, [fileIndex]: 0 }));
       }
     }
     
