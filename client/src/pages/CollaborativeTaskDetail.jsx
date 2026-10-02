@@ -623,6 +623,7 @@ export default function CollaborativeTaskDetail() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Awaiting Confirmation");
   const [preview, setPreview] = useState(null);
+  const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
 
   const [finalFiles, setFinalFiles] = useState([]);
   const [finalNote, setFinalNote] = useState("");
@@ -857,6 +858,61 @@ export default function CollaborativeTaskDetail() {
       socket.off("collaborative:comment_posted");
     };
   }, [taskId]);
+
+  // Fetch file as blob for authenticated preview
+  useEffect(() => {
+    const fetchPreviewBlob = async () => {
+      if (!preview) {
+        // Clear blob URL when preview is closed
+        if (previewBlobUrl) {
+          window.URL.revokeObjectURL(previewBlobUrl);
+          setPreviewBlobUrl(null);
+        }
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Please log in to view files');
+          setPreview(null);
+          return;
+        }
+
+        const response = await fetch(preview.url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            alert('Your session has expired. Please log in again.');
+            window.location.href = '/login';
+            return;
+          }
+          throw new Error(`Failed to load preview: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        setPreviewBlobUrl(blobUrl);
+      } catch (error) {
+        console.error('Preview fetch error:', error);
+        alert('Failed to load preview. Please try again.');
+        setPreview(null);
+      }
+    };
+
+    fetchPreviewBlob();
+
+    // Cleanup blob URL on unmount
+    return () => {
+      if (previewBlobUrl) {
+        window.URL.revokeObjectURL(previewBlobUrl);
+      }
+    };
+  }, [preview]);
 
   // Handlers
   const toggleConfirmation = (userId) => {
@@ -1826,9 +1882,22 @@ export default function CollaborativeTaskDetail() {
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
-                    {preview.type === 'pdf' ? (
+                    {!previewBlobUrl ? (
+                      <div style={{ textAlign: 'center', padding: '40px', color: '#8d7f97' }}>
+                        <div style={{ 
+                          width: '40px', 
+                          height: '40px', 
+                          border: '3px solid #e9d5ff', 
+                          borderTopColor: '#7c3aed', 
+                          borderRadius: '50%', 
+                          animation: 'spin 1s linear infinite',
+                          margin: '0 auto 16px'
+                        }} />
+                        <p style={{ fontSize: '14px' }}>Loading preview...</p>
+                      </div>
+                    ) : preview.type === 'pdf' ? (
                       <iframe
-                        src={preview.url}
+                        src={previewBlobUrl}
                         title={preview.name}
                         style={{
                           width: '100%',
@@ -1838,7 +1907,7 @@ export default function CollaborativeTaskDetail() {
                       />
                     ) : ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(preview.type) ? (
                       <img
-                        src={preview.url}
+                        src={previewBlobUrl}
                         alt={preview.name}
                         style={{
                           maxWidth: '100%',
