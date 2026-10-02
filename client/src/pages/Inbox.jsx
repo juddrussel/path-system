@@ -566,6 +566,34 @@ function SelectRow({ label, value, options, onChange, disabled }) {
 function FileAttachment({ url, name }) {
   const ext = name?.split(".").pop()?.toLowerCase();
   const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+  const [imageBlobUrl, setImageBlobUrl] = useState(null);
+  
+  // Create blob URL for images to display inline
+  useEffect(() => {
+    if (!isImage || !url) return;
+    
+    let mounted = true;
+    
+    const loadImage = async () => {
+      try {
+        const blobUrl = await createAuthenticatedBlobUrl(API, url);
+        if (mounted) {
+          setImageBlobUrl(blobUrl);
+        }
+      } catch (error) {
+        console.error("Failed to load image:", error);
+      }
+    };
+    
+    loadImage();
+    
+    return () => {
+      mounted = false;
+      if (imageBlobUrl) {
+        URL.revokeObjectURL(imageBlobUrl);
+      }
+    };
+  }, [url, isImage, imageBlobUrl]);
   
   const handleFileClick = async (e) => {
     e.preventDefault();
@@ -583,7 +611,8 @@ function FileAttachment({ url, name }) {
   if (isImage) {
     return (
       <a href="#" onClick={handleFileClick} rel="noreferrer">
-        <img src={resolveUrl(url)} alt={name} style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, marginTop: 4, display: "block" }} />
+        <img src={imageBlobUrl || ""} alt={name} style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, marginTop: 4, display: imageBlobUrl ? "block" : "none" }} />
+        {!imageBlobUrl && <div style={{ maxWidth: 200, height: 150, borderRadius: 8, marginTop: 4, display: "flex", alignItems: "center", justifyContent: "center", background: "#f0f0f0" }}>Loading...</div>}
       </a>
     );
   }
