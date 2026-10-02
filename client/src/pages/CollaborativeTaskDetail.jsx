@@ -872,8 +872,10 @@ export default function CollaborativeTaskDetail() {
       }
 
       try {
+        console.log('[Preview] Fetching file:', preview.url);
         const token = localStorage.getItem('token');
         if (!token) {
+          console.error('[Preview] No token found');
           alert('Please log in to view files');
           setPreview(null);
           return;
@@ -885,21 +887,40 @@ export default function CollaborativeTaskDetail() {
           }
         });
 
+        console.log('[Preview] Response status:', response.status);
+        console.log('[Preview] Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        const contentType = response.headers.get('content-type');
+        console.log('[Preview] Content-Type:', contentType);
+
         if (!response.ok) {
           if (response.status === 401) {
+            const errorText = await response.text();
+            console.error('[Preview] 401 Unauthorized:', errorText);
             alert('Your session has expired. Please log in again.');
             window.location.href = '/login';
             return;
           }
-          throw new Error(`Failed to load preview: ${response.status}`);
+          const errorText = await response.text();
+          console.error('[Preview] Error response:', errorText);
+          throw new Error(`Failed to load preview: ${response.status} - ${errorText}`);
+        }
+
+        // Check if we actually got file content, not an error page
+        if (contentType && contentType.includes('application/json')) {
+          const errorJson = await response.json();
+          console.error('[Preview] Got JSON error response:', errorJson);
+          throw new Error(errorJson.message || 'Failed to load file');
         }
 
         const blob = await response.blob();
+        console.log('[Preview] Blob created:', blob.type, blob.size, 'bytes');
         const blobUrl = window.URL.createObjectURL(blob);
+        console.log('[Preview] Blob URL created:', blobUrl);
         setPreviewBlobUrl(blobUrl);
       } catch (error) {
-        console.error('Preview fetch error:', error);
-        alert('Failed to load preview. Please try again.');
+        console.error('[Preview] Fetch error:', error);
+        alert(`Failed to load preview: ${error.message}`);
         setPreview(null);
       }
     };
