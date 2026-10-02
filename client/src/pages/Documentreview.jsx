@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL;
 const fileUrl = (value) =>
@@ -296,6 +296,7 @@ export default function DocumentReview() {
   const [withdrawing, setWithdrawing] = useState(false);
   const [serverLineage, setServerLineage] = useState([]);
   const submissionFileRef = useRef(null);
+  const [blobUrl, setBlobUrl] = useState(null);
 
   const currentUser = () => {
     try {
@@ -441,6 +442,53 @@ export default function DocumentReview() {
       } catch {}
     })();
   }, [form?.category, form?.document_type]);
+
+  // ── Create authenticated blob URL for file preview ────────────────────────
+  useEffect(() => {
+    let isMounted = true;
+    let currentBlobUrl = null;
+
+    const loadFile = async () => {
+      // Compute active file value (same logic as below in render)
+      const activeVersion = version || (form?.submissions && Array.isArray(form.submissions) && form.submissions.length > 0 ? form.submissions[0] : null);
+      const submittedFileValue = versionFileUrl(activeVersion) || form?.submitted_file || form?.fileUrl || form?.file_url || form?.document_url;
+      const activeFileValue = activeVersion ? versionFileUrl(activeVersion) : submittedFileValue;
+      
+      if (!activeFileValue) {
+        setBlobUrl(null);
+        return;
+      }
+
+      const extension = (activeFileValue || "").split(".").pop().toLowerCase();
+      const pdf = extension === "pdf";
+      
+      // Only create blob URLs for PDFs (images can load directly with tokens in <img> tags)
+      if (!pdf) {
+        setBlobUrl(null);
+        return;
+      }
+
+      try {
+        const url = await createAuthenticatedBlobUrl(API || "http://localhost:5000", activeFileValue);
+        if (isMounted) {
+          currentBlobUrl = url;
+          setBlobUrl(url);
+        }
+      } catch (error) {
+        console.error("Failed to load authenticated file:", error);
+        if (isMounted) setBlobUrl(null);
+      }
+    };
+
+    loadFile();
+
+    return () => {
+      isMounted = false;
+      if (currentBlobUrl) {
+        URL.revokeObjectURL(currentBlobUrl);
+      }
+    };
+  }, [form, version]);
 
   const decision = async (
     action,
@@ -1333,7 +1381,7 @@ export default function DocumentReview() {
                       <div className="doc-reader-scroll doc-reader-pdf">
                         <iframe
                           title={`Preview of ${activeFileName || title}`}
-                          src={`${url}#toolbar=0`}
+                          src={blobUrl ? `${blobUrl}#toolbar=0` : ""}
                         />
                       </div>
                       <div className="doc-reader-bottom">
@@ -2142,7 +2190,7 @@ export default function DocumentReview() {
                         const isUploading = isDecisionUploadingFiles && progress < 100;
                         
                         return (
-                          <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                          <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, maxWidth: '100%' }}>
                             <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
                               {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
                             </div>
