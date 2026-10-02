@@ -2195,7 +2195,7 @@ export default function TaskDetail() {
                       </label>
                       
                       {returnFiles.length > 0 && (
-                        <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef' }}>
+                        <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef', maxWidth: '100%', overflow: 'hidden' }}>
                           <div style={{ fontSize: '9px', fontWeight: 800, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
                             {returnFiles.length} file(s) attached
                           </div>
@@ -2207,12 +2207,12 @@ export default function TaskDetail() {
                               const isUploading = isReturnUploadingFiles && progress < 100;
                               
                               return (
-                                <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px', maxWidth: '100%' }}>
+                                <div key={idx} style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '12px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
                                   <div style={{ display: 'grid', width: '36px', height: '36px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '16px', flexShrink: 0 }}>
                                     {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
                                   </div>
-                                  <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-                                    <div style={{ color: '#5d4867', fontSize: '10px', fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  <div style={{ flex: 1, minWidth: 0, maxWidth: 'calc(100% - 80px)', overflow: 'hidden' }}>
+                                    <div style={{ color: '#5d4867', fontSize: '10px', fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
                                       {file.name}
                                     </div>
                                     <div style={{ marginTop: '6px', height: '5px', background: '#e9e0ef', borderRadius: '3px', overflow: 'hidden' }}>
