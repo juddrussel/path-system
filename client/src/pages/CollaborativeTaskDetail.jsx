@@ -1919,8 +1919,8 @@ export default function CollaborativeTaskDetail() {
                         <p style={{ fontSize: '14px' }}>Loading preview...</p>
                       </div>
                     ) : preview.type === 'pdf' ? (
-                      <embed
-                        src={previewBlobUrl}
+                      <object
+                        data={previewBlobUrl}
                         type="application/pdf"
                         title={preview.name}
                         style={{
@@ -1928,7 +1928,39 @@ export default function CollaborativeTaskDetail() {
                           height: '600px',
                           border: 'none'
                         }}
-                      />
+                      >
+                        <div style={{
+                          textAlign: 'center',
+                          padding: '40px',
+                          color: '#8d7f97'
+                        }}>
+                          <FileText size={48} style={{ marginBottom: '16px', opacity: 0.4 }} />
+                          <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                            PDF viewer not available
+                          </p>
+                          <p style={{ fontSize: '12px', marginBottom: '16px' }}>
+                            Your browser doesn't support inline PDF viewing.
+                          </p>
+                          <button
+                            onClick={() => downloadFileWithAuth(preview.url, preview.name)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '8px 16px',
+                              background: '#7c3aed',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <Download size={14} /> Download File
+                          </button>
+                        </div>
+                      </object>
                     ) : ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(preview.type) ? (
                       <img
                         src={previewBlobUrl}
