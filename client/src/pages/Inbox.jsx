@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { resolveFileUrl, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -568,16 +568,19 @@ function FileAttachment({ url, name }) {
   const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
   if (isImage) {
     return (
-      <a href={resolveUrl(url)} target="_blank" rel="noreferrer">
+      <div onClick={() => openFileWithAuth(resolveUrl(url))} style={{ cursor: "pointer" }}>
         <img src={resolveUrl(url)} alt={name} style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, marginTop: 4, display: "block" }} />
-      </a>
+      </div>
     );
   }
   return (
-    <a href={resolveUrl(url)} target="_blank" rel="noreferrer" download={name} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6, padding: "6px 10px", background: "rgba(0,0,0,0.07)", borderRadius: 8, fontSize: 12, color: "inherit", textDecoration: "none" }}>
+    <button 
+      onClick={() => downloadFileWithAuth(resolveUrl(url), name)}
+      style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6, padding: "6px 10px", background: "rgba(0,0,0,0.07)", borderRadius: 8, fontSize: 12, color: "inherit", textDecoration: "none", border: "none", cursor: "pointer" }}
+    >
       <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M3 2h7l3 3v9H3V2zm7 0v3h3" /></svg>
       {name}
-    </a>
+    </button>
   );
 }
 
@@ -2870,10 +2873,13 @@ export default function Inbox() {
                             fontSize: 13.5, lineHeight: 1.5, wordBreak: "break-word",
                           }}>
                             {msg.file_url
-                              ? <a href={resolveUrl(msg.file_url)} target="_blank" rel="noreferrer" download={msg.file_name} style={{ display: "flex", alignItems: "center", gap: 6, color: isMine ? "white" : "#6b38d4", textDecoration: "none", fontSize: 12 }}>
+                              ? <button 
+                                  onClick={() => downloadFileWithAuth(resolveUrl(msg.file_url), msg.file_name)}
+                                  style={{ display: "flex", alignItems: "center", gap: 6, color: isMine ? "white" : "#6b38d4", textDecoration: "none", fontSize: 12, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                                >
                                   <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M3 2h7l3 3v9H3V2z" /></svg>
                                   {msg.file_name || "File"}
-                                </a>
+                                </button>
                               : msg.content
                             }
                           </div>

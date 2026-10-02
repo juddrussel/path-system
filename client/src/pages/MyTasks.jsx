@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io } from "socket.io-client";
-import { resolveFileUrl as resolveFileUrlUtil } from "../utils/r2ProxyHelper";
+import { resolveFileUrl as resolveFileUrlUtil, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper";
 
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
 
@@ -6035,9 +6035,8 @@ export default function MyTasks() {
                 >
                   ↗ Open in new tab
                 </a>
-                <a
-                  href={fileViewer.url}
-                  download={fileViewer.name}
+                <button
+                  onClick={() => downloadFileWithAuth(fileViewer.url, fileViewer.name)}
                   style={{
                     padding: "6px 14px",
                     background: "#ede9fe",
@@ -6046,10 +6045,12 @@ export default function MyTasks() {
                     fontSize: 13,
                     fontWeight: 700,
                     textDecoration: "none",
+                    border: "none",
+                    cursor: "pointer",
                   }}
                 >
                   ↓ Download
-                </a>
+                </button>
                 <button
                   onClick={() => setFileViewer(null)}
                   style={{
@@ -6114,9 +6115,8 @@ export default function MyTasks() {
                   >
                     Preview not available for this file type.
                   </div>
-                  <a
-                    href={fileViewer.url}
-                    download={fileViewer.name}
+                  <button
+                    onClick={() => downloadFileWithAuth(fileViewer.url, fileViewer.name)}
                     style={{
                       padding: "10px 24px",
                       background: "#7c3aed",
@@ -6125,10 +6125,12 @@ export default function MyTasks() {
                       fontSize: 14,
                       fontWeight: 700,
                       textDecoration: "none",
+                      border: "none",
+                      cursor: "pointer",
                     }}
                   >
                     ↓ Download File
-                  </a>
+                  </button>
                 </div>
               )}
             </div>

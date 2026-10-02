@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket.js";
-import { resolveFileUrl as resolveFileUrlHelper } from "../utils/r2ProxyHelper";
+import { resolveFileUrl as resolveFileUrlHelper, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper";
 
 /*
   Router integration requirement (React Router v6):
@@ -1104,15 +1104,12 @@ export default function TaskDetail() {
                                   {file.size_kb || Math.round((file.file_size || 0) / 1024)} KB
                                 </small>
                               </div>
-                              <a
-                                href={resolveFileUrl(api, file.file_url || file.url)}
-                                download={file.file_name || file.name}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 8px", borderRadius: "5px", background: "#eee5fb", color: "#7043b6", textDecoration: "none", fontSize: "8px", fontWeight: 800, whiteSpace: "nowrap", flexShrink: 0 }}
+                              <button
+                                onClick={() => downloadFileWithAuth(resolveFileUrl(api, file.file_url || file.url), file.file_name || file.name)}
+                                style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 8px", borderRadius: "5px", background: "#eee5fb", color: "#7043b6", textDecoration: "none", fontSize: "8px", fontWeight: 800, whiteSpace: "nowrap", flexShrink: 0, border: "none", cursor: "pointer" }}
                               >
                                 <Icon name="download" /> Open
-                              </a>
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -1689,14 +1686,9 @@ export default function TaskDetail() {
                                       }}
                                     >
                                       {item.files.map((file, fidx) => (
-                                        <a
+                                        <button
                                           key={fidx}
-                                          href={resolveFileUrl(
-                                            api,
-                                            file.url || file.file_url
-                                          )}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
+                                          onClick={() => downloadFileWithAuth(resolveFileUrl(api, file.url || file.file_url), file.name || file.file_name)}
                                           style={{
                                             display: "inline-flex",
                                             alignItems: "center",
@@ -1725,7 +1717,7 @@ export default function TaskDetail() {
                                           }}
                                         >
                                           📎 {file.name || file.file_name}
-                                        </a>
+                                        </button>
                                       ))}
                                     </div>
                                   )}

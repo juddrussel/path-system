@@ -218,11 +218,9 @@ function RenderReplies({
                             }} />
                           </div>
                         )}
-                        <a 
-                          href={r2ToProxyUrl(api, file.url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ display: "block", maxWidth: "280px" }}
+                        <div 
+                          onClick={() => openFileWithAuth(r2ToProxyUrl(api, file.url))}
+                          style={{ display: "block", maxWidth: "280px", cursor: "pointer" }}
                         >
                           <img 
                             src={r2ToProxyUrl(api, file.url)}
@@ -237,19 +235,31 @@ function RenderReplies({
                               display: imageLoading ? "none" : "block"
                             }}
                           />
-                        </a>
+                        </div>
                       </div>
                     ) : (
                       <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                         <span style={{ fontSize: "12px" }}>📎</span>
-                        <a 
-                          href={r2ToProxyUrl(api, file.url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                        <button 
+                          onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.url), file.name)}
+                          style={{ 
+                            flex: 1, 
+                            minWidth: 0, 
+                            color: "#7043b6", 
+                            fontSize: "9px", 
+                            overflow: "hidden", 
+                            textOverflow: "ellipsis", 
+                            whiteSpace: "nowrap", 
+                            textDecoration: "underline",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: 0,
+                            textAlign: "left"
+                          }}
                         >
                           {file.name}
-                        </a>
+                        </button>
                       </div>
                     );
                   })}
@@ -2263,11 +2273,9 @@ export default function CollaborativeTaskDetail() {
                                         }} />
                                       </div>
                                     )}
-                                    <a 
-                                      href={r2ToProxyUrl(api, file.url)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      style={{ display: "block", maxWidth: "280px" }}
+                                    <div 
+                                      onClick={() => openFileWithAuth(r2ToProxyUrl(api, file.url))}
+                                      style={{ display: "block", maxWidth: "280px", cursor: "pointer" }}
                                     >
                                       <img 
                                         src={r2ToProxyUrl(api, file.url)}
@@ -2282,19 +2290,17 @@ export default function CollaborativeTaskDetail() {
                                           display: imageLoading ? "none" : "block"
                                         }}
                                       />
-                                    </a>
+                                    </div>
                                   </div>
                                 ) : (
                                   <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                                     <span style={{ fontSize: "12px" }}>📎</span>
-                                    <a 
-                                      href={r2ToProxyUrl(api, file.url)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                    <button
+                                      onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.url), file.name)}
+                                      style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}
                                     >
                                       {file.name}
-                                    </a>
+                                    </button>
                                   </div>
                                 );
                               })}
