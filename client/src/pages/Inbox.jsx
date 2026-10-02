@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -566,15 +566,29 @@ function SelectRow({ label, value, options, onChange, disabled }) {
 function FileAttachment({ url, name }) {
   const ext = name?.split(".").pop()?.toLowerCase();
   const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+  
+  const handleFileClick = async (e) => {
+    e.preventDefault();
+    try {
+      const blobUrl = await createAuthenticatedBlobUrl(API, url);
+      window.open(blobUrl, "_blank");
+      // Clean up blob URL after a delay
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+    } catch (error) {
+      console.error("Failed to open file:", error);
+      alert("Failed to open file. Please try again.");
+    }
+  };
+  
   if (isImage) {
     return (
-      <a href={resolveUrl(url)} target="_blank" rel="noreferrer">
+      <a href="#" onClick={handleFileClick} rel="noreferrer">
         <img src={resolveUrl(url)} alt={name} style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, marginTop: 4, display: "block" }} />
       </a>
     );
   }
   return (
-    <a href={resolveUrl(url)} target="_blank" rel="noreferrer" download={name} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6, padding: "6px 10px", background: "rgba(0,0,0,0.07)", borderRadius: 8, fontSize: 12, color: "inherit", textDecoration: "none" }}>
+    <a href="#" onClick={handleFileClick} rel="noreferrer" download={name} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6, padding: "6px 10px", background: "rgba(0,0,0,0.07)", borderRadius: 8, fontSize: 12, color: "inherit", textDecoration: "none" }}>
       <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M3 2h7l3 3v9H3V2zm7 0v3h3" /></svg>
       {name}
     </a>
