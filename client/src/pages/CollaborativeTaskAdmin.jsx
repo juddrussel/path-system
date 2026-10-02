@@ -1973,7 +1973,7 @@ export default function CollaborativeTaskAdmin() {
             </label>
             
             {revisionFiles.length > 0 && (
-              <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef' }}>
+              <div style={{ marginTop: '12px', marginBottom: '12px', padding: '12px', background: '#fbf8ff', borderRadius: '6px', border: '1px solid #e2d6ef', maxWidth: '100%', overflow: 'hidden' }}>
                 <div style={{ fontSize: '9px', fontWeight: 800, color: '#806f8b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
                   {revisionFiles.length} file(s) attached
                 </div>
