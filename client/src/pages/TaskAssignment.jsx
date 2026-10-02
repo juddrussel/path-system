@@ -1147,6 +1147,32 @@ function TaskAssignmentInner() {
                         </button>
                       </div>
                     ))}
+                    <button
+                      type="button"
+                      className="path-assignment-add-more"
+                      onClick={() => attachmentInputRef.current?.click()}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        width: "100%",
+                        padding: "10px",
+                        border: "1px dashed #c4b5fd",
+                        borderRadius: "8px",
+                        background: "#f9f6ff",
+                        color: "#7c3aed",
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        marginTop: "8px"
+                      }}
+                    >
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                        <path d="M8 3v10M3 8h10" strokeLinecap="round" />
+                      </svg>
+                      Add more files
+                    </button>
                   </div>
                 )}
                 {!!successTrackingId && (
