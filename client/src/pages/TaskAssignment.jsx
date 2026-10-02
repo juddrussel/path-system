@@ -680,6 +680,14 @@ function TaskAssignmentInner() {
       const isCollaborative = assignMode === "individual" && selectedFaculty.length >= 2 && form.collaborationMode === "together";
       const endpoint = isCollaborative ? `${API}/api/tasks/collaborative` : `${API}/api/tasks`;
       
+      console.log('[TaskAssignment] Submitting:', {
+        isCollaborative,
+        endpoint,
+        selectedFacultyIds,
+        collaborationMode: form.collaborationMode,
+        facultyCount: selectedFaculty.length
+      });
+      
       const response = await fetch(endpoint, {
         method: "POST",
         headers: authHeaders,
@@ -690,6 +698,10 @@ function TaskAssignmentInner() {
         throw new Error(data.message || "Failed to assign task.");
       }
       const created = await response.json();
+      console.log('[TaskAssignment] Server response:', created);
+      if (created._debug) {
+        console.log('[TaskAssignment] Debug info:', created._debug);
+      }
       setSuccessTrackingId(created.tracking_id || previewTrackingId);
       resetForm();
       fetchAssignments();
