@@ -229,6 +229,10 @@ export default function TaskDetail() {
   const [readerZoom, setReaderZoom] = useState("page-width");
   const [inlineReaderZoom, setInlineReaderZoom] = useState("page-width");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [submissionFiles, setSubmissionFiles] = useState([]);
+  const [submissionFileProgress, setSubmissionFileProgress] = useState({});
+  const [submissionUploadedFiles, setSubmissionUploadedFiles] = useState([]);
+  const [isSubmissionUploadingFiles, setIsSubmissionUploadingFiles] = useState(false);
   const [submissionNote, setSubmissionNote] = useState("");
   const [submissionError, setSubmissionError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -634,13 +638,77 @@ export default function TaskDetail() {
     }
   };
 
+  const uploadSubmissionFiles = async (files) => {
+    setIsSubmissionUploadingFiles(true);
+    const uploadedUrls = [];
+    
+    for (const [idx, file] of files.entries()) {
+      try {
+        const startTime = Date.now();
+        
+        // Initialize progress
+        setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: 10 }));
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${api}/api/upload`);
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        
+        const simulateProgress = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
+          setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: estimatedPercent }));
+        }, 100);
+        
+        xhr.upload.addEventListener('progress', (event) => {
+          clearInterval(simulateProgress);
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: percentComplete }));
+          }
+        });
+        
+        await new Promise((resolve, reject) => {
+          xhr.onload = () => {
+            clearInterval(simulateProgress);
+            if (xhr.status >= 200 && xhr.status < 300) {
+              const response = JSON.parse(xhr.responseText);
+              uploadedUrls.push(response.files[0]); // Get the uploaded file URL
+              setSubmissionFileProgress(prev => ({ ...prev, [submissionFiles.length + idx]: 100 }));
+              resolve();
+            } else {
+              reject(new Error('Upload failed'));
+            }
+          };
+          xhr.onerror = () => {
+            clearInterval(simulateProgress);
+            reject(new Error('Upload failed'));
+          };
+          
+          const formData = new FormData();
+          formData.append('file', file);
+          xhr.send(formData);
+        });
+      } catch (error) {
+        console.error('File upload error:', error);
+      }
+    }
+    
+    setIsSubmissionUploadingFiles(false);
+    setSubmissionUploadedFiles(prev => [...prev, ...uploadedUrls]);
+    return uploadedUrls;
+  };
+
   const submitWork = async () => {
-    if (!selectedFile) {
-      setSubmissionError("Attach the completed file before submitting.");
+    if (submissionFiles.length === 0 && submissionUploadedFiles.length === 0) {
+      setSubmissionError("Attach at least one completed file before submitting.");
       return;
     }
     if (!submissionNote.trim()) {
       setSubmissionError("Add a concise submission note before submitting.");
+      return;
+    }
+    if (isSubmissionUploadingFiles) {
+      setSubmissionError("Please wait for files to finish uploading.");
       return;
     }
     setSubmitting(true);
@@ -658,10 +726,15 @@ export default function TaskDetail() {
           content: `Task submitted: ${submissionNote.trim()}`,
         }),
       });
+      
+      // Use already uploaded files
       const data = new FormData();
-      data.append("files", selectedFile);
+      submissionUploadedFiles.forEach(fileUrl => {
+        data.append("fileUrls", fileUrl.url);
+      });
       data.append("submission_group_id", groupId);
       data.append("note", submissionNote.trim());
+      
       const upload = await fetch(`${api}/api/tasks/${task.id}/submit`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -669,7 +742,10 @@ export default function TaskDetail() {
       });
       if (!upload.ok)
         throw new Error("The completed file could not be uploaded.");
-      setSelectedFile(null);
+      
+      setSubmissionFiles([]);
+      setSubmissionUploadedFiles([]);
+      setSubmissionFileProgress({});
       setSubmissionNote("");
       if (fileInputRef.current) fileInputRef.current.value = "";
       await loadTask();
@@ -1338,34 +1414,101 @@ export default function TaskDetail() {
                       ref={fileInputRef}
                       hidden
                       type="file"
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
-                      onChange={(event) => {
-                        setSelectedFile(event.target.files?.[0] || null);
+                      multiple
+                      accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      onChange={async (event) => {
+                        const files = Array.from(event.target.files || []);
+                        if (files.length === 0) return;
+                        setSubmissionFiles(prev => [...prev, ...files]);
+                        await uploadSubmissionFiles(files);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
                         setSubmissionError("");
                       }}
                     />
-                    <button
-                      className={`td-upload-button ${selectedFile ? "selected" : ""}`}
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <span>
-                        <Icon name="attach" />
-                      </span>
-                      <div>
-                        <strong>
-                          {selectedFile
-                            ? selectedFile.name
-                            : "Attach completed file"}
-                        </strong>
-                        <small>
-                          {selectedFile
-                            ? formatSize(selectedFile.size)
-                            : "PDF, DOCX, XLSX, or CSV"}
-                        </small>
+                    {submissionFiles.length > 0 || submissionUploadedFiles.length > 0 ? (
+                      <div style={{ display: 'grid', gap: '8px' }}>
+                        {submissionFiles.map((file, idx) => {
+                          const isPdf = /\.pdf$/i.test(file.name);
+                          const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                          const progress = submissionFileProgress[idx] ?? 0;
+                          const isUploading = isSubmissionUploadingFiles && progress < 100;
+                          
+                          return (
+                            <div key={idx} style={{ padding: '8px', background: '#fff', borderRadius: '5px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <div style={{ display: 'grid', width: '32px', height: '32px', placeItems: 'center', borderRadius: '6px', background: isPdf ? '#fef5e5' : isImage ? '#e8f1ff' : '#f0e7fc', color: isPdf ? '#9d6d2a' : isImage ? '#5274a8' : '#7043b7', fontSize: '14px', flexShrink: 0 }}>
+                                {isPdf ? 'PDF' : isImage ? '🖼' : '📎'}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ color: '#5d4867', fontSize: '9px', fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {file.name}
+                                </div>
+                                <div style={{ marginTop: '4px', height: '4px', background: '#e9e0ef', borderRadius: '2px', overflow: 'hidden' }}>
+                                  <div style={{ height: '100%', background: '#7c3aed', width: `${progress}%`, transition: 'width 0.2s' }} />
+                                </div>
+                                <div style={{ marginTop: '4px', fontSize: '8px', color: isUploading ? '#8b7b96' : '#579574', fontWeight: 800 }}>
+                                  {isUploading ? `Uploading - ${progress}%` : '✓ Ready'}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSubmissionFiles(prev => prev.filter((_, i) => i !== idx));
+                                  setSubmissionFileProgress(prev => {
+                                    const newProgress = { ...prev };
+                                    delete newProgress[idx];
+                                    return newProgress;
+                                  });
+                                }}
+                                disabled={isSubmissionUploadingFiles}
+                                style={{ background: 'none', border: 'none', color: '#806f8b', cursor: isSubmissionUploadingFiles ? 'not-allowed' : 'pointer', fontSize: '16px', opacity: isSubmissionUploadingFiles ? 0.5 : 1 }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isSubmissionUploadingFiles}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px dashed #c4b5fd',
+                            borderRadius: '8px',
+                            background: '#f9f6ff',
+                            color: '#7c3aed',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            cursor: isSubmissionUploadingFiles ? 'not-allowed' : 'pointer',
+                            opacity: isSubmissionUploadingFiles ? 0.5 : 1
+                          }}
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                            <path d="M8 3v10M3 8h10" strokeLinecap="round" />
+                          </svg>
+                          Add more files ({submissionFiles.length}/5)
+                        </button>
                       </div>
-                      <Icon name="preview" />
-                    </button>
+                    ) : (
+                      <button
+                        className="td-upload-button"
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <span>
+                          <Icon name="attach" />
+                        </span>
+                        <div>
+                          <strong>Attach completed files</strong>
+                          <small>PDF, Images, Excel · Multiple files allowed</small>
+                        </div>
+                        <Icon name="preview" />
+                      </button>
+                    )}
                     <label className="td-note-label">
                       Submission note
                       <textarea
