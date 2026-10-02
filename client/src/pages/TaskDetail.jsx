@@ -1440,8 +1440,9 @@ export default function TaskDetail() {
                         {submissionFiles.map((file, idx) => {
                           const isPdf = /\.pdf$/i.test(file.name);
                           const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-                          const progress = submissionFileProgress[idx] ?? 0;
-                          const isUploading = isSubmissionUploadingFiles && progress < 100;
+                          const progressValue = submissionFileProgress[idx] ?? 0;
+                          const isUploading = isSubmissionUploadingFiles && progressValue < 100;
+                          const progress = isUploading ? progressValue : 100; // Show 100% when upload is complete
                           
                           return (
                             <div key={idx} style={{ padding: '8px', background: '#fff', borderRadius: '5px', border: '1px solid #e2d9e9', display: 'flex', alignItems: 'center', gap: '10px' }}>
