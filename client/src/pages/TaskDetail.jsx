@@ -2322,7 +2322,7 @@ export default function TaskDetail() {
                         type="file"
                         hidden
                         multiple
-                        accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+                        accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         onChange={async (e) => {
                           const files = Array.from(e.target.files || []);
                           if (returnFiles.length + files.length > 5) {
