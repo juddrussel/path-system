@@ -504,43 +504,6 @@ export default function TaskDetail() {
   
   const attachments =
     task?.attachments || task?.task_attachments || task?.files || [];
-  const latestSubmission = submissions.length
-    ? submissions[submissions.length - 1]
-    : null;
-  const latestSubmissionName =
-    latestSubmission?.file_name || latestSubmission?.name || "Submitted work";
-  const latestSubmissionUrl = resolveFileUrl(
-    api,
-    latestSubmission?.file_url ||
-      latestSubmission?.url ||
-      latestSubmission?.path ||
-      latestSubmission?.file_path,
-  );
-  const latestSubmissionExtension = latestSubmissionName
-    .split(".")
-    .pop()
-    ?.toLowerCase();
-  const isLatestSubmissionImage = [
-    "jpg",
-    "jpeg",
-    "png",
-    "gif",
-    "webp",
-  ].includes(latestSubmissionExtension || "");
-  const isLatestSubmissionPdf = latestSubmissionExtension === "pdf";
-  const isLatestSubmissionOffice = [
-    "doc",
-    "docx",
-    "xls",
-    "xlsx",
-    "ppt",
-    "pptx",
-  ].includes(latestSubmissionExtension || "");
-  const latestSubmissionEmbedUrl = isLatestSubmissionPdf
-    ? pdfReadingUrl(latestSubmissionUrl)
-    : isLatestSubmissionOffice && latestSubmissionUrl
-      ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(latestSubmissionUrl)}`
-      : latestSubmissionUrl;
   const hasFacultySubmission = Boolean(latestSubmission);
   const isUnderReview = /for.?approval|under.?review|in.?review/i.test(task?.status || "");
   const decisionStatus =
