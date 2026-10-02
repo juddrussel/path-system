@@ -874,6 +874,7 @@ export default function CollaborativeTaskDetail() {
       try {
         console.log('[Preview] Fetching file:', preview.url);
         const token = localStorage.getItem('token');
+        console.log('[Preview] Token present:', !!token, 'Length:', token ? token.length : 0);
         if (!token) {
           console.error('[Preview] No token found');
           alert('Please log in to view files');
@@ -881,6 +882,7 @@ export default function CollaborativeTaskDetail() {
           return;
         }
 
+        console.log('[Preview] Sending request with Authorization header...');
         const response = await fetch(preview.url, {
           headers: {
             'Authorization': `Bearer ${token}`
