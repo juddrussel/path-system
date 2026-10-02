@@ -1919,8 +1919,9 @@ export default function CollaborativeTaskDetail() {
                         <p style={{ fontSize: '14px' }}>Loading preview...</p>
                       </div>
                     ) : preview.type === 'pdf' ? (
-                      <iframe
+                      <embed
                         src={previewBlobUrl}
+                        type="application/pdf"
                         title={preview.name}
                         style={{
                           width: '100%',
