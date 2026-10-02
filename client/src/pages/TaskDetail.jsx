@@ -1722,15 +1722,15 @@ export default function TaskDetail() {
                       task record before a final decision is made.
                     </p>
                     <div className="td-lineage">
-                      {[...submissionGroups].reverse().map((group, reverseIndex) => {
-                        const actualIndex = submissionGroups.length - reverseIndex;
+                      {submissionGroups.map((group, index) => {
+                        const versionNumber = index + 1; // v1 is newest, v2 is older, etc.
                         const firstFile = group.files[0];
                         const fileStatus = statusInfo(
                           firstFile.status || task.status,
                         );
                         const isExpanded = expandedVersions.has(group.groupId);
                         
-                        console.log(`[Version ${actualIndex}] Group:`, {
+                        console.log(`[Version ${versionNumber}] Group:`, {
                           groupId: group.groupId,
                           note: group.note,
                           fileCount: group.files.length,
@@ -1741,18 +1741,18 @@ export default function TaskDetail() {
                         return (
                           <article
                             className="td-lineage-row"
-                            key={group.groupId || `version-${actualIndex}`}
+                            key={group.groupId || `version-${versionNumber}`}
                             style={{ display: 'block', padding: '16px 0' }}
                           >
                             <div style={{ display: 'grid', gridTemplateColumns: '29px minmax(0,1fr) max-content', gap: '11px', alignItems: 'start' }}>
                               <span
-                                className={`td-version ${reverseIndex === 0 ? "current" : ""}`}
+                                className={`td-version ${index === 0 ? "current" : ""}`}
                               >
-                                v{actualIndex}
+                                v{versionNumber}
                               </span>
                               <div className="td-lineage-main">
                                 <h3>
-                                  {reverseIndex === 0
+                                  {index === 0
                                     ? "Current submission"
                                     : "Prior submission"}
                                   <span className={`td-badge ${fileStatus.tone}`}>
@@ -1766,7 +1766,7 @@ export default function TaskDetail() {
                                   <span>{group.files.length} file{group.files.length !== 1 ? 's' : ''}</span>
                                   <i>•</i>
                                   <span>{formatDate(group.submittedAt)}</span>
-                                  {reverseIndex === 0 && (
+                                  {index === 0 && (
                                     <>
                                       <i>•</i>
                                       <b>Latest</b>
@@ -1862,7 +1862,7 @@ export default function TaskDetail() {
                                                 name: fileName,
                                                 url: file.file_url || file.url,
                                                 size: file.size,
-                                                label: `Version ${actualIndex} - File ${idx + 1}`,
+                                                label: `Version ${versionNumber} - File ${idx + 1}`,
                                               })
                                             }
                                             style={{
@@ -1893,10 +1893,10 @@ export default function TaskDetail() {
                                 type="button"
                                 onClick={() =>
                                   previewFile({
-                                    name: group.files[0].file_name || group.files[0].name || `Version ${actualIndex}`,
+                                    name: group.files[0].file_name || group.files[0].name || `Version ${versionNumber}`,
                                     url: group.files[0].file_url || group.files[0].url,
                                     size: group.files[0].size,
-                                    label: `Version ${actualIndex}`,
+                                    label: `Version ${versionNumber}`,
                                   })
                                 }
                               >
