@@ -861,20 +861,15 @@ export default function CollaborativeTaskDetail() {
 
   // Fetch file as blob for authenticated preview
   useEffect(() => {
-    const fetchPreviewBlob = async () => {
+    const fetchPreviewUrl = async () => {
       if (!preview) {
-        // Clear blob URL when preview is closed
-        if (previewBlobUrl) {
-          window.URL.revokeObjectURL(previewBlobUrl);
-          setPreviewBlobUrl(null);
-        }
+        setPreviewBlobUrl(null);
         return;
       }
 
       try {
-        console.log('[Preview] Fetching file:', preview.url);
+        console.log('[Preview] Requesting preview token for:', preview.url);
         const token = localStorage.getItem('token');
-        console.log('[Preview] Token present:', !!token, 'Length:', token ? token.length : 0);
         if (!token) {
           console.error('[Preview] No token found');
           alert('Please log in to view files');
@@ -882,59 +877,42 @@ export default function CollaborativeTaskDetail() {
           return;
         }
 
-        console.log('[Preview] Sending request with Authorization header...');
-        const response = await fetch(preview.url, {
+        // Extract the key from the proxy URL
+        const urlObj = new URL(preview.url);
+        const key = urlObj.searchParams.get('key');
+        
+        if (!key) {
+          throw new Error('Invalid file URL - no key found');
+        }
+
+        // Request a temporary preview token
+        const response = await fetch(`${api}/api/files/preview-token`, {
+          method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ key })
         });
 
-        console.log('[Preview] Response status:', response.status);
-        console.log('[Preview] Response headers:', Object.fromEntries(response.headers.entries()));
-        
-        const contentType = response.headers.get('content-type');
-        console.log('[Preview] Content-Type:', contentType);
-
         if (!response.ok) {
-          if (response.status === 401) {
-            const errorText = await response.text();
-            console.error('[Preview] 401 Unauthorized:', errorText);
-            alert('Your session has expired. Please log in again.');
-            window.location.href = '/login';
-            return;
-          }
-          const errorText = await response.text();
-          console.error('[Preview] Error response:', errorText);
-          throw new Error(`Failed to load preview: ${response.status} - ${errorText}`);
+          throw new Error(`Failed to get preview token: ${response.status}`);
         }
 
-        // Check if we actually got file content, not an error page
-        if (contentType && contentType.includes('application/json')) {
-          const errorJson = await response.json();
-          console.error('[Preview] Got JSON error response:', errorJson);
-          throw new Error(errorJson.message || 'Failed to load file');
-        }
-
-        const blob = await response.blob();
-        console.log('[Preview] Blob created:', blob.type, blob.size, 'bytes');
-        const blobUrl = window.URL.createObjectURL(blob);
-        console.log('[Preview] Blob URL created:', blobUrl);
-        setPreviewBlobUrl(blobUrl);
+        const { previewToken } = await response.json();
+        
+        // Create preview URL with the token
+        const previewUrl = `${api}/api/files/preview?token=${encodeURIComponent(previewToken)}`;
+        console.log('[Preview] Preview URL created:', previewUrl);
+        setPreviewBlobUrl(previewUrl);
       } catch (error) {
-        console.error('[Preview] Fetch error:', error);
+        console.error('[Preview] Error:', error);
         alert(`Failed to load preview: ${error.message}`);
         setPreview(null);
       }
     };
 
-    fetchPreviewBlob();
-
-    // Cleanup blob URL on unmount
-    return () => {
-      if (previewBlobUrl) {
-        window.URL.revokeObjectURL(previewBlobUrl);
-      }
-    };
+    fetchPreviewUrl();
   }, [preview]);
 
   // Handlers
