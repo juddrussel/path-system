@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
-import { r2ToProxyUrl, resolveFileUrl } from "../utils/r2ProxyHelper.js";
+import { r2ToProxyUrl, resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper.js";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -582,6 +582,8 @@ export default function CollaborativeTaskAdmin() {
   const [preview, setPreview] = useState(null);
   const [readerZoom, setReaderZoom] = useState("page-width");
   const [expandedVersions, setExpandedVersions] = useState(new Set([]));
+  const [submissionBlobUrl, setSubmissionBlobUrl] = useState(null);
+  const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
 
   // Load task data
   useEffect(() => {
@@ -676,6 +678,46 @@ export default function CollaborativeTaskAdmin() {
       socket.off("collaborative:auto_submitted");
     };
   }, [task?.id]);
+
+  // Create authenticated blob URL for file preview modal
+  useEffect(() => {
+    let isMounted = true;
+    let currentPreviewBlobUrl = null;
+
+    const loadPreviewBlobUrl = async () => {
+      const fileUrl = preview?.file_url || preview?.url;
+      if (!fileUrl) {
+        setPreviewBlobUrl(null);
+        return;
+      }
+
+      // Only create blob URLs for PDFs
+      if (!/\.pdf($|\?)/i.test(fileUrl)) {
+        setPreviewBlobUrl(null);
+        return;
+      }
+
+      try {
+        const url = await createAuthenticatedBlobUrl(api, fileUrl);
+        if (isMounted) {
+          currentPreviewBlobUrl = url;
+          setPreviewBlobUrl(url);
+        }
+      } catch (error) {
+        console.error("Failed to load preview file:", error);
+        if (isMounted) setPreviewBlobUrl(null);
+      }
+    };
+
+    loadPreviewBlobUrl();
+
+    return () => {
+      isMounted = false;
+      if (currentPreviewBlobUrl) {
+        URL.revokeObjectURL(currentPreviewBlobUrl);
+      }
+    };
+  }, [preview, api]);
 
   // Upload comment files with progress tracking
   const uploadCommentFiles = async (files) => {
@@ -2142,13 +2184,14 @@ export default function CollaborativeTaskAdmin() {
                   <button
                     type="button"
                     disabled={!preview.file_url && !preview.url}
-                    onClick={() =>
+                    onClick={() => {
+                      const urlToOpen = previewBlobUrl || r2ToProxyUrl(api, preview.file_url || preview.url);
                       window.open(
-                        r2ToProxyUrl(api, preview.file_url || preview.url),
+                        urlToOpen,
                         "_blank",
                         "noopener,noreferrer"
-                      )
-                    }
+                      );
+                    }}
                     aria-label="Open file in a new tab"
                   >
                     ↗
@@ -2158,7 +2201,7 @@ export default function CollaborativeTaskAdmin() {
                   {(preview.file_url || preview.url) && /\.pdf($|\?)/i.test(preview.file_url || preview.url) ? (
                     <iframe
                       title={preview.file_name || preview.name}
-                      src={pdfReadingUrl(r2ToProxyUrl(api, preview.file_url || preview.url), readerZoom)}
+                      src={previewBlobUrl ? pdfReadingUrl(previewBlobUrl, readerZoom) : ""}
                     />
                   ) : (preview.file_url || preview.url) &&
                     /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.file_url || preview.url) ? (
