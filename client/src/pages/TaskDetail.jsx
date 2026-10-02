@@ -479,6 +479,8 @@ export default function TaskDetail() {
   const submissionGroups = useMemo(() => {
     if (!submissions.length) return [];
     
+    console.log('[TaskDetail] Raw submissions:', submissions);
+    
     const groups = {};
     submissions.forEach(sub => {
       const groupId = sub.submission_group_id || sub.id;
@@ -493,10 +495,16 @@ export default function TaskDetail() {
       groups[groupId].files.push(sub);
     });
     
+    console.log('[TaskDetail] Grouped submissions:', groups);
+    
     // Convert to array and sort by submission time (newest first)
-    return Object.values(groups).sort((a, b) => 
+    const result = Object.values(groups).sort((a, b) => 
       new Date(b.submittedAt) - new Date(a.submittedAt)
     );
+    
+    console.log('[TaskDetail] Submission groups:', result);
+    
+    return result;
   }, [submissions]);
   
   const latestSubmissionGroup = submissionGroups[0] || null;
