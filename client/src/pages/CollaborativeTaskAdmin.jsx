@@ -208,13 +208,23 @@ function RenderReplies({
                           </div>
                         )}
                         <a 
-                          href={r2ToProxyUrl(api, file.url)}
-                          target="_blank"
+                          href="#"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            try {
+                              const blobUrl = await createAuthenticatedBlobUrl(api, file.url);
+                              window.open(blobUrl, "_blank");
+                              setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                            } catch (error) {
+                              console.error("Failed to open file:", error);
+                              alert("Failed to open file. Please try again.");
+                            }
+                          }}
                           rel="noopener noreferrer"
                           style={{ display: "block", maxWidth: "280px" }}
                         >
                           <img 
-                            src={r2ToProxyUrl(api, file.url)}
+                            src={imageBlobUrls[imageKey] || ""}
                             alt={file.name}
                             onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                             onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -223,7 +233,7 @@ function RenderReplies({
                               borderRadius: "6px", 
                               border: "1px solid #e2d9e9", 
                               cursor: "pointer",
-                              display: imageLoading ? "none" : "block"
+                              display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
                             }}
                           />
                         </a>
@@ -232,8 +242,18 @@ function RenderReplies({
                       <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                         <span style={{ fontSize: "12px" }}>📎</span>
                         <a 
-                          href={r2ToProxyUrl(api, file.url)}
-                          target="_blank"
+                          href="#"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            try {
+                              const blobUrl = await createAuthenticatedBlobUrl(api, file.url);
+                              window.open(blobUrl, "_blank");
+                              setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                            } catch (error) {
+                              console.error("Failed to open file:", error);
+                              alert("Failed to open file. Please try again.");
+                            }
+                          }}
                           rel="noopener noreferrer"
                           style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
                         >
@@ -561,6 +581,7 @@ export default function CollaborativeTaskAdmin() {
   const [replyUploadedFiles, setReplyUploadedFiles] = useState([]);
   const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
   const [imageLoadingStates, setImageLoadingStates] = useState({});
+  const [imageBlobUrls, setImageBlobUrls] = useState({});
   const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -584,6 +605,62 @@ export default function CollaborativeTaskAdmin() {
   const [expandedVersions, setExpandedVersions] = useState(new Set([]));
   const [submissionBlobUrl, setSubmissionBlobUrl] = useState(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
+
+  // Create blob URLs for all message and reply images
+  useEffect(() => {
+    const createBlobUrls = async () => {
+      const urlsToCreate = [];
+      
+      // Collect all image files from messages and replies
+      messages.forEach(message => {
+        if (message.files && message.files.length > 0) {
+          message.files.forEach((file, idx) => {
+            const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+            if (isImage) {
+              const imageKey = `msg-${message.id}-file-${idx}`;
+              urlsToCreate.push({ key: imageKey, url: file.url });
+            }
+          });
+        }
+        
+        // Check replies
+        if (message.replies && message.replies.length > 0) {
+          message.replies.forEach(reply => {
+            if (reply.files && reply.files.length > 0) {
+              reply.files.forEach((file, idx) => {
+                const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                if (isImage) {
+                  const imageKey = `reply-${reply.id}-file-${idx}`;
+                  urlsToCreate.push({ key: imageKey, url: file.url });
+                }
+              });
+            }
+          });
+        }
+      });
+      
+      // Create blob URLs for all images
+      for (const { key, url } of urlsToCreate) {
+        try {
+          const blobUrl = await createAuthenticatedBlobUrl(api, url);
+          setImageBlobUrls(prev => ({ ...prev, [key]: blobUrl }));
+        } catch (error) {
+          console.error(`Failed to create blob URL for ${key}:`, error);
+        }
+      }
+    };
+    
+    if (messages.length > 0) {
+      createBlobUrls();
+    }
+    
+    // Cleanup blob URLs on unmount
+    return () => {
+      Object.values(imageBlobUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [messages]);
 
   // Load task data
   useEffect(() => {
@@ -1661,7 +1738,7 @@ export default function CollaborativeTaskAdmin() {
                                       style={{ display: "block", maxWidth: "280px" }}
                                     >
                                       <img 
-                                        src={r2ToProxyUrl(api, file.url)}
+                                        src={imageBlobUrls[imageKey] || ""}
                                         alt={file.name}
                                         onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                                         onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -1670,7 +1747,7 @@ export default function CollaborativeTaskAdmin() {
                                           borderRadius: "6px", 
                                           border: "1px solid #e2d9e9", 
                                           cursor: "pointer",
-                                          display: imageLoading ? "none" : "block"
+                                          display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
                                         }}
                                       />
                                     </a>

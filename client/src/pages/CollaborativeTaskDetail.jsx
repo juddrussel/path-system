@@ -235,7 +235,7 @@ function RenderReplies({
                           style={{ display: "block", maxWidth: "280px" }}
                         >
                           <img 
-                            src={r2ToProxyUrl(api, file.url)}
+                            src={imageBlobUrls[imageKey] || ""}
                             alt={file.name}
                             onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                             onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -244,7 +244,7 @@ function RenderReplies({
                               borderRadius: "6px", 
                               border: "1px solid #e2d9e9", 
                               cursor: "pointer",
-                              display: imageLoading ? "none" : "block"
+                              display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
                             }}
                           />
                         </a>
@@ -661,6 +661,7 @@ export default function CollaborativeTaskDetail() {
   const [replyUploadedFiles, setReplyUploadedFiles] = useState([]); // Store uploaded file URLs
   const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
   const [imageLoadingStates, setImageLoadingStates] = useState({});
+  const [imageBlobUrls, setImageBlobUrls] = useState({});
 
   const finalInputRef = useRef(null);
   const discussionInputRef = useRef(null);
@@ -668,6 +669,62 @@ export default function CollaborativeTaskDetail() {
   const replyFilesRef = useRef(null);
   const revisionFilesRef = useRef(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
+
+  // Create blob URLs for all message and reply images
+  useEffect(() => {
+    const createBlobUrls = async () => {
+      const urlsToCreate = [];
+      
+      // Collect all image files from messages and replies
+      messages.forEach(message => {
+        if (message.files && message.files.length > 0) {
+          message.files.forEach((file, idx) => {
+            const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+            if (isImage) {
+              const imageKey = `msg-${message.id}-file-${idx}`;
+              urlsToCreate.push({ key: imageKey, url: file.url });
+            }
+          });
+        }
+        
+        // Check replies
+        if (message.replies && message.replies.length > 0) {
+          message.replies.forEach(reply => {
+            if (reply.files && reply.files.length > 0) {
+              reply.files.forEach((file, idx) => {
+                const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                if (isImage) {
+                  const imageKey = `reply-${reply.id}-file-${idx}`;
+                  urlsToCreate.push({ key: imageKey, url: file.url });
+                }
+              });
+            }
+          });
+        }
+      });
+      
+      // Create blob URLs for all images
+      for (const { key, url } of urlsToCreate) {
+        try {
+          const blobUrl = await createAuthenticatedBlobUrl(api, url);
+          setImageBlobUrls(prev => ({ ...prev, [key]: blobUrl }));
+        } catch (error) {
+          console.error(`Failed to create blob URL for ${key}:`, error);
+        }
+      }
+    };
+    
+    if (messages.length > 0) {
+      createBlobUrls();
+    }
+    
+    // Cleanup blob URLs on unmount
+    return () => {
+      Object.values(imageBlobUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [messages]);
 
   // Load task data
   useEffect(() => {
@@ -2364,7 +2421,7 @@ export default function CollaborativeTaskDetail() {
                                       style={{ display: "block", maxWidth: "280px" }}
                                     >
                                       <img 
-                                        src={r2ToProxyUrl(api, file.url)}
+                                        src={imageBlobUrls[imageKey] || ""}
                                         alt={file.name}
                                         onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                                         onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -2373,7 +2430,7 @@ export default function CollaborativeTaskDetail() {
                                           borderRadius: "6px", 
                                           border: "1px solid #e2d9e9", 
                                           cursor: "pointer",
-                                          display: imageLoading ? "none" : "block"
+                                          display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
                                         }}
                                       />
                                     </a>
