@@ -2220,7 +2220,7 @@ export default function CollaborativeTaskAdmin() {
                     />
                   ) : (preview.file_url || preview.url) &&
                     /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.file_url || preview.url) ? (
-                    <img src={r2ToProxyUrl(api, preview.file_url || preview.url)} alt={preview.file_name || preview.name} />
+                    <img src={previewBlobUrl || r2ToProxyUrl(api, preview.file_url || preview.url)} alt={preview.file_name || preview.name} />
                   ) : (
                     <div className="td-reader-fallback">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 28, height: 28 }}>

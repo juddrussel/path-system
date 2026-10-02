@@ -1398,7 +1398,7 @@ export default function DocumentReview() {
                     <div className="doc-reader-stage">
                       {readerToolbar}
                       <div className="doc-reader-scroll doc-reader-image">
-                        <img src={url} alt={`Preview of ${title}`} />
+                        <img src={blobUrl || url} alt={`Preview of ${title}`} />
                       </div>
                       <div className="doc-reader-bottom">
                         <span>1</span>

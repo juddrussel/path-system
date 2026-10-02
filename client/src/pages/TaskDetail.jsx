@@ -1520,7 +1520,7 @@ export default function TaskDetail() {
                         <div className="td-reader-paper">
                           {latestSubmissionUrl && isLatestSubmissionImage ? (
                             <img
-                              src={latestSubmissionUrl}
+                              src={submissionBlobUrl || latestSubmissionUrl}
                               alt={`Preview of ${latestSubmissionName}`}
                             />
                           ) : latestSubmissionUrl && isLatestSubmissionPdf ? (
@@ -2522,7 +2522,7 @@ export default function TaskDetail() {
                     />
                   ) : preview.url &&
                     /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.url) ? (
-                    <img src={preview.url} alt={preview.name} />
+                    <img src={previewBlobUrl || preview.url} alt={preview.name} />
                   ) : (
                     <div className="td-reader-fallback">
                       <Icon name="file" size={28} />
