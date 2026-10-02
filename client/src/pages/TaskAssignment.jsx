@@ -1,5 +1,6 @@
 import React, { Component, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AlertModal from "../components/AlertModal";
 
 
 const API = import.meta.env.VITE_API_URL;
@@ -282,6 +283,7 @@ function TaskAssignmentInner() {
   const [successTrackingId, setSuccessTrackingId] = useState("");
   const [previewTrackingId, setPreviewTrackingId] = useState("Loading…");
   const [search, setSearch] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
   const pickerRef = useRef(null);
   const attachmentInputRef = useRef(null);
   const notesTextareaRef = useRef(null);
@@ -617,37 +619,37 @@ function TaskAssignmentInner() {
         headers: authHeaders,
         body: payload,
       });
-      alert("Draft saved.");
+      setAlertMessage("Draft saved.");
     } catch {
-      alert("Could not save draft.");
+      setAlertMessage("Could not save draft.");
     }
   };
 
   const submitAssignment = async (event) => {
     event.preventDefault();
     if (assignMode === "individual" && !selectedFaculty.length)
-      return alert("Please select at least one faculty member.");
+      return setAlertMessage("Please select at least one faculty member.");
     if (assignMode === "role" && !selectedRole)
-      return alert("Please select a role to assign this task to.");
+      return setAlertMessage("Please select a role to assign this task to.");
     if (!form.title.trim() || !form.doc_type || !form.deadline)
-      return alert(
+      return setAlertMessage(
         "Add a title, document type, and deadline before assigning.",
       );
     if (!form.notes.trim())
-      return alert("Please add context and objectives before assigning.");
+      return setAlertMessage("Please add context and objectives before assigning.");
     if (attachments.length === 0)
-      return alert("Please attach at least one supporting file before assigning.");
+      return setAlertMessage("Please attach at least one supporting file before assigning.");
     const deadline = `${form.deadline}T${form.deadlineTime || "00:00"}`;
     const earliest = `${windowStart.date}T${windowStart.time}`;
     const latest = `${windowEnd.date}T${windowEnd.time}`;
     if (deadline < earliest || deadline > latest)
-      return alert(
+      return setAlertMessage(
         `Deadline must fall within the configured ${turnaroundHours}h SLA window.`,
       );
     if (attachments.some((item) => item.status === "uploading"))
-      return alert("Please wait for attachments to finish uploading.");
+      return setAlertMessage("Please wait for attachments to finish uploading.");
     if (attachments.some((item) => item.status === "error"))
-      return alert("Remove or retry failed attachments before assigning.");
+      return setAlertMessage("Remove or retry failed attachments before assigning.");
     setSubmitting(true);
     try {
       const payload = new FormData();
@@ -694,7 +696,7 @@ function TaskAssignmentInner() {
       fetchNextTrackingId();
       setTimeout(() => setSuccessTrackingId(""), 4500);
     } catch (error) {
-      alert(error.message || "Server error. Please try again.");
+      setAlertMessage(error.message || "Server error. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -1317,6 +1319,7 @@ function TaskAssignmentInner() {
           </footer>
         </div>
       </main>
+      <AlertModal message={alertMessage} onClose={() => setAlertMessage("")} />
     </div>
   );
 }
