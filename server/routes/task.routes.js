@@ -1322,6 +1322,13 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
     const [insertResult] = await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
     console.log(`[CollaborativeTask] Inserted ${insertResult.affectedRows} rows into task_collaborators`);
 
+    // Verify what was actually inserted
+    const [verifyCollaborators] = await db.query(
+      "SELECT task_id, user_id FROM task_collaborators WHERE task_id = ?",
+      [taskId]
+    );
+    console.log(`[CollaborativeTask] Verification - Found ${verifyCollaborators.length} collaborators in DB:`, verifyCollaborators);
+
     // Handle attachments
     let preUploaded = [];
     try {
@@ -1388,6 +1395,12 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
       tracking_id,
       isCollaborative: true,
       collaboration_mode: "together",
+      _debug: {
+        requestedFacultyIds: facultyIds,
+        collaboratorsInserted: insertResult.affectedRows,
+        collaboratorsInDB: verifyCollaborators.length,
+        collaboratorsList: verifyCollaborators,
+      }
     });
   } catch (err) {
     console.error("POST /api/tasks/collaborative error:", err);
