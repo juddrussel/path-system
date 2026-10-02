@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
-import { r2ToProxyUrl, resolveFileUrl } from "../utils/r2ProxyHelper.js";
+import { r2ToProxyUrl, resolveFileUrl, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper.js";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -1325,14 +1325,7 @@ export default function CollaborativeTaskAdmin() {
                             type="button" 
                             aria-label="Download submitted file"
                             onClick={() => {
-                              const url = r2ToProxyUrl(api, file.file_url);
-                              const a = document.createElement('a');
-                              a.href = url;
-                              a.download = file.file_name;
-                              a.target = '_blank';
-                              document.body.appendChild(a);
-                              a.click();
-                              document.body.removeChild(a);
+                              downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name);
                             }}
                           >
                             <Download size={15} />
@@ -1358,14 +1351,7 @@ export default function CollaborativeTaskAdmin() {
                         type="button" 
                         aria-label="Download submitted file"
                         onClick={() => {
-                          const url = r2ToProxyUrl(api, currentVersion.file_url);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = currentVersion.file_name;
-                          a.target = '_blank';
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
+                          downloadFileWithAuth(r2ToProxyUrl(api, currentVersion.file_url), currentVersion.file_name);
                         }}
                       >
                         <Download size={15} />
@@ -1481,27 +1467,25 @@ export default function CollaborativeTaskAdmin() {
                                         {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
                                       </div>
                                     </div>
-                                    <a
-                                      href={r2ToProxyUrl(api, file.file_url)}
-                                      download={file.file_name}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
+                                    <button
+                                      onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name)}
                                       style={{
                                         padding: '6px 10px',
+                                        border: 'none',
                                         borderRadius: '5px',
                                         background: '#7c3aed',
                                         color: '#fff',
-                                        textDecoration: 'none',
                                         fontSize: '10px',
                                         fontWeight: 700,
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '4px',
-                                        flexShrink: 0
+                                        flexShrink: 0,
+                                        cursor: 'pointer'
                                       }}
                                     >
                                       <Download size={11} />
-                                    </a>
+                                    </button>
                                     <button
                                       onClick={() => setPreview({
                                         file_url: file.file_url,
