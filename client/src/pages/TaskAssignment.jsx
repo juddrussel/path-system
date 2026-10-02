@@ -525,8 +525,10 @@ function TaskAssignmentInner() {
     !form.doc_type,
     assignMode === "individual" ? selectedFaculty.length === 0 : !selectedRole,
     !form.deadline,
+    !form.notes.trim(),
+    attachments.length === 0,
   ].filter(Boolean).length;
-  const readySteps = 4 - incompleteSteps;
+  const readySteps = 6 - incompleteSteps;
 
   const workloadRows = useMemo(() => {
     const counts = assignments.reduce((result, assignment) => {
@@ -631,6 +633,10 @@ function TaskAssignmentInner() {
       return alert(
         "Add a title, document type, and deadline before assigning.",
       );
+    if (!form.notes.trim())
+      return alert("Please add context and objectives before assigning.");
+    if (attachments.length === 0)
+      return alert("Please attach at least one supporting file before assigning.");
     const deadline = `${form.deadline}T${form.deadlineTime || "00:00"}`;
     const earliest = `${windowStart.date}T${windowStart.time}`;
     const latest = `${windowEnd.date}T${windowEnd.time}`;
@@ -1188,7 +1194,7 @@ function TaskAssignmentInner() {
                   <Icon.Spark />
                   <span>
                     {incompleteSteps
-                      ? `${readySteps} of 4 required details are ready.`
+                      ? `${readySteps} of 6 required details are ready.`
                       : "Your assignment has the essentials to route."}
                   </span>
                 </div>
