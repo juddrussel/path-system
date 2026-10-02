@@ -1316,6 +1316,9 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
 
     const taskId = result.insertId;
 
+    // Delete any existing collaborators (in case of retry/duplicate)
+    await db.query("DELETE FROM task_collaborators WHERE task_id = ?", [taskId]);
+
     // Add all collaborators to task_collaborators table
     const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
     console.log(`[CollaborativeTask] Inserting ${collaboratorRows.length} collaborators for task ${taskId}:`, collaboratorRows);
