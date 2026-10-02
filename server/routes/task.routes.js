@@ -874,6 +874,8 @@ router.get("/my", requireAuth, async (req, res) => {
   try {
     const { q = "", status = "", priority = "", doc_type = "", date = "" } = req.query;
 
+    console.log(`[MyTasks] User ${req.user.id} (${req.user.full_name}) fetching tasks with filters:`, { status, priority, doc_type, date, q });
+
     // For faculty: show tasks where they are EITHER:
     // 1. The main faculty assignee (faculty_id) for solo tasks
     // 2. A collaborator in a collaborative task (via task_collaborators table)
@@ -903,8 +905,7 @@ router.get("/my", requireAuth, async (req, res) => {
 
     const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    const [rows] = await db.query(
-      `SELECT
+    const sqlQuery = `SELECT
          t.*,
          u1.full_name AS faculty_name,
          u1.email     AS faculty_email,
@@ -915,9 +916,17 @@ router.get("/my", requireAuth, async (req, res) => {
        LEFT JOIN users u2 ON u2.id = t.assigned_by
        LEFT JOIN users u3 ON u3.id = t.collaborator_id
        ${where}
-       ORDER BY t.created_at DESC`,
-      params
-    );
+       ORDER BY t.created_at DESC`;
+
+    console.log(`[MyTasks] Executing SQL:`, sqlQuery);
+    console.log(`[MyTasks] With params:`, params);
+
+    const [rows] = await db.query(sqlQuery, params);
+
+    console.log(`[MyTasks] Found ${rows.length} tasks for user ${req.user.id}`);
+    if (rows.length > 0) {
+      console.log(`[MyTasks] Sample task IDs:`, rows.slice(0, 5).map(r => ({ id: r.id, tracking_id: r.tracking_id, is_collaborative: r.is_collaborative })));
+    }
 
     const tasks = await enrichTasks(rows);
 
