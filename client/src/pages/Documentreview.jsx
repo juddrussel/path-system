@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { resolveFileUrl, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL;
 const fileUrl = (value) =>
@@ -1162,12 +1162,12 @@ export default function DocumentReview() {
         </button>
         <i />
         {url && (
-          <button type="button" onClick={() => window.open(url, "_blank")}>
+          <button type="button" onClick={() => downloadFileWithAuth(url, activeFileName)}>
             ⇩
           </button>
         )}
         {url && (
-          <button type="button" onClick={() => window.open(url, "_blank")}>
+          <button type="button" onClick={() => openFileWithAuth(url)}>
             ▣
           </button>
         )}
