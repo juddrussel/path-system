@@ -474,6 +474,34 @@ export default function TaskDetail() {
   const hasAssignedObjective = Boolean(assignedObjective);
   const submissions =
     task?.submissions || task?.submitted_files || task?.submission_files || [];
+  
+  // Group submissions by submission_group_id to handle multiple files per submission
+  const submissionGroups = useMemo(() => {
+    if (!submissions.length) return [];
+    
+    const groups = {};
+    submissions.forEach(sub => {
+      const groupId = sub.submission_group_id || sub.id;
+      if (!groups[groupId]) {
+        groups[groupId] = {
+          groupId,
+          submittedAt: sub.submitted_at || sub.created_at,
+          note: sub.note || sub.submission_note,
+          files: [],
+        };
+      }
+      groups[groupId].files.push(sub);
+    });
+    
+    // Convert to array and sort by submission time (newest first)
+    return Object.values(groups).sort((a, b) => 
+      new Date(b.submittedAt) - new Date(a.submittedAt)
+    );
+  }, [submissions]);
+  
+  const latestSubmissionGroup = submissionGroups[0] || null;
+  const latestSubmission = latestSubmissionGroup?.files?.[0] || null;
+  
   const attachments =
     task?.attachments || task?.task_attachments || task?.files || [];
   const latestSubmission = submissions.length
@@ -1558,7 +1586,7 @@ export default function TaskDetail() {
                 )
               )}
 
-                {latestSubmission && (
+                {latestSubmissionGroup && (
                   <section className="td-card">
                     <div className="td-section-title">
                       <span className="td-icon">
@@ -1574,145 +1602,138 @@ export default function TaskDetail() {
                       </div>
                     </div>
                     <p className="td-submitted-intro">
-                      The latest submission is retained with its note and file
-                      metadata for the next workflow decision.
+                      Version {submissionGroups.length} · {latestSubmissionGroup.files.length} file{latestSubmissionGroup.files.length !== 1 ? 's' : ''}
                     </p>
-                    {(latestSubmission.note ||
-                      latestSubmission.submission_note) && (
+                    {latestSubmissionGroup.note && (
                       <div className="td-note-block">
                         <span>Submission note</span>
-                        <p>
-                          {latestSubmission.note ||
-                            latestSubmission.submission_note}
-                        </p>
+                        <p>{latestSubmissionGroup.note}</p>
                       </div>
                     )}
-                    <div className="td-inline-reader">
-                      <header className="td-inline-reader-head">
-                        <div>
-                          <span className="td-reader-eyebrow">
-                            <i /> Inline preview
-                          </span>
-                          <strong>{latestSubmissionName}</strong>
-                          <small>
-                            {formatSize(latestSubmission.size)} · Submitted
-                            document
-                          </small>
-                        </div>
-                        <div>
-                          <span>▢ PDF</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              previewFile({
-                                name: latestSubmissionName,
-                                url: latestSubmission?.file_url || latestSubmission?.url || latestSubmission?.path || latestSubmission?.file_path,
-                                size: latestSubmission.size,
-                                label: "Latest submission",
-                              })
-                            }
-                          >
-                            Expand
-                          </button>
-                        </div>
-                      </header>
-                      <div className="td-reader-frame td-inline-reader-frame">
-                        <div className="td-reader-toolbar">
-                          <button type="button" aria-label="Reader menu">
-                            ☰
-                          </button>
-                          <b>1</b>
-                          <span>/ 1</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setInlineReaderZoom((value) =>
-                                typeof value === "number"
-                                  ? Math.max(60, value - 10)
-                                  : 90,
-                              )
-                            }
-                            aria-label="Zoom out"
-                          >
-                            −
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setInlineReaderZoom((value) =>
-                                typeof value === "number"
-                                  ? Math.min(150, value + 10)
-                                  : 110,
-                              )
-                            }
-                            aria-label="Zoom in"
-                          >
-                            +
-                          </button>
-                          <span>
-                            {typeof inlineReaderZoom === "number"
-                              ? `${inlineReaderZoom}%`
-                              : "Fit width"}
-                          </span>
-                          <span className="td-reader-toolbar-spacer" />
-                          <button
-                            type="button"
-                            disabled={!latestSubmissionUrl}
-                            onClick={() => {
-                              const urlToOpen = submissionBlobUrl || latestSubmissionUrl;
-                              window.open(
-                                urlToOpen,
-                                "_blank",
-                                "noopener,noreferrer",
-                              );
+                    
+                    {/* Display all files in the latest submission */}
+                    <div style={{ display: 'grid', gap: '12px', marginTop: '16px' }}>
+                      {latestSubmissionGroup.files.map((file, idx) => {
+                        const fileName = file.file_name || file.name || `File ${idx + 1}`;
+                        const fileUrl = resolveFileUrl(
+                          api,
+                          file.file_url || file.url || file.path || file.file_path
+                        );
+                        const fileExt = fileName.split('.').pop()?.toLowerCase();
+                        const isPdf = fileExt === 'pdf';
+                        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt || '');
+                        
+                        return (
+                          <div
+                            key={`${file.id}-${idx}`}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '13px 15px',
+                              border: '1px solid #e5dced',
+                              borderRadius: '10px',
+                              background: '#fcfbff',
                             }}
-                            aria-label="Open submitted file in a new tab"
                           >
-                            ↗
-                          </button>
-                        </div>
-                        <div className="td-reader-paper">
-                          {latestSubmissionUrl && isLatestSubmissionImage ? (
-                            <img
-                              src={submissionBlobUrl || latestSubmissionUrl}
-                              alt={`Preview of ${latestSubmissionName}`}
-                            />
-                          ) : latestSubmissionUrl && isLatestSubmissionPdf ? (
-                            <iframe
-                              title={`Inline preview of ${latestSubmissionName}`}
-                              src={submissionBlobUrl ? pdfReadingUrl(
-                                submissionBlobUrl,
-                                inlineReaderZoom,
-                              ) : ""}
-                            />
-                          ) : latestSubmissionUrl &&
-                            isLatestSubmissionOffice ? (
-                            <iframe
-                              title={`Inline preview of ${latestSubmissionName}`}
-                              src={latestSubmissionEmbedUrl}
-                            />
-                          ) : (
-                            <div className="td-reader-fallback">
-                              <Icon name="file" size={28} />
-                              <strong>
-                                {latestSubmissionUrl
-                                  ? "Preview available in a new tab"
-                                  : "The uploaded file link is unavailable"}
-                              </strong>
-                              <span>
-                                {latestSubmissionUrl
-                                  ? "Use the open control to view the uploaded file."
-                                  : "Refresh the task or ask the faculty member to upload the file again."}
-                              </span>
+                            {/* File icon */}
+                            <div
+                              style={{
+                                display: 'grid',
+                                width: '36px',
+                                height: '36px',
+                                placeItems: 'center',
+                                borderRadius: '8px',
+                                background: isPdf ? '#fef5e5' : '#e8f1ff',
+                                color: isPdf ? '#9d6d2a' : '#5274a8',
+                                fontSize: '10px',
+                                fontWeight: 800,
+                                flexShrink: 0,
+                              }}
+                            >
+                              {isPdf ? 'PDF' : isImage ? 'IMG' : 'FILE'}
                             </div>
-                          )}
-                        </div>
-                      </div>
+                            
+                            {/* File info */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div
+                                style={{
+                                  fontSize: '12px',
+                                  fontWeight: 800,
+                                  color: '#44354f',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {fileName}
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#9a8fa3', marginTop: '2px' }}>
+                                {isPdf ? 'PDF' : isImage ? 'Image' : 'Document'} · Oct 3, 2026, 2:34 AM · Uploaded by Faculty Member
+                              </div>
+                              {file.note && (
+                                <div style={{ fontSize: '11px', color: '#6b5f76', marginTop: '4px', fontStyle: 'italic' }}>
+                                  {file.note}
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Action buttons */}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                previewFile({
+                                  name: fileName,
+                                  url: file.file_url || file.url || file.path || file.file_path,
+                                  size: file.size,
+                                  label: `Submission file ${idx + 1}`,
+                                })
+                              }
+                              style={{
+                                display: 'grid',
+                                width: '32px',
+                                height: '32px',
+                                placeItems: 'center',
+                                border: '1px solid #ddd3e8',
+                                borderRadius: '6px',
+                                background: '#fff',
+                                color: '#7650a3',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                flexShrink: 0,
+                              }}
+                              aria-label="View file"
+                            >
+                              👁
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => window.open(fileUrl, '_blank')}
+                              style={{
+                                display: 'grid',
+                                width: '32px',
+                                height: '32px',
+                                placeItems: 'center',
+                                border: '1px solid #ddd3e8',
+                                borderRadius: '6px',
+                                background: '#fff',
+                                color: '#7650a3',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                flexShrink: 0,
+                              }}
+                              aria-label="Download file"
+                            >
+                              ⬇
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </section>
                 )}
 
-                {submissions.length > 0 && (
+                {submissionGroups.length > 0 && (
                   <section className="td-card">
                     <div className="td-lineage-top">
                       <div className="td-section-title">
@@ -1725,8 +1746,8 @@ export default function TaskDetail() {
                         </div>
                       </div>
                       <span className="td-lineage-count">
-                        {submissions.length}{" "}
-                        {submissions.length === 1 ? "version" : "versions"}
+                        {submissionGroups.length}{" "}
+                        {submissionGroups.length === 1 ? "version" : "versions"}
                       </span>
                     </div>
                     <p className="td-lineage-copy">
@@ -1734,19 +1755,17 @@ export default function TaskDetail() {
                       task record before a final decision is made.
                     </p>
                     <div className="td-lineage">
-                      {[...submissions].reverse().map((file, reverseIndex) => {
-                        const actualIndex = submissions.length - reverseIndex;
+                      {[...submissionGroups].reverse().map((group, reverseIndex) => {
+                        const actualIndex = submissionGroups.length - reverseIndex;
+                        const firstFile = group.files[0];
                         const fileStatus = statusInfo(
-                          file.status || task.status,
+                          firstFile.status || task.status,
                         );
-                        const name =
-                          file.file_name ||
-                          file.name ||
-                          `Version ${actualIndex}`;
+                        
                         return (
                           <article
                             className="td-lineage-row"
-                            key={file.id || `${name}-${actualIndex}`}
+                            key={group.groupId || `version-${actualIndex}`}
                           >
                             <span
                               className={`td-version ${reverseIndex === 0 ? "current" : ""}`}
@@ -1763,14 +1782,12 @@ export default function TaskDetail() {
                                 </span>
                               </h3>
                               <p>
-                                {file.note ||
-                                  file.submission_note ||
-                                  "No submission note recorded."}
+                                {group.note || "No submission note recorded."}
                               </p>
                               <div className="td-lineage-meta">
-                                <span>{name}</span>
+                                <span>{group.files.length} file{group.files.length !== 1 ? 's' : ''}</span>
                                 <i>•</i>
-                                <span>{formatSize(file.size)}</span>
+                                <span>{formatDate(group.submittedAt)}</span>
                                 {reverseIndex === 0 && (
                                   <>
                                     <i>•</i>
@@ -1784,17 +1801,15 @@ export default function TaskDetail() {
                               type="button"
                               onClick={() =>
                                 previewFile({
-                                  name,
-                                  url: file.file_url || file.url, // Pass raw URL for blob creation
-                                  size: file.size,
+                                  name: group.files[0].file_name || group.files[0].name || `Version ${actualIndex}`,
+                                  url: group.files[0].file_url || group.files[0].url,
+                                  size: group.files[0].size,
                                   label: `Version ${actualIndex}`,
                                 })
                               }
                             >
                               <time>
-                                {formatDate(
-                                  file.submitted_at || file.created_at,
-                                )}
+                                {formatDate(group.submittedAt)}
                               </time>
                               <span>
                                 <Icon name="preview" size={12} />
