@@ -880,7 +880,7 @@ router.get("/my", requireAuth, async (req, res) => {
     // But NOT solo tasks assigned to other faculty
     const conditions = [
       `(
-        t.faculty_id = ? 
+        (t.is_collaborative = 0 AND t.faculty_id = ?) 
         OR (
           t.is_collaborative = 1 
           AND EXISTS (
