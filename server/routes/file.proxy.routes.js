@@ -47,6 +47,12 @@ router.get("/proxy", requireAuth, async (req, res) => {
     res.setHeader("Content-Length", response.ContentLength || 0);
     res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
     res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+    
+    // CORS headers for iframe embedding
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("X-Content-Type-Options", "nosniff");
 
     // Stream the body directly to the response
     response.Body.pipe(res);

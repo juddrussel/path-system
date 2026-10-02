@@ -623,7 +623,6 @@ export default function CollaborativeTaskDetail() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Awaiting Confirmation");
   const [preview, setPreview] = useState(null);
-  const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
 
   const [finalFiles, setFinalFiles] = useState([]);
   const [finalNote, setFinalNote] = useState("");
@@ -858,62 +857,6 @@ export default function CollaborativeTaskDetail() {
       socket.off("collaborative:comment_posted");
     };
   }, [taskId]);
-
-  // Fetch file as blob for authenticated preview
-  useEffect(() => {
-    const fetchPreviewUrl = async () => {
-      if (!preview) {
-        setPreviewBlobUrl(null);
-        return;
-      }
-
-      try {
-        console.log('[Preview] Requesting preview token for:', preview.url);
-        const token = localStorage.getItem('token');
-        if (!token) {
-          console.error('[Preview] No token found');
-          alert('Please log in to view files');
-          setPreview(null);
-          return;
-        }
-
-        // Extract the key from the proxy URL
-        const urlObj = new URL(preview.url);
-        const key = urlObj.searchParams.get('key');
-        
-        if (!key) {
-          throw new Error('Invalid file URL - no key found');
-        }
-
-        // Request a temporary preview token
-        const response = await fetch(`${api}/api/files/preview-token`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ key })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to get preview token: ${response.status}`);
-        }
-
-        const { previewToken } = await response.json();
-        
-        // Create preview URL with the token
-        const previewUrl = `${api}/api/files/preview?token=${encodeURIComponent(previewToken)}`;
-        console.log('[Preview] Preview URL created:', previewUrl);
-        setPreviewBlobUrl(previewUrl);
-      } catch (error) {
-        console.error('[Preview] Error:', error);
-        alert(`Failed to load preview: ${error.message}`);
-        setPreview(null);
-      }
-    };
-
-    fetchPreviewUrl();
-  }, [preview]);
 
   // Handlers
   const toggleConfirmation = (userId) => {
@@ -1686,11 +1629,7 @@ export default function CollaborativeTaskDetail() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setPreview({
-                                  url: r2ToProxyUrl(api, file.file_url),
-                                  name: file.file_name,
-                                  type: file.file_name.split('.').pop().toLowerCase()
-                                });
+                                openFileWithAuth(r2ToProxyUrl(api, file.file_url));
                               }}
                               style={{
                                 display: 'inline-flex',
@@ -1708,7 +1647,7 @@ export default function CollaborativeTaskDetail() {
                                 marginRight: '6px'
                               }}
                             >
-                              <FileText size={12} /> Preview
+                              <FileText size={12} /> Open
                             </button>
                             <button
                               onClick={(e) => {
@@ -1781,11 +1720,7 @@ export default function CollaborativeTaskDetail() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setPreview({
-                              url: r2ToProxyUrl(api, versions[0].file_url),
-                              name: versions[0].file_name,
-                              type: versions[0].file_name.split('.').pop().toLowerCase()
-                            });
+                            openFileWithAuth(r2ToProxyUrl(api, versions[0].file_url));
                           }}
                           style={{
                             display: 'inline-flex',
@@ -1803,7 +1738,7 @@ export default function CollaborativeTaskDetail() {
                             marginRight: '6px'
                           }}
                         >
-                          <FileText size={12} /> Preview
+                          <FileText size={12} /> Open
                         </button>
                         <button
                           onClick={(e) => {
@@ -1826,169 +1761,6 @@ export default function CollaborativeTaskDetail() {
                           }}
                         >
                           <Download size={12} /> Download
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Inline Preview Section */}
-              {preview && (
-                <div style={{
-                  marginTop: '16px',
-                  marginBottom: '16px',
-                  padding: '16px',
-                  background: '#fff',
-                  border: '2px solid #7c3aed',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 12px rgba(124, 58, 237, 0.1)'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '12px',
-                    paddingBottom: '12px',
-                    borderBottom: '1px solid #e9d5ff'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <FileText size={16} style={{ color: '#7c3aed' }} />
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#44354f' }}>
-                        {preview.name}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setPreview(null)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#8d7f97',
-                        cursor: 'pointer',
-                        fontSize: '18px',
-                        padding: '4px 8px',
-                        lineHeight: 1
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <div style={{
-                    background: '#f9fafb',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    minHeight: '500px',
-                    maxHeight: '600px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    {!previewBlobUrl ? (
-                      <div style={{ textAlign: 'center', padding: '40px', color: '#8d7f97' }}>
-                        <div style={{ 
-                          width: '40px', 
-                          height: '40px', 
-                          border: '3px solid #e9d5ff', 
-                          borderTopColor: '#7c3aed', 
-                          borderRadius: '50%', 
-                          animation: 'spin 1s linear infinite',
-                          margin: '0 auto 16px'
-                        }} />
-                        <p style={{ fontSize: '14px' }}>Loading preview...</p>
-                      </div>
-                    ) : preview.type === 'pdf' ? (
-                      <object
-                        data={previewBlobUrl}
-                        type="application/pdf"
-                        title={preview.name}
-                        style={{
-                          width: '100%',
-                          height: '600px',
-                          border: 'none'
-                        }}
-                      >
-                        <div style={{
-                          textAlign: 'center',
-                          padding: '40px',
-                          color: '#8d7f97'
-                        }}>
-                          <FileText size={48} style={{ marginBottom: '16px', opacity: 0.4 }} />
-                          <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
-                            PDF viewer not available
-                          </p>
-                          <p style={{ fontSize: '12px', marginBottom: '16px' }}>
-                            Your browser doesn't support inline PDF viewing.
-                          </p>
-                          <button
-                            onClick={() => downloadFileWithAuth(preview.url, preview.name)}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '8px 16px',
-                              background: '#7c3aed',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '12px',
-                              fontWeight: 700,
-                              cursor: 'pointer'
-                            }}
-                          >
-                            <Download size={14} /> Download File
-                          </button>
-                        </div>
-                      </object>
-                    ) : ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(preview.type) ? (
-                      <img
-                        src={previewBlobUrl}
-                        alt={preview.name}
-                        style={{
-                          maxWidth: '100%',
-                          maxHeight: '600px',
-                          objectFit: 'contain'
-                        }}
-                      />
-                    ) : ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(preview.type) ? (
-                      <iframe
-                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(preview.url)}`}
-                        title={preview.name}
-                        style={{
-                          width: '100%',
-                          height: '600px',
-                          border: 'none'
-                        }}
-                      />
-                    ) : (
-                      <div style={{
-                        textAlign: 'center',
-                        padding: '40px',
-                        color: '#8d7f97'
-                      }}>
-                        <FileText size={48} style={{ marginBottom: '16px', opacity: 0.4 }} />
-                        <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
-                          Preview not available
-                        </p>
-                        <p style={{ fontSize: '12px', marginBottom: '16px' }}>
-                          This file type cannot be previewed inline.
-                        </p>
-                        <button
-                          onClick={() => downloadFileWithAuth(preview.url, preview.name)}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '8px 16px',
-                            background: '#7c3aed',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <Download size={14} /> Download File
                         </button>
                       </div>
                     )}
