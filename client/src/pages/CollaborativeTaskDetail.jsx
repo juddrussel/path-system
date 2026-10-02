@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
-import { r2ToProxyUrl, resolveFileUrl, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper.js";
+import { r2ToProxyUrl, resolveFileUrl } from "../utils/r2ProxyHelper.js";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -218,9 +218,11 @@ function RenderReplies({
                             }} />
                           </div>
                         )}
-                        <div 
-                          onClick={() => openFileWithAuth(r2ToProxyUrl(api, file.url))}
-                          style={{ display: "block", maxWidth: "280px", cursor: "pointer" }}
+                        <a 
+                          href={r2ToProxyUrl(api, file.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: "block", maxWidth: "280px" }}
                         >
                           <img 
                             src={r2ToProxyUrl(api, file.url)}
@@ -235,31 +237,19 @@ function RenderReplies({
                               display: imageLoading ? "none" : "block"
                             }}
                           />
-                        </div>
+                        </a>
                       </div>
                     ) : (
                       <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                         <span style={{ fontSize: "12px" }}>📎</span>
-                        <button 
-                          onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.url), file.name)}
-                          style={{ 
-                            flex: 1, 
-                            minWidth: 0, 
-                            color: "#7043b6", 
-                            fontSize: "9px", 
-                            overflow: "hidden", 
-                            textOverflow: "ellipsis", 
-                            whiteSpace: "nowrap", 
-                            textDecoration: "underline",
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            padding: 0,
-                            textAlign: "left"
-                          }}
+                        <a 
+                          href={r2ToProxyUrl(api, file.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
                         >
                           {file.name}
-                        </button>
+                        </a>
                       </div>
                     );
                   })}
@@ -1486,26 +1476,28 @@ export default function CollaborativeTaskDetail() {
                                   {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : 'Attachment from admin'}
                                 </small>
                               </div>
-                              <button
-                                onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name)}
+                              <a
+                                href={r2ToProxyUrl(api, file.file_url)}
+                                download={file.file_name}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
                                   gap: '5px',
                                   padding: '6px 12px',
-                                  border: 'none',
                                   borderRadius: '6px',
                                   background: '#fbbf24',
                                   color: '#78350f',
+                                  textDecoration: 'none',
                                   fontSize: '10px',
                                   fontWeight: 800,
                                   whiteSpace: 'nowrap',
-                                  flexShrink: 0,
-                                  cursor: 'pointer'
+                                  flexShrink: 0
                                 }}
                               >
                                 <Download size={12} /> Download
-                              </button>
+                              </a>
                               <button
                                 onClick={() => setPreview({
                                   file_url: file.file_url,
@@ -1629,30 +1621,7 @@ export default function CollaborativeTaskDetail() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openFileWithAuth(r2ToProxyUrl(api, file.file_url));
-                              }}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                padding: '6px 10px',
-                                border: '1px solid #e9d5ff',
-                                borderRadius: '6px',
-                                background: '#fff',
-                                color: '#7c3aed',
-                                fontSize: '9px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                flexShrink: 0,
-                                marginRight: '6px'
-                              }}
-                            >
-                              <FileText size={12} /> Open
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name);
+                                window.open(r2ToProxyUrl(api, file.file_url), '_blank');
                               }}
                               style={{
                                 display: 'inline-flex',
@@ -1720,30 +1689,7 @@ export default function CollaborativeTaskDetail() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            openFileWithAuth(r2ToProxyUrl(api, versions[0].file_url));
-                          }}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '5px',
-                            padding: '6px 10px',
-                            border: '1px solid #e9d5ff',
-                            borderRadius: '6px',
-                            background: '#fff',
-                            color: '#7c3aed',
-                            fontSize: '9px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            flexShrink: 0,
-                            marginRight: '6px'
-                          }}
-                        >
-                          <FileText size={12} /> Open
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            downloadFileWithAuth(r2ToProxyUrl(api, versions[0].file_url), versions[0].file_name);
+                            window.open(r2ToProxyUrl(api, versions[0].file_url), '_blank');
                           }}
                           style={{
                             display: 'inline-flex',
@@ -2193,25 +2139,27 @@ export default function CollaborativeTaskDetail() {
                                       {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
                                     </div>
                                   </div>
-                                  <button
-                                    onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name)}
+                                  <a
+                                    href={r2ToProxyUrl(api, file.file_url)}
+                                    download={file.file_name}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     style={{
                                       padding: '7px 12px',
-                                      border: 'none',
                                       borderRadius: '6px',
                                       background: '#7c3aed',
                                       color: '#fff',
+                                      textDecoration: 'none',
                                       fontSize: '10px',
                                       fontWeight: 700,
                                       display: 'inline-flex',
                                       alignItems: 'center',
                                       gap: '5px',
-                                      flexShrink: 0,
-                                      cursor: 'pointer'
+                                      flexShrink: 0
                                     }}
                                   >
                                     <Download size={12} />
-                                  </button>
+                                  </a>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -2319,9 +2267,11 @@ export default function CollaborativeTaskDetail() {
                                         }} />
                                       </div>
                                     )}
-                                    <div 
-                                      onClick={() => openFileWithAuth(r2ToProxyUrl(api, file.url))}
-                                      style={{ display: "block", maxWidth: "280px", cursor: "pointer" }}
+                                    <a 
+                                      href={r2ToProxyUrl(api, file.url)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ display: "block", maxWidth: "280px" }}
                                     >
                                       <img 
                                         src={r2ToProxyUrl(api, file.url)}
@@ -2336,17 +2286,19 @@ export default function CollaborativeTaskDetail() {
                                           display: imageLoading ? "none" : "block"
                                         }}
                                       />
-                                    </div>
+                                    </a>
                                   </div>
                                 ) : (
                                   <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                                     <span style={{ fontSize: "12px" }}>📎</span>
-                                    <button
-                                      onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.url), file.name)}
-                                      style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}
+                                    <a 
+                                      href={r2ToProxyUrl(api, file.url)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
                                     >
                                       {file.name}
-                                    </button>
+                                    </a>
                                   </div>
                                 );
                               })}
@@ -2759,8 +2711,10 @@ export default function CollaborativeTaskDetail() {
                     type="button"
                     disabled={!preview.file_url && !preview.url}
                     onClick={() =>
-                      openFileWithAuth(
-                        r2ToProxyUrl(api, preview.file_url || preview.url)
+                      window.open(
+                        r2ToProxyUrl(api, preview.file_url || preview.url),
+                        "_blank",
+                        "noopener,noreferrer"
                       )
                     }
                     aria-label="Open file in a new tab"

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { resolveFileUrl, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL || "";
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -594,15 +594,15 @@ function DetailDrawer({ doc, onClose }) {
                   <div style={{ marginTop: 8, paddingTop: 16, borderTop: "1px solid #f0f0f0" }}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: "#374151", marginBottom: 10 }}>Attachments</div>
                     {doc.attachments.map((att, i) => (
-                      <button key={i} onClick={() => downloadFileWithAuth(resolveFileUrl(SERVER_URL, att.file_url || att.url), att.file_name || att.name)}
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#fafafa", border: "1px solid #f0f0f0", marginBottom: 6, textDecoration: "none", color: "#374151", cursor: "pointer", width: "100%" }}>
+                      <a key={i} href={resolveFileUrl(SERVER_URL, att.file_url || att.url)} target="_blank" rel="noreferrer"
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#fafafa", border: "1px solid #f0f0f0", marginBottom: 6, textDecoration: "none", color: "#374151" }}>
                         <div style={{ width: 30, height: 30, borderRadius: 6, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon.Doc /></div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 15, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.file_name || att.name}</div>
                           {att.size > 0 && <div style={{ fontSize: 14, color: "#9ca3af" }}>{(att.size / 1024).toFixed(1)} KB</div>}
                         </div>
                         <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" width="13" height="13"><path d="M8 2v8M4 7l4 4 4-4" strokeLinecap="round"/><path d="M2 13h12"/></svg>
-                      </button>
+                      </a>
                     ))}
                   </div>
                 )}

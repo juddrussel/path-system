@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { resolveFileUrl, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper";
+import { resolveFileUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const resolveUrl = (value) => resolveFileUrl(API, value);
@@ -302,13 +302,15 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
                 {preview ? "Hide preview" : "Preview document"}
               </button>
               {documentUrl && (
-                <button
+                <a
                   className="faculty-button"
-                  type="button"
-                  onClick={() => downloadFileWithAuth(documentUrl, fileName)}
+                  href={documentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  download={fileName}
                 >
                   Download
-                </button>
+                </a>
               )}
               {canResubmit && (
                 <button
@@ -408,7 +410,7 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
                       {documentUrl && (
                         <button
                           type="button"
-                          onClick={() => openFileWithAuth(documentUrl)}
+                          onClick={() => window.open(documentUrl, "_blank")}
                         >
                           Open file ↗
                         </button>

@@ -1,7 +1,6 @@
 const express = require("express");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const r2Client = require("../config/r2");
-const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -11,13 +10,10 @@ const router = express.Router();
  * Proxies file requests from R2 through the server to bypass rate limits.
  * Browser never directly accesses R2, so no rate limit issues.
  * 
- * REQUIRES AUTHENTICATION: Only logged-in users can access files.
- * Returns 401 Unauthorized if no valid token is provided.
- * 
  * Query params:
  *   key: R2 object key (e.g., "uploads/uuid-filename.png")
  */
-router.get("/proxy", requireAuth, async (req, res) => {
+router.get("/proxy", async (req, res) => {
   try {
     const { key } = req.query;
 
@@ -29,7 +25,7 @@ router.get("/proxy", requireAuth, async (req, res) => {
       return res.status(500).json({ message: "R2 bucket not configured" });
     }
 
-    console.log(`[File Proxy] User ${req.user.id} fetching: ${key}`);
+    console.log(`[File Proxy] Fetching: ${key}`);
 
     // Fetch file from R2
     const command = new GetObjectCommand({
@@ -47,12 +43,6 @@ router.get("/proxy", requireAuth, async (req, res) => {
     res.setHeader("Content-Length", response.ContentLength || 0);
     res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
     res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
-    
-    // CORS headers for iframe embedding
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET");
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.setHeader("X-Content-Type-Options", "nosniff");
 
     // Stream the body directly to the response
     response.Body.pipe(res);
