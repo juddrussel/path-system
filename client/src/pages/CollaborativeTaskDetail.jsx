@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
-import { r2ToProxyUrl, resolveFileUrl } from "../utils/r2ProxyHelper.js";
+import { r2ToProxyUrl, resolveFileUrl, downloadFileWithAuth, openFileWithAuth } from "../utils/r2ProxyHelper.js";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -1476,28 +1476,26 @@ export default function CollaborativeTaskDetail() {
                                   {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : 'Attachment from admin'}
                                 </small>
                               </div>
-                              <a
-                                href={r2ToProxyUrl(api, file.file_url)}
-                                download={file.file_name}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name)}
                                 style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
                                   gap: '5px',
                                   padding: '6px 12px',
+                                  border: 'none',
                                   borderRadius: '6px',
                                   background: '#fbbf24',
                                   color: '#78350f',
-                                  textDecoration: 'none',
                                   fontSize: '10px',
                                   fontWeight: 800,
                                   whiteSpace: 'nowrap',
-                                  flexShrink: 0
+                                  flexShrink: 0,
+                                  cursor: 'pointer'
                                 }}
                               >
                                 <Download size={12} /> Download
-                              </a>
+                              </button>
                               <button
                                 onClick={() => setPreview({
                                   file_url: file.file_url,
@@ -1621,7 +1619,7 @@ export default function CollaborativeTaskDetail() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                window.open(r2ToProxyUrl(api, file.file_url), '_blank');
+                                downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name);
                               }}
                               style={{
                                 display: 'inline-flex',
@@ -1689,7 +1687,7 @@ export default function CollaborativeTaskDetail() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(r2ToProxyUrl(api, versions[0].file_url), '_blank');
+                            downloadFileWithAuth(r2ToProxyUrl(api, versions[0].file_url), versions[0].file_name);
                           }}
                           style={{
                             display: 'inline-flex',
@@ -2139,27 +2137,25 @@ export default function CollaborativeTaskDetail() {
                                       {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ''}
                                     </div>
                                   </div>
-                                  <a
-                                    href={r2ToProxyUrl(api, file.file_url)}
-                                    download={file.file_name}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                  <button
+                                    onClick={() => downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name)}
                                     style={{
                                       padding: '7px 12px',
+                                      border: 'none',
                                       borderRadius: '6px',
                                       background: '#7c3aed',
                                       color: '#fff',
-                                      textDecoration: 'none',
                                       fontSize: '10px',
                                       fontWeight: 700,
                                       display: 'inline-flex',
                                       alignItems: 'center',
                                       gap: '5px',
-                                      flexShrink: 0
+                                      flexShrink: 0,
+                                      cursor: 'pointer'
                                     }}
                                   >
                                     <Download size={12} />
-                                  </a>
+                                  </button>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -2711,10 +2707,8 @@ export default function CollaborativeTaskDetail() {
                     type="button"
                     disabled={!preview.file_url && !preview.url}
                     onClick={() =>
-                      window.open(
-                        r2ToProxyUrl(api, preview.file_url || preview.url),
-                        "_blank",
-                        "noopener,noreferrer"
+                      openFileWithAuth(
+                        r2ToProxyUrl(api, preview.file_url || preview.url)
                       )
                     }
                     aria-label="Open file in a new tab"
