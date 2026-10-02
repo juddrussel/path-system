@@ -14,6 +14,7 @@ function AlertModal({ message, onClose }) {
         background: 'rgba(15, 13, 26, 0.6)',
         zIndex: 9999,
         padding: '20px',
+        fontFamily: "'DM Sans', sans-serif",
       }}
       onClick={onClose}
     >
@@ -29,40 +30,17 @@ function AlertModal({ message, onClose }) {
           animation: 'alertSlideIn 0.2s ease-out',
         }}
       >
-        <div
+        <h3
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '16px',
+            margin: '0 0 16px',
+            color: '#2c2537',
+            fontSize: '18px',
+            fontWeight: '700',
+            fontFamily: "'Manrope', sans-serif",
           }}
         >
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '20px',
-            }}
-          >
-            ⚠️
-          </div>
-          <h3
-            style={{
-              margin: 0,
-              color: '#2c2537',
-              fontSize: '18px',
-              fontWeight: '700',
-              fontFamily: "'Manrope', sans-serif",
-            }}
-          >
-            Attention Required
-          </h3>
-        </div>
+          Attention Required
+        </h3>
         <p
           style={{
             margin: '0 0 24px',
@@ -87,6 +65,7 @@ function AlertModal({ message, onClose }) {
             cursor: 'pointer',
             boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
             transition: 'all 0.2s ease',
+            fontFamily: "'DM Sans', sans-serif",
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-1px)';
