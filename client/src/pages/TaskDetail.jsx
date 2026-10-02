@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket, connectSocket } from "./socket.js";
-import { resolveFileUrl as resolveFileUrlHelper } from "../utils/r2ProxyHelper";
+import { resolveFileUrl as resolveFileUrlHelper, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 /*
   Router integration requirement (React Router v6):
@@ -255,6 +255,8 @@ export default function TaskDetail() {
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
   const commentFileInputRef = useRef(null);
+  const [submissionBlobUrl, setSubmissionBlobUrl] = useState(null);
+  const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
 
   const loadTask = async () => {
     if (!taskId) return;
@@ -362,6 +364,94 @@ export default function TaskDetail() {
       socket.off("task:status_changed", handleStatusChanged);
     };
   }, [taskId, token]);
+
+  // Create authenticated blob URLs for PDF file previews
+  useEffect(() => {
+    let isMounted = true;
+    let currentSubmissionBlobUrl = null;
+
+    const loadSubmissionBlobUrl = async () => {
+      const fileValue = latestSubmission?.file_url ||
+        latestSubmission?.url ||
+        latestSubmission?.path ||
+        latestSubmission?.file_path;
+      
+      if (!fileValue) {
+        setSubmissionBlobUrl(null);
+        return;
+      }
+
+      const extension = (latestSubmission?.file_name || latestSubmission?.name || "")
+        .split(".")
+        .pop()
+        ?.toLowerCase();
+      
+      // Only create blob URLs for PDFs (images can load directly)
+      if (extension !== "pdf") {
+        setSubmissionBlobUrl(null);
+        return;
+      }
+
+      try {
+        const url = await createAuthenticatedBlobUrl(api, fileValue);
+        if (isMounted) {
+          currentSubmissionBlobUrl = url;
+          setSubmissionBlobUrl(url);
+        }
+      } catch (error) {
+        console.error("Failed to load submission file:", error);
+        if (isMounted) setSubmissionBlobUrl(null);
+      }
+    };
+
+    loadSubmissionBlobUrl();
+
+    return () => {
+      isMounted = false;
+      if (currentSubmissionBlobUrl) {
+        URL.revokeObjectURL(currentSubmissionBlobUrl);
+      }
+    };
+  }, [task, api]);
+
+  // Create authenticated blob URL for file preview modal
+  useEffect(() => {
+    let isMounted = true;
+    let currentPreviewBlobUrl = null;
+
+    const loadPreviewBlobUrl = async () => {
+      if (!preview?.url) {
+        setPreviewBlobUrl(null);
+        return;
+      }
+
+      // Only create blob URLs for PDFs
+      if (!/\.pdf($|\?)/i.test(preview.url)) {
+        setPreviewBlobUrl(null);
+        return;
+      }
+
+      try {
+        const url = await createAuthenticatedBlobUrl(api, preview.url);
+        if (isMounted) {
+          currentPreviewBlobUrl = url;
+          setPreviewBlobUrl(url);
+        }
+      } catch (error) {
+        console.error("Failed to load preview file:", error);
+        if (isMounted) setPreviewBlobUrl(null);
+      }
+    };
+
+    loadPreviewBlobUrl();
+
+    return () => {
+      isMounted = false;
+      if (currentPreviewBlobUrl) {
+        URL.revokeObjectURL(currentPreviewBlobUrl);
+      }
+    };
+  }, [preview, api]);
 
   const status = statusInfo(task?.status);
   const isFacultyView = !isChair;
@@ -1429,13 +1519,14 @@ export default function TaskDetail() {
                           <button
                             type="button"
                             disabled={!latestSubmissionUrl}
-                            onClick={() =>
+                            onClick={() => {
+                              const urlToOpen = submissionBlobUrl || latestSubmissionUrl;
                               window.open(
-                                latestSubmissionUrl,
+                                urlToOpen,
                                 "_blank",
                                 "noopener,noreferrer",
-                              )
-                            }
+                              );
+                            }}
                             aria-label="Open submitted file in a new tab"
                           >
                             ↗
@@ -1450,10 +1541,10 @@ export default function TaskDetail() {
                           ) : latestSubmissionUrl && isLatestSubmissionPdf ? (
                             <iframe
                               title={`Inline preview of ${latestSubmissionName}`}
-                              src={pdfReadingUrl(
-                                latestSubmissionUrl,
+                              src={submissionBlobUrl ? pdfReadingUrl(
+                                submissionBlobUrl,
                                 inlineReaderZoom,
-                              )}
+                              ) : ""}
                             />
                           ) : latestSubmissionUrl &&
                             isLatestSubmissionOffice ? (
@@ -2432,9 +2523,10 @@ export default function TaskDetail() {
                   <button
                     type="button"
                     disabled={!preview.url}
-                    onClick={() =>
-                      window.open(preview.url, "_blank", "noopener,noreferrer")
-                    }
+                    onClick={() => {
+                      const urlToOpen = previewBlobUrl || preview.url;
+                      window.open(urlToOpen, "_blank", "noopener,noreferrer");
+                    }}
                     aria-label="Open file in a new tab"
                   >
                     ↗
@@ -2444,7 +2536,7 @@ export default function TaskDetail() {
                   {preview.url && /\.pdf($|\?)/i.test(preview.url) ? (
                     <iframe
                       title={preview.name}
-                      src={pdfReadingUrl(preview.url, readerZoom)}
+                      src={previewBlobUrl ? pdfReadingUrl(previewBlobUrl, readerZoom) : ""}
                     />
                   ) : preview.url &&
                     /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.url) ? (
