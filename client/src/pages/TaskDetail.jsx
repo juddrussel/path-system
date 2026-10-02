@@ -194,12 +194,12 @@ function FileCard({ file, api, onPreview, label = "Attached file" }) {
   if (!file) return null;
   const name =
     file.file_name || file.originalname || file.name || "Attached file";
-  const url = resolveFileUrl(api, file.file_url || file.url || file.path);
+  const rawUrl = file.file_url || file.url || file.path; // Keep raw URL for blob creation
   return (
     <button
       type="button"
       className="td-file-card"
-      onClick={() => onPreview({ name, url, size: file.size, label })}
+      onClick={() => onPreview({ name, url: rawUrl, size: file.size, label })}
     >
       <span>
         <Icon name="attach" />
@@ -1467,7 +1467,7 @@ export default function TaskDetail() {
                             onClick={() =>
                               previewFile({
                                 name: latestSubmissionName,
-                                url: latestSubmissionUrl,
+                                url: latestSubmission?.file_url || latestSubmission?.url || latestSubmission?.path || latestSubmission?.file_path,
                                 size: latestSubmission.size,
                                 label: "Latest submission",
                               })
@@ -1646,10 +1646,7 @@ export default function TaskDetail() {
                               onClick={() =>
                                 previewFile({
                                   name,
-                                  url: resolveFileUrl(
-                                    api,
-                                    file.file_url || file.url,
-                                  ),
+                                  url: file.file_url || file.url, // Pass raw URL for blob creation
                                   size: file.size,
                                   label: `Version ${actualIndex}`,
                                 })
