@@ -1629,6 +1629,33 @@ export default function CollaborativeTaskDetail() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
+                                setPreview({
+                                  url: r2ToProxyUrl(api, file.file_url),
+                                  name: file.file_name,
+                                  type: file.file_name.split('.').pop().toLowerCase()
+                                });
+                              }}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                padding: '6px 10px',
+                                border: '1px solid #e9d5ff',
+                                borderRadius: '6px',
+                                background: '#fff',
+                                color: '#7c3aed',
+                                fontSize: '9px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                flexShrink: 0,
+                                marginRight: '6px'
+                              }}
+                            >
+                              <FileText size={12} /> Preview
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 downloadFileWithAuth(r2ToProxyUrl(api, file.file_url), file.file_name);
                               }}
                               style={{
@@ -1697,6 +1724,33 @@ export default function CollaborativeTaskDetail() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            setPreview({
+                              url: r2ToProxyUrl(api, versions[0].file_url),
+                              name: versions[0].file_name,
+                              type: versions[0].file_name.split('.').pop().toLowerCase()
+                            });
+                          }}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '6px 10px',
+                            border: '1px solid #e9d5ff',
+                            borderRadius: '6px',
+                            background: '#fff',
+                            color: '#7c3aed',
+                            fontSize: '9px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            marginRight: '6px'
+                          }}
+                        >
+                          <FileText size={12} /> Preview
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
                             downloadFileWithAuth(r2ToProxyUrl(api, versions[0].file_url), versions[0].file_name);
                           }}
                           style={{
@@ -1715,6 +1769,123 @@ export default function CollaborativeTaskDetail() {
                           }}
                         >
                           <Download size={12} /> Download
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Inline Preview Section */}
+              {preview && (
+                <div style={{
+                  marginTop: '16px',
+                  marginBottom: '16px',
+                  padding: '16px',
+                  background: '#fff',
+                  border: '2px solid #7c3aed',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(124, 58, 237, 0.1)'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '12px',
+                    paddingBottom: '12px',
+                    borderBottom: '1px solid #e9d5ff'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <FileText size={16} style={{ color: '#7c3aed' }} />
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#44354f' }}>
+                        {preview.name}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setPreview(null)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#8d7f97',
+                        cursor: 'pointer',
+                        fontSize: '18px',
+                        padding: '4px 8px',
+                        lineHeight: 1
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div style={{
+                    background: '#f9fafb',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    minHeight: '500px',
+                    maxHeight: '600px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {preview.type === 'pdf' ? (
+                      <iframe
+                        src={preview.url}
+                        title={preview.name}
+                        style={{
+                          width: '100%',
+                          height: '600px',
+                          border: 'none'
+                        }}
+                      />
+                    ) : ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(preview.type) ? (
+                      <img
+                        src={preview.url}
+                        alt={preview.name}
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '600px',
+                          objectFit: 'contain'
+                        }}
+                      />
+                    ) : ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(preview.type) ? (
+                      <iframe
+                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(preview.url)}`}
+                        title={preview.name}
+                        style={{
+                          width: '100%',
+                          height: '600px',
+                          border: 'none'
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '40px',
+                        color: '#8d7f97'
+                      }}>
+                        <FileText size={48} style={{ marginBottom: '16px', opacity: 0.4 }} />
+                        <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                          Preview not available
+                        </p>
+                        <p style={{ fontSize: '12px', marginBottom: '16px' }}>
+                          This file type cannot be previewed inline.
+                        </p>
+                        <button
+                          onClick={() => downloadFileWithAuth(preview.url, preview.name)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '8px 16px',
+                            background: '#7c3aed',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Download size={14} /> Download File
                         </button>
                       </div>
                     )}
