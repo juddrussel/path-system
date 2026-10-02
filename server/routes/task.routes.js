@@ -874,8 +874,6 @@ router.get("/my", requireAuth, async (req, res) => {
   try {
     const { q = "", status = "", priority = "", doc_type = "", date = "" } = req.query;
 
-    console.log(`[MyTasks] User ${req.user.id} (${req.user.full_name}) fetching tasks with filters:`, { status, priority, doc_type, date, q });
-
     // For faculty: show tasks where they are EITHER:
     // 1. The main faculty assignee (faculty_id) for solo tasks
     // 2. A collaborator in a collaborative task (via task_collaborators table)
@@ -905,7 +903,8 @@ router.get("/my", requireAuth, async (req, res) => {
 
     const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    const sqlQuery = `SELECT
+    const [rows] = await db.query(
+      `SELECT
          t.*,
          u1.full_name AS faculty_name,
          u1.email     AS faculty_email,
@@ -916,17 +915,9 @@ router.get("/my", requireAuth, async (req, res) => {
        LEFT JOIN users u2 ON u2.id = t.assigned_by
        LEFT JOIN users u3 ON u3.id = t.collaborator_id
        ${where}
-       ORDER BY t.created_at DESC`;
-
-    console.log(`[MyTasks] Executing SQL:`, sqlQuery);
-    console.log(`[MyTasks] With params:`, params);
-
-    const [rows] = await db.query(sqlQuery, params);
-
-    console.log(`[MyTasks] Found ${rows.length} tasks for user ${req.user.id}`);
-    if (rows.length > 0) {
-      console.log(`[MyTasks] Sample task IDs:`, rows.slice(0, 5).map(r => ({ id: r.id, tracking_id: r.tracking_id, is_collaborative: r.is_collaborative })));
-    }
+       ORDER BY t.created_at DESC`,
+      params
+    );
 
     const tasks = await enrichTasks(rows);
 
@@ -1330,16 +1321,7 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
 
     // Add all collaborators to task_collaborators table
     const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
-    console.log(`[CollaborativeTask] Inserting ${collaboratorRows.length} collaborators for task ${taskId}:`, collaboratorRows);
-    const [insertResult] = await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
-    console.log(`[CollaborativeTask] Inserted ${insertResult.affectedRows} rows into task_collaborators`);
-
-    // Verify what was actually inserted
-    const [verifyCollaborators] = await db.query(
-      "SELECT task_id, user_id FROM task_collaborators WHERE task_id = ?",
-      [taskId]
-    );
-    console.log(`[CollaborativeTask] Verification - Found ${verifyCollaborators.length} collaborators in DB:`, verifyCollaborators);
+    await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
 
     // Handle attachments
     let preUploaded = [];
@@ -1407,12 +1389,6 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
       tracking_id,
       isCollaborative: true,
       collaboration_mode: "together",
-      _debug: {
-        requestedFacultyIds: facultyIds,
-        collaboratorsInserted: insertResult.affectedRows,
-        collaboratorsInDB: verifyCollaborators.length,
-        collaboratorsList: verifyCollaborators,
-      }
     });
   } catch (err) {
     console.error("POST /api/tasks/collaborative error:", err);
