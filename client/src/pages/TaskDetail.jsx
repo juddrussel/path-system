@@ -237,6 +237,7 @@ export default function TaskDetail() {
   const [submissionError, setSubmissionError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
+  const [expandedVersions, setExpandedVersions] = useState(new Set());
   const [returnInstruction, setReturnInstruction] = useState("");
   const [returnReason, setReturnReason] = useState("");
   const [returnError, setReturnError] = useState("");
@@ -1732,60 +1733,178 @@ export default function TaskDetail() {
                         const fileStatus = statusInfo(
                           firstFile.status || task.status,
                         );
+                        const isExpanded = expandedVersions.has(group.groupId);
                         
                         return (
                           <article
                             className="td-lineage-row"
                             key={group.groupId || `version-${actualIndex}`}
+                            style={{ display: 'block', padding: '16px 0' }}
                           >
-                            <span
-                              className={`td-version ${reverseIndex === 0 ? "current" : ""}`}
-                            >
-                              v{actualIndex}
-                            </span>
-                            <div className="td-lineage-main">
-                              <h3>
-                                {reverseIndex === 0
-                                  ? "Current submission"
-                                  : "Prior submission"}
-                                <span className={`td-badge ${fileStatus.tone}`}>
-                                  {fileStatus.label}
-                                </span>
-                              </h3>
-                              <p>
-                                {group.note || "No submission note recorded."}
-                              </p>
-                              <div className="td-lineage-meta">
-                                <span>{group.files.length} file{group.files.length !== 1 ? 's' : ''}</span>
-                                <i>•</i>
-                                <span>{formatDate(group.submittedAt)}</span>
-                                {reverseIndex === 0 && (
-                                  <>
-                                    <i>•</i>
-                                    <b>Latest</b>
-                                  </>
+                            <div style={{ display: 'grid', gridTemplateColumns: '29px minmax(0,1fr) max-content', gap: '11px', alignItems: 'start' }}>
+                              <span
+                                className={`td-version ${reverseIndex === 0 ? "current" : ""}`}
+                              >
+                                v{actualIndex}
+                              </span>
+                              <div className="td-lineage-main">
+                                <h3>
+                                  {reverseIndex === 0
+                                    ? "Current submission"
+                                    : "Prior submission"}
+                                  <span className={`td-badge ${fileStatus.tone}`}>
+                                    {fileStatus.label}
+                                  </span>
+                                </h3>
+                                <p>
+                                  {group.note || "No submission note recorded."}
+                                </p>
+                                <div className="td-lineage-meta">
+                                  <span>{group.files.length} file{group.files.length !== 1 ? 's' : ''}</span>
+                                  <i>•</i>
+                                  <span>{formatDate(group.submittedAt)}</span>
+                                  {reverseIndex === 0 && (
+                                    <>
+                                      <i>•</i>
+                                      <b>Latest</b>
+                                    </>
+                                  )}
+                                  {group.files.length > 1 && (
+                                    <>
+                                      <i>•</i>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setExpandedVersions(prev => {
+                                            const next = new Set(prev);
+                                            if (next.has(group.groupId)) {
+                                              next.delete(group.groupId);
+                                            } else {
+                                              next.add(group.groupId);
+                                            }
+                                            return next;
+                                          });
+                                        }}
+                                        style={{
+                                          background: 'none',
+                                          border: 'none',
+                                          color: '#7650a3',
+                                          fontSize: '11px',
+                                          fontWeight: 800,
+                                          cursor: 'pointer',
+                                          padding: 0,
+                                        }}
+                                      >
+                                        {isExpanded ? 'Hide files' : 'Show files'}
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                                
+                                {/* Expandable file list */}
+                                {isExpanded && group.files.length > 1 && (
+                                  <div style={{ marginTop: '12px', display: 'grid', gap: '8px' }}>
+                                    {group.files.map((file, idx) => {
+                                      const fileName = file.file_name || file.name || `File ${idx + 1}`;
+                                      const fileExt = fileName.split('.').pop()?.toLowerCase();
+                                      const isPdf = fileExt === 'pdf';
+                                      
+                                      return (
+                                        <div
+                                          key={`${file.id}-${idx}`}
+                                          style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px',
+                                            padding: '10px 12px',
+                                            border: '1px solid #e8e1ed',
+                                            borderRadius: '8px',
+                                            background: '#faf8fc',
+                                          }}
+                                        >
+                                          <div
+                                            style={{
+                                              display: 'grid',
+                                              width: '28px',
+                                              height: '28px',
+                                              placeItems: 'center',
+                                              borderRadius: '6px',
+                                              background: isPdf ? '#fef5e5' : '#e8f1ff',
+                                              color: isPdf ? '#9d6d2a' : '#5274a8',
+                                              fontSize: '9px',
+                                              fontWeight: 800,
+                                              flexShrink: 0,
+                                            }}
+                                          >
+                                            {isPdf ? 'PDF' : 'FILE'}
+                                          </div>
+                                          <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div
+                                              style={{
+                                                fontSize: '11px',
+                                                fontWeight: 700,
+                                                color: '#574863',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                              }}
+                                            >
+                                              {fileName}
+                                            </div>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              previewFile({
+                                                name: fileName,
+                                                url: file.file_url || file.url,
+                                                size: file.size,
+                                                label: `Version ${actualIndex} - File ${idx + 1}`,
+                                              })
+                                            }
+                                            style={{
+                                              display: 'grid',
+                                              width: '28px',
+                                              height: '28px',
+                                              placeItems: 'center',
+                                              border: '1px solid #ddd3e8',
+                                              borderRadius: '5px',
+                                              background: '#fff',
+                                              color: '#7650a3',
+                                              fontSize: '12px',
+                                              cursor: 'pointer',
+                                              flexShrink: 0,
+                                            }}
+                                            aria-label="View file"
+                                          >
+                                            👁
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
                                 )}
                               </div>
+                              <button
+                                className="td-preview-pill"
+                                type="button"
+                                onClick={() =>
+                                  previewFile({
+                                    name: group.files[0].file_name || group.files[0].name || `Version ${actualIndex}`,
+                                    url: group.files[0].file_url || group.files[0].url,
+                                    size: group.files[0].size,
+                                    label: `Version ${actualIndex}`,
+                                  })
+                                }
+                              >
+                                <time>
+                                  {formatDate(group.submittedAt)}
+                                </time>
+                                <span>
+                                  <Icon name="preview" size={12} />
+                                </span>
+                              </button>
                             </div>
-                            <button
-                              className="td-preview-pill"
-                              type="button"
-                              onClick={() =>
-                                previewFile({
-                                  name: group.files[0].file_name || group.files[0].name || `Version ${actualIndex}`,
-                                  url: group.files[0].file_url || group.files[0].url,
-                                  size: group.files[0].size,
-                                  label: `Version ${actualIndex}`,
-                                })
-                              }
-                            >
-                              <time>
-                                {formatDate(group.submittedAt)}
-                              </time>
-                              <span>
-                                <Icon name="preview" size={12} />
-                              </span>
-                            </button>
                           </article>
                         );
                       })}
