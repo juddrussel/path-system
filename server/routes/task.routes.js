@@ -1318,7 +1318,9 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
 
     // Add all collaborators to task_collaborators table
     const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
-    await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
+    console.log(`[CollaborativeTask] Inserting ${collaboratorRows.length} collaborators for task ${taskId}:`, collaboratorRows);
+    const [insertResult] = await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
+    console.log(`[CollaborativeTask] Inserted ${insertResult.affectedRows} rows into task_collaborators`);
 
     // Handle attachments
     let preUploaded = [];
