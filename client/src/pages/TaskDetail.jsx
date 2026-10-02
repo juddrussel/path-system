@@ -1730,6 +1730,14 @@ export default function TaskDetail() {
                         );
                         const isExpanded = expandedVersions.has(group.groupId);
                         
+                        console.log(`[Version ${actualIndex}] Group:`, {
+                          groupId: group.groupId,
+                          note: group.note,
+                          fileCount: group.files.length,
+                          submittedAt: group.submittedAt,
+                          files: group.files.map(f => ({ id: f.id, name: f.file_name, note: f.note, submission_group_id: f.submission_group_id }))
+                        });
+                        
                         return (
                           <article
                             className="td-lineage-row"
