@@ -1650,8 +1650,18 @@ export default function CollaborativeTaskAdmin() {
                                       </div>
                                     )}
                                     <a 
-                                      href={r2ToProxyUrl(api, file.url)}
-                                      target="_blank"
+                                      href="#"
+                                      onClick={async (e) => {
+                                        e.preventDefault();
+                                        try {
+                                          const blobUrl = await createAuthenticatedBlobUrl(api, file.url);
+                                          window.open(blobUrl, "_blank");
+                                          setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                        } catch (error) {
+                                          console.error("Failed to open file:", error);
+                                          alert("Failed to open file. Please try again.");
+                                        }
+                                      }}
                                       rel="noopener noreferrer"
                                       style={{ display: "block", maxWidth: "280px" }}
                                     >
@@ -1674,8 +1684,18 @@ export default function CollaborativeTaskAdmin() {
                                   <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
                                     <span style={{ fontSize: "12px" }}>📎</span>
                                     <a 
-                                      href={r2ToProxyUrl(api, file.url)}
-                                      target="_blank"
+                                      href="#"
+                                      onClick={async (e) => {
+                                        e.preventDefault();
+                                        try {
+                                          const blobUrl = await createAuthenticatedBlobUrl(api, file.url);
+                                          window.open(blobUrl, "_blank");
+                                          setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                        } catch (error) {
+                                          console.error("Failed to open file:", error);
+                                          alert("Failed to open file. Please try again.");
+                                        }
+                                      }}
                                       rel="noopener noreferrer"
                                       style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
                                     >
