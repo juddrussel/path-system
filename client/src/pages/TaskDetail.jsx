@@ -1643,11 +1643,6 @@ export default function TaskDetail() {
                               <div style={{ fontSize: '11px', color: '#9a8fa3', marginTop: '2px' }}>
                                 {isPdf ? 'PDF' : isImage ? 'Image' : 'Document'} · Oct 3, 2026, 2:34 AM · Uploaded by Faculty Member
                               </div>
-                              {file.note && (
-                                <div style={{ fontSize: '11px', color: '#6b5f76', marginTop: '4px', fontStyle: 'italic' }}>
-                                  {file.note}
-                                </div>
-                              )}
                             </div>
                             
                             {/* Action buttons */}
