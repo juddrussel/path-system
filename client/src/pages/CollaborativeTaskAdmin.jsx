@@ -691,12 +691,7 @@ export default function CollaborativeTaskAdmin() {
         return;
       }
 
-      // Only create blob URLs for PDFs
-      if (!/\.pdf($|\?)/i.test(fileUrl)) {
-        setPreviewBlobUrl(null);
-        return;
-      }
-
+      // Create blob URLs for all file types
       try {
         const url = await createAuthenticatedBlobUrl(api, fileUrl);
         if (isMounted) {

@@ -459,15 +459,7 @@ export default function DocumentReview() {
         return;
       }
 
-      const extension = (activeFileValue || "").split(".").pop().toLowerCase();
-      const pdf = extension === "pdf";
-      
-      // Only create blob URLs for PDFs (images can load directly with tokens in <img> tags)
-      if (!pdf) {
-        setBlobUrl(null);
-        return;
-      }
-
+      // Create blob URLs for all file types (PDFs, images, documents)
       try {
         const url = await createAuthenticatedBlobUrl(API || "http://localhost:5000", activeFileValue);
         if (isMounted) {

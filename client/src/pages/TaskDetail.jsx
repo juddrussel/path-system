@@ -381,17 +381,7 @@ export default function TaskDetail() {
         return;
       }
 
-      const extension = (latestSubmission?.file_name || latestSubmission?.name || "")
-        .split(".")
-        .pop()
-        ?.toLowerCase();
-      
-      // Only create blob URLs for PDFs (images can load directly)
-      if (extension !== "pdf") {
-        setSubmissionBlobUrl(null);
-        return;
-      }
-
+      // Create blob URLs for all file types (not just PDFs)
       try {
         const url = await createAuthenticatedBlobUrl(api, fileValue);
         if (isMounted) {
@@ -425,12 +415,7 @@ export default function TaskDetail() {
         return;
       }
 
-      // Only create blob URLs for PDFs
-      if (!/\.pdf($|\?)/i.test(preview.url)) {
-        setPreviewBlobUrl(null);
-        return;
-      }
-
+      // Create blob URLs for all file types
       try {
         const url = await createAuthenticatedBlobUrl(api, preview.url);
         if (isMounted) {
