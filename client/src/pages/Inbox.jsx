@@ -2690,7 +2690,7 @@ export default function Inbox() {
                 {/* Input */}
                 <div style={{ padding: "16px 24px", borderTop: "0.5px solid #e5e7eb", background: "white" }}>
                   <div style={{ display: "flex", alignItems: "flex-end", gap: 8, background: "#f6f2ff", border: "1px solid rgba(123,116,134,0.15)", borderRadius: 20, padding: 6 }}>
-                    <input type="file" ref={dmFileRef} style={{ display: "none" }} onChange={e => setDmFile(e.target.files[0])} />
+                    <input type="file" ref={dmFileRef} style={{ display: "none" }} accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={e => setDmFile(e.target.files[0])} />
                     <button onClick={() => dmFileRef.current.click()} title="Attach file" style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#7b7486", flexShrink: 0 }}
                       onMouseEnter={e => { e.currentTarget.style.color = "#6b38d4"; e.currentTarget.style.background = "#e3dfff"; }}
                       onMouseLeave={e => { e.currentTarget.style.color = "#7b7486"; e.currentTarget.style.background = "transparent"; }}
@@ -2960,7 +2960,7 @@ export default function Inbox() {
                 )}
                 <div style={{ padding: "16px 24px", borderTop: "0.5px solid #e5e7eb", background: "white" }}>
                   <div style={{ display: "flex", alignItems: "flex-end", gap: 8, background: "#f6f2ff", border: "1px solid rgba(123,116,134,0.15)", borderRadius: 20, padding: 6 }}>
-                    <input type="file" ref={groupFileRef} style={{ display: "none" }} onChange={e => setGroupFile(e.target.files[0])} />
+                    <input type="file" ref={groupFileRef} style={{ display: "none" }} accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={e => setGroupFile(e.target.files[0])} />
                     <button onClick={() => groupFileRef.current.click()} title="Attach file"
                       style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#7b7486", flexShrink: 0 }}
                       onMouseEnter={e => { e.currentTarget.style.color = "#6b38d4"; e.currentTarget.style.background = "#e3dfff"; }}
@@ -3049,7 +3049,7 @@ export default function Inbox() {
 
                 {/* Input */}
                 <div style={{ padding: "10px 16px", borderTop: "0.5px solid #e5e7eb", display: "flex", gap: 8, alignItems: "flex-end", background: "white" }}>
-                  <input type="file" ref={docFileRef} style={{ display: "none" }} onChange={e => setDocFile(e.target.files[0])} />
+                  <input type="file" ref={docFileRef} style={{ display: "none" }} accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={e => setDocFile(e.target.files[0])} />
                   <button onClick={() => docFileRef.current.click()} title="Attach file" style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#888", flexShrink: 0 }}>
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M13 8l-5 5a3.5 3.5 0 01-5-5L8 3a2 2 0 013 3L7 10a.5.5 0 01-1-1l4-4" strokeLinecap="round" /></svg>
                   </button>
