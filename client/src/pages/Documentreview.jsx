@@ -1175,6 +1175,17 @@ export default function DocumentReview() {
       notify("Copy the browser URL to share this record.");
     }
   };
+  
+  const openFileInNewTab = async () => {
+    if (blobUrl) {
+      // If we have a blob URL, open it directly
+      window.open(blobUrl, "_blank");
+    } else if (url) {
+      // Fallback: try to open the proxy URL (will require auth)
+      window.open(url, "_blank");
+    }
+  };
+  
   const readerToolbar = (
     <div className="doc-reader-toolbar">
       <div className="doc-reader-group">
@@ -1210,12 +1221,12 @@ export default function DocumentReview() {
         </button>
         <i />
         {url && (
-          <button type="button" onClick={() => window.open(url, "_blank")}>
+          <button type="button" onClick={openFileInNewTab}>
             ⇩
           </button>
         )}
         {url && (
-          <button type="button" onClick={() => window.open(url, "_blank")}>
+          <button type="button" onClick={openFileInNewTab}>
             ▣
           </button>
         )}
