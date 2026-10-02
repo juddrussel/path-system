@@ -2196,6 +2196,11 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
   const submissionGroupId = req.body.submission_group_id || `sub_${Date.now()}`;
   const isCollaborativeUpload = req.body.is_collaborative_upload === "true";
   const submittedAt       = new Date();
+  
+  // Handle pre-uploaded file URLs (from TaskDetail.jsx multi-file upload)
+  const preUploadedUrls = req.body.fileUrls ? 
+    (Array.isArray(req.body.fileUrls) ? req.body.fileUrls : [req.body.fileUrls]) : 
+    [];
 
   const conn = await db.getConnection();
   try {
@@ -2230,10 +2235,8 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
       });
     }
 
-    // Upload to R2 before opening the transaction — network calls have no
-    // business sitting inside a DB transaction (holds the connection/locks
-    // open for however long R2 takes to respond).
-    const uploaded = await uploadFilesToR2(req.files);
+    // Upload new files to R2 if any were provided via multipart
+    const uploaded = req.files?.length ? await uploadFilesToR2(req.files) : [];
 
     await conn.beginTransaction();
 
@@ -2247,6 +2250,8 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
 
     // 2. Save each uploaded file to task_submissions
     const savedFiles = [];
+    
+    // Handle newly uploaded files
     for (const file of uploaded) {
       const [result] = await conn.query(
         `INSERT INTO task_submissions
@@ -2266,9 +2271,34 @@ router.post("/:id/submit", requireAuth, upload.array("files"), async (req, res) 
         submitted_at:        submittedAt.toISOString(),
       });
     }
+    
+    // Handle pre-uploaded file URLs
+    for (const fileUrl of preUploadedUrls) {
+      // Extract filename from URL
+      const urlParts = fileUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1] || 'uploaded-file';
+      
+      const [result] = await conn.query(
+        `INSERT INTO task_submissions
+           (task_id, faculty_id, file_name, file_url, size, note, submission_group_id, submitted_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [taskId, req.user.id, fileName, fileUrl, 0, note, submissionGroupId, submittedAt]
+      );
+      savedFiles.push({
+        id:                  result.insertId,
+        originalname:        fileName,
+        file_name:           fileName,
+        url:                 fileUrl,
+        file_url:            fileUrl,
+        size:                0,
+        note,
+        submission_group_id: submissionGroupId,
+        submitted_at:        submittedAt.toISOString(),
+      });
+    }
 
     // 3. If no files but there's a note, still record the submission event
-    if (!uploaded.length) {
+    if (!uploaded.length && !preUploadedUrls.length) {
       const [result] = await conn.query(
         `INSERT INTO task_submissions
            (task_id, faculty_id, file_name, file_url, size, note, submission_group_id, submitted_at)
