@@ -6,29 +6,18 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 /**
- * Authentication middleware - accepts JWT from either:
- * 1. Authorization header (Bearer token) - for regular API calls
- * 2. Query parameter 'token' - for iframe/img src compatibility
+ * Authentication middleware - ONLY accepts JWT from Authorization header
+ * This prevents URL-based token sharing
  */
 function requireAuth(req, res, next) {
-  let token = null;
-  
-  // Try to get token from Authorization header first
   const auth = req.headers.authorization;
-  if (auth && auth.startsWith("Bearer ")) {
-    token = auth.split(" ")[1];
-  }
   
-  // Fall back to query parameter for iframe compatibility
-  if (!token && req.query.token) {
-    token = req.query.token;
-  }
-  
-  if (!token) {
+  if (!auth || !auth.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized - Authentication required" });
   }
   
   try {
+    const token = auth.split(" ")[1];
     req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch {
@@ -37,17 +26,19 @@ function requireAuth(req, res, next) {
 }
 
 /**
- * GET /api/files/proxy?key=uploads/...&token=...
+ * GET /api/files/proxy?key=uploads/...
  * 
  * Proxies file requests from R2 through the server to bypass rate limits.
  * Browser never directly accesses R2, so no rate limit issues.
  * 
- * **REQUIRES AUTHENTICATION** - Users must be logged in to access files.
- * Accepts JWT token via Authorization header OR query parameter for iframe compatibility.
+ * **REQUIRES AUTHENTICATION** - Users must send valid JWT in Authorization header.
+ * Does NOT accept tokens in query parameters to prevent URL sharing.
+ * 
+ * For iframe compatibility, the frontend should use a proxy component that
+ * fetches the file with proper headers and creates a blob URL.
  * 
  * Query params:
  *   key: R2 object key (e.g., "uploads/uuid-filename.png")
- *   token: (optional) JWT token for iframe/img src authentication
  */
 router.get("/proxy", requireAuth, async (req, res) => {
   try {
@@ -77,8 +68,11 @@ router.get("/proxy", requireAuth, async (req, res) => {
 
     res.setHeader("Content-Type", contentType);
     res.setHeader("Content-Length", response.ContentLength || 0);
-    res.setHeader("Cache-Control", "private, max-age=3600"); // Cache for 1 hour (private since authenticated)
+    res.setHeader("Cache-Control", "private, no-cache, no-store, must-revalidate"); // Prevent caching
+    res.setHeader("Pragma", "no-cache"); // HTTP 1.0 compatibility
+    res.setHeader("Expires", "0"); // Proxies
     res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+    res.setHeader("X-Content-Type-Options", "nosniff");
 
     // Stream the body directly to the response
     response.Body.pipe(res);

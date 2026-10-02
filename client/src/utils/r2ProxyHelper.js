@@ -1,7 +1,7 @@
 /**
  * R2 Proxy Helper
- * Converts R2 URLs to proxy URLs to bypass rate limits
- * Includes JWT token for authentication
+ * Converts R2 URLs to proxy URLs with secure authentication
+ * NOTE: Tokens are NEVER included in URLs to prevent sharing
  */
 
 /**
@@ -14,15 +14,44 @@ const getToken = () => {
 };
 
 /**
- * Convert R2 URLs to proxy URLs, handles relative paths, and returns empty string for null/undefined
- * @param {string} apiUrl - Base API URL (e.g., "https://myapp.com" or "http://localhost:5000")
+ * Fetch file with authentication and create a blob URL for iframe use
+ * @param {string} apiUrl - Base API URL
+ * @param {string} key - R2 object key
+ * @returns {Promise<string>} - Blob URL that can be used in iframe src
+ */
+export async function createAuthenticatedBlobUrl(apiUrl, key) {
+  const token = getToken();
+  if (!token) {
+    throw new Error('No authentication token available');
+  }
+  
+  try {
+    const response = await fetch(`${apiUrl}/api/files/proxy?key=${encodeURIComponent(key)}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch file: ${response.status}`);
+    }
+    
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  } catch (err) {
+    console.error('Failed to create blob URL:', err);
+    throw err;
+  }
+}
+
+/**
+ * Convert R2 URLs to proxy URLs (without token in URL for security)
+ * @param {string} apiUrl - Base API URL
  * @param {string} value - The file URL or path to resolve
- * @returns {string} - Resolved URL (proxy, absolute, or relative) with auth token
+ * @returns {string} - Resolved proxy URL (token must be sent in Authorization header)
  */
 export const resolveFileUrl = (apiUrl, value) => {
   if (!value) return "";
-  
-  const token = getToken();
   
   // If it's already a full URL
   if (/^https?:\/\//i.test(value)) {
@@ -33,8 +62,8 @@ export const resolveFileUrl = (apiUrl, value) => {
       const match = value.match(/r2\.dev\/(.+)$/);
       if (match) {
         const key = match[1];
-        const baseUrl = `${apiUrl}/api/files/proxy?key=${encodeURIComponent(key)}`;
-        return token ? `${baseUrl}&token=${encodeURIComponent(token)}` : baseUrl;
+        // Return proxy URL WITHOUT token (token sent in header instead)
+        return `${apiUrl}/api/files/proxy?key=${encodeURIComponent(key)}`;
       }
     }
     return value;
@@ -56,18 +85,17 @@ export const extractR2Key = (url) => {
 };
 
 /**
- * Convert R2 URL to proxy URL with authentication
+ * Convert R2 URL to proxy URL (without token in URL)
  * @param {string} apiUrl - Base API URL
  * @param {string} url - R2 URL
- * @returns {string} - Proxy URL with auth token
+ * @returns {string} - Proxy URL (token must be sent in Authorization header)
  */
 export const r2ToProxyUrl = (apiUrl, url) => {
   const key = extractR2Key(url);
-  const token = getToken();
   
   if (key) {
-    const baseUrl = `${apiUrl}/api/files/proxy?key=${encodeURIComponent(key)}`;
-    return token ? `${baseUrl}&token=${encodeURIComponent(token)}` : baseUrl;
+    // Return proxy URL WITHOUT token (token sent in header instead)
+    return `${apiUrl}/api/files/proxy?key=${encodeURIComponent(key)}`;
   }
   return url;
 };
