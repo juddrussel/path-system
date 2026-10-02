@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
-import { r2ToProxyUrl, resolveFileUrl } from "../utils/r2ProxyHelper.js";
+import { r2ToProxyUrl, resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper.js";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -647,6 +647,7 @@ export default function CollaborativeTaskDetail() {
   const commentFilesRef = useRef(null);
   const replyFilesRef = useRef(null);
   const revisionFilesRef = useRef(null);
+  const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
 
   // Load task data
   useEffect(() => {
@@ -847,6 +848,46 @@ export default function CollaborativeTaskDetail() {
       socket.off("collaborative:comment_posted");
     };
   }, [taskId]);
+
+  // Create authenticated blob URL for file preview modal
+  useEffect(() => {
+    let isMounted = true;
+    let currentPreviewBlobUrl = null;
+
+    const loadPreviewBlobUrl = async () => {
+      const fileUrl = preview?.file_url || preview?.url;
+      if (!fileUrl) {
+        setPreviewBlobUrl(null);
+        return;
+      }
+
+      // Only create blob URLs for PDFs
+      if (!/\.pdf($|\?)/i.test(fileUrl)) {
+        setPreviewBlobUrl(null);
+        return;
+      }
+
+      try {
+        const url = await createAuthenticatedBlobUrl(api, fileUrl);
+        if (isMounted) {
+          currentPreviewBlobUrl = url;
+          setPreviewBlobUrl(url);
+        }
+      } catch (error) {
+        console.error("Failed to load preview file:", error);
+        if (isMounted) setPreviewBlobUrl(null);
+      }
+    };
+
+    loadPreviewBlobUrl();
+
+    return () => {
+      isMounted = false;
+      if (currentPreviewBlobUrl) {
+        URL.revokeObjectURL(currentPreviewBlobUrl);
+      }
+    };
+  }, [preview, api]);
 
   // Handlers
   const toggleConfirmation = (userId) => {
@@ -2710,13 +2751,14 @@ export default function CollaborativeTaskDetail() {
                   <button
                     type="button"
                     disabled={!preview.file_url && !preview.url}
-                    onClick={() =>
+                    onClick={() => {
+                      const urlToOpen = previewBlobUrl || r2ToProxyUrl(api, preview.file_url || preview.url);
                       window.open(
-                        r2ToProxyUrl(api, preview.file_url || preview.url),
+                        urlToOpen,
                         "_blank",
                         "noopener,noreferrer"
-                      )
-                    }
+                      );
+                    }}
                     aria-label="Open file in a new tab"
                   >
                     ↗
@@ -2726,7 +2768,7 @@ export default function CollaborativeTaskDetail() {
                   {(preview.file_url || preview.url) && /\.pdf($|\?)/i.test(preview.file_url || preview.url) ? (
                     <iframe
                       title={preview.file_name || preview.name}
-                      src={pdfReadingUrl(r2ToProxyUrl(api, preview.file_url || preview.url), readerZoom)}
+                      src={previewBlobUrl ? pdfReadingUrl(previewBlobUrl, readerZoom) : ""}
                     />
                   ) : (preview.file_url || preview.url) &&
                     /\.(png|jpe?g|gif|webp)($|\?)/i.test(preview.file_url || preview.url) ? (
