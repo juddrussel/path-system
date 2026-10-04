@@ -904,10 +904,9 @@ export default function Tracking() {
   const STATUS_FILTERS = [
     { label: "All",            value: "All" },
     { label: "In Progress",    value: "In Progress" },
-    { label: "Pending Review", value: "Pending Review" },
+    { label: "For Approval",   value: "Pending Review" },
     { label: "Approved",       value: "Approved" },
     { label: "Rejected",       value: "Rejected" },
-    { label: "Archived",       value: "Archived" },
   ];
 
   return (
