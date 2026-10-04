@@ -602,20 +602,17 @@ export default function Reports() {
 
   // ── Fetch document categories/types for filter dropdown ────────────────────
   useEffect(() => {
-    fetch(`${API}/api/categories`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.ok ? r.json() : [])
+    fetch(`${API}/api/categories?status=Active&type=Document`, { 
+      headers: { Authorization: `Bearer ${token}` } 
+    })
+      .then(r => r.ok ? r.json() : { categories: [] })
       .then(data => {
-        const categories = Array.isArray(data) ? data : (data.categories || []);
-        const types = categories
-          .filter(cat => cat.status === 'active') // Only show active categories
-          .map(cat => cat.name)
-          .sort();
+        const types = (data.categories || []).map(category => category.name).sort();
         setDocumentTypes(["All Document Types", ...types]);
       })
       .catch(err => {
         console.error("Failed to fetch document types:", err);
-        // Fallback to hardcoded list
-        setDocumentTypes(["All Document Types", "Enrollment", "Completion", "Overload", "Leave", "Transfer", "Waiver", "Other"]);
+        setDocumentTypes(["All Document Types"]);
       });
   }, []);
 
