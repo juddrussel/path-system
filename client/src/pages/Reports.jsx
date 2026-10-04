@@ -1849,7 +1849,7 @@ export default function Reports() {
                 <FilterSelect label="Date Range" value={dateRange} onChange={e => setDateRange(e.target.value)}
                   options={["Last 7 Days", "Last 30 Days", "This Semester", "This Year", "Custom Range"]} />
                 <FilterSelect label="Status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                  options={["All Statuses", "Pending", "Approved", "Completed", "Rejected", "Delayed"]} />
+                  options={["All Statuses", "Pending", "Approved", "Rejected", "Delayed"]} />
                 <FilterSelect label="Document Type" value={docTypeFilter} onChange={e => setDocTypeFilter(e.target.value)}
                   options={documentTypes} />
                 <FilterSelect label="Faculty" value={facultyFilter} onChange={e => setFacultyFilter(e.target.value)}
