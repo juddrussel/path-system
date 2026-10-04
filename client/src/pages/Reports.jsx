@@ -589,6 +589,7 @@ export default function Reports() {
   const [exportToast, setExportToast] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
   const [delayedPage, setDelayedPage] = useState(1);
+  const [documentTypes, setDocumentTypes] = useState(["All Document Types"]);
 
   // ── Active academic period ─────────────────────────────────────────────────
   const [activePeriod, setActivePeriod] = useState(null);
@@ -597,6 +598,25 @@ export default function Reports() {
       .then(r => r.ok ? r.json() : null)
       .then(data => setActivePeriod(data))
       .catch(() => {});
+  }, []);
+
+  // ── Fetch document categories/types for filter dropdown ────────────────────
+  useEffect(() => {
+    fetch(`${API}/api/categories`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        const categories = Array.isArray(data) ? data : (data.categories || []);
+        const types = categories
+          .filter(cat => cat.status === 'active') // Only show active categories
+          .map(cat => cat.name)
+          .sort();
+        setDocumentTypes(["All Document Types", ...types]);
+      })
+      .catch(err => {
+        console.error("Failed to fetch document types:", err);
+        // Fallback to hardcoded list
+        setDocumentTypes(["All Document Types", "Enrollment", "Completion", "Overload", "Leave", "Transfer", "Waiver", "Other"]);
+      });
   }, []);
 
   // ── Returned / Rejected report — detail-view modal state ──
@@ -1834,7 +1854,7 @@ export default function Reports() {
                 <FilterSelect label="Status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
                   options={["All Statuses", "Pending", "Approved", "Completed", "Rejected", "Delayed"]} />
                 <FilterSelect label="Document Type" value={docTypeFilter} onChange={e => setDocTypeFilter(e.target.value)}
-                  options={["All Document Types", "Enrollment", "Completion", "Overload", "Leave", "Transfer", "Waiver", "Other"]} />
+                  options={documentTypes} />
                 <FilterSelect label="Faculty" value={facultyFilter} onChange={e => setFacultyFilter(e.target.value)}
                   options={["All Faculty", ...FACULTY_WORKLOAD.map(f => f.name)]} />
               </div>
