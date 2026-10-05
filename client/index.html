@@ -9,101 +9,204 @@
   <body>
     <noscript>
       <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
         .noscript-container {
           display: flex;
           align-items: center;
           justify-content: center;
           min-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-          margin: 0;
+          background: linear-gradient(145deg, #3b2054 0%, #6431a9 56%, #8439f0 100%);
           padding: 20px;
+          position: relative;
+          overflow: hidden;
+        }
+        .noscript-orb {
+          position: absolute;
+          border: 1px solid rgba(255, 255, 255, 0.17);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+        .noscript-orb-1 {
+          width: 460px;
+          height: 460px;
+          right: -210px;
+          top: 110px;
+        }
+        .noscript-orb-2 {
+          width: 380px;
+          height: 380px;
+          left: -220px;
+          bottom: -170px;
+          border-color: rgba(255, 255, 255, 0.14);
         }
         .noscript-card {
           background: white;
-          border-radius: 16px;
-          padding: 48px 40px;
-          max-width: 500px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          border-radius: 20px;
+          padding: 48px 44px;
+          max-width: 580px;
+          width: 100%;
+          box-shadow: 0 30px 90px rgba(59, 32, 84, 0.4), 0 10px 30px rgba(0, 0, 0, 0.15);
           text-align: center;
+          position: relative;
+          z-index: 1;
+        }
+        .noscript-logo-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-bottom: 32px;
+        }
+        .noscript-logo-img {
+          width: 40px;
+          height: 40px;
+          filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.3));
+        }
+        .noscript-brand {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .noscript-brand-name {
+          font-size: 22px;
+          font-weight: 800;
+          letter-spacing: 0.16em;
+          background: linear-gradient(145deg, #6431a9 0%, #8439f0 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          line-height: 1;
+        }
+        .noscript-brand-sub {
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.11em;
+          text-transform: uppercase;
+          color: #82768a;
+          margin-top: 4px;
         }
         .noscript-icon {
-          width: 80px;
-          height: 80px;
+          width: 72px;
+          height: 72px;
           margin: 0 auto 24px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(145deg, #6431a9 0%, #8439f0 100%);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 40px;
+          box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+        }
+        .noscript-icon svg {
+          width: 36px;
+          height: 36px;
+          stroke: white;
+          stroke-width: 2;
+          fill: none;
         }
         .noscript-title {
           font-size: 28px;
           font-weight: 700;
-          color: #1a202c;
-          margin: 0 0 16px 0;
+          color: #2f2638;
+          margin: 0 0 12px 0;
         }
         .noscript-description {
-          font-size: 16px;
-          color: #4a5568;
-          line-height: 1.6;
-          margin: 0 0 24px 0;
+          font-size: 15px;
+          color: #82768a;
+          line-height: 1.7;
+          margin: 0 0 28px 0;
         }
         .noscript-steps {
           text-align: left;
-          background: #f7fafc;
-          padding: 24px;
-          border-radius: 12px;
-          margin-top: 24px;
+          background: #f8f7ff;
+          border: 1px solid #e9e1f1;
+          padding: 24px 28px;
+          border-radius: 14px;
+          margin-top: 28px;
         }
         .noscript-steps h3 {
-          font-size: 14px;
-          font-weight: 600;
-          color: #2d3748;
-          margin: 0 0 12px 0;
+          font-size: 13px;
+          font-weight: 700;
+          color: #7c3aed;
+          margin: 0 0 16px 0;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.08em;
         }
         .noscript-steps ol {
           margin: 0;
-          padding-left: 20px;
-          color: #4a5568;
+          padding-left: 22px;
+          color: #2f2638;
           font-size: 14px;
-          line-height: 1.8;
+          line-height: 1.9;
         }
         .noscript-steps li {
-          margin-bottom: 8px;
+          margin-bottom: 10px;
+          padding-left: 4px;
+        }
+        .noscript-steps li:last-child {
+          margin-bottom: 0;
+        }
+        .noscript-steps strong {
+          color: #5b21b6;
+          font-weight: 600;
         }
         .noscript-steps code {
-          background: #e2e8f0;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-family: 'Courier New', monospace;
-          font-size: 13px;
-          color: #2d3748;
+          background: #e9e1f1;
+          padding: 3px 8px;
+          border-radius: 5px;
+          font-family: 'Monaco', 'Courier New', monospace;
+          font-size: 12.5px;
+          color: #5b21b6;
+          font-weight: 500;
         }
         .noscript-footer {
-          margin-top: 24px;
+          margin-top: 28px;
           padding-top: 24px;
-          border-top: 1px solid #e2e8f0;
-          font-size: 14px;
-          color: #718096;
+          border-top: 1px solid #e9e1f1;
+          font-size: 13px;
+          color: #a095a8;
         }
-        .noscript-logo {
-          font-size: 24px;
-          font-weight: 700;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 8px;
+        .noscript-footer a {
+          color: #7c3aed;
+          text-decoration: none;
+          font-weight: 600;
+        }
+        @media (max-width: 640px) {
+          .noscript-card {
+            padding: 36px 28px;
+          }
+          .noscript-title {
+            font-size: 24px;
+          }
+          .noscript-orb-1, .noscript-orb-2 {
+            display: none;
+          }
         }
       </style>
       <div class="noscript-container">
+        <div class="noscript-orb noscript-orb-1"></div>
+        <div class="noscript-orb noscript-orb-2"></div>
         <div class="noscript-card">
-          <div class="noscript-icon">⚡</div>
-          <div class="noscript-logo">DS PATH</div>
+          <div class="noscript-logo-container">
+            <img src="/src/assets/logo.png" alt="DS PATH" class="noscript-logo-img" />
+            <div class="noscript-brand">
+              <div class="noscript-brand-name">DS PATH</div>
+              <div class="noscript-brand-sub">Document Processing System</div>
+            </div>
+          </div>
+          
+          <div class="noscript-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          
           <h1 class="noscript-title">JavaScript is Disabled</h1>
           <p class="noscript-description">
             DS PATH requires JavaScript to provide you with an interactive document management experience. 
@@ -116,7 +219,7 @@
               <li><strong>Chrome/Edge:</strong> Settings → Privacy and security → Site settings → JavaScript → <code>Allowed</code></li>
               <li><strong>Firefox:</strong> Type <code>about:config</code> in address bar → Search <code>javascript.enabled</code> → Set to <code>true</code></li>
               <li><strong>Safari:</strong> Preferences → Security → Enable JavaScript ✓</li>
-              <li>Reload this page after enabling</li>
+              <li><strong>Then reload</strong> this page to access DS PATH</li>
             </ol>
           </div>
 
