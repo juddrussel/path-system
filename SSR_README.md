@@ -15,7 +15,9 @@ npm run build:client
 npm run test:all
 
 # 4. Enable SSR in environment
-echo "ENABLE_SSR=true" >> server/.env
+# Copy .env.example and set ENABLE_SSR=true in server/.env
+cp server/.env.example server/.env
+# Then edit server/.env and add: ENABLE_SSR=true
 
 # 5. Start server
 npm start
