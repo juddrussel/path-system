@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, createContext, useContext } from "react";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { refreshToken } from "./utils/refreshToken";
 import { connectSocket, disconnectSocket } from "./pages/socket";
@@ -35,6 +35,9 @@ import CollaborativeTaskAdmin from "./pages/CollaborativeTaskAdmin";
 import Settings from "./pages/Settings";
 import AccountSetup from "./pages/AccountSetup";
 
+// Create context for SSR initial state
+const SSRContext = createContext({});
+
 // Root route component — redirect to dashboard if logged in, else login
 function Root() {
   const navigate = useNavigate();
@@ -52,6 +55,7 @@ function Root() {
 // Separated so useLocation works inside BrowserRouter
 function AppRoutes() {
   const location = useLocation();
+  const ssrState = useContext(SSRContext);
   const publicPaths = ["/login", "/register", "/forgot-password", "/reset-password", "/"];
 
   useEffect(() => {
@@ -87,7 +91,7 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/" element={<Root />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password" element={<ResetPassword initialState={ssrState} />} />
       <Route path="/setup" element={<AccountSetup />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-of-use" element={<TermsOfUse />} />
@@ -124,11 +128,13 @@ function AppRoutes() {
   );
 }
 
-export default function App() {
+export default function App({ initialState = {} }) {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-      <ScrollToTop />
-    </BrowserRouter>
+    <SSRContext.Provider value={initialState}>
+      <BrowserRouter>
+        <AppRoutes />
+        <ScrollToTop />
+      </BrowserRouter>
+    </SSRContext.Provider>
   );
 }

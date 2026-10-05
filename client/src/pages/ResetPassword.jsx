@@ -405,18 +405,20 @@ function Shield() {
   );
 }
 
-export default function ResetPassword() {
+export default function ResetPassword({ initialState = {} }) {
   const [form, setForm] = useState({ password: "", confirm_password: "" });
   const [errors, setErrors] = useState({});
   const [alertMsg, setAlertMsg] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [tokenValid, setTokenValid] = useState(null); // null=checking, true=valid, false=invalid
+  // Use initialState from SSR if available, otherwise use null
+  const [tokenValid, setTokenValid] = useState(initialState.tokenValid !== undefined ? initialState.tokenValid : null);
   const [showPassword, setShowPassword] = useState(false);
 
   // Load DM Sans via real <link> tags (more reliable than an inline
   // <style>@import, which can get stripped or blocked and silently
   // fall back to the browser's default bold sans-serif).
   useEffect(() => {
+    if (typeof document === 'undefined') return; // Skip on server
     if (document.getElementById("dm-sans-font")) return;
 
     const preconnect1 = document.createElement("link");
@@ -439,15 +441,20 @@ export default function ResetPassword() {
     document.head.appendChild(stylesheet);
   }, []);
 
-  const token = new URLSearchParams(window.location.search).get("token");
+  const token = typeof window !== 'undefined' 
+    ? new URLSearchParams(window.location.search).get("token")
+    : (initialState.token || null);
 
-  // Verify token on mount
+  // Verify token on mount (skip if already verified via SSR)
   useEffect(() => {
+    // If tokenValid was provided by SSR, don't re-validate
+    if (initialState.tokenValid !== undefined) return;
+    
     if (!token) { setTokenValid(false); return; }
     fetch(`${import.meta.env.VITE_API_URL}/api/auth/verify-reset-token?token=${token}`)
       .then(res => setTokenValid(res.ok))
       .catch(() => setTokenValid(false));
-  }, [token]);
+  }, [token, initialState.tokenValid]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -479,7 +486,11 @@ export default function ResetPassword() {
       const data = await res.json();
       if (res.ok) {
         setAlertMsg({ type: "success", text: "Password reset successfully! Redirecting to login..." });
-        setTimeout(() => (window.location.href = "/login"), 2500);
+        setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            window.location.href = "/login";
+          }
+        }, 2500);
       } else {
         setAlertMsg({ type: "error", text: data.message || "Failed to reset password." });
       }

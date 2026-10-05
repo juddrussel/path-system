@@ -6,6 +6,7 @@ npm-debug.log
 .env.local
 .DS_Store
 dist
+dist-ssr
 build
 .vscode
 .idea
@@ -14,3 +15,27 @@ build
 out
 coverage
 .nyc_output
+
+# Test files
+*.test.js
+*.spec.js
+test-*.js
+test-*.mjs
+
+# Documentation
+README.md
+*.md
+!server/README.md
+
+# Client development files
+client/node_modules
+client/dist
+client/dist-ssr
+client/.env
+
+# Server uploads (should be in cloud storage in production)
+server/uploads
+
+# Development and testing
+server/test-*.js
+client/test-*.mjs

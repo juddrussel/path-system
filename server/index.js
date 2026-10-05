@@ -10,6 +10,10 @@ const http = require("http");
 const { Server } = require("socket.io");
 require("dotenv").config();
 
+// ── SSR Middleware ──
+const ssrMiddleware = require("./ssr");
+const SSR_ENABLED = process.env.ENABLE_SSR === "true";
+
 // ── DEBUG: confirm .env is loaded ──
 console.log("ENV CHECK:", {
   DB_HOST: process.env.DB_HOST,
@@ -22,6 +26,7 @@ console.log("ENV CHECK:", {
   R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY ? "✓ set" : "✗ missing",
   R2_BUCKET_NAME: process.env.R2_BUCKET_NAME || "✗ missing",
   R2_PUBLIC_URL: process.env.R2_PUBLIC_URL || "✗ missing",
+  ENABLE_SSR: SSR_ENABLED ? "✓ enabled" : "✗ disabled",
 });
 
 const authRoutes = require("./routes/auth.routes");
@@ -166,6 +171,30 @@ app.use("/api/files", fileProxyRoutes);
 // ── R2 file upload ──
 const uploadRoute = require("./routes/upload");
 app.use("/api", uploadRoute);
+
+// ════════════════════════════════════════════════════════════════════════════
+// SSR & STATIC FILE SERVING
+// ════════════════════════════════════════════════════════════════════════════
+
+// SSR Middleware - handles server-side rendering of public pages
+// Must come BEFORE static file serving so SSR can intercept public routes
+// Falls through to next() if SSR is disabled or route is not SSR-enabled
+app.use(ssrMiddleware);
+
+// Static file serving for client assets (JS, CSS, images)
+// This serves the built client files (dist folder)
+const clientDistPath = path.resolve(__dirname, "../client/dist");
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  console.log(`[Static] Serving client assets from: ${clientDistPath}`);
+} else {
+  console.warn(`[Static] Client dist folder not found at: ${clientDistPath}`);
+  console.warn(`[Static] Run 'npm run build' in client directory to generate production files`);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// 404 HANDLER (must be last)
+// ════════════════════════════════════════════════════════════════════════════
 
 // ── Catch unmatched routes ──
 app.use((req, res) => {
@@ -500,4 +529,11 @@ runCollaborativeMigration();
 
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`SSR: ${SSR_ENABLED ? "✓ enabled" : "✗ disabled"} (set ENABLE_SSR=true to enable)`);
+  if (SSR_ENABLED) {
+    const ssrStatus = ssrMiddleware.getSSRStatus();
+    console.log(`SSR routes: ${ssrStatus.routes.join(", ")}`);
+  }
+});

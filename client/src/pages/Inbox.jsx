@@ -1387,12 +1387,13 @@ export default function Inbox() {
         isDangerous: true,
         onConfirm: async () => {
           try {
-          try {
             await fetch(`${API}/api/chat/messages/${conv.id}/clear`, { method: "DELETE", headers: authHeaders });
-          } catch (err) { console.error("conv delete:", err); }
-          setConversations(prev => prev.filter(c => c.id !== conv.id));
-          if (activeConv?.id === conv.id) { setActiveConv(null); setMessages([]); }
-          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+            setConversations(prev => prev.filter(c => c.id !== conv.id));
+            if (activeConv?.id === conv.id) { setActiveConv(null); setMessages([]); }
+            setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+          } catch (err) { 
+            console.error("conv delete:", err); 
+          }
         }
       });
     }

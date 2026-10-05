@@ -1,4 +1,19 @@
 {
+  "name": "path-system",
+  "version": "1.0.0",
+  "description": "DS PATH - Document Processing & Tracking Hub",
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build:client": "cd client && npm run build:all",
+    "build": "npm run build:client",
+    "start": "cd server && npm start",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "test:ssr": "cd server && node test-ssr-middleware.js",
+    "test:all": "node test-ssr-all.js",
+    "docker:build": "docker build -t path-system .",
+    "docker:run": "docker run -p 5000:5000 --env-file server/.env path-system"
+  },
   "dependencies": {
     "multer": "^2.2.0",
     "mysql2": "^3.23.1",
