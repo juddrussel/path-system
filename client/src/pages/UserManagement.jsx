@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 // ─── API CONFIG ────────────────────────────────────────────────────────────────
 const API_BASE =
@@ -1479,6 +1480,7 @@ export default function UserManagement() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
   const currentUserId = (() => {
     try {
       return JSON.parse(
@@ -1619,50 +1621,68 @@ export default function UserManagement() {
   }
 
   async function handleReject(userId, name) {
-    if (!window.confirm(`Reject ${name}'s account request?`)) return;
-    try {
-      await apiFetch(`/users/${userId}/reject`, { method: "PATCH" });
-      const rejected = pending.find((u) => u.id === userId);
-      await logAction(
-        "USER_REJECT",
-        `Admin rejected account request: ${name} (@${rejected?.username}, ID: ${userId})`,
-      );
-      setPending((p) => p.filter((u) => u.id !== userId));
-      setStats((s) => ({
-        ...s,
-        rejected_this_month: (s.rejected_this_month ?? 0) + 1,
-      }));
-      notify(`${name}'s request has been rejected.`);
-    } catch (err) {
-      notify(err.message, "error");
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Reject Account Request",
+      message: `Reject ${name}'s account request?`,
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await apiFetch(`/users/${userId}/reject`, { method: "PATCH" });
+          const rejected = pending.find((u) => u.id === userId);
+          await logAction(
+            "USER_REJECT",
+            `Admin rejected account request: ${name} (@${rejected?.username}, ID: ${userId})`,
+          );
+          setPending((p) => p.filter((u) => u.id !== userId));
+          setStats((s) => ({
+            ...s,
+            rejected_this_month: (s.rejected_this_month ?? 0) + 1,
+          }));
+          notify(`${name}'s request has been rejected.`);
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        } catch (err) {
+          notify(err.message, "error");
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        }
+      }
+    });
   }
 
   async function handleApproveAll() {
-    if (!window.confirm("Approve all pending accounts?")) return;
-    try {
-      await Promise.all(
-        pending.map((u) =>
-          apiFetch(`/users/${u.id}/approve`, { method: "PATCH" }),
-        ),
-      );
-      await logAction(
-        "USER_APPROVE_ALL",
-        `Admin bulk-approved ${pending.length} pending account(s): ${pending.map((u) => u.username).join(", ")}`,
-      );
-      setUsers((u) => [
-        ...u,
-        ...pending.map((p) => ({ ...p, is_active: true })),
-      ]);
-      setStats((s) => ({
-        ...s,
-        approved_this_month: (s.approved_this_month ?? 0) + pending.length,
-      }));
-      setPending([]);
-      notify("All pending accounts have been approved.");
-    } catch (err) {
-      notify(err.message, "error");
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Approve All Accounts",
+      message: "Approve all pending accounts?",
+      isDangerous: false,
+      onConfirm: async () => {
+        try {
+          await Promise.all(
+            pending.map((u) =>
+              apiFetch(`/users/${u.id}/approve`, { method: "PATCH" }),
+            ),
+          );
+          await logAction(
+            "USER_APPROVE_ALL",
+            `Admin bulk-approved ${pending.length} pending account(s): ${pending.map((u) => u.username).join(", ")}`,
+          );
+          setUsers((u) => [
+            ...u,
+            ...pending.map((p) => ({ ...p, is_active: true })),
+          ]);
+          setStats((s) => ({
+            ...s,
+            approved_this_month: (s.approved_this_month ?? 0) + pending.length,
+          }));
+          setPending([]);
+          notify("All pending accounts have been approved.");
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        } catch (err) {
+          notify(err.message, "error");
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        }
+      }
+    });
   }
 
   function handleUpdate(updated) {
@@ -2050,6 +2070,16 @@ export default function UserManagement() {
           }
         />
       )}
+      
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        isDangerous={confirmModal.isDangerous}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null })}
+      />
     </div>
   );
 }

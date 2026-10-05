@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import ConfirmationModal from "../components/ConfirmationModal";
 import {
   Search, Plus, Download, Filter, MoreHorizontal, ChevronRight, ChevronDown, Pencil,
   TrendingUp, TrendingDown, Clock, Shield, DollarSign, GraduationCap,
@@ -313,6 +314,7 @@ export default function SLAConfiguration() {
   const [documentTypes, setDocumentTypes] = useState([]);
   const [loadingDocTypes, setLoadingDocTypes] = useState(true);
   const [docTypesError, setDocTypesError] = useState("");
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
 
   // ── Table toolbar state (search / priority filter / active-only / sort / pagination) ──
   const [searchQuery, setSearchQuery] = useState("");
@@ -486,22 +488,31 @@ export default function SLAConfiguration() {
 
   async function handleDeleteRule() {
     if (!selectedRuleId) return;
-    if (!window.confirm("Delete this SLA rule? This can't be undone.")) return;
-    setSaving(true);
-    setError("");
-    try {
-      await apiFetch(`/sla/rules/${selectedRuleId}`, { method: "DELETE" });
-      setToast("Rule deleted.");
-      setShowEditModal(false);
-      setSelectedRuleId(null);
-      setRuleForm(null);
-      await loadAll();
-    } catch (err) {
-      setError(err.message || "Failed to delete rule.");
-    } finally {
-      setSaving(false);
-      setTimeout(() => setToast(""), 2500);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete SLA Rule",
+      message: "Delete this SLA rule? This can't be undone.",
+      isDangerous: true,
+      onConfirm: async () => {
+        setSaving(true);
+        setError("");
+        try {
+          await apiFetch(`/sla/rules/${selectedRuleId}`, { method: "DELETE" });
+          setToast("Rule deleted.");
+          setShowEditModal(false);
+          setSelectedRuleId(null);
+          setRuleForm(null);
+          await loadAll();
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        } catch (err) {
+          setError(err.message || "Failed to delete rule.");
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        } finally {
+          setSaving(false);
+          setTimeout(() => setToast(""), 2500);
+        }
+      }
+    });
   }
 
   async function toggleAutoEscalation() {
@@ -1615,6 +1626,16 @@ export default function SLAConfiguration() {
           </div>
         </div>
       )}
+      
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        isDangerous={confirmModal.isDangerous}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null })}
+      />
     </div>
   );
 }

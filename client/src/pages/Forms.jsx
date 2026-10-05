@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { io as socketIO } from "socket.io-client";
 import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import ConfirmationModal from "../components/ConfirmationModal";
+import AlertModal from "../components/AlertModal";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -1413,6 +1415,8 @@ export default function Forms() {
   // ── Real-time: pending badge count & toast queue ──────────────────────────
   const [pendingBadge, setPendingBadge] = useState(0);
   const [toasts, setToasts] = useState([]);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
 
   const authHeaders = { Authorization: `Bearer ${token}` };
 
@@ -1648,11 +1652,11 @@ export default function Forms() {
     if (!file) return;
     const allowed = ["application/pdf", "image/jpeg", "image/png"];
     if (!allowed.includes(file.type)) {
-      alert("Only PDF, JPG, or PNG files are allowed.");
+      setAlertModal({ isOpen: true, message: "Only PDF, JPG, or PNG files are allowed." });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert("File exceeds 5MB limit.");
+      setAlertModal({ isOpen: true, message: "File exceeds 5MB limit." });
       return;
     }
     setWizardDocs((prev) => ({
@@ -1745,20 +1749,21 @@ export default function Forms() {
 
   const handleWizardSubmit = async () => {
     if (!wizardFormType) {
-      alert("Please select a Form Type.");
+      setAlertModal({ isOpen: true, message: "Please select a Form Type." });
       return;
     }
     const missingRequired = selectedFields.filter(
       (f) => f.required && !isFieldComplete(f),
     );
     if (missingRequired.length > 0) {
-      alert(
-        `Please complete: ${missingRequired.map((f) => f.name).join(", ")}`,
-      );
+      setAlertModal({
+        isOpen: true,
+        message: `Please complete: ${missingRequired.map((f) => f.name).join(", ")}`
+      });
       return;
     }
     if (Object.values(wizardDocs).some((d) => d.status === "uploading")) {
-      alert("Please wait for all documents to finish uploading.");
+      setAlertModal({ isOpen: true, message: "Please wait for all documents to finish uploading." });
       return;
     }
 
@@ -1791,15 +1796,16 @@ export default function Forms() {
           }
         }
         console.error("Form submit failed:", res.status, message);
-        alert(message);
+        setAlertModal({ isOpen: true, message });
       }
     } catch (err) {
       // This branch only runs on genuine network/CORS failures — the request
       // never got a response at all.
       console.error("Form submit network error:", err);
-      alert(
-        "Could not reach the server. Please check your connection and try again.",
-      );
+      setAlertModal({
+        isOpen: true,
+        message: "Could not reach the server. Please check your connection and try again."
+      });
     } finally {
       setWizardSubmitting(false);
     }
@@ -1827,16 +1833,17 @@ export default function Forms() {
           }
         }
         console.error("Draft save failed:", res.status, message);
-        alert(message);
+        setAlertModal({ isOpen: true, message });
         return;
       }
       addToast("Draft saved successfully.", "success");
       fetchForms();
     } catch (err) {
       console.error("Draft save network error:", err);
-      alert(
-        "Could not reach the server. Please check your connection and try again.",
-      );
+      setAlertModal({
+        isOpen: true,
+        message: "Could not reach the server. Please check your connection and try again."
+      });
     } finally {
       setWizardSubmitting(false);
     }
@@ -1849,12 +1856,17 @@ export default function Forms() {
       wizardFormType ||
       wizardInfo.remarks
     ) {
-      if (
-        !window.confirm(
-          "Discard this form? Your uploaded documents and entered details will be lost.",
-        )
-      )
-        return;
+      setConfirmModal({
+        isOpen: true,
+        title: "Discard Form",
+        message: "Discard this form? Your uploaded documents and entered details will be lost.",
+        isDangerous: true,
+        onConfirm: () => {
+          resetWizard();
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        }
+      });
+      return;
     }
     resetWizard();
   };
@@ -4424,7 +4436,7 @@ export default function Forms() {
               <button
                 onClick={async () => {
                   if (!resubmitFile) {
-                    alert("Please upload a revised file.");
+                    setAlertModal({ isOpen: true, message: "Please upload a revised file." });
                     return;
                   }
                   const fd = new FormData();
@@ -4453,7 +4465,7 @@ export default function Forms() {
                     );
                   } else {
                     const d = await res.json();
-                    alert(d.message || "Resubmit failed.");
+                    setAlertModal({ isOpen: true, message: d.message || "Resubmit failed." });
                   }
                 }}
                 style={{
@@ -4488,6 +4500,22 @@ export default function Forms() {
           </div>
         </Modal>
       )}
+      
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        isDangerous={confirmModal.isDangerous}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null })}
+      />
+      
+      {/* Alert Modal */}
+      <AlertModal
+        message={alertModal.isOpen ? alertModal.message : null}
+        onClose={() => setAlertModal({ isOpen: false, message: "" })}
+      />
     </div>
   );
 }

@@ -22,6 +22,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
 import { r2ToProxyUrl, resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper.js";
+import AlertModal from "../components/AlertModal";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -217,7 +218,7 @@ function RenderReplies({
                               setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                             } catch (error) {
                               console.error("Failed to open file:", error);
-                              alert("Failed to open file. Please try again.");
+                              setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                             }
                           }}
                           rel="noopener noreferrer"
@@ -251,7 +252,7 @@ function RenderReplies({
                               setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                             } catch (error) {
                               console.error("Failed to open file:", error);
-                              alert("Failed to open file. Please try again.");
+                              setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                             }
                           }}
                           rel="noopener noreferrer"
@@ -605,6 +606,7 @@ export default function CollaborativeTaskAdmin() {
   const [expandedVersions, setExpandedVersions] = useState(new Set([]));
   const [submissionBlobUrl, setSubmissionBlobUrl] = useState(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
 
   // Create blob URLs for all message and reply images
   useEffect(() => {
@@ -925,7 +927,7 @@ export default function CollaborativeTaskAdmin() {
       if (response.ok) {
         setStatus("Approved");
         setReviewNote("");
-        alert("? Task approved successfully!");
+        setAlertModal({ isOpen: true, message: "✓ Task approved successfully!" });
       } else {
         const data = await response.json();
         setError(data.message || "Failed to approve task");
@@ -1731,7 +1733,7 @@ export default function CollaborativeTaskAdmin() {
                                           setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                                         } catch (error) {
                                           console.error("Failed to open file:", error);
-                                          alert("Failed to open file. Please try again.");
+                                          setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                                         }
                                       }}
                                       rel="noopener noreferrer"
@@ -1765,7 +1767,7 @@ export default function CollaborativeTaskAdmin() {
                                           setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                                         } catch (error) {
                                           console.error("Failed to open file:", error);
-                                          alert("Failed to open file. Please try again.");
+                                          setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                                         }
                                       }}
                                       rel="noopener noreferrer"
@@ -2317,6 +2319,12 @@ export default function CollaborativeTaskAdmin() {
           </section>
         </div>
       )}
+      
+      {/* Alert Modal */}
+      <AlertModal
+        message={alertModal.isOpen ? alertModal.message : null}
+        onClose={() => setAlertModal({ isOpen: false, message: "" })}
+      />
       </div>
     </div>
   );

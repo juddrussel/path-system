@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
 import { resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
+import ConfirmationModal from "../components/ConfirmationModal";
+import AlertModal from "../components/AlertModal";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -604,7 +606,7 @@ function FileAttachment({ url, name }) {
       setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
     } catch (error) {
       console.error("Failed to open file:", error);
-      alert("Failed to open file. Please try again.");
+      setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
     }
   };
   
@@ -811,6 +813,8 @@ export default function Inbox() {
 
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
   const dmFileRef = useRef(null);
   const docFileRef = useRef(null);
 
@@ -1120,9 +1124,17 @@ export default function Inbox() {
 
   // ── Per-message action handlers ──
   const handleRemoveMessage = (msg) => {
-    if (!window.confirm("Remove this message?")) return;
-    setMessages(prev => prev.filter(m => m.id !== msg.id));
-    setOpenMsgMenuId(null);
+    setConfirmModal({
+      isOpen: true,
+      title: "Remove Message",
+      message: "Remove this message?",
+      isDangerous: true,
+      onConfirm: () => {
+        setMessages(prev => prev.filter(m => m.id !== msg.id));
+        setOpenMsgMenuId(null);
+        setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+      }
+    });
   };
 
   const togglePinMessage = async (msg) => {
@@ -1310,26 +1322,40 @@ export default function Inbox() {
         setShowProfileDrawer(false);
         break;
       case "clear_chat":
-        if (window.confirm(`Clear chat history with ${activeConv.full_name}? This cannot be undone.`)) {
-          try {
-            const res = await fetch(`${API}/api/chat/messages/${activeConv.id}/clear`, { method: "DELETE", headers: authHeaders });
-            if (res.ok) {
-              setMessages([]);
-              setConversations(prev => prev.map(c => (c.id === activeConv.id ? { ...c, last_message: "", last_time: null, unread_count: 0 } : c)));
-            }
-          } catch (e) { console.error("clear_chat:", e); }
-        }
+        setConfirmModal({
+          isOpen: true,
+          title: "Clear Chat History",
+          message: `Clear chat history with ${activeConv.full_name}? This cannot be undone.`,
+          isDangerous: true,
+          onConfirm: async () => {
+            try {
+              const res = await fetch(`${API}/api/chat/messages/${activeConv.id}/clear`, { method: "DELETE", headers: authHeaders });
+              if (res.ok) {
+                setMessages([]);
+                setConversations(prev => prev.map(c => (c.id === activeConv.id ? { ...c, last_message: "", last_time: null, unread_count: 0 } : c)));
+              }
+            } catch (e) { console.error("clear_chat:", e); }
+            setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+          }
+        });
         break;
       case "activity_log":
         // TODO: point this at the real admin activity-log route
         navigate(`/admin/activity-log/${activeConv.id}`);
         break;
       case "disable_chat":
-        if (window.confirm(`Disable chat access for ${activeConv.full_name}?`)) {
-          try {
-            await fetch(`${API}/api/chat/disable-access/${activeConv.id}`, { method: "POST", headers: authHeaders });
-          } catch (e) { console.error("disable_chat:", e); }
-        }
+        setConfirmModal({
+          isOpen: true,
+          title: "Disable Chat Access",
+          message: `Disable chat access for ${activeConv.full_name}?`,
+          isDangerous: true,
+          onConfirm: async () => {
+            try {
+              await fetch(`${API}/api/chat/disable-access/${activeConv.id}`, { method: "POST", headers: authHeaders });
+            } catch (e) { console.error("disable_chat:", e); }
+            setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+          }
+        });
         break;
       case "archive":
         try {
@@ -1354,12 +1380,21 @@ export default function Inbox() {
       setConversations(prev => prev.filter(c => c.id !== conv.id));
       if (activeConv?.id === conv.id) setActiveConv(null);
     } else if (action === "delete") {
-      if (!window.confirm(`Delete conversation with ${conv.full_name}? This cannot be undone.`)) return;
-      try {
-        await fetch(`${API}/api/chat/messages/${conv.id}/clear`, { method: "DELETE", headers: authHeaders });
-      } catch (err) { console.error("conv delete:", err); }
-      setConversations(prev => prev.filter(c => c.id !== conv.id));
-      if (activeConv?.id === conv.id) { setActiveConv(null); setMessages([]); }
+      setConfirmModal({
+        isOpen: true,
+        title: "Delete Conversation",
+        message: `Delete conversation with ${conv.full_name}? This cannot be undone.`,
+        isDangerous: true,
+        onConfirm: async () => {
+          try {
+          try {
+            await fetch(`${API}/api/chat/messages/${conv.id}/clear`, { method: "DELETE", headers: authHeaders });
+          } catch (err) { console.error("conv delete:", err); }
+          setConversations(prev => prev.filter(c => c.id !== conv.id));
+          if (activeConv?.id === conv.id) { setActiveConv(null); setMessages([]); }
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        }
+      });
     }
   };
 
@@ -1465,21 +1500,37 @@ export default function Inbox() {
   };
 
   const leaveGroup = async (group) => {
-    if (!window.confirm(`Leave "${group.name}"?`)) return;
-    await fetch(`${API}/api/chat/groups/${group.id}/members/${currentUser.id}`, { method: "DELETE", headers: authHeaders });
-    socket?.emit("leave_group", group.id);
-    setGroups(prev => prev.filter(g => g.id !== group.id));
-    if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
+    setConfirmModal({
+      isOpen: true,
+      title: "Leave Group",
+      message: `Leave "${group.name}"?`,
+      isDangerous: false,
+      onConfirm: async () => {
+        await fetch(`${API}/api/chat/groups/${group.id}/members/${currentUser.id}`, { method: "DELETE", headers: authHeaders });
+        socket?.emit("leave_group", group.id);
+        setGroups(prev => prev.filter(g => g.id !== group.id));
+        if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
+        setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+      }
+    });
   };
 
   const deleteGroup = async (group) => {
-    if (!window.confirm(`Delete "${group.name}" permanently? This cannot be undone.`)) return;
-    const res = await fetch(`${API}/api/chat/groups/${group.id}`, { method: "DELETE", headers: authHeaders });
-    if (res.ok) {
-      socket?.emit("leave_group", group.id);
-      setGroups(prev => prev.filter(g => g.id !== group.id));
-      if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Group",
+      message: `Delete "${group.name}" permanently? This cannot be undone.`,
+      isDangerous: true,
+      onConfirm: async () => {
+        const res = await fetch(`${API}/api/chat/groups/${group.id}`, { method: "DELETE", headers: authHeaders });
+        if (res.ok) {
+          socket?.emit("leave_group", group.id);
+          setGroups(prev => prev.filter(g => g.id !== group.id));
+          if (activeGroup?.id === group.id) { setActiveGroup(null); setGroupMessages([]); }
+        }
+        setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+      }
+    });
   };
 
   const archiveGroup = (group) => {
@@ -1510,12 +1561,20 @@ export default function Inbox() {
 
   const removeGroupMember = async (memberId) => {
     if (!activeGroup) return;
-    if (!window.confirm("Remove this member from the group?")) return;
-    const res = await fetch(`${API}/api/chat/groups/${activeGroup.id}/members/${memberId}`, { method: "DELETE", headers: authHeaders });
-    if (res.ok) {
-      setActiveGroup(prev => prev ? { ...prev, members: prev.members.filter(m => m.user_id !== memberId) } : prev);
-      setGroups(prev => prev.map(g => g.id === activeGroup.id ? { ...g, members: (g.members || []).filter(m => m.user_id !== memberId) } : g));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Remove Member",
+      message: "Remove this member from the group?",
+      isDangerous: true,
+      onConfirm: async () => {
+        const res = await fetch(`${API}/api/chat/groups/${activeGroup.id}/members/${memberId}`, { method: "DELETE", headers: authHeaders });
+        if (res.ok) {
+          setActiveGroup(prev => prev ? { ...prev, members: prev.members.filter(m => m.user_id !== memberId) } : prev);
+          setGroups(prev => prev.map(g => g.id === activeGroup.id ? { ...g, members: (g.members || []).filter(m => m.user_id !== memberId) } : g));
+        }
+        setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+      }
+    });
   };
 
   const openConversation = async (user) => {
@@ -3298,6 +3357,22 @@ export default function Inbox() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        isDangerous={confirmModal.isDangerous}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null })}
+      />
+      
+      {/* Alert Modal */}
+      <AlertModal
+        message={alertModal.isOpen ? alertModal.message : null}
+        onClose={() => setAlertModal({ isOpen: false, message: "" })}
+      />
 
     </div>
     

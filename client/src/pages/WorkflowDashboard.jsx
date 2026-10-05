@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
+import ConfirmationModal from "../components/ConfirmationModal";
+import AlertModal from "../components/AlertModal";
 
 // ── Role-based nav visibility ─────────────────────────────────────────────────
 const ADMIN_NAV_ROLES = ["admin", "program_chair"];
@@ -426,6 +428,8 @@ export default function WorkflowDashboard() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [workflows, setWorkflows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
 
   const API = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 
@@ -468,21 +472,30 @@ export default function WorkflowDashboard() {
       if (!res.ok) throw new Error("Failed to duplicate workflow.");
       fetchWorkflows();
     } catch {
-      window.alert("Could not duplicate this workflow. Please try again.");
+      setAlertModal({ isOpen: true, message: "Could not duplicate this workflow. Please try again." });
     }
   };
 
   const handleDelete = async (wf) => {
-    if (!window.confirm(`Delete "${wf.name}"? This cannot be undone.`)) return;
-    try {
-      await fetch(`${API}/workflows/${wf.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchWorkflows();
-    } catch {
-      window.alert("Could not delete this workflow. Please try again.");
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Workflow",
+      message: `Delete "${wf.name}"? This cannot be undone.`,
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await fetch(`${API}/workflows/${wf.id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          fetchWorkflows();
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        } catch {
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+          setAlertModal({ isOpen: true, message: "Could not delete this workflow. Please try again." });
+        }
+      }
+    });
   };
 
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
@@ -657,6 +670,20 @@ export default function WorkflowDashboard() {
         {/* Footer removed */}
 
       </div>
+
+      {/* Modals */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        isDangerous={confirmModal.isDangerous}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null })}
+      />
+      <AlertModal
+        message={alertModal.isOpen ? alertModal.message : null}
+        onClose={() => setAlertModal({ isOpen: false, message: "" })}
+      />
     </div>
   );
 }

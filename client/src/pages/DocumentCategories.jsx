@@ -18,6 +18,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const API_BASE_URL =
   (typeof import.meta !== "undefined" &&
@@ -483,6 +484,7 @@ export default function DocumentCategories() {
   const [actionError, setActionError] = useState(null);
   const [editorCategory, setEditorCategory] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
 
   const loadCategories = async () => {
     setLoading(true);
@@ -633,19 +635,27 @@ export default function DocumentCategories() {
     }
   };
   const deleteCategory = async (category) => {
-    if (!window.confirm(`Delete "${category.name}"? This cannot be undone.`))
-      return;
-    setActionError(null);
-    try {
-      await apiFetch(`/api/categories/${category.id}`, { method: "DELETE" });
-      setCategories((current) =>
-        current.filter((item) => item.id !== category.id),
-      );
-    } catch (error) {
-      setActionError(
-        error.message || "Unable to delete this document definition.",
-      );
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Document Definition",
+      message: `Delete "${category.name}"? This cannot be undone.`,
+      isDangerous: true,
+      onConfirm: async () => {
+        setActionError(null);
+        try {
+          await apiFetch(`/api/categories/${category.id}`, { method: "DELETE" });
+          setCategories((current) =>
+            current.filter((item) => item.id !== category.id),
+          );
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+        } catch (error) {
+          setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null });
+          setActionError(
+            error.message || "Unable to delete this document definition.",
+          );
+        }
+      }
+    });
   };
   const closeEditor = () => {
     setEditorCategory(null);
@@ -983,6 +993,16 @@ export default function DocumentCategories() {
           onSave={editorCategory ? saveExisting : createCategory}
         />
       )}
+      
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        isDangerous={confirmModal.isDangerous}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, title: "", message: "", onConfirm: null })}
+      />
     </div>
   );
 }

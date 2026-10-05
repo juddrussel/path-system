@@ -22,6 +22,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket.js";
 import { r2ToProxyUrl, resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper.js";
+import AlertModal from "../components/AlertModal";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const api = SERVER_URL;
@@ -228,7 +229,7 @@ function RenderReplies({
                               setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                             } catch (error) {
                               console.error("Failed to open file:", error);
-                              alert("Failed to open file. Please try again.");
+                              setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                             }
                           }}
                           rel="noopener noreferrer"
@@ -262,7 +263,7 @@ function RenderReplies({
                               setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                             } catch (error) {
                               console.error("Failed to open file:", error);
-                              alert("Failed to open file. Please try again.");
+                              setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                             }
                           }}
                           rel="noopener noreferrer"
@@ -662,6 +663,7 @@ export default function CollaborativeTaskDetail() {
   const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
   const [imageLoadingStates, setImageLoadingStates] = useState({});
   const [imageBlobUrls, setImageBlobUrls] = useState({});
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
 
   const finalInputRef = useRef(null);
   const discussionInputRef = useRef(null);
@@ -821,7 +823,7 @@ export default function CollaborativeTaskDetail() {
           prev.map(c => ({ ...c, confirmed: true }))
         );
         // Show success message
-        alert("🎉 All collaborators confirmed! Task automatically submitted to Program Chair/Admin for review.");
+        setAlertModal({ isOpen: true, message: "🎉 All collaborators confirmed! Task automatically submitted to Program Chair/Admin for review." });
       }
     });
 
@@ -987,7 +989,7 @@ export default function CollaborativeTaskDetail() {
       // Check if auto-submitted
       if (data.autoSubmitted) {
         setStatus("For Approval");
-        alert("🎉 All collaborators confirmed! Task automatically submitted to Program Chair/Admin for review.");
+        setAlertModal({ isOpen: true, message: "🎉 All collaborators confirmed! Task automatically submitted to Program Chair/Admin for review." });
       }
     } catch (err) {
       setError(err.message);
@@ -1602,7 +1604,7 @@ export default function CollaborativeTaskDetail() {
                                     setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                                   } catch (error) {
                                     console.error("Failed to download file:", error);
-                                    alert("Failed to download file. Please try again.");
+                                    setAlertModal({ isOpen: true, message: "Failed to download file. Please try again." });
                                   }
                                 }}
                                 rel="noopener noreferrer"
@@ -2277,7 +2279,7 @@ export default function CollaborativeTaskDetail() {
                                         setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                                       } catch (error) {
                                         console.error("Failed to download file:", error);
-                                        alert("Failed to download file. Please try again.");
+                                        setAlertModal({ isOpen: true, message: "Failed to download file. Please try again." });
                                       }
                                     }}
                                     rel="noopener noreferrer"
@@ -2414,7 +2416,7 @@ export default function CollaborativeTaskDetail() {
                                           setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                                         } catch (error) {
                                           console.error("Failed to open file:", error);
-                                          alert("Failed to open file. Please try again.");
+                                          setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                                         }
                                       }}
                                       rel="noopener noreferrer"
@@ -2448,7 +2450,7 @@ export default function CollaborativeTaskDetail() {
                                           setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
                                         } catch (error) {
                                           console.error("Failed to open file:", error);
-                                          alert("Failed to open file. Please try again.");
+                                          setAlertModal({ isOpen: true, message: "Failed to open file. Please try again." });
                                         }
                                       }}
                                       rel="noopener noreferrer"
@@ -2908,6 +2910,12 @@ export default function CollaborativeTaskDetail() {
           </section>
         </div>
       )}
+      
+      {/* Alert Modal */}
+      <AlertModal
+        message={alertModal.isOpen ? alertModal.message : null}
+        onClose={() => setAlertModal({ isOpen: false, message: "" })}
+      />
       </div>
     </div>
   );
