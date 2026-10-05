@@ -1366,7 +1366,7 @@ function PathAssignedWorkspace({
             <section className="path-assigned-metrics">
               {[
                 {
-                  label: "Assigned work",
+                  label: "Current Assigned Tasks",
                   value: activeTasks.length,
                   note: "Across your active queue",
                   icon: "▣",

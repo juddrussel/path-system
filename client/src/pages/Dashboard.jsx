@@ -3165,7 +3165,7 @@ export default function Dashboard() {
       icon: ListTodo,
     },
     {
-      label: "Assigned Tasks",
+      label: "Current Assigned Tasks",
       value: String(assignedTasksCount),
       color: "#0284c7",
       tint: "#7dd3fc",
@@ -4508,7 +4508,7 @@ export default function Dashboard() {
                             textTransform: "uppercase",
                           }}
                         >
-                          SLA monitoring
+                          Deadline Monitoring
                         </div>
                         <h3
                           style={{
@@ -4681,7 +4681,7 @@ export default function Dashboard() {
                   <div className="path-performance-heading">
                     <div>
                       <div className="path-kicker">Faculty performance</div>
-                      <h2>How faculty work is moving</h2>
+                      <h2>Faculty work Overview</h2>
                       <p>
                         A quick read of completion, open work, and
                         timeliness across the department.
@@ -4702,7 +4702,7 @@ export default function Dashboard() {
                       <small>faculty transactions</small>
                     </div>
                     <div>
-                      <span>Open queue</span>
+                      <span>Open tasks</span>
                       <strong>{facultyPerformanceSummary.open}</strong>
                       <small>still in progress</small>
                     </div>
@@ -4744,7 +4744,7 @@ export default function Dashboard() {
                       ) : (
                         FACULTY_WORKLOAD.slice(0, 6).map((f) => {
                           const risk = f.delayed > 0 || f.rate < 80;
-                          const status = risk ? "Needs attention" : "Strong";
+                          const status = risk ? "Needs attention" : "On Track";
                           return (
                             <div
                               className="path-performance-row"
