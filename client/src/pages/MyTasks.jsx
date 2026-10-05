@@ -712,7 +712,7 @@ function PathTasksWorkspace({
             <section className="path-task-hero">
               <div>
                 <div className="path-task-kicker">
-                  <i /> {isFaculty ? "Personal task desk" : "Task command desk"}
+                  <i /> {isFaculty ? "My Task" : "Task command desk"}
                 </div>
                 <h1>
                   {isFaculty
@@ -731,7 +731,7 @@ function PathTasksWorkspace({
                   type="button"
                   onClick={() => fetchSelectedTask(primaryTask.id)}
                 >
-                  <small>Continue working</small>
+                  <small>Continue tasks</small>
                   <strong>{primaryTask.title || "Open next task"}</strong>
                   <span>↗</span>
                 </button>
@@ -746,7 +746,7 @@ function PathTasksWorkspace({
             <section className="path-task-stats">
               {[
                 {
-                  label: isFaculty ? "My active tasks" : "Active assigned",
+                  label: isFaculty ? "Current Tasks" : "Active assigned",
                   value: activeCount,
                   note: "Across your work",
                   icon: <Icon.Tasks />,
@@ -812,8 +812,7 @@ function PathTasksWorkspace({
                       </div>
                     </div>
                     <div className="path-task-note">
-                      This handoff carries the strongest deadline signal in your
-                      current task list.
+                      This task needs attention because of its deadline.
                     </div>
                     <button
                       type="button"
@@ -852,7 +851,7 @@ function PathTasksWorkspace({
               <header className="path-task-register-head">
                 <div>
                   <div className="path-task-section-label">
-                    <i /> My work list
+                    <i /> My Tasks
                   </div>
                   <h2>
                     {isFaculty

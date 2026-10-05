@@ -2188,7 +2188,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
                 }}>
                   {isOverdue
                     ? `This task is ${Math.floor((now - new Date(nextTask.deadline)) / 86400000)}d past its deadline — needs your immediate attention.`
-                    : "This handoff carries the strongest deadline signal in your current task list."
+                    : "This task needs attention because of its deadline."
                   }
                 </div>
 

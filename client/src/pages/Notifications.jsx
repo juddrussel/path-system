@@ -616,7 +616,7 @@ export default function Notifications() {
               <article>
                 <span>Action needed</span>
                 <strong>{urgentCount}</strong>
-                <small>Workflow follow-ups</small>
+                <small>Tasks needing follow-up</small>
               </article>
               <article>
                 <span>Today</span>
@@ -626,7 +626,7 @@ export default function Notifications() {
               <article>
                 <span>Delivery health</span>
                 <strong>99%</strong>
-                <small>Alerts delivered</small>
+                <small>Notifications delivered</small>
               </article>
             </section>
             <section className="notifications-layout">
@@ -845,8 +845,8 @@ export default function Notifications() {
                     <Bell size={15} />
                   </span>
                   <span>
-                    <strong>SLA risk alerts</strong>
-                    <small>When a document is within 25% of its deadline</small>
+                    <strong>Deadline Alerts</strong>
+                    <small>When a document is approaching its deadline</small>
                   </span>
                   <Toggle
                     on={settings.alerts}

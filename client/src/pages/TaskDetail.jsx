@@ -1056,7 +1056,7 @@ export default function TaskDetail() {
                 <div>
                   <div className="td-kicker">
                     <b>{taskIdentifier}</b>
-                    <i /> Active handoff
+                    <i /> Active task
                   </div>
                   <h1>{taskTitle}</h1>
                   {!hasAssignedObjective && <p>{taskDescription}</p>}

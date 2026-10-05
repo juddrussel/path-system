@@ -1283,7 +1283,7 @@ function TaskAssignmentInner() {
                       <span>
                         <strong>{member.full_name}</strong>
                         <small>
-                          {member.active} active handoff
+                          {member.active} active task
                           {member.active === 1 ? "" : "s"} · {formatRole(member.role)}
                         </small>
                       </span>
