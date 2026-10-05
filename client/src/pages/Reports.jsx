@@ -433,17 +433,17 @@ function PathOverview({ items, processing, bottlenecks, quickReports, onSelectTa
   const cards = [
     { label: "Documents processed", value: items.length, note: "Live reporting window", icon: FileText, tone: "violet" },
     { label: "On-time completion", value: `${onTime}%`, note: completed.length ? `${completed.length} completed records` : "No completed records yet", icon: CheckCircle2, tone: "green" },
-    { label: "Average turnaround", value: `${average.toFixed(1)} days`, note: "Across completed document types", icon: Clock, tone: "blue" },
+    { label: "Average processing time", value: `${average.toFixed(1)} days`, note: "Across completed document types", icon: Clock, tone: "blue" },
     { label: "Returned for revision", value: returned, note: items.length ? `${((returned / items.length) * 100).toFixed(1)}% of processed records` : "No processed records yet", icon: RotateCcw, tone: "amber" },
   ];
   return <div className="path-overview-workspace">
     <div className="path-overview-metrics">{cards.map(({ label, value, note, icon: Icon, tone }) => <article className={`path-overview-metric ${tone}`} key={label}><div><span>{label}</span><Icon /></div><strong>{value}</strong><small>{note}</small></article>)}</div>
     <div className="path-overview-main-grid">
-      <section className="path-overview-panel path-flow-panel"><header><div><span>Workflow health</span><h2>Document flow</h2><p>Shares of records by current lifecycle stage.</p></div><button onClick={() => onSelectTab("Transactions")} aria-label="Open Transactions"><ChevronRight /></button></header><div className="path-flow-total"><strong>{items.length}</strong><span>documents processed</span></div><div className="path-flow-bars">{flow.map((item) => <div key={item.label}><div><span>{item.label}</span><strong>{item.value}</strong></div><i><b style={{ width: `${(item.value / maxFlow) * 100}%`, background: item.color }} /></i></div>)}</div></section>
-      <section className="path-overview-panel path-health-panel"><header><div><span>Deadline monitoring</span><h2>Service level health</h2><p>How consistently active workflows close within target.</p></div><div className="path-health-state"><i />Healthy</div></header><div className="path-health-main"><div className="path-health-ring" style={{ "--health": String(onTime) }}><strong>{onTime}%</strong><small>on time</small></div><div><strong>Healthy workflow</strong><p>Service health is calculated from the completed records in the active filter window.</p><button onClick={() => onNavigate("/sla-configuration")}>Review SLA policies <ChevronRight /></button></div></div><footer><div><span>At risk</span><strong>{String(atRisk).padStart(2, "0")}</strong><small>Needs attention</small></div><div><span>Avg. turnaround</span><strong>{average.toFixed(1)}d</strong><small>Live average</small></div><div><span>Escalations</span><strong>{String(bottlenecks.filter((item) => item.severity === "Critical").length).padStart(2, "0")}</strong><small>Critical stages</small></div></footer></section>
+      <section className="path-overview-panel path-flow-panel"><header><div><span>Workflow overview</span><h2>Document process</h2><p>Shows documents by their current stage.</p></div><button onClick={() => onSelectTab("Transactions")} aria-label="Open Transactions"><ChevronRight /></button></header><div className="path-flow-total"><strong>{items.length}</strong><span>documents processed</span></div><div className="path-flow-bars">{flow.map((item) => <div key={item.label}><div><span>{item.label}</span><strong>{item.value}</strong></div><i><b style={{ width: `${(item.value / maxFlow) * 100}%`, background: item.color }} /></i></div>)}</div></section>
+      <section className="path-overview-panel path-health-panel"><header><div><span>Deadline monitoring</span><h2>On-Time Performance</h2><p>How consistently documents are completed within the target time.</p></div><div className="path-health-state"><i />Healthy</div></header><div className="path-health-main"><div className="path-health-ring" style={{ "--health": String(onTime) }}><strong>{onTime}%</strong><small>on time</small></div><div><strong>Workflow is On Track</strong><p>On-time performance is based on completed records within the selected period.</p><button onClick={() => onNavigate("/sla-configuration")}>Review Deadline Settings <ChevronRight /></button></div></div><footer><div><span>Needs Attention</span><strong>{String(atRisk).padStart(2, "0")}</strong><small>Needs attention</small></div><div><span>Avg. turnaround</span><strong>{average.toFixed(1)}d</strong><small>Live average</small></div><div><span>Escalations</span><strong>{String(bottlenecks.filter((item) => item.severity === "Critical").length).padStart(2, "0")}</strong><small>Critical stages</small></div></footer></section>
     </div>
     <div className="path-overview-bottom-grid">
-      <section className="path-overview-panel path-category-panel"><header><div><span>Document mix</span><h2>Category performance</h2><p>Throughput and on-time completion by document type.</p></div><button onClick={() => onExport("Full Analytics Report", "Excel")}>Export data <ChevronRight /></button></header><div className="path-category-table"><div className="path-category-head"><span>Document type</span><span>Processed</span><span>On time</span><span>At risk</span></div>{categories.map((item, index) => <div className="path-category-row" key={item.type}><strong><i className={`dot-${index % 4}`} />{item.type}</strong><span>{item.processed}</span><span>{item.onTimeRate}%</span><em>{item.atRisk ? `${item.atRisk} risk` : "Clear"}</em></div>)}{!categories.length && <p className="path-chart-empty">No category data matches these filters.</p>}</div></section>
+      <section className="path-overview-panel path-category-panel"><header><div><span>Document overview</span><h2>Performance by Document Type</h2><p>Number of documents and on-time completion by document type.</p></div><button onClick={() => onExport("Full Analytics Report", "Excel")}>Export data <ChevronRight /></button></header><div className="path-category-table"><div className="path-category-head"><span>Document type</span><span>Processed</span><span>On time</span><span>Needs Attention</span></div>{categories.map((item, index) => <div className="path-category-row" key={item.type}><strong><i className={`dot-${index % 4}`} />{item.type}</strong><span>{item.processed}</span><span>{item.onTimeRate}%</span><em>{item.atRisk ? `${item.atRisk} risk` : "Clear"}</em></div>)}{!categories.length && <p className="path-chart-empty">No category data matches these filters.</p>}</div></section>
       <section className="path-overview-panel path-library-panel"><header><div><span>Saved reports</span><h2>Report library</h2></div><button aria-label="More reports"><Activity /></button></header><div className="path-library-list">{library.map((report, index) => { const Icon = report.icon; return <button key={report.title} onClick={() => report.title === "Audit Trail" ? onNavigate("/audit") : onExport(report.title, "View")}><i className={`path-library-icon item-${index}`}><Icon /></i><span><strong>{report.title}</strong><small>{report.desc}</small></span><em>Open</em><ChevronRight /></button>; })}</div><button className="path-library-create" onClick={() => onExport("Full Analytics Report", "PDF")}>＋ Create custom report</button></section>
     </div>
   </div>;
@@ -562,7 +562,7 @@ function ExportButtons({ onExport, size = "normal" }) {
 
 const QUICK_REPORTS = [
   { title: "Processing Time",         icon: Layers,        desc: "Average processing time by stage",       color: "#7c3aed" },
-  { title: "Bottleneck",              icon: Clock,         desc: "Identify workflow bottlenecks",          color: "#d97706" },
+  { title: "Bottleneck",              icon: Clock,         desc: "Identify delays in the process",          color: "#d97706" },
   { title: "Delayed Transactions",    icon: AlertTriangle, desc: "Transactions past SLA thresholds",        color: "#f97316" },
   { title: "Faculty Workload",        icon: Users,         desc: "Per-faculty load and completion rates",   color: "#0284c7" },
   { title: "Processing Time",             icon: Activity,      desc: "Average times per document type",             color: "#8b5cf6" },
@@ -1696,7 +1696,7 @@ export default function Reports() {
       case "Bottleneck":
         return {
           title: "Bottleneck",
-          subtitle: "Identify workflow bottlenecks",
+          subtitle: "Identify delays in the process",
           meta: activeFilterSummary,
           kpis: [],
           tables: [],
@@ -1819,9 +1819,9 @@ export default function Reports() {
             {/* ── 1. Header: title + export (no card) ── */}
             <div className="path-reports-hero" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b5cf6" }}>Decision support · reporting workspace</div>
+                <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b5cf6" }}>Reports · Decision support</div>
                 <h1 style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>Reports</h1>
-                <p style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>Turn document activity into a clear view of throughput, service levels, and department performance.</p>
+                <p style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>View document activity, processing time, and department performance.</p>
                 {activePeriod && (
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 8, padding: "5px 11px", borderRadius: 99, background: "#f5f3ff", border: "1px solid #ddd6fe", fontSize: 12, fontWeight: 700, color: "#7c3aed" }}>
                     <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 0 2px rgba(34,197,94,0.2)" }} />
