@@ -139,7 +139,7 @@ const displayStatus = (value, fallback = "Pending") => {
   if (/approved|completed|complete/i.test(status)) return "Approved";
   if (/returned|revision|revise/i.test(status)) return "Returned";
   if (/reject(?:ed)?/i.test(status)) return "Rejected";
-  if (/review/i.test(status)) return "In review";
+  if (/review/i.test(status)) return "Under review";
   if (/pending|draft/i.test(status)) return "Pending";
   return status || fallback;
 };
@@ -1319,7 +1319,7 @@ export default function DocumentReview() {
                     className={`doc-step ${reviewStep === 2 ? "active" : "complete"}`}
                   >
                     <b>{reviewStep > 2 ? "✓" : "02"}</b>
-                    <span>In review</span>
+                    <span>Under review</span>
                   </div>
                   <i
                     className={`doc-line ${reviewStep > 2 ? "complete" : ""}`}

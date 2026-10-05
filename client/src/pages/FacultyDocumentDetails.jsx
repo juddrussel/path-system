@@ -30,7 +30,7 @@ const displayDate = (value, fallback = "—") => {
       });
 };
 const statusTone = (status) => {
-  const value = String(status || "In review").toLowerCase();
+  const value = String(status || "Under review").toLowerCase();
   if (value.includes("approved") || value.includes("completed"))
     return "approved";
   if (value.includes("return") || value.includes("revision")) return "returned";
@@ -43,7 +43,7 @@ function StatusChip({ status }) {
   return (
     <span className={`faculty-status ${statusTone(status)}`}>
       <i />
-      {status || "In review"}
+      {status || "Under review"}
     </span>
   );
 }
@@ -188,7 +188,7 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
 
   const title = record?.title || record?.document_type || "Document details";
   const tracking = record?.tracking_id || record?.document_id || `DOC-${id}`;
-  const status = record?.status || "In review";
+  const status = record?.status || "Under review";
   const stage = String(status).toLowerCase();
   const returned = /return|revision/.test(stage);
   const rejected = /reject/.test(stage);
@@ -370,7 +370,7 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
                     className={`faculty-step ${approved || returned || rejected ? "done" : "active"}`}
                   >
                     <b>{approved || returned || rejected ? "✓" : "02"}</b>
-                    <span>In review</span>
+                    <span>Under review</span>
                   </div>
                   <i
                     className={`faculty-step-line ${approved || returned || rejected ? "done" : ""}`}
@@ -509,7 +509,7 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
                   {returned
                     ? "Resubmit when your revision is ready."
                     : approved
-                      ? "Review workflow complete."
+                      ? "Review process complete."
                       : "The review team will update this record."}
                 </p>
                 <div className="faculty-progress">

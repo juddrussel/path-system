@@ -325,7 +325,7 @@ const ADMIN_NAV_ITEMS = [
   { key: "users", icon: Icon.Users, label: "Users", path: "/users" },
   { key: "audit", icon: Icon.Shield, label: "Audit Trail", path: "/audit" },
   { key: "assign-task", icon: Icon.AssignTask, label: "Assign Task", path: "/assign-task" },
-  { key: "task-assigned", icon: Icon.TaskAssigned, label: "Tasks Assigned", path: "/task-assigned" },
+  { key: "task-assigned", icon: Icon.TaskAssigned, label: "Current Tasks", path: "/task-assigned" },
   { key: "sla-configuration", icon: Icon.SLA, label: "SLA Config", path: "/sla-configuration" },
 ];
 

@@ -761,7 +761,7 @@ function PathTasksWorkspace({
                   tone: "alert",
                 },
                 {
-                  label: "In review",
+                  label: "Under review",
                   value: reviewCount,
                   note: "With the review team",
                   icon: <Icon.Clock />,
@@ -793,7 +793,7 @@ function PathTasksWorkspace({
             <section className="path-task-focus">
               <article className="path-task-next">
                 <div className="path-task-section-label">
-                  <i /> Next action
+                  <i /> Action needed
                 </div>
                 {primaryTask ? (
                   <>
@@ -831,15 +831,15 @@ function PathTasksWorkspace({
               </article>
               <article className="path-task-health">
                 <div className="path-task-section-label">
-                  <i /> Your workflow health
+                  <i /> Workflow overview
                 </div>
-                <h2>Every handoff is visible</h2>
+                <h2>Every step is tracked</h2>
                 <p>
                   Task ownership, review notes, and document status stay
                   connected throughout the workflow.
                 </p>
                 <div className="path-task-health-row">
-                  <strong>◈ {activeCount} active handoffs</strong>
+                  <strong>◈ {activeCount} active tasks</strong>
                   <span>
                     {stats.overdue
                       ? `${stats.overdue} needs follow-up`
@@ -1001,7 +1001,7 @@ function PathTasksWorkspace({
                 )}
               </div>
               <footer className="path-task-footer path-task-handoff-footer">
-                <span>{activeCount} active handoffs remain in your desk.</span>
+                <span>{activeCount} active tasks remain in your desk.</span>
                 <button
                   className="path-task-view-assigned-btn"
                   type="button"
@@ -1735,7 +1735,7 @@ function PathAssignedWorkspace({
                           ))
                         ) : (
                           <p className="path-assigned-queue-empty">
-                            No active handoffs match the current filters.
+                            No active tasks match the current filters.
                           </p>
                         )}
                       </section>

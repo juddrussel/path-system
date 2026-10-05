@@ -1569,7 +1569,7 @@ export default function TaskAssigned() {
                     margin: "0 0 3px",
                   }}
                 >
-                  Tasks Assigned
+                  Current Tasks
                 </h1>
                 <p style={{ fontSize: 13, color: "#7b7486", margin: 0 }}>
                   Track tasks you assigned to faculty — review submissions,
@@ -5603,7 +5603,7 @@ function PathTasksAssignedLayout({
                 <span className="path-assigned-kicker">
                   <i /> PROGRAM CHAIR WORKSPACE · HANDOFF REGISTER
                 </span>
-                <h1>Tasks assigned</h1>
+                <h1>Current Tasks</h1>
                 <p>
                   Track the tasks you routed to faculty, monitor their workflow
                   position, and open the full task detail when a decision is
@@ -5613,7 +5613,7 @@ function PathTasksAssignedLayout({
               <div className="path-assigned-hero-actions">
                 <span className="path-assigned-live">
                   <i className="online" />
-                  {active} active handoffs
+                  {active} active tasks
                 </span>
                 <button
                   className="path-assigned-primary"
@@ -5633,7 +5633,7 @@ function PathTasksAssignedLayout({
                 icon="≡"
                 label="Total assigned"
                 value={total}
-                detail="Across all active handoffs"
+                detail="Across all active tasks"
                 tone="violet"
               />
               <MetricCard
@@ -5661,7 +5661,7 @@ function PathTasksAssignedLayout({
 
             <section
               className="path-assigned-controls"
-              aria-label="Tasks Assigned controls"
+              aria-label="Current Tasks controls"
             >
               <label className="path-assigned-search">
                 <Icon.Search />
@@ -5681,7 +5681,7 @@ function PathTasksAssignedLayout({
                   <option value="All">All states</option>
                   <option value="Pending">Awaiting submission</option>
                   <option value="In Progress">In progress</option>
-                  <option value="For Approval">In review</option>
+                  <option value="For Approval">Under review</option>
                   <option value="Returned">Returned</option>
                   <option value="Approved">Approved</option>
                 </select>
@@ -5729,7 +5729,7 @@ function PathTasksAssignedLayout({
             <div className="path-assigned-layout">
               <section
                 className="path-assigned-panel"
-                aria-label="Tasks assigned register"
+                aria-label="Current Tasks register"
               >
                 <header className="path-assigned-register-head">
                   <div>

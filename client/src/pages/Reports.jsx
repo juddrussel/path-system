@@ -416,7 +416,7 @@ function PathOverview({ items, processing, bottlenecks, quickReports, onSelectTa
   const average = processing.length ? processing.reduce((sum, item) => sum + item.avg, 0) / processing.length : 0;
   const flow = [
     { label: "Submitted", value: items.length, color: "#8b5cf6" },
-    { label: "In review", value: reviewing, color: "#a78bfa" },
+    { label: "Under review", value: reviewing, color: "#a78bfa" },
     { label: "Approved", value: approved, color: "#7c3aed" },
     { label: "Returned", value: returned, color: "#c4b5fd" },
   ];

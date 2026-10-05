@@ -2000,7 +2000,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
     ...tasksAll.map(t => ({ ...t, _isTask: true })),
   ];
 
-  // In review = "For Approval" or "Under Review" status
+  // Under review = "For Approval" or "Under Review" status
   const inReview = allItems.filter((row) =>
     /for approval|under review/.test(statusOf(row))
   );
@@ -2032,7 +2032,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
   ].slice(0, 3);
   const cards = [
     {
-      label: "Tasks assigned",
+      label: "Current Tasks",
       value: tasksAll.filter(t => {
         const s = String(t.status || "").toLowerCase();
         return !/approved|received|completed|archived/.test(s);
@@ -2042,7 +2042,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
       color: "#0284c7",
     },
     {
-      label: "In review",
+      label: "Under Review",
       value: inReview.length,
       detail: "With the review team",
       icon: Clock,
@@ -2097,7 +2097,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
         }} />
         <div style={{ position: "relative", zIndex: 1 }}>
           <span style={{ display: "block", color: "rgba(216,180,254,0.8)", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase" }}>
-            Faculty workspace · your document flow
+            Faculty workspace · your document process
           </span>
           <h1 style={{ margin: "10px 0 8px", color: "#f5f3ff", fontSize: "clamp(28px,3vw,40px)", fontFamily: "Manrope,'DM Sans',sans-serif", fontWeight: 800, letterSpacing: "-0.055em", lineHeight: 1 }}>
             {getGreeting()}, {displayName}.
@@ -2132,9 +2132,9 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
         })}
       </section>
       <section className="faculty-dashboard-focus">
-        {/* ── Left: Next Action ── */}
+        {/* ── Left: Action Needed ── */}
         <article style={{ display: "flex", flexDirection: "column" }}>
-          <span className="faculty-kicker">↑ Next action</span>
+          <span className="faculty-kicker">↑ Action needed</span>
           {(() => {
             // Pick the most urgent overdue task, else most urgent active task
             const overdueItems = tasksAll.filter(t => {
@@ -2213,16 +2213,16 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
           })()}
         </article>
 
-        {/* ── Right: Workflow Health ── */}
+        {/* ── Right: Workflow Overview ── */}
         <article style={{ display: "flex", flexDirection: "column" }}>
-          <span className="faculty-kicker">↑ Your workflow health</span>
-          <h2 style={{ marginTop: 8 }}>Every handoff is visible</h2>
+          <span className="faculty-kicker">↑ Workflow overview</span>
+          <h2 style={{ marginTop: 8 }}>Every step is tracked</h2>
           <p style={{ margin: "6px 0 0", color: "#8f8398", fontSize: 12, lineHeight: 1.55 }}>
             Task ownership, review notes, and document status stay connected throughout the workflow.
           </p>
           <div className="faculty-health-meta" style={{ marginTop: "auto", paddingTop: 16 }}>
             <span>
-              <ShieldCheck size={14} /> {tasksAll.filter(t => !/approved|completed|archived|received|rejected/.test(String(t.status || "").toLowerCase())).length} active handoffs
+              <ShieldCheck size={14} /> {tasksAll.filter(t => !/approved|completed|archived|received|rejected/.test(String(t.status || "").toLowerCase())).length} active tasks
             </span>
             <span style={{ color: overdueCount > 0 ? "#dc2626" : "#6e9b80", fontWeight: 700 }}>
               {overdueCount > 0 ? `${overdueCount} needs follow-up` : "On track"}
@@ -2668,7 +2668,7 @@ export default function Dashboard() {
         console.error("Tracking fetch error:", err);
       }
 
-      // ── Tasks assigned ────────────────────────────────────────────────────
+      // ── Current Tasks ────────────────────────────────────────────────────
       try {
         const res = await fetch(`${API}/api/tasks`, { headers: authH });
         if (res.ok) {
@@ -4518,7 +4518,7 @@ export default function Dashboard() {
                             margin: "7px 0 0",
                           }}
                         >
-                          Workflow health
+                          Workflow overview
                         </h3>
                       </div>
                     </div>
@@ -5010,13 +5010,13 @@ export default function Dashboard() {
                             margin: "7px 0 0",
                           }}
                         >
-                          Document flow
+                          Document process
                         </h3>
                       </div>
                       <button
                         type="button"
                         onClick={() => navigate("/tracking")}
-                        aria-label="More document flow options"
+                        aria-label="More document process options"
                         style={{
                           border: "none",
                           background: "#f1ebff",

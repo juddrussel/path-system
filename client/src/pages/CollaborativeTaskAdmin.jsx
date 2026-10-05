@@ -1953,7 +1953,7 @@ export default function CollaborativeTaskAdmin() {
               <div className="td-decision-head">
                 <span>Decision station</span>
                 <div className={`td-state ${status === "Approved" ? "approved" : status === "For Approval" ? "review" : "waiting"}`}>
-                  <ShieldCheck size={13} /> {status === "Approved" ? "Approved" : status === "For Approval" ? "In review" : "Waiting"}
+                  <ShieldCheck size={13} /> {status === "Approved" ? "Approved" : status === "For Approval" ? "Under review" : "Waiting"}
                 </div>
               </div>
               <h2>Move the handoff forward deliberately.</h2>

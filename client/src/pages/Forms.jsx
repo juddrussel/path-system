@@ -955,7 +955,7 @@ function FacultySubmissionsWorkspace({
   const [selectedId, setSelectedId] = useState("");
   const matchesFilter = (row) => {
     if (filter === "All") return true;
-    if (filter === "In review") return /pending|review/i.test(row.status || "");
+    if (filter === "Under review") return /pending|review/i.test(row.status || "");
     if (filter === "Returned") return /revision|return/i.test(row.status || "");
     if (filter === "Drafts") return /draft/i.test(row.status || "");
     return new RegExp(filter, "i").test(row.status || "");
@@ -977,7 +977,7 @@ function FacultySubmissionsWorkspace({
   const nextStep = (row) => {
     const status = statusFor(row);
     if (/revision|return/i.test(status)) return "Update and resubmit";
-    if (/approved/i.test(status)) return "Workflow complete";
+    if (/approved/i.test(status)) return "Process completed";
     if (/reject/i.test(status)) return "Decision recorded";
     if (/review|pending/i.test(status)) return "With reviewer";
     return "Complete draft";
@@ -1067,7 +1067,7 @@ function FacultySubmissionsWorkspace({
               <small>Across your active and completed work</small>
             </article>
             <article className="faculty-submissions-stat">
-              <span>In review</span>
+              <span>Under review</span>
               <strong>
                 {String(
                   stats.pending ||
@@ -1076,7 +1076,7 @@ function FacultySubmissionsWorkspace({
                     ).length,
                 ).padStart(2, "0")}
               </strong>
-              <small>Currently with a reviewer</small>
+              <small>Currently being reviewed</small>
             </article>
             <article className="faculty-submissions-stat returned">
               <span>Returned</span>
@@ -1087,7 +1087,7 @@ function FacultySubmissionsWorkspace({
                   ).length,
                 ).padStart(2, "0")}
               </strong>
-              <small>Needs an updated file</small>
+              <small>Needs revision and resubmission</small>
             </article>
             <article className="faculty-submissions-stat">
               <span>Drafts</span>
@@ -1096,7 +1096,7 @@ function FacultySubmissionsWorkspace({
                   forms.filter((row) => /draft/i.test(row.status || "")).length,
                 ).padStart(2, "0")}
               </strong>
-              <small>Ready to complete</small>
+              <small>Incomplete submission</small>
             </article>
           </section>
           <section className="faculty-submissions-toolbar">
@@ -1108,7 +1108,7 @@ function FacultySubmissionsWorkspace({
                 All submissions <span>{visible.length}</span>
               </h2>
               <p>
-                Choose a record to see its status, next handoff, and available
+                Choose a record to see its status, next step, and available
                 action.
               </p>
             </div>
@@ -1122,7 +1122,7 @@ function FacultySubmissionsWorkspace({
                 />
               </label>
               <div className="faculty-submissions-filters">
-                {["All", "In review", "Returned", "Drafts", "Approved"].map(
+                {["All", "Under review", "Returned", "Drafts", "Approved"].map(
                   (item) => (
                     <button
                       type="button"
@@ -1261,7 +1261,7 @@ function FacultySubmissionsWorkspace({
                       <strong>{typeFor(selected)}</strong>
                     </div>
                     <div>
-                      <span>Next handoff</span>
+                      <span>Next step</span>
                       <strong>{nextStep(selected)}</strong>
                     </div>
                   </div>
@@ -2707,7 +2707,7 @@ export default function Forms() {
                   </div>
                   <h1>Review queue</h1>
                   <p>
-                    Review assigned form submissions, clarify the next handoff,
+                    Review assigned form submissions, clarify the next step,
                     and record an accountable decision.
                   </p>
                 </div>
