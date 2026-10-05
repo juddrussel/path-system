@@ -8,10 +8,122 @@
   </head>
   <body>
     <noscript>
-      <div style="padding: 40px; text-align: center; font-family: sans-serif;">
-        <h1>JavaScript Required</h1>
-        <p>DS PATH requires JavaScript to be enabled in your browser.</p>
-        <p>Please enable JavaScript and reload the page.</p>
+      <style>
+        .noscript-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          margin: 0;
+          padding: 20px;
+        }
+        .noscript-card {
+          background: white;
+          border-radius: 16px;
+          padding: 48px 40px;
+          max-width: 500px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          text-align: center;
+        }
+        .noscript-icon {
+          width: 80px;
+          height: 80px;
+          margin: 0 auto 24px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 40px;
+        }
+        .noscript-title {
+          font-size: 28px;
+          font-weight: 700;
+          color: #1a202c;
+          margin: 0 0 16px 0;
+        }
+        .noscript-description {
+          font-size: 16px;
+          color: #4a5568;
+          line-height: 1.6;
+          margin: 0 0 24px 0;
+        }
+        .noscript-steps {
+          text-align: left;
+          background: #f7fafc;
+          padding: 24px;
+          border-radius: 12px;
+          margin-top: 24px;
+        }
+        .noscript-steps h3 {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2d3748;
+          margin: 0 0 12px 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .noscript-steps ol {
+          margin: 0;
+          padding-left: 20px;
+          color: #4a5568;
+          font-size: 14px;
+          line-height: 1.8;
+        }
+        .noscript-steps li {
+          margin-bottom: 8px;
+        }
+        .noscript-steps code {
+          background: #e2e8f0;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-family: 'Courier New', monospace;
+          font-size: 13px;
+          color: #2d3748;
+        }
+        .noscript-footer {
+          margin-top: 24px;
+          padding-top: 24px;
+          border-top: 1px solid #e2e8f0;
+          font-size: 14px;
+          color: #718096;
+        }
+        .noscript-logo {
+          font-size: 24px;
+          font-weight: 700;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-bottom: 8px;
+        }
+      </style>
+      <div class="noscript-container">
+        <div class="noscript-card">
+          <div class="noscript-icon">⚡</div>
+          <div class="noscript-logo">DS PATH</div>
+          <h1 class="noscript-title">JavaScript is Disabled</h1>
+          <p class="noscript-description">
+            DS PATH requires JavaScript to provide you with an interactive document management experience. 
+            Please enable JavaScript in your browser to continue.
+          </p>
+          
+          <div class="noscript-steps">
+            <h3>How to Enable JavaScript</h3>
+            <ol>
+              <li><strong>Chrome/Edge:</strong> Settings → Privacy and security → Site settings → JavaScript → <code>Allowed</code></li>
+              <li><strong>Firefox:</strong> Type <code>about:config</code> in address bar → Search <code>javascript.enabled</code> → Set to <code>true</code></li>
+              <li><strong>Safari:</strong> Preferences → Security → Enable JavaScript ✓</li>
+              <li>Reload this page after enabling</li>
+            </ol>
+          </div>
+
+          <div class="noscript-footer">
+            Need help? Contact your system administrator
+          </div>
+        </div>
       </div>
     </noscript>
     <div id="root"><!--app-html--></div>
