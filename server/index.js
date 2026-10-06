@@ -52,11 +52,19 @@ const {
   validateRequestSize,
   mongoSanitize 
 } = require("./middleware/security");
-const {
-  securityAuditLogger,
-  accessLogger,
-  suspiciousActivityMonitor,
-} = require("./middleware/securityLogger");
+
+// Security logger - optional, won't crash if it fails
+let securityLogger = { 
+  securityAuditLogger: (req, res, next) => next(),
+  accessLogger: (req, res, next) => next(),
+  suspiciousActivityMonitor: (req, res, next) => next()
+};
+try {
+  securityLogger = require("./middleware/securityLogger");
+} catch (err) {
+  console.warn("[SECURITY] Security logger not available, running without logging:", err.message);
+}
+const { securityAuditLogger, accessLogger, suspiciousActivityMonitor } = securityLogger;
 
 const { router: auditRoutes } = require("./routes/audit.routes");
 const { router: taskRoutes, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
