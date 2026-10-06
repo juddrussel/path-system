@@ -260,9 +260,6 @@ io.on("connection", (socket) => {
       for (const { group_id } of groups) {
         socket.join(`group_${group_id}`);
       }
-      if (groups.length > 0) {
-        console.log(`User ${userId} auto-joined ${groups.length} group room(s)`);
-      }
     } catch (err) {
       console.error(`Failed to auto-join group rooms for user ${userId}:`, err.message);
     }
@@ -272,7 +269,6 @@ io.on("connection", (socket) => {
   socket.on("join_role_room", ({ role }) => {
     if (["program_chair", "admin"].includes(role)) {
       socket.join("program_chairs");
-      console.log(`Socket ${socket.id} joined program_chairs room`);
     }
   });
 
@@ -302,7 +298,6 @@ io.on("connection", (socket) => {
 
   socket.on("join_document", (docId) => {
     socket.join(`doc_${docId}`);
-    console.log(`Socket ${socket.id} joined doc_${docId}`);
   });
 
   socket.on("leave_document", (docId) => {
@@ -312,7 +307,6 @@ io.on("connection", (socket) => {
   // ── Workflow real-time collaboration ────────────────────────────────────
   socket.on("join_workflow", (workflowId) => {
     socket.join(`workflow_${workflowId}`);
-    console.log(`Socket ${socket.id} joined workflow_${workflowId}`);
   });
 
   socket.on("leave_workflow", (workflowId) => {
@@ -322,12 +316,10 @@ io.on("connection", (socket) => {
   // ── Task collaboration: real-time comment updates ──────────────────────────
   socket.on("join_task", ({ taskId }) => {
     socket.join(`task_${taskId}`);
-    console.log(`Socket ${socket.id} joined task_${taskId}`);
   });
 
   socket.on("leave_task", ({ taskId }) => {
     socket.leave(`task_${taskId}`);
-    console.log(`Socket ${socket.id} left task_${taskId}`);
   });
 
   // ── Typing indicators ───────────────────────────────────────────────────
@@ -399,7 +391,6 @@ io.on("connection", (socket) => {
   // even if the auto-join on register happened before the group was created).
   socket.on("join_group", (groupId) => {
     socket.join(`group_${groupId}`);
-    console.log(`Socket ${socket.id} joined group_${groupId}`);
   });
 
   socket.on("leave_group", (groupId) => {
@@ -430,7 +421,6 @@ io.on("connection", (socket) => {
       }
     }
     io.emit("online_users", Array.from(onlineUsers.keys()));
-    console.log("Socket disconnected:", socket.id);
   });
 });
 
@@ -443,7 +433,6 @@ startDeadlineReminderJob(io);
 // ── Faculty performance scoring: seed once at boot, then nightly via cron ──────
 startScoreCron(db);
 recalculateAllScores(db, { keepHistory: false })
-  .then((result) => console.log("[facultyScore] Initial score seed complete:", result))
   .catch((err) => console.error("[facultyScore] Initial score seed failed:", err));
 
 // ── SLA email alerts: hourly before/after-deadline check ───────────────────────
@@ -452,8 +441,6 @@ startSlaCron();
 // ── Auto-run collaborative tasks migration on startup ──────────────────────────
 async function runCollaborativeMigration() {
   try {
-    console.log("[Startup] Checking collaborative tasks schema...");
-    
     // Check if tables exist
     const [tables] = await db.query(`
       SELECT TABLE_NAME FROM information_schema.TABLES 
@@ -462,11 +449,8 @@ async function runCollaborativeMigration() {
     `);
     
     if (tables.length === 2) {
-      console.log("[Startup] ✓ Collaborative tasks schema already exists");
       return;
     }
-    
-    console.log("[Startup] Running collaborative tasks schema migration...");
     
     // 1. Update tasks table
     await db.query(`
@@ -476,7 +460,6 @@ async function runCollaborativeMigration() {
       ADD COLUMN IF NOT EXISTS all_confirmed_at DATETIME AFTER current_output_version,
       ADD COLUMN IF NOT EXISTS submitted_at DATETIME AFTER all_confirmed_at
     `);
-    console.log("[Startup] ✓ tasks table updated");
 
     // 2. Create task_final_outputs table
     await db.query(`
@@ -498,7 +481,6 @@ async function runCollaborativeMigration() {
         FOREIGN KEY (uploaded_by) REFERENCES users(id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log("[Startup] ✓ task_final_outputs table created");
 
     // 3. Create task_confirmations table
     await db.query(`
@@ -521,7 +503,6 @@ async function runCollaborativeMigration() {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log("[Startup] ✓ task_confirmations table created");
 
     // 4. Update task_collaborators table
     await db.query(`
@@ -530,7 +511,6 @@ async function runCollaborativeMigration() {
       ADD COLUMN IF NOT EXISTS current_version_confirmed TINYINT DEFAULT 0 AFTER confirmed_at,
       ADD KEY idx_role (role)
     `);
-    console.log("[Startup] ✓ task_collaborators table updated");
 
     // 5. Create task_comments table (if it doesn't exist)
     await db.query(`
@@ -549,9 +529,7 @@ async function runCollaborativeMigration() {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log("[Startup] ✓ task_comments table created");
 
-    console.log("[Startup] ✓ Collaborative tasks schema migration completed successfully!");
   } catch (err) {
     console.error("[Startup] Migration error:", err.message);
     // Don't exit — let server start anyway; schema may already exist
@@ -565,9 +543,7 @@ runCollaborativeMigration();
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`SSR: ${SSR_ENABLED ? "✓ enabled" : "✗ disabled"} (set ENABLE_SSR=true to enable)`);
   if (SSR_ENABLED) {
-    const ssrStatus = ssrMiddleware.getSSRStatus();
-    console.log(`SSR routes: ${ssrStatus.routes.join(", ")}`);
+    console.log(`SSR enabled`);
   }
 });
