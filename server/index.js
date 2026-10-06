@@ -257,7 +257,7 @@ try {
 
 // 6. NoSQL/SQL injection protection (with error handling)
 try {
-  app.use(mongoSanitize);
+  // Note: mongoSanitize is incompatible with Express 5.x, using custom SQL injection protection only
   app.use(sqlInjectionProtection);
 } catch (err) {
   console.error("[SECURITY] Injection protection failed, continuing without it:", err.message);
