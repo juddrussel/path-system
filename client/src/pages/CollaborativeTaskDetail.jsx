@@ -663,6 +663,7 @@ export default function CollaborativeTaskDetail() {
   const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
   const [imageLoadingStates, setImageLoadingStates] = useState({});
   const [imageBlobUrls, setImageBlobUrls] = useState({});
+  const [fileBlobUrls, setFileBlobUrls] = useState({});
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
 
   const finalInputRef = useRef(null);
@@ -771,6 +772,56 @@ export default function CollaborativeTaskDetail() {
       socket.emit("leave_task", { taskId: parseInt(taskId) });
     };
   }, [taskId, token, api]);
+
+  // Create blob URLs for attachments and latest version
+  useEffect(() => {
+    const blobUrls = {};
+    const promises = [];
+
+    // Create blob URLs for attachments
+    if (attachments && attachments.length > 0) {
+      attachments.forEach((file) => {
+        const fileUrl = file.file_url;
+        if (fileUrl) {
+          const fileKey = `attachment-${file.id || fileUrl}`;
+          promises.push(
+            createAuthenticatedBlobUrl(api, fileUrl)
+              .then(blobUrl => {
+                blobUrls[fileKey] = blobUrl;
+              })
+              .catch(err => {
+                console.error(`Failed to create blob URL for attachment ${fileKey}:`, err);
+              })
+          );
+        }
+      });
+    }
+
+    // Create blob URL for the latest version
+    if (versions && versions.length > 0 && versions[0]?.file_url) {
+      const fileKey = `version-${versions[0].id || versions[0].file_url}`;
+      promises.push(
+        createAuthenticatedBlobUrl(api, versions[0].file_url)
+          .then(blobUrl => {
+            blobUrls[fileKey] = blobUrl;
+          })
+          .catch(err => {
+            console.error(`Failed to create blob URL for version ${fileKey}:`, err);
+          })
+      );
+    }
+
+    Promise.all(promises).then(() => {
+      setFileBlobUrls(blobUrls);
+    });
+
+    // Cleanup: revoke all blob URLs when component unmounts or files change
+    return () => {
+      Object.values(blobUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [attachments, versions, api]);
 
   // Socket listeners
   useEffect(() => {
@@ -1699,6 +1750,8 @@ export default function CollaborativeTaskDetail() {
                     {versions[0].files && versions[0].files.length > 0 ? (
                       versions[0].files.map((file, idx) => {
                         const isPdf = /\.pdf$/i.test(file.file_name);
+                        const fileKey = `attachment-${file.id || file.file_url}`;
+                        const fileBlobUrl = fileBlobUrls[fileKey] || r2ToProxyUrl(api, file.file_url);
                         return (
                           <div
                             key={idx}
@@ -1748,7 +1801,7 @@ export default function CollaborativeTaskDetail() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                window.open(r2ToProxyUrl(api, file.file_url), '_blank');
+                                window.open(fileBlobUrl, '_blank');
                               }}
                               style={{
                                 display: 'inline-flex',
@@ -1816,7 +1869,9 @@ export default function CollaborativeTaskDetail() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(r2ToProxyUrl(api, versions[0].file_url), '_blank');
+                            const fileKey = `version-${versions[0].id || versions[0].file_url}`;
+                            const fileBlobUrl = fileBlobUrls[fileKey] || r2ToProxyUrl(api, versions[0].file_url);
+                            window.open(fileBlobUrl, '_blank');
                           }}
                           style={{
                             display: 'inline-flex',

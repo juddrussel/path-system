@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const resolveUrl = (value) => resolveFileUrl(API, value);
@@ -75,6 +75,36 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
   const [resubmitFiles, setResubmitFiles] = useState([]);
   const [resubmitting, setResubmitting] = useState(false);
   const [activeVersion, setActiveVersion] = useState(null);
+  const [documentBlobUrl, setDocumentBlobUrl] = useState(null);
+  const [loadingBlob, setLoadingBlob] = useState(false);
+
+  // Create authenticated blob URL for the document
+  useEffect(() => {
+    let blobUrl = null;
+    
+    if (documentUrl) {
+      setLoadingBlob(true);
+      createAuthenticatedBlobUrl(apiUrl, documentUrl)
+        .then(url => {
+          blobUrl = url;
+          setDocumentBlobUrl(url);
+        })
+        .catch(err => {
+          console.error('Failed to create blob URL:', err);
+          setDocumentBlobUrl(null);
+        })
+        .finally(() => {
+          setLoadingBlob(false);
+        });
+    }
+
+    // Cleanup: revoke blob URL when component unmounts or documentUrl changes
+    return () => {
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [documentUrl, apiUrl]);
 
   const headers = { Authorization: `Bearer ${token}` };
   const loadRecord = async () => {
@@ -410,9 +440,10 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
                       {documentUrl && (
                         <button
                           type="button"
-                          onClick={() => window.open(documentUrl, "_blank")}
+                          onClick={() => window.open(documentBlobUrl || documentUrl, "_blank")}
+                          disabled={loadingBlob}
                         >
-                          Open file ↗
+                          {loadingBlob ? 'Loading...' : 'Open file ↗'}
                         </button>
                       )}
                     </div>

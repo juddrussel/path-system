@@ -262,6 +262,7 @@ export default function TaskDetail() {
   const commentFileInputRef = useRef(null);
   const [submissionBlobUrl, setSubmissionBlobUrl] = useState(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
+  const [fileBlobUrls, setFileBlobUrls] = useState({});
 
   const loadTask = async () => {
     if (!taskId) return;
@@ -510,6 +511,41 @@ export default function TaskDetail() {
   
   const latestSubmissionGroup = submissionGroups[0] || null;
   const latestSubmission = latestSubmissionGroup?.files?.[0] || null;
+  
+  // Create blob URLs for all files in latest submission
+  useEffect(() => {
+    const blobUrls = {};
+    const promises = [];
+
+    if (latestSubmissionGroup?.files) {
+      latestSubmissionGroup.files.forEach((file) => {
+        const fileUrl = file.file_url || file.url || file.path || file.file_path;
+        if (fileUrl) {
+          const fileKey = `${file.id || fileUrl}`;
+          promises.push(
+            createAuthenticatedBlobUrl(api, fileUrl)
+              .then(blobUrl => {
+                blobUrls[fileKey] = blobUrl;
+              })
+              .catch(err => {
+                console.error(`Failed to create blob URL for ${fileKey}:`, err);
+              })
+          );
+        }
+      });
+    }
+
+    Promise.all(promises).then(() => {
+      setFileBlobUrls(blobUrls);
+    });
+
+    // Cleanup: revoke all blob URLs when component unmounts or files change
+    return () => {
+      Object.values(blobUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [latestSubmissionGroup, api]);
   
   const attachments =
     task?.attachments || task?.task_attachments || task?.files || [];
@@ -1591,6 +1627,8 @@ export default function TaskDetail() {
                           api,
                           file.file_url || file.url || file.path || file.file_path
                         );
+                        const fileKey = `${file.id || (file.file_url || file.url || file.path || file.file_path)}`;
+                        const fileBlobUrl = fileBlobUrls[fileKey] || fileUrl;
                         const fileExt = fileName.split('.').pop()?.toLowerCase();
                         const isPdf = fileExt === 'pdf';
                         const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt || '');
@@ -1675,7 +1713,7 @@ export default function TaskDetail() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => window.open(fileUrl, '_blank')}
+                              onClick={() => window.open(fileBlobUrl, '_blank')}
                               style={{
                                 display: 'grid',
                                 width: '32px',
