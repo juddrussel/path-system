@@ -16,128 +16,6 @@ require("dotenv").config();
 const ssrMiddleware = require("./ssr");
 const SSR_ENABLED = process.env.ENABLE_SSR === "true";
 
-// ── DEBUG: confirm .env is loaded ──
-console.log("ENV CHECK:", {
-  DB_HOST: process.env.DB_HOST,
-  DB_USER: process.env.DB_USER,
-  DB_PASS: process.env.DB_PASS,
-  DB_NAME: process.env.DB_NAME,
-  JWT_SECRET: process.env.JWT_SECRET,
-  R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID ? "✓ set" : "✗ missing",
-  R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID ? "✓ set" : "✗ missing",
-  R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY ? "✓ set" : "✗ missing",
-  R2_BUCKET_NAME: process.env.R2_BUCKET_NAME || "✗ missing",
-  R2_PUBLIC_URL: process.env.R2_PUBLIC_URL || "✗ missing",
-  ENABLE_SSR: SSR_ENABLED ? "✓ enabled" : "✗ disabled",
-});
-
-const authRoutes = require("./routes/auth.routes");
-const passport   = require("passport");
-// Passport strategies are registered inside auth.routes.js on require
-const userRoutes = require("./routes/user.routes");
-const chatRoutes = require("./routes/chat.routes");
-
-// Security middleware (with safe imports)
-let rateLimiters = {
-  loginLimiter: (req, res, next) => next(),
-  registerLimiter: (req, res, next) => next(),
-  passwordResetLimiter: (req, res, next) => next(),
-  uploadLimiter: (req, res, next) => next(),
-  apiLimiter: (req, res, next) => next(),
-  globalLimiter: (req, res, next) => next(),
-};
-let securityMiddleware = {
-  sqlInjectionProtection: (req, res, next) => next(),
-  hppProtection: (req, res, next) => next(),
-  validateRequestSize: () => (req, res, next) => next(),
-  mongoSanitize: (req, res, next) => next(),
-};
-let securityLogger = { 
-  securityAuditLogger: (req, res, next) => next(),
-  accessLogger: (req, res, next) => next(),
-  suspiciousActivityMonitor: (req, res, next) => next()
-};
-
-// Try to load security middleware
-try {
-  rateLimiters = require("./middleware/rateLimiter");
-  console.log("[SECURITY] ✓ Rate limiters loaded");
-} catch (err) {
-  console.warn("[SECURITY] Rate limiters not available:", err.message);
-}
-
-try {
-  securityMiddleware = require("./middleware/security");
-  console.log("[SECURITY] ✓ Security middleware loaded");
-} catch (err) {
-  console.warn("[SECURITY] Security middleware not available:", err.message);
-}
-
-try {
-  securityLogger = require("./middleware/securityLogger");
-  console.log("[SECURITY] ✓ Security logger loaded");
-} catch (err) {
-  console.warn("[SECURITY] Security logger not available:", err.message);
-}
-
-const { 
-  loginLimiter, 
-  registerLimiter, 
-  passwordResetLimiter, 
-  uploadLimiter,
-  apiLimiter,
-  globalLimiter 
-} = rateLimiters;
-
-const { 
-  sqlInjectionProtection, 
-  hppProtection, 
-  validateRequestSize,
-  mongoSanitize 
-} = securityMiddleware;
-
-const { securityAuditLogger, accessLogger, suspiciousActivityMonitor } = securityLogger;
-
-const { router: auditRoutes } = require("./routes/audit.routes");
-const { router: taskRoutes, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
-const { router: notificationRoutes } = require("./routes/notification.routes");
-const collaborativeRoutes = require("./routes/collaborative.routes");
-const formRoutes = require("./routes/form.routes");
-const migrationRoutes = require("./routes/migration.routes"); // TEMPORARY - DELETE AFTER MIGRATION
-const categoryRoutes = require("./routes/category.routes");
-const workflowRoutes = require("./routes/workflow.routes");
-const facultyRoutes = require("./routes/facultyRoutes");
-const slaRoutes = require("./routes/slaRoutes");
-const trackingRoutes = require("./routes/tracking.routes");
-const academicRoutes = require("./routes/academic.routes");
-const fileProxyRoutes = require("./routes/file.proxy.routes");
-const startScoreCron = require("./jobs/scoreCron");
-const { startSlaCron } = require("./cron/slaCron");
-const { recalculateAllScores } = require("./services/facultyScoreService");
-const db = require("./config/db");
-const jwt = require("jsonwebtoken");
-
-
-// ── Inline requireAuth (used only for avatar upload route here) ──
-function requireAuth(req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Bearer "))
-    return res.status(401).json({ message: "Unauthorized." });
-  try {
-    req.user = jwt.verify(auth.split(" ")[1], process.env.JWT_SECRET);
-    next();
-  } catch {
-    return res.status(401).json({ message: "Invalid or expired token." });
-  }
-}
-
-const app = express();
-const server = http.createServer(app);
-
-// ── CORS origin (env-driven, falls back to local dev URL) ──
-// In production, set CORS_ORIGIN in .env to your frontend URL
-const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
-
 // Parse CORS_ORIGIN into array if comma-separated
 const ALLOWED_ORIGINS = CORS_ORIGIN === "*" 
   ? "*" 
@@ -280,21 +158,6 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use("/uploads", express.static("./uploads"));
 
-// 9. Security logging and monitoring (with error handling)
-try {
-  app.use(accessLogger);
-  app.use(securityAuditLogger);
-  app.use(suspiciousActivityMonitor);
-} catch (err) {
-  console.error("[SECURITY] Security logging failed, continuing without it:", err.message);
-}
-
-// ── DEBUG: log every incoming request ──
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.path}`, req.body);
-  next();
-});
-
 // ── Avatar upload route ──
 app.post("/api/users/:id/avatar", requireAuth, upload.single("avatar"), async (req, res) => {
   try {
@@ -352,24 +215,18 @@ app.use("/api/files", uploadLimiter, fileProxyRoutes);
 const uploadRoute = require("./routes/upload");
 app.use("/api", uploadRoute);
 
-// ════════════════════════════════════════════════════════════════════════════
-// SSR & STATIC FILE SERVING
-// ════════════════════════════════════════════════════════════════════════════
-
+// ── SSR & STATIC FILE SERVING ────────────────────────────────────────────────
 // SSR Middleware - handles server-side rendering of public pages
 // Must come BEFORE static file serving so SSR can intercept public routes
 // Falls through to next() if SSR is disabled or route is not SSR-enabled
 app.use(ssrMiddleware);
 
 // Static file serving for client assets (JS, CSS, images)
-// This serves the built client files (dist folder)
 const clientDistPath = path.resolve(__dirname, "../client/dist");
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
-  console.log(`[Static] Serving client assets from: ${clientDistPath}`);
 } else {
   console.warn(`[Static] Client dist folder not found at: ${clientDistPath}`);
-  console.warn(`[Static] Run 'npm run build' in client directory to generate production files`);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -388,13 +245,10 @@ app.use((req, res) => {
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
-
   socket.on("register", async (userId) => {
     socket.userId = String(userId);   // ← required by setupTypingEvents
     onlineUsers.set(String(userId), socket.id);
     socket.join(`user_${userId}`);
-    console.log(`User ${userId} registered, joined user_${userId}`);
     io.emit("online_users", Array.from(onlineUsers.keys()));
 
     // Auto-join all group rooms this user belongs to so broadcasts reach them
