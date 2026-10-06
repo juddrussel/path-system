@@ -3,6 +3,8 @@ dns.setDefaultResultOrder("ipv4first");
 
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const hpp = require("hpp");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -34,6 +36,27 @@ const passport   = require("passport");
 // Passport strategies are registered inside auth.routes.js on require
 const userRoutes = require("./routes/user.routes");
 const chatRoutes = require("./routes/chat.routes");
+
+// Security middleware
+const { 
+  loginLimiter, 
+  registerLimiter, 
+  passwordResetLimiter, 
+  uploadLimiter,
+  apiLimiter,
+  globalLimiter 
+} = require("./middleware/rateLimiter");
+const { 
+  sqlInjectionProtection, 
+  hppProtection, 
+  validateRequestSize,
+  mongoSanitize 
+} = require("./middleware/security");
+const {
+  securityAuditLogger,
+  accessLogger,
+  suspiciousActivityMonitor,
+} = require("./middleware/securityLogger");
 
 const { router: auditRoutes } = require("./routes/audit.routes");
 const { router: taskRoutes, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
@@ -72,7 +95,13 @@ const app = express();
 const server = http.createServer(app);
 
 // ── CORS origin (env-driven, falls back to local dev URL) ──
+// In production, set CORS_ORIGIN in .env to your frontend URL
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
+
+// Parse CORS_ORIGIN into array if comma-separated
+const ALLOWED_ORIGINS = CORS_ORIGIN === "*" 
+  ? "*" 
+  : CORS_ORIGIN.split(",").map(origin => origin.trim());
 
 // ── Socket.IO setup ──
 const io = new Server(server, {
@@ -108,12 +137,81 @@ const upload = multer({
   },
 });
 
-// ── Middleware ──
-app.use(cors({
-  origin: "*",  // Allow all origins in dev
-  credentials: false
+// ═══════════════════════════════════════════════════════════════════════════
+// SECURITY MIDDLEWARE (order matters!)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// 1. Helmet - Security headers (must be first)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: ["'self'", ...(ALLOWED_ORIGINS === "*" ? ["*"] : ALLOWED_ORIGINS)],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Needed for some APIs
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Needed for file serving
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  },
 }));
-app.use(express.json({ charset: 'utf-8' }));
+
+// 2. Global rate limiter (applies to all requests)
+app.use(globalLimiter);
+
+// 3. CORS configuration
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow all origins in dev mode
+    if (ALLOWED_ORIGINS === "*") return callback(null, true);
+    
+    // Check if origin is in whitelist
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[SECURITY] Blocked CORS request from unauthorized origin: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // Allow cookies
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+// 4. Body parsing with size limits
+app.use(express.json({ 
+  limit: "10mb", 
+  charset: 'utf-8' 
+}));
+app.use(express.urlencoded({ 
+  extended: true, 
+  limit: "10mb" 
+}));
+
+// 5. Request size validation
+app.use(validateRequestSize(10 * 1024 * 1024)); // 10MB max
+
+// 6. NoSQL/SQL injection protection
+app.use(mongoSanitize);
+app.use(sqlInjectionProtection);
+
+// 7. HTTP Parameter Pollution protection
+app.use(hpp());
+app.use(hppProtection);
+
+// 8. Standard middleware
 app.use((req, res, next) => {
   res.charset = 'utf-8';
   res.type('application/json; charset=utf-8');
@@ -121,6 +219,11 @@ app.use((req, res, next) => {
 });
 app.use(passport.initialize());
 app.use("/uploads", express.static("./uploads"));
+
+// 9. Security logging and monitoring
+app.use(accessLogger);
+app.use(securityAuditLogger);
+app.use(suspiciousActivityMonitor);
 
 // ── DEBUG: log every incoming request ──
 app.use((req, res, next) => {
@@ -147,23 +250,36 @@ app.get("/api/health", (req, res) => {
 // ── Make io accessible to route files via app ──
 app.set("io", io);
 
-// ── Routes ──
+// ═══════════════════════════════════════════════════════════════════════════
+// ROUTES WITH RATE LIMITING
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Auth routes with specific rate limiters
+app.use("/api/auth/login", loginLimiter);
+app.use("/api/auth/register", registerLimiter);
+app.use("/api/auth/forgot-password", passwordResetLimiter);
+app.use("/api/auth/reset-password", passwordResetLimiter);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/chat", chatRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/collaborative-tasks", collaborativeRoutes);
-app.use("/api/audit", auditRoutes);
-app.use("/api/forms", formRoutes);
-app.use("/api/migration", migrationRoutes); // TEMPORARY - DELETE AFTER RUNNING MIGRATION
-app.use("/api/categories", categoryRoutes);
-app.use("/api/workflows", workflowRoutes);
-app.use("/api/faculty", facultyRoutes(db));
-app.use("/api/sla", slaRoutes);
-app.use("/api/tracking", trackingRoutes);
-app.use("/api/academic", academicRoutes);
-app.use("/api/files", fileProxyRoutes);
+
+// Upload routes with upload limiter
+app.use("/api/users/:id/avatar", uploadLimiter);
+
+// API routes with standard limiter
+app.use("/api/users", apiLimiter, userRoutes);
+app.use("/api/chat", apiLimiter, chatRoutes);
+app.use("/api/tasks", apiLimiter, taskRoutes);
+app.use("/api/notifications", apiLimiter, notificationRoutes);
+app.use("/api/collaborative-tasks", apiLimiter, collaborativeRoutes);
+app.use("/api/audit", apiLimiter, auditRoutes);
+app.use("/api/forms", apiLimiter, formRoutes);
+app.use("/api/migration", apiLimiter, migrationRoutes); // TEMPORARY - DELETE AFTER RUNNING MIGRATION
+app.use("/api/categories", apiLimiter, categoryRoutes);
+app.use("/api/workflows", apiLimiter, workflowRoutes);
+app.use("/api/faculty", apiLimiter, facultyRoutes(db));
+app.use("/api/sla", apiLimiter, slaRoutes);
+app.use("/api/tracking", apiLimiter, trackingRoutes);
+app.use("/api/academic", apiLimiter, academicRoutes);
+app.use("/api/files", uploadLimiter, fileProxyRoutes);
 
 // ── Collaborative editing (Phase 2+) – persistence & audit ──
 // REMOVED: Collab editing no longer needed
