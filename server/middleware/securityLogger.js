@@ -2,10 +2,20 @@
 const fs = require("fs");
 const path = require("path");
 
-// Ensure logs directory exists
+// Ensure logs directory exists (with error handling for read-only filesystems)
 const LOG_DIR = path.join(__dirname, "../logs");
-if (!fs.existsSync(LOG_DIR)) {
-  fs.mkdirSync(LOG_DIR, { recursive: true });
+let LOG_ENABLED = true;
+try {
+  if (!fs.existsSync(LOG_DIR)) {
+    fs.mkdirSync(LOG_DIR, { recursive: true });
+  }
+  // Test write access
+  const testFile = path.join(LOG_DIR, ".write-test");
+  fs.writeFileSync(testFile, "test");
+  fs.unlinkSync(testFile);
+} catch (err) {
+  console.warn("[SECURITY] Cannot write to logs directory, logging disabled:", err.message);
+  LOG_ENABLED = false;
 }
 
 const SECURITY_LOG_FILE = path.join(LOG_DIR, "security.log");
@@ -16,6 +26,8 @@ const ACCESS_LOG_FILE = path.join(LOG_DIR, "access.log");
 // ═══════════════════════════════════════════════════════════════════════════
 
 function writeLog(file, message) {
+  if (!LOG_ENABLED) return; // Skip if logging is disabled
+  
   const timestamp = new Date().toISOString();
   const logEntry = `[${timestamp}] ${message}\n`;
   
@@ -167,6 +179,8 @@ setInterval(() => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function rotateLogs() {
+  if (!LOG_ENABLED) return; // Skip if logging is disabled
+  
   const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB
   
   [SECURITY_LOG_FILE, ACCESS_LOG_FILE].forEach(logFile => {
