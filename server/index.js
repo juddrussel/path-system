@@ -150,31 +150,39 @@ const upload = multer({
 // ═══════════════════════════════════════════════════════════════════════════
 
 // 1. Helmet - Security headers (must be first)
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      connectSrc: ["'self'", ...(ALLOWED_ORIGINS === "*" ? ["*"] : ALLOWED_ORIGINS)],
-      frameSrc: ["'none'"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+try {
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        connectSrc: ["'self'", ...(ALLOWED_ORIGINS === "*" ? ["*"] : ALLOWED_ORIGINS)],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
     },
-  },
-  crossOriginEmbedderPolicy: false, // Needed for some APIs
-  crossOriginResourcePolicy: { policy: "cross-origin" }, // Needed for file serving
-  hsts: {
-    maxAge: 31536000, // 1 year
-    includeSubDomains: true,
-    preload: true,
-  },
-}));
+    crossOriginEmbedderPolicy: false, // Needed for some APIs
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Needed for file serving
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
+  }));
+} catch (err) {
+  console.error("[SECURITY] Helmet middleware failed, continuing without it:", err.message);
+}
 
 // 2. Global rate limiter (applies to all requests)
-app.use(globalLimiter);
+try {
+  app.use(globalLimiter);
+} catch (err) {
+  console.error("[SECURITY] Rate limiter failed, continuing without it:", err.message);
+}
 
 // 3. CORS configuration
 app.use(cors({
@@ -208,16 +216,28 @@ app.use(express.urlencoded({
   limit: "10mb" 
 }));
 
-// 5. Request size validation
-app.use(validateRequestSize(10 * 1024 * 1024)); // 10MB max
+// 5. Request size validation (with error handling)
+try {
+  app.use(validateRequestSize(10 * 1024 * 1024)); // 10MB max
+} catch (err) {
+  console.error("[SECURITY] Request size validation failed, continuing without it:", err.message);
+}
 
-// 6. NoSQL/SQL injection protection
-app.use(mongoSanitize);
-app.use(sqlInjectionProtection);
+// 6. NoSQL/SQL injection protection (with error handling)
+try {
+  app.use(mongoSanitize);
+  app.use(sqlInjectionProtection);
+} catch (err) {
+  console.error("[SECURITY] Injection protection failed, continuing without it:", err.message);
+}
 
-// 7. HTTP Parameter Pollution protection
-app.use(hpp());
-app.use(hppProtection);
+// 7. HTTP Parameter Pollution protection (with error handling)
+try {
+  app.use(hpp());
+  app.use(hppProtection);
+} catch (err) {
+  console.error("[SECURITY] HPP protection failed, continuing without it:", err.message);
+}
 
 // 8. Standard middleware
 app.use((req, res, next) => {
@@ -228,10 +248,14 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use("/uploads", express.static("./uploads"));
 
-// 9. Security logging and monitoring
-app.use(accessLogger);
-app.use(securityAuditLogger);
-app.use(suspiciousActivityMonitor);
+// 9. Security logging and monitoring (with error handling)
+try {
+  app.use(accessLogger);
+  app.use(securityAuditLogger);
+  app.use(suspiciousActivityMonitor);
+} catch (err) {
+  console.error("[SECURITY] Security logging failed, continuing without it:", err.message);
+}
 
 // ── DEBUG: log every incoming request ──
 app.use((req, res, next) => {
