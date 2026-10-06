@@ -16,6 +16,110 @@ require("dotenv").config();
 const ssrMiddleware = require("./ssr");
 const SSR_ENABLED = process.env.ENABLE_SSR === "true";
 
+const authRoutes = require("./routes/auth.routes");
+const passport   = require("passport");
+// Passport strategies are registered inside auth.routes.js on require
+const userRoutes = require("./routes/user.routes");
+const chatRoutes = require("./routes/chat.routes");
+
+// Security middleware (with safe imports)
+let rateLimiters = {
+  loginLimiter: (req, res, next) => next(),
+  registerLimiter: (req, res, next) => next(),
+  passwordResetLimiter: (req, res, next) => next(),
+  uploadLimiter: (req, res, next) => next(),
+  apiLimiter: (req, res, next) => next(),
+  globalLimiter: (req, res, next) => next(),
+};
+let securityMiddleware = {
+  sqlInjectionProtection: (req, res, next) => next(),
+  hppProtection: (req, res, next) => next(),
+  validateRequestSize: () => (req, res, next) => next(),
+  mongoSanitize: (req, res, next) => next(),
+};
+let securityLogger = { 
+  securityAuditLogger: (req, res, next) => next(),
+  accessLogger: (req, res, next) => next(),
+  suspiciousActivityMonitor: (req, res, next) => next()
+};
+
+// Try to load security middleware
+try {
+  rateLimiters = require("./middleware/rateLimiter");
+} catch (err) {
+  console.warn("[SECURITY] Rate limiters not available:", err.message);
+}
+
+try {
+  securityMiddleware = require("./middleware/security");
+} catch (err) {
+  console.warn("[SECURITY] Security middleware not available:", err.message);
+}
+
+try {
+  securityLogger = require("./middleware/securityLogger");
+} catch (err) {
+  console.warn("[SECURITY] Security logger not available:", err.message);
+}
+
+const { 
+  loginLimiter, 
+  registerLimiter, 
+  passwordResetLimiter, 
+  uploadLimiter,
+  apiLimiter,
+  globalLimiter 
+} = rateLimiters;
+
+const { 
+  sqlInjectionProtection, 
+  hppProtection, 
+  validateRequestSize,
+  mongoSanitize 
+} = securityMiddleware;
+
+const { securityAuditLogger, accessLogger, suspiciousActivityMonitor } = securityLogger;
+
+const { router: auditRoutes } = require("./routes/audit.routes");
+const { router: taskRoutes, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
+const { router: notificationRoutes } = require("./routes/notification.routes");
+const collaborativeRoutes = require("./routes/collaborative.routes");
+const formRoutes = require("./routes/form.routes");
+const migrationRoutes = require("./routes/migration.routes"); // TEMPORARY - DELETE AFTER MIGRATION
+const categoryRoutes = require("./routes/category.routes");
+const workflowRoutes = require("./routes/workflow.routes");
+const facultyRoutes = require("./routes/facultyRoutes");
+const slaRoutes = require("./routes/slaRoutes");
+const trackingRoutes = require("./routes/tracking.routes");
+const academicRoutes = require("./routes/academic.routes");
+const fileProxyRoutes = require("./routes/file.proxy.routes");
+const startScoreCron = require("./jobs/scoreCron");
+const { startSlaCron } = require("./cron/slaCron");
+const { recalculateAllScores } = require("./services/facultyScoreService");
+const db = require("./config/db");
+const jwt = require("jsonwebtoken");
+
+
+// ── Inline requireAuth (used only for avatar upload route here) ──
+function requireAuth(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Bearer "))
+    return res.status(401).json({ message: "Unauthorized." });
+  try {
+    req.user = jwt.verify(auth.split(" ")[1], process.env.JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ message: "Invalid or expired token." });
+  }
+}
+
+const app = express();
+const server = http.createServer(app);
+
+// ── CORS origin (env-driven, falls back to local dev URL) ──
+// In production, set CORS_ORIGIN in .env to your frontend URL
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
+
 // Parse CORS_ORIGIN into array if comma-separated
 const ALLOWED_ORIGINS = CORS_ORIGIN === "*" 
   ? "*" 
