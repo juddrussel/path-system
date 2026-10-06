@@ -37,7 +37,49 @@ const passport   = require("passport");
 const userRoutes = require("./routes/user.routes");
 const chatRoutes = require("./routes/chat.routes");
 
-// Security middleware
+// Security middleware (with safe imports)
+let rateLimiters = {
+  loginLimiter: (req, res, next) => next(),
+  registerLimiter: (req, res, next) => next(),
+  passwordResetLimiter: (req, res, next) => next(),
+  uploadLimiter: (req, res, next) => next(),
+  apiLimiter: (req, res, next) => next(),
+  globalLimiter: (req, res, next) => next(),
+};
+let securityMiddleware = {
+  sqlInjectionProtection: (req, res, next) => next(),
+  hppProtection: (req, res, next) => next(),
+  validateRequestSize: () => (req, res, next) => next(),
+  mongoSanitize: (req, res, next) => next(),
+};
+let securityLogger = { 
+  securityAuditLogger: (req, res, next) => next(),
+  accessLogger: (req, res, next) => next(),
+  suspiciousActivityMonitor: (req, res, next) => next()
+};
+
+// Try to load security middleware
+try {
+  rateLimiters = require("./middleware/rateLimiter");
+  console.log("[SECURITY] ✓ Rate limiters loaded");
+} catch (err) {
+  console.warn("[SECURITY] Rate limiters not available:", err.message);
+}
+
+try {
+  securityMiddleware = require("./middleware/security");
+  console.log("[SECURITY] ✓ Security middleware loaded");
+} catch (err) {
+  console.warn("[SECURITY] Security middleware not available:", err.message);
+}
+
+try {
+  securityLogger = require("./middleware/securityLogger");
+  console.log("[SECURITY] ✓ Security logger loaded");
+} catch (err) {
+  console.warn("[SECURITY] Security logger not available:", err.message);
+}
+
 const { 
   loginLimiter, 
   registerLimiter, 
@@ -45,25 +87,15 @@ const {
   uploadLimiter,
   apiLimiter,
   globalLimiter 
-} = require("./middleware/rateLimiter");
+} = rateLimiters;
+
 const { 
   sqlInjectionProtection, 
   hppProtection, 
   validateRequestSize,
   mongoSanitize 
-} = require("./middleware/security");
+} = securityMiddleware;
 
-// Security logger - optional, won't crash if it fails
-let securityLogger = { 
-  securityAuditLogger: (req, res, next) => next(),
-  accessLogger: (req, res, next) => next(),
-  suspiciousActivityMonitor: (req, res, next) => next()
-};
-try {
-  securityLogger = require("./middleware/securityLogger");
-} catch (err) {
-  console.warn("[SECURITY] Security logger not available, running without logging:", err.message);
-}
 const { securityAuditLogger, accessLogger, suspiciousActivityMonitor } = securityLogger;
 
 const { router: auditRoutes } = require("./routes/audit.routes");

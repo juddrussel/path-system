@@ -201,16 +201,18 @@ function rotateLogs() {
   });
 }
 
-// Rotate logs daily at midnight
-const now = new Date();
-const midnight = new Date(now);
-midnight.setHours(24, 0, 0, 0);
-const msUntilMidnight = midnight - now;
+// Rotate logs daily at midnight (only if logging is enabled)
+if (LOG_ENABLED) {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  const msUntilMidnight = midnight - now;
 
-setTimeout(() => {
-  rotateLogs();
-  setInterval(rotateLogs, 24 * 60 * 60 * 1000); // Daily
-}, msUntilMidnight);
+  setTimeout(() => {
+    rotateLogs();
+    setInterval(rotateLogs, 24 * 60 * 60 * 1000); // Daily
+  }, msUntilMidnight);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXPORTS
