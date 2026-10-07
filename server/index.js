@@ -3,8 +3,6 @@ dns.setDefaultResultOrder("ipv4first");
 
 const express = require("express");
 const cors = require("cors");
-const helmet = require("helmet");
-const hpp = require("hpp");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -16,69 +14,26 @@ require("dotenv").config();
 const ssrMiddleware = require("./ssr");
 const SSR_ENABLED = process.env.ENABLE_SSR === "true";
 
+// ── DEBUG: confirm .env is loaded ──
+console.log("ENV CHECK:", {
+  DB_HOST: process.env.DB_HOST,
+  DB_USER: process.env.DB_USER,
+  DB_PASS: process.env.DB_PASS,
+  DB_NAME: process.env.DB_NAME,
+  JWT_SECRET: process.env.JWT_SECRET,
+  R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID ? "✓ set" : "✗ missing",
+  R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID ? "✓ set" : "✗ missing",
+  R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY ? "✓ set" : "✗ missing",
+  R2_BUCKET_NAME: process.env.R2_BUCKET_NAME || "✗ missing",
+  R2_PUBLIC_URL: process.env.R2_PUBLIC_URL || "✗ missing",
+  ENABLE_SSR: SSR_ENABLED ? "✓ enabled" : "✗ disabled",
+});
+
 const authRoutes = require("./routes/auth.routes");
 const passport   = require("passport");
 // Passport strategies are registered inside auth.routes.js on require
 const userRoutes = require("./routes/user.routes");
 const chatRoutes = require("./routes/chat.routes");
-
-// Security middleware (with safe imports)
-let rateLimiters = {
-  loginLimiter: (req, res, next) => next(),
-  registerLimiter: (req, res, next) => next(),
-  passwordResetLimiter: (req, res, next) => next(),
-  uploadLimiter: (req, res, next) => next(),
-  apiLimiter: (req, res, next) => next(),
-  globalLimiter: (req, res, next) => next(),
-};
-let securityMiddleware = {
-  sqlInjectionProtection: (req, res, next) => next(),
-  hppProtection: (req, res, next) => next(),
-  validateRequestSize: () => (req, res, next) => next(),
-  mongoSanitize: (req, res, next) => next(),
-};
-let securityLogger = { 
-  securityAuditLogger: (req, res, next) => next(),
-  accessLogger: (req, res, next) => next(),
-  suspiciousActivityMonitor: (req, res, next) => next()
-};
-
-// Try to load security middleware
-try {
-  rateLimiters = require("./middleware/rateLimiter");
-} catch (err) {
-  console.warn("[SECURITY] Rate limiters not available:", err.message);
-}
-
-try {
-  securityMiddleware = require("./middleware/security");
-} catch (err) {
-  console.warn("[SECURITY] Security middleware not available:", err.message);
-}
-
-try {
-  securityLogger = require("./middleware/securityLogger");
-} catch (err) {
-  console.warn("[SECURITY] Security logger not available:", err.message);
-}
-
-const { 
-  loginLimiter, 
-  registerLimiter, 
-  passwordResetLimiter, 
-  uploadLimiter,
-  apiLimiter,
-  globalLimiter 
-} = rateLimiters;
-
-const { 
-  sqlInjectionProtection, 
-  hppProtection, 
-  validateRequestSize,
-  mongoSanitize 
-} = securityMiddleware;
-
-const { securityAuditLogger, accessLogger, suspiciousActivityMonitor } = securityLogger;
 
 const { router: auditRoutes } = require("./routes/audit.routes");
 const { router: taskRoutes, setupTypingEvents, startDeadlineReminderJob } = require("./routes/task.routes");
@@ -117,13 +72,7 @@ const app = express();
 const server = http.createServer(app);
 
 // ── CORS origin (env-driven, falls back to local dev URL) ──
-// In production, set CORS_ORIGIN in .env to your frontend URL
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
-
-// Parse CORS_ORIGIN into array if comma-separated
-const ALLOWED_ORIGINS = CORS_ORIGIN === "*" 
-  ? "*" 
-  : CORS_ORIGIN.split(",").map(origin => origin.trim());
 
 // ── Socket.IO setup ──
 const io = new Server(server, {
@@ -159,101 +108,12 @@ const upload = multer({
   },
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SECURITY MIDDLEWARE (order matters!)
-// ═══════════════════════════════════════════════════════════════════════════
-
-// 1. Helmet - Security headers (must be first)
-try {
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https:", "blob:"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        connectSrc: ["'self'", ...(ALLOWED_ORIGINS === "*" ? ["*"] : ALLOWED_ORIGINS)],
-        frameSrc: ["'none'"],
-        objectSrc: ["'none'"],
-        upgradeInsecureRequests: [],
-      },
-    },
-    crossOriginEmbedderPolicy: false, // Needed for some APIs
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Needed for file serving
-    hsts: {
-      maxAge: 31536000, // 1 year
-      includeSubDomains: true,
-      preload: true,
-    },
-  }));
-} catch (err) {
-  console.error("[SECURITY] Helmet middleware failed, continuing without it:", err.message);
-}
-
-// 2. Global rate limiter (applies to all requests)
-try {
-  app.use(globalLimiter);
-} catch (err) {
-  console.error("[SECURITY] Rate limiter failed, continuing without it:", err.message);
-}
-
-// 3. CORS configuration
+// ── Middleware ──
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
-    
-    // Allow all origins in dev mode
-    if (ALLOWED_ORIGINS === "*") return callback(null, true);
-    
-    // Check if origin is in whitelist
-    if (ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`[SECURITY] Blocked CORS request from unauthorized origin: ${origin}`);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true, // Allow cookies
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: "*",  // Allow all origins in dev
+  credentials: false
 }));
-
-// 4. Body parsing with size limits
-app.use(express.json({ 
-  limit: "10mb", 
-  charset: 'utf-8' 
-}));
-app.use(express.urlencoded({ 
-  extended: true, 
-  limit: "10mb" 
-}));
-
-// 5. Request size validation (with error handling)
-try {
-  app.use(validateRequestSize(10 * 1024 * 1024)); // 10MB max
-} catch (err) {
-  console.error("[SECURITY] Request size validation failed, continuing without it:", err.message);
-}
-
-// 6. NoSQL/SQL injection protection (with error handling)
-try {
-  // Note: mongoSanitize is incompatible with Express 5.x, using custom SQL injection protection only
-  app.use(sqlInjectionProtection);
-} catch (err) {
-  console.error("[SECURITY] Injection protection failed, continuing without it:", err.message);
-}
-
-// 7. HTTP Parameter Pollution protection (with error handling)
-try {
-  app.use(hpp());
-  app.use(hppProtection);
-} catch (err) {
-  console.error("[SECURITY] HPP protection failed, continuing without it:", err.message);
-}
-
-// 8. Standard middleware
+app.use(express.json({ charset: 'utf-8' }));
 app.use((req, res, next) => {
   res.charset = 'utf-8';
   res.type('application/json; charset=utf-8');
@@ -261,6 +121,12 @@ app.use((req, res, next) => {
 });
 app.use(passport.initialize());
 app.use("/uploads", express.static("./uploads"));
+
+// ── DEBUG: log every incoming request ──
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.path}`, req.body);
+  next();
+});
 
 // ── Avatar upload route ──
 app.post("/api/users/:id/avatar", requireAuth, upload.single("avatar"), async (req, res) => {
@@ -281,36 +147,23 @@ app.get("/api/health", (req, res) => {
 // ── Make io accessible to route files via app ──
 app.set("io", io);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ROUTES WITH RATE LIMITING
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Auth routes with specific rate limiters
-app.use("/api/auth/login", loginLimiter);
-app.use("/api/auth/register", registerLimiter);
-app.use("/api/auth/forgot-password", passwordResetLimiter);
-app.use("/api/auth/reset-password", passwordResetLimiter);
+// ── Routes ──
 app.use("/api/auth", authRoutes);
-
-// Upload routes with upload limiter
-app.use("/api/users/:id/avatar", uploadLimiter);
-
-// API routes with standard limiter
-app.use("/api/users", apiLimiter, userRoutes);
-app.use("/api/chat", apiLimiter, chatRoutes);
-app.use("/api/tasks", apiLimiter, taskRoutes);
-app.use("/api/notifications", apiLimiter, notificationRoutes);
-app.use("/api/collaborative-tasks", apiLimiter, collaborativeRoutes);
-app.use("/api/audit", apiLimiter, auditRoutes);
-app.use("/api/forms", apiLimiter, formRoutes);
-app.use("/api/migration", apiLimiter, migrationRoutes); // TEMPORARY - DELETE AFTER RUNNING MIGRATION
-app.use("/api/categories", apiLimiter, categoryRoutes);
-app.use("/api/workflows", apiLimiter, workflowRoutes);
-app.use("/api/faculty", apiLimiter, facultyRoutes(db));
-app.use("/api/sla", apiLimiter, slaRoutes);
-app.use("/api/tracking", apiLimiter, trackingRoutes);
-app.use("/api/academic", apiLimiter, academicRoutes);
-app.use("/api/files", uploadLimiter, fileProxyRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/collaborative-tasks", collaborativeRoutes);
+app.use("/api/audit", auditRoutes);
+app.use("/api/forms", formRoutes);
+app.use("/api/migration", migrationRoutes); // TEMPORARY - DELETE AFTER RUNNING MIGRATION
+app.use("/api/categories", categoryRoutes);
+app.use("/api/workflows", workflowRoutes);
+app.use("/api/faculty", facultyRoutes(db));
+app.use("/api/sla", slaRoutes);
+app.use("/api/tracking", trackingRoutes);
+app.use("/api/academic", academicRoutes);
+app.use("/api/files", fileProxyRoutes);
 
 // ── Collaborative editing (Phase 2+) – persistence & audit ──
 // REMOVED: Collab editing no longer needed
@@ -319,18 +172,24 @@ app.use("/api/files", uploadLimiter, fileProxyRoutes);
 const uploadRoute = require("./routes/upload");
 app.use("/api", uploadRoute);
 
-// ── SSR & STATIC FILE SERVING ────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// SSR & STATIC FILE SERVING
+// ════════════════════════════════════════════════════════════════════════════
+
 // SSR Middleware - handles server-side rendering of public pages
 // Must come BEFORE static file serving so SSR can intercept public routes
 // Falls through to next() if SSR is disabled or route is not SSR-enabled
 app.use(ssrMiddleware);
 
 // Static file serving for client assets (JS, CSS, images)
+// This serves the built client files (dist folder)
 const clientDistPath = path.resolve(__dirname, "../client/dist");
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
+  console.log(`[Static] Serving client assets from: ${clientDistPath}`);
 } else {
   console.warn(`[Static] Client dist folder not found at: ${clientDistPath}`);
+  console.warn(`[Static] Run 'npm run build' in client directory to generate production files`);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -349,10 +208,13 @@ app.use((req, res) => {
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
   socket.on("register", async (userId) => {
     socket.userId = String(userId);   // ← required by setupTypingEvents
     onlineUsers.set(String(userId), socket.id);
     socket.join(`user_${userId}`);
+    console.log(`User ${userId} registered, joined user_${userId}`);
     io.emit("online_users", Array.from(onlineUsers.keys()));
 
     // Auto-join all group rooms this user belongs to so broadcasts reach them
@@ -364,6 +226,9 @@ io.on("connection", (socket) => {
       for (const { group_id } of groups) {
         socket.join(`group_${group_id}`);
       }
+      if (groups.length > 0) {
+        console.log(`User ${userId} auto-joined ${groups.length} group room(s)`);
+      }
     } catch (err) {
       console.error(`Failed to auto-join group rooms for user ${userId}:`, err.message);
     }
@@ -373,6 +238,7 @@ io.on("connection", (socket) => {
   socket.on("join_role_room", ({ role }) => {
     if (["program_chair", "admin"].includes(role)) {
       socket.join("program_chairs");
+      console.log(`Socket ${socket.id} joined program_chairs room`);
     }
   });
 
@@ -402,6 +268,7 @@ io.on("connection", (socket) => {
 
   socket.on("join_document", (docId) => {
     socket.join(`doc_${docId}`);
+    console.log(`Socket ${socket.id} joined doc_${docId}`);
   });
 
   socket.on("leave_document", (docId) => {
@@ -411,6 +278,7 @@ io.on("connection", (socket) => {
   // ── Workflow real-time collaboration ────────────────────────────────────
   socket.on("join_workflow", (workflowId) => {
     socket.join(`workflow_${workflowId}`);
+    console.log(`Socket ${socket.id} joined workflow_${workflowId}`);
   });
 
   socket.on("leave_workflow", (workflowId) => {
@@ -420,10 +288,12 @@ io.on("connection", (socket) => {
   // ── Task collaboration: real-time comment updates ──────────────────────────
   socket.on("join_task", ({ taskId }) => {
     socket.join(`task_${taskId}`);
+    console.log(`Socket ${socket.id} joined task_${taskId}`);
   });
 
   socket.on("leave_task", ({ taskId }) => {
     socket.leave(`task_${taskId}`);
+    console.log(`Socket ${socket.id} left task_${taskId}`);
   });
 
   // ── Typing indicators ───────────────────────────────────────────────────
@@ -495,6 +365,7 @@ io.on("connection", (socket) => {
   // even if the auto-join on register happened before the group was created).
   socket.on("join_group", (groupId) => {
     socket.join(`group_${groupId}`);
+    console.log(`Socket ${socket.id} joined group_${groupId}`);
   });
 
   socket.on("leave_group", (groupId) => {
@@ -525,6 +396,7 @@ io.on("connection", (socket) => {
       }
     }
     io.emit("online_users", Array.from(onlineUsers.keys()));
+    console.log("Socket disconnected:", socket.id);
   });
 });
 
@@ -537,6 +409,7 @@ startDeadlineReminderJob(io);
 // ── Faculty performance scoring: seed once at boot, then nightly via cron ──────
 startScoreCron(db);
 recalculateAllScores(db, { keepHistory: false })
+  .then((result) => console.log("[facultyScore] Initial score seed complete:", result))
   .catch((err) => console.error("[facultyScore] Initial score seed failed:", err));
 
 // ── SLA email alerts: hourly before/after-deadline check ───────────────────────
@@ -545,6 +418,8 @@ startSlaCron();
 // ── Auto-run collaborative tasks migration on startup ──────────────────────────
 async function runCollaborativeMigration() {
   try {
+    console.log("[Startup] Checking collaborative tasks schema...");
+    
     // Check if tables exist
     const [tables] = await db.query(`
       SELECT TABLE_NAME FROM information_schema.TABLES 
@@ -553,8 +428,11 @@ async function runCollaborativeMigration() {
     `);
     
     if (tables.length === 2) {
+      console.log("[Startup] ✓ Collaborative tasks schema already exists");
       return;
     }
+    
+    console.log("[Startup] Running collaborative tasks schema migration...");
     
     // 1. Update tasks table
     await db.query(`
@@ -564,6 +442,7 @@ async function runCollaborativeMigration() {
       ADD COLUMN IF NOT EXISTS all_confirmed_at DATETIME AFTER current_output_version,
       ADD COLUMN IF NOT EXISTS submitted_at DATETIME AFTER all_confirmed_at
     `);
+    console.log("[Startup] ✓ tasks table updated");
 
     // 2. Create task_final_outputs table
     await db.query(`
@@ -585,6 +464,7 @@ async function runCollaborativeMigration() {
         FOREIGN KEY (uploaded_by) REFERENCES users(id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+    console.log("[Startup] ✓ task_final_outputs table created");
 
     // 3. Create task_confirmations table
     await db.query(`
@@ -607,6 +487,7 @@ async function runCollaborativeMigration() {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+    console.log("[Startup] ✓ task_confirmations table created");
 
     // 4. Update task_collaborators table
     await db.query(`
@@ -615,6 +496,7 @@ async function runCollaborativeMigration() {
       ADD COLUMN IF NOT EXISTS current_version_confirmed TINYINT DEFAULT 0 AFTER confirmed_at,
       ADD KEY idx_role (role)
     `);
+    console.log("[Startup] ✓ task_collaborators table updated");
 
     // 5. Create task_comments table (if it doesn't exist)
     await db.query(`
@@ -633,7 +515,9 @@ async function runCollaborativeMigration() {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+    console.log("[Startup] ✓ task_comments table created");
 
+    console.log("[Startup] ✓ Collaborative tasks schema migration completed successfully!");
   } catch (err) {
     console.error("[Startup] Migration error:", err.message);
     // Don't exit — let server start anyway; schema may already exist
@@ -647,7 +531,9 @@ runCollaborativeMigration();
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`SSR: ${SSR_ENABLED ? "✓ enabled" : "✗ disabled"} (set ENABLE_SSR=true to enable)`);
   if (SSR_ENABLED) {
-    console.log(`SSR enabled`);
+    const ssrStatus = ssrMiddleware.getSSRStatus();
+    console.log(`SSR routes: ${ssrStatus.routes.join(", ")}`);
   }
 });

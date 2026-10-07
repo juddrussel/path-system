@@ -94,78 +94,48 @@ function computeScore({ active, overdue }) {
  * @param {import('mysql2/promise').Pool} pool
  */
 async function getDelayedDocuments(pool) {
-  try {
-    // Check if collaborative_tasks table exists first
-    const [tables] = await pool.query(`
-      SELECT TABLE_NAME 
-      FROM information_schema.TABLES 
-      WHERE TABLE_SCHEMA = DATABASE() 
-      AND TABLE_NAME = 'collaborative_tasks'
-    `);
-    
-    const hasCollaborativeTasks = tables.length > 0;
-    
-    // Build query parameters
-    const params = [...DONE_STATUSES];
-    if (hasCollaborativeTasks) {
-      params.push(...DONE_STATUSES);
-    }
-    
-    // Build query based on available tables
-    let query = `
-      SELECT t.id,
-              t.title,
-              t.doc_type,
-              t.priority,
-              t.deadline,
-              t.status,
-              t.faculty_id,
-              u.full_name AS faculty_name,
-              DATEDIFF(CURDATE(), t.deadline) AS days_overdue,
-              FALSE AS is_collaborative
-         FROM tasks t
-         JOIN users u ON u.id = t.faculty_id
-        WHERE t.deadline IS NOT NULL
-          AND t.deadline < NOW()
-          AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
-          AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
-    `;
-    
-    // Add collaborative tasks if table exists
-    if (hasCollaborativeTasks) {
-      query += `
-      UNION ALL
+  const [rows] = await pool.query(
+    `SELECT t.id,
+            t.title,
+            t.doc_type,
+            t.priority,
+            t.deadline,
+            t.status,
+            t.faculty_id,
+            u.full_name AS faculty_name,
+            DATEDIFF(CURDATE(), t.deadline) AS days_overdue,
+            FALSE AS is_collaborative
+       FROM tasks t
+       JOIN users u ON u.id = t.faculty_id
+      WHERE t.deadline IS NOT NULL
+        AND t.deadline < NOW()
+        AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
+        AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
 
-      SELECT ct.id,
-              ct.title,
-              ct.doc_type,
-              ct.priority,
-              ct.deadline,
-              ct.status,
-              tc.user_id AS faculty_id,
-              u.full_name AS faculty_name,
-              DATEDIFF(CURDATE(), ct.deadline) AS days_overdue,
-              TRUE AS is_collaborative
-         FROM collaborative_tasks ct
-         JOIN task_collaborators tc ON tc.task_id = ct.id
-         JOIN users u ON u.id = tc.user_id
-        WHERE ct.deadline IS NOT NULL
-          AND ct.deadline < NOW()
-          AND LOWER(ct.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
-          AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
-      `;
-    }
-    
-    query += `
-        ORDER BY deadline ASC`;
+    UNION ALL
 
-    const [rows] = await pool.query(query, params);
-    return rows;
-  } catch (err) {
-    console.error("[facultyScore] Delayed documents fetch error:", err);
-    // Return empty array on error to prevent crashes
-    return [];
-  }
+    SELECT ct.id,
+            ct.title,
+            ct.doc_type,
+            ct.priority,
+            ct.deadline,
+            ct.status,
+            tc.user_id AS faculty_id,
+            u.full_name AS faculty_name,
+            DATEDIFF(CURDATE(), ct.deadline) AS days_overdue,
+            TRUE AS is_collaborative
+       FROM collaborative_tasks ct
+       JOIN task_collaborators tc ON tc.task_id = ct.id
+       JOIN users u ON u.id = tc.user_id
+      WHERE ct.deadline IS NOT NULL
+        AND ct.deadline < NOW()
+        AND LOWER(ct.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
+        AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
+
+      ORDER BY deadline ASC`,
+    [...DONE_STATUSES, ...DONE_STATUSES]
+  );
+  return rows;
 }
 
 /**
