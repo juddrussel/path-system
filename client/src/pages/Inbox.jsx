@@ -331,12 +331,43 @@ SLA: () => (
 function Avatar({ name, size = 36, online, photoUrl }) {
   const bg = avatarColor(name);
   const [imgFailed, setImgFailed] = useState(false);
-  const showImg = photoUrl && !imgFailed;
+  const [blobUrl, setBlobUrl] = useState(null);
+  
+  // Load photo as blob URL if it's an R2 URL
+  useEffect(() => {
+    if (!photoUrl) {
+      setBlobUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+    
+    createAuthenticatedBlobUrl(API, photoUrl)
+      .then(url => {
+        if (!cancelled) setBlobUrl(url);
+      })
+      .catch(err => {
+        console.error('[Inbox Avatar] Failed to load:', err);
+        if (!cancelled) {
+          setImgFailed(true);
+          setBlobUrl(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [photoUrl]);
+  
+  const showImg = blobUrl && !imgFailed;
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
       {showImg ? (
         <img
-          src={photoUrl}
+          src={blobUrl}
           alt={name}
           onError={() => setImgFailed(true)}
           style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", display: "block" }}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { io as socketIO } from "socket.io-client";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 import ConfirmationModal from "../components/ConfirmationModal";
 import AlertModal from "../components/AlertModal";
 
@@ -615,6 +615,8 @@ const AVATAR_PALETTE = [
 ];
 function Avatar({ name = "", src = null, size = 26 }) {
   const [imgFailed, setImgFailed] = useState(false);
+  const [blobUrl, setBlobUrl] = useState(null);
+  
   const initials =
     name
       .trim()
@@ -627,10 +629,39 @@ function Avatar({ name = "", src = null, size = 26 }) {
     hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
   const palette = AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
 
-  if (src && !imgFailed) {
+  // Load photo as blob URL if it's an R2 URL
+  useEffect(() => {
+    if (!src) {
+      setBlobUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+    
+    createAuthenticatedBlobUrl(API, src)
+      .then(url => {
+        if (!cancelled) setBlobUrl(url);
+      })
+      .catch(err => {
+        console.error('[Forms Avatar] Failed to load:', err);
+        if (!cancelled) {
+          setImgFailed(true);
+          setBlobUrl(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [src]);
+
+  if (blobUrl && !imgFailed) {
     return (
       <img
-        src={src}
+        src={blobUrl}
         alt={name || "User"}
         onError={() => setImgFailed(true)}
         style={{
