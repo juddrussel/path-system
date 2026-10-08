@@ -945,15 +945,6 @@ export default function DocumentCategories() {
                     </div>
                   </div>
                   <footer className="path-cat-detail-actions">
-                    {selected.status !== "Archived" && (
-                      <button
-                        type="button"
-                        className="path-cat-inline-action"
-                        onClick={() => archiveCategory(selected)}
-                      >
-                        <Archive size={14} /> Archive
-                      </button>
-                    )}
                     <button
                       type="button"
                       className="path-cat-inline-danger"
