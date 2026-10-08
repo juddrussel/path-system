@@ -9,15 +9,10 @@ import {
 } from "lucide-react";
 
 const API        = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-function fullAvatarUrl(url) {
-  if (!url) return null;
-  // Use R2 proxy helper for consistent file URL resolution
-  return resolveFileUrl(SERVER_URL, url);
-}
 function initials(name = "") {
   const parts = String(name).trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return "?";
@@ -222,6 +217,7 @@ function AccountSection({ profile, onSaved, onToast }) {
   const [showPw, setShowPw]               = useState({ current: false, new: false, confirm: false });
   const [avatarFile, setAvatarFile]       = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarBlobUrl, setAvatarBlobUrl] = useState(null);
   const [uploading, setUploading]         = useState(false);
   const [cropSrc, setCropSrc]             = useState(null);
   const fileRef = useRef();
@@ -229,6 +225,32 @@ function AccountSection({ profile, onSaved, onToast }) {
   const set   = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setPw = (k, v) => setPwForm(f => ({ ...f, [k]: v }));
   const togglePw = (k) => setShowPw(s => ({ ...s, [k]: !s[k] }));
+
+  // Load avatar as blob URL
+  useEffect(() => {
+    if (!profile?.avatar_url) {
+      setAvatarBlobUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+    
+    createAuthenticatedBlobUrl(SERVER_URL, profile.avatar_url)
+      .then(blobUrl => {
+        if (!cancelled) setAvatarBlobUrl(blobUrl);
+      })
+      .catch(err => {
+        console.error('[Settings] Failed to load avatar:', err);
+        if (!cancelled) setAvatarBlobUrl(null);
+      });
+
+    return () => {
+      cancelled = true;
+      if (avatarBlobUrl) {
+        URL.revokeObjectURL(avatarBlobUrl);
+      }
+    };
+  }, [profile?.avatar_url]);
 
   const pwStrength = (pw) => {
     if (!pw) return 0;
@@ -321,7 +343,7 @@ function AccountSection({ profile, onSaved, onToast }) {
         body: JSON.stringify({ avatar_url: data.url, avatar_key: data.key }),
       });
       if (!patch.ok) throw new Error("Could not save photo.");
-      onSaved({ ...profile, avatar_url: fullAvatarUrl(data.url) });
+      onSaved({ ...profile, avatar_url: data.url });
       setAvatarFile(null);
       setAvatarPreview(null);
       onToast("Profile picture updated!", "success");
@@ -329,7 +351,7 @@ function AccountSection({ profile, onSaved, onToast }) {
     finally { setUploading(false); }
   };
 
-  const displayAvatar = avatarPreview || fullAvatarUrl(profile?.avatar_url);
+  const displayAvatar = avatarPreview || avatarBlobUrl;
 
   return (
     <>
