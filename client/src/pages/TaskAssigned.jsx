@@ -5372,32 +5372,6 @@ function PathTasksAssignedLayout({
                         value={String(selected.submissions?.length || 0)}
                       />
                     </div>
-                    {showReturnBox && (
-                      <div className="path-assigned-return-box">
-                        <label>Revision instruction</label>
-                        <textarea
-                          value={returnNote}
-                          onChange={(event) =>
-                            onSetReturnNote(event.target.value)
-                          }
-                          placeholder="Tell the faculty member what needs to change before resubmission."
-                        />
-                        <div className="path-assigned-return-actions">
-                          <button type="button" onClick={onToggleReturn}>
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            disabled={actionLoading === "return"}
-                            onClick={() => onReturn(selected.id)}
-                          >
-                            {actionLoading === "return"
-                              ? "Sending…"
-                              : "Return for revision"}
-                          </button>
-                        </div>
-                      </div>
-                    )}
                     <div className="path-assigned-detail-actions">
                       <button
                         className="path-assigned-open"
@@ -5405,36 +5379,6 @@ function PathTasksAssignedLayout({
                         onClick={() => openTask(selected)}
                       >
                         ↗ Open task details
-                      </button>
-                      {selectedIsReviewable && (
-                        <button
-                          className="path-assigned-approve"
-                          type="button"
-                          disabled={actionLoading === "approve"}
-                          onClick={() => onApprove(selected.id)}
-                        >
-                          {actionLoading === "approve"
-                            ? "Approving…"
-                            : "Approve task"}
-                        </button>
-                      )}
-                      <button
-                        className="path-assigned-secondary"
-                        type="button"
-                        onClick={
-                          /approved|received/i.test(selected?.status || "")
-                            ? () => onArchiveSingle(selected.id)
-                            : onToggleReturn
-                        }
-                        disabled={actionLoading === "archive"}
-                      >
-                        {/approved|received/i.test(selected?.status || "")
-                          ? actionLoading === "archive"
-                            ? "Archiving…"
-                            : "Archive task"
-                          : showReturnBox
-                            ? "Hide return form"
-                            : "Return for revision"}
                       </button>
                     </div>
                   </>
