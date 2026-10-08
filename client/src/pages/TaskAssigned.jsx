@@ -5380,6 +5380,18 @@ function PathTasksAssignedLayout({
                       >
                         ↗ Open task details
                       </button>
+                      {/approved|received/i.test(selected?.status || "") && (
+                        <button
+                          className="path-assigned-secondary"
+                          type="button"
+                          onClick={() => onArchiveSingle(selected.id)}
+                          disabled={actionLoading === "archive"}
+                        >
+                          {actionLoading === "archive"
+                            ? "Archiving…"
+                            : "Archive task"}
+                        </button>
+                      )}
                     </div>
                   </>
                 ) : (
