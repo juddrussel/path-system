@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logoImg from "../assets/logo.png";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 const API = import.meta.env.VITE_API_URL || "";
 const API_BASE = `${API}/api`;
@@ -12,12 +12,6 @@ function getUser() {
     const token = localStorage.getItem("token");
     return JSON.parse(atob(token.split(".")[1]));
   } catch { return {}; }
-}
-
-function fullAvatarUrl(url) {
-  if (!url) return null;
-  // Use R2 proxy helper for consistent file URL resolution
-  return resolveFileUrl(API, url);
 }
 
 const ROLE_LABELS = {
@@ -356,6 +350,7 @@ export default function Sidebar({ activePage, onLogout }) {
       return null;
     }
   });
+  const [avatarBlobUrl, setAvatarBlobUrl] = useState(null);
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -392,6 +387,33 @@ export default function Sidebar({ activePage, onLogout }) {
       setProfile({});
     }
   }, []);
+
+  // Load avatar as blob URL when profile changes
+  useEffect(() => {
+    if (!profile?.avatar_url) {
+      setAvatarBlobUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+    
+    createAuthenticatedBlobUrl(API, profile.avatar_url)
+      .then(blobUrl => {
+        if (!cancelled) setAvatarBlobUrl(blobUrl);
+      })
+      .catch(err => {
+        console.error('[Sidebar] Failed to load avatar:', err);
+        if (!cancelled) setAvatarBlobUrl(null);
+      });
+
+    return () => {
+      cancelled = true;
+      // Clean up blob URL when component unmounts or avatar changes
+      if (avatarBlobUrl) {
+        URL.revokeObjectURL(avatarBlobUrl);
+      }
+    };
+  }, [profile?.avatar_url]);
 
   const currentKey = activePage || [...NAV_ITEMS, ...ADMIN_NAV_ITEMS, { key: "settings", path: "/settings" }, { key: "tasks", path: "/task-details" }, { key: "forms", path: "/document-review" }, ...FACULTY_NAV_ITEMS].find(
     n => n.path && location.pathname.startsWith(n.path)
@@ -468,8 +490,8 @@ export default function Sidebar({ activePage, onLogout }) {
           return (
             <div className="path-sidebar__profile">
               <span className="path-sidebar__profile-avatar">
-                {profile?.avatar_url ? (
-                  <img src={fullAvatarUrl(profile.avatar_url)} alt="" />
+                {avatarBlobUrl ? (
+                  <img src={avatarBlobUrl} alt="" />
                 ) : (
                   initials(profile?.full_name)
                 )}

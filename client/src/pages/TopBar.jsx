@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
-import { resolveFileUrl } from "../utils/r2ProxyHelper";
+import { createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 // Decodes the current user's id straight from the JWT — used to filter out
 // a user's own messages from the incoming-message popup (send_message is
@@ -29,12 +29,6 @@ function previewText(content) {
 
 const API_BASE  = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 const SERVER_URL = import.meta.env.VITE_API_URL  || "http://localhost:5000";
-
-function fullAvatarUrl(url) {
-  if (!url) return null;
-  // Use R2 proxy helper for consistent file URL resolution
-  return resolveFileUrl(SERVER_URL, url);
-}
 
 function authHeaders() {
   const token = localStorage.getItem("token");
@@ -468,6 +462,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
 
   const [currentAvatar, setCurrentAvatar]     = useState(profile?.avatar_url || null);
   const [currentAvatarKey, setCurrentAvatarKey] = useState(profile?.avatar_key || null);
+  const [currentAvatarBlob, setCurrentAvatarBlob] = useState(null); // blob URL for currentAvatar
   const [pendingPreview, setPendingPreview] = useState(null); // object URL of the cropped result, ready to upload
   const [pendingFile, setPendingFile]       = useState(null); // cropped Blob/File, ready to upload
   const [cropSrc, setCropSrc]               = useState(null); // object URL of the raw selected file, shown in the cropper
@@ -479,9 +474,33 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
     return () => {
       if (cropSrc) URL.revokeObjectURL(cropSrc);
       if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+      if (currentAvatarBlob) URL.revokeObjectURL(currentAvatarBlob);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Load current avatar as blob URL
+  useEffect(() => {
+    if (!currentAvatar) {
+      setCurrentAvatarBlob(null);
+      return;
+    }
+
+    let cancelled = false;
+    
+    createAuthenticatedBlobUrl(SERVER_URL, currentAvatar)
+      .then(blobUrl => {
+        if (!cancelled) setCurrentAvatarBlob(blobUrl);
+      })
+      .catch(err => {
+        console.error('[ProfileModal] Failed to load avatar:', err);
+        if (!cancelled) setCurrentAvatarBlob(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentAvatar]);
 
   // ── Photo selection: open the cropper instead of previewing immediately ────
   const handlePhotoSelect = (e) => {
@@ -564,7 +583,7 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
       setPendingPreview(null);
       setPendingFile(null);
       setPhotoSuccess(true);
-      onSaved({ ...profile, avatar_url: fullAvatarUrl(uploadData.url), avatar_key: uploadData.key });
+      onSaved({ ...profile, avatar_url: uploadData.url, avatar_key: uploadData.key });
       setTimeout(() => setPhotoSuccess(false), 3000);
       onToast?.("Photo updated successfully!", "success");
     } catch (err) {
@@ -617,8 +636,8 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
   };
 
   const [bg, fg] = avatarBg(profile?.full_name || "");
-  // pendingPreview is a local blob: URL (already absolute) — only currentAvatar (a server path) needs fullAvatarUrl
-  const displayAvatar = pendingPreview || fullAvatarUrl(currentAvatar);
+  // pendingPreview is a local blob: URL (already absolute) — currentAvatarBlob is the blob URL of the current avatar
+  const displayAvatar = pendingPreview || currentAvatarBlob;
 
   return (
     <div
@@ -1180,8 +1199,8 @@ function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
     <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl z-[150] overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <div className="px-4 py-3.5 border-b border-gray-100" style={{ background: `linear-gradient(135deg, ${bg}88, #fff)` }}>
         <div className="flex items-center gap-2.5">
-          {profile?.avatar_url ? (
-            <img src={fullAvatarUrl(profile.avatar_url)} alt="" className="w-9 h-9 rounded-full object-cover border border-white shadow-sm" />
+          {avatarBlobUrl ? (
+            <img src={avatarBlobUrl} alt="" className="w-9 h-9 rounded-full object-cover border border-white shadow-sm" />
           ) : (
             <span className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border border-white shadow-sm" style={{ background: bg, color: fg }}>
               {initials(profile?.full_name)}
@@ -1361,6 +1380,7 @@ export default function TopBar({ children, onLogout }) {
   const [showProfile,  setShowProfile]  = useState(false);
   const [profile,      setProfile]      = useState(null);
   const [toast,        setToast]        = useState(null); // { message, type }
+  const [avatarBlobUrl, setAvatarBlobUrl] = useState(null);
 
   const [notifications,   setNotifications]   = useState([]);
   const [notifLoading,    setNotifLoading]    = useState(true);
@@ -1392,6 +1412,33 @@ export default function TopBar({ children, onLogout }) {
       setProfile({});
     }
   }, []);
+
+  // Load avatar as blob URL when profile changes
+  useEffect(() => {
+    if (!profile?.avatar_url) {
+      setAvatarBlobUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+    
+    createAuthenticatedBlobUrl(SERVER_URL, profile.avatar_url)
+      .then(blobUrl => {
+        if (!cancelled) setAvatarBlobUrl(blobUrl);
+      })
+      .catch(err => {
+        console.error('[TopBar] Failed to load avatar:', err);
+        if (!cancelled) setAvatarBlobUrl(null);
+      });
+
+    return () => {
+      cancelled = true;
+      // Clean up blob URL when component unmounts or avatar changes
+      if (avatarBlobUrl) {
+        URL.revokeObjectURL(avatarBlobUrl);
+      }
+    };
+  }, [profile?.avatar_url]);
 
   // ── Notifications: load history, then stay live over the socket ──────────
   // TopBar mounts on every page, so the bell badge/panel stay accurate
@@ -1573,8 +1620,8 @@ export default function TopBar({ children, onLogout }) {
                 title="Account menu"
               >
                 <span style={TB.avatarRing}>
-                  {profile?.avatar_url ? (
-                    <img src={fullAvatarUrl(profile.avatar_url)} alt="" style={TB.avatarImg} />
+                  {avatarBlobUrl ? (
+                    <img src={avatarBlobUrl} alt="" style={TB.avatarImg} />
                   ) : (
                     <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
                       {initials(profile?.full_name)}
