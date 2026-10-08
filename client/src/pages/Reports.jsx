@@ -2166,11 +2166,6 @@ export default function Reports() {
             {/* ── Faculty Workload tab ── */}
             {activeTab === "Faculty Workload" && (
               <>
-            {/* ── Workload Comparison ── */}
-            <SectionCard title="Workload Comparison" subtitle="Completed vs. pending transactions per faculty member" icon={Users}>
-              <PathFacultyPulse data={FACULTY_WORKLOAD} />
-            </SectionCard>
-
             {/* ── Faculty Performance Table ── */}
             <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions, delays, and completion rate per faculty member" icon={ClipboardList} noPad
               action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}
