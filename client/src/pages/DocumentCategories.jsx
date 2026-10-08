@@ -945,13 +945,6 @@ export default function DocumentCategories() {
                     </div>
                   </div>
                   <footer className="path-cat-detail-actions">
-                    <button
-                      type="button"
-                      className="path-cat-inline-action"
-                      onClick={() => setSelectedId(selected.id)}
-                    >
-                      <Eye size={14} /> Viewing definition
-                    </button>
                     {selected.status !== "Archived" && (
                       <button
                         type="button"
