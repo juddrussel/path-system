@@ -391,18 +391,6 @@ function Tag({ label, tone }) {
     </span>
   );
 }
-function Toggle({ on, onChange }) {
-  return (
-    <button
-      type="button"
-      className={"notification-toggle " + (on ? "on" : "")}
-      onClick={onChange}
-      aria-pressed={on}
-    >
-      <i />
-    </button>
-  );
-}
 
 export default function Notifications() {
   const navigate = useNavigate();
@@ -411,11 +399,6 @@ export default function Notifications() {
   const [page, setPage] = useState(1);
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [toasts, setToasts] = useState([]);
-  const [settings, setSettings] = useState({
-    push: true,
-    email: false,
-    alerts: true,
-  });
   const [, forceTick] = useState(0);
   const [loading, setLoading] = useState(true);
   let role = "";
@@ -828,95 +811,6 @@ export default function Notifications() {
                   </footer>
                 )}
               </article>
-              <aside className="notification-preferences panel-card">
-                <div className="panel-topline">
-                  <div>
-                    <div className="section-kicker">Preferences</div>
-                    <h3>Notification delivery</h3>
-                  </div>
-                  <Bell size={17} />
-                </div>
-                <p>
-                  Choose how PATH keeps you informed without interrupting
-                  focused review work.
-                </p>
-                <div className="notification-preference">
-                  <span className="preference-icon">
-                    <Bell size={15} />
-                  </span>
-                  <span>
-                    <strong>Deadline Alerts</strong>
-                    <small>When a document is approaching its deadline</small>
-                  </span>
-                  <Toggle
-                    on={settings.alerts}
-                    onChange={() =>
-                      setSettings((s) => ({ ...s, alerts: !s.alerts }))
-                    }
-                  />
-                </div>
-                <div className="notification-preference">
-                  <span className="preference-icon">
-                    <MessageSquare size={15} />
-                  </span>
-                  <span>
-                    <strong>Comments and mentions</strong>
-                    <small>Replies and new discussion activity</small>
-                  </span>
-                  <Toggle
-                    on={settings.push}
-                    onChange={() =>
-                      setSettings((s) => ({ ...s, push: !s.push }))
-                    }
-                  />
-                </div>
-                <div className="notification-preference">
-                  <span className="preference-icon">
-                    <Clock size={15} />
-                  </span>
-                  <span>
-                    <strong>Daily digest</strong>
-                    <small>One summary at 8:00 AM on weekdays</small>
-                  </span>
-                  <Toggle
-                    on={settings.email}
-                    onChange={() =>
-                      setSettings((s) => ({ ...s, email: !s.email }))
-                    }
-                  />
-                </div>
-                <div className="notification-preference-note">
-                  <Bell size={14} />
-                  <span>
-                    Critical workflow and access events always remain visible in
-                    the audit trail.
-                  </span>
-                </div>
-                <button
-                  className="ghost-action"
-                  type="button"
-                  onClick={() =>
-                    pushToast({
-                      title: "Notification settings saved",
-                      body: "Your delivery preferences are ready to connect to workspace notifications.",
-                      icon: Bell,
-                    })
-                  }
-                  style={{
-                    justifyContent: "center",
-                    width: "100%",
-                    minHeight: 36,
-                    marginTop: 15,
-                    padding: "0 14px",
-                    borderColor: "#7c3aed",
-                    background: "#7c3aed",
-                    color: "white",
-                    fontSize: 14,
-                  }}
-                >
-                  Save preferences <ChevronRight size={13} />
-                </button>
-              </aside>
             </section>
           </section>
         </main>
