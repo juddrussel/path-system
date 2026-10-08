@@ -1853,11 +1853,18 @@ export default function DocumentReview() {
                                           const fileIcon = isPdf ? '📄' : isDoc ? '📝' : isImage ? '🖼️' : '📎';
                                           
                                           return (
-                                            <a
+                                            <button
                                               key={idx}
-                                              href={file.url}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
+                                              type="button"
+                                              onClick={async () => {
+                                                try {
+                                                  const blobUrl = await createAuthenticatedBlobUrl(API, file.url);
+                                                  window.open(blobUrl, '_blank');
+                                                  setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                                } catch (error) {
+                                                  console.error('Failed to open file:', error);
+                                                }
+                                              }}
                                               style={{
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -1868,7 +1875,10 @@ export default function DocumentReview() {
                                                 borderRadius: '6px',
                                                 textDecoration: 'none',
                                                 transition: 'all 0.2s',
-                                                minWidth: 0
+                                                minWidth: 0,
+                                                cursor: 'pointer',
+                                                width: '100%',
+                                                textAlign: 'left'
                                               }}
                                             >
                                               <span style={{ fontSize: '20px', flexShrink: 0 }}>{fileIcon}</span>
@@ -1881,7 +1891,7 @@ export default function DocumentReview() {
                                                 </div>
                                               </div>
                                               <span style={{ fontSize: '14px', color: '#996d37', flexShrink: 0 }}>→</span>
-                                            </a>
+                                            </button>
                                           );
                                         })}
                                       </div>
