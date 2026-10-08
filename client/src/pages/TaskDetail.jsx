@@ -263,6 +263,8 @@ export default function TaskDetail() {
   const [submissionBlobUrl, setSubmissionBlobUrl] = useState(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
   const [fileBlobUrls, setFileBlobUrls] = useState({});
+  const [imageLoadingStates, setImageLoadingStates] = useState({});
+  const [imageBlobUrls, setImageBlobUrls] = useState({});
 
   const loadTask = async () => {
     if (!taskId) return;
@@ -574,6 +576,45 @@ export default function TaskDetail() {
       });
     };
   }, [latestSubmissionGroup, task?.revision_files, api]);
+
+  // Create blob URLs for comment file attachments (images)
+  useEffect(() => {
+    const newImageBlobUrls = {};
+    const promises = [];
+
+    comments.forEach((comment) => {
+      if (comment.files && comment.files.length > 0) {
+        comment.files.forEach((file, idx) => {
+          const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name || file.file_name || '');
+          if (isImage && (file.url || file.file_url)) {
+            const imageKey = `comment-${comment.id}-file-${idx}`;
+            setImageLoadingStates(prev => ({ ...prev, [imageKey]: true }));
+            
+            promises.push(
+              createAuthenticatedBlobUrl(api, file.url || file.file_url)
+                .then(blobUrl => {
+                  newImageBlobUrls[imageKey] = blobUrl;
+                })
+                .catch(err => {
+                  console.error(`Failed to create blob URL for image ${imageKey}:`, err);
+                })
+            );
+          }
+        });
+      }
+    });
+
+    Promise.all(promises).then(() => {
+      setImageBlobUrls(prev => ({ ...prev, ...newImageBlobUrls }));
+    });
+
+    // Cleanup: revoke blob URLs when component unmounts or comments change
+    return () => {
+      Object.values(newImageBlobUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [comments, api]);
   
   const attachments =
     task?.attachments || task?.task_attachments || task?.files || [];
@@ -2086,51 +2127,123 @@ export default function TaskDetail() {
                                   {item.files && item.files.length > 0 && (
                                     <div
                                       style={{
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: "6px",
+                                        display: "grid",
+                                        gap: "8px",
                                         marginBottom: "8px",
                                       }}
                                     >
-                                      {item.files.map((file, fidx) => (
-                                        <a
-                                          key={fidx}
-                                          href={resolveFileUrl(
-                                            api,
-                                            file.url || file.file_url
-                                          )}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          style={{
-                                            display: "inline-flex",
-                                            alignItems: "center",
-                                            gap: "4px",
-                                            padding: "5px 9px",
-                                            background: "#f5f0fb",
-                                            border: "1px solid #e5dff3",
-                                            borderRadius: "5px",
-                                            fontSize: "10px",
-                                            color: "#7c3aed",
-                                            textDecoration: "none",
-                                            fontWeight: "600",
-                                            cursor: "pointer",
-                                            transition: "all 0.15s ease",
-                                          }}
-                                          onMouseEnter={(e) => {
-                                            e.target.style.background = "#ede7fb";
-                                            e.target.style.borderColor = "#7c3aed";
-                                            e.target.style.boxShadow =
-                                              "0 2px 6px rgba(124,58,237,0.15)";
-                                          }}
-                                          onMouseLeave={(e) => {
-                                            e.target.style.background = "#f5f0fb";
-                                            e.target.style.borderColor = "#e5dff3";
-                                            e.target.style.boxShadow = "none";
-                                          }}
-                                        >
-                                          📎 {file.name || file.file_name}
-                                        </a>
-                                      ))}
+                                      {item.files.map((file, fidx) => {
+                                        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name || file.file_name || '');
+                                        const imageKey = `comment-${item.id}-file-${fidx}`;
+                                        const imageLoading = imageLoadingStates[imageKey] ?? true;
+                                        
+                                        return isImage ? (
+                                          <div 
+                                            key={fidx}
+                                            style={{ 
+                                              position: "relative",
+                                              display: "inline-block",
+                                              maxWidth: "280px"
+                                            }}
+                                          >
+                                            {imageLoading && imageBlobUrls[imageKey] && (
+                                              <div style={{
+                                                position: "absolute",
+                                                inset: 0,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                background: "#f5f0fb",
+                                                borderRadius: "6px",
+                                                border: "1px solid #e2d9e9",
+                                                zIndex: 1
+                                              }}>
+                                                <div style={{
+                                                  width: "24px",
+                                                  height: "24px",
+                                                  border: "2px solid #e2d9e9",
+                                                  borderTopColor: "#7c3aed",
+                                                  borderRadius: "50%",
+                                                  animation: "spin 0.8s linear infinite"
+                                                }} />
+                                              </div>
+                                            )}
+                                            <a 
+                                              href="#"
+                                              onClick={async (e) => {
+                                                e.preventDefault();
+                                                try {
+                                                  const blobUrl = await createAuthenticatedBlobUrl(api, file.url || file.file_url);
+                                                  window.open(blobUrl, "_blank");
+                                                  setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                                } catch (error) {
+                                                  console.error("Failed to open file:", error);
+                                                }
+                                              }}
+                                              rel="noopener noreferrer"
+                                              style={{ display: "block", maxWidth: "280px" }}
+                                            >
+                                              <img 
+                                                src={imageBlobUrls[imageKey] || ""}
+                                                alt={file.name || file.file_name}
+                                                onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                                onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                                style={{ 
+                                                  maxWidth: "100%", 
+                                                  borderRadius: "6px", 
+                                                  border: "1px solid #e2d9e9", 
+                                                  cursor: "pointer",
+                                                  display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
+                                                }}
+                                              />
+                                            </a>
+                                          </div>
+                                        ) : (
+                                          <a
+                                            key={fidx}
+                                            href="#"
+                                            onClick={async (e) => {
+                                              e.preventDefault();
+                                              try {
+                                                const blobUrl = await createAuthenticatedBlobUrl(api, file.url || file.file_url);
+                                                window.open(blobUrl, "_blank");
+                                                setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                              } catch (error) {
+                                                console.error("Failed to open file:", error);
+                                              }
+                                            }}
+                                            rel="noopener noreferrer"
+                                            style={{
+                                              display: "inline-flex",
+                                              alignItems: "center",
+                                              gap: "4px",
+                                              padding: "5px 9px",
+                                              background: "#f5f0fb",
+                                              border: "1px solid #e5dff3",
+                                              borderRadius: "5px",
+                                              fontSize: "10px",
+                                              color: "#7c3aed",
+                                              textDecoration: "none",
+                                              fontWeight: "600",
+                                              cursor: "pointer",
+                                              transition: "all 0.15s ease",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                              e.target.style.background = "#ede7fb";
+                                              e.target.style.borderColor = "#7c3aed";
+                                              e.target.style.boxShadow =
+                                                "0 2px 6px rgba(124,58,237,0.15)";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                              e.target.style.background = "#f5f0fb";
+                                              e.target.style.borderColor = "#e5dff3";
+                                              e.target.style.boxShadow = "none";
+                                            }}
+                                          >
+                                            📎 {file.name || file.file_name}
+                                          </a>
+                                        );
+                                      })}
                                     </div>
                                   )}
 
