@@ -486,7 +486,7 @@ export default function Sidebar({ activePage, onLogout }) {
           })}
         </nav>
 
-        {/* Profile / logout */}
+        {/* Profile */}
         {(() => {
           const [bg, fg] = avatarBg(profile?.full_name || "");
           return (
@@ -502,14 +502,6 @@ export default function Sidebar({ activePage, onLogout }) {
                 <span className="path-sidebar__profile-name">{profile?.full_name || profile?.username || "User"}</span>
                 <span className="path-sidebar__profile-role">{formatRole(profile?.role || user.role)}</span>
               </span>
-              <button
-                className="path-sidebar__profile-menu-button"
-                type="button"
-                onClick={handleLogout}
-                aria-label="Log out"
-              >
-                <Icon.Logout />
-              </button>
             </div>
           );
         })()}
