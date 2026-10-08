@@ -535,6 +535,34 @@ export default function TaskDetail() {
       });
     }
 
+    // Add blob URLs for revision files
+    if (task?.revision_files) {
+      try {
+        const revisionFiles = typeof task.revision_files === 'string' 
+          ? JSON.parse(task.revision_files) 
+          : task.revision_files;
+        
+        if (Array.isArray(revisionFiles)) {
+          revisionFiles.forEach((file, idx) => {
+            if (file.url) {
+              const fileKey = `revision-${idx}-${file.url}`;
+              promises.push(
+                createAuthenticatedBlobUrl(api, file.url)
+                  .then(blobUrl => {
+                    blobUrls[fileKey] = blobUrl;
+                  })
+                  .catch(err => {
+                    console.error(`Failed to create blob URL for revision file ${fileKey}:`, err);
+                  })
+              );
+            }
+          });
+        }
+      } catch (e) {
+        console.error('Error processing revision_files for blob URLs:', e);
+      }
+    }
+
     Promise.all(promises).then(() => {
       setFileBlobUrls(blobUrls);
     });
@@ -545,7 +573,7 @@ export default function TaskDetail() {
         if (url) URL.revokeObjectURL(url);
       });
     };
-  }, [latestSubmissionGroup, api]);
+  }, [latestSubmissionGroup, task?.revision_files, api]);
   
   const attachments =
     task?.attachments || task?.task_attachments || task?.files || [];
@@ -1405,13 +1433,14 @@ export default function TaskDetail() {
                                     const isDoc = /\.(doc|docx)$/i.test(file.name);
                                     const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
                                     const fileIcon = isPdf ? '📄' : isDoc ? '📝' : isImage ? '🖼️' : '📎';
+                                    const fileKey = `revision-${idx}-${file.url}`;
+                                    const fileBlobUrl = fileBlobUrls[fileKey] || file.url;
                                     
                                     return (
-                                      <a
+                                      <button
                                         key={idx}
-                                        href={file.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        type="button"
+                                        onClick={() => window.open(fileBlobUrl, '_blank')}
                                         style={{
                                           display: 'flex',
                                           alignItems: 'center',
@@ -1422,7 +1451,9 @@ export default function TaskDetail() {
                                           borderRadius: '8px',
                                           textDecoration: 'none',
                                           transition: 'all 0.2s',
-                                          cursor: 'pointer'
+                                          cursor: 'pointer',
+                                          textAlign: 'left',
+                                          width: '100%'
                                         }}
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.background = '#fff4e0';
@@ -1443,7 +1474,7 @@ export default function TaskDetail() {
                                           </div>
                                         </div>
                                         <Icon name="preview" />
-                                      </a>
+                                      </button>
                                     );
                                   })}
                                 </div>
