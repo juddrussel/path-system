@@ -353,8 +353,8 @@ const BADGE = {
 };
 
 // Statuses that mean the task is complete/approved — shown in green with
-// an "Approved" label regardless of the raw status string ("Received").
-const APPROVED_STATUSES = ["received"];
+// an "Approved" label regardless of the raw status string.
+const APPROVED_STATUSES = ["approved"];
 
 // Maps a raw status value to the label shown to the user. The underlying
 // value (e.g. "received") is still what's used for filtering/API calls —
@@ -553,7 +553,7 @@ function Toast({ toasts, onDismiss }) {
 
 function isTaskOverdue(t) {
   const s = (t.status || "").toLowerCase();
-  const done = /approved|completed|received|archived|rejected/.test(s);
+  const done = /approved|completed|archived|rejected/.test(s);
   return t.deadline && new Date(t.deadline) < new Date() && !done;
 }
 
@@ -616,7 +616,7 @@ function PathTasksWorkspace({
 }) {
   const isFaculty = !canViewAdminNav;
   const isComplete = (task) =>
-    ["received", "done", "approved", "completed"].includes(
+    ["done", "approved", "completed"].includes(
       (task.status || "").toLowerCase(),
     );
   const isRevision = (task) =>
@@ -1251,7 +1251,7 @@ function PathAssignedWorkspace({
   fmtDeadline,
 }) {
   const isComplete = (task) =>
-    ["received", "done", "approved", "completed"].includes(
+    ["done", "approved", "completed"].includes(
       (task.status || "").toLowerCase(),
     );
   const isOverdue = (task) =>

@@ -650,7 +650,6 @@ export default function Reports() {
     "returned":       "Returned",
     "revision":       "Returned",
     "returned for revision": "Returned",
-    "received":       "Approved",
     "approved":       "Approved",
     "rejected":       "Rejected",
     "archived":       "Completed",

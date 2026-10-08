@@ -2009,20 +2009,20 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
     /^returned$|^revision$|returned for revision/.test(statusOf(row))
   );
   const drafts = forms.filter((row) => /draft/.test(statusOf(row)));
-  // Completed = "Approved", "Received", or "Completed"
+  // Completed = "Approved" or "Completed"
   const approved = allItems.filter((row) =>
-    /^approved$|^received$|^completed$/.test(statusOf(row))
+    /^approved$|^completed$/.test(statusOf(row))
   );
   // Overdue = tasks past deadline and not done
   const now = new Date();
   const overdueCount = tasksAll.filter(t => {
     const s = statusOf(t);
-    const done = /approved|completed|archived|received/.test(s);
+    const done = /approved|completed|archived/.test(s);
     return t.deadline && new Date(t.deadline) < now && !done;
   }).length;
 
   const active = forms.filter(
-    (row) => !/approved|received|rejected|archived/.test(statusOf(row)),
+    (row) => !/approved|rejected|archived/.test(statusOf(row)),
   );
   const returnedForm = returned[0];
   const supportingAttentionItems = [
@@ -2035,7 +2035,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
       label: "Current Tasks",
       value: tasksAll.filter(t => {
         const s = String(t.status || "").toLowerCase();
-        return !/approved|received|completed|archived/.test(s);
+        return !/approved|completed|archived/.test(s);
       }).length,
       detail: "Assigned to you",
       icon: ClipboardList,
@@ -2059,7 +2059,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
       label: "Approved",
       value: tasksAllUnfiltered.filter(t => {
         const s = String(t.status || "").toLowerCase();
-        return /approved|received/.test(s);
+        return /approved/.test(s);
       }).length,
       detail: "Successfully completed",
       icon: CheckCircle2,
@@ -2139,12 +2139,12 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
             // Pick the most urgent overdue task, else most urgent active task
             const overdueItems = tasksAll.filter(t => {
               const s = String(t.status || "").toLowerCase();
-              const done = /approved|completed|archived|received/.test(s);
+              const done = /approved|completed|archived/.test(s);
               return t.deadline && new Date(t.deadline) < now && !done;
             }).sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
             const nextTask = overdueItems[0] || tasksAll.filter(t => {
               const s = String(t.status || "").toLowerCase();
-              return !/approved|completed|archived|received|rejected/.test(s);
+              return !/approved|completed|archived|rejected/.test(s);
             }).sort((a, b) => new Date(a.deadline || 9999999999999) - new Date(b.deadline || 9999999999999))[0];
 
             if (!nextTask) return (
@@ -2222,7 +2222,7 @@ function FacultyDashboardOverview({ displayName, forms, loading, tasks = [], tas
           </p>
           <div className="faculty-health-meta" style={{ marginTop: "auto", paddingTop: 16 }}>
             <span>
-              <ShieldCheck size={14} /> {tasksAll.filter(t => !/approved|completed|archived|received|rejected/.test(String(t.status || "").toLowerCase())).length} active tasks
+              <ShieldCheck size={14} /> {tasksAll.filter(t => !/approved|completed|archived|rejected/.test(String(t.status || "").toLowerCase())).length} active tasks
             </span>
             <span style={{ color: overdueCount > 0 ? "#dc2626" : "#6e9b80", fontWeight: 700 }}>
               {overdueCount > 0 ? `${overdueCount} needs follow-up` : "On track"}
@@ -3237,7 +3237,7 @@ export default function Dashboard() {
   );
 
   const trackingBucketOf = (status) => {
-    if (["Approved", "Completed", "Archived", "Received"].includes(status))
+    if (["Approved", "Completed", "Archived"].includes(status))
       return "Approved";
     if (status === "Rejected") return "Rejected";
     if (status === "Returned") return "Returned";
@@ -3249,7 +3249,7 @@ export default function Dashboard() {
   
   // Count by status using the same approach as Reports.jsx
   const approvedCount = itemsForTracking.filter((t) => 
-    t.status === "Approved" || t.status === "Completed" || t.status === "Archived" || t.status === "Received"
+    t.status === "Approved" || t.status === "Completed" || t.status === "Archived"
   ).length;
   const pendingCount = itemsForTracking.filter((t) => 
     t.status === "Pending" || t.status === "Under Review" || t.status === "For Approval" || t.status === "Delayed"
@@ -3681,7 +3681,7 @@ export default function Dashboard() {
               // Filter out completed/approved tasks for display
               const activeTasks = myTasksData.filter(t => {
                 const s = String(t.status || "").toLowerCase();
-                return !/approved|received|completed|archived/.test(s);
+                return !/approved|completed|archived/.test(s);
               });
               return (
                 <FacultyDashboardOverview

@@ -21,11 +21,11 @@
  * Completed items don't add points back — they simply don't cost any.
  * A faculty member with nothing outstanding stays at 100%.
  *
- * "done" statuses: approved, rejected, archived, completed, registered, received
+ * "done" statuses: approved, rejected, archived, completed, registered
  * (mirrors the `done` logic already used in Dashboard.jsx's fetchTrackedItems)
  */
 
-const DONE_STATUSES = ["approved", "rejected", "archived", "completed", "registered", "received"];
+const DONE_STATUSES = ["approved", "rejected", "archived", "completed", "registered"];
 const ACTIVE_STATUSES = ["for approval", "returned for revision", "under review", "in progress", "return for revision"];
 const PENDING_STATUS = "pending";
 

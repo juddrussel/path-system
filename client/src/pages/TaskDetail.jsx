@@ -15,7 +15,7 @@ const ADMIN_ROLES = ["admin", "program_chair"];
 
 const statusInfo = (status) => {
   const value = String(status || "Awaiting faculty submission").toLowerCase();
-  if (/approved|received|completed|done/.test(value)) {
+  if (/approved|completed|done/.test(value)) {
     return {
       label: "Approved",
       tone: "approved",
@@ -1347,7 +1347,7 @@ export default function TaskDetail() {
                 ) : null}
 
                 {isFacultyView && (
-                  (/approved|received|completed|done/.test((task.status || "").toLowerCase())) ? (
+                  (/approved|completed|done/.test((task.status || "").toLowerCase())) ? (
                     <section className="td-card">
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 20px", textAlign: "center" }}>
                         <div style={{ width: 48, height: 48, borderRadius: 14, background: "#e6f5ed", border: "1.5px solid #c8e6d7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, color: "#378259" }}>
@@ -2446,7 +2446,7 @@ export default function TaskDetail() {
 
               <aside className="td-side">
                 {/* Show approval card when task is approved/completed, otherwise show Decision Station */}
-                {(/approved|received|completed|done/.test((task.status || "").toLowerCase())) ? (
+                {(/approved|completed|done/.test((task.status || "").toLowerCase())) ? (
                   <section className="td-decision" style={{ background: 'linear-gradient(150deg, #e6f5ed, #f5fbf8 58%, #fff)', borderColor: '#c8e6d7' }}>
                     <div className="td-decision-head" style={{ borderColor: '#d4eddf' }}>
                       <span style={{ color: '#3d8b5e' }}>Task Status</span>

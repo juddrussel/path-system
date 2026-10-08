@@ -360,8 +360,8 @@ const BADGE = {
 };
 
 // Statuses that mean the task is complete/approved — shown in primary purple
-// with an "Approved" label regardless of the raw status string ("Received").
-const APPROVED_STATUSES = ["received", "approved"];
+// with an "Approved" label regardless of the raw status string.
+const APPROVED_STATUSES = ["approved"];
 
 function Badge({ label }) {
   const key = label?.toLowerCase();
@@ -4997,7 +4997,7 @@ function PathTasksAssignedLayout({
 }) {
   const total = stats.total ?? tasks.length;
   const active = tasks.filter(
-    (task) => !/approved|done|received/i.test(task.status || ""),
+    (task) => !/approved|done/i.test(task.status || ""),
   ).length;
   const submitted =
     stats.submitted ??
@@ -5016,7 +5016,7 @@ function PathTasksAssignedLayout({
   );
   const statusTone = (statusValue) => {
     const value = String(statusValue || "").toLowerCase();
-    if (/approved|done|received/.test(value)) return "approved";
+    if (/approved|done/.test(value)) return "approved";
     if (/returned/.test(value)) return "returned";
     if (/approval|review|submitted/.test(value)) return "review";
     if (/overdue/.test(value)) return "risk";
@@ -5042,7 +5042,7 @@ function PathTasksAssignedLayout({
   const isLate = (task) =>
     task?.deadline &&
     new Date(task.deadline) < new Date() &&
-    !/approved|done|received/i.test(task.status || "");
+    !/approved|done/i.test(task.status || "");
   const openTask = (task) => {
     // Route to collaborative detail page if this is a collaborative task
     let route = `/task-details/${task.id}`;
@@ -5380,7 +5380,7 @@ function PathTasksAssignedLayout({
                       >
                         ↗ Open task details
                       </button>
-                      {/approved|received/i.test(selected?.status || "") && (
+                      {/approved/i.test(selected?.status || "") && (
                         <button
                           className="path-assigned-secondary"
                           type="button"

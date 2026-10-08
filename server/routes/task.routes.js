@@ -184,8 +184,8 @@ async function notify(io, { userId, type, title, message, taskId = null, trackin
 
 // ─── DEADLINE REMINDERS: notify faculty when a task's deadline is near ───────
 // Tasks in these statuses have nothing left to warn about — not started
-// (Draft), already done (Received), or no longer active (Archived).
-const DEADLINE_REMINDER_EXCLUDED_STATUSES = ["Draft", "Received", "Archived"];
+// (Draft), already done (Approved), or no longer active (Archived).
+const DEADLINE_REMINDER_EXCLUDED_STATUSES = ["Draft", "Approved", "Archived"];
 
 // ─── Reminder schedule: now configurable per SLA rule, not hardcoded ─────────
 // The 48/24/4-hour-before schedule used to be fixed for every task. It's now
@@ -464,7 +464,7 @@ async function sendDeadlineReachedReminder(io, task, deadlineStr) {
 // unapproved task is approaching its deadline. Every task passed in here
 // is already unapproved by construction — checkDeadlineReminders() only
 // queries tasks outside DEADLINE_REMINDER_EXCLUDED_STATUSES, which
-// includes "Received" — so there's no additional status check to make.
+// includes "Approved" — so there's no additional status check to make.
 // Fires once per recipient per stage per deadline, same guard pattern as
 // the faculty-facing reminder, just checked per-user since each admin's
 // "already sent" state is independent.
@@ -925,7 +925,7 @@ router.get("/my", requireAuth, async (req, res) => {
     const today    = phtDateKey(now);
     const total    = tasks.length;
     const dueToday = tasks.filter(t => t.deadline && phtDateKey(t.deadline) === today).length;
-    const overdue  = tasks.filter(t => t.deadline && phtDateKey(t.deadline) < today && t.status !== "Received").length;
+    const overdue  = tasks.filter(t => t.deadline && phtDateKey(t.deadline) < today && t.status !== "Approved").length;
     const pendingApproval = tasks.filter(t => t.status === "For Approval").length;
 
     return res.json({ tasks, stats: { total, dueToday, overdue, pendingApproval } });
@@ -1006,9 +1006,9 @@ router.get("/assigned-by-me", requireAuth, requireChairOrAdmin, async (req, res)
     const now   = new Date();
     const total           = tasks.length;
     const pendingApproval = tasks.filter(t => t.status === "For Approval").length;
-    const submitted       = tasks.filter(t => ["Received", "For Approval"].includes(t.status)).length;
+    const submitted       = tasks.filter(t => ["Approved", "For Approval"].includes(t.status)).length;
     const overdue         = tasks.filter(t =>
-      t.deadline && new Date(t.deadline) < now && !["Received", "Archived"].includes(t.status)
+      t.deadline && new Date(t.deadline) < now && !["Approved", "Archived"].includes(t.status)
     ).length;
 
     return res.json({ tasks, stats: { total, pendingApproval, submitted, overdue } });
@@ -1595,7 +1595,7 @@ router.post("/:id/cancel-confirmation", requireAuth, async (req, res) => {
 // ─── PATCH /api/tasks/:id/status ─────────────────────────────────────────────
 router.patch("/:id/status", requireAuth, async (req, res) => {
   const { status } = req.body;
-  const validStatuses = ["Pending", "In Review", "For Approval", "Received", "Returned", "Draft"];
+  const validStatuses = ["Pending", "In Review", "For Approval", "Approved", "Returned", "Draft"];
   if (!validStatuses.includes(status))
     return res.status(400).json({ message: "Invalid status." });
 
@@ -1650,13 +1650,13 @@ router.patch("/:id/approve", requireAuth, async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Task not found." });
-    await db.query("UPDATE tasks SET status = 'Received', updated_at = NOW() WHERE id = ?", [req.params.id]);
+    await db.query("UPDATE tasks SET status = 'Approved', updated_at = NOW() WHERE id = ?", [req.params.id]);
     await writeLog({ userId: req.user.id, action: "TASK_APPROVE", detail: `Approved task ${rows[0].tracking_id}`, ipAddress: req.ip });
 
     const io = req.app.get("io");
     const actorName = req.user.full_name || req.user.username;
     if (io) {
-      const payload = { taskId: parseInt(req.params.id), newStatus: "Received", updatedBy: actorName };
+      const payload = { taskId: parseInt(req.params.id), newStatus: "Approved", updatedBy: actorName };
       io.to(`user_${rows[0].faculty_id}`).emit("task:status_changed", payload);
       io.to(`user_${rows[0].assigned_by}`).emit("task:status_changed", payload);
     }
