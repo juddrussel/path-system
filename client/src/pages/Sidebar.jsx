@@ -485,26 +485,6 @@ export default function Sidebar({ activePage, onLogout }) {
             );
           })}
         </nav>
-
-        {/* Profile */}
-        {(() => {
-          const [bg, fg] = avatarBg(profile?.full_name || "");
-          return (
-            <div className="path-sidebar__profile">
-              <span className="path-sidebar__profile-avatar">
-                {avatarBlobUrl ? (
-                  <img src={avatarBlobUrl} alt="" />
-                ) : (
-                  initials(profile?.full_name)
-                )}
-              </span>
-              <span className="path-sidebar__profile-copy">
-                <span className="path-sidebar__profile-name">{profile?.full_name || profile?.username || "User"}</span>
-                <span className="path-sidebar__profile-role">{formatRole(profile?.role || user.role)}</span>
-              </span>
-            </div>
-          );
-        })()}
       </aside>
     </>
   );
