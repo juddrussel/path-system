@@ -396,10 +396,12 @@ export default function Sidebar({ activePage, onLogout }) {
     }
 
     let cancelled = false;
+    let blobUrl = null;
     
     createAuthenticatedBlobUrl(API, profile.avatar_url)
-      .then(blobUrl => {
-        if (!cancelled) setAvatarBlobUrl(blobUrl);
+      .then(url => {
+        blobUrl = url;
+        if (!cancelled) setAvatarBlobUrl(url);
       })
       .catch(err => {
         console.error('[Sidebar] Failed to load avatar:', err);
@@ -409,8 +411,8 @@ export default function Sidebar({ activePage, onLogout }) {
     return () => {
       cancelled = true;
       // Clean up blob URL when component unmounts or avatar changes
-      if (avatarBlobUrl) {
-        URL.revokeObjectURL(avatarBlobUrl);
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
       }
     };
   }, [profile?.avatar_url]);

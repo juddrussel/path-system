@@ -487,10 +487,12 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
     }
 
     let cancelled = false;
+    let blobUrl = null;
     
     createAuthenticatedBlobUrl(SERVER_URL, currentAvatar)
-      .then(blobUrl => {
-        if (!cancelled) setCurrentAvatarBlob(blobUrl);
+      .then(url => {
+        blobUrl = url;
+        if (!cancelled) setCurrentAvatarBlob(url);
       })
       .catch(err => {
         console.error('[ProfileModal] Failed to load avatar:', err);
@@ -499,6 +501,9 @@ function ProfileModal({ profile, onClose, onSaved, onToast }) {
 
     return () => {
       cancelled = true;
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
     };
   }, [currentAvatar]);
 
@@ -1421,10 +1426,12 @@ export default function TopBar({ children, onLogout }) {
     }
 
     let cancelled = false;
+    let blobUrl = null;
     
     createAuthenticatedBlobUrl(SERVER_URL, profile.avatar_url)
-      .then(blobUrl => {
-        if (!cancelled) setAvatarBlobUrl(blobUrl);
+      .then(url => {
+        blobUrl = url;
+        if (!cancelled) setAvatarBlobUrl(url);
       })
       .catch(err => {
         console.error('[TopBar] Failed to load avatar:', err);
@@ -1434,8 +1441,8 @@ export default function TopBar({ children, onLogout }) {
     return () => {
       cancelled = true;
       // Clean up blob URL when component unmounts or avatar changes
-      if (avatarBlobUrl) {
-        URL.revokeObjectURL(avatarBlobUrl);
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
       }
     };
   }, [profile?.avatar_url]);

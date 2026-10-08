@@ -234,10 +234,12 @@ function AccountSection({ profile, onSaved, onToast }) {
     }
 
     let cancelled = false;
+    let blobUrl = null;
     
     createAuthenticatedBlobUrl(SERVER_URL, profile.avatar_url)
-      .then(blobUrl => {
-        if (!cancelled) setAvatarBlobUrl(blobUrl);
+      .then(url => {
+        blobUrl = url;
+        if (!cancelled) setAvatarBlobUrl(url);
       })
       .catch(err => {
         console.error('[Settings] Failed to load avatar:', err);
@@ -246,8 +248,8 @@ function AccountSection({ profile, onSaved, onToast }) {
 
     return () => {
       cancelled = true;
-      if (avatarBlobUrl) {
-        URL.revokeObjectURL(avatarBlobUrl);
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
       }
     };
   }, [profile?.avatar_url]);

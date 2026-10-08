@@ -341,9 +341,11 @@ function Avatar({ name, size = 36, online, photoUrl }) {
     }
 
     let cancelled = false;
+    let blob = null;
     
     createAuthenticatedBlobUrl(API, photoUrl)
       .then(url => {
+        blob = url;
         if (!cancelled) setBlobUrl(url);
       })
       .catch(err => {
@@ -356,8 +358,8 @@ function Avatar({ name, size = 36, online, photoUrl }) {
 
     return () => {
       cancelled = true;
-      if (blobUrl) {
-        URL.revokeObjectURL(blobUrl);
+      if (blob) {
+        URL.revokeObjectURL(blob);
       }
     };
   }, [photoUrl]);
