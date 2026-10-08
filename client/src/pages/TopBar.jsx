@@ -1197,7 +1197,7 @@ function NotificationPanel({ notifications, loading, onMarkAllRead, onSelect, on
 }
 
 // ─── PROFILE DROPDOWN ────────────────────────────────────────────────────────
-function ProfileDropdown({ profile, onViewProfile, onLogout, onClose }) {
+function ProfileDropdown({ profile, avatarBlobUrl, onViewProfile, onLogout, onClose }) {
   const [bg, fg] = avatarBg(profile?.full_name || "");
 
   return (
@@ -1650,6 +1650,7 @@ export default function TopBar({ children, onLogout }) {
               {showDropdown && (
                 <ProfileDropdown
                   profile={profile}
+                  avatarBlobUrl={avatarBlobUrl}
                   onViewProfile={() => setShowProfile(true)}
                   onLogout={onLogout}
                   onClose={() => setShowDropdown(false)}
