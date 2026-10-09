@@ -629,6 +629,12 @@ export default function CollaborativeTaskDetail() {
   // Check if current user is the team leader
   const isTeamLeader = useMemo(() => {
     const currentCollab = collaborators.find(c => c.user_id === user.id);
+    console.log('[isTeamLeader Check]', {
+      userId: user.id,
+      collaborators: collaborators.map(c => ({ id: c.user_id, name: c.full_name, role: c.role })),
+      currentCollab,
+      isTeamLeader: currentCollab?.role === 'team_leader'
+    });
     return currentCollab?.role === 'team_leader';
   }, [collaborators, user.id]);
   const [versions, setVersions] = useState([]);
