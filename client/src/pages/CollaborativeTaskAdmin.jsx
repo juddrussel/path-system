@@ -1171,16 +1171,11 @@ export default function CollaborativeTaskAdmin() {
   if (error) return <div style={{ padding: "32px", textAlign: "center", color: "#d32f2f" }}>Error: {error}</div>;
   if (!task) return <div style={{ padding: "32px", textAlign: "center" }}>Task not found</div>;
 
-  // Count confirmed collaborators from the confirmations data
-  const confirmedCount = collaborators.filter(c => 
-    confirmations.some(conf => conf.user_id === c.user_id && conf.status === "confirmed")
-  ).length;
-  
   // Find the current version based on task.current_output_version
   const currentVersion = versions.find(v => v.version === task?.current_output_version) || versions[0];
   
-  const allConfirmed = confirmedCount === collaborators.length && collaborators.length > 0;
-  const isReadyForReview = task.status === "For Approval" && allConfirmed;
+  // Task is ready for review if status is "For Approval" (team leader has uploaded)
+  const isReadyForReview = task.status === "For Approval";
 
   return (
     <div className="admin-collab">
@@ -1248,10 +1243,6 @@ export default function CollaborativeTaskAdmin() {
                 <div>
                   <strong>{collaborators.length}</strong>
                   <small>Collaborators</small>
-                </div>
-                <div>
-                  <strong>{confirmedCount}/{collaborators.length}</strong>
-                  <small>Confirmed</small>
                 </div>
                 <div>
                   <strong>{versions.length}</strong>
@@ -1343,66 +1334,7 @@ export default function CollaborativeTaskAdmin() {
               </div>
             </section>
 
-            <section className="admin-card">
-              <div className="admin-heading">
-                <div>
-                  <span className="admin-kicker">Collaborator oversight</span>
-                  <h2>{allConfirmed ? "Everyone has confirmed the latest output" : "Waiting for collaborator confirmations"}</h2>
-                </div>
-                <span className="admin-success">
-                  <CheckCircle2 size={13} /> {confirmedCount}/{collaborators.length} confirmed
-                </span>
-              </div>
-              <p className="admin-muted">
-                Confirmation is locked from the admin view. Use Request revision if the submitted output needs another pass.
-              </p>
-              <div className="admin-people">
-                {collaborators.map((collab) => {
-                  const isConfirmed = confirmations.some(conf => conf.user_id === collab.user_id && conf.status === "confirmed");
-                  return (
-                    <div className="admin-person" key={collab.user_id}>
-                      <Avatar 
-                        profilePicture={collab.profile_picture}
-                        fullName={collab.full_name}
-                        userId={collab.user_id}
-                      />
-                      <div>
-                        <strong>
-                          {collab.full_name}
-                          {collab.role === 'team_leader' && (
-                            <span style={{
-                              marginLeft: '6px',
-                              padding: '2px 6px',
-                              background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
-                              border: '1px solid #93c5fd',
-                              borderRadius: '4px',
-                              color: '#1e40af',
-                              fontSize: '9px',
-                              fontWeight: 800,
-                              letterSpacing: '0.02em'
-                            }}>
-                              TEAM LEADER
-                            </span>
-                          )}
-                        </strong>
-                        <small>{collab.role}</small>
-                      </div>
-                      <span className={isConfirmed ? "admin-confirmed" : "admin-confirmed"} style={{ color: isConfirmed ? "#4d946f" : "#998ba3" }}>
-                        {isConfirmed ? (
-                          <>
-                            <Check size={12} /> Confirmed
-                          </>
-                        ) : (
-                          <>
-                            <Clock3 size={12} /> Pending
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
+            {/* Confirmation section removed - team leader uploads auto-submit */}
 
             {(isReadyForReview || status === "Approved") && currentVersion && (
               <section className="admin-card">
