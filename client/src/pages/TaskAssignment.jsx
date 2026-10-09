@@ -1321,9 +1321,6 @@ function TaskAssignmentInner() {
           </div>
           <footer className="path-assignment-footer">
             <span>PATH keeps every handoff visible and accountable.</span>
-            <button type="button" onClick={() => navigate("/tasks")}>
-              View task desk ↗
-            </button>
           </footer>
         </div>
       </main>
