@@ -932,7 +932,7 @@ export default function Tracking() {
             <article className="tracking-stat-card"><span>Average processing time</span><strong>{loading ? "—" : "2.4d"}</strong><small>18% faster than last cycle</small></article>
           </section>
           <section className="tracking-pipeline tracking-panel">
-            <div className="tracking-panel-topline"><div><div className="section-kicker">Lifecycle overview</div><h3>Document process</h3></div><span className="tracking-live"><span className="live-dot" /> Live</span></div>
+            <div className="tracking-panel-topline"><div><div className="section-kicker">Process overview</div><h3>Document process</h3></div><span className="tracking-live"><span className="live-dot" /> Live</span></div>
             <div className="tracking-pipeline-body"><div className="pipeline-steps"><div className="pipeline-step complete"><span><Icon.Doc /></span><strong>Submitted</strong><small>{stats.total} documents</small></div><div className="pipeline-line complete" /><div className="pipeline-step complete"><span><Icon.Tracking /></span><strong>Screening</strong><small>{stats.inProgress + stats.pendingReview} documents</small></div><div className="pipeline-line active" /><div className="pipeline-step active"><span>{stats.pendingReview}</span><strong>In review</strong><small>Needs attention</small></div><div className="pipeline-line" /><div className="pipeline-step"><span>4</span><strong>Decision</strong><small>{stats.completed} closed</small></div><div className="pipeline-line" /><div className="pipeline-step"><span><Icon.SLA /></span><strong>Completed</strong><small>Current cycle</small></div></div></div>
           </section>
           <section className="tracking-layout">
