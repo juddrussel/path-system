@@ -1359,7 +1359,24 @@ export default function CollaborativeTaskAdmin() {
                         userId={collab.user_id}
                       />
                       <div>
-                        <strong>{collab.full_name}</strong>
+                        <strong>
+                          {collab.full_name}
+                          {collab.role === 'team_leader' && (
+                            <span style={{
+                              marginLeft: '6px',
+                              padding: '2px 6px',
+                              background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
+                              border: '1px solid #93c5fd',
+                              borderRadius: '4px',
+                              color: '#1e40af',
+                              fontSize: '9px',
+                              fontWeight: 800,
+                              letterSpacing: '0.02em'
+                            }}>
+                              TEAM LEADER
+                            </span>
+                          )}
+                        </strong>
                         <small>{collab.role}</small>
                       </div>
                       <span className={isConfirmed ? "admin-confirmed" : "admin-confirmed"} style={{ color: isConfirmed ? "#4d946f" : "#998ba3" }}>

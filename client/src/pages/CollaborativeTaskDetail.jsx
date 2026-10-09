@@ -625,6 +625,12 @@ export default function CollaborativeTaskDetail() {
   // State
   const [task, setTask] = useState(null);
   const [collaborators, setCollaborators] = useState([]);
+  
+  // Check if current user is the team leader
+  const isTeamLeader = useMemo(() => {
+    const currentCollab = collaborators.find(c => c.user_id === user.id);
+    return currentCollab?.role === 'team_leader';
+  }, [collaborators, user.id]);
   const [versions, setVersions] = useState([]);
   const [expandedVersions, setExpandedVersions] = useState(new Set());
   const [messages, setMessages] = useState([]);
@@ -1724,7 +1730,7 @@ export default function CollaborativeTaskDetail() {
                 </span>
               </div>
               <p className="collab-muted">
-                Every collaborator confirms the current version. Uploading a new version resets this gate and starts confirmation again.
+                The team leader confirms the current version on behalf of the team. Uploading a new version resets this gate and starts confirmation again.
               </p>
 
               {/* Display current version files being confirmed */}
@@ -1920,7 +1926,7 @@ export default function CollaborativeTaskDetail() {
                         </>
                       )}
                     </span>
-                    {collab.user_id === user.id && (
+                    {collab.user_id === user.id && (isTeamLeader || isChair) && (
                       <button
                         className="collab-toggle"
                         onClick={() => toggleConfirmation(collab.user_id)}
@@ -1974,10 +1980,30 @@ export default function CollaborativeTaskDetail() {
                     </div>
                   </div>
                 </div>
+              ) : !isTeamLeader && !isChair ? (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%)',
+                  border: '1px solid #c7d2fe',
+                  borderRadius: '10px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <UsersRound size={20} style={{ color: '#3730a3', flexShrink: 0, marginTop: '2px' }} />
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#3730a3', marginBottom: '4px' }}>
+                        Team Member View
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#4338ca', lineHeight: 1.5 }}>
+                        Only the team leader can upload new versions. You can view versions, confirm outputs, and participate in discussions.
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <>
                   <p className="collab-muted">
-                    Any collaborator can replace the current output. PATH will create the next version and reset every confirmation.
+                    As the team leader, you can upload new versions. PATH will create the next version and reset every confirmation.
                   </p>
 
                   <input

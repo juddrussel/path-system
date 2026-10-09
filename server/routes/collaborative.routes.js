@@ -68,11 +68,12 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
     const taskId = taskResult.insertId;
 
     // Add collaborators to task_collaborators
-    const collaboratorPromises = faculty_ids.map((facultyId) =>
+    // First faculty becomes team leader, rest are contributors
+    const collaboratorPromises = faculty_ids.map((facultyId, index) =>
       db.query(
         `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
          VALUES (?, ?, ?, ?)`,
-        [taskId, facultyId, "contributor", now]
+        [taskId, facultyId, index === 0 ? "team_leader" : "contributor", now]
       )
     );
     await Promise.all(collaboratorPromises);
@@ -158,15 +159,21 @@ router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), a
       return res.status(400).json({ message: "At least one file is required." });
     }
 
-    // Verify user is a collaborator
+    // Verify user is a collaborator and check their role
     const [[collab]] = await db.query(
-      `SELECT tc.id FROM task_collaborators tc
+      `SELECT tc.id, tc.role FROM task_collaborators tc
        WHERE tc.task_id = ? AND tc.user_id = ?`,
       [taskId, userId]
     );
 
     if (!collab) {
       return res.status(403).json({ message: "You are not a collaborator on this task." });
+    }
+
+    // Only team leader or admin/chair can upload versions
+    const isChair = ADMIN_ROLES.includes(req.user.role);
+    if (collab.role !== 'team_leader' && !isChair) {
+      return res.status(403).json({ message: "Only the team leader can upload new versions." });
     }
 
     // Get current version and increment
@@ -274,14 +281,20 @@ router.post("/:id/confirm", requireAuth, async (req, res) => {
     const userId = req.user.id;
     const now = new Date();
 
-    // Verify user is a collaborator
+    // Verify user is a collaborator and check their role
     const [[collab]] = await db.query(
-      `SELECT tc.id FROM task_collaborators tc WHERE tc.task_id = ? AND tc.user_id = ?`,
+      `SELECT tc.id, tc.role FROM task_collaborators tc WHERE tc.task_id = ? AND tc.user_id = ?`,
       [taskId, userId]
     );
 
     if (!collab) {
       return res.status(403).json({ message: "You are not a collaborator on this task." });
+    }
+
+    // Only team leader or admin/chair can confirm
+    const isChair = ADMIN_ROLES.includes(req.user.role);
+    if (collab.role !== 'team_leader' && !isChair) {
+      return res.status(403).json({ message: "Only the team leader can confirm outputs." });
     }
 
     // Get current task version
@@ -401,6 +414,22 @@ router.post("/:id/withdraw-confirmation", requireAuth, async (req, res) => {
     const taskId = parseInt(req.params.id);
     const userId = req.user.id;
     const now = new Date();
+
+    // Verify user is a collaborator and check their role
+    const [[collab]] = await db.query(
+      `SELECT tc.id, tc.role FROM task_collaborators tc WHERE tc.task_id = ? AND tc.user_id = ?`,
+      [taskId, userId]
+    );
+
+    if (!collab) {
+      return res.status(403).json({ message: "You are not a collaborator on this task." });
+    }
+
+    // Only team leader or admin/chair can withdraw confirmation
+    const isChair = ADMIN_ROLES.includes(req.user.role);
+    if (collab.role !== 'team_leader' && !isChair) {
+      return res.status(403).json({ message: "Only the team leader can withdraw confirmation." });
+    }
 
     // Get current version
     const [[task]] = await db.query(
