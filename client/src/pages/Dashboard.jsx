@@ -4884,8 +4884,8 @@ export default function Dashboard() {
                                   style={{ borderRadius: 8, flexShrink: 0 }}
                                 />
                                 <div style={{ minWidth: 0, flex: 1 }}>
-                                  <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
-                                  <div style={{ fontSize: "11px", color: "#6b7280", marginTop: "1px" }}>
+                                  <div style={{ fontSize: "12px", fontWeight: "600", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
+                                  <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "1px" }}>
                                     {f.completed} approved · {f.pending} open
                                   </div>
                                 </div>
@@ -4893,9 +4893,8 @@ export default function Dashboard() {
                               
                               {/* Initiative progress column */}
                               <div className="path-performance-progress" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                  <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Initiative</span>
-                                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#111827' }}>{hasNoWork ? '—' : `${score}%`}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#111827' }}>{hasNoWork ? '—' : `${score}%`}</span>
                                 </div>
                                 <div style={{ height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
                                   <div
@@ -4917,7 +4916,7 @@ export default function Dashboard() {
                                     display: "inline-block",
                                     padding: "4px 10px",
                                     borderRadius: "6px",
-                                    fontSize: "11px",
+                                    fontSize: "10px",
                                     fontWeight: "600",
                                     backgroundColor: hasNoWork ? '#f3f4f6' : (risk ? '#fef2f2' : '#f0fdf4'),
                                     color: statusColor,
