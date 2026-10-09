@@ -4956,20 +4956,79 @@ export default function Dashboard() {
                       </div>
                       
                       {facultyPerformanceSummary.lowest && (
-                        <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid #f3f4f6" }}>
-                          <div style={{ fontSize: "11px", color: "#dc2626", fontWeight: "600", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                            Needs Attention
+                        <>
+                          <div style={{ marginTop: "20px", padding: "14px", background: "#fef2f2", borderRadius: "8px", border: "1px solid #fecaca" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                              <div style={{ fontSize: "10px", color: "#dc2626", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                Needs Attention
+                              </div>
+                              <div style={{ fontSize: "20px", fontWeight: "700", color: "#dc2626" }}>
+                                {facultyPerformanceSummary.lowest.initiativeScore}%
+                              </div>
+                            </div>
+                            <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", marginBottom: "10px" }}>
+                              {facultyPerformanceSummary.lowest.name}
+                            </div>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                              <div style={{ padding: "8px", background: "#fff", borderRadius: "6px", textAlign: "center" }}>
+                                <div style={{ fontSize: "16px", fontWeight: "700", color: "#059669" }}>
+                                  {facultyPerformanceSummary.lowest.completed}
+                                </div>
+                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "2px" }}>
+                                  Approved
+                                </div>
+                              </div>
+                              <div style={{ padding: "8px", background: "#fff", borderRadius: "6px", textAlign: "center" }}>
+                                <div style={{ fontSize: "16px", fontWeight: "700", color: "#d97706" }}>
+                                  {facultyPerformanceSummary.lowest.pending}
+                                </div>
+                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "2px" }}>
+                                  Open
+                                </div>
+                              </div>
+                              <div style={{ padding: "8px", background: "#fff", borderRadius: "6px", textAlign: "center" }}>
+                                <div style={{ fontSize: "16px", fontWeight: "700", color: "#dc2626" }}>
+                                  {facultyPerformanceSummary.lowest.delayed}
+                                </div>
+                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "2px" }}>
+                                  Delayed
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", marginBottom: "4px" }}>
-                            {facultyPerformanceSummary.lowest.name}
+                          
+                          {/* Average score indicator */}
+                          <div style={{ marginTop: "16px", padding: "12px", background: "#f9fafb", borderRadius: "8px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                              <span style={{ fontSize: "11px", color: "#6b7280", fontWeight: "600" }}>Department Average</span>
+                              <span style={{ fontSize: "18px", fontWeight: "700", color: "#111827" }}>
+                                {FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null).length > 0
+                                  ? Math.round(
+                                      FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null)
+                                        .reduce((sum, f) => sum + (f.initiativeScore || 0), 0) / 
+                                      FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null).length
+                                    )
+                                  : 0}%
+                              </span>
+                            </div>
+                            <div style={{ height: "6px", background: "#e5e7eb", borderRadius: "3px", overflow: "hidden" }}>
+                              <div 
+                                style={{
+                                  height: "100%",
+                                  width: `${FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null).length > 0
+                                    ? Math.round(
+                                        FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null)
+                                          .reduce((sum, f) => sum + (f.initiativeScore || 0), 0) / 
+                                        FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null).length
+                                      )
+                                    : 0}%`,
+                                  background: "linear-gradient(90deg, #7c3aed, #a78bfa)",
+                                  transition: "width 0.3s ease"
+                                }}
+                              />
+                            </div>
                           </div>
-                          <div style={{ fontSize: "11px", color: "#6b7280" }}>
-                            {facultyPerformanceSummary.lowest.initiativeScore}% initiative score
-                          </div>
-                          <div style={{ fontSize: "10px", color: "#9ca3af", marginTop: "4px" }}>
-                            {facultyPerformanceSummary.lowest.completed} approved · {facultyPerformanceSummary.lowest.pending} open · {facultyPerformanceSummary.lowest.delayed} delayed
-                          </div>
-                        </div>
+                        </>
                       )}
                     </aside>
                   </div>
