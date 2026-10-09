@@ -4850,7 +4850,13 @@ export default function Dashboard() {
                             <div
                               className="path-performance-row"
                               key={f.name}
-                              style={{ cursor: "pointer" }}
+                              style={{ 
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "16px",
+                                padding: "12px 0"
+                              }}
                               onClick={() => {
                                 const raw = facultyPerformance.find(
                                   (p) => (p.full_name || p.name) === f.name,
@@ -4864,7 +4870,7 @@ export default function Dashboard() {
                                 }
                               }}
                             >
-                              <div className="path-performance-person">
+                              <div className="path-performance-person" style={{ flex: "0 0 200px", display: "flex", alignItems: "center", gap: "10px" }}>
                                 <AvatarCircle
                                   name={f.name}
                                   pictureUrl={avatarUrlFor(f.name)}
@@ -4874,14 +4880,14 @@ export default function Dashboard() {
                                   fontSize={8}
                                   style={{ borderRadius: 8 }}
                                 />
-                                <div>
-                                  <strong>{f.name}</strong>
-                                  <span>
+                                <div style={{ minWidth: 0 }}>
+                                  <strong style={{ display: "block", fontSize: "13px", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</strong>
+                                  <span style={{ display: "block", fontSize: "11px", color: "#6b7280", marginTop: "2px" }}>
                                     {f.completed} approved · {f.pending} open
                                   </span>
                                 </div>
                               </div>
-                              <div className="path-performance-progress" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <div className="path-performance-progress" style={{ flex: "1", display: 'flex', flexDirection: 'column', gap: '4px', minWidth: "200px" }}>
                                 <div className="path-performance-progress-top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                   <span style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1' }}>Initiative</span>
                                   <b style={{ fontSize: '13px', lineHeight: '1' }}>{hasNoWork ? '—' : `${score}%`}</b>
@@ -4903,6 +4909,10 @@ export default function Dashboard() {
                               <span
                                 className={`path-performance-status ${risk ? "risk" : ""}`}
                                 style={{
+                                  flex: "0 0 120px",
+                                  textAlign: "right",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
                                   color: statusColor
                                 }}
                               >
