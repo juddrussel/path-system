@@ -5209,10 +5209,6 @@ function PathTasksAssignedLayout({
                     <span>Assigned-out register</span>
                     <h2>Faculty handoffs</h2>
                   </div>
-                  <p>
-                    Select a task to inspect its progress, owner, and next
-                    decision.
-                  </p>
                 </header>
                 <div className="path-assigned-head">
                   <span>Task</span>
