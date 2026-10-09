@@ -1036,8 +1036,11 @@ function FacultyDetailPanel({
 
   if (!open || !faculty) return null;
 
-  const rate = Number(faculty.performance_score) || 0;
-  const rateColor = rate >= 90 ? "#059669" : rate >= 80 ? "#d97706" : "#dc2626";
+  const score = faculty.initiativeScore !== null && faculty.initiativeScore !== undefined 
+    ? faculty.initiativeScore 
+    : (Number(faculty.performance_score) || 0);
+  
+  const rateColor = score >= 90 ? "#059669" : score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#dc2626";
 
   // Items (documents/tasks/forms) belonging to this faculty member, pulled
   // from the same merged list that powers the tracking table.
@@ -1063,26 +1066,31 @@ function FacultyDetailPanel({
       t.status !== "Overdue",
   );
 
-  const delayedCount = facultyDelayedDocs.length || delayedItems.length;
+  const delayedCount = faculty.delayed ?? (facultyDelayedDocs.length || delayedItems.length);
+
+  // Calculate active count: assigned - completed - pending
+  const activeCount = faculty.assigned 
+    ? Math.max(0, faculty.assigned - (faculty.completed ?? 0) - (faculty.pending ?? 0))
+    : (faculty.active_count ?? activeItems.length);
 
   const stats = [
     {
       label: "Active",
-      value: faculty.active_count ?? activeItems.length,
+      value: activeCount,
       icon: Layers,
       color: "#5e3bdb",
       items: activeItems,
     },
     {
       label: "Done",
-      value: faculty.completed_count ?? doneItems.length,
+      value: faculty.completed ?? (faculty.completed_count ?? doneItems.length),
       icon: CheckCircle2,
       color: "#059669",
       items: doneItems,
     },
     {
       label: "Pending",
-      value: faculty.pending_count ?? pendingItems.length,
+      value: faculty.pending ?? (faculty.pending_count ?? pendingItems.length),
       icon: Clock,
       color: "#d97706",
       items: pendingItems,
@@ -1290,7 +1298,7 @@ function FacultyDetailPanel({
             })}
           </div>
 
-          {/* Completion rate */}
+          {/* Initiative score */}
           <div style={{ marginBottom: selectedCategory ? 16 : 0 }}>
             <div
               style={{
@@ -1300,10 +1308,12 @@ function FacultyDetailPanel({
               }}
             >
               <span style={{ fontSize: 13, color: "#6b7280" }}>
-                Completion Rate
+                Initiative Score
               </span>
               <span style={{ fontSize: 13, fontWeight: 800, color: rateColor }}>
-                {rate}%
+                {faculty.initiativeScore !== null && faculty.initiativeScore !== undefined 
+                  ? `${faculty.initiativeScore}%` 
+                  : (rate ? `${rate}%` : '—')}
               </span>
             </div>
             <div style={{ height: 6, borderRadius: 3, background: "#f3f4f6" }}>
@@ -1312,7 +1322,9 @@ function FacultyDetailPanel({
                   height: 6,
                   borderRadius: 3,
                   background: rateColor,
-                  width: `${rate}%`,
+                  width: faculty.initiativeScore !== null && faculty.initiativeScore !== undefined 
+                    ? `${faculty.initiativeScore}%` 
+                    : `${rate}%`,
                 }}
               />
             </div>
@@ -4822,8 +4834,13 @@ export default function Dashboard() {
                                 const raw = facultyPerformance.find(
                                   (p) => (p.full_name || p.name) === f.name,
                                 );
-                                if (raw) setSelectedFaculty(raw);
-                                else setFacultyModalOpen(true);
+                                if (raw) {
+                                  // Enhance with FACULTY_WORKLOAD calculated values
+                                  const enhanced = { ...raw, ...f };
+                                  setSelectedFaculty(enhanced);
+                                } else {
+                                  setFacultyModalOpen(true);
+                                }
                               }}
                             >
                               <div className="path-performance-person">
