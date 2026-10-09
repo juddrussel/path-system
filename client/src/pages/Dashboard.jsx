@@ -4735,7 +4735,7 @@ export default function Dashboard() {
                       <small>still in progress</small>
                     </div>
                     <div>
-                      <span>Completed</span>
+                      <span>Approved</span>
                       <strong>{facultyPerformanceSummary.completed}</strong>
                       <small>closed transactions</small>
                     </div>
@@ -4839,7 +4839,7 @@ export default function Dashboard() {
                                 <div>
                                   <strong>{f.name}</strong>
                                   <span>
-                                    {f.completed} completed · {f.pending} open
+                                    {f.completed} approved · {f.pending} open
                                   </span>
                                 </div>
                               </div>
