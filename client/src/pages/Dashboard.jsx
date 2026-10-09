@@ -3855,7 +3855,7 @@ export default function Dashboard() {
                         {pendingApprovalsCount}
                       </strong>
                       <span style={{ fontSize: 12, color: "#C9B8EE" }}>
-                        Awaiting review
+                        For Approval
                       </span>
                     </div>
                   </div>
@@ -3950,7 +3950,7 @@ export default function Dashboard() {
                     icon: FileText,
                   },
                   {
-                    label: "Awaiting review",
+                    label: "For Approval",
                     value: pendingApprovalsCount,
                     change: "Needs attention",
                     detail: "awaiting a decision",
