@@ -1334,6 +1334,49 @@ export default function CollaborativeTaskAdmin() {
               </div>
             </section>
 
+            {/* Team Members Section */}
+            <section className="admin-card">
+              <div className="admin-heading">
+                <div>
+                  <span className="admin-kicker">Team composition</span>
+                  <h2>Collaborators on this task</h2>
+                </div>
+                <span className="admin-count">{collaborators.length} members</span>
+              </div>
+              <div className="admin-people">
+                {collaborators.map((collab) => (
+                  <div className="admin-person" key={collab.user_id}>
+                    <Avatar 
+                      profilePicture={collab.profile_picture}
+                      fullName={collab.full_name}
+                      userId={collab.user_id}
+                    />
+                    <div>
+                      <strong>
+                        {collab.full_name}
+                        {collab.role === 'team_leader' && (
+                          <span style={{
+                            marginLeft: '6px',
+                            padding: '3px 7px',
+                            background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
+                            border: '1px solid #93c5fd',
+                            borderRadius: '5px',
+                            color: '#1e40af',
+                            fontSize: '9px',
+                            fontWeight: 800,
+                            letterSpacing: '0.02em'
+                          }}>
+                            TEAM LEADER
+                          </span>
+                        )}
+                      </strong>
+                      <small style={{ textTransform: 'capitalize' }}>{collab.role.replace('_', ' ')}</small>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {/* Confirmation section removed - team leader uploads auto-submit */}
 
             {(isReadyForReview || status === "Approved") && currentVersion && (
