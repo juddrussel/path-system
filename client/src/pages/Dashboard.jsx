@@ -1055,23 +1055,32 @@ function FacultyDetailPanel({
   const doneItems = facultyItems.filter((t) =>
     DONE_STATUSES.includes(t.status),
   );
-  const pendingItems = facultyItems.filter((t) => t.status === "Pending");
+  
   const delayedItems = facultyItems.filter((t) => t.status === "Overdue");
-  // "Active" = everything still moving that isn't done, pending, or overdue
-  // (e.g. Under Review, For Approval, Returned).
-  const activeItems = facultyItems.filter(
+  
+  // Pending = all non-done, non-delayed items
+  const pendingItems = facultyItems.filter((t) => 
+    !DONE_STATUSES.includes(t.status) && 
+    t.status !== "Overdue"
+  );
+  
+  // Active = subset of pending that are actively being worked on
+  // (excludes "Not Started", "Assigned", "Pending" status)
+  const activeItems = pendingItems.filter(
     (t) =>
-      !DONE_STATUSES.includes(t.status) &&
-      t.status !== "Pending" &&
-      t.status !== "Overdue",
+      t.status !== "Not Started" &&
+      t.status !== "Assigned" &&
+      t.status !== "Pending"
   );
 
   const delayedCount = faculty.delayed ?? (facultyDelayedDocs.length || delayedItems.length);
 
-  // Calculate active count: assigned - completed - pending
-  const activeCount = faculty.assigned 
-    ? Math.max(0, faculty.assigned - (faculty.completed ?? 0) - (faculty.pending ?? 0))
-    : (faculty.active_count ?? activeItems.length);
+  // Use the values from FACULTY_WORKLOAD calculation:
+  // - assigned = total tasks (active + pending + completed from API)
+  // - completed = done/approved tasks
+  // - pending = open tasks (from API pending_count)
+  // - active = actively worked on (from API active_count)
+  const activeCount = faculty.active_count ?? activeItems.length;
 
   const stats = [
     {
