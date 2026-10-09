@@ -2968,6 +2968,9 @@ export default function Dashboard() {
       { assigned: 0, completed: 0, pending: 0, delayed: 0 },
     );
     const top = [...FACULTY_WORKLOAD].sort((a, b) => (b.initiativeScore ?? 0) - (a.initiativeScore ?? 0))[0];
+    const lowest = [...FACULTY_WORKLOAD]
+      .filter(f => f.initiativeScore !== null && f.assigned > 0)
+      .sort((a, b) => (a.initiativeScore ?? 0) - (b.initiativeScore ?? 0))[0];
     return {
       ...totals,
       open: totals.pending,
@@ -2983,6 +2986,7 @@ export default function Dashboard() {
         (f) => f.initiativeScore !== null && (f.delayed > 0 || f.initiativeScore < 70),
       ).length,
       top,
+      lowest,
     };
   }, [FACULTY_WORKLOAD]);
 
@@ -4938,7 +4942,7 @@ export default function Dashboard() {
                           "No faculty data"}
                       </strong>
                       <p>
-                        Highest completion rate across the active workload.
+                        Highest initiative score across the active workload.
                       </p>
                       <div className="path-performance-highlight-metrics">
                         <div>
@@ -4950,6 +4954,23 @@ export default function Dashboard() {
                           <b>{FACULTY_WORKLOAD.length}</b>
                         </div>
                       </div>
+                      
+                      {facultyPerformanceSummary.lowest && (
+                        <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid #f3f4f6" }}>
+                          <div style={{ fontSize: "11px", color: "#dc2626", fontWeight: "600", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                            Needs Attention
+                          </div>
+                          <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", marginBottom: "4px" }}>
+                            {facultyPerformanceSummary.lowest.name}
+                          </div>
+                          <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                            {facultyPerformanceSummary.lowest.initiativeScore}% initiative score
+                          </div>
+                          <div style={{ fontSize: "10px", color: "#9ca3af", marginTop: "4px" }}>
+                            {facultyPerformanceSummary.lowest.completed} approved · {facultyPerformanceSummary.lowest.pending} open · {facultyPerformanceSummary.lowest.delayed} delayed
+                          </div>
+                        </div>
+                      )}
                     </aside>
                   </div>
                 </section>
