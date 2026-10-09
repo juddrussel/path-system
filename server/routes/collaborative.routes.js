@@ -218,36 +218,53 @@ router.post("/:id/upload-final-output", requireAuth, upload.array("files", 5), a
       [nextVersion, taskId]
     );
 
-    // Reset all confirmations for new version (all become pending)
-    await db.query(
-      `DELETE FROM task_confirmations WHERE task_id = ? AND output_version = ?`,
-      [taskId, nextVersion]
-    );
-
-    const [[{ collaboratorCount }]] = await db.query(
-      `SELECT COUNT(*) as collaboratorCount FROM task_collaborators WHERE task_id = ?`,
-      [taskId]
-    );
-
-    for (let i = 0; i < collaboratorCount; i++) {
-      const [[collab]] = await db.query(
-        `SELECT user_id FROM task_collaborators WHERE task_id = ? LIMIT 1 OFFSET ?`,
-        [taskId, i]
+    // For team leaders: auto-confirm and auto-submit
+    // For others: create pending confirmations
+    const isTeamLeader = collab.role === 'team_leader';
+    
+    if (isTeamLeader) {
+      // Team leader uploads → automatically confirmed and submitted
+      await db.query(
+        `INSERT INTO task_confirmations (task_id, user_id, output_version, status, confirmed_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [taskId, userId, nextVersion, "confirmed", new Date()]
       );
-      if (collab) {
-        await db.query(
-          `INSERT INTO task_confirmations (task_id, user_id, output_version, status)
-           VALUES (?, ?, ?, ?)`,
-          [taskId, collab.user_id, nextVersion, "pending"]
-        );
+      
+      // Automatically submit to chair/admin
+      await db.query(
+        `UPDATE tasks SET status = 'For Approval', confirmation_status = 'confirmed', 
+                         all_confirmed_at = NOW(), submitted_at = NOW() WHERE id = ?`,
+        [taskId]
+      );
+      
+      // Broadcast auto-submission
+      const io = req.app.get("io");
+      if (io) {
+        const fileNames = req.files.map(f => f.originalname).join(', ');
+        io.to(`task_${taskId}`).emit("collaborative:auto_submitted", {
+          taskId,
+          version: nextVersion,
+          fileName: fileNames,
+          fileCount: req.files.length,
+          uploadedBy: req.user.full_name,
+          message: `Team leader uploaded v${nextVersion}. Task automatically submitted for review.`,
+        });
       }
+      
+      await writeLog({
+        userId: userId,
+        action: "COLLABORATIVE_AUTO_SUBMITTED",
+        detail: `Team leader uploaded version ${nextVersion} for task ${taskId}. Auto-submitted for approval.`,
+        ipAddress: req.ip,
+        documentId: taskId
+      });
+    } else {
+      // Non-team-leader upload (shouldn't happen due to validation, but handle it)
+      await db.query(
+        `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting', submitted_at = NULL WHERE id = ?`,
+        [taskId]
+      );
     }
-
-    // Set task status to awaiting confirmation (NOT submitted yet)
-    await db.query(
-      `UPDATE tasks SET status = 'Pending', confirmation_status = 'awaiting', submitted_at = NULL WHERE id = ?`,
-      [taskId]
-    );
 
     // Broadcast update
     const io = req.app.get("io");
