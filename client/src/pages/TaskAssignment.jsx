@@ -275,6 +275,7 @@ function TaskAssignmentInner() {
   const [assignments, setAssignments] = useState([]);
   const [assignMode, setAssignMode] = useState("individual");
   const [selectedFacultyIds, setSelectedFacultyIds] = useState([]);
+  const [teamLeaderId, setTeamLeaderId] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
   const [facultyPickerOpen, setFacultyPickerOpen] = useState(false);
   const [attachments, setAttachments] = useState([]);
@@ -564,12 +565,24 @@ function TaskAssignmentInner() {
     )
     .slice(0, 4);
 
-  const toggleFaculty = (id) =>
-    setSelectedFacultyIds((current) =>
-      current.includes(id)
+  const toggleFaculty = (id) => {
+    setSelectedFacultyIds((current) => {
+      const newIds = current.includes(id)
         ? current.filter((value) => value !== id)
-        : [...current, id],
-    );
+        : [...current, id];
+      
+      // If removing the current team leader, reset team leader
+      if (current.includes(id) && teamLeaderId === id) {
+        setTeamLeaderId(newIds.length > 0 ? newIds[0] : null);
+      }
+      // If this is the first faculty being added in "together" mode, set as team leader
+      if (!current.includes(id) && form.collaborationMode === "together" && !teamLeaderId && newIds.length === 1) {
+        setTeamLeaderId(id);
+      }
+      
+      return newIds;
+    });
+  };
   const selectAllFaculty = () =>
     setSelectedFacultyIds((current) =>
       current.length === facultyList.length
@@ -587,6 +600,7 @@ function TaskAssignmentInner() {
       collaborationMode: "separate",
     });
     setSelectedFacultyIds([]);
+    setTeamLeaderId(null);
     setSelectedRole("");
     setAssignMode("individual");
     setAttachments([]);
@@ -631,6 +645,8 @@ function TaskAssignmentInner() {
       return setAlertMessage("Please select at least one faculty member.");
     if (assignMode === "role" && !selectedRole)
       return setAlertMessage("Please select a role to assign this task to.");
+    if (form.collaborationMode === "together" && selectedFaculty.length >= 2 && !teamLeaderId)
+      return setAlertMessage("Please select a team leader for collaborative tasks.");
     if (!form.title.trim() || !form.doc_type || !form.deadline)
       return setAlertMessage(
         "Add a title, document type, and deadline before assigning.",
@@ -661,9 +677,19 @@ function TaskAssignmentInner() {
             : value,
         ),
       );
-      if (assignMode === "individual")
-        selectedFacultyIds.forEach((id) => payload.append("faculty_ids", id));
-      else payload.append("assign_role", selectedRole);
+      if (assignMode === "individual") {
+        // For collaborative tasks, send team leader first, then other members
+        if (form.collaborationMode === "together" && teamLeaderId) {
+          payload.append("faculty_ids", teamLeaderId);
+          selectedFacultyIds
+            .filter(id => id !== teamLeaderId)
+            .forEach((id) => payload.append("faculty_ids", id));
+        } else {
+          selectedFacultyIds.forEach((id) => payload.append("faculty_ids", id));
+        }
+      } else {
+        payload.append("assign_role", selectedRole);
+      }
       payload.append("collaboration_mode", form.collaborationMode);
       payload.append(
         "attachments",
@@ -886,7 +912,10 @@ function TaskAssignmentInner() {
                               name="collaborationMode"
                               value="separate"
                               checked={form.collaborationMode === "separate"}
-                              onChange={() => setForm(current => ({ ...current, collaborationMode: "separate" }))}
+                              onChange={() => {
+                                setForm(current => ({ ...current, collaborationMode: "separate" }));
+                                setTeamLeaderId(null);
+                              }}
                               style={{ cursor: 'pointer', accentColor: '#7c3aed' }}
                             />
                             Assign separately
@@ -897,7 +926,13 @@ function TaskAssignmentInner() {
                               name="collaborationMode"
                               value="together"
                               checked={form.collaborationMode === "together"}
-                              onChange={() => setForm(current => ({ ...current, collaborationMode: "together" }))}
+                              onChange={() => {
+                                setForm(current => ({ ...current, collaborationMode: "together" }));
+                                // Auto-select first faculty as team leader if none selected
+                                if (!teamLeaderId && selectedFacultyIds.length > 0) {
+                                  setTeamLeaderId(selectedFacultyIds[0]);
+                                }
+                              }}
                               style={{ cursor: 'pointer', accentColor: '#7c3aed' }}
                             />
                             Assign together
@@ -905,9 +940,47 @@ function TaskAssignmentInner() {
                         </div>
                         <p style={{ fontSize: '11px', color: '#8263a6', marginTop: '8px', margin: '8px 0 0' }}>
                           {form.collaborationMode === "together"
-                            ? "Both users will see the same task and both must confirm before final submission."
+                            ? "Team members will see the same task. Only the team leader can upload versions and confirm outputs."
                             : "Each user will see their own copy of the task."}
                         </p>
+                        
+                        {form.collaborationMode === "together" && (
+                          <div style={{ marginTop: '16px' }}>
+                            <label className="path-assignment-field" style={{ marginBottom: '8px' }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                Team leader
+                                <span style={{
+                                  padding: '2px 6px',
+                                  background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
+                                  border: '1px solid #93c5fd',
+                                  borderRadius: '4px',
+                                  color: '#1e40af',
+                                  fontSize: '9px',
+                                  fontWeight: 800,
+                                  letterSpacing: '0.02em'
+                                }}>
+                                  REQUIRED
+                                </span>
+                              </span>
+                            </label>
+                            <select
+                              className="path-assignment-role-select"
+                              value={teamLeaderId || ""}
+                              onChange={(e) => setTeamLeaderId(parseInt(e.target.value))}
+                              style={{ marginTop: '4px' }}
+                            >
+                              <option value="">Select team leader</option>
+                              {selectedFaculty.map((member) => (
+                                <option key={member.id} value={member.id}>
+                                  {member.full_name} ({member.username})
+                                </option>
+                              ))}
+                            </select>
+                            <p style={{ fontSize: '10px', color: '#8263a6', marginTop: '6px', lineHeight: 1.5 }}>
+                              The team leader has exclusive permissions to upload final versions and confirm outputs on behalf of the team.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
