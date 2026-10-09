@@ -764,9 +764,12 @@ router.get("/:id", requireAuth, async (req, res) => {
     }
 
     const isChair = ADMIN_ROLES.includes(req.user.role);
-    console.log(`Access check: isCollab=${collabCheck.length > 0}, isChair=${isChair}`);
+    const isAssigner = task.assigned_by === userId;
+    console.log(`Access check: isCollab=${collabCheck.length > 0}, isChair=${isChair}, isAssigner=${isAssigner}`);
 
-    if (collabCheck.length === 0 && !isChair) {
+    // For admin/chair: only allow if they assigned the task
+    // For faculty: only allow if they are a collaborator
+    if (collabCheck.length === 0 && !(isChair && isAssigner)) {
       console.log(`User ${userId} denied access to task ${taskId}`);
       return res.status(403).json({ message: "You don't have access to this task." });
     }

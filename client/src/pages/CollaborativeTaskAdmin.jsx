@@ -674,6 +674,14 @@ export default function CollaborativeTaskAdmin() {
         });
         if (!response.ok) throw new Error("Failed to load task");
         const data = await response.json();
+        
+        // Check if current user is the one who assigned this task
+        if (data.task.assigned_by !== user.id) {
+          setError("You don't have access to this collaborative task.");
+          setLoading(false);
+          return;
+        }
+        
         setTask(data.task);
         setCollaborators((data.collaborators || []).map((c, i) => ({
           ...c,
