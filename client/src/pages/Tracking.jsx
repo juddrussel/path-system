@@ -919,7 +919,7 @@ export default function Tracking() {
         <main className="path-tracking-content">
           <section className="tracking-hero">
             <div>
-              <div className="tracking-kicker"><i /> Lifecycle monitor · updated just now</div>
+              <div className="tracking-kicker"><i /> Lifecycle monitoring · updated just now</div>
               <h1>Tracking</h1>
               <p>See where every document is, who owns the next step, and what needs attention.</p>
             </div>
