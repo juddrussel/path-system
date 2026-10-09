@@ -680,6 +680,11 @@ function TaskAssignmentInner() {
       if (assignMode === "individual") {
         // For collaborative tasks, send team leader first, then other members
         if (form.collaborationMode === "together" && teamLeaderId) {
+          console.log('[TaskAssignment] Sending team leader first:', {
+            teamLeaderId,
+            selectedFacultyIds,
+            otherMembers: selectedFacultyIds.filter(id => id !== teamLeaderId)
+          });
           payload.append("faculty_ids", teamLeaderId);
           selectedFacultyIds
             .filter(id => id !== teamLeaderId)

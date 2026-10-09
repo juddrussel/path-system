@@ -35,6 +35,9 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
     const assignedBy = req.user.id;
     const now = new Date();
 
+    console.log('[POST /collaborative-tasks] Received faculty_ids:', faculty_ids);
+    console.log('[POST /collaborative-tasks] First faculty (will be team_leader):', faculty_ids[0]);
+
     // Validate required fields
     if (!title || !Array.isArray(faculty_ids) || faculty_ids.length < 2) {
       return res.status(400).json({
