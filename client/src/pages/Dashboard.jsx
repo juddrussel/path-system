@@ -2877,18 +2877,46 @@ export default function Dashboard() {
       const delayedFromItems = trackedItems.filter(
         (i) => i.person === name && i.status === "Overdue",
       ).length;
+      
+      const totalTasks = active + pending + completed;
+      const delayed = delayedFromEndpoint || delayedFromItems;
+      const completionRate = totalTasks > 0 ? (completed / totalTasks) * 100 : 0;
+      
+      // Calculate initiative score
+      let initiativeScore = null;
+      if (totalTasks > 0) {
+        // Base score from completion rate
+        initiativeScore = completionRate;
+        
+        // Add bonuses
+        if (delayed === 0) {
+          initiativeScore += 10; // On-time bonus
+        }
+        if (completionRate >= 90) {
+          initiativeScore += 5; // High completion bonus
+        }
+        if (completionRate === 100 && delayed === 0) {
+          initiativeScore += 5; // Perfect score bonus
+        }
+        
+        // Subtract penalties
+        initiativeScore -= (delayed * 5); // -5 points per delayed task
+        
+        // Ensure score is within bounds
+        initiativeScore = Math.max(0, Math.min(100, Math.round(initiativeScore)));
+      }
+      
       return {
         name,
-        assigned: active + pending + completed,
+        assigned: totalTasks,
         pending,
         completed,
-        delayed: delayedFromEndpoint || delayedFromItems,
+        delayed,
         rate: Math.round(
           f.performance_score ??
-            (active + pending + completed > 0
-              ? (completed / (active + pending + completed)) * 100
-              : 0),
+            (totalTasks > 0 ? completionRate : 0),
         ),
+        initiativeScore,
       };
     });
   }, [facultyPerformance, delayedDocs, trackedItems]);
@@ -2906,7 +2934,7 @@ export default function Dashboard() {
       }),
       { assigned: 0, completed: 0, pending: 0, delayed: 0 },
     );
-    const top = [...FACULTY_WORKLOAD].sort((a, b) => b.rate - a.rate)[0];
+    const top = [...FACULTY_WORKLOAD].sort((a, b) => (b.initiativeScore ?? 0) - (a.initiativeScore ?? 0))[0];
     return {
       ...totals,
       open: totals.pending,
@@ -2919,7 +2947,7 @@ export default function Dashboard() {
           )
         : 0,
       atRisk: FACULTY_WORKLOAD.filter(
-        (f) => f.delayed > 0 || f.rate < 80,
+        (f) => f.initiativeScore !== null && (f.delayed > 0 || f.initiativeScore < 70),
       ).length,
       top,
     };
@@ -4743,8 +4771,48 @@ export default function Dashboard() {
                         />
                       ) : (
                         FACULTY_WORKLOAD.slice(0, 6).map((f) => {
-                          const risk = f.delayed > 0 || f.rate < 80;
-                          const status = risk ? "Needs attention" : "On Track";
+                          // Initiative score status logic
+                          const score = f.initiativeScore;
+                          const hasNoWork = score === null;
+                          const hasDelays = f.delayed > 0;
+                          
+                          let status = "On Track";
+                          let risk = false;
+                          let statusColor = '#059669'; // green
+                          let barColor = '#10b981'; // green
+                          
+                          if (hasNoWork) {
+                            status = "No active work";
+                            risk = false;
+                            statusColor = '#9ca3af'; // gray
+                            barColor = '#e5e7eb'; // light gray
+                          } else if (score >= 100) {
+                            status = "Excellent";
+                            risk = false;
+                            statusColor = '#059669'; // dark green
+                            barColor = '#059669'; // dark green
+                          } else if (score >= 90) {
+                            status = "On Track";
+                            risk = false;
+                            statusColor = '#059669'; // green
+                            barColor = '#10b981'; // green
+                          } else if (score >= 70) {
+                            status = "On Track";
+                            risk = false;
+                            statusColor = '#059669'; // green
+                            barColor = '#10b981'; // green
+                          } else if (score >= 40) {
+                            status = hasDelays ? "Needs attention" : "In Progress";
+                            risk = hasDelays;
+                            statusColor = hasDelays ? '#dc2626' : '#f59e0b'; // red or orange
+                            barColor = '#f59e0b'; // orange
+                          } else {
+                            status = hasDelays ? "Needs attention" : "In Progress";
+                            risk = hasDelays;
+                            statusColor = hasDelays ? '#dc2626' : '#f59e0b'; // red or orange
+                            barColor = '#ef4444'; // red
+                          }
+                          
                           return (
                             <div
                               className="path-performance-row"
@@ -4775,22 +4843,30 @@ export default function Dashboard() {
                                   </span>
                                 </div>
                               </div>
-                              <div className="path-performance-progress">
-                                <div className="path-performance-progress-top">
-                                  <span>Completion</span>
-                                  <b>{f.rate}%</b>
+                              <div className="path-performance-progress" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div className="path-performance-progress-top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <span style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1' }}>Initiative</span>
+                                  <b style={{ fontSize: '13px', lineHeight: '1' }}>{hasNoWork ? '—' : `${score}%`}</b>
                                 </div>
-                                <div className="path-performance-track">
+                                <div className="path-performance-track" style={{ height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
                                   <span
                                     className={risk ? "risk" : ""}
                                     style={{
-                                      width: `${Math.min(f.rate, 100)}%`,
+                                      display: 'block',
+                                      height: '100%',
+                                      width: hasNoWork ? '0%' : `${Math.min(score, 100)}%`,
+                                      background: barColor,
+                                      borderRadius: '3px',
+                                      transition: 'width 0.3s ease'
                                     }}
                                   />
                                 </div>
                               </div>
                               <span
                                 className={`path-performance-status ${risk ? "risk" : ""}`}
+                                style={{
+                                  color: statusColor
+                                }}
                               >
                                 {status}
                               </span>

@@ -1177,18 +1177,19 @@ export default function CollaborativeTaskDetail() {
     setIsCommentUploadingFiles(false);
   };
 
-  const uploadRevisionFiles = async (files) => {
+  const uploadRevisionFiles = async (files, currentLength) => {
     setIsRevisionUploadingFiles(true);
     const uploadedUrls = [];
     
     for (let idx = 0; idx < files.length; idx++) {
       const file = files[idx];
+      const fileIndex = currentLength + idx;
       try {
         const formData = new FormData();
         formData.append("files", file);
         
         // Initialize progress
-        setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: 10 }));
+        setRevisionFileProgress(prev => ({ ...prev, [fileIndex]: 10 }));
         
         const xhr = new XMLHttpRequest();
         let progressInterval = null;
@@ -1197,7 +1198,7 @@ export default function CollaborativeTaskDetail() {
         const estimateProgress = () => {
           const elapsed = Date.now() - startTime;
           const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
-          setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: estimatedPercent }));
+          setRevisionFileProgress(prev => ({ ...prev, [fileIndex]: estimatedPercent }));
         };
         
         progressInterval = setInterval(estimateProgress, 20);
@@ -1205,7 +1206,7 @@ export default function CollaborativeTaskDetail() {
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
             const percentComplete = Math.round((event.loaded / event.total) * 100);
-            setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: percentComplete }));
+            setRevisionFileProgress(prev => ({ ...prev, [fileIndex]: percentComplete }));
           }
         });
         
@@ -1215,7 +1216,7 @@ export default function CollaborativeTaskDetail() {
             if (xhr.status === 200 || xhr.status === 201) {
               const response = JSON.parse(xhr.responseText);
               uploadedUrls.push(response.files[0]); // Get the uploaded file URL
-              setRevisionFileProgress(prev => ({ ...prev, [revisionFiles.length + idx]: 100 }));
+              setRevisionFileProgress(prev => ({ ...prev, [fileIndex]: 100 }));
               resolve();
             } else {
               reject(new Error("Upload failed"));
@@ -2811,12 +2812,13 @@ export default function CollaborativeTaskDetail() {
               accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               onChange={async (e) => {
                 const files = Array.from(e.target.files || []);
-                if (revisionFiles.length + files.length > 5) {
+                const currentLength = revisionFiles.length;
+                if (currentLength + files.length > 5) {
                   setError("Maximum 5 files allowed for revision request");
                   return;
                 }
                 setRevisionFiles(prev => [...prev, ...files]);
-                await uploadRevisionFiles(files);
+                await uploadRevisionFiles(files, currentLength);
                 if (revisionFilesRef.current) revisionFilesRef.current.value = "";
               }}
             />
