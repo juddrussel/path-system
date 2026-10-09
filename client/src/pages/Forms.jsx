@@ -2780,7 +2780,7 @@ export default function Forms() {
                 </article>
                 <article className="path-review-stat risk">
                   <span>
-                    SLA risk <i>!</i>
+                    Needs attention <i>!</i>
                   </span>
                   <strong>{String(reviewRiskCount).padStart(2, "0")}</strong>
                   <small>Within the attention window</small>
