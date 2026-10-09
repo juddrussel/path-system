@@ -4852,10 +4852,11 @@ export default function Dashboard() {
                               key={f.name}
                               style={{ 
                                 cursor: "pointer",
-                                display: "flex",
+                                display: "grid",
+                                gridTemplateColumns: "220px 1fr 140px",
                                 alignItems: "center",
-                                gap: "12px",
-                                padding: "16px 0",
+                                gap: "24px",
+                                padding: "14px 0",
                                 borderBottom: "1px solid #f3f4f6"
                               }}
                               onClick={() => {
@@ -4871,55 +4872,60 @@ export default function Dashboard() {
                                 }
                               }}
                             >
-                              <div className="path-performance-person" style={{ flex: "0 0 auto", maxWidth: "30%", display: "flex", alignItems: "center", gap: "10px" }}>
+                              {/* Person info column */}
+                              <div className="path-performance-person" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <AvatarCircle
                                   name={f.name}
                                   pictureUrl={avatarUrlFor(f.name)}
-                                  size={28}
+                                  size={32}
                                   background="#eee7ff"
                                   color="#7040c5"
-                                  fontSize={8}
+                                  fontSize={9}
                                   style={{ borderRadius: 8, flexShrink: 0 }}
                                 />
                                 <div style={{ minWidth: 0, flex: 1 }}>
-                                  <strong style={{ display: "block", fontSize: "13px", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</strong>
-                                  <span style={{ display: "block", fontSize: "11px", color: "#6b7280", marginTop: "2px" }}>
+                                  <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
+                                  <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>
                                     {f.completed} approved · {f.pending} open
-                                  </span>
+                                  </div>
                                 </div>
                               </div>
-                              <div className="path-performance-progress" style={{ flex: "1 1 auto", display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <div className="path-performance-progress-top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                  <span style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1' }}>Initiative</span>
-                                  <b style={{ fontSize: '13px', lineHeight: '1' }}>{hasNoWork ? '—' : `${score}%`}</b>
+                              
+                              {/* Initiative progress column */}
+                              <div className="path-performance-progress" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <span style={{ fontSize: '12px', color: '#9ca3af', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Initiative</span>
+                                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>{hasNoWork ? '—' : `${score}%`}</span>
                                 </div>
-                                <div className="path-performance-track" style={{ height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
-                                  <span
-                                    className={risk ? "risk" : ""}
+                                <div style={{ height: '8px', background: '#f3f4f6', borderRadius: '4px', overflow: 'hidden' }}>
+                                  <div
                                     style={{
-                                      display: 'block',
                                       height: '100%',
                                       width: hasNoWork ? '0%' : `${Math.min(score, 100)}%`,
                                       background: barColor,
-                                      borderRadius: '3px',
+                                      borderRadius: '4px',
                                       transition: 'width 0.3s ease'
                                     }}
                                   />
                                 </div>
                               </div>
-                              <div
-                                className={`path-performance-status ${risk ? "risk" : ""}`}
-                                style={{
-                                  flex: "0 0 auto",
-                                  minWidth: "110px",
-                                  textAlign: "right",
-                                  fontSize: "12px",
-                                  fontWeight: "600",
-                                  color: statusColor,
-                                  whiteSpace: "nowrap"
-                                }}
-                              >
-                                {status}
+                              
+                              {/* Status badge column */}
+                              <div style={{ textAlign: "right" }}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    padding: "6px 12px",
+                                    borderRadius: "6px",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    backgroundColor: hasNoWork ? '#f3f4f6' : (risk ? '#fef2f2' : '#f0fdf4'),
+                                    color: statusColor,
+                                    whiteSpace: "nowrap"
+                                  }}
+                                >
+                                  {status}
+                                </span>
                               </div>
                             </div>
                           );
