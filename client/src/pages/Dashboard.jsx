@@ -1332,7 +1332,7 @@ function FacultyDetailPanel({
               <span style={{ fontSize: 13, fontWeight: 800, color: rateColor }}>
                 {faculty.initiativeScore !== null && faculty.initiativeScore !== undefined 
                   ? `${faculty.initiativeScore}%` 
-                  : (rate ? `${rate}%` : '—')}
+                  : (score ? `${score}%` : '—')}
               </span>
             </div>
             <div style={{ height: 6, borderRadius: 3, background: "#f3f4f6" }}>
@@ -1343,7 +1343,7 @@ function FacultyDetailPanel({
                   background: rateColor,
                   width: faculty.initiativeScore !== null && faculty.initiativeScore !== undefined 
                     ? `${faculty.initiativeScore}%` 
-                    : `${rate}%`,
+                    : `${score}%`,
                 }}
               />
             </div>
