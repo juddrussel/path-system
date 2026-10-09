@@ -928,7 +928,7 @@ export default function Tracking() {
           <section className="tracking-stat-grid">
             <article className="tracking-stat-card"><span>In progress</span><strong>{loading ? "—" : stats.inProgress}</strong><small>Across active workflows</small></article>
             <article className="tracking-stat-card"><span>On schedule</span><strong>{loading ? "—" : "92%"}</strong><small><span className="positive">+4.8%</span> this month</small></article>
-            <article className="tracking-stat-card"><span>At risk</span><strong>{loading ? "—" : String(docs.filter((doc) => ["returned", "rejected"].includes(doc.status?.toLowerCase())).length).padStart(2, "0")}</strong><small><span className="negative">Needs attention before the deadline</span></small></article>
+            <article className="tracking-stat-card"><span>Needs Attention</span><strong>{loading ? "—" : String(docs.filter((doc) => ["returned", "rejected"].includes(doc.status?.toLowerCase())).length).padStart(2, "0")}</strong><small><span className="negative">Needs attention before the deadline</span></small></article>
             <article className="tracking-stat-card"><span>Average processing time</span><strong>{loading ? "—" : "2.4d"}</strong><small>18% faster than last cycle</small></article>
           </section>
           <section className="tracking-pipeline tracking-panel">
