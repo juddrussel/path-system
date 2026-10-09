@@ -3802,7 +3802,7 @@ export default function Dashboard() {
                     {pendingApprovalsCount === 1 ? "s" : ""} review, and{" "}
                     {BOTTLENECK_ALERTS.length}{" "}
                     {BOTTLENECK_ALERTS.length === 1 ? "is" : "are"} at risk of
-                    missing SLA today.
+                    missing the deadline today.
                   </p>
                 </div>
 
