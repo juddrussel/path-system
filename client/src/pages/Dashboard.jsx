@@ -2708,10 +2708,11 @@ export default function Dashboard() {
           const data = await res.json();
           const tasks = data.tasks ?? data ?? [];
           (Array.isArray(tasks) ? tasks : []).forEach((t) => {
-            // For admin/program chair: only show tasks THEY assigned
+            // For admin/program chair: show tasks THEY assigned OR collaborative tasks awaiting review
             if (ADMIN_NAV_ROLES.includes(user.role)) {
-              if (t.assigned_by !== user.id) {
-                return; // Skip tasks not assigned by current user
+              const isAwaitingReview = t.is_collaborative && (t.status === 'For Approval' || t.status === 'Submitted');
+              if (t.assigned_by !== user.id && !isAwaitingReview) {
+                return; // Skip tasks not assigned by current user (unless collaborative and awaiting review)
               }
             }
             
