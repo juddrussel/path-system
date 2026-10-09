@@ -51,12 +51,27 @@ async function updateExistingRoles() {
 
       if (collaborators.length === 0) continue;
 
-      // Check if roles are already set
-      const hasRoles = collaborators.some(c => c.role && c.role !== 'contributor');
+      // Check if roles are already set correctly
+      const hasCorrectRoles = collaborators.some(c => c.role === 'team_leader');
       
-      if (hasRoles) {
-        console.log(`Task ${task_id}: Already has roles assigned, skipping`);
+      if (hasCorrectRoles) {
+        console.log(`Task ${task_id}: Already has correct roles assigned, skipping`);
         skippedCount++;
+        continue;
+      }
+
+      // Check if this task has old 'editor' role that needs updating
+      const hasEditorRole = collaborators.some(c => c.role === 'editor');
+      
+      if (hasEditorRole) {
+        // Update 'editor' to 'team_leader'
+        await connection.query(`
+          UPDATE task_collaborators 
+          SET role = 'team_leader' 
+          WHERE task_id = ? AND role = 'editor'
+        `, [task_id]);
+        console.log(`Task ${task_id}: Converted 'editor' role to 'team_leader'`);
+        updatedCount++;
         continue;
       }
 
