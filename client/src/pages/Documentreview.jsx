@@ -1188,41 +1188,29 @@ export default function DocumentReview() {
         <button
           type="button"
           onClick={() => setZoom((value) => Math.max(70, value - 10))}
+          title="Zoom out"
         >
           −
         </button>
         <button
           type="button"
           onClick={() => setZoom((value) => Math.min(140, value + 10))}
+          title="Zoom in"
         >
           +
         </button>
+        <span>{zoom}%</span>
         <i />
-        <span className="doc-reader-document">▧</span>
-        <button type="button" onClick={() => setZoom(100)}>
-          ⟳
+        <button type="button" onClick={() => setZoom(100)} title="Fit width">
+          Fit width
         </button>
       </div>
       <div className="doc-reader-group">
-        <span>⌁</span>
-        <button type="button" onClick={() => setZoom(100)}>
-          ↶
-        </button>
-        <button type="button" onClick={() => setZoom(100)}>
-          ↷
-        </button>
-        <i />
         {url && (
-          <button type="button" onClick={openFileInNewTab}>
-            ⇩
+          <button type="button" onClick={openFileInNewTab} title="Open in new tab">
+            ↗
           </button>
         )}
-        {url && (
-          <button type="button" onClick={openFileInNewTab}>
-            ▣
-          </button>
-        )}
-        <span>⋮</span>
       </div>
     </div>
   );
