@@ -4853,10 +4853,10 @@ export default function Dashboard() {
                               style={{ 
                                 cursor: "pointer",
                                 display: "grid",
-                                gridTemplateColumns: "220px 1fr 140px",
+                                gridTemplateColumns: "200px 1fr 130px",
                                 alignItems: "center",
-                                gap: "24px",
-                                padding: "14px 0",
+                                gap: "16px",
+                                padding: "10px 0",
                                 borderBottom: "1px solid #f3f4f6"
                               }}
                               onClick={() => {
@@ -4877,33 +4877,33 @@ export default function Dashboard() {
                                 <AvatarCircle
                                   name={f.name}
                                   pictureUrl={avatarUrlFor(f.name)}
-                                  size={32}
+                                  size={28}
                                   background="#eee7ff"
                                   color="#7040c5"
-                                  fontSize={9}
+                                  fontSize={8}
                                   style={{ borderRadius: 8, flexShrink: 0 }}
                                 />
                                 <div style={{ minWidth: 0, flex: 1 }}>
-                                  <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
-                                  <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>
+                                  <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
+                                  <div style={{ fontSize: "11px", color: "#6b7280", marginTop: "1px" }}>
                                     {f.completed} approved · {f.pending} open
                                   </div>
                                 </div>
                               </div>
                               
                               {/* Initiative progress column */}
-                              <div className="path-performance-progress" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <div className="path-performance-progress" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                  <span style={{ fontSize: '12px', color: '#9ca3af', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Initiative</span>
-                                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>{hasNoWork ? '—' : `${score}%`}</span>
+                                  <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Initiative</span>
+                                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#111827' }}>{hasNoWork ? '—' : `${score}%`}</span>
                                 </div>
-                                <div style={{ height: '8px', background: '#f3f4f6', borderRadius: '4px', overflow: 'hidden' }}>
+                                <div style={{ height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
                                   <div
                                     style={{
                                       height: '100%',
                                       width: hasNoWork ? '0%' : `${Math.min(score, 100)}%`,
                                       background: barColor,
-                                      borderRadius: '4px',
+                                      borderRadius: '3px',
                                       transition: 'width 0.3s ease'
                                     }}
                                   />
@@ -4915,9 +4915,9 @@ export default function Dashboard() {
                                 <span
                                   style={{
                                     display: "inline-block",
-                                    padding: "6px 12px",
+                                    padding: "4px 10px",
                                     borderRadius: "6px",
-                                    fontSize: "12px",
+                                    fontSize: "11px",
                                     fontWeight: "600",
                                     backgroundColor: hasNoWork ? '#f3f4f6' : (risk ? '#fef2f2' : '#f0fdf4'),
                                     color: statusColor,
