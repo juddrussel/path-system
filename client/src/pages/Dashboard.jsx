@@ -1044,12 +1044,22 @@ function FacultyDetailPanel({
 
   // Items (documents/tasks/forms) belonging to this faculty member, pulled
   // from the same merged list that powers the tracking table.
+  // Try matching with both full_name and name fields
+  const facultyName = faculty.full_name || faculty.name;
   const facultyItems = Array.isArray(trackedItems)
-    ? trackedItems.filter((t) => t.person === faculty.full_name)
+    ? trackedItems.filter((t) => 
+        t.person === facultyName || 
+        t.person === faculty.full_name || 
+        t.person === faculty.name
+      )
     : [];
 
   const facultyDelayedDocs = Array.isArray(delayedDocs)
-    ? delayedDocs.filter((d) => d.faculty_name === faculty.full_name)
+    ? delayedDocs.filter((d) => 
+        d.faculty_name === facultyName ||
+        d.faculty_name === faculty.full_name ||
+        d.faculty_name === faculty.name
+      )
     : [];
 
   const doneItems = facultyItems.filter((t) =>
@@ -1392,7 +1402,9 @@ function FacultyDetailPanel({
                     padding: "14px 0",
                   }}
                 >
-                  No {activeStat.label.toLowerCase()} items found.
+                  {activeStat.value > 0 
+                    ? `${activeStat.value} ${activeStat.label.toLowerCase()} ${activeStat.value === 1 ? 'item' : 'items'} (details not available in tracking view)`
+                    : `No ${activeStat.label.toLowerCase()} items found.`}
                 </p>
               ) : (
                 <div
