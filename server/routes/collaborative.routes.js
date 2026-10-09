@@ -31,6 +31,8 @@ function requireChairOrAdmin(req, res, next) {
 // Create a new collaborative task for multiple faculty
 router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), async (req, res) => {
   try {
+    console.log('[POST /collaborative-tasks] Full req.body:', JSON.stringify(req.body, null, 2));
+    
     const { title, doc_type, priority, deadline, notes, description } = req.body;
     const assignedBy = req.user.id;
     const now = new Date();
