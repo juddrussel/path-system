@@ -4957,40 +4957,69 @@ export default function Dashboard() {
                       
                       {facultyPerformanceSummary.lowest && (
                         <>
-                          <div style={{ marginTop: "20px", padding: "14px", background: "#fef2f2", borderRadius: "8px", border: "1px solid #fecaca" }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-                              <div style={{ fontSize: "10px", color: "#dc2626", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                Needs Attention
+                          <div style={{ marginTop: "20px", padding: "16px", background: "linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%)", borderRadius: "10px", border: "1px solid #fecaca" }}>
+                            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "12px" }}>
+                              <div>
+                                <div style={{ fontSize: "9px", color: "#dc2626", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
+                                  ⚠ Needs Attention
+                                </div>
+                                <div style={{ fontSize: "15px", fontWeight: "600", color: "#111827", lineHeight: "1.3" }}>
+                                  {facultyPerformanceSummary.lowest.name}
+                                </div>
                               </div>
-                              <div style={{ fontSize: "20px", fontWeight: "700", color: "#dc2626" }}>
+                              <div style={{ 
+                                fontSize: "24px", 
+                                fontWeight: "800", 
+                                color: "#dc2626",
+                                lineHeight: "1",
+                                padding: "8px 12px",
+                                background: "#fff",
+                                borderRadius: "8px",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+                              }}>
                                 {facultyPerformanceSummary.lowest.initiativeScore}%
                               </div>
                             </div>
-                            <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", marginBottom: "10px" }}>
-                              {facultyPerformanceSummary.lowest.name}
-                            </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
-                              <div style={{ padding: "8px", background: "#fff", borderRadius: "6px", textAlign: "center" }}>
-                                <div style={{ fontSize: "16px", fontWeight: "700", color: "#059669" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginTop: "12px" }}>
+                              <div style={{ 
+                                padding: "10px 8px", 
+                                background: "#fff", 
+                                borderRadius: "8px", 
+                                textAlign: "center",
+                                border: "1px solid #f3f4f6"
+                              }}>
+                                <div style={{ fontSize: "18px", fontWeight: "700", color: "#059669", lineHeight: "1" }}>
                                   {facultyPerformanceSummary.lowest.completed}
                                 </div>
-                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "2px" }}>
+                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "4px", fontWeight: "500" }}>
                                   Approved
                                 </div>
                               </div>
-                              <div style={{ padding: "8px", background: "#fff", borderRadius: "6px", textAlign: "center" }}>
-                                <div style={{ fontSize: "16px", fontWeight: "700", color: "#d97706" }}>
+                              <div style={{ 
+                                padding: "10px 8px", 
+                                background: "#fff", 
+                                borderRadius: "8px", 
+                                textAlign: "center",
+                                border: "1px solid #f3f4f6"
+                              }}>
+                                <div style={{ fontSize: "18px", fontWeight: "700", color: "#f59e0b", lineHeight: "1" }}>
                                   {facultyPerformanceSummary.lowest.pending}
                                 </div>
-                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "2px" }}>
+                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "4px", fontWeight: "500" }}>
                                   Open
                                 </div>
                               </div>
-                              <div style={{ padding: "8px", background: "#fff", borderRadius: "6px", textAlign: "center" }}>
-                                <div style={{ fontSize: "16px", fontWeight: "700", color: "#dc2626" }}>
+                              <div style={{ 
+                                padding: "10px 8px", 
+                                background: "#fff", 
+                                borderRadius: "8px", 
+                                textAlign: "center",
+                                border: "1px solid #f3f4f6"
+                              }}>
+                                <div style={{ fontSize: "18px", fontWeight: "700", color: "#dc2626", lineHeight: "1" }}>
                                   {facultyPerformanceSummary.lowest.delayed}
                                 </div>
-                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "2px" }}>
+                                <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "4px", fontWeight: "500" }}>
                                   Delayed
                                 </div>
                               </div>
@@ -4998,10 +5027,10 @@ export default function Dashboard() {
                           </div>
                           
                           {/* Average score indicator */}
-                          <div style={{ marginTop: "16px", padding: "12px", background: "#f9fafb", borderRadius: "8px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                              <span style={{ fontSize: "11px", color: "#6b7280", fontWeight: "600" }}>Department Average</span>
-                              <span style={{ fontSize: "18px", fontWeight: "700", color: "#111827" }}>
+                          <div style={{ marginTop: "16px", padding: "14px", background: "#f9fafb", borderRadius: "10px", border: "1px solid #e5e7eb" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                              <span style={{ fontSize: "11px", color: "#6b7280", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Department Average</span>
+                              <span style={{ fontSize: "20px", fontWeight: "700", color: "#111827", lineHeight: "1" }}>
                                 {FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null).length > 0
                                   ? Math.round(
                                       FACULTY_WORKLOAD.filter(f => f.initiativeScore !== null)
@@ -5011,7 +5040,7 @@ export default function Dashboard() {
                                   : 0}%
                               </span>
                             </div>
-                            <div style={{ height: "6px", background: "#e5e7eb", borderRadius: "3px", overflow: "hidden" }}>
+                            <div style={{ height: "8px", background: "#e5e7eb", borderRadius: "4px", overflow: "hidden" }}>
                               <div 
                                 style={{
                                   height: "100%",
@@ -5023,7 +5052,8 @@ export default function Dashboard() {
                                       )
                                     : 0}%`,
                                   background: "linear-gradient(90deg, #7c3aed, #a78bfa)",
-                                  transition: "width 0.3s ease"
+                                  transition: "width 0.3s ease",
+                                  borderRadius: "4px"
                                 }}
                               />
                             </div>
