@@ -31,11 +31,22 @@ function requireChairOrAdmin(req, res, next) {
 // Create a new collaborative task for multiple faculty
 router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), async (req, res) => {
   try {
-    const { title, doc_type, priority, deadline, notes, faculty_ids, description } = req.body;
+    const { title, doc_type, priority, deadline, notes, description } = req.body;
     const assignedBy = req.user.id;
     const now = new Date();
 
-    console.log('[POST /collaborative-tasks] Received faculty_ids:', faculty_ids);
+    // Parse faculty_ids - FormData may send as comma-separated string or array
+    let faculty_ids = req.body.faculty_ids;
+    if (typeof faculty_ids === 'string') {
+      faculty_ids = faculty_ids.split(',').map(id => parseInt(id.trim()));
+    } else if (Array.isArray(faculty_ids)) {
+      faculty_ids = faculty_ids.map(id => parseInt(id));
+    } else {
+      faculty_ids = [];
+    }
+
+    console.log('[POST /collaborative-tasks] Raw faculty_ids from req.body:', req.body.faculty_ids);
+    console.log('[POST /collaborative-tasks] Parsed faculty_ids:', faculty_ids);
     console.log('[POST /collaborative-tasks] First faculty (will be team_leader):', faculty_ids[0]);
 
     // Validate required fields
