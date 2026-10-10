@@ -2826,6 +2826,7 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
     );
 
     console.log(`[GET /tasks/:id/comments] Fetched ${allComments.length} comments for task ${taskId}`);
+    console.log(`[GET /tasks/:id/comments] Sample comment data:`, allComments[0]);
 
     // Build nested structure
     const commentMap = new Map();
@@ -2861,6 +2862,16 @@ router.get("/:id/comments", requireAuth, async (req, res) => {
         createdAt: comment.created_at,
         replies: []
       };
+      
+      // Debug log for first comment
+      if (comment.id === allComments[0].id) {
+        console.log(`[GET /tasks/:id/comments] First commentObj:`, {
+          id: commentObj.id,
+          userName: commentObj.userName,
+          profilePicture: commentObj.profilePicture,
+          avatar_url: comment.avatar_url
+        });
+      }
 
       commentMap.set(comment.id, commentObj);
 
