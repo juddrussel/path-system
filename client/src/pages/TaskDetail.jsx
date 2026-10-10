@@ -101,7 +101,8 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
 // Helper to construct full avatar URL
 function fullAvatarUrl(url) {
   if (!url) return null;
-  const resolved = resolveFileUrlHelper("", url);
+  const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const resolved = resolveFileUrlHelper(SERVER_URL, url);
   return resolved;
 }
 
@@ -145,7 +146,6 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
           height: size,
           borderRadius: "50%",
           objectFit: "cover",
-          border: "2px solid #e5e7eb",
           flexShrink: 0
         }}
       />
@@ -164,9 +164,8 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
         alignItems: "center",
         justifyContent: "center",
         fontWeight: "800",
-        fontSize: `calc(${size} / 2.2)`,
-        flexShrink: 0,
-        border: "2px solid #e5e7eb"
+        fontSize: `calc(${size} / 3)`,
+        flexShrink: 0
       }}
     >
       {initials}
