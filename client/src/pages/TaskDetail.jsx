@@ -1596,6 +1596,9 @@ export default function TaskDetail() {
         .td-side{position:sticky;top:18px;display:flex;flex-direction:column;gap:13px}.td-decision{overflow:hidden;border:1px solid #decff0;border-radius:14px;background:linear-gradient(150deg,#f5efff,#fcfaff 58%,#fff);box-shadow:0 12px 26px rgba(79,44,119,.055)}.td-decision-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid #e6daef}.td-decision-head>span{color:#825c9b;font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.td-state{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:5px 7px;background:#f0e6ff;color:#7244ac;font-size:11px;font-weight:800}.td-state.waiting{background:#fff3da;color:#9a7225}.td-state.approved{background:#e7f6ed;color:#478d6c}.td-state.returned{background:#feeae6;color:#b05d51}.td-decision h2{margin:17px 15px 6px;color:#51395d;font:800 17px Manrope,sans-serif;letter-spacing:-.05em;line-height:1.16}.td-decision>p{margin:0 15px 16px;color:#8a7996;font-size:12px;line-height:1.55}.td-action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 15px 15px}.td-action-buttons button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:33px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer}.td-approve{border:1px solid #7c3aed;background:#7c3aed;color:#fff}.td-return{border:1px solid #d8c8e8;background:#fff;color:#76538d}.td-action-buttons button:disabled{background:#e7e1ea;border-color:#e7e1ea;color:#a89fad;cursor:not-allowed}.td-return-form{display:grid;gap:8px;margin:0 15px 15px;padding:11px;border:1px solid #ead5c2;border-radius:9px;background:#fffaf3}.td-return-form label{color:#8b693a;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.td-return-form textarea{min-height:76px;margin-top:0;border-color:#e7d8c8;font-size:12px}.td-return-form-actions{display:flex;justify-content:flex-end;gap:7px}.td-return-form-actions button{border-radius:6px;padding:7px 9px;font-size:11px;font-weight:800;cursor:pointer}.td-return-form-actions button:first-child{border:1px solid #e1d5ca;background:#fff;color:#8c7969}.td-return-form-actions button:last-child{border:1px solid #a95d44;background:#a95d44;color:#fff}.td-side-card{padding:15px}.td-readiness{display:grid;gap:8px;margin-top:12px}.td-readiness span{display:flex;align-items:center;gap:6px;color:#7f6f87;font-size:12px;font-weight:700}.td-readiness b{display:grid;width:12px;height:12px;place-items:center;border:1px solid #d7cddb;border-radius:50%;font-size:11px}.td-readiness span.complete{color:#549073}.td-readiness span.complete b{border-color:transparent;background:#e7f6ed;color:#4b8f6c}.td-side-card p{margin:9px 0 0;color:#93859d;font-size:12px;line-height:1.55}
         .td-modal{position:fixed;z-index:80;display:grid;place-items:center;inset:0;padding:20px;background:rgba(48,31,65,.4);backdrop-filter:blur(4px)}.td-dialog{width:min(780px,100%);max-height:calc(100vh - 40px);overflow:auto;border:1px solid #e4d9ec;border-radius:14px;background:#fff;box-shadow:0 25px 70px rgba(57,34,80,.28)}.td-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #eee7f2}.td-dialog-head div{min-width:0}.td-dialog-head span{display:block;color:#8e8099;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.td-dialog-head strong{display:block;overflow:hidden;margin-top:4px;color:#4f3c5d;font-size:13px;text-overflow:ellipsis;white-space:nowrap}.td-dialog-head button{display:grid;width:28px;height:28px;place-items:center;border:1px solid #e3d9e9;border-radius:7px;background:#fff;color:#715585;cursor:pointer}.td-dialog-meta{padding:8px 16px;border-bottom:1px solid #eee7f2;color:#9a8ea4;font-size:11px}.td-preview-content{min-height:345px;padding:20px;background:linear-gradient(135deg,#f3eef9,#fbfaff)}.td-preview-content iframe,.td-preview-content img{display:block;width:100%;min-height:390px;border:1px solid #e5dfeb;background:#fff;object-fit:contain}.td-paper{max-width:550px;min-height:320px;margin:0 auto;padding:25px;border:1px solid #ebe4ef;background:#fff;box-shadow:0 10px 20px rgba(78,49,104,.09)}.td-paper-head{display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:2px solid #8b5cf6;color:#9a8da4;font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.td-paper h3{margin:18px 0 5px;color:#463451;font:800 22px Manrope,sans-serif;letter-spacing:-.05em}.td-paper p{margin:0;color:#9a8ea2;font-size:12px}.td-lines{display:grid;gap:8px;margin-top:22px}.td-lines i{display:block;height:7px;border-radius:4px;background:#e6e0eb}.td-lines i:nth-child(2){width:78%}.td-lines i:nth-child(3){width:89%}.td-lines i:nth-child(4){width:62%}.td-paper-note{margin-top:20px;padding:10px;border-left:2px solid #a78bfa;background:#f8f4ff;color:#76538f;font-size:11px;line-height:1.5}
         @media(max-width:1050px){.td-scroll{padding:24px}.td-layout{grid-template-columns:1fr}.td-side{position:static;display:grid;grid-template-columns:1.35fr .65fr .65fr}.td-decision{grid-row:span 2}}@media(max-width:720px){.td-scroll{padding:18px 14px 34px}.td-hero{padding:19px}.td-hero-top{align-items:flex-start;flex-direction:column}.td-hero-controls{align-items:flex-start;flex-direction:column}.td-hero-grid{grid-template-columns:1fr;margin-top:22px}.td-hero h1{font-size:28px}.td-card{padding:17px}.td-meta-grid{grid-template-columns:1fr 1fr}.td-side{display:flex}.td-decision{grid-row:auto}.td-action-buttons{grid-template-columns:1fr}.td-lineage-row{grid-template-columns:28px minmax(0,1fr)}.td-lineage-row>button{grid-column:2;justify-self:start}.td-file-preview-head{align-items:flex-start;flex-direction:column}.td-file-preview-head div{width:100%;justify-content:space-between}}@media(max-width:480px){.td-meta-grid{grid-template-columns:1fr}.td-dialog{max-height:calc(100vh - 24px)}.td-modal{padding:12px}.td-preview-content{padding:13px}.td-preview-content iframe,.td-preview-content img{min-height:250px}}
+        
+        /* Collab Discussion Styles */
+        .collab-card{border:1px solid #e6dcef;border-radius:16px;background:#fff;box-shadow:0 12px 28px rgba(73,44,105,.045);padding:22px}.collab-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.collab-heading h2{margin:4px 0 0;color:#4b3858;font:800 18px 'Manrope',Arial,sans-serif;letter-spacing:-.045em}.collab-kicker{display:inline-flex;align-items:center;gap:5px;color:#947fa4;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.collab-count{padding:6px 8px;border-radius:6px;background:#f0e7fc;color:#7546b5;font-size:12px;font-weight:800;white-space:nowrap}.collab-messages{display:grid;gap:12px;margin-top:16px}.collab-message{display:flex;gap:9px;padding:11px;border:1px solid #f0ebf3;border-radius:9px;background:#fdfcff}.collab-message-content{min-width:0;flex:1}.collab-message header{display:flex;align-items:center;gap:7px}.collab-message header strong{color:#5b4766;font-size:13px}.collab-message header small{color:#a394a8;font-size:11px}.collab-message p{margin:6px 0 0;color:#75657d;font-size:13px;line-height:1.5}.collab-thread{display:flex;gap:9px;margin-top:8px}.collab-thread button{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:#7954a0;font-size:12px;font-weight:800;cursor:pointer}.collab-composer{margin-top:16px;border:1px solid #e4dce9;border-radius:10px;background:#fff;overflow:hidden}.collab-composer textarea{min-height:75px;margin:0;padding:11px;border:0;display:block;width:100%;outline:0;resize:vertical;color:#5d4867;font:12px/1.5 'DM Sans',Arial,sans-serif}.collab-composer-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;padding:8px}.collab-composer-footer small{color:#998ba3;font-size:12px}.collab-composer-actions{display:flex;gap:6px}.collab-composer-actions button{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border:0;border-radius:7px;background:#7c3aed;color:#fff;font-size:12px;font-weight:800;cursor:pointer}.collab-composer-actions button:first-child{border:1px solid #ddd1e8;background:#fff;color:#76538d}.collab-composer-actions button:disabled{opacity:.45;cursor:not-allowed}
       `}</style>
       <style>{`.td-file-preview-frame{height:min(78vh,760px);min-height:620px;background:#f7f4fb}.td-preview-content iframe{width:min(100%,760px);min-height:640px;margin:0 auto;background:#fff}@media(max-width:720px){.td-file-preview-frame{height:68vh;min-height:460px}.td-preview-content iframe{min-height:520px}}`}</style>
       <style>{`.td-no-submission{display:flex;align-items:flex-start;gap:8px;margin:0 15px 15px;padding:10px;border:1px solid #e5d8ee;border-left:3px solid #a78bfa;border-radius:8px;background:#fbf9ff;color:#735989}.td-no-submission svg{flex:none;margin-top:1px}.td-no-submission strong{display:block;color:#614677;font-size:12px}.td-no-submission p{margin:4px 0 0;color:#8d7b99;font-size:11px;line-height:1.5}`}</style>
@@ -2491,26 +2494,171 @@ export default function TaskDetail() {
                   </section>
                 )}
 
-                <section className="td-card">
-                  <div className="td-section-title">
-                    <span className="td-icon">
-                      <Icon name="message" />
+                {/* Discussion Section - Collab Style UI */}
+                <section className="collab-card">
+                  <div className="collab-heading">
+                    <span className="collab-kicker">
+                      <Icon name="message" size={14} />
+                      Discussion
                     </span>
-                    <div>
-                      <span>Discussion</span>
-                      <h2>Keep decisions in the handoff</h2>
-                    </div>
+                    <h2>Working notes & questions</h2>
                   </div>
 
-                  {/* Comments thread with threaded replies */}
-                  <div style={{ marginTop: "16px" }}>
-                    {comments.length ? (
-                      <div style={{ display: "grid", gap: "12px", marginBottom: "20px", maxHeight: "400px", overflowY: "auto", paddingRight: "8px" }}>
-                        {comments.filter(item => !item.parent_comment_id && !item.parentCommentId).map((item) => {
-                          const topLevelReplies = comments.filter(c => c.parent_comment_id === item.id || c.parentCommentId === item.id);
-                          
-                          return (
-                            <div key={item.id || item.created_at}>
+                  <div className="collab-messages">
+                    {comments.length > 0 ? (
+                      comments.filter(item => !item.parent_comment_id && !item.parentCommentId).map((message) => (
+                        <div key={message.id}>
+                          <article className="collab-message">
+                            <Avatar 
+                              profilePicture={message.profile_picture}
+                              fullName={message.sender_name || message.author_name || message.author || "User"}
+                              userId={message.user_id || message.sender_id || message.userId}
+                              size="29px"
+                            />
+                            <div className="collab-message-content">
+                              <header>
+                                <strong>{message.sender_name || message.author_name || message.author || "User"}</strong>
+                                <small>{formatDate(message.created_at)}</small>
+                              </header>
+                              <p style={{ margin: "0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{message.content || message.body}</p>
+                              {message.files && message.files.length > 0 && (
+                                <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                                  {message.files.map((file, idx) => {
+                                    const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                                    const imageKey = `msg-${message.id}-file-${idx}`;
+                                    const imageLoading = imageLoadingStates[imageKey] ?? true;
+                                    return isImage ? (
+                                      <div key={idx} style={{ position: "relative", display: "inline-block", maxWidth: "280px" }}>
+                                        {imageLoading && (
+                                          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f0fb", borderRadius: "6px", border: "1px solid #e2d9e9", zIndex: 1 }}>
+                                            <div style={{ width: "24px", height: "24px", border: "2px solid #e2d9e9", borderTopColor: "#7c3aed", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                                          </div>
+                                        )}
+                                        <a 
+                                          href="#"
+                                          onClick={async (e) => {
+                                            e.preventDefault();
+                                            try {
+                                              const blobUrl = await createAuthenticatedBlobUrl(api, file.url);
+                                              window.open(blobUrl, "_blank");
+                                              setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                            } catch (error) {
+                                              console.error("Failed to open file:", error);
+                                              setAlertModal({ isOpen: true, message: "Failed to open file." });
+                                            }
+                                          }}
+                                          rel="noopener noreferrer"
+                                          style={{ display: "block", maxWidth: "280px" }}
+                                        >
+                                          <img 
+                                            src={imageBlobUrls[imageKey] || ""}
+                                            alt={file.name}
+                                            onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                            onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                            style={{ maxWidth: "100%", borderRadius: "6px", border: "1px solid #e2d9e9", cursor: "pointer", display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block" }}
+                                          />
+                                        </a>
+                                      </div>
+                                    ) : (
+                                      <div key={idx} style={{ padding: "6px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span style={{ fontSize: "12px" }}>📎</span>
+                                        <a 
+                                          href="#"
+                                          onClick={async (e) => {
+                                            e.preventDefault();
+                                            try {
+                                              const blobUrl = await createAuthenticatedBlobUrl(api, file.url);
+                                              window.open(blobUrl, "_blank");
+                                              setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                            } catch (error) {
+                                              console.error("Failed to open file:", error);
+                                              setAlertModal({ isOpen: true, message: "Failed to open file." });
+                                            }
+                                          }}
+                                          rel="noopener noreferrer"
+                                          style={{ flex: 1, minWidth: 0, color: "#7043b6", fontSize: "11px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}
+                                        >
+                                          {file.name}
+                                        </a>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              <div className="collab-thread">
+                                <button type="button" onClick={() => setReplyTo(replyTo === message.id ? null : message.id)}>
+                                  <Icon name="message" size={12} /> Reply
+                                </button>
+                              </div>
+                            </div>
+                          </article>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ padding: "12px", color: "#8d7f97", fontSize: "12px" }}>
+                        No messages yet. Start the discussion!
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="collab-composer">
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Share updates, ask questions, or document decisions…"
+                      rows={3}
+                    />
+                    <div className="collab-composer-footer">
+                      <small>Ctrl / Cmd + Enter to send</small>
+                      <span className="collab-composer-actions">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          hidden
+                          multiple
+                          onChange={handleFileChange}
+                        />
+                        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploadingFiles}>
+                          <Icon name="attach" size={13} /> Attach
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={async () => {
+                            if (!newComment.trim() && uploadedFiles.length === 0) return;
+                            setPostingComment(true);
+                            try {
+                              const response = await fetch(`${api}/api/tasks/${task.id}/comments`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({ content: newComment.trim(), files: uploadedFiles }),
+                              });
+                              if (!response.ok) throw new Error("Failed to post comment");
+                              setNewComment("");
+                              setAttachFiles([]);
+                              setUploadedFiles([]);
+                              setFileProgress({});
+                              loadTask();
+                            } catch (err) {
+                              console.error("Comment post error:", err);
+                              setAlertModal({ isOpen: true, message: "Failed to post comment" });
+                            } finally {
+                              setPostingComment(false);
+                            }
+                          }}
+                          disabled={(!newComment.trim() && uploadedFiles.length === 0) || isUploadingFiles}
+                        >
+                          <Icon name="send" size={14} /> {postingComment ? "Sending…" : "Send message"}
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              </main>
+
+              <aside className="td-side">
+                {/* Show approval card when task is approved/completed, otherwise show Decision Station */}
+                {(/approved|completed|done/.test((task.status || "").toLowerCase())) ? (
+                  <section className="td-decision" style={{ background: 'linear-gradient(150deg, #e6f5ed, #f5fbf8 58%, #fff)', borderColor: '#c8e6d7' }}>
                               {/* Main comment */}
                               <div
                                 style={{
