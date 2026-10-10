@@ -2445,6 +2445,8 @@ export default function Dashboard() {
   const [facultyLoading, setFacultyLoading] = useState(true);
   const [facultyModalOpen, setFacultyModalOpen] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [facultyPage, setFacultyPage] = useState(1);
+  const FACULTY_PER_PAGE = 8;
   const [alertsModalOpen, setAlertsModalOpen] = useState(false);
   const [delayedDocs, setDelayedDocs] = useState([]);
   const [delayedLoading, setDelayedLoading] = useState(true);
@@ -4807,7 +4809,8 @@ export default function Dashboard() {
                           message="No faculty performance data yet."
                         />
                       ) : (
-                        FACULTY_WORKLOAD.slice(0, 6).map((f) => {
+                        <>
+                          {FACULTY_WORKLOAD.slice((facultyPage - 1) * FACULTY_PER_PAGE, facultyPage * FACULTY_PER_PAGE).map((f) => {
                           // Initiative score status logic
                           const score = f.initiativeScore;
                           const hasNoWork = score === null;
@@ -4932,7 +4935,51 @@ export default function Dashboard() {
                               </div>
                             </div>
                           );
-                        })
+                        })}
+                        
+                        {/* Pagination controls */}
+                        {FACULTY_WORKLOAD.length > FACULTY_PER_PAGE && (
+                          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid #f3f4f6" }}>
+                            <button
+                              onClick={() => setFacultyPage(p => Math.max(1, p - 1))}
+                              disabled={facultyPage === 1}
+                              style={{
+                                padding: "6px 12px",
+                                border: "1px solid #e5e7eb",
+                                borderRadius: "6px",
+                                background: facultyPage === 1 ? "#f9fafb" : "#fff",
+                                color: facultyPage === 1 ? "#9ca3af" : "#374151",
+                                fontSize: "12px",
+                                fontWeight: "600",
+                                cursor: facultyPage === 1 ? "not-allowed" : "pointer",
+                                opacity: facultyPage === 1 ? 0.5 : 1
+                              }}
+                            >
+                              ← Previous
+                            </button>
+                            <span style={{ fontSize: "12px", color: "#6b7280", fontWeight: "600" }}>
+                              Page {facultyPage} of {Math.ceil(FACULTY_WORKLOAD.length / FACULTY_PER_PAGE)}
+                            </span>
+                            <button
+                              onClick={() => setFacultyPage(p => Math.min(Math.ceil(FACULTY_WORKLOAD.length / FACULTY_PER_PAGE), p + 1))}
+                              disabled={facultyPage >= Math.ceil(FACULTY_WORKLOAD.length / FACULTY_PER_PAGE)}
+                              style={{
+                                padding: "6px 12px",
+                                border: "1px solid #e5e7eb",
+                                borderRadius: "6px",
+                                background: facultyPage >= Math.ceil(FACULTY_WORKLOAD.length / FACULTY_PER_PAGE) ? "#f9fafb" : "#fff",
+                                color: facultyPage >= Math.ceil(FACULTY_WORKLOAD.length / FACULTY_PER_PAGE) ? "#9ca3af" : "#374151",
+                                fontSize: "12px",
+                                fontWeight: "600",
+                                cursor: facultyPage >= Math.ceil(FACULTY_WORKLOAD.length / FACULTY_PER_PAGE) ? "not-allowed" : "pointer",
+                                opacity: facultyPage >= Math.ceil(FACULTY_WORKLOAD.length / FACULTY_PER_PAGE) ? 0.5 : 1
+                              }}
+                            >
+                              Next →
+                            </button>
+                          </div>
+                        )}
+                        </>
                       )}
                     </div>
                     <aside className="path-performance-highlight">
