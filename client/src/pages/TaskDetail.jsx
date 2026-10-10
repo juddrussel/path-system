@@ -119,7 +119,7 @@ function fullAvatarUrl(url) {
 // Avatar component that shows profile picture if available, otherwise initials
 function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
   // Support both user object and individual props
-  const picture = user?.profile_picture || user?.profilePicture || user?.avatar_url || profilePicture;
+  const picture = user?.avatar_url || user?.profile_picture || user?.profilePicture || profilePicture;
   const name = user?.full_name || user?.user_name || user?.userName || fullName;
   const id = user?.id || user?.userId || userId;
   
@@ -134,7 +134,44 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
   });
   
   const [imgFailed, setImgFailed] = useState(false);
-  const src = fullAvatarUrl(picture);
+  const [blobUrl, setBlobUrl] = useState(null);
+  
+  // Load avatar as authenticated blob URL (like TopBar does)
+  useEffect(() => {
+    if (!picture) {
+      setBlobUrl(null);
+      return;
+    }
+    
+    let cancelled = false;
+    let url = null;
+    
+    const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    createAuthenticatedBlobUrl(SERVER_URL, picture)
+      .then(blobUrl => {
+        url = blobUrl;
+        if (!cancelled) {
+          console.log('[TaskDetail Avatar] Blob URL created:', blobUrl);
+          setBlobUrl(blobUrl);
+        }
+      })
+      .catch(err => {
+        console.error('[TaskDetail Avatar] Failed to load avatar:', err);
+        if (!cancelled) {
+          setBlobUrl(null);
+          setImgFailed(true);
+        }
+      });
+    
+    return () => {
+      cancelled = true;
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [picture]);
+  
+  const src = blobUrl;
   
   const initials = useMemo(() => {
     if (!name) return "?";
