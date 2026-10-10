@@ -171,7 +171,7 @@ function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
 
 // Reply form component for threaded comments
 function ReplyForm({
-  reply,
+  parentComment,
   replyDraft,
   setReplyDraft,
   replyFiles,
@@ -183,17 +183,14 @@ function ReplyForm({
   isReplyUploadingFiles,
   setIsReplyUploadingFiles,
   replyFilesRef,
-  setReplyTo,
-  setError,
-  api,
-  token,
-  taskId,
-  onReplyPosted
+  onSubmit,
+  onCancel,
+  disabled
 }) {
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files || []);
     if (replyFiles.length + files.length > 5) {
-      setError("Maximum 5 files allowed");
+      alert("Maximum 5 files allowed");
       return;
     }
     
@@ -210,16 +207,6 @@ function ReplyForm({
         setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 10 }));
         
         const xhr = new XMLHttpRequest();
-        let progressInterval = null;
-        
-        const startTime = Date.now();
-        const estimateProgress = () => {
-          const elapsed = Date.now() - startTime;
-          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
-          setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: estimatedPercent }));
-        };
-        
-        progressInterval = setInterval(estimateProgress, 20);
         
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
@@ -230,7 +217,6 @@ function ReplyForm({
         
         await new Promise((resolve, reject) => {
           xhr.addEventListener("load", () => {
-            if (progressInterval) clearInterval(progressInterval);
             if (xhr.status === 200 || xhr.status === 201) {
               const response = JSON.parse(xhr.responseText);
               uploadedUrls.push(response.files[0]);
@@ -242,17 +228,16 @@ function ReplyForm({
           });
           
           xhr.addEventListener("error", () => {
-            if (progressInterval) clearInterval(progressInterval);
             reject(new Error("Upload failed"));
           });
           
-          xhr.open("POST", `${api}/api/upload-files`);
-          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.open("POST", "/api/upload-files");
+          xhr.withCredentials = true;
           xhr.send(formData);
         });
       } catch (err) {
         console.error("File upload error:", err);
-        setError(`Failed to upload ${file.name}`);
+        alert(`Failed to upload ${file.name}`);
       }
     }
     
@@ -262,47 +247,14 @@ function ReplyForm({
     if (replyFilesRef.current) replyFilesRef.current.value = "";
   };
 
-  const handleSubmitReply = async () => {
-    if (!replyDraft.trim() && replyUploadedFiles.length === 0) return;
-    
-    try {
-      const response = await fetch(`${api}/api/tasks/${taskId}/comments`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          content: replyDraft.trim(),
-          parentCommentId: reply.id,
-          files: replyUploadedFiles
-        }),
-      });
-      
-      if (response.ok) {
-        const newComment = await response.json();
-        setReplyDraft("");
-        setReplyFiles([]);
-        setReplyFileProgress({});
-        setReplyTo(null);
-        setReplyUploadedFiles([]);
-        if (replyFilesRef.current) replyFilesRef.current.value = "";
-        if (onReplyPosted) onReplyPosted(newComment);
-      } else {
-        setError("Failed to post reply");
-      }
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
   return (
     <div style={{ marginTop: "12px", padding: "12px", background: "#fbf8ff", borderRadius: "8px" }}>
       <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
-        ↳ Reply to {reply.sender_name?.split(" ")[0] || reply.author_name?.split(" ")[0] || "User"}
+        ↳ Reply to {parentComment.sender_name?.split(" ")[0] || parentComment.author_name?.split(" ")[0] || parentComment.user_name?.split(" ")[0] || "User"}
       </div>
       <textarea
-        key={`reply-to-${reply.id}`}
+        key={`reply-to-${parentComment.id}`}
         value={replyDraft}
         onChange={(e) => setReplyDraft(e.target.value)}
         placeholder={`Write your reply…`}
@@ -400,8 +352,8 @@ function ReplyForm({
           📎 Add files ({replyFiles.length}/5)
         </button>
         <button
-          onClick={handleSubmitReply}
-          disabled={(!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles}
+          onClick={onSubmit}
+          disabled={(!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles || disabled}
           style={{
             flex: 1,
             display: "inline-flex",
@@ -422,13 +374,7 @@ function ReplyForm({
           ↩ Send reply
         </button>
         <button
-          onClick={() => {
-            setReplyTo(null);
-            setReplyDraft("");
-            setReplyFiles([]);
-            setReplyFileProgress({});
-            setReplyUploadedFiles([]);
-          }}
+          onClick={onCancel}
           style={{
             display: "inline-flex",
             alignItems: "center",
