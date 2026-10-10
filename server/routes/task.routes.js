@@ -1320,8 +1320,13 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
     await db.query("DELETE FROM task_collaborators WHERE task_id = ?", [taskId]);
 
     // Add all collaborators to task_collaborators table
-    const collaboratorRows = facultyIds.map(fId => [taskId, fId]);
-    await db.query("INSERT INTO task_collaborators (task_id, user_id) VALUES ?", [collaboratorRows]);
+    // First faculty member is the team leader, rest are contributors
+    const collaboratorRows = facultyIds.map((fId, index) => [
+      taskId, 
+      fId, 
+      index === 0 ? 'team_leader' : 'contributor'
+    ]);
+    await db.query("INSERT INTO task_collaborators (task_id, user_id, role) VALUES ?", [collaboratorRows]);
 
     // Handle attachments
     let preUploaded = [];
