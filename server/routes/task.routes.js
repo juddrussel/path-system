@@ -691,7 +691,7 @@ async function enrichTasks(rows) {
     } catch (_) { /* table may not exist yet — safe to ignore */ }
   }
   const [comments] = await db.query(
-    `SELECT tc.*, u.full_name AS sender_name
+    `SELECT tc.*, u.full_name AS sender_name, u.avatar_url
      FROM task_comments tc
      LEFT JOIN users u ON u.id = tc.sender_id
      WHERE tc.task_id IN (?)
