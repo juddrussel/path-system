@@ -1573,15 +1573,23 @@ export default function CollaborativeTaskDetail() {
               </div>
               <div className="collab-people">
                 {collaborators.map((collab) => (
-                  <div className="collab-person" key={collab.user_id}>
+                  <li key={collab.user_id} style={{
+                    padding: '10px',
+                    border: '1px solid #eee8f2',
+                    borderRadius: '9px',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
                     <Avatar 
                       profilePicture={collab.profile_picture}
                       fullName={collab.full_name}
                       userId={collab.user_id}
                     />
-                    <div className="collab-person-copy">
-                      <strong style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                        <span>{collab.full_name}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <strong style={{ whiteSpace: 'nowrap' }}>{collab.full_name}</strong>
                         {collab.role === 'team_leader' && (
                           <span style={{
                             padding: '3px 7px',
@@ -1597,10 +1605,10 @@ export default function CollaborativeTaskDetail() {
                             TEAM LEADER
                           </span>
                         )}
-                      </strong>
-                      <small style={{ textTransform: 'capitalize' }}>{collab.role?.replace('_', ' ') || 'Collaborator'}</small>
+                      </div>
+                      <small style={{ display: 'block', textTransform: 'capitalize' }}>{collab.role?.replace('_', ' ') || 'Collaborator'}</small>
                     </div>
-                  </div>
+                  </li>
                 ))}
               </div>
             </section>
