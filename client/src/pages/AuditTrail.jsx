@@ -745,20 +745,6 @@ export default function AuditTrail() {
                               </strong>
                             </div>
                           </div>
-                          {selectedLog.document_id && (
-                            <button
-                              type="button"
-                              className="path-audit-document-link"
-                              onClick={() =>
-                                navigate(
-                                  `/documents/${selectedLog.document_id}`,
-                                )
-                              }
-                            >
-                              <FileText size={14} /> Open document #
-                              {selectedLog.document_id}
-                            </button>
-                          )}
                           <div className="path-audit-detail-note">
                             <ShieldCheck size={14} /> This activity is retained
                             as part of the department’s traceable record.
