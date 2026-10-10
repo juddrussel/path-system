@@ -1580,11 +1580,10 @@ export default function CollaborativeTaskDetail() {
                       userId={collab.user_id}
                     />
                     <div className="collab-person-copy">
-                      <strong>
-                        {collab.full_name}
+                      <strong style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <span>{collab.full_name}</span>
                         {collab.role === 'team_leader' && (
                           <span style={{
-                            marginLeft: '6px',
                             padding: '3px 7px',
                             background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
                             border: '1px solid #93c5fd',
@@ -1592,7 +1591,8 @@ export default function CollaborativeTaskDetail() {
                             color: '#1e40af',
                             fontSize: '9px',
                             fontWeight: 800,
-                            letterSpacing: '0.02em'
+                            letterSpacing: '0.02em',
+                            whiteSpace: 'nowrap'
                           }}>
                             TEAM LEADER
                           </span>
