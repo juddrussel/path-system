@@ -1274,13 +1274,19 @@ export default function TaskDetail() {
       });
       if (!response.ok) throw new Error("The note could not be posted.");
       
-      const newCommentData = await response.json();
+      let newCommentData = {};
+      try {
+        newCommentData = await response.json();
+      } catch (e) {
+        // Empty response is OK for 201/204 status
+        console.log('Comment posted successfully (no response body)');
+      }
       
       // Wait for server response with actual ID before adding to UI
       setComments((current) => [
         ...current,
         {
-          id: newCommentData.id,
+          id: newCommentData.id || Date.now(),
           content: newCommentData.content || content,
           sender_name: newCommentData.sender_name || user.full_name || user.username || "You",
           author_name: newCommentData.author_name || user.full_name || user.username || "You",
@@ -2703,8 +2709,23 @@ export default function TaskDetail() {
                                         });
 
                                         if (!res.ok) {
-                                          const errorData = await res.json();
-                                          throw new Error(errorData.message || 'Failed to post reply');
+                                          let errorMessage = 'Failed to post reply';
+                                          try {
+                                            const errorData = await res.json();
+                                            errorMessage = errorData.message || errorMessage;
+                                          } catch (e) {
+                                            // Response body is not JSON
+                                            errorMessage = `Server error: ${res.status} ${res.statusText}`;
+                                          }
+                                          throw new Error(errorMessage);
+                                        }
+
+                                        // Try to parse response, but don't fail if empty
+                                        try {
+                                          await res.json();
+                                        } catch (e) {
+                                          // Empty response is OK for 201/204 status
+                                          console.log('Reply posted successfully (no response body)');
                                         }
 
                                         setReplyDraft('');
