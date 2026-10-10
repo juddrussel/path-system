@@ -88,6 +88,30 @@ const toDatetimeInput = (value) => {
 
 const resolveFileUrl = (api, value) => resolveFileUrlHelper(api, value);
 
+// Cache for avatar blob URLs to avoid re-fetching the same avatar multiple times
+const avatarBlobCache = new Map();
+
+// Helper to get or create cached blob URL for avatar
+async function getCachedAvatarBlobUrl(avatarUrl) {
+  if (!avatarUrl) return null;
+  
+  // Check cache first
+  if (avatarBlobCache.has(avatarUrl)) {
+    return avatarBlobCache.get(avatarUrl);
+  }
+  
+  // Create new blob URL
+  try {
+    const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const blobUrl = await createAuthenticatedBlobUrl(SERVER_URL, avatarUrl);
+    avatarBlobCache.set(avatarUrl, blobUrl);
+    return blobUrl;
+  } catch (err) {
+    console.error('[TaskDetail] Failed to create avatar blob URL:', err);
+    return null;
+  }
+}
+
 const pdfReadingUrl = (value, zoom = "page-width") => {
   if (!value) return "";
   const [fileUrl, currentFragment = ""] = value.split("#");
@@ -123,20 +147,10 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
   const name = user?.full_name || user?.user_name || user?.userName || fullName;
   const id = user?.id || user?.userId || userId;
   
-  console.log('[TaskDetail Avatar] Debug:', {
-    user,
-    picture,
-    name,
-    id,
-    profilePicture,
-    fullName,
-    userId
-  });
-  
   const [imgFailed, setImgFailed] = useState(false);
   const [blobUrl, setBlobUrl] = useState(null);
   
-  // Load avatar as authenticated blob URL (like TopBar does)
+  // Load avatar as authenticated blob URL (with caching)
   useEffect(() => {
     if (!picture) {
       setBlobUrl(null);
@@ -144,15 +158,11 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
     }
     
     let cancelled = false;
-    let url = null;
     
-    const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    createAuthenticatedBlobUrl(SERVER_URL, picture)
-      .then(blobUrl => {
-        url = blobUrl;
-        if (!cancelled) {
-          console.log('[TaskDetail Avatar] Blob URL created:', blobUrl);
-          setBlobUrl(blobUrl);
+    getCachedAvatarBlobUrl(picture)
+      .then(url => {
+        if (!cancelled && url) {
+          setBlobUrl(url);
         }
       })
       .catch(err => {
@@ -165,9 +175,7 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
     
     return () => {
       cancelled = true;
-      if (url) {
-        URL.revokeObjectURL(url);
-      }
+      // Don't revoke blob URLs here since they're cached and shared
     };
   }, [picture]);
   
