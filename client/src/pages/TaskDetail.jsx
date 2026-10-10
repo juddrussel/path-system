@@ -709,6 +709,14 @@ export default function TaskDetail() {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [postingComment, setPostingComment] = useState(false);
+  const commentsEndRef = useRef(null);
+  
+  // Auto-scroll to bottom of comments when they load or change
+  useEffect(() => {
+    if (comments.length > 0 && commentsEndRef.current) {
+      commentsEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [comments.length]);
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
@@ -3296,6 +3304,8 @@ export default function TaskDetail() {
                             </div>
                           );
                         })}
+                        {/* Invisible marker for auto-scroll */}
+                        <div ref={commentsEndRef} />
                       </div>
                     ) : (
                       <p
