@@ -153,14 +153,26 @@ async function getCachedAvatarBlobUrl(avatarUrl) {
   
   // Check cache first
   if (avatarBlobCache.has(avatarUrl)) {
-    return avatarBlobCache.get(avatarUrl);
+    const cached = avatarBlobCache.get(avatarUrl);
+    // Verify the blob URL is still valid by checking if it starts with 'blob:'
+    if (cached && cached.startsWith('blob:')) {
+      return cached;
+    } else {
+      // Cached URL is invalid, remove it
+      avatarBlobCache.delete(avatarUrl);
+    }
   }
   
   // Create new blob URL
   try {
     const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
     const blobUrl = await createAuthenticatedBlobUrl(SERVER_URL, avatarUrl);
-    avatarBlobCache.set(avatarUrl, blobUrl);
+    
+    // Only cache if we got a valid blob URL
+    if (blobUrl && blobUrl.startsWith('blob:')) {
+      avatarBlobCache.set(avatarUrl, blobUrl);
+    }
+    
     return blobUrl;
   } catch (err) {
     console.error('[TaskDetail] Failed to create avatar blob URL:', err);
