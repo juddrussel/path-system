@@ -1589,7 +1589,7 @@ export default function CollaborativeTaskDetail() {
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                        <strong style={{ whiteSpace: 'nowrap' }}>{collab.full_name}</strong>
+                        <strong style={{ whiteSpace: 'nowrap', fontSize: '14px', fontWeight: 600 }}>{collab.full_name}</strong>
                         {collab.role === 'team_leader' && (
                           <span style={{
                             padding: '3px 7px',
@@ -1606,7 +1606,7 @@ export default function CollaborativeTaskDetail() {
                           </span>
                         )}
                       </div>
-                      <small style={{ display: 'block', textTransform: 'capitalize' }}>{collab.role?.replace('_', ' ') || 'Collaborator'}</small>
+                      <small style={{ display: 'block', textTransform: 'capitalize', fontSize: '13px' }}>{collab.role?.replace('_', ' ') || 'Collaborator'}</small>
                     </div>
                   </li>
                 ))}
