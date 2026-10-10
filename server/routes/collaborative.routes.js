@@ -183,6 +183,14 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
       message: "Collaborative task created successfully.",
       task,
       tracking_id,
+      debug: {
+        faculty_ids_received: req.body.faculty_ids,
+        faculty_ids_parsed: faculty_ids,
+        faculty_ids_type: typeof faculty_ids,
+        is_array: Array.isArray(faculty_ids),
+        collaborator_count: insertedCollabs.length,
+        collaborators_inserted: insertedCollabs
+      }
     });
   } catch (err) {
     console.error("POST /api/collaborative-tasks error:", err);
