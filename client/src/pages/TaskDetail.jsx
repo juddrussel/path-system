@@ -2749,7 +2749,7 @@ export default function TaskDetail() {
                                       try {
                                         const payload = {
                                           content: replyDraft,
-                                          parent_comment_id: item.id,
+                                          parentCommentId: item.id,
                                           files: replyUploadedFiles
                                         };
 
