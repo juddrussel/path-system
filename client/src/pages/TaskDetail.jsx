@@ -106,7 +106,7 @@ function fullAvatarUrl(url) {
 }
 
 // Avatar component that shows profile picture if available, otherwise initials
-function Avatar({ user, profilePicture, fullName, userId, size = "40px" }) {
+function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
   // Support both user object and individual props
   const picture = user?.profile_picture || user?.profilePicture || user?.avatar_url || profilePicture;
   const name = user?.full_name || user?.user_name || user?.userName || fullName;
