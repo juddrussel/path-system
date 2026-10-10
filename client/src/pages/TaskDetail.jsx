@@ -106,16 +106,21 @@ function fullAvatarUrl(url) {
 }
 
 // Avatar component that shows profile picture if available, otherwise initials
-function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
+function Avatar({ user, profilePicture, fullName, userId, size = "40px" }) {
+  // Support both user object and individual props
+  const picture = user?.profile_picture || user?.profilePicture || user?.avatar_url || profilePicture;
+  const name = user?.full_name || user?.user_name || user?.userName || fullName;
+  const id = user?.id || user?.userId || userId;
+  
   const [imgFailed, setImgFailed] = useState(false);
-  const src = fullAvatarUrl(profilePicture);
+  const src = fullAvatarUrl(picture);
   
   const initials = useMemo(() => {
-    if (!fullName) return "?";
-    const parts = fullName.trim().split(/\s+/);
+    if (!name) return "?";
+    const parts = String(name).trim().split(/\s+/);
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-  }, [fullName]);
+  }, [name]);
 
   const colors = [
     { bg: "#fef3c7", text: "#92400e" },
@@ -126,14 +131,14 @@ function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
     { bg: "#ffe4e6", text: "#9f1239" },
   ];
   
-  const colorIndex = userId ? userId % colors.length : 0;
+  const colorIndex = id ? id % colors.length : 0;
   const color = colors[colorIndex];
 
   if (src && !imgFailed) {
     return (
       <img
         src={src}
-        alt={fullName || "User"}
+        alt={name || "User"}
         onError={() => setImgFailed(true)}
         style={{
           width: size,
@@ -2523,6 +2528,7 @@ export default function TaskDetail() {
                                 }}
                               >
                                 <Avatar user={{
+                                  id: item.user_id || item.userId || item.sender_id,
                                   profile_picture: item.profile_picture,
                                   user_name: item.sender_name || item.author_name || item.author,
                                   full_name: item.sender_name || item.author_name || item.author
@@ -2828,6 +2834,7 @@ export default function TaskDetail() {
                                       }}
                                     >
                                       <Avatar user={{
+                                        id: reply.user_id || reply.userId || reply.sender_id,
                                         profile_picture: reply.profile_picture,
                                         user_name: reply.sender_name || reply.author_name || reply.author,
                                         full_name: reply.sender_name || reply.author_name || reply.author
