@@ -735,6 +735,7 @@ export default function TaskDetail() {
   const commentFileInputRef = useRef(null);
   const [submissionBlobUrl, setSubmissionBlobUrl] = useState(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
+  const [previewBlobUrlLoading, setPreviewBlobUrlLoading] = useState(false);
   const [fileBlobUrls, setFileBlobUrls] = useState({});
   const [imageLoadingStates, setImageLoadingStates] = useState({});
   const [imageBlobUrls, setImageBlobUrls] = useState({});
@@ -942,8 +943,12 @@ export default function TaskDetail() {
     const loadPreviewBlobUrl = async () => {
       if (!preview?.url) {
         setPreviewBlobUrl(null);
+        setPreviewBlobUrlLoading(false);
         return;
       }
+
+      // Start loading
+      setPreviewBlobUrlLoading(true);
 
       // Create blob URLs for all file types
       try {
@@ -951,10 +956,14 @@ export default function TaskDetail() {
         if (isMounted) {
           currentPreviewBlobUrl = url;
           setPreviewBlobUrl(url);
+          setPreviewBlobUrlLoading(false);
         }
       } catch (error) {
         console.error("Failed to load preview file:", error);
-        if (isMounted) setPreviewBlobUrl(null);
+        if (isMounted) {
+          setPreviewBlobUrl(null);
+          setPreviewBlobUrlLoading(false);
+        }
       }
     };
 
@@ -3959,12 +3968,13 @@ export default function TaskDetail() {
                   <span className="td-reader-toolbar-spacer" />
                   <button
                     type="button"
-                    disabled={!preview.url}
+                    disabled={!preview.url || previewBlobUrlLoading || !previewBlobUrl}
                     onClick={() => {
                       const urlToOpen = previewBlobUrl || preview.url;
                       window.open(urlToOpen, "_blank", "noopener,noreferrer");
                     }}
                     aria-label="Open file in a new tab"
+                    title={previewBlobUrlLoading ? "Loading file..." : "Open file in a new tab"}
                   >
                     ↗
                   </button>

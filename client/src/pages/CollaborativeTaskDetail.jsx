@@ -692,6 +692,7 @@ export default function CollaborativeTaskDetail() {
   const replyFilesRef = useRef(null);
   const revisionFilesRef = useRef(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
+  const [previewBlobUrlLoading, setPreviewBlobUrlLoading] = useState(false);
 
   // Create blob URLs for all message and reply images
   useEffect(() => {
@@ -1008,8 +1009,12 @@ export default function CollaborativeTaskDetail() {
       const fileUrl = preview?.file_url || preview?.url;
       if (!fileUrl) {
         setPreviewBlobUrl(null);
+        setPreviewBlobUrlLoading(false);
         return;
       }
+
+      // Start loading
+      setPreviewBlobUrlLoading(true);
 
       // Create blob URLs for all file types
       try {
@@ -1017,10 +1022,14 @@ export default function CollaborativeTaskDetail() {
         if (isMounted) {
           currentPreviewBlobUrl = url;
           setPreviewBlobUrl(url);
+          setPreviewBlobUrlLoading(false);
         }
       } catch (error) {
         console.error("Failed to load preview file:", error);
-        if (isMounted) setPreviewBlobUrl(null);
+        if (isMounted) {
+          setPreviewBlobUrl(null);
+          setPreviewBlobUrlLoading(false);
+        }
       }
     };
 
@@ -2789,7 +2798,7 @@ export default function CollaborativeTaskDetail() {
                   <span className="td-reader-toolbar-spacer" />
                   <button
                     type="button"
-                    disabled={!preview.file_url && !preview.url}
+                    disabled={!preview.file_url && !preview.url || previewBlobUrlLoading || !previewBlobUrl}
                     onClick={() => {
                       const urlToOpen = previewBlobUrl || r2ToProxyUrl(api, preview.file_url || preview.url);
                       window.open(
@@ -2799,6 +2808,7 @@ export default function CollaborativeTaskDetail() {
                       );
                     }}
                     aria-label="Open file in a new tab"
+                    title={previewBlobUrlLoading ? "Loading file..." : "Open file in a new tab"}
                   >
                     ↗
                   </button>
