@@ -2737,7 +2737,7 @@ export default function TaskDetail() {
                                         if (replyFilesRef.current) {
                                           replyFilesRef.current.value = '';
                                         }
-                                        await fetchComments();
+                                        await loadTask();
                                       } catch (error) {
                                         console.error('Error posting reply:', error);
                                         alert(error.message || 'Failed to post reply. Please try again.');
