@@ -2502,7 +2502,7 @@ router.delete("/:id/archive-for-me", requireAuth, async (req, res) => {
 router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
-    let { content, parentCommentId } = req.body;
+    let { content, parentCommentId, files: preUploadedFiles } = req.body;
     const userId = req.user.id;
 
     // Parse parentCommentId if it exists and is a string
@@ -2513,7 +2513,15 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
       }
     }
 
-    console.log(`[POST /tasks/:id/comments] taskId=${taskId}, parentCommentId=${parentCommentId}, content="${content.substring(0, 50)}..."`);
+    // Handle parent_comment_id as well (snake_case from frontend)
+    if (!parentCommentId && req.body.parent_comment_id) {
+      parentCommentId = parseInt(req.body.parent_comment_id, 10);
+      if (isNaN(parentCommentId)) {
+        parentCommentId = null;
+      }
+    }
+
+    console.log(`[POST /tasks/:id/comments] taskId=${taskId}, parentCommentId=${parentCommentId}, content="${content?.substring(0, 50)}...", preUploadedFiles=${preUploadedFiles ? JSON.stringify(preUploadedFiles).substring(0, 100) : 'none'}`);
 
     if (!content || content.trim() === "") {
       return res.status(400).json({ message: "Comment cannot be empty." });
@@ -2574,7 +2582,19 @@ router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, 
     const fileUploadPromises = [];
     const now = new Date();
 
-    if (req.files && req.files.length > 0) {
+    // Handle pre-uploaded files from JSON body (files already uploaded via /api/upload-files)
+    if (preUploadedFiles && Array.isArray(preUploadedFiles)) {
+      console.log(`[POST /tasks/:id/comments] Using pre-uploaded files:`, preUploadedFiles);
+      // Files are already uploaded, just use them directly
+      pendingFiles = preUploadedFiles.map(f => ({
+        name: f.name || f.file_name,
+        url: f.url || f.file_url,
+        key: f.key || f.url || f.file_url, // Try to extract key from URL or use URL directly
+        size: f.size || 0
+      }));
+    }
+    // Handle files uploaded directly via multipart/form-data
+    else if (req.files && req.files.length > 0) {
       pendingFiles = req.files.map((f, idx) => ({
         name: f.originalname || f.name,
         size: f.size,
