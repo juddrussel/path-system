@@ -2535,8 +2535,9 @@ router.post("/:id/comments", requireAuth, conditionalUpload, async (req, res) =>
 
     console.log(`[POST /tasks/:id/comments] taskId=${taskId}, parentCommentId=${parentCommentId}, content="${content?.substring(0, 50)}...", preUploadedFiles=${preUploadedFiles ? JSON.stringify(preUploadedFiles).substring(0, 100) : 'none'}`);
 
-    if (!content || content.trim() === "") {
-      return res.status(400).json({ message: "Comment cannot be empty." });
+    // Allow empty content if files are provided
+    if ((!content || content.trim() === "") && (!preUploadedFiles || preUploadedFiles.length === 0) && (!req.files || req.files.length === 0)) {
+      return res.status(400).json({ message: "Comment must have either text content or file attachments." });
     }
 
     // Get task to check if collaborative and get task owner info
