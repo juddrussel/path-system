@@ -2529,9 +2529,11 @@ export default function TaskDetail() {
                               >
                                 <Avatar user={{
                                   id: item.user_id || item.userId || item.sender_id,
-                                  profile_picture: item.profile_picture,
-                                  user_name: item.sender_name || item.author_name || item.author,
-                                  full_name: item.sender_name || item.author_name || item.author
+                                  profile_picture: item.profile_picture || item.profilePicture,
+                                  profilePicture: item.profilePicture || item.profile_picture,
+                                  avatar_url: item.avatar_url,
+                                  user_name: item.sender_name || item.author_name || item.author || item.userName,
+                                  full_name: item.sender_name || item.author_name || item.author || item.userName
                                 }} />
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <div
@@ -2835,9 +2837,11 @@ export default function TaskDetail() {
                                     >
                                       <Avatar user={{
                                         id: reply.user_id || reply.userId || reply.sender_id,
-                                        profile_picture: reply.profile_picture,
-                                        user_name: reply.sender_name || reply.author_name || reply.author,
-                                        full_name: reply.sender_name || reply.author_name || reply.author
+                                        profile_picture: reply.profile_picture || reply.profilePicture,
+                                        profilePicture: reply.profilePicture || reply.profile_picture,
+                                        avatar_url: reply.avatar_url,
+                                        user_name: reply.sender_name || reply.author_name || reply.author || reply.userName,
+                                        full_name: reply.sender_name || reply.author_name || reply.author || reply.userName
                                       }} />
                                       <div style={{ flex: 1, minWidth: 0 }}>
                                         <div
