@@ -399,7 +399,7 @@ function ReplyForm({
         },
         body: JSON.stringify({
           content: replyDraft.trim(),
-          parent_id: reply.id,
+          parentCommentId: reply.id,
           files: replyUploadedFiles
         }),
       });
