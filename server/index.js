@@ -110,8 +110,8 @@ const upload = multer({
 
 // ── Middleware ──
 app.use(cors({
-  origin: "*",  // Allow all origins in dev
-  credentials: false
+  origin: CORS_ORIGIN,  // Use env variable instead of wildcard
+  credentials: true  // Allow credentials (cookies, auth headers)
 }));
 app.use(express.json({ charset: 'utf-8' }));
 app.use((req, res, next) => {
