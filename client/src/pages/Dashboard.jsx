@@ -2446,7 +2446,7 @@ export default function Dashboard() {
   const [facultyModalOpen, setFacultyModalOpen] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [facultyPage, setFacultyPage] = useState(1);
-  const FACULTY_PER_PAGE = 8;
+  const FACULTY_PER_PAGE = 7;
   const [alertsModalOpen, setAlertsModalOpen] = useState(false);
   const [delayedDocs, setDelayedDocs] = useState([]);
   const [delayedLoading, setDelayedLoading] = useState(true);
