@@ -1345,18 +1345,25 @@ export default function CollaborativeTaskAdmin() {
               </div>
               <div className="admin-people">
                 {collaborators.map((collab) => (
-                  <div className="admin-person" key={collab.user_id}>
+                  <li key={collab.user_id} style={{
+                    padding: '10px',
+                    border: '1px solid #eee8f2',
+                    borderRadius: '9px',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
                     <Avatar 
                       profilePicture={collab.profile_picture}
                       fullName={collab.full_name}
                       userId={collab.user_id}
                     />
-                    <div>
-                      <strong>
-                        {collab.full_name}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <strong style={{ whiteSpace: 'nowrap' }}>{collab.full_name}</strong>
                         {collab.role === 'team_leader' && (
                           <span style={{
-                            marginLeft: '6px',
                             padding: '3px 7px',
                             background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
                             border: '1px solid #93c5fd',
@@ -1364,15 +1371,16 @@ export default function CollaborativeTaskAdmin() {
                             color: '#1e40af',
                             fontSize: '9px',
                             fontWeight: 800,
-                            letterSpacing: '0.02em'
+                            letterSpacing: '0.02em',
+                            whiteSpace: 'nowrap'
                           }}>
                             TEAM LEADER
                           </span>
                         )}
-                      </strong>
-                      <small style={{ textTransform: 'capitalize' }}>{collab.role.replace('_', ' ')}</small>
+                      </div>
+                      <small style={{ display: 'block', textTransform: 'capitalize' }}>{collab.role.replace('_', ' ')}</small>
                     </div>
-                  </div>
+                  </li>
                 ))}
               </div>
             </section>
