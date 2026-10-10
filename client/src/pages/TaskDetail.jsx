@@ -725,6 +725,54 @@ export default function TaskDetail() {
     };
   }, [task, api]);
 
+  // Load authenticated blob URLs for comment images
+  useEffect(() => {
+    if (!comments || comments.length === 0) return;
+
+    const loadCommentImages = async () => {
+      const newBlobUrls = {};
+      const newLoadingStates = {};
+
+      for (const comment of comments) {
+        if (comment.files && Array.isArray(comment.files)) {
+          for (let fidx = 0; fidx < comment.files.length; fidx++) {
+            const file = comment.files[fidx];
+            const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name || file.file_name || '');
+            
+            if (isImage) {
+              const imageKey = comment.parent_comment_id || comment.parentCommentId 
+                ? `reply-${comment.id}-file-${fidx}` 
+                : `comment-${comment.id}-file-${fidx}`;
+              
+              newLoadingStates[imageKey] = true;
+              
+              try {
+                const blobUrl = await createAuthenticatedBlobUrl(api, file.url || file.file_url);
+                newBlobUrls[imageKey] = blobUrl;
+                newLoadingStates[imageKey] = false;
+              } catch (error) {
+                console.error(`Failed to load image for ${imageKey}:`, error);
+                newLoadingStates[imageKey] = false;
+              }
+            }
+          }
+        }
+      }
+
+      setImageBlobUrls(prev => ({ ...prev, ...newBlobUrls }));
+      setImageLoadingStates(prev => ({ ...prev, ...newLoadingStates }));
+    };
+
+    loadCommentImages();
+
+    // Cleanup blob URLs when comments change
+    return () => {
+      Object.values(imageBlobUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [comments, api]);
+
   // Create authenticated blob URL for file preview modal
   useEffect(() => {
     let isMounted = true;
