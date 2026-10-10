@@ -391,7 +391,7 @@ function ReplyForm({
     if (!replyDraft.trim() && replyUploadedFiles.length === 0) return;
     
     try {
-      const response = await fetch(`${api}/api/collab-task/${taskId}/messages`, {
+      const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
