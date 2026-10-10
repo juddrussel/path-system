@@ -2997,6 +2997,120 @@ export default function TaskDetail() {
                                             })}
                                           </div>
                                         )}
+
+                                        {/* Reply button for nested replies */}
+                                        <button
+                                          type="button"
+                                          onClick={() => setReplyTo(replyTo === reply.id ? null : reply.id)}
+                                          style={{
+                                            border: "1px solid #e9ddfb",
+                                            borderRadius: "5px",
+                                            padding: "5px 10px",
+                                            background: "#faf8fc",
+                                            color: "#8d7e98",
+                                            fontSize: "10px",
+                                            fontWeight: "700",
+                                            cursor: "pointer",
+                                            transition: "all 0.15s ease",
+                                            marginTop: "8px",
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            e.target.style.background = "#f0ebfa";
+                                            e.target.style.borderColor = "#d9cbe6";
+                                            e.target.style.color = "#6d5b7d";
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.target.style.background = "#faf8fc";
+                                            e.target.style.borderColor = "#e9ddfb";
+                                            e.target.style.color = "#8d7e98";
+                                          }}
+                                        >
+                                          ↩ {replyTo === reply.id ? 'Cancel Reply' : 'Reply'}
+                                        </button>
+
+                                        {/* Reply form for nested replies */}
+                                        {replyTo === reply.id && (
+                                          <div style={{ marginTop: "8px" }}>
+                                            <ReplyForm
+                                              parentComment={reply}
+                                              replyDraft={replyDraft}
+                                              setReplyDraft={setReplyDraft}
+                                              replyFiles={replyFiles}
+                                              setReplyFiles={setReplyFiles}
+                                              replyFileProgress={replyFileProgress}
+                                              setReplyFileProgress={setReplyFileProgress}
+                                              replyUploadedFiles={replyUploadedFiles}
+                                              setReplyUploadedFiles={setReplyUploadedFiles}
+                                              isReplyUploadingFiles={isReplyUploadingFiles}
+                                              setIsReplyUploadingFiles={setIsReplyUploadingFiles}
+                                              replyFilesRef={replyFilesRef}
+                                              api={api}
+                                              token={token}
+                                              onSubmit={async () => {
+                                                if (!replyDraft.trim()) return;
+                                                
+                                                setPostingComment(true);
+                                                try {
+                                                  const payload = {
+                                                    content: replyDraft,
+                                                    parentCommentId: item.id,  // Always reply to the top-level comment
+                                                    files: replyUploadedFiles
+                                                  };
+
+                                                  const res = await fetch(`${api}/api/tasks/${task.id}/comments`, {
+                                                    method: 'POST',
+                                                    headers: { 
+                                                      'Authorization': `Bearer ${token}`,
+                                                      'Content-Type': 'application/json' 
+                                                    },
+                                                    body: JSON.stringify(payload)
+                                                  });
+
+                                                  if (!res.ok) {
+                                                    let errorMessage = 'Failed to post reply';
+                                                    try {
+                                                      const errorData = await res.json();
+                                                      errorMessage = errorData.message || errorMessage;
+                                                    } catch (e) {
+                                                      errorMessage = `Server error: ${res.status} ${res.statusText}`;
+                                                    }
+                                                    throw new Error(errorMessage);
+                                                  }
+
+                                                  try {
+                                                    await res.json();
+                                                  } catch (e) {
+                                                    console.log('Reply posted successfully (no response body)');
+                                                  }
+
+                                                  setReplyDraft('');
+                                                  setReplyFiles([]);
+                                                  setReplyUploadedFiles([]);
+                                                  setReplyTo(null);
+                                                  if (replyFilesRef.current) {
+                                                    replyFilesRef.current.value = '';
+                                                  }
+                                                  await loadTask();
+                                                } catch (error) {
+                                                  console.error('Error posting reply:', error);
+                                                  alert(error.message || 'Failed to post reply. Please try again.');
+                                                } finally {
+                                                  setPostingComment(false);
+                                                }
+                                              }}
+                                              onCancel={() => {
+                                                setReplyTo(null);
+                                                setReplyDraft('');
+                                                setReplyFiles([]);
+                                                setReplyUploadedFiles([]);
+                                                if (replyFilesRef.current) {
+                                                  replyFilesRef.current.value = '';
+                                                }
+                                              }}
+                                              disabled={postingComment}
+                                            />
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                   ))}
