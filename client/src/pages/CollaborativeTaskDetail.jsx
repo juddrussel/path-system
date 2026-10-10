@@ -1562,6 +1562,49 @@ export default function CollaborativeTaskDetail() {
               </div>
             </section>
 
+            {/* Team Composition Section */}
+            <section className="collab-card">
+              <div className="collab-heading">
+                <div>
+                  <span className="collab-kicker">Team composition</span>
+                  <h2>Collaborators on this task</h2>
+                </div>
+                <span className="collab-count">{collaborators.length} members</span>
+              </div>
+              <div className="collab-people">
+                {collaborators.map((collab) => (
+                  <div className="collab-person" key={collab.user_id}>
+                    <Avatar 
+                      profilePicture={collab.profile_picture}
+                      fullName={collab.full_name}
+                      userId={collab.user_id}
+                    />
+                    <div className="collab-person-copy">
+                      <strong>
+                        {collab.full_name}
+                        {collab.role === 'team_leader' && (
+                          <span style={{
+                            marginLeft: '6px',
+                            padding: '3px 7px',
+                            background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
+                            border: '1px solid #93c5fd',
+                            borderRadius: '5px',
+                            color: '#1e40af',
+                            fontSize: '9px',
+                            fontWeight: 800,
+                            letterSpacing: '0.02em'
+                          }}>
+                            TEAM LEADER
+                          </span>
+                        )}
+                      </strong>
+                      <small style={{ textTransform: 'capitalize' }}>{collab.role?.replace('_', ' ') || 'Collaborator'}</small>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {task?.notes && (
               <section className="collab-card">
                 <div className="collab-heading">
