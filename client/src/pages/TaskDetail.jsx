@@ -98,6 +98,359 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
   return `${fileUrl}#${params.toString()}`;
 };
 
+// Helper to construct full avatar URL
+function fullAvatarUrl(url) {
+  if (!url) return null;
+  const resolved = resolveFileUrlHelper("", url);
+  return resolved;
+}
+
+// Avatar component that shows profile picture if available, otherwise initials
+function Avatar({ profilePicture, fullName, userId, size = "40px" }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const src = fullAvatarUrl(profilePicture);
+  
+  const initials = useMemo(() => {
+    if (!fullName) return "?";
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }, [fullName]);
+
+  const colors = [
+    { bg: "#fef3c7", text: "#92400e" },
+    { bg: "#ddd6fe", text: "#5b21b6" },
+    { bg: "#fce7f3", text: "#9f1239" },
+    { bg: "#d1fae5", text: "#065f46" },
+    { bg: "#dbeafe", text: "#1e40af" },
+    { bg: "#ffe4e6", text: "#9f1239" },
+  ];
+  
+  const colorIndex = userId ? userId % colors.length : 0;
+  const color = colors[colorIndex];
+
+  if (src && !imgFailed) {
+    return (
+      <img
+        src={src}
+        alt={fullName || "User"}
+        onError={() => setImgFailed(true)}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          border: "2px solid #e5e7eb",
+          flexShrink: 0
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: color.bg,
+        color: color.text,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: "800",
+        fontSize: `calc(${size} / 2.2)`,
+        flexShrink: 0,
+        border: "2px solid #e5e7eb"
+      }}
+    >
+      {initials}
+    </div>
+  );
+}
+
+// Reply form component for threaded comments
+function ReplyForm({
+  reply,
+  replyDraft,
+  setReplyDraft,
+  replyFiles,
+  setReplyFiles,
+  replyFileProgress,
+  setReplyFileProgress,
+  replyUploadedFiles,
+  setReplyUploadedFiles,
+  isReplyUploadingFiles,
+  setIsReplyUploadingFiles,
+  replyFilesRef,
+  setReplyTo,
+  setError,
+  api,
+  token,
+  taskId,
+  onReplyPosted
+}) {
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (replyFiles.length + files.length > 5) {
+      setError("Maximum 5 files allowed");
+      return;
+    }
+    
+    setReplyFiles(prev => [...prev, ...files]);
+    setIsReplyUploadingFiles(true);
+    const uploadedUrls = [];
+    
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        
+        setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 10 }));
+        
+        const xhr = new XMLHttpRequest();
+        let progressInterval = null;
+        
+        const startTime = Date.now();
+        const estimateProgress = () => {
+          const elapsed = Date.now() - startTime;
+          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
+          setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: estimatedPercent }));
+        };
+        
+        progressInterval = setInterval(estimateProgress, 20);
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: percentComplete }));
+          }
+        });
+        
+        await new Promise((resolve, reject) => {
+          xhr.addEventListener("load", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            if (xhr.status === 200 || xhr.status === 201) {
+              const response = JSON.parse(xhr.responseText);
+              uploadedUrls.push(response.files[0]);
+              setReplyFileProgress(prev => ({ ...prev, [replyFiles.length + idx]: 100 }));
+              resolve();
+            } else {
+              reject(new Error("Upload failed"));
+            }
+          });
+          
+          xhr.addEventListener("error", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            reject(new Error("Upload failed"));
+          });
+          
+          xhr.open("POST", `${api}/api/upload-files`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.send(formData);
+        });
+      } catch (err) {
+        console.error("File upload error:", err);
+        setError(`Failed to upload ${file.name}`);
+      }
+    }
+    
+    setReplyUploadedFiles(prev => [...prev, ...uploadedUrls]);
+    setIsReplyUploadingFiles(false);
+    
+    if (replyFilesRef.current) replyFilesRef.current.value = "";
+  };
+
+  const handleSubmitReply = async () => {
+    if (!replyDraft.trim() && replyUploadedFiles.length === 0) return;
+    
+    try {
+      const response = await fetch(`${api}/api/tasks/${taskId}/comments`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          content: replyDraft.trim(),
+          parentCommentId: reply.id,
+          files: replyUploadedFiles
+        }),
+      });
+      
+      if (response.ok) {
+        const newComment = await response.json();
+        setReplyDraft("");
+        setReplyFiles([]);
+        setReplyFileProgress({});
+        setReplyTo(null);
+        setReplyUploadedFiles([]);
+        if (replyFilesRef.current) replyFilesRef.current.value = "";
+        if (onReplyPosted) onReplyPosted(newComment);
+      } else {
+        setError("Failed to post reply");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div style={{ marginTop: "12px", padding: "12px", background: "#fbf8ff", borderRadius: "8px" }}>
+      <div style={{ fontSize: "9px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "8px" }}>
+        ↳ Reply to {reply.sender_name?.split(" ")[0] || reply.author_name?.split(" ")[0] || "User"}
+      </div>
+      <textarea
+        key={`reply-to-${reply.id}`}
+        value={replyDraft}
+        onChange={(e) => setReplyDraft(e.target.value)}
+        placeholder={`Write your reply…`}
+        rows={2}
+        autoFocus
+        style={{
+          display: "block",
+          width: "100%",
+          padding: "10px",
+          border: "1px solid #e2d9e9",
+          borderRadius: "8px",
+          outline: "0",
+          resize: "vertical",
+          color: "#5d4867",
+          font: "10px/1.5 'DM Sans', Arial, sans-serif",
+          boxSizing: "border-box",
+          marginBottom: "8px"
+        }}
+      />
+      {replyFiles.length > 0 && (
+        <div style={{ marginBottom: "8px", padding: "8px", background: "#fff", borderRadius: "6px", border: "1px solid #e2d6ef" }}>
+          <div style={{ fontSize: "8px", fontWeight: 800, color: "#806f8b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "6px" }}>
+            {replyFiles.length} file(s) attached
+          </div>
+          <div style={{ display: "grid", gap: "6px" }}>
+            {replyFiles.map((file, idx) => {
+              const isPdf = /\.pdf$/i.test(file.name);
+              const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+              const progress = replyFileProgress[idx] ?? 0;
+              const isUploading = isReplyUploadingFiles && progress < 100;
+              
+              return (
+                <div key={idx} style={{ padding: "8px", background: "#f5f0fb", borderRadius: "5px", border: "1px solid #e2d9e9", display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ display: "grid", width: "32px", height: "32px", placeItems: "center", borderRadius: "6px", background: isPdf ? "#fef5e5" : isImage ? "#e8f1ff" : "#f0e7fc", color: isPdf ? "#9d6d2a" : isImage ? "#5274a8" : "#7043b7", fontSize: "14px", flexShrink: 0 }}>
+                    {isPdf ? "PDF" : isImage ? "🖼" : "📎"}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: "#5d4867", fontSize: "9px", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {file.name}
+                    </div>
+                    <div style={{ marginTop: "4px", height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden" }}>
+                      <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "8px", color: isUploading ? "#8b7b96" : "#579574", fontWeight: 800 }}>
+                      {isUploading ? `Uploading - ${progress}%` : "✓ Ready"}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setReplyFiles(prev => prev.filter((_, i) => i !== idx));
+                      setReplyFileProgress(prev => {
+                        const newProgress = { ...prev };
+                        delete newProgress[idx];
+                        return newProgress;
+                      });
+                    }}
+                    disabled={isReplyUploadingFiles}
+                    style={{ background: "none", border: "none", color: "#806f8b", cursor: isReplyUploadingFiles ? "not-allowed" : "pointer", fontSize: "16px", opacity: isReplyUploadingFiles ? 0.5 : 1 }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: "8px" }}>
+        <input
+          ref={replyFilesRef}
+          type="file"
+          hidden
+          multiple
+          accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+          onChange={handleFileChange}
+        />
+        <button
+          onClick={() => replyFilesRef.current?.click()}
+          disabled={isReplyUploadingFiles || replyFiles.length >= 5}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            padding: "7px 9px",
+            border: "1px solid #ded2e8",
+            borderRadius: "7px",
+            background: "#fff",
+            color: "#76538d",
+            fontSize: "8px",
+            fontWeight: "800",
+            cursor: isReplyUploadingFiles || replyFiles.length >= 5 ? "not-allowed" : "pointer",
+            opacity: isReplyUploadingFiles || replyFiles.length >= 5 ? 0.5 : 1
+          }}
+        >
+          📎 Add files ({replyFiles.length}/5)
+        </button>
+        <button
+          onClick={handleSubmitReply}
+          disabled={(!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles}
+          style={{
+            flex: 1,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            padding: "9px 11px",
+            border: "none",
+            borderRadius: "8px",
+            background: (!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles ? "#e7e1ea" : "#7c3aed",
+            color: "#fff",
+            fontSize: "9px",
+            fontWeight: "800",
+            cursor: (!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles ? "not-allowed" : "pointer",
+            opacity: (!replyDraft.trim() && replyUploadedFiles.length === 0) || isReplyUploadingFiles ? 0.6 : 1
+          }}
+        >
+          ↩ Send reply
+        </button>
+        <button
+          onClick={() => {
+            setReplyTo(null);
+            setReplyDraft("");
+            setReplyFiles([]);
+            setReplyFileProgress({});
+            setReplyUploadedFiles([]);
+          }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            padding: "9px 11px",
+            border: "1px solid #ded2e8",
+            borderRadius: "8px",
+            background: "#fff",
+            color: "#76538d",
+            fontSize: "9px",
+            fontWeight: "800",
+            cursor: "pointer"
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Icon({ name, size = 15 }) {
   const common = {
     width: size,
@@ -257,6 +610,13 @@ export default function TaskDetail() {
   const [comments, setComments] = useState([]);
   const [postingComment, setPostingComment] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
+  const [replyTo, setReplyTo] = useState(null);
+  const [replyDraft, setReplyDraft] = useState("");
+  const [replyFiles, setReplyFiles] = useState([]);
+  const [replyFileProgress, setReplyFileProgress] = useState({});
+  const [replyUploadedFiles, setReplyUploadedFiles] = useState([]);
+  const [isReplyUploadingFiles, setIsReplyUploadingFiles] = useState(false);
+  const replyFilesRef = useRef(null);
   const [commentFiles, setCommentFiles] = useState([]);
   const [fileUploadStatus, setFileUploadStatus] = useState({});
   const [uploadedFileUrls, setUploadedFileUrls] = useState([]);
@@ -2140,51 +2500,31 @@ export default function TaskDetail() {
                     </div>
                   </div>
 
-                  {/* Comments thread */}
+                  {/* Comments thread with threaded replies */}
                   <div style={{ marginTop: "16px" }}>
                     {comments.length ? (
                       <div style={{ display: "grid", gap: "12px", marginBottom: "20px", maxHeight: "400px", overflowY: "auto", paddingRight: "8px" }}>
-                        {comments.map((item) => {
-                          const isReply = item.parentCommentId;
+                        {comments.filter(item => !item.parent_comment_id && !item.parentCommentId).map((item) => {
+                          const topLevelReplies = comments.filter(c => c.parent_comment_id === item.id || c.parentCommentId === item.id);
+                          
                           return (
-                            <div
-                              key={item.id || item.created_at}
-                              style={{
-                                paddingLeft: isReply ? "28px" : "0",
-                                borderLeft: isReply ? "2px solid #e9ddfb" : "none",
-                                paddingTop: isReply ? "8px" : "0",
-                              }}
-                            >
+                            <div key={item.id || item.created_at}>
+                              {/* Main comment */}
                               <div
                                 style={{
                                   display: "flex",
                                   gap: "10px",
                                   padding: "12px",
-                                  background: isReply ? "#fcfaff" : "#fdfcff",
-                                  border: "1px solid " + (isReply ? "#f0ebf3" : "#f5f0fb"),
+                                  background: "#fdfcff",
+                                  border: "1px solid #f5f0fb",
                                   borderRadius: "8px",
                                 }}
                               >
-                                <div
-                                  style={{
-                                    display: "grid",
-                                    placeItems: "center",
-                                    width: "32px",
-                                    height: "32px",
-                                    borderRadius: "8px",
-                                    background: "#ebe2fb",
-                                    color: "#7043ba",
-                                    fontSize: "11px",
-                                    fontWeight: "800",
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  {initials(
-                                    item.sender_name ||
-                                      item.author_name ||
-                                      item.author
-                                  )}
-                                </div>
+                                <Avatar user={{
+                                  profile_picture: item.profile_picture,
+                                  user_name: item.sender_name || item.author_name || item.author,
+                                  full_name: item.sender_name || item.author_name || item.author
+                                }} />
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <div
                                     style={{
@@ -2354,7 +2694,7 @@ export default function TaskDetail() {
                                   {/* Reply button */}
                                   <button
                                     type="button"
-                                    onClick={() => setReplyingTo(item.id)}
+                                    onClick={() => setReplyTo(replyTo === item.id ? null : item.id)}
                                     style={{
                                       border: "1px solid #e9ddfb",
                                       borderRadius: "5px",
@@ -2377,10 +2717,270 @@ export default function TaskDetail() {
                                       e.target.style.color = "#8d7e98";
                                     }}
                                   >
-                                    ↩ Reply
+                                    ↩ {replyTo === item.id ? 'Cancel Reply' : 'Reply'}
                                   </button>
                                 </div>
                               </div>
+
+                              {/* Reply form */}
+                              {replyTo === item.id && (
+                                <div style={{ marginTop: "8px", marginLeft: "42px" }}>
+                                  <ReplyForm
+                                    parentComment={item}
+                                    replyDraft={replyDraft}
+                                    setReplyDraft={setReplyDraft}
+                                    replyFiles={replyFiles}
+                                    setReplyFiles={setReplyFiles}
+                                    replyFileProgress={replyFileProgress}
+                                    setReplyFileProgress={setReplyFileProgress}
+                                    replyUploadedFiles={replyUploadedFiles}
+                                    setReplyUploadedFiles={setReplyUploadedFiles}
+                                    isReplyUploadingFiles={isReplyUploadingFiles}
+                                    setIsReplyUploadingFiles={setIsReplyUploadingFiles}
+                                    replyFilesRef={replyFilesRef}
+                                    onSubmit={async () => {
+                                      if (!replyDraft.trim()) return;
+                                      
+                                      setPostingComment(true);
+                                      try {
+                                        const payload = {
+                                          content: replyDraft,
+                                          parent_comment_id: item.id,
+                                          files: replyUploadedFiles
+                                        };
+
+                                        const res = await fetch(`/api/tasks/${task.id}/comments`, {
+                                          method: 'POST',
+                                          credentials: 'include',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify(payload)
+                                        });
+
+                                        if (!res.ok) {
+                                          const errorData = await res.json();
+                                          throw new Error(errorData.message || 'Failed to post reply');
+                                        }
+
+                                        setReplyDraft('');
+                                        setReplyFiles([]);
+                                        setReplyUploadedFiles([]);
+                                        setReplyTo(null);
+                                        if (replyFilesRef.current) {
+                                          replyFilesRef.current.value = '';
+                                        }
+                                        await fetchComments();
+                                      } catch (error) {
+                                        console.error('Error posting reply:', error);
+                                        alert(error.message || 'Failed to post reply. Please try again.');
+                                      } finally {
+                                        setPostingComment(false);
+                                      }
+                                    }}
+                                    onCancel={() => {
+                                      setReplyTo(null);
+                                      setReplyDraft('');
+                                      setReplyFiles([]);
+                                      setReplyUploadedFiles([]);
+                                      if (replyFilesRef.current) {
+                                        replyFilesRef.current.value = '';
+                                      }
+                                    }}
+                                    disabled={postingComment}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Display threaded replies */}
+                              {topLevelReplies.length > 0 && (
+                                <div style={{ marginTop: "8px", paddingLeft: "42px", borderLeft: "2px solid #e9ddfb" }}>
+                                  {topLevelReplies.map((reply) => (
+                                    <div
+                                      key={reply.id}
+                                      style={{
+                                        display: "flex",
+                                        gap: "10px",
+                                        padding: "12px",
+                                        marginBottom: "8px",
+                                        background: "#fcfaff",
+                                        border: "1px solid #f0ebf3",
+                                        borderRadius: "8px",
+                                      }}
+                                    >
+                                      <Avatar user={{
+                                        profile_picture: reply.profile_picture,
+                                        user_name: reply.sender_name || reply.author_name || reply.author,
+                                        full_name: reply.sender_name || reply.author_name || reply.author
+                                      }} />
+                                      <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px",
+                                            marginBottom: "6px",
+                                            flexWrap: "wrap",
+                                          }}
+                                        >
+                                          <strong
+                                            style={{
+                                              color: "#5b4766",
+                                              fontSize: "12px",
+                                              fontWeight: "700",
+                                            }}
+                                          >
+                                            {reply.sender_name ||
+                                              reply.author_name ||
+                                              reply.author ||
+                                              "Workflow member"}
+                                          </strong>
+                                          <span
+                                            style={{
+                                              fontSize: "11px",
+                                              color: "#a394a8",
+                                            }}
+                                          >
+                                            {formatDate(reply.created_at || reply.createdAt)}
+                                          </span>
+                                        </div>
+                                        <p
+                                          style={{
+                                            margin: "0",
+                                            color: "#75657d",
+                                            fontSize: "12px",
+                                            lineHeight: "1.5",
+                                          }}
+                                        >
+                                          {reply.content || reply.body}
+                                        </p>
+
+                                        {/* File attachments in replies */}
+                                        {reply.files && reply.files.length > 0 && (
+                                          <div
+                                            style={{
+                                              display: "grid",
+                                              gap: "8px",
+                                              marginTop: "8px",
+                                            }}
+                                          >
+                                            {reply.files.map((file, fidx) => {
+                                              const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name || file.file_name || '');
+                                              const imageKey = `reply-${reply.id}-file-${fidx}`;
+                                              const imageLoading = imageLoadingStates[imageKey] ?? true;
+                                              
+                                              return isImage ? (
+                                                <div 
+                                                  key={fidx}
+                                                  style={{ 
+                                                    position: "relative",
+                                                    display: "inline-block",
+                                                    maxWidth: "280px"
+                                                  }}
+                                                >
+                                                  {imageLoading && imageBlobUrls[imageKey] && (
+                                                    <div style={{
+                                                      position: "absolute",
+                                                      inset: 0,
+                                                      display: "flex",
+                                                      alignItems: "center",
+                                                      justifyContent: "center",
+                                                      background: "#f5f0fb",
+                                                      borderRadius: "6px",
+                                                      border: "1px solid #e2d9e9",
+                                                      zIndex: 1
+                                                    }}>
+                                                      <div style={{
+                                                        width: "24px",
+                                                        height: "24px",
+                                                        border: "2px solid #e2d9e9",
+                                                        borderTopColor: "#7c3aed",
+                                                        borderRadius: "50%",
+                                                        animation: "spin 0.8s linear infinite"
+                                                      }} />
+                                                    </div>
+                                                  )}
+                                                  <a 
+                                                    href="#"
+                                                    onClick={async (e) => {
+                                                      e.preventDefault();
+                                                      try {
+                                                        const blobUrl = await createAuthenticatedBlobUrl(api, file.url || file.file_url);
+                                                        window.open(blobUrl, "_blank");
+                                                        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                                      } catch (error) {
+                                                        console.error("Failed to open file:", error);
+                                                      }
+                                                    }}
+                                                    rel="noopener noreferrer"
+                                                    style={{ display: "block", maxWidth: "280px" }}
+                                                  >
+                                                    <img 
+                                                      src={imageBlobUrls[imageKey] || ""}
+                                                      alt={file.name || file.file_name}
+                                                      onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                                      onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
+                                                      style={{ 
+                                                        maxWidth: "100%", 
+                                                        borderRadius: "6px", 
+                                                        border: "1px solid #e2d9e9", 
+                                                        cursor: "pointer",
+                                                        display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
+                                                      }}
+                                                    />
+                                                  </a>
+                                                </div>
+                                              ) : (
+                                                <a
+                                                  key={fidx}
+                                                  href="#"
+                                                  onClick={async (e) => {
+                                                    e.preventDefault();
+                                                    try {
+                                                      const blobUrl = await createAuthenticatedBlobUrl(api, file.url || file.file_url);
+                                                      window.open(blobUrl, "_blank");
+                                                      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                                    } catch (error) {
+                                                      console.error("Failed to open file:", error);
+                                                    }
+                                                  }}
+                                                  rel="noopener noreferrer"
+                                                  style={{
+                                                    display: "inline-flex",
+                                                    alignItems: "center",
+                                                    gap: "4px",
+                                                    padding: "5px 9px",
+                                                    background: "#f5f0fb",
+                                                    border: "1px solid #e5dff3",
+                                                    borderRadius: "5px",
+                                                    fontSize: "10px",
+                                                    color: "#7c3aed",
+                                                    textDecoration: "none",
+                                                    fontWeight: "600",
+                                                    cursor: "pointer",
+                                                    transition: "all 0.15s ease",
+                                                  }}
+                                                  onMouseEnter={(e) => {
+                                                    e.target.style.background = "#ede7fb";
+                                                    e.target.style.borderColor = "#7c3aed";
+                                                    e.target.style.boxShadow =
+                                                      "0 2px 6px rgba(124,58,237,0.15)";
+                                                  }}
+                                                  onMouseLeave={(e) => {
+                                                    e.target.style.background = "#f5f0fb";
+                                                    e.target.style.borderColor = "#e5dff3";
+                                                    e.target.style.boxShadow = "none";
+                                                  }}
+                                                >
+                                                  📎 {file.name || file.file_name}
+                                                </a>
+                                              );
+                                            })}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           );
                         })}
@@ -2399,41 +2999,6 @@ export default function TaskDetail() {
                       </p>
                     )}
                   </div>
-
-                  {/* Reply indicator */}
-                  {replyingTo && (
-                    <div
-                      style={{
-                        marginBottom: "16px",
-                        padding: "10px 12px",
-                        background: "#f5f0fb",
-                        border: "1px solid #e0d5ef",
-                        borderLeft: "3px solid #7c3aed",
-                        borderRadius: "6px",
-                        fontSize: "11px",
-                        color: "#7043bb",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Replying to a comment.{" "}
-                      <button
-                        type="button"
-                        onClick={() => setReplyingTo(null)}
-                        style={{
-                          border: "none",
-                          background: "none",
-                          color: "#dc2626",
-                          cursor: "pointer",
-                          fontSize: "10px",
-                          fontWeight: "700",
-                          textDecoration: "underline",
-                          padding: "0 2px",
-                        }}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  )}
 
                   {/* New comment form */}
                   <form
