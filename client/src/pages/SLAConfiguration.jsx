@@ -1595,6 +1595,27 @@ export default function SLAConfiguration() {
                   style={inpStyle}
                 />
               </div>
+              
+              {/* Email Notification Toggle */}
+              {escalation && (
+                <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", border: "1px solid #ddd6fe", borderRadius: 9, background: "#f5f3ff", cursor: "pointer", transition: "all 0.2s" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+                    <Mail size={16} style={{ color: "#7c3aed", flexShrink: 0 }} />
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }}>Send Email Reminders</p>
+                      <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>Notify reviewers when deadline is approaching or overdue</p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={!!escalation.notify_email}
+                    onChange={() => toggleReminder("email")}
+                    style={{ width: 20, height: 20, accentColor: "#7c3aed", cursor: "pointer", flexShrink: 0, marginLeft: 12 }}
+                    title="Enable email notifications for SLA reminders"
+                  />
+                </label>
+              )}
+              
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Internal Remarks</label>
                 <textarea value={createForm.remarks} onChange={e => setCreate("remarks", e.target.value)} rows={3} style={{ ...inpStyle, resize: "vertical", fontFamily: "'DM Sans', sans-serif" }} />
