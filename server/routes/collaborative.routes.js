@@ -87,25 +87,36 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
     // First faculty becomes team leader, rest are contributors
     console.log('[CREATE Task] Processing collaborators:', {
       faculty_ids,
+      faculty_ids_type: typeof faculty_ids,
+      is_array: Array.isArray(faculty_ids),
       count: faculty_ids.length,
       firstFaculty: faculty_ids[0],
       willBeTeamLeader: faculty_ids[0]
     });
     
-    const collaboratorPromises = faculty_ids.map((facultyId, index) => {
-      const role = index === 0 ? "team_leader" : "contributor";
-      console.log(`[CREATE Task] Adding collaborator ${index}: userId=${facultyId}, role=${role}`);
+    // Insert team leader first (explicitly)
+    const teamLeaderId = faculty_ids[0];
+    console.log(`[CREATE Task] Inserting TEAM LEADER: userId=${teamLeaderId}`);
+    await db.query(
+      `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
+       VALUES (?, ?, 'team_leader', ?)`,
+      [taskId, teamLeaderId, now]
+    );
+    
+    // Insert remaining collaborators as contributors
+    const contributorPromises = faculty_ids.slice(1).map((facultyId, index) => {
+      console.log(`[CREATE Task] Inserting CONTRIBUTOR ${index + 1}: userId=${facultyId}`);
       return db.query(
         `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
-         VALUES (?, ?, ?, ?)`,
-        [taskId, facultyId, role, now]
+         VALUES (?, ?, 'contributor', ?)`,
+        [taskId, facultyId, now]
       );
     });
-    await Promise.all(collaboratorPromises);
+    await Promise.all(contributorPromises);
     
     // Verify what was inserted
-    const [[insertedCollabs]] = await db.query(
-      `SELECT user_id, role FROM task_collaborators WHERE task_id = ?`,
+    const [insertedCollabs] = await db.query(
+      `SELECT user_id, role FROM task_collaborators WHERE task_id = ? ORDER BY role DESC`,
       [taskId]
     );
     console.log('[CREATE Task] Inserted collaborators:', insertedCollabs);
