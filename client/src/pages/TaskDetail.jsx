@@ -100,9 +100,11 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
 
 // Helper to construct full avatar URL
 function fullAvatarUrl(url) {
+  console.log('[TaskDetail fullAvatarUrl] Input:', url);
   if (!url) return null;
   const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const resolved = resolveFileUrlHelper(SERVER_URL, url);
+  console.log('[TaskDetail fullAvatarUrl] Resolved:', url, '->', resolved);
   return resolved;
 }
 
@@ -112,6 +114,16 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
   const picture = user?.profile_picture || user?.profilePicture || user?.avatar_url || profilePicture;
   const name = user?.full_name || user?.user_name || user?.userName || fullName;
   const id = user?.id || user?.userId || userId;
+  
+  console.log('[TaskDetail Avatar] Debug:', {
+    user,
+    picture,
+    name,
+    id,
+    profilePicture,
+    fullName,
+    userId
+  });
   
   const [imgFailed, setImgFailed] = useState(false);
   const src = fullAvatarUrl(picture);
@@ -140,7 +152,13 @@ function Avatar({ user, profilePicture, fullName, userId, size = "32px" }) {
       <img
         src={src}
         alt={name || "User"}
-        onError={() => setImgFailed(true)}
+        onError={() => {
+          console.log('[TaskDetail Avatar] Image load failed for:', src);
+          setImgFailed(true);
+        }}
+        onLoad={() => {
+          console.log('[TaskDetail Avatar] Image loaded successfully:', src);
+        }}
         style={{
           width: size,
           height: size,
@@ -2527,12 +2545,10 @@ export default function TaskDetail() {
                                 }}
                               >
                                 <Avatar user={{
-                                  id: item.user_id || item.userId || item.sender_id,
-                                  profile_picture: item.profile_picture || item.profilePicture,
-                                  profilePicture: item.profilePicture || item.profile_picture,
-                                  avatar_url: item.avatar_url,
-                                  user_name: item.sender_name || item.author_name || item.author || item.userName,
-                                  full_name: item.sender_name || item.author_name || item.author || item.userName
+                                  id: item.userId || item.user_id || item.sender_id,
+                                  profilePicture: item.profilePicture || item.profile_picture || item.avatar_url,
+                                  full_name: item.userName || item.sender_name || item.author_name || item.author,
+                                  user_name: item.userName || item.sender_name || item.author_name || item.author
                                 }} />
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <div
@@ -2551,7 +2567,8 @@ export default function TaskDetail() {
                                         fontWeight: "700",
                                       }}
                                     >
-                                      {item.sender_name ||
+                                      {item.userName ||
+                                        item.sender_name ||
                                         item.author_name ||
                                         item.author ||
                                         "Workflow member"}
@@ -2835,12 +2852,10 @@ export default function TaskDetail() {
                                       }}
                                     >
                                       <Avatar user={{
-                                        id: reply.user_id || reply.userId || reply.sender_id,
-                                        profile_picture: reply.profile_picture || reply.profilePicture,
-                                        profilePicture: reply.profilePicture || reply.profile_picture,
-                                        avatar_url: reply.avatar_url,
-                                        user_name: reply.sender_name || reply.author_name || reply.author || reply.userName,
-                                        full_name: reply.sender_name || reply.author_name || reply.author || reply.userName
+                                        id: reply.userId || reply.user_id || reply.sender_id,
+                                        profilePicture: reply.profilePicture || reply.profile_picture || reply.avatar_url,
+                                        full_name: reply.userName || reply.sender_name || reply.author_name || reply.author,
+                                        user_name: reply.userName || reply.sender_name || reply.author_name || reply.author
                                       }} />
                                       <div style={{ flex: 1, minWidth: 0 }}>
                                         <div
@@ -2859,7 +2874,8 @@ export default function TaskDetail() {
                                               fontWeight: "700",
                                             }}
                                           >
-                                            {reply.sender_name ||
+                                            {reply.userName ||
+                                              reply.sender_name ||
                                               reply.author_name ||
                                               reply.author ||
                                               "Workflow member"}
