@@ -97,20 +97,33 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
     // Insert team leader first (explicitly)
     const teamLeaderId = faculty_ids[0];
     console.log(`[CREATE Task] Inserting TEAM LEADER: userId=${teamLeaderId}`);
-    await db.query(
-      `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
-       VALUES (?, ?, 'team_leader', ?)`,
-      [taskId, teamLeaderId, now]
-    );
+    
+    try {
+      await db.query(
+        `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
+         VALUES (?, ?, 'team_leader', ?)`,
+        [taskId, teamLeaderId, now]
+      );
+      console.log(`[CREATE Task] ✅ Team leader inserted successfully`);
+    } catch (err) {
+      console.error(`[CREATE Task] ❌ Failed to insert team leader:`, err.message);
+      throw err;
+    }
     
     // Insert remaining collaborators as contributors
-    const contributorPromises = faculty_ids.slice(1).map((facultyId, index) => {
+    const contributorPromises = faculty_ids.slice(1).map(async (facultyId, index) => {
       console.log(`[CREATE Task] Inserting CONTRIBUTOR ${index + 1}: userId=${facultyId}`);
-      return db.query(
-        `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
-         VALUES (?, ?, 'contributor', ?)`,
-        [taskId, facultyId, now]
-      );
+      try {
+        await db.query(
+          `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
+           VALUES (?, ?, 'contributor', ?)`,
+          [taskId, facultyId, now]
+        );
+        console.log(`[CREATE Task] ✅ Contributor ${index + 1} inserted successfully`);
+      } catch (err) {
+        console.error(`[CREATE Task] ❌ Failed to insert contributor ${index + 1}:`, err.message);
+        throw err;
+      }
     });
     await Promise.all(contributorPromises);
     
