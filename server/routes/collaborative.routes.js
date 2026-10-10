@@ -85,14 +85,30 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
 
     // Add collaborators to task_collaborators
     // First faculty becomes team leader, rest are contributors
-    const collaboratorPromises = faculty_ids.map((facultyId, index) =>
-      db.query(
+    console.log('[CREATE Task] Processing collaborators:', {
+      faculty_ids,
+      count: faculty_ids.length,
+      firstFaculty: faculty_ids[0],
+      willBeTeamLeader: faculty_ids[0]
+    });
+    
+    const collaboratorPromises = faculty_ids.map((facultyId, index) => {
+      const role = index === 0 ? "team_leader" : "contributor";
+      console.log(`[CREATE Task] Adding collaborator ${index}: userId=${facultyId}, role=${role}`);
+      return db.query(
         `INSERT INTO task_collaborators (task_id, user_id, role, created_at)
          VALUES (?, ?, ?, ?)`,
-        [taskId, facultyId, index === 0 ? "team_leader" : "contributor", now]
-      )
-    );
+        [taskId, facultyId, role, now]
+      );
+    });
     await Promise.all(collaboratorPromises);
+    
+    // Verify what was inserted
+    const [[insertedCollabs]] = await db.query(
+      `SELECT user_id, role FROM task_collaborators WHERE task_id = ?`,
+      [taskId]
+    );
+    console.log('[CREATE Task] Inserted collaborators:', insertedCollabs);
 
     // Create initial confirmation records (all pending)
     const confirmationPromises = faculty_ids.map((facultyId) =>
