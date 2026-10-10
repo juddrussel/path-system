@@ -652,7 +652,7 @@ export default function SLAConfiguration() {
               value={ruleForm.reminderStageDays}
               onChange={v => set("reminderStageDays", v)}
             />
-            <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 6 }}>
+            <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 6 }}>
               Hours before the deadline to remind faculty and the reviewer. "Due today" always fires in addition to these.
             </p>
           </div>
@@ -665,7 +665,7 @@ export default function SLAConfiguration() {
               onChange={e => set("overdueIntervalDays", e.target.value)}
               style={{ ...inpStyle, marginTop: 5 }}
             />
-            <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>
+            <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 4 }}>
               How often (in hours) to repeat "still overdue" nags once the deadline has passed.
             </p>
           </div>
@@ -695,7 +695,7 @@ export default function SLAConfiguration() {
     return (
       <div style={{ ...drawerCardStyle, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <p style={{ fontSize: 13.5, fontWeight: 700, color: "#111827" }}>Rule Status</p>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Rule Status</p>
           <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 1 }}>{active ? "Active" : "Paused"}</p>
         </div>
         <div
@@ -715,7 +715,7 @@ export default function SLAConfiguration() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0 10px", borderBottom: "1px solid #f5f5f8", marginBottom: 10 }}>
           <div style={{ paddingRight: 10 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>Auto-Escalation</p>
-            <p style={{ fontSize: 12.5, color: "#9ca3af", marginTop: 2 }}>Automatically reassign to senior management if SLA fails.</p>
+            <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 2 }}>Automatically reassign to senior management if SLA fails.</p>
           </div>
           <div
             onClick={toggleAutoEscalation}
@@ -732,7 +732,7 @@ export default function SLAConfiguration() {
             { key: "dashboard", label: "In-App Dashboard Alerts", field: "notify_dashboard" },
             { key: "sms", label: "Mobile SMS (Urgent Only)", field: "notify_sms" },
           ].map(o => (
-            <label key={o.key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#374151", cursor: "pointer" }}>
+            <label key={o.key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#374151", cursor: "pointer" }}>
               <input
                 type="checkbox"
                 checked={!!escalation[o.field]}
@@ -788,18 +788,18 @@ export default function SLAConfiguration() {
                   <span style={{ fontSize: 13, fontWeight: 600, color: "#7c3aed", display: "block" }}>
                     {hours} Hour{hours === 1 ? "" : "s"} Before Deadline
                   </span>
-                  <span style={{ fontSize: 12.5, color: "#9ca3af" }}>Reminder to faculty + reviewer</span>
+                  <span style={{ fontSize: 13, color: "#9ca3af" }}>Reminder to faculty + reviewer</span>
                 </div>
               ))}
             <div className="sla-preview-timeline-item due" style={{ position: "relative", paddingLeft: 14 }}>
               <div style={{ position: "absolute", width: 10, height: 10, background: "#f5f3ff", border: "2px solid #7c3aed", borderRadius: "50%", left: -7, top: 2 }} />
               <span style={{ fontSize: 13, fontWeight: 600, color: "#7c3aed", display: "block" }}>Due in {ruleForm.turnaroundHours} Hours</span>
-              <span style={{ fontSize: 12.5, color: "#9ca3af" }}>Turnaround deadline</span>
+              <span style={{ fontSize: 13, color: "#9ca3af" }}>Turnaround deadline</span>
             </div>
             <div className="sla-preview-timeline-item overdue" style={{ position: "relative", paddingLeft: 14 }}>
               <div style={{ position: "absolute", width: 10, height: 10, background: "#fef2f2", border: "2px solid #ef4444", borderRadius: "50%", left: -7, top: 2 }} />
               <span style={{ fontSize: 13, fontWeight: 600, color: "#ef4444", display: "block" }}>Overdue (+{ruleForm.escalationHours}h)</span>
-              <span style={{ fontSize: 12.5, color: "#9ca3af" }}>
+              <span style={{ fontSize: 13, color: "#9ca3af" }}>
                 {activeChannels.length ? `Alert via ${activeChannels.join(", ")}` : "Escalate to Chair"} · repeats every {ruleForm.overdueIntervalDays || 24}h
               </span>
             </div>
@@ -1264,12 +1264,12 @@ export default function SLAConfiguration() {
         <div className="sla-page-content" style={{ minHeight: "calc(100vh - 56px)", background: COLORS.surface, overflowY: "auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
           {error && (
-            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#fef2f2", color: "#991b1b", fontSize: 13.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#fef2f2", color: "#991b1b", fontSize: 14 }}>
               {error}
             </div>
           )}
           {toast && (
-            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#ecfdf5", color: "#065f46", fontSize: 13.5 }}>
+            <div style={{ padding: "10px 14px", borderRadius: RADIUS, background: "#ecfdf5", color: "#065f46", fontSize: 14 }}>
               {toast}
             </div>
           )}
@@ -1348,7 +1348,7 @@ export default function SLAConfiguration() {
                         <Mail size={16} style={{ color: "#7c3aed", flexShrink: 0 }} />
                         <div>
                           <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }}>Send Email Reminders</p>
-                          <p style={{ fontSize: 12, color: "#6b7280", margin: "2px 0 0" }}>Notify reviewers when deadline is approaching or overdue</p>
+                          <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>Notify reviewers when deadline is approaching or overdue</p>
                         </div>
                       </div>
                       <input
@@ -1389,8 +1389,8 @@ export default function SLAConfiguration() {
                   <Clock style={{ width: 15, height: 15, color: "#7c3aed" }} />
                 </div>
                 <div>
-                  <p style={{ fontSize: 15.5, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>Recent Activity</p>
-                  <p style={{ fontSize: 12.5, color: "#9ca3af", marginTop: 2 }}>{activity.length} event{activity.length === 1 ? "" : "s"}</p>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>Recent Activity</p>
+                  <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 2 }}>{activity.length} event{activity.length === 1 ? "" : "s"}</p>
                 </div>
               </div>
               <X
@@ -1431,7 +1431,7 @@ export default function SLAConfiguration() {
                   </div>
                 );
               })}
-              {!activity.length && <p style={{ fontSize: 12.5, color: "#9ca3af", padding: "10px 8px" }}>No recent activity.</p>}
+              {!activity.length && <p style={{ fontSize: 13, color: "#9ca3af", padding: "10px 8px" }}>No recent activity.</p>}
             </div>
           </div>
         </div>
@@ -1501,7 +1501,7 @@ export default function SLAConfiguration() {
                   </div>
                 );
               })}
-              {!alerts.length && <p style={{ fontSize: 12.5, color: "#9ca3af", padding: "10px 8px" }}>No open alerts.</p>}
+              {!alerts.length && <p style={{ fontSize: 13, color: "#9ca3af", padding: "10px 8px" }}>No open alerts.</p>}
             </div>
           </div>
         </div>
