@@ -729,6 +729,8 @@ function TaskAssignmentInner() {
         throw new Error(data.message || "Failed to assign task.");
       }
       const created = await response.json();
+      console.log('[TaskAssignment] Server response:', created);
+      console.log('[TaskAssignment] Debug info:', created.debug);
       setSuccessTrackingId(created.tracking_id || previewTrackingId);
       resetForm();
       fetchAssignments();
