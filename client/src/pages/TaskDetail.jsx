@@ -124,19 +124,16 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
 
 // Helper to construct full avatar URL
 function fullAvatarUrl(url) {
-  console.log('[TaskDetail fullAvatarUrl] Input:', url);
   if (!url) return null;
   
   // If it's already a full URL (R2 public URL), return as-is
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    console.log('[TaskDetail fullAvatarUrl] Already full URL, returning as-is:', url);
     return url;
   }
   
   // Otherwise resolve relative URL through backend
   const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const resolved = resolveFileUrlHelper(SERVER_URL, url);
-  console.log('[TaskDetail fullAvatarUrl] Resolved:', url, '->', resolved);
   return resolved;
 }
 
@@ -686,13 +683,6 @@ export default function TaskDetail() {
             });
           }
         });
-      }
-      
-      // Debug: log first comment to see structure
-      if (flatComments.length > 0) {
-        console.log('[TaskDetail loadTask] First comment from backend:', flatComments[0]);
-        console.log('[TaskDetail loadTask] profilePicture field:', flatComments[0].profilePicture);
-        console.log('[TaskDetail loadTask] All fields:', Object.keys(flatComments[0]));
       }
       
       setComments(flatComments);
