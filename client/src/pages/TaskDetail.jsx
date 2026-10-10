@@ -2703,8 +2703,10 @@ export default function TaskDetail() {
 
                                         const res = await fetch(`${api}/api/tasks/${task.id}/comments`, {
                                           method: 'POST',
-                                          credentials: 'include',
-                                          headers: { 'Content-Type': 'application/json' },
+                                          headers: { 
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json' 
+                                          },
                                           body: JSON.stringify(payload)
                                         });
 
