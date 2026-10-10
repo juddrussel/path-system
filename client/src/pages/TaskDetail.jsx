@@ -185,7 +185,9 @@ function ReplyForm({
   replyFilesRef,
   onSubmit,
   onCancel,
-  disabled
+  disabled,
+  api,
+  token
 }) {
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files || []);
@@ -231,8 +233,8 @@ function ReplyForm({
             reject(new Error("Upload failed"));
           });
           
-          xhr.open("POST", "/api/upload-files");
-          xhr.withCredentials = true;
+          xhr.open("POST", `${api}/api/upload-files`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
           xhr.send(formData);
         });
       } catch (err) {
@@ -2690,6 +2692,8 @@ export default function TaskDetail() {
                                     isReplyUploadingFiles={isReplyUploadingFiles}
                                     setIsReplyUploadingFiles={setIsReplyUploadingFiles}
                                     replyFilesRef={replyFilesRef}
+                                    api={api}
+                                    token={token}
                                     onSubmit={async () => {
                                       if (!replyDraft.trim()) return;
                                       
