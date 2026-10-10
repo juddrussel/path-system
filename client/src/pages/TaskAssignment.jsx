@@ -1186,6 +1186,7 @@ function TaskAssignmentInner() {
                 <input
                   ref={attachmentInputRef}
                   type="file"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/png,image/jpeg"
                   multiple
                   style={{ display: "none" }}
                   onChange={(event) => handleAttach(event.target.files)}
