@@ -259,6 +259,9 @@ export default function TaskDetail() {
   const [replyingTo, setReplyingTo] = useState(null);
   const [commentFiles, setCommentFiles] = useState([]);
   const [fileUploadStatus, setFileUploadStatus] = useState({});
+  const [uploadedFileUrls, setUploadedFileUrls] = useState([]);
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+  const [fileUploadProgress, setFileUploadProgress] = useState({});
   const fileInputRef = useRef(null);
   const submissionPanelRef = useRef(null);
   const commentFileInputRef = useRef(null);
@@ -948,24 +951,20 @@ export default function TaskDetail() {
 
   const postComment = async () => {
     const content = comment.trim();
-    if ((!content && commentFiles.length === 0) || postingComment) return;
+    if ((!content && uploadedFileUrls.length === 0) || postingComment) return;
     setPostingComment(true);
     try {
-      const formData = new FormData();
-      formData.append("content", content);
-      if (replyingTo) {
-        formData.append("parentCommentId", replyingTo);
-      }
-      commentFiles.forEach((file) => {
-        formData.append("files", file);
-      });
-
       const response = await fetch(`${api}/api/tasks/${task.id}/comments`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: formData,
+        body: JSON.stringify({
+          content,
+          parentCommentId: replyingTo || undefined,
+          files: uploadedFileUrls,
+        }),
       });
       if (!response.ok) throw new Error("The note could not be posted.");
       
@@ -981,12 +980,14 @@ export default function TaskDetail() {
           author_name: newCommentData.author_name || user.full_name || user.username || "You",
           created_at: newCommentData.created_at || new Date().toISOString(),
           parentCommentId: newCommentData.parentCommentId || replyingTo,
-          files: newCommentData.files || [],
+          files: newCommentData.files || uploadedFileUrls,
         },
       ]);
       setComment("");
       setCommentFiles([]);
+      setUploadedFileUrls([]);
       setFileUploadStatus({});
+      setFileUploadProgress({});
       setReplyingTo(null);
     } catch (commentError) {
       setError(commentError.message || "The note could not be posted.");
@@ -995,38 +996,98 @@ export default function TaskDetail() {
     }
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files || []);
-    const newStatus = {};
-    files.forEach((file) => {
-      if (file.size > 10 * 1024 * 1024) {
-        newStatus[file.name] = "error";
-      } else {
-        newStatus[file.name] = "uploading";
-      }
-    });
-    setFileUploadStatus(newStatus);
+    if (commentFiles.length + files.length > 5) {
+      setError("Maximum 5 files allowed");
+      return;
+    }
+    
+    // Add files to the list
     setCommentFiles((prev) => [...prev, ...files]);
-
-    setTimeout(() => {
-      setFileUploadStatus((prev) => {
-        const updated = { ...prev };
-        files.forEach((file) => {
-          if (prev[file.name] !== "error") {
-            updated[file.name] = "success";
+    
+    // Start uploading immediately
+    setIsUploadingFiles(true);
+    const uploadedUrls = [];
+    
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        
+        setFileUploadProgress(prev => ({ ...prev, [commentFiles.length + idx]: 10 }));
+        setFileUploadStatus(prev => ({ ...prev, [file.name]: "uploading" }));
+        
+        const xhr = new XMLHttpRequest();
+        let progressInterval = null;
+        
+        const startTime = Date.now();
+        const estimateProgress = () => {
+          const elapsed = Date.now() - startTime;
+          const estimatedPercent = Math.min(10 + Math.floor((elapsed / 50) * 2), 90);
+          setFileUploadProgress(prev => ({ ...prev, [commentFiles.length + idx]: estimatedPercent }));
+        };
+        
+        progressInterval = setInterval(estimateProgress, 20);
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setFileUploadProgress(prev => ({ ...prev, [commentFiles.length + idx]: percentComplete }));
           }
         });
-        return updated;
-      });
-    }, 500);
+        
+        await new Promise((resolve, reject) => {
+          xhr.addEventListener("load", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            if (xhr.status === 200 || xhr.status === 201) {
+              const response = JSON.parse(xhr.responseText);
+              uploadedUrls.push(response.files[0]);
+              setFileUploadProgress(prev => ({ ...prev, [commentFiles.length + idx]: 100 }));
+              setFileUploadStatus(prev => ({ ...prev, [file.name]: "success" }));
+              resolve();
+            } else {
+              setFileUploadStatus(prev => ({ ...prev, [file.name]: "error" }));
+              reject(new Error("Upload failed"));
+            }
+          });
+          
+          xhr.addEventListener("error", () => {
+            if (progressInterval) clearInterval(progressInterval);
+            setFileUploadStatus(prev => ({ ...prev, [file.name]: "error" }));
+            reject(new Error("Upload failed"));
+          });
+          
+          xhr.open("POST", `${api}/api/upload-files`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.send(formData);
+        });
+      } catch (err) {
+        console.error("File upload error:", err);
+        setError(`Failed to upload ${file.name}`);
+        setFileUploadStatus(prev => ({ ...prev, [file.name]: "error" }));
+      }
+    }
+    
+    setUploadedFileUrls(prev => [...prev, ...uploadedUrls]);
+    setIsUploadingFiles(false);
+    
+    if (commentFileInputRef.current) commentFileInputRef.current.value = "";
   };
 
   const handleRemoveFile = (index) => {
     const removedFile = commentFiles[index];
     setCommentFiles((prev) => prev.filter((_, i) => i !== index));
+    setUploadedFileUrls((prev) => prev.filter((_, i) => i !== index));
     setFileUploadStatus((prev) => {
       const updated = { ...prev };
       delete updated[removedFile.name];
+      return updated;
+    });
+    setFileUploadProgress((prev) => {
+      const updated = { ...prev };
+      delete updated[index];
       return updated;
     });
   };
@@ -2432,6 +2493,8 @@ export default function TaskDetail() {
                       >
                         {commentFiles.map((file, idx) => {
                           const status = fileUploadStatus[file.name];
+                          const progress = fileUploadProgress[idx] ?? 0;
+                          const isUploading = isUploadingFiles && progress < 100 && status === "uploading";
                           const bgColor =
                             status === "error"
                               ? "#fef2f2"
@@ -2473,12 +2536,22 @@ export default function TaskDetail() {
                                 fontWeight: "600",
                               }}
                             >
-                              <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                {status === "error" && "✕"}
-                                {status === "uploading" && "⟳"}
-                                {status === "success" && "✓"}
-                                {!status && "📎"} {file.name}
-                              </span>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: isUploading ? "4px" : "0" }}>
+                                  {status === "error" && "✕ "}
+                                  {status === "uploading" && "⟳ "}
+                                  {status === "success" && "✓ "}
+                                  {!status && "📎 "}{file.name}
+                                </div>
+                                {isUploading && (
+                                  <div>
+                                    <div style={{ height: "4px", background: "#e9e0ef", borderRadius: "2px", overflow: "hidden", marginBottom: "4px" }}>
+                                      <div style={{ height: "100%", background: "#7c3aed", width: `${progress}%`, transition: "width 0.2s" }} />
+                                    </div>
+                                    <div style={{ fontSize: "8px", color: "#8b7b96" }}>Uploading - {progress}%</div>
+                                  </div>
+                                )}
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => handleRemoveFile(idx)}
@@ -2521,6 +2594,7 @@ export default function TaskDetail() {
                       <button
                         type="button"
                         onClick={() => commentFileInputRef.current?.click()}
+                        disabled={isUploadingFiles || commentFiles.length >= 5}
                         style={{
                           border: "1px solid #dccdea",
                           borderRadius: "6px",
@@ -2543,13 +2617,14 @@ export default function TaskDetail() {
                           e.target.style.borderColor = "#dccdea";
                         }}
                       >
-                        📎 Attach
+                        📎 Attach ({commentFiles.length}/5)
                       </button>
                       <button
                         type="submit"
                         disabled={
-                          (!comment.trim() && commentFiles.length === 0) ||
-                          postingComment
+                          (!comment.trim() && uploadedFileUrls.length === 0) ||
+                          postingComment ||
+                          isUploadingFiles
                         }
                         style={{
                           flex: 1,
@@ -2557,37 +2632,42 @@ export default function TaskDetail() {
                           borderRadius: "6px",
                           padding: "9px 12px",
                           background:
-                            (!comment.trim() && commentFiles.length === 0) ||
-                            postingComment
+                            (!comment.trim() && uploadedFileUrls.length === 0) ||
+                            postingComment ||
+                            isUploadingFiles
                               ? "#e7e1ea"
                               : "#7c3aed",
                           color: "#fff",
                           fontSize: "11px",
                           fontWeight: "700",
                           cursor:
-                            (!comment.trim() && commentFiles.length === 0) ||
-                            postingComment
+                            (!comment.trim() && uploadedFileUrls.length === 0) ||
+                            postingComment ||
+                            isUploadingFiles
                               ? "not-allowed"
                               : "pointer",
                           opacity:
-                            (!comment.trim() && commentFiles.length === 0) ||
-                            postingComment
+                            (!comment.trim() && uploadedFileUrls.length === 0) ||
+                            postingComment ||
+                            isUploadingFiles
                               ? 0.55
                               : 1,
                           transition: "all 0.15s ease",
                         }}
                         onMouseEnter={(e) => {
                           if (
-                            !(!comment.trim() && commentFiles.length === 0) &&
-                            !postingComment
+                            !(!comment.trim() && uploadedFileUrls.length === 0) &&
+                            !postingComment &&
+                            !isUploadingFiles
                           ) {
                             e.target.style.background = "#6d28d9";
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (
-                            !(!comment.trim() && commentFiles.length === 0) &&
-                            !postingComment
+                            !(!comment.trim() && uploadedFileUrls.length === 0) &&
+                            !postingComment &&
+                            !isUploadingFiles
                           ) {
                             e.target.style.background = "#7c3aed";
                           }
