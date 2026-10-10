@@ -102,6 +102,14 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
 function fullAvatarUrl(url) {
   console.log('[TaskDetail fullAvatarUrl] Input:', url);
   if (!url) return null;
+  
+  // If it's already a full URL (R2 public URL), return as-is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    console.log('[TaskDetail fullAvatarUrl] Already full URL, returning as-is:', url);
+    return url;
+  }
+  
+  // Otherwise resolve relative URL through backend
   const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const resolved = resolveFileUrlHelper(SERVER_URL, url);
   console.log('[TaskDetail fullAvatarUrl] Resolved:', url, '->', resolved);
