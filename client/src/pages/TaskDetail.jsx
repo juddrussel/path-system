@@ -634,6 +634,14 @@ export default function TaskDetail() {
           }
         });
       }
+      
+      // Debug: log first comment to see structure
+      if (flatComments.length > 0) {
+        console.log('[TaskDetail loadTask] First comment from backend:', flatComments[0]);
+        console.log('[TaskDetail loadTask] profilePicture field:', flatComments[0].profilePicture);
+        console.log('[TaskDetail loadTask] All fields:', Object.keys(flatComments[0]));
+      }
+      
       setComments(flatComments);
       
       setDeadlineDraft(toDatetimeInput(nextTask.deadline || nextTask.due_date));
