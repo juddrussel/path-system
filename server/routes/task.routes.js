@@ -110,6 +110,18 @@ const upload = multer({
   fileFilter: (req, file, cb) => cb(null, true),
 });
 
+// Conditional multer middleware - only parse multipart if Content-Type is multipart/form-data
+const conditionalUpload = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    // Use multer for multipart requests
+    return upload.array("files", 5)(req, res, next);
+  } else {
+    // Skip multer for JSON requests
+    next();
+  }
+};
+
 // Uploads every file in req.files to R2 in parallel and returns
 // [{ key, url, originalname, size }] — key is what deleteFromR2 needs later.
 async function uploadFilesToR2(files) {
@@ -2499,7 +2511,7 @@ router.delete("/:id/archive-for-me", requireAuth, async (req, res) => {
 
 // ─── POST /api/tasks/:id/comments ────────────────────────────────────────────
 // Add a comment to a task's discussion thread with optional file attachments and threading
-router.post("/:id/comments", requireAuth, upload.array("files", 5), async (req, res) => {
+router.post("/:id/comments", requireAuth, conditionalUpload, async (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     let { content, parentCommentId, files: preUploadedFiles } = req.body;
