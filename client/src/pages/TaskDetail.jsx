@@ -88,6 +88,62 @@ const toDatetimeInput = (value) => {
 
 const resolveFileUrl = (api, value) => resolveFileUrlHelper(api, value);
 
+// Allowed file types for uploads
+const ALLOWED_FILE_TYPES = {
+  'application/pdf': '.pdf',
+  'application/msword': '.doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+  'application/vnd.ms-excel': '.xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+  'image/png': '.png',
+  'image/jpeg': '.jpg/.jpeg'
+};
+
+const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.png', '.jpg', '.jpeg'];
+
+// Validate file type
+function validateFileType(file) {
+  const fileName = file.name.toLowerCase();
+  const fileType = file.type.toLowerCase();
+  
+  // Check by MIME type
+  if (ALLOWED_FILE_TYPES[fileType]) {
+    return { valid: true };
+  }
+  
+  // Check by extension as fallback
+  const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext));
+  if (hasValidExtension) {
+    return { valid: true };
+  }
+  
+  return {
+    valid: false,
+    message: `Invalid file type. Only PDF, Word (.doc, .docx), Excel (.xls, .xlsx), and images (PNG, JPEG) are allowed.`
+  };
+}
+
+// Validate multiple files
+function validateFiles(files) {
+  const invalidFiles = [];
+  
+  for (const file of files) {
+    const result = validateFileType(file);
+    if (!result.valid) {
+      invalidFiles.push(file.name);
+    }
+  }
+  
+  if (invalidFiles.length > 0) {
+    return {
+      valid: false,
+      message: `The following file(s) are not allowed: ${invalidFiles.join(', ')}. Only PDF, Word, Excel, and PNG/JPEG images are accepted.`
+    };
+  }
+  
+  return { valid: true };
+}
+
 // Cache for avatar blob URLs to avoid re-fetching the same avatar multiple times
 const avatarBlobCache = new Map();
 
@@ -263,8 +319,19 @@ function ReplyForm({
 }) {
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    
+    // Validate file types
+    const validation = validateFiles(files);
+    if (!validation.valid) {
+      alert(validation.message);
+      e.target.value = ''; // Reset input
+      return;
+    }
+    
     if (replyFiles.length + files.length > 5) {
       alert("Maximum 5 files allowed");
+      e.target.value = ''; // Reset input
       return;
     }
     
@@ -1434,8 +1501,19 @@ export default function TaskDetail() {
 
   const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    
+    // Validate file types
+    const validation = validateFiles(files);
+    if (!validation.valid) {
+      setError(validation.message);
+      e.target.value = ''; // Reset input
+      return;
+    }
+    
     if (commentFiles.length + files.length > 5) {
       setError("Maximum 5 files allowed");
+      e.target.value = ''; // Reset input
       return;
     }
     
@@ -2077,6 +2155,15 @@ export default function TaskDetail() {
                       onChange={async (event) => {
                         const files = Array.from(event.target.files || []);
                         if (files.length === 0) return;
+                        
+                        // Validate file types
+                        const validation = validateFiles(files);
+                        if (!validation.valid) {
+                          setSubmissionError(validation.message);
+                          event.target.value = ''; // Reset input
+                          return;
+                        }
+                        
                         setSubmissionFiles(prev => [...prev, ...files]);
                         await uploadSubmissionFiles(files);
                         if (fileInputRef.current) fileInputRef.current.value = "";
