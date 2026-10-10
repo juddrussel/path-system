@@ -584,6 +584,7 @@ export default function FacultyDocumentDetails({ documentId, onBack }) {
                       <input
                         id="faculty-resubmit-file"
                         type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/png,image/jpeg"
                         multiple
                         onChange={(event) =>
                           setResubmitFiles(Array.from(event.target.files || []))

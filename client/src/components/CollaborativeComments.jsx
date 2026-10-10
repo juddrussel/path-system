@@ -562,7 +562,7 @@ export default function CollaborativeComments({
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/png,image/jpeg"
           onChange={handleFileSelect}
           style={{ display: "none" }}
         />

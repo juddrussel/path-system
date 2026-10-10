@@ -440,6 +440,7 @@ function ReplyForm({
         <input
           ref={replyFilesRef}
           type="file"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/png,image/jpeg"
           hidden
           multiple
           accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -1843,6 +1844,7 @@ export default function CollaborativeTaskDetail() {
                   <input
                     ref={finalInputRef}
                     type="file"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/png,image/jpeg"
                     multiple
                     hidden
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
@@ -2514,6 +2516,7 @@ export default function CollaborativeTaskDetail() {
                     <input
                       ref={commentFilesRef}
                       type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/png,image/jpeg"
                       hidden
                       multiple
                       accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -2667,6 +2670,7 @@ export default function CollaborativeTaskDetail() {
             <input
               ref={revisionFilesRef}
               type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/png,image/jpeg"
               hidden
               multiple
               accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
