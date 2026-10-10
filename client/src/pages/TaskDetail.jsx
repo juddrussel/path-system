@@ -2701,7 +2701,7 @@ export default function TaskDetail() {
                                           files: replyUploadedFiles
                                         };
 
-                                        const res = await fetch(`/api/tasks/${task.id}/comments`, {
+                                        const res = await fetch(`${api}/api/tasks/${task.id}/comments`, {
                                           method: 'POST',
                                           credentials: 'include',
                                           headers: { 'Content-Type': 'application/json' },
