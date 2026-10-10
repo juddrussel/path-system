@@ -2480,7 +2480,7 @@ export default function TaskDetail() {
                     </p>
                     <div className="td-lineage">
                       {submissionGroups.map((group, index) => {
-                        const versionNumber = index + 1; // v1 is newest, v2 is older, etc.
+                        const versionNumber = submissionGroups.length - index; // v2 is newest, v1 is older
                         const firstFile = group.files[0];
                         const fileStatus = statusInfo(
                           firstFile.status || task.status,
