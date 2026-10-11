@@ -130,8 +130,8 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
 };
 
 // Recursive component to render threaded replies
-// Maximum nesting depth is 2 levels to prevent image loading issues in deep threads
-const MAX_REPLY_DEPTH = 2;
+// Maximum nesting depth is 1 level to prevent image loading issues in deep threads
+const MAX_REPLY_DEPTH = 1;
 
 function RenderReplies({ 
   replies, 
