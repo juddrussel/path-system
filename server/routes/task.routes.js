@@ -1417,6 +1417,61 @@ router.post("/collaborative", requireAuth, requireChairOrAdmin, upload.array("at
       });
     }
 
+    // Send email notifications to all collaborators
+    console.log(`[EMAIL] ============ START EMAIL SENDING ============`);
+    console.log(`[EMAIL] Task ID: ${taskId}, Tracking ID: ${tracking_id}`);
+    console.log(`[EMAIL] Faculty IDs to notify: ${JSON.stringify(facultyIds)}`);
+    console.log(`[EMAIL] Attempting to send collaborative task assignment emails for task ${taskId}`);
+    
+    // Get assigner details
+    const [[assigner]] = await db.query(
+      `SELECT full_name FROM users WHERE id = ?`,
+      [req.user.id]
+    );
+    const assignedByName = assigner?.full_name || 'Administrator';
+
+    // Send email to each collaborator
+    for (let i = 0; i < facultyIds.length; i++) {
+      const facultyId = facultyIds[i];
+      const isTeamLeader = (i === 0); // First faculty member is the team leader
+      
+      try {
+        const [[faculty]] = await db.query(
+          `SELECT email, full_name FROM users WHERE id = ?`,
+          [facultyId]
+        );
+        
+        console.log(`[EMAIL] Faculty ID: ${facultyId}, Email: ${faculty?.email}, Role: ${isTeamLeader ? 'Team Leader' : 'Contributor'}`);
+        
+        if (faculty?.email) {
+          const email = faculty.email;
+          console.log(`[EMAIL] Sending collaborative task notification to: ${email}`);
+          
+          const taskUrl = `${process.env.FRONTEND_URL || 'https://path-system.vercel.app'}/collaborative-task/${taskId}`;
+          
+          await sendTaskAssignmentEmail({
+            recipientEmails: [email],
+            taskTitle: `${title} (Collaborative)`,
+            taskId: tracking_id,
+            documentType: doc_type || "General",
+            priority: priority || "Medium",
+            deadline: deadline || null,
+            notes: notes || "",
+            assignedBy: assignedByName,
+            taskUrl,
+            isTeamLeader
+          });
+          
+          console.log(`[EMAIL] ✅ Email sent successfully to ${email}${isTeamLeader ? ' (Team Leader)' : ''}`);
+        } else {
+          console.log(`[EMAIL] ⚠️ No email found for faculty ID: ${facultyId}`);
+        }
+      } catch (emailErr) {
+        console.error(`[EMAIL ERROR] Failed to send email to faculty ${facultyId}:`, emailErr);
+        // Continue with other emails even if one fails
+      }
+    }
+
     // Log the action
     const facultyNames = facultyCheckResult.map(u => u.full_name).join(", ");
     await writeLog({
