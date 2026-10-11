@@ -567,7 +567,7 @@ function PathFollowUpWorkspace({ records, reasons, trend, resolutions, onExport,
       <section className="path-followup-panel path-followup-pulse"><header><div><span>Outcome pulse</span><h2>Outcome pulse</h2><p>Returned, rejected, and resolved records over the reporting period.</p></div></header><PathTrendChart data={trend} series={[{ key: "returned", label: "Returned", color: "#8b5cf6" }, { key: "rejected", label: "Rejected", color: "#d64550", dashed: true }, { key: "resolved", label: "Resolved", color: "#169b77" }]} emptyText="No outcome history is available." /></section>
     </div>
     <section className="path-followup-records">
-      <header><div><span>Records needing follow-up</span><h2>Records needing follow-up</h2><p>Keep feedback loops moving with a clear next action.</p></div><div><ExportButtons size="small" onExport={(format) => onExport("Returned / Rejected Follow-up Report", format)} /></div></header>
+      <header><div><span>Records needing follow-up</span><h2>Records needing follow-up</h2><p>Keep feedback loops moving with a clear next action.</p></div></header>
       <div className="path-followup-list">
         {followUps.map((item) => <article key={item.id}>
           <div><strong>{formatId(item.id)}</strong><b>{item.title || item.docType}</b><small>{item.person || item.faculty || "—"} · {item.reasonCategory || "Reason pending"}</small></div>
