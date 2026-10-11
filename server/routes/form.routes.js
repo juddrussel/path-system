@@ -394,9 +394,15 @@ router.get("/my", requireAuth, async (req, res) => {
 
   try {
     const [forms] = await db.query(
-      `SELECT fs.*, u.avatar_url AS submitter_avatar
+      `SELECT fs.*,
+              u.full_name   AS submitter_name,
+              u.email       AS submitter_email,
+              u.avatar_url  AS submitter_avatar,
+              r.full_name   AS reviewer_name,
+              r.avatar_url  AS reviewer_avatar
        FROM form_submissions fs
        LEFT JOIN users u ON u.id = fs.submitted_by
+       LEFT JOIN users r ON r.id = fs.reviewed_by
        WHERE fs.submitted_by = ?
          AND fs.status != 'Withdrawn'
          AND (fs.tracking_id LIKE ? OR fs.full_name LIKE ? OR fs.student_id LIKE ? OR fs.category LIKE ?)
