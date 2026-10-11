@@ -16,6 +16,7 @@ const { requireAuth } = require("../middleware/auth");
 const multer = require("multer");
 const { uploadToR2 } = require("../utils/uploadToR2");
 const { writeLog } = require("./audit.routes");
+const { sendTaskAssignmentEmail } = require("../services/slaEmailService");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const ADMIN_ROLES = ["admin", "program_chair"];
@@ -181,6 +182,54 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
           message: `You've been added to a collaborative task: ${title}`,
         });
       });
+    }
+
+    // Send email notifications to all collaborators
+    console.log(`[EMAIL] Attempting to send collaborative task assignment emails for task ${taskId}`);
+    
+    // Get assigner details
+    const [[assigner]] = await db.query(
+      `SELECT full_name FROM users WHERE id = ?`,
+      [assignedBy]
+    );
+    const assignedByName = assigner?.full_name || 'Administrator';
+
+    // Send email to each collaborator
+    for (const facultyId of faculty_ids) {
+      try {
+        const [[faculty]] = await db.query(
+          `SELECT email, full_name FROM users WHERE id = ?`,
+          [facultyId]
+        );
+        
+        console.log(`[EMAIL] Faculty ID: ${facultyId}, Email: ${faculty?.email}`);
+        
+        if (faculty?.email) {
+          const email = faculty.email;
+          console.log(`[EMAIL] Sending collaborative task notification to: ${email}`);
+          
+          const taskUrl = `${process.env.FRONTEND_URL || 'https://path-system.vercel.app'}/collaborative-task-detail/${taskId}`;
+          
+          await sendTaskAssignmentEmail({
+            recipientEmails: [email],
+            taskTitle: `${title} (Collaborative)`,
+            taskId: tracking_id,
+            documentType: doc_type || "General",
+            priority: priority || "Medium",
+            deadline: deadline || null,
+            notes: description || notes || "",
+            assignedBy: assignedByName,
+            taskUrl
+          });
+          
+          console.log(`[EMAIL] ✅ Email sent successfully to ${email}`);
+        } else {
+          console.log(`[EMAIL] ⚠️ No email found for faculty ID: ${facultyId}`);
+        }
+      } catch (emailErr) {
+        console.error(`[EMAIL ERROR] Failed to send email to faculty ${facultyId}:`, emailErr);
+        // Continue with other emails even if one fails
+      }
     }
 
     // Audit log
