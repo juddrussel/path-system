@@ -236,7 +236,7 @@ function RenderReplies({
                           style={{ display: "block", maxWidth: "280px" }}
                         >
                           <img 
-                            src={imageBlobUrls[imageKey] || ""}
+                            src={imageBlobUrls?.[imageKey] || ""}
                             alt={file.name}
                             onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                             onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -245,7 +245,7 @@ function RenderReplies({
                               borderRadius: "6px", 
                               border: "1px solid #e2d9e9", 
                               cursor: "pointer",
-                              display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
+                              display: imageLoading || !imageBlobUrls?.[imageKey] ? "none" : "block"
                             }}
                           />
                         </a>
@@ -2350,7 +2350,7 @@ export default function CollaborativeTaskDetail() {
                                       style={{ display: "block", maxWidth: "280px" }}
                                     >
                                       <img 
-                                        src={imageBlobUrls[imageKey] || ""}
+                                        src={imageBlobUrls?.[imageKey] || ""}
                                         alt={file.name}
                                         onLoad={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
                                         onError={() => setImageLoadingStates(prev => ({ ...prev, [imageKey]: false }))}
@@ -2359,7 +2359,7 @@ export default function CollaborativeTaskDetail() {
                                           borderRadius: "6px", 
                                           border: "1px solid #e2d9e9", 
                                           cursor: "pointer",
-                                          display: imageLoading || !imageBlobUrls[imageKey] ? "none" : "block"
+                                          display: imageLoading || !imageBlobUrls?.[imageKey] ? "none" : "block"
                                         }}
                                       />
                                     </a>
