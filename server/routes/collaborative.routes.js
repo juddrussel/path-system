@@ -211,7 +211,7 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
           const email = faculty.email;
           console.log(`[EMAIL] Sending collaborative task notification to: ${email}`);
           
-          const taskUrl = `${process.env.FRONTEND_URL || 'https://path-system.vercel.app'}/collaborative-task-detail/${taskId}`;
+          const taskUrl = `${process.env.FRONTEND_URL || 'https://path-system.vercel.app'}/collaborative-task/${taskId}`;
           
           await sendTaskAssignmentEmail({
             recipientEmails: [email],
