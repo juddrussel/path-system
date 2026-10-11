@@ -112,7 +112,7 @@ const PATH_TRANSACTION_REGISTER_CSS = `
 
 const PATH_BOTTLENECK_CSS = `
   .path-bottleneck-workspace { display:flex; flex-direction:column; gap:14px; }.path-bn-signals { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }.path-bn-signal { display:flex; min-height:86px; align-items:flex-start; gap:13px; padding:16px 18px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-bn-signal > svg { width:27px; height:27px; padding:6px; border-radius:7px; background:#fff0ef; color:#d64550; }.path-bn-signal.amber > svg { background:#fff4df; color:#c48224; }.path-bn-signal.violet > svg { background:#f0eaff; color:#7c3aed; }.path-bn-signal div { display:flex; flex-direction:column; gap:4px; }.path-bn-signal span,.path-bn-panel header > div > span,.path-bn-priority header > div > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-bn-signal strong { color:#47354e; font-family:'Manrope',sans-serif; font-size:24px; letter-spacing:-.06em; }.path-bn-signal small { color:#a197a7; font-family:'DM Sans',sans-serif; font-size:11px; }.path-bn-main-grid { display:grid; grid-template-columns:1fr; gap:14px; }.path-bn-panel,.path-bn-priority { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-bn-panel header,.path-bn-priority header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0edf4; }.path-bn-panel h2,.path-bn-priority h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:16px; letter-spacing:-.035em; }.path-bn-panel header p,.path-bn-priority header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:12px; }.path-bn-panel header > button,.path-bn-priority header > button,.path-bn-open-plan { display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent; color:#6d28d9; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:800; }.path-bn-panel header > button svg,.path-bn-priority header > button svg,.path-bn-open-plan svg { width:13px; height:13px; }.path-bn-stage-list { display:flex; flex-direction:column; gap:18px; padding-top:20px; }.path-bn-stage > div { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }.path-bn-stage > div strong { color:#4b3b55; font-family:'Manrope',sans-serif; font-size:12px; }.path-bn-stage > div em { padding:4px 7px; border-radius:999px; font-family:'DM Sans',sans-serif; font-size:10px; font-style:normal; font-weight:800; }.path-bn-stage > div em.critical { background:#fff0ef; color:#c23c43; }.path-bn-stage > div em.high { background:#fff4df; color:#bd7e25; }.path-bn-stage > div em.medium,.path-bn-stage > div em.healthy { background:#e8f8ef; color:#3b9675; }.path-bn-stage section i { position:relative; display:block; overflow:visible; height:8px; border-radius:999px; background:#f0edf4; }.path-bn-stage section b { display:block; min-width:4px; height:100%; border-radius:inherit; }.path-bn-stage section b.critical { background:#d64550; }.path-bn-stage section b.high { background:#d58a00; }.path-bn-stage section b.medium,.path-bn-stage section b.healthy { background:#169b77; }.path-bn-stage section u { position:absolute; top:-3px; width:2px; height:14px; background:#3f3147; text-decoration:none; }.path-bn-stage footer { display:flex; justify-content:space-between; padding-top:6px; color:#9b91a2; font-family:'DM Sans',sans-serif; font-size:11px; }.path-bn-stage footer small { color:#a79dab; font-size:11px; }.path-bn-lead { display:flex; gap:11px; margin-top:23px; padding:15px 14px; border:1px solid #f0dfe2; border-radius:9px; background:#fff8fa; }.path-bn-lead > i { width:8px; height:8px; flex:0 0 auto; margin-top:4px; border-radius:50%; background:#d64550; box-shadow:0 0 0 3px #ffe1e4; }.path-bn-lead.high { background:#fffaf0; border-color:#f4e5c3; }.path-bn-lead.high > i { background:#d58a00; box-shadow:0 0 0 3px #ffefd0; }.path-bn-lead.medium,.path-bn-lead.healthy { background:#f3fbf7; border-color:#d8eee1; }.path-bn-lead.medium > i,.path-bn-lead.healthy > i { background:#169b77; box-shadow:0 0 0 3px #ddf5e8; }.path-bn-lead strong { color:#4e3d58; font-family:'Manrope',sans-serif; font-size:13px; }.path-bn-lead p { margin:6px 0 0; color:#8f8399; font-family:'DM Sans',sans-serif; font-size:12px; line-height:1.5; }.path-bn-impact { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:19px 0; }.path-bn-impact div { display:flex; flex-direction:column; gap:6px; }.path-bn-impact span { color:#a097a7; font-family:'DM Sans',sans-serif; font-size:11px; }.path-bn-impact strong { color:#4c3b56; font-family:'Manrope',sans-serif; font-size:18px; letter-spacing:-.04em; }.path-bn-open-plan { padding-top:13px; border-top:1px solid #f0edf4; }
-  .path-bn-priority { padding-bottom:0; }.path-bn-priority-list { display:flex; flex-direction:column; }.path-bn-priority-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 55px 94px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-bn-priority-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-bn-priority-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; }.path-bn-priority-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:11px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#fff0ef; color:#c83c43; font-family:'DM Sans',sans-serif; font-size:11px; font-style:normal; font-weight:800; }.path-bn-priority-list article > em.high { background:#fff4df; color:#bd7e25; }.path-bn-priority-list article > span { display:flex; align-items:center; flex-direction:column; color:#be3a41; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; }.path-bn-priority-list article > span small { color:#a69cac; font-family:'DM Sans',sans-serif; font-size:10px; font-weight:400; }.path-bn-priority-list article > button { padding:7px 8px; border:1px solid #e3dbea; border-radius:7px; background:#fff; color:#6a4a7f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; }.path-bn-priority-list article > button:hover { border-color:#bda6e2; background:#fbf8ff; }
+  .path-bn-priority { padding-bottom:0; }.path-bn-priority-list { display:flex; flex-direction:column; }.path-bn-priority-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 55px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-bn-priority-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-bn-priority-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; }.path-bn-priority-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:11px; text-overflow:ellipsis; white-space:nowrap; }.path-bn-priority-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#fff0ef; color:#c83c43; font-family:'DM Sans',sans-serif; font-size:11px; font-style:normal; font-weight:800; }.path-bn-priority-list article > em.high { background:#fff4df; color:#bd7e25; }.path-bn-priority-list article > span { display:flex; align-items:center; flex-direction:column; color:#be3a41; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; }.path-bn-priority-list article > span small { color:#a69cac; font-family:'DM Sans',sans-serif; font-size:10px; font-weight:400; }
   @media (max-width:1000px) { .path-bn-main-grid { grid-template-columns:1fr; } }.path-bn-signals { grid-template-columns:repeat(3,minmax(0,1fr)); } @media (max-width:760px) { .path-bn-signals { grid-template-columns:1fr; gap:8px; }.path-bn-panel,.path-bn-priority { padding:17px 15px; }.path-bn-priority-list { overflow-x:auto; }.path-bn-priority-list article { min-width:640px; }.path-bn-stage footer { gap:8px; }.path-bn-stage footer small { text-align:right; } }
 `;
 
@@ -450,25 +450,84 @@ function PathOverview({ items, processing, bottlenecks, quickReports, onSelectTa
 }
 
 function PathBottleneckWorkspace({ items, bottlenecks, alerts, onOpenAlerts, onExport, formatId }) {
+  const [bottleneckPage, setBottleneckPage] = useState(1);
+  const BOTTLENECK_PER_PAGE = 10;
+  
   const active = items.filter((item) => !item.done);
-  const priority = active.filter((item) => item.overdue || item.status === "Delayed" || item.days >= 5).sort((a, b) => b.days - a.days).slice(0, 5);
+  const allPriority = active.filter((item) => item.overdue || item.status === "Delayed" || item.days >= 5).sort((a, b) => b.days - a.days);
+  const totalPriorityCount = allPriority.length;
+  const totalPages = Math.ceil(totalPriorityCount / BOTTLENECK_PER_PAGE);
+  const priority = allPriority.slice((bottleneckPage - 1) * BOTTLENECK_PER_PAGE, bottleneckPage * BOTTLENECK_PER_PAGE);
+  
   const longestWait = active.length ? Math.max(...active.map((item) => item.days || 0)) : 0;
-  const pressure = active.length ? Math.round((priority.length / active.length) * 100) : 0;
+  const pressure = active.length ? Math.round((allPriority.length / active.length) * 100) : 0;
   const maxWaiting = Math.max(1, ...bottlenecks.map((item) => item.waiting));
   const lead = bottlenecks[0];
   const leadShare = lead && active.length ? Math.round((lead.waiting / active.length) * 100) : 0;
   const tone = (severity) => severity === "Critical" ? "critical" : severity === "High" ? "high" : severity === "Medium" ? "medium" : "healthy";
   const target = (severity) => severity === "Critical" || severity === "High" ? 2 : severity === "Medium" ? 3 : 4;
+  
   return <div className="path-bottleneck-workspace">
     <div className="path-bn-signals">
-      <article className="path-bn-signal critical"><AlertTriangle /><div><span>At risk now</span><strong>{String(priority.length).padStart(2, "0")}</strong><small>records past target</small></div></article>
+      <article className="path-bn-signal critical"><AlertTriangle /><div><span>At risk now</span><strong>{String(totalPriorityCount).padStart(2, "0")}</strong><small>records past target</small></div></article>
       <article className="path-bn-signal amber"><Clock /><div><span>Longest wait</span><strong>{longestWait ? `${longestWait}d` : "—"}</strong><small>in the current filter</small></div></article>
       <article className="path-bn-signal violet"><TrendingUp /><div><span>Queue pressure</span><strong>{pressure ? `${pressure}%` : "—"}</strong><small>of active workflow</small></div></article>
     </div>
     <div className="path-bn-main-grid">
       <section className="path-bn-panel path-bn-pressure"><header><div><span>Workflow pressure</span><h2>Workflow pressure map</h2><p>Open queues compared with their comfortable operating target.</p></div><button onClick={() => onOpenAlerts()} aria-label="Open alerts"><ChevronRight /></button></header><div className="path-bn-stage-list">{bottlenecks.map((item) => <div className="path-bn-stage" key={item.stage}><div><strong>{item.label}</strong><em className={tone(item.severity)}>{item.severity === "Critical" || item.severity === "High" ? "Over target" : "Within target"}</em></div><section><i><b className={tone(item.severity)} style={{ width: `${Math.max(4, (item.waiting / maxWaiting) * 100)}%` }} /><u style={{ left: `${Math.min(90, (target(item.severity) / maxWaiting) * 100)}%` }} /></i></section><footer><span>{item.waiting} waiting</span><small>target {target(item.severity)} · {item.avgWait}d avg</small></footer></div>)}{!bottlenecks.length && <p className="path-chart-empty">No workflow bottlenecks match these filters.</p>}</div></section>
     </div>
-    <section className="path-bn-priority"><header><div><span>Priority bottlenecks</span><h2>Priority bottlenecks</h2><p>Records requiring an owner decision or workflow intervention.</p></div></header><div className="path-bn-priority-list">{priority.map((item) => <article key={item.id}><div><strong>{formatId(item.id)}</strong><b>{item.title || item.docType}</b><small>{item.faculty || "Unassigned"} · {item.stage}</small></div><em className={item.overdue ? "critical" : "high"}>{item.overdue ? "Critical" : "At risk"}</em><span>{item.days}d<small>waiting</small></span><button onClick={() => onOpenAlerts()}>{item.overdue ? "Escalate" : "Open alerts"}</button></article>)}{!priority.length && <p className="path-chart-empty">No at-risk documents match these filters.</p>}</div></section>
+    <section className="path-bn-priority">
+      <header><div><span>Priority bottlenecks</span><h2>Priority bottlenecks</h2><p>Records requiring an owner decision or workflow intervention.</p></div></header>
+      <div className="path-bn-priority-list">
+        {priority.map((item) => <article key={item.id}>
+          <div><strong>{formatId(item.id)}</strong><b>{item.title || item.docType}</b><small>{item.faculty || "Unassigned"} · {item.stage}</small></div>
+          <em className={item.overdue ? "critical" : "high"}>{item.overdue ? "Critical" : "At risk"}</em>
+          <span>{item.days}d<small>waiting</small></span>
+        </article>)}
+        {!priority.length && <p className="path-chart-empty">No at-risk documents match these filters.</p>}
+      </div>
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', padding: '16px', borderTop: '1px solid #f0edf4' }}>
+          <button
+            onClick={() => setBottleneckPage(p => Math.max(1, p - 1))}
+            disabled={bottleneckPage === 1}
+            style={{
+              padding: '7px 12px',
+              border: '1px solid #e3dbea',
+              borderRadius: '7px',
+              background: bottleneckPage === 1 ? '#f5f2f8' : '#fff',
+              color: bottleneckPage === 1 ? '#bbb' : '#6a4a7f',
+              cursor: bottleneckPage === 1 ? 'not-allowed' : 'pointer',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: '11px',
+              fontWeight: '800'
+            }}
+          >
+            Previous
+          </button>
+          <span style={{ color: '#82758b', fontFamily: 'DM Sans, sans-serif', fontSize: '12px' }}>
+            Page {bottleneckPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setBottleneckPage(p => Math.min(totalPages, p + 1))}
+            disabled={bottleneckPage === totalPages}
+            style={{
+              padding: '7px 12px',
+              border: '1px solid #e3dbea',
+              borderRadius: '7px',
+              background: bottleneckPage === totalPages ? '#f5f2f8' : '#fff',
+              color: bottleneckPage === totalPages ? '#bbb' : '#6a4a7f',
+              cursor: bottleneckPage === totalPages ? 'not-allowed' : 'pointer',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: '11px',
+              fontWeight: '800'
+            }}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </section>
   </div>;
 }
 
