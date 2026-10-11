@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { socket, connectSocket } from "./socket";
 import ConfirmationModal from "../components/ConfirmationModal";
+import { createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
 
 // ─── API CONFIG ────────────────────────────────────────────────────────────────
 const API_BASE =
@@ -69,9 +70,9 @@ function initials(firstName = "", lastName = "") {
 }
 
 // ─── SMALL COMPONENTS ─────────────────────────────────────────────────────────
-function Avatar({ firstName, lastName, pictureUrl }) {
+function Avatar({ firstName, lastName, pictureUrl, blobUrl }) {
   const [imgFailed, setImgFailed] = useState(false);
-  const src = fullAvatarUrl(pictureUrl);
+  const src = blobUrl || fullAvatarUrl(pictureUrl);
 
   if (src && !imgFailed) {
     return (
@@ -957,10 +958,10 @@ const userDetailModalCss = `
   }
 `;
 
-function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate }) {
+function UserDetailPanel({ user, onClose, onDelete, currentUserId, fmtDate, avatarBlobUrl }) {
   if (!user) return null;
   const [bg, fg] = avatarColor(`${user.first_name}${user.last_name}`);
-  const avatarUrl = fullAvatarUrl(user.avatar_url);
+  const avatarUrl = avatarBlobUrl || fullAvatarUrl(user.avatar_url);
   const isOwnAccount = user.id === currentUserId;
 
   return (
@@ -1179,6 +1180,7 @@ function PathDirectoryList({
   onView,
   onEdit,
   onDelete,
+  avatarBlobUrls,
 }) {
   return (
     <div className="path-um-directory">
@@ -1242,6 +1244,7 @@ function PathDirectoryList({
                 firstName={u.first_name}
                 lastName={u.last_name}
                 pictureUrl={u.avatar_url}
+                blobUrl={avatarBlobUrls[u.id]}
               />
               <div>
                 <strong>
@@ -1326,6 +1329,7 @@ function PathRequestList({
   onReject,
   onApproveAll,
   fmtDate,
+  avatarBlobUrls,
 }) {
   return (
     <section className="path-um-request-review">
@@ -1365,6 +1369,7 @@ function PathRequestList({
                   firstName={u.first_name}
                   lastName={u.last_name}
                   pictureUrl={u.avatar_url}
+                  blobUrl={avatarBlobUrls[u.id]}
                 />
                 <div>
                   <strong>
@@ -1481,6 +1486,7 @@ export default function UserManagement() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
+  const [avatarBlobUrls, setAvatarBlobUrls] = useState({});
   const currentUserId = (() => {
     try {
       return JSON.parse(
@@ -1528,6 +1534,46 @@ export default function UserManagement() {
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
+
+  // ── Create blob URLs for all user avatars ─────────────────────────────────────
+  useEffect(() => {
+    const createAvatarBlobUrls = async () => {
+      const newBlobUrls = {};
+      
+      // Collect all users with avatar URLs (from both users and pending)
+      const allUsersWithAvatars = [
+        ...users.filter(u => u.avatar_url),
+        ...pending.filter(u => u.avatar_url)
+      ];
+      
+      // Create blob URLs for each avatar
+      for (const user of allUsersWithAvatars) {
+        if (user.avatar_url && !avatarBlobUrls[user.id]) {
+          try {
+            const blobUrl = await createAuthenticatedBlobUrl(API_BASE.replace('/api', ''), user.avatar_url);
+            newBlobUrls[user.id] = blobUrl;
+          } catch (error) {
+            console.error(`Failed to create blob URL for user ${user.id} avatar:`, error);
+          }
+        }
+      }
+      
+      if (Object.keys(newBlobUrls).length > 0) {
+        setAvatarBlobUrls(prev => ({ ...prev, ...newBlobUrls }));
+      }
+    };
+    
+    if (users.length > 0 || pending.length > 0) {
+      createAvatarBlobUrls();
+    }
+    
+    // Cleanup blob URLs on unmount
+    return () => {
+      Object.values(avatarBlobUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [users, pending]);
 
   // ── Poll every 30 seconds for new pending registrations ──────────────────────
   // Kept as a fallback in case the socket connection drops, so a missed
@@ -1932,6 +1978,7 @@ export default function UserManagement() {
                         onView={setSelectedUser}
                         onEdit={setEditUser}
                         onDelete={setDeleteTarget}
+                        avatarBlobUrls={avatarBlobUrls}
                       />
                     </section>
                     <PathAccessManagement
@@ -2023,6 +2070,7 @@ export default function UserManagement() {
                     onReject={handleReject}
                     onApproveAll={handleApproveAll}
                     fmtDate={fmtDate}
+                    avatarBlobUrls={avatarBlobUrls}
                   />
                 </div>
               )}
@@ -2058,6 +2106,7 @@ export default function UserManagement() {
           onDelete={(id, name) => setDeleteTarget({ id, name })}
           currentUserId={currentUserId}
           fmtDate={fmtDate}
+          avatarBlobUrl={avatarBlobUrls[selectedUser.id]}
         />
       )}
 
