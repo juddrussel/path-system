@@ -710,7 +710,6 @@ export default function CollaborativeTaskDetail() {
   useEffect(() => {
     const createBlobUrls = async () => {
       const urlsToCreate = [];
-      const createdBlobUrls = []; // Track blob URLs created in this effect run
       
       // Collect all image files from messages and replies
       messages.forEach(message => {
@@ -719,7 +718,10 @@ export default function CollaborativeTaskDetail() {
             const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
             if (isImage) {
               const imageKey = `msg-${message.id}-file-${idx}`;
-              urlsToCreate.push({ key: imageKey, url: file.url });
+              // Only create blob URL if we don't already have one
+              if (!imageBlobUrls[imageKey]) {
+                urlsToCreate.push({ key: imageKey, url: file.url });
+              }
             }
           });
         }
@@ -732,7 +734,10 @@ export default function CollaborativeTaskDetail() {
                 const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
                 if (isImage) {
                   const imageKey = `reply-${reply.id}-file-${idx}`;
-                  urlsToCreate.push({ key: imageKey, url: file.url });
+                  // Only create blob URL if we don't already have one
+                  if (!imageBlobUrls[imageKey]) {
+                    urlsToCreate.push({ key: imageKey, url: file.url });
+                  }
                 }
               });
             }
@@ -740,15 +745,36 @@ export default function CollaborativeTaskDetail() {
         }
       });
       
-      // Create blob URLs for all images
-      for (const { key, url } of urlsToCreate) {
+      // Skip if no new URLs to create
+      if (urlsToCreate.length === 0) return;
+      
+      // Create blob URLs for all images IN PARALLEL
+      const blobUrlPromises = urlsToCreate.map(async ({ key, url }) => {
         try {
           const blobUrl = await createAuthenticatedBlobUrl(api, url);
-          setImageBlobUrls(prev => ({ ...prev, [key]: blobUrl }));
-          createdBlobUrls.push(blobUrl); // Track for cleanup
+          return { key, blobUrl, success: true };
         } catch (error) {
           console.error(`Failed to create blob URL for ${key}:`, error);
+          return { key, blobUrl: null, success: false };
         }
+      });
+      
+      // Wait for all to complete
+      const results = await Promise.all(blobUrlPromises);
+      
+      // Batch update state once with all blob URLs
+      const newBlobUrls = {};
+      const createdBlobUrls = [];
+      results.forEach(({ key, blobUrl, success }) => {
+        if (success && blobUrl) {
+          newBlobUrls[key] = blobUrl;
+          createdBlobUrls.push(blobUrl);
+        }
+      });
+      
+      // Single state update for all images
+      if (Object.keys(newBlobUrls).length > 0) {
+        setImageBlobUrls(prev => ({ ...prev, ...newBlobUrls }));
       }
       
       // Return cleanup function for this effect run
@@ -760,12 +786,9 @@ export default function CollaborativeTaskDetail() {
     };
     
     if (messages.length > 0) {
-      createBlobUrls().then(cleanup => {
-        // Store cleanup function
-        return cleanup;
-      });
+      createBlobUrls();
     }
-  }, [messages]);
+  }, [messages, api]);
 
   // Load task data
   useEffect(() => {
