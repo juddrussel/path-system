@@ -11,14 +11,15 @@
  *   form_submissions:     submitted_by, status (no deadline column — forms
  *                         never count as overdue, only pending/active)
  *
- * Scoring formula (feel free to tune the weights):
+ * Scoring formula:
  *   Every faculty member starts at 100%.
- *   - Each item still active/pending (not overdue): −1 point
- *   - Each item that's overdue:                     −5 points
- *   score = clamp(100 − (active × 1) − (overdue × 5), 0, 100)
+ *   - Each item that's overdue (past deadline): −5 points
+ *   - Active/pending items that are NOT overdue: no deduction
+ *   score = clamp(100 − (overdue × 5), 0, 100)
  *
  * Completed items don't add points back — they simply don't cost any.
  * A faculty member with nothing outstanding stays at 100%.
+ * Faculty working on tasks within their deadline also stays at 100%.
  *
  * "done" statuses: approved, rejected, archived, completed, registered
  * (mirrors the `done` logic already used in Dashboard.jsx's fetchTrackedItems)
@@ -28,8 +29,7 @@ const DONE_STATUSES = ["approved", "rejected", "archived", "completed", "registe
 const ACTIVE_STATUSES = ["for approval", "returned for revision", "under review", "in progress", "return for revision"];
 const PENDING_STATUS = "pending";
 
-// Tune these to change how harshly outstanding work affects the score.
-const ACTIVE_PENALTY = 1;   // points lost per item still in progress, on time
+// Only overdue items affect the score
 const OVERDUE_PENALTY = 5;  // points lost per item past its deadline
 
 /**
@@ -82,7 +82,8 @@ function clamp(n, min, max) {
 }
 
 function computeScore({ active, overdue }) {
-  const score = 100 - (active * ACTIVE_PENALTY) - (overdue * OVERDUE_PENALTY);
+  // Only overdue tasks affect the score - active work within deadline is fine
+  const score = 100 - (overdue * OVERDUE_PENALTY);
   return Math.round(clamp(score, 0, 100));
 }
 
