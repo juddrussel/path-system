@@ -185,6 +185,9 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
     }
 
     // Send email notifications to all collaborators
+    console.log(`[EMAIL] ============ START EMAIL SENDING ============`);
+    console.log(`[EMAIL] Task ID: ${taskId}, Tracking ID: ${tracking_id}`);
+    console.log(`[EMAIL] Faculty IDs to notify: ${JSON.stringify(faculty_ids)}`);
     console.log(`[EMAIL] Attempting to send collaborative task assignment emails for task ${taskId}`);
     
     // Get assigner details
