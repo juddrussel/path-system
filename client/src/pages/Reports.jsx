@@ -708,6 +708,8 @@ export default function Reports() {
   
 
   const [dateRange, setDateRange] = useState("Last 30 Days");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [docTypeFilter, setDocTypeFilter] = useState("All Document Types");
   const [facultyFilter, setFacultyFilter] = useState("All Faculty");
@@ -1034,18 +1036,46 @@ export default function Reports() {
     // Use days from start to now (capped at period length)
     return Math.max(1, Math.ceil((Math.min(now, end) - start) / 86400000));
   }, [activePeriod]);
+  
   const OPEN_STATUSES = ["Pending", "For Approval", "Under Review", "Delayed", "Returned"];
   const items = useMemo(() => {
-    const cutoffDays = dateRange === "This Semester" ? semesterCutoffDays : RANGE_DAYS[dateRange];
+    let cutoffDays;
+    let customStartDateTime = null;
+    let customEndDateTime = null;
+    
+    if (dateRange === "Custom Range") {
+      // Use custom date range if both dates are provided
+      if (customStartDate && customEndDate) {
+        customStartDateTime = new Date(customStartDate).getTime();
+        customEndDateTime = new Date(customEndDate).setHours(23, 59, 59, 999); // End of day
+      } else {
+        // If custom range selected but dates not set, show all items
+        cutoffDays = null;
+      }
+    } else {
+      cutoffDays = dateRange === "This Semester" ? semesterCutoffDays : RANGE_DAYS[dateRange];
+    }
+    
     return rawItems.filter(it => {
       const isOpen = OPEN_STATUSES.includes(it.status);
-      if (cutoffDays && !isOpen && it.days > cutoffDays) return false;
+      
+      // Apply date filter
+      if (dateRange === "Custom Range" && customStartDateTime && customEndDateTime) {
+        // For custom range, check if item's date falls within the range
+        const itemDate = new Date(it.created_at || it.submission_date || it.date).getTime();
+        if (!isOpen && (itemDate < customStartDateTime || itemDate > customEndDateTime)) {
+          return false;
+        }
+      } else if (cutoffDays && !isOpen && it.days > cutoffDays) {
+        return false;
+      }
+      
       if (statusFilter !== "All Statuses" && it.status !== statusFilter) return false;
       if (docTypeFilter !== "All Document Types" && it.docType !== docTypeFilter) return false;
       if (facultyFilter !== "All Faculty" && it.person !== facultyFilter) return false;
       return true;
     });
-  }, [rawItems, dateRange, statusFilter, docTypeFilter, facultyFilter]);
+  }, [rawItems, dateRange, customStartDate, customEndDate, statusFilter, docTypeFilter, facultyFilter, semesterCutoffDays]);
 
   // ── KPI cards ──
   const KPI_DATA = useMemo(() => {
@@ -1588,7 +1618,9 @@ export default function Reports() {
     activePeriod
       ? `Academic period: ${activePeriod.name} (${activePeriod.semester}, ${activePeriod.academic_year})`
       : "Academic period: Not configured",
-    `Date range: ${dateRange}`,
+    dateRange === "Custom Range" && customStartDate && customEndDate
+      ? `Date range: ${customStartDate} to ${customEndDate}`
+      : `Date range: ${dateRange}`,
     `Status: ${statusFilter}`,
     `Document type: ${docTypeFilter}`,
     `Faculty: ${facultyFilter}`,
@@ -1969,9 +2001,35 @@ export default function Reports() {
 
             {/* ── 2. Filters card ── */}
             <div className="path-reports-filter" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "16px 20px", boxShadow: "0 1px 4px rgba(91,33,182,0.05)" }}>
-              <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-end" }}>
                 <FilterSelect label="Date Range" value={dateRange} onChange={e => setDateRange(e.target.value)}
                   options={["Last 7 Days", "Last 30 Days", "This Semester", "This Year", "Custom Range"]} />
+                
+                {dateRange === "Custom Range" && (
+                  <>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <label className="path-filter-label" style={{ fontSize: 11, fontWeight: 800, color: "#9b91a3", textTransform: "uppercase", letterSpacing: "0.08em" }}>Start Date</label>
+                      <input
+                        type="date"
+                        value={customStartDate}
+                        onChange={e => setCustomStartDate(e.target.value)}
+                        className="path-filter-select"
+                        style={{ height: 38, borderRadius: 8, border: "1px solid #e4dced", padding: "0 12px", fontSize: 12, fontWeight: 700, color: "#645970" }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <label className="path-filter-label" style={{ fontSize: 11, fontWeight: 800, color: "#9b91a3", textTransform: "uppercase", letterSpacing: "0.08em" }}>End Date</label>
+                      <input
+                        type="date"
+                        value={customEndDate}
+                        onChange={e => setCustomEndDate(e.target.value)}
+                        className="path-filter-select"
+                        style={{ height: 38, borderRadius: 8, border: "1px solid #e4dced", padding: "0 12px", fontSize: 12, fontWeight: 700, color: "#645970" }}
+                      />
+                    </div>
+                  </>
+                )}
+                
                 <FilterSelect label="Status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
                   options={["All Statuses", "Pending", "Approved", "Rejected", "Delayed"]} />
                 <FilterSelect label="Document Type" value={docTypeFilter} onChange={e => setDocTypeFilter(e.target.value)}
