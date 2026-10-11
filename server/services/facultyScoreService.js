@@ -2,13 +2,12 @@
  * facultyScoreService.js
  *
  * Computes a performance score per faculty member from three sources
- * the department tracks (tasks, collaborative_tasks, form_submissions) 
+ * the department tracks (tasks - both solo and collaborative, form_submissions) 
  * and writes the result back onto `users`.
  *
  * Table/column names used below:
- *   tasks:                faculty_id, status, deadline
- *   collaborative_tasks:  status, deadline (linked via task_collaborators)
- *   task_collaborators:   user_id, task_id
+ *   tasks:                faculty_id, status, deadline, is_collaborative
+ *   task_collaborators:   user_id, task_id (links users to collaborative tasks)
  *   form_submissions:     submitted_by, status (no deadline column — forms
  *                         never count as overdue, only pending/active)
  *
@@ -34,7 +33,7 @@ const ACTIVE_PENALTY = 1;   // points lost per item still in progress, on time
 const OVERDUE_PENALTY = 5;  // points lost per item past its deadline
 
 /**
- * Builds one UNION ALL query across tasks / collaborative_tasks / form_submissions.
+ * Builds one UNION ALL query across tasks / collaborative tasks / form_submissions.
  * Each branch must return: (user_id, is_done, is_active, is_pending, is_overdue)
  */
 function buildSourceQuery() {
@@ -47,19 +46,21 @@ function buildSourceQuery() {
       FROM tasks t
       JOIN users u ON u.id = t.faculty_id
      WHERE t.faculty_id IS NOT NULL
+       AND t.is_collaborative = 0
        AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
 
     UNION ALL
 
     SELECT tc.user_id AS user_id,
-           LOWER(ct.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
-           LOWER(ct.status) IN (${ACTIVE_STATUSES.map(() => "?").join(",")}) AS is_active,
-           LOWER(ct.status) = ? AS is_pending,
-           (ct.deadline IS NOT NULL AND ct.deadline < NOW() AND LOWER(ct.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})) AS is_overdue
+           LOWER(t.status) IN (${DONE_STATUSES.map(() => "?").join(",")}) AS is_done,
+           LOWER(t.status) IN (${ACTIVE_STATUSES.map(() => "?").join(",")}) AS is_active,
+           LOWER(t.status) = ? AS is_pending,
+           (t.deadline IS NOT NULL AND t.deadline < NOW() AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})) AS is_overdue
       FROM task_collaborators tc
-      JOIN collaborative_tasks ct ON ct.id = tc.task_id
+      JOIN tasks t ON t.id = tc.task_id
       JOIN users u ON u.id = tc.user_id
      WHERE tc.user_id IS NOT NULL
+       AND t.is_collaborative = 1
        AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
 
     UNION ALL
@@ -109,27 +110,29 @@ async function getDelayedDocuments(pool) {
        JOIN users u ON u.id = t.faculty_id
       WHERE t.deadline IS NOT NULL
         AND t.deadline < NOW()
+        AND t.is_collaborative = 0
         AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
         AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
 
     UNION ALL
 
-    SELECT ct.id,
-            ct.title,
-            ct.doc_type,
-            ct.priority,
-            ct.deadline,
-            ct.status,
+    SELECT t.id,
+            t.title,
+            t.doc_type,
+            t.priority,
+            t.deadline,
+            t.status,
             tc.user_id AS faculty_id,
             u.full_name AS faculty_name,
-            DATEDIFF(CURDATE(), ct.deadline) AS days_overdue,
+            DATEDIFF(CURDATE(), t.deadline) AS days_overdue,
             TRUE AS is_collaborative
-       FROM collaborative_tasks ct
-       JOIN task_collaborators tc ON tc.task_id = ct.id
+       FROM tasks t
+       JOIN task_collaborators tc ON tc.task_id = t.id
        JOIN users u ON u.id = tc.user_id
-      WHERE ct.deadline IS NOT NULL
-        AND ct.deadline < NOW()
-        AND LOWER(ct.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
+      WHERE t.deadline IS NOT NULL
+        AND t.deadline < NOW()
+        AND t.is_collaborative = 1
+        AND LOWER(t.status) NOT IN (${DONE_STATUSES.map(() => "?").join(",")})
         AND u.role = 'faculty' AND u.status = 'approved' AND u.is_active = 1
 
       ORDER BY deadline ASC`,
@@ -149,8 +152,8 @@ async function recalculateAllScores(pool, opts = {}) {
   const { keepHistory = true } = opts;
 
   // Placeholder order must match buildSourceQuery()'s `?` occurrences exactly:
-  // tasks: is_done, is_active, is_pending, is_overdue(NOT IN)
-  // collaborative_tasks: is_done, is_active, is_pending, is_overdue(NOT IN)
+  // solo tasks: is_done, is_active, is_pending, is_overdue(NOT IN)
+  // collaborative tasks: is_done, is_active, is_pending, is_overdue(NOT IN)
   // form_submissions: is_done, is_active, is_pending
   const params = [
     ...DONE_STATUSES,    // tasks.is_done
