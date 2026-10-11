@@ -2915,31 +2915,10 @@ export default function Dashboard() {
       
       const totalTasks = active + pending + completed;
       const delayed = delayedFromEndpoint || delayedFromItems;
-      const completionRate = totalTasks > 0 ? (completed / totalTasks) * 100 : 0;
       
-      // Calculate initiative score
-      let initiativeScore = null;
-      if (totalTasks > 0) {
-        // Base score from completion rate
-        initiativeScore = completionRate;
-        
-        // Add bonuses
-        if (delayed === 0) {
-          initiativeScore += 10; // On-time bonus
-        }
-        if (completionRate >= 90) {
-          initiativeScore += 5; // High completion bonus
-        }
-        if (completionRate === 100 && delayed === 0) {
-          initiativeScore += 5; // Perfect score bonus
-        }
-        
-        // Subtract penalties
-        initiativeScore -= (delayed * 5); // -5 points per delayed task
-        
-        // Ensure score is within bounds
-        initiativeScore = Math.max(0, Math.min(100, Math.round(initiativeScore)));
-      }
+      // Use performance_score from database (calculated by facultyScoreService)
+      // This score only deducts points for overdue tasks, not active work
+      const score = f.performance_score ?? 0;
       
       return {
         name,
@@ -2947,11 +2926,8 @@ export default function Dashboard() {
         pending,
         completed,
         delayed,
-        rate: Math.round(
-          f.performance_score ??
-            (totalTasks > 0 ? completionRate : 0),
-        ),
-        initiativeScore,
+        rate: Math.round(score),
+        initiativeScore: Math.round(score), // Use same score for consistency
       };
     });
   }, [facultyPerformance, delayedDocs, trackedItems]);
