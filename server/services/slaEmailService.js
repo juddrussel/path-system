@@ -306,6 +306,7 @@ async function sendSlaAlertEmail({
  * @param {string} params.notes - task instructions/notes
  * @param {string} params.assignedBy - name of person who assigned the task
  * @param {string} params.taskUrl - deep link to the task details
+ * @param {boolean} [params.isTeamLeader] - whether this recipient is the team leader for a collaborative task
  */
 async function sendTaskAssignmentEmail({
   recipientEmails,
@@ -317,6 +318,7 @@ async function sendTaskAssignmentEmail({
   notes,
   assignedBy,
   taskUrl,
+  isTeamLeader = false,
 }) {
   const priorityColors = {
     Low: { accent: "#10b981", bg: "#d1fae5" },
@@ -364,7 +366,7 @@ async function sendTaskAssignmentEmail({
           </table>
           <h1 style="font-size:19px; color:#111827; letter-spacing:0.5px; margin: 18px 0 8px;">New Task Assigned</h1>
           <p style="font-size:13px; color:#6b7280; line-height:1.6; margin: 0 auto 28px; max-width:340px;">
-            You have been assigned a new task in the <strong style="color:#374151;">DS PATH</strong> system by <strong style="color:#374151;">${assignedBy}</strong>.
+            You have been assigned a new task in the <strong style="color:#374151;">DS PATH</strong> system by <strong style="color:#374151;">${assignedBy}</strong>.${isTeamLeader ? '<br/><span style="display:inline-block; background:#fef3c7; color:#d97706; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:4px 10px; border-radius:4px; margin-top:8px;">👑 Team Leader</span>' : ''}
           </p>
         </td>
       </tr>

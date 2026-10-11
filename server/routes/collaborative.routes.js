@@ -195,14 +195,17 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
     const assignedByName = assigner?.full_name || 'Administrator';
 
     // Send email to each collaborator
-    for (const facultyId of faculty_ids) {
+    for (let i = 0; i < faculty_ids.length; i++) {
+      const facultyId = faculty_ids[i];
+      const isTeamLeader = (i === 0); // First faculty member is the team leader
+      
       try {
         const [[faculty]] = await db.query(
           `SELECT email, full_name FROM users WHERE id = ?`,
           [facultyId]
         );
         
-        console.log(`[EMAIL] Faculty ID: ${facultyId}, Email: ${faculty?.email}`);
+        console.log(`[EMAIL] Faculty ID: ${facultyId}, Email: ${faculty?.email}, Role: ${isTeamLeader ? 'Team Leader' : 'Contributor'}`);
         
         if (faculty?.email) {
           const email = faculty.email;
@@ -219,10 +222,11 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("files", 5), asy
             deadline: deadline || null,
             notes: description || notes || "",
             assignedBy: assignedByName,
-            taskUrl
+            taskUrl,
+            isTeamLeader
           });
           
-          console.log(`[EMAIL] ✅ Email sent successfully to ${email}`);
+          console.log(`[EMAIL] ✅ Email sent successfully to ${email}${isTeamLeader ? ' (Team Leader)' : ''}`);
         } else {
           console.log(`[EMAIL] ⚠️ No email found for faculty ID: ${facultyId}`);
         }
