@@ -130,8 +130,8 @@ const pdfReadingUrl = (value, zoom = "page-width") => {
 };
 
 // Recursive component to render threaded replies
-// Maximum visual nesting depth is 6 levels to prevent UI from getting too narrow
-const MAX_VISUAL_DEPTH = 6;
+// Maximum nesting depth is 2 levels to prevent image loading issues in deep threads
+const MAX_REPLY_DEPTH = 2;
 
 function RenderReplies({ 
   replies, 
@@ -160,8 +160,13 @@ function RenderReplies({
   token,
   taskId
 }) {
+  // Stop rendering if we've reached max depth to prevent image loading issues
+  if (depth > MAX_REPLY_DEPTH) {
+    return null;
+  }
+  
   // Only indent if we haven't reached max visual depth
-  const shouldIndent = depth <= MAX_VISUAL_DEPTH;
+  const shouldIndent = depth <= MAX_REPLY_DEPTH;
   
   return (
     <div style={{ 
