@@ -187,6 +187,9 @@ function RenderReplies({
                 <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
                   {reply.files.map((file, idx) => {
                     const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+                    const imageKey = `reply-${reply.id}-file-${idx}`;
+                    const imageLoading = imageLoadingStates[imageKey] ?? true;
+                    const hasBlobUrl = !!imageBlobUrls?.[imageKey];
                     return isImage ? (
                       <div 
                         key={idx}
