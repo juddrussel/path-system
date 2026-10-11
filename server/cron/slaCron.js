@@ -13,6 +13,7 @@
 const cron = require("node-cron");
 const db = require("../config/db");
 const { createAlertInternal } = require("../controllers/slaController");
+const { formatDeadlinePHT } = require("../services/slaEmailService");
 
 // Task statuses that mean "done" — excluded from both reminder and breach checks.
 const DONE_STATUSES = ["Completed", "Released", "Approved"];
@@ -76,13 +77,14 @@ async function getBreachCandidates() {
 async function runReminders() {
   const candidates = await getReminderCandidates();
   for (const c of candidates) {
+    const deadlinePHT = formatDeadlinePHT(c.deadline) || c.deadline;
     const result = await createAlertInternal({
       ruleId: c.rule_id,
       taskId: c.task_id,
       alertType: "reminder",
       tier: tierForDeadline(c.deadline),
-      title: `SLA Reminder: "${c.title}" due ${c.deadline}`,
-      message: `Task "${c.title}" (${c.doc_type}) is due on ${c.deadline}. Please review before the deadline.`,
+      title: `SLA Reminder: "${c.title}" due ${deadlinePHT}`,
+      message: `Task "${c.title}" (${c.doc_type}) is due on ${deadlinePHT}. Please review before the deadline.`,
       actionLabel: "Review Task",
       extraRecipients: c.faculty_email ? [c.faculty_email] : [],
       // Feeds the task card + progress bar in the email template.
@@ -102,13 +104,14 @@ async function runReminders() {
 async function runBreaches() {
   const candidates = await getBreachCandidates();
   for (const c of candidates) {
+    const deadlinePHT = formatDeadlinePHT(c.deadline) || c.deadline;
     const result = await createAlertInternal({
       ruleId: c.rule_id,
       taskId: c.task_id,
       alertType: "breach",
       tier: "critical",
       title: `SLA Breach: "${c.title}" overdue`,
-      message: `Task "${c.title}" (${c.doc_type}) missed its deadline of ${c.deadline}.`,
+      message: `Task "${c.title}" (${c.doc_type}) missed its deadline of ${deadlinePHT}.`,
       actionLabel: "Escalate",
       extraRecipients: c.faculty_email ? [c.faculty_email] : [],
       // Feeds the task card + progress bar in the email template.
