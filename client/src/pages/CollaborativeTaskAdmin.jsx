@@ -614,6 +614,7 @@ export default function CollaborativeTaskAdmin() {
   useEffect(() => {
     const createBlobUrls = async () => {
       const urlsToCreate = [];
+      const createdBlobUrls = []; // Track blob URLs created in this effect run
       
       // Collect all image files from messages and replies
       messages.forEach(message => {
@@ -648,22 +649,26 @@ export default function CollaborativeTaskAdmin() {
         try {
           const blobUrl = await createAuthenticatedBlobUrl(api, url);
           setImageBlobUrls(prev => ({ ...prev, [key]: blobUrl }));
+          createdBlobUrls.push(blobUrl); // Track for cleanup
         } catch (error) {
           console.error(`Failed to create blob URL for ${key}:`, error);
         }
       }
+      
+      // Return cleanup function for this effect run
+      return () => {
+        createdBlobUrls.forEach(url => {
+          if (url) URL.revokeObjectURL(url);
+        });
+      };
     };
     
     if (messages.length > 0) {
-      createBlobUrls();
-    }
-    
-    // Cleanup blob URLs on unmount
-    return () => {
-      Object.values(imageBlobUrls).forEach(url => {
-        if (url) URL.revokeObjectURL(url);
+      createBlobUrls().then(cleanup => {
+        // Store cleanup function
+        return cleanup;
       });
-    };
+    }
   }, [messages]);
 
   // Load task data
