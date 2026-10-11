@@ -1169,10 +1169,16 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
         const [facultyRows] = await db.query("SELECT email, full_name FROM users WHERE id = ?", [facultyId]);
         const [assignerRows] = await db.query("SELECT full_name FROM users WHERE id = ?", [req.user.id]);
         
+        console.log(`[EMAIL] Attempting to send task assignment email for task ${taskId}`);
+        console.log(`[EMAIL] Faculty ID: ${facultyId}, Email: ${facultyRows[0]?.email || 'NOT FOUND'}`);
+        
         if (facultyRows.length > 0 && facultyRows[0].email) {
           const taskUrl = `${process.env.FRONTEND_URL || 'https://path-system.vercel.app'}/task-details/${taskId}`;
           
-          await sendTaskAssignmentEmail({
+          console.log(`[EMAIL] Sending to: ${facultyRows[0].email}`);
+          console.log(`[EMAIL] Task URL: ${taskUrl}`);
+          
+          const emailResult = await sendTaskAssignmentEmail({
             recipientEmails: [facultyRows[0].email],
             taskTitle: title,
             taskId: tracking_id,
@@ -1183,9 +1189,13 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
             assignedBy: assignerRows.length > 0 ? assignerRows[0].full_name : "Administrator",
             taskUrl: taskUrl,
           });
+          
+          console.log(`[EMAIL] Email sent successfully for task ${taskId}:`, emailResult);
+        } else {
+          console.log(`[EMAIL] No email found for faculty ID ${facultyId}, skipping email notification`);
         }
       } catch (emailError) {
-        console.error(`Failed to send email notification for task ${taskId}:`, emailError);
+        console.error(`[EMAIL ERROR] Failed to send email notification for task ${taskId}:`, emailError);
         // Don't fail the whole request if email fails
       }
 

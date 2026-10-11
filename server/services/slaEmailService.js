@@ -36,9 +36,15 @@ function formatDeadlinePHT(deadlineAt) {
 async function sendTransactionalEmail({ toList, subject, htmlContent }) {
   if (!process.env.BREVO_API_KEY) {
     console.warn("⚠️  BREVO_API_KEY not set — skipping email send:", subject);
-    return { skipped: true };
+    return { skipped: true, reason: "BREVO_API_KEY not configured" };
   }
-  if (!toList?.length) return { skipped: true, reason: "no recipients" };
+  if (!toList?.length) {
+    console.warn("⚠️  No recipients provided — skipping email send:", subject);
+    return { skipped: true, reason: "no recipients" };
+  }
+
+  console.log(`[BREVO] Sending email to ${toList.length} recipient(s): ${toList.join(', ')}`);
+  console.log(`[BREVO] Subject: ${subject}`);
 
   const res = await fetch(BREVO_API_URL, {
     method: "POST",
@@ -60,9 +66,13 @@ async function sendTransactionalEmail({ toList, subject, htmlContent }) {
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
+    console.error(`[BREVO ERROR] Send failed (${res.status}): ${body}`);
     throw new Error(`Brevo send failed (${res.status}): ${body}`);
   }
-  return res.json();
+  
+  const result = await res.json();
+  console.log(`[BREVO SUCCESS] Email sent:`, result);
+  return result;
 }
 
 /**
