@@ -282,4 +282,178 @@ async function sendSlaAlertEmail({
   return sendTransactionalEmail({ toList: recipientEmails, subject, htmlContent });
 }
 
-module.exports = { sendTransactionalEmail, sendSlaAlertEmail, formatDeadlinePHT };
+/**
+ * Sends a task assignment notification email to faculty members.
+ * Styled to match the PATH system's email template design.
+ *
+ * @param {Object} params
+ * @param {string[]} params.recipientEmails - email addresses of assigned faculty
+ * @param {string} params.taskTitle - title of the assigned task
+ * @param {string} params.taskId - tracking ID (e.g. "TS-99341")
+ * @param {string} params.documentType - document type or category
+ * @param {string} params.priority - task priority (Low, Medium, High, Critical)
+ * @param {Date|string} params.deadline - task deadline
+ * @param {string} params.notes - task instructions/notes
+ * @param {string} params.assignedBy - name of person who assigned the task
+ * @param {string} params.taskUrl - deep link to the task details
+ */
+async function sendTaskAssignmentEmail({
+  recipientEmails,
+  taskTitle,
+  taskId,
+  documentType,
+  priority,
+  deadline,
+  notes,
+  assignedBy,
+  taskUrl,
+}) {
+  const priorityColors = {
+    Low: { accent: "#10b981", bg: "#d1fae5" },
+    Medium: { accent: "#f59e0b", bg: "#fef3c7" },
+    High: { accent: "#f97316", bg: "#fed7aa" },
+    Critical: { accent: "#dc2626", bg: "#fee2e2" }
+  };
+  
+  const priorityColor = priorityColors[priority] || priorityColors.Medium;
+  const subject = `[New Task] ${taskTitle}`;
+  const resolvedDeadlineText = formatDeadlinePHT(deadline) || "No deadline set";
+
+  const htmlContent = `
+  <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; background:#f4f4f6;">
+
+    <!-- Header -->
+    <table role="presentation" width="100%" style="background:#7c3aed;">
+      <tr>
+        <td align="center" style="padding: 32px 24px;">
+          <table role="presentation" cellpadding="0" cellspacing="0">
+            <tr>
+              <td width="44" height="44" align="center" valign="middle"
+                  style="background:rgba(255,255,255,0.15); border-radius:10px; font-size:20px; font-weight:700; color:#ffffff; line-height:44px; text-align:center;">
+                P
+              </td>
+            </tr>
+          </table>
+          <p style="color:#ffffff; font-weight:700; font-size:15px; letter-spacing:1.5px; margin:14px 0 0;">DS PATH</p>
+          <p style="color:#ddd6fe; font-size:12px; margin:4px 0 0;">Task Management System</p>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Intro -->
+    <table role="presentation" width="100%" style="background:#f4f4f6;">
+      <tr>
+        <td align="center" style="padding: 32px 24px 8px;">
+          <table role="presentation" cellpadding="0" cellspacing="0">
+            <tr>
+              <td width="52" height="52" align="center" valign="middle"
+                  style="background:#e0e7ff; border-radius:50%; font-size:24px; font-weight:800; color:#6366f1; line-height:52px; text-align:center;">
+                ✓
+              </td>
+            </tr>
+          </table>
+          <h1 style="font-size:19px; color:#111827; letter-spacing:0.5px; margin: 18px 0 8px;">New Task Assigned</h1>
+          <p style="font-size:13px; color:#6b7280; line-height:1.6; margin: 0 auto 28px; max-width:340px;">
+            You have been assigned a new task in the <strong style="color:#374151;">DS PATH</strong> system by <strong style="color:#374151;">${assignedBy}</strong>.
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Task card -->
+    <table role="presentation" width="100%">
+      <tr>
+        <td style="padding: 0 24px;">
+          <table role="presentation" width="100%" style="background:#ffffff; border-radius:10px; border-left:4px solid ${priorityColor.accent}; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            <tr>
+              <td style="padding:24px 26px;">
+
+                <!-- status row -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <tr>
+                    <td width="50%" align="left" valign="middle" style="white-space:nowrap;">
+                      <span style="display:inline-block; background:${priorityColor.bg}; color:${priorityColor.accent}; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:4px 8px; border-radius:4px;">
+                        ${priority}
+                      </span>
+                    </td>
+                    <td width="50%" align="right" valign="middle" style="font-size:11px; color:#9ca3af; white-space:nowrap;">
+                      ID: ${taskId || "—"}
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="font-size:17px; font-weight:700; color:#111827; margin: 12px 0 18px; line-height:1.4;">${taskTitle}</p>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:13px;">
+                  <tr>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#9ca3af; width:130px; vertical-align:top;">DOCUMENT TYPE</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${documentType || "—"}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#9ca3af; vertical-align:top;">DEADLINE</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${resolvedDeadlineText}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#9ca3af; vertical-align:top;">ASSIGNED BY</td>
+                    <td style="padding:10px 0; border-top:1px solid #f0f0f0; color:#374151; font-weight:600;">${assignedBy}</td>
+                  </tr>
+                </table>
+
+                ${notes ? `
+                <!-- instructions callout -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%; background:#f9fafb; border-radius:8px; margin-top:20px;">
+                  <tr>
+                    <td width="32" valign="top" align="center" style="padding:14px 0 14px 14px; color:#7c3aed; font-size:14px;">&#9432;</td>
+                    <td valign="top" style="padding:14px 14px 14px 8px; font-size:12.5px; color:#4b5563; line-height:1.55;">
+                      <strong style="color:#374151;">Instructions:</strong><br/>
+                      ${notes.replace(/\n/g, '<br/>')}
+                    </td>
+                  </tr>
+                </table>
+                ` : ''}
+
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <!-- CTA -->
+    ${taskUrl ? `
+    <table role="presentation" width="100%">
+      <tr>
+        <td align="center" style="padding: 28px 24px 8px;">
+          <a href="${taskUrl}" style="background:#7c3aed; color:#ffffff; text-decoration:none; font-size:14px; font-weight:600; padding:13px 28px; border-radius:8px; display:inline-block;">
+            View Task Details &nbsp;→
+          </a>
+          <p style="font-size:11px; color:#9ca3af; margin:18px 0 4px;">Can't access the button? Copy and paste this link:</p>
+          <a href="${taskUrl}" style="font-size:11px; color:#7c3aed; word-break:break-all;">${taskUrl}</a>
+        </td>
+      </tr>
+    </table>
+    ` : ''}
+
+    <!-- Footer -->
+    <table role="presentation" width="100%">
+      <tr>
+        <td align="center" style="padding: 28px 24px;">
+          <p style="font-size:11px; color:#9ca3af; margin:0 0 10px; line-height:1.6; max-width:360px;">
+            This is an automated message sent by the <strong>DS PATH</strong> application. Please do not reply directly to this email.
+          </p>
+          <p style="font-size:11px; color:#c1c5cc; margin:0 0 10px;">© ${new Date().getFullYear()} DS PATH App. All rights reserved.</p>
+          <p style="font-size:11px; margin:0;">
+            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 8px;">Privacy Policy</a>
+            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 8px;">Terms of Service</a>
+            <a href="#" style="color:#9ca3af; text-decoration:underline; margin:0 8px;">Unsubscribe</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+  `;
+
+  return sendTransactionalEmail({ toList: recipientEmails, subject, htmlContent });
+}
+
+module.exports = { sendTransactionalEmail, sendSlaAlertEmail, sendTaskAssignmentEmail, formatDeadlinePHT };

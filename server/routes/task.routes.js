@@ -101,6 +101,7 @@ const multer   = require("multer");
 const db       = require("../config/db");
 const { writeLog } = require("./audit.routes");
 const { uploadToR2, deleteFromR2 } = require("../utils/uploadToR2");
+const { sendTaskAssignmentEmail } = require("../services/slaEmailService");
 
 // ─── UPLOAD CONFIG ────────────────────────────────────────────────────────────
 // Files land in memory (not disk) so they can be streamed straight to R2.
@@ -1162,6 +1163,31 @@ router.post("/", requireAuth, requireChairOrAdmin, upload.array("attachments"), 
         taskId,
         trackingId: tracking_id,
       });
+
+      // Send email notification
+      try {
+        const [facultyRows] = await db.query("SELECT email, full_name FROM users WHERE id = ?", [facultyId]);
+        const [assignerRows] = await db.query("SELECT full_name FROM users WHERE id = ?", [req.user.id]);
+        
+        if (facultyRows.length > 0 && facultyRows[0].email) {
+          const taskUrl = `${process.env.FRONTEND_URL || 'https://path-system.vercel.app'}/task-details/${taskId}`;
+          
+          await sendTaskAssignmentEmail({
+            recipientEmails: [facultyRows[0].email],
+            taskTitle: title,
+            taskId: tracking_id,
+            documentType: doc_type || "N/A",
+            priority: priority || "Medium",
+            deadline: deadline,
+            notes: notes || "",
+            assignedBy: assignerRows.length > 0 ? assignerRows[0].full_name : "Administrator",
+            taskUrl: taskUrl,
+          });
+        }
+      } catch (emailError) {
+        console.error(`Failed to send email notification for task ${taskId}:`, emailError);
+        // Don't fail the whole request if email fails
+      }
 
       // Add all collaborators to task_collaborators table (for multi-faculty collaboration)
       if (facultyIds.length >= 2) {
