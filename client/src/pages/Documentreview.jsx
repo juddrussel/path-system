@@ -297,6 +297,7 @@ export default function DocumentReview() {
   const [serverLineage, setServerLineage] = useState([]);
   const submissionFileRef = useRef(null);
   const [blobUrl, setBlobUrl] = useState(null);
+  const [blobUrlLoading, setBlobUrlLoading] = useState(false);
 
   const currentUser = () => {
     try {
@@ -456,8 +457,12 @@ export default function DocumentReview() {
       
       if (!activeFileValue) {
         setBlobUrl(null);
+        setBlobUrlLoading(false);
         return;
       }
+
+      // Start loading
+      setBlobUrlLoading(true);
 
       // Create blob URLs for all file types (PDFs, images, documents)
       try {
@@ -465,10 +470,14 @@ export default function DocumentReview() {
         if (isMounted) {
           currentBlobUrl = url;
           setBlobUrl(url);
+          setBlobUrlLoading(false);
         }
       } catch (error) {
         console.error("Failed to load authenticated file:", error);
-        if (isMounted) setBlobUrl(null);
+        if (isMounted) {
+          setBlobUrl(null);
+          setBlobUrlLoading(false);
+        }
       }
     };
 
@@ -1207,7 +1216,12 @@ export default function DocumentReview() {
       </div>
       <div className="doc-reader-group">
         {url && (
-          <button type="button" onClick={openFileInNewTab} title="Open in new tab">
+          <button 
+            type="button" 
+            onClick={openFileInNewTab} 
+            title={blobUrlLoading ? "Loading file..." : "Open in new tab"}
+            disabled={blobUrlLoading || !blobUrl}
+          >
             ↗
           </button>
         )}
