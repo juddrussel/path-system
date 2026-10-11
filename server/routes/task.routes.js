@@ -961,13 +961,15 @@ router.get("/", requireAuth, async (req, res) => {
          ORDER BY t.created_at DESC`
       );
     } else {
+      // Include both regular tasks AND collaborative tasks where user is a collaborator
       [rows] = await db.query(
-        `SELECT t.*, u2.full_name AS assigned_by_name
+        `SELECT DISTINCT t.*, u2.full_name AS assigned_by_name
          FROM tasks t
          LEFT JOIN users u2 ON u2.id = t.assigned_by
-         WHERE t.faculty_id = ?
+         LEFT JOIN task_collaborators tc ON tc.task_id = t.id
+         WHERE t.faculty_id = ? OR tc.user_id = ?
          ORDER BY t.created_at DESC`,
-        [req.user.id]
+        [req.user.id, req.user.id]
       );
     }
     return res.json(await enrichTasks(rows));
