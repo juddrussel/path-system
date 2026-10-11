@@ -189,26 +189,31 @@ function RenderReplies({
                     const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
                     const imageKey = `reply-${reply.id}-file-${idx}`;
                     const imageLoading = imageLoadingStates[imageKey] ?? true;
+                    const hasBlobUrl = !!imageBlobUrls?.[imageKey];
                     return isImage ? (
                       <div 
                         key={idx}
                         style={{ 
                           position: "relative",
                           display: "inline-block",
-                          maxWidth: "280px"
+                          maxWidth: "280px",
+                          minHeight: hasBlobUrl ? "auto" : "120px"
                         }}
                       >
-                        {imageLoading && (
+                        {(imageLoading || !hasBlobUrl) && (
                           <div style={{
                             position: "absolute",
                             inset: 0,
                             display: "flex",
+                            flexDirection: "column",
                             alignItems: "center",
                             justifyContent: "center",
+                            gap: "8px",
                             background: "#f5f0fb",
                             borderRadius: "6px",
                             border: "1px solid #e2d9e9",
-                            zIndex: 1
+                            zIndex: 1,
+                            minHeight: "120px"
                           }}>
                             <div style={{
                               width: "24px",
@@ -218,6 +223,11 @@ function RenderReplies({
                               borderRadius: "50%",
                               animation: "spin 0.8s linear infinite"
                             }} />
+                            <span style={{
+                              fontSize: "11px",
+                              color: "#8d7f97",
+                              fontWeight: 600
+                            }}>Loading image...</span>
                           </div>
                         )}
                         <a 
@@ -2309,26 +2319,31 @@ export default function CollaborativeTaskDetail() {
                                 const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
                                 const imageKey = `msg-${message.id}-file-${idx}`;
                                 const imageLoading = imageLoadingStates[imageKey] ?? true;
+                                const hasBlobUrl = !!imageBlobUrls?.[imageKey];
                                 return isImage ? (
                                   <div 
                                     key={idx}
                                     style={{ 
                                       position: "relative",
                                       display: "inline-block",
-                                      maxWidth: "280px"
+                                      maxWidth: "280px",
+                                      minHeight: hasBlobUrl ? "auto" : "120px"
                                     }}
                                   >
-                                    {imageLoading && (
+                                    {(imageLoading || !hasBlobUrl) && (
                                       <div style={{
                                         position: "absolute",
                                         inset: 0,
                                         display: "flex",
+                                        flexDirection: "column",
                                         alignItems: "center",
                                         justifyContent: "center",
+                                        gap: "8px",
                                         background: "#f5f0fb",
                                         borderRadius: "6px",
                                         border: "1px solid #e2d9e9",
-                                        zIndex: 1
+                                        zIndex: 1,
+                                        minHeight: "120px"
                                       }}>
                                         <div style={{
                                           width: "24px",
@@ -2338,6 +2353,11 @@ export default function CollaborativeTaskDetail() {
                                           borderRadius: "50%",
                                           animation: "spin 0.8s linear infinite"
                                         }} />
+                                        <span style={{
+                                          fontSize: "11px",
+                                          color: "#8d7f97",
+                                          fontWeight: 600
+                                        }}>Loading image...</span>
                                       </div>
                                     )}
                                     <a 
