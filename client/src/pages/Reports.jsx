@@ -119,7 +119,7 @@ const PATH_BOTTLENECK_CSS = `
 const PATH_FOLLOWUP_CSS = `
   .path-followup-workspace { display:flex; flex-direction:column; gap:14px; }.path-followup-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }.path-followup-cards article { min-height:89px; padding:15px 17px; border:1px solid #e6e0eb; border-radius:10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-cards article > div { display:flex; align-items:center; gap:8px; }.path-followup-cards article > div svg { width:25px; height:25px; padding:5px; border-radius:7px; background:#f0eaff; color:#7c3aed; }.path-followup-cards article.red > div svg { background:#fff0ef; color:#d64550; }.path-followup-cards article.green > div svg { background:#e8f8ef; color:#169b77; }.path-followup-cards article.amber > div svg { background:#fff4df; color:#c48224; }.path-followup-cards span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }.path-followup-cards strong { display:block; margin-top:12px; color:#483650; font-family:'Manrope',sans-serif; font-size:24px; letter-spacing:-.06em; }.path-followup-cards small { display:block; margin-top:5px; color:#9f95a6; font-family:'DM Sans',sans-serif; font-size:11px; }
   .path-followup-top-grid { display:grid; grid-template-columns:minmax(0,.98fr) minmax(0,1.02fr); gap:14px; }.path-followup-panel,.path-followup-records { min-width:0; padding:20px 21px; border:1px solid #e6e0eb; border-radius:10px 10px 18px 10px; background:#fff; box-shadow:0 7px 20px rgba(67,44,89,.035); }.path-followup-panel header,.path-followup-records header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0edf4; }.path-followup-panel header > div > span,.path-followup-records header > div > span { color:#9b91a1; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }.path-followup-panel h2,.path-followup-records h2 { margin:6px 0 4px; color:#403448; font-family:'Manrope',sans-serif; font-size:16px; letter-spacing:-.035em; }.path-followup-panel header p,.path-followup-records header p { margin:0; color:#9a90a2; font-family:'DM Sans',sans-serif; font-size:12px; }.path-followup-panel > header > svg { width:14px; height:14px; color:#8c7b9d; }.path-followup-reason-list { display:flex; flex-direction:column; gap:17px; padding-top:21px; }.path-followup-reason-list > div > div { display:flex; justify-content:space-between; gap:10px; margin-bottom:7px; }.path-followup-reason-list strong { color:#55445e; font-family:'Manrope',sans-serif; font-size:12px; }.path-followup-reason-list small { color:#a097a7; font-family:'DM Sans',sans-serif; font-size:11px; }.path-followup-reason-list i { display:block; overflow:hidden; height:8px; border-radius:999px; background:#f0edf4; }.path-followup-reason-list b { display:block; min-width:4px; height:100%; border-radius:inherit; }.path-followup-pulse .path-trend { min-height:200px; padding-top:12px; }.path-followup-pulse .path-trend-plot { height:150px; }.path-followup-pulse .path-chart-legend { padding-top:9px; }
-  .path-followup-records { padding-bottom:0; }.path-followup-records header > div:last-child { display:flex; flex-wrap:wrap; justify-content:flex-end; }.path-followup-list { display:flex; flex-direction:column; }.path-followup-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 58px 100px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-followup-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-followup-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; }.path-followup-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:11px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#f1ebff; color:#6d42ba; font-family:'DM Sans',sans-serif; font-size:11px; font-style:normal; font-weight:800; }.path-followup-list article > em.rejected { background:#fff0ef; color:#c83c43; }.path-followup-list article > span { color:#94899c; font-family:'DM Sans',sans-serif; font-size:11px; text-align:center; }.path-followup-list article > button { padding:7px 8px; border:1px solid #e3dbea; border-radius:7px; background:#fff; color:#6a4a7f; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; }.path-followup-list article > button:hover { border-color:#bda6e2; background:#fbf8ff; }
+  .path-followup-records { padding-bottom:0; }.path-followup-records header > div:last-child { display:flex; flex-wrap:wrap; justify-content:flex-end; }.path-followup-list { display:flex; flex-direction:column; }.path-followup-list article { display:grid; grid-template-columns:minmax(0,1fr) 85px 58px; gap:12px; align-items:center; min-height:61px; border-bottom:1px solid #f0edf4; }.path-followup-list article > div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:3px 10px; align-items:center; }.path-followup-list article > div > strong { grid-row:1 / 3; color:#6a42a4; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:800; }.path-followup-list article > div > b { overflow:hidden; color:#4d3d56; font-family:'Manrope',sans-serif; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > div > small { overflow:hidden; color:#9d92a4; font-family:'DM Sans',sans-serif; font-size:11px; text-overflow:ellipsis; white-space:nowrap; }.path-followup-list article > em { justify-self:start; padding:5px 7px; border-radius:999px; background:#f1ebff; color:#6d42ba; font-family:'DM Sans',sans-serif; font-size:11px; font-style:normal; font-weight:800; }.path-followup-list article > em.rejected { background:#fff0ef; color:#c83c43; }.path-followup-list article > span { color:#94899c; font-family:'DM Sans',sans-serif; font-size:11px; text-align:center; }
   @media (max-width:1000px) { .path-followup-top-grid { grid-template-columns:1fr; } }.path-followup-cards { grid-template-columns:repeat(4,minmax(0,1fr)); } @media (max-width:760px) { .path-followup-cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }.path-followup-cards article { padding:13px; }.path-followup-panel,.path-followup-records { padding:17px 15px; }.path-followup-list { overflow-x:auto; }.path-followup-list article { min-width:620px; } }
 `;
 
@@ -532,25 +532,92 @@ function PathBottleneckWorkspace({ items, bottlenecks, alerts, onOpenAlerts, onE
 }
 
 function PathFollowUpWorkspace({ records, reasons, trend, resolutions, onExport, onSelect, formatId }) {
-  const returned = records.filter((item) => item.wasReturned || item.status === "Returned").length;
-  const rejected = records.filter((item) => item.status === "Rejected").length;
-  const resolutionRate = records.length ? Math.round((resolutions.stats.resolved / records.length) * 100) : 0;
+  const [followupPage, setFollowupPage] = useState(1);
+  const FOLLOWUP_PER_PAGE = 10;
+  
+  // Only show records needing revision (not approved)
+  const needsRevision = records.filter((item) => 
+    (item.wasReturned || item.status === "Returned" || item.status === "Rejected") && 
+    item.status !== "Approved"
+  );
+  
+  const returned = needsRevision.filter((item) => item.wasReturned || item.status === "Returned").length;
+  const rejected = needsRevision.filter((item) => item.status === "Rejected").length;
+  const resolutionRate = needsRevision.length ? Math.round((resolutions.stats.resolved / needsRevision.length) * 100) : 0;
   const visibleReasons = reasons.filter((item) => item.value > 0);
   const maxReason = Math.max(1, ...visibleReasons.map((item) => item.value));
-  const followUps = [...records].sort((a, b) => new Date(b.actionDate || b.rawDate || 0) - new Date(a.actionDate || a.rawDate || 0)).slice(0, 6);
+  
+  // Paginate the followUps list
+  const allFollowUps = [...needsRevision].sort((a, b) => new Date(b.actionDate || b.rawDate || 0) - new Date(a.actionDate || a.rawDate || 0));
+  const totalFollowupCount = allFollowUps.length;
+  const totalFollowupPages = Math.ceil(totalFollowupCount / FOLLOWUP_PER_PAGE);
+  const followUps = allFollowUps.slice((followupPage - 1) * FOLLOWUP_PER_PAGE, followupPage * FOLLOWUP_PER_PAGE);
+  
   const cards = [
     { label: "Returned for revision", value: returned, note: "Needs faculty action", icon: RotateCcw, tone: "violet" },
     { label: "Rejected decisions", value: rejected, note: "Closed without resubmission", icon: XCircle, tone: "red" },
     { label: "Resubmitted", value: resolutions.stats.resubmitted, note: "Back in active review", icon: CheckCircle2, tone: "green" },
     { label: "Resolution rate", value: `${resolutionRate}%`, note: "Resolved after feedback", icon: Activity, tone: "amber" },
   ];
+  
   return <div className="path-followup-workspace">
     <div className="path-followup-cards">{cards.map(({ label, value, note, icon: Icon, tone }) => <article className={tone} key={label}><div><Icon /><span>{label}</span></div><strong>{value}</strong><small>{note}</small></article>)}</div>
     <div className="path-followup-top-grid">
       <section className="path-followup-panel path-followup-reasons"><header><div><span>Return patterns</span><h2>Why records come back</h2><p>Most common reasons behind returned or rejected decisions.</p></div><ChevronRight /></header><div className="path-followup-reason-list">{visibleReasons.map((item) => <div key={item.name}><div><strong>{item.name}</strong><small>{item.value} record{item.value === 1 ? "" : "s"}</small></div><i><b style={{ width: `${(item.value / maxReason) * 100}%`, background: item.color }} /></i></div>)}{!visibleReasons.length && <p className="path-chart-empty">No reason categories are available.</p>}</div></section>
       <section className="path-followup-panel path-followup-pulse"><header><div><span>Outcome pulse</span><h2>Outcome pulse</h2><p>Returned, rejected, and resolved records over the reporting period.</p></div></header><PathTrendChart data={trend} series={[{ key: "returned", label: "Returned", color: "#8b5cf6" }, { key: "rejected", label: "Rejected", color: "#d64550", dashed: true }, { key: "resolved", label: "Resolved", color: "#169b77" }]} emptyText="No outcome history is available." /></section>
     </div>
-    <section className="path-followup-records"><header><div><span>Records needing follow-up</span><h2>Records needing follow-up</h2><p>Keep feedback loops moving with a clear next action.</p></div><div><ExportButtons size="small" onExport={(format) => onExport("Returned / Rejected Follow-up Report", format)} /></div></header><div className="path-followup-list">{followUps.map((item) => <article key={item.id}><div><strong>{formatId(item.id)}</strong><b>{item.title || item.docType}</b><small>{item.person || item.faculty || "—"} · {item.reasonCategory || "Reason pending"}</small></div><em className={item.status === "Rejected" ? "rejected" : "returned"}>{item.status}</em><span>{item.days}d ago</span><button onClick={() => onSelect(item)}>{item.status === "Rejected" ? "Open decision" : "Review revision"}</button></article>)}{!followUps.length && <p className="path-chart-empty">No returned or rejected records need follow-up.</p>}</div></section>
+    <section className="path-followup-records">
+      <header><div><span>Records needing follow-up</span><h2>Records needing follow-up</h2><p>Keep feedback loops moving with a clear next action.</p></div><div><ExportButtons size="small" onExport={(format) => onExport("Returned / Rejected Follow-up Report", format)} /></div></header>
+      <div className="path-followup-list">
+        {followUps.map((item) => <article key={item.id}>
+          <div><strong>{formatId(item.id)}</strong><b>{item.title || item.docType}</b><small>{item.person || item.faculty || "—"} · {item.reasonCategory || "Reason pending"}</small></div>
+          <em className={item.status === "Rejected" ? "rejected" : "returned"}>{item.status}</em>
+          <span>{item.days}d ago</span>
+        </article>)}
+        {!followUps.length && <p className="path-chart-empty">No returned or rejected records need follow-up.</p>}
+      </div>
+      {totalFollowupPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', padding: '16px', borderTop: '1px solid #f0edf4' }}>
+          <button
+            onClick={() => setFollowupPage(p => Math.max(1, p - 1))}
+            disabled={followupPage === 1}
+            style={{
+              padding: '7px 12px',
+              border: '1px solid #e3dbea',
+              borderRadius: '7px',
+              background: followupPage === 1 ? '#f5f2f8' : '#fff',
+              color: followupPage === 1 ? '#bbb' : '#6a4a7f',
+              cursor: followupPage === 1 ? 'not-allowed' : 'pointer',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: '11px',
+              fontWeight: '800'
+            }}
+          >
+            Previous
+          </button>
+          <span style={{ color: '#82758b', fontFamily: 'DM Sans, sans-serif', fontSize: '12px' }}>
+            Page {followupPage} of {totalFollowupPages}
+          </span>
+          <button
+            onClick={() => setFollowupPage(p => Math.min(totalFollowupPages, p + 1))}
+            disabled={followupPage === totalFollowupPages}
+            style={{
+              padding: '7px 12px',
+              border: '1px solid #e3dbea',
+              borderRadius: '7px',
+              background: followupPage === totalFollowupPages ? '#f5f2f8' : '#fff',
+              color: followupPage === totalFollowupPages ? '#bbb' : '#6a4a7f',
+              cursor: followupPage === totalFollowupPages ? 'not-allowed' : 'pointer',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: '11px',
+              fontWeight: '800'
+            }}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </section>
   </div>;
 }
 
