@@ -2210,7 +2210,7 @@ export default function Reports() {
             <section className="path-delay-register">
               <header>
                 <div><span>Needs attention</span><h2>Delayed and overdue documents</h2><p>Records waiting beyond their expected workflow window.</p></div>
-                <div className="path-delay-header-actions"><ExportButtons size="small" onExport={(fmt) => handleExport("Delayed Transactions Report", fmt)} /><aside><strong>{DELAYED_TRANSACTIONS.length}</strong><small>open exceptions</small></aside></div>
+                <div className="path-delay-header-actions"><aside><strong>{DELAYED_TRANSACTIONS.length}</strong><small>open exceptions</small></aside></div>
               </header>
               <div className="path-delay-table-wrap">
                 <div className="path-delay-table path-delay-head"><span>Transaction ID</span><span>Title / Department</span><span>Assigned faculty</span><span>Status</span><span>Current stage</span><span>Days waiting</span></div>
@@ -2263,7 +2263,6 @@ export default function Reports() {
 
             {/* ── Processing Time Breakdown Table ── */}
             <SectionCard title="Processing Time Breakdown" subtitle="Fastest, average, and slowest turnaround per document type" icon={ClipboardList} noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Processing Time Report", fmt)} />}
               footer={<TableFoot count={PROCESSING_TIME_DATA.length} total={PROCESSING_TIME_DATA.length} label="document types" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -2293,7 +2292,6 @@ export default function Reports() {
               <>
             {/* ── Faculty Performance Table ── */}
             <SectionCard title="Faculty Performance Table" subtitle="Assigned transactions, delays, and completion rate per faculty member" icon={ClipboardList} noPad
-              action={<ExportButtons size="small" onExport={(fmt) => handleExport("Faculty Workload Report", fmt)} />}
               footer={<TableFoot count={FACULTY_WORKLOAD.length} total={FACULTY_WORKLOAD.length} label="faculty" />}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
