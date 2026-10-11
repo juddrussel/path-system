@@ -187,17 +187,13 @@ function RenderReplies({
                 <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
                   {reply.files.map((file, idx) => {
                     const isImage = /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-                    const imageKey = `reply-${reply.id}-file-${idx}`;
-                    const imageLoading = imageLoadingStates[imageKey] ?? true;
-                    const hasBlobUrl = !!imageBlobUrls?.[imageKey];
                     return isImage ? (
                       <div 
                         key={idx}
                         style={{ 
                           position: "relative",
                           display: "inline-block",
-                          maxWidth: "280px",
-                          minHeight: hasBlobUrl ? "auto" : "120px"
+                          maxWidth: "280px"
                         }}
                       >
                         {(imageLoading || !hasBlobUrl) && (
@@ -708,6 +704,9 @@ export default function CollaborativeTaskDetail() {
 
   // Create blob URLs for all message and reply images
   useEffect(() => {
+    let isMounted = true;
+    const createdBlobUrls = [];
+    
     const createBlobUrls = async () => {
       const urlsToCreate = [];
       
@@ -748,6 +747,8 @@ export default function CollaborativeTaskDetail() {
       // Skip if no new URLs to create
       if (urlsToCreate.length === 0) return;
       
+      console.log(`[CollaborativeTaskDetail] Creating blob URLs for ${urlsToCreate.length} images`);
+      
       // Create blob URLs for all images IN PARALLEL
       const blobUrlPromises = urlsToCreate.map(async ({ key, url }) => {
         try {
@@ -762,14 +763,19 @@ export default function CollaborativeTaskDetail() {
       // Wait for all to complete
       const results = await Promise.all(blobUrlPromises);
       
-      // Batch update state once with all blob URLs
+      if (!isMounted) return;
+      
+      // Batch update state once with all blob URLs and loading states
       const newBlobUrls = {};
-      const createdBlobUrls = [];
+      const newLoadingStates = {};
+      
       results.forEach(({ key, blobUrl, success }) => {
         if (success && blobUrl) {
           newBlobUrls[key] = blobUrl;
           createdBlobUrls.push(blobUrl);
         }
+        // Always set loading to false, whether success or failure
+        newLoadingStates[key] = false;
       });
       
       // Single state update for all images
@@ -777,17 +783,23 @@ export default function CollaborativeTaskDetail() {
         setImageBlobUrls(prev => ({ ...prev, ...newBlobUrls }));
       }
       
-      // Return cleanup function for this effect run
-      return () => {
-        createdBlobUrls.forEach(url => {
-          if (url) URL.revokeObjectURL(url);
-        });
-      };
+      // Update loading states for all processed images
+      setImageLoadingStates(prev => ({ ...prev, ...newLoadingStates }));
+      
+      console.log(`[CollaborativeTaskDetail] Created ${Object.keys(newBlobUrls).length} blob URLs successfully`);
     };
     
     if (messages.length > 0) {
       createBlobUrls();
     }
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      createdBlobUrls.forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
   }, [messages, api]);
 
   // Load task data
