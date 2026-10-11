@@ -132,6 +132,7 @@ function RenderReplies({
   formatDate,
   imageLoadingStates,
   setImageLoadingStates,
+  imageBlobUrls,
   replyDraft,
   setReplyDraft,
   replyFiles,
@@ -308,6 +309,7 @@ function RenderReplies({
               formatDate={formatDate}
               imageLoadingStates={imageLoadingStates}
               setImageLoadingStates={setImageLoadingStates}
+              imageBlobUrls={imageBlobUrls}
               replyDraft={replyDraft}
               setReplyDraft={setReplyDraft}
               replyFiles={replyFiles}
@@ -1847,6 +1849,7 @@ export default function CollaborativeTaskAdmin() {
                           formatDate={formatDate}
                           imageLoadingStates={imageLoadingStates}
                           setImageLoadingStates={setImageLoadingStates}
+                          imageBlobUrls={imageBlobUrls}
                           replyDraft={replyDraft}
                           setReplyDraft={setReplyDraft}
                           replyFiles={replyFiles}
