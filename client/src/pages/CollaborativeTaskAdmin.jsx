@@ -293,6 +293,7 @@ function RenderReplies({
           {replyTo === reply.id && (
             <ReplyForm
               reply={reply}
+              depth={depth}
               replyDraft={replyDraft}
               setReplyDraft={setReplyDraft}
               replyFiles={replyFiles}
@@ -351,6 +352,7 @@ function RenderReplies({
 // Reply form component (extracted for reuse)
 function ReplyForm({
   reply,
+  depth, // Add depth parameter
   replyDraft,
   setReplyDraft,
   replyFiles,
@@ -407,6 +409,11 @@ function ReplyForm({
   const postReply = async () => {
     if (!replyDraft.trim() && replyUploadedFiles.length === 0) return;
     
+    // If at max depth, flatten the reply by using parent's parent_comment_id
+    const effectiveParentId = depth >= MAX_REPLY_DEPTH && reply.parent_comment_id 
+      ? reply.parent_comment_id 
+      : reply.id;
+    
     try {
       const response = await fetch(`${api}/api/collaborative-tasks/${taskId}/comment`, {
         method: "POST",
@@ -416,7 +423,7 @@ function ReplyForm({
         },
         body: JSON.stringify({
           content: replyDraft.trim(),
-          parentCommentId: reply.id,
+          parentCommentId: effectiveParentId,
           files: replyUploadedFiles
         }),
       });
@@ -1882,6 +1889,7 @@ export default function CollaborativeTaskAdmin() {
                       {replyTo === message.id && (
                         <ReplyForm
                           reply={message}
+                          depth={0}
                           replyDraft={replyDraft}
                           setReplyDraft={setReplyDraft}
                           replyFiles={replyFiles}
