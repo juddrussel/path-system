@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { hydrateRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import "./responsive.css";
 
 /**
  * Client entry point - handles both SSR hydration and CSR mounting

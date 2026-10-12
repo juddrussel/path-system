@@ -1,0 +1,377 @@
+/* ============================================================================
+   RESPONSIVE UTILITIES - Mobile First Approach
+   ============================================================================ */
+
+/* Mobile: < 640px (default)
+   Tablet: 640px - 1024px
+   Desktop: > 1024px */
+
+/* Base mobile-friendly improvements */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Touch-friendly buttons and links */
+button,
+a,
+.clickable {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ============================================================================
+   MOBILE STYLES (< 640px)
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  /* Hide desktop sidebar, show mobile menu */
+  .path-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .path-sidebar.mobile-open {
+    left: 0;
+  }
+
+  /* Mobile overlay */
+  .mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .mobile-overlay.active {
+    display: block;
+  }
+
+  /* Adjust main content for mobile */
+  .path-layout-main {
+    margin-left: 0 !important;
+    padding: 12px !important;
+  }
+
+  /* Mobile top bar */
+  .path-top-bar {
+    padding: 12px 16px !important;
+  }
+
+  /* Stack cards vertically on mobile */
+  .path-dashboard-grid,
+  .path-stats-grid,
+  .path-kpi-strip {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Make tables scrollable */
+  .path-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  /* Mobile-friendly forms */
+  .path-form-row {
+    flex-direction: column !important;
+  }
+
+  .path-form-row > * {
+    width: 100% !important;
+  }
+
+  /* Responsive modals */
+  .path-modal-content {
+    max-width: 95vw !important;
+    margin: 20px auto !important;
+  }
+
+  /* Hide less important columns on mobile */
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Smaller text on mobile */
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  /* Touch-friendly padding */
+  button,
+  .path-btn {
+    padding: 12px 20px !important;
+  }
+}
+
+/* ============================================================================
+   TABLET STYLES (640px - 1024px)
+   ============================================================================ */
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  /* Sidebar adjustments */
+  .path-sidebar {
+    width: 220px;
+  }
+
+  .path-layout-main {
+    margin-left: 220px !important;
+    padding: 20px !important;
+  }
+
+  /* 2-column grid on tablet */
+  .path-dashboard-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Smaller modal width */
+  .path-modal-content {
+    max-width: 90vw !important;
+  }
+}
+
+/* ============================================================================
+   DASHBOARD RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  /* KPI cards stack vertically */
+  .path-kpi-card {
+    min-width: 100% !important;
+  }
+
+  /* Charts take full width */
+  .path-chart-container {
+    height: 300px !important;
+  }
+
+  /* Faculty performance list */
+  .faculty-performance-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Hide complex charts on mobile, show summary */
+  .path-workflow-chart,
+  .path-activity-feed {
+    display: none;
+  }
+
+  .path-workflow-summary-mobile {
+    display: block !important;
+  }
+}
+
+/* ============================================================================
+   FORMS RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  /* Form fields stack */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* File upload area */
+  .upload-area {
+    padding: 20px !important;
+  }
+
+  /* Form buttons full width */
+  .form-actions {
+    flex-direction: column !important;
+  }
+
+  .form-actions button {
+    width: 100% !important;
+  }
+}
+
+/* ============================================================================
+   TRACKING RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  /* Convert table to cards on mobile */
+  .tracking-table-mobile-card {
+    display: block !important;
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+  }
+
+  .tracking-table-mobile-card .card-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .tracking-table-mobile-card .card-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .tracking-table-mobile-card .card-label {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 12px;
+  }
+
+  .tracking-table-mobile-card .card-value {
+    font-size: 14px;
+    color: #1f2937;
+  }
+
+  /* Hide desktop table */
+  .tracking-table-desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .tracking-table-mobile-card {
+    display: none !important;
+  }
+}
+
+/* ============================================================================
+   LOGIN/REGISTER RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  .login-container,
+  .register-container {
+    padding: 20px !important;
+  }
+
+  .login-card,
+  .register-card {
+    padding: 24px !important;
+    border-radius: 12px !important;
+  }
+
+  .login-logo,
+  .register-logo {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .login-title,
+  .register-title {
+    font-size: 24px !important;
+  }
+}
+
+/* ============================================================================
+   MY TASKS RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  /* Task cards full width */
+  .task-card {
+    width: 100% !important;
+  }
+
+  /* Task filters stack */
+  .task-filters {
+    flex-direction: column !important;
+  }
+
+  .task-filter-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Task detail view */
+  .task-detail-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .task-detail-actions {
+    width: 100% !important;
+    margin-top: 12px;
+  }
+
+  .task-detail-actions button {
+    width: 100% !important;
+  }
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Show/hide by screen size */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Responsive text alignment */
+@media (max-width: 639px) {
+  .text-center-mobile {
+    text-align: center !important;
+  }
+}
+
+/* Responsive spacing */
+@media (max-width: 639px) {
+  .p-mobile-small {
+    padding: 12px !important;
+  }
+
+  .m-mobile-small {
+    margin: 12px !important;
+  }
+}
+
+/* Responsive flex */
+@media (max-width: 639px) {
+  .flex-col-mobile {
+    flex-direction: column !important;
+  }
+
+  .flex-col-mobile > * {
+    width: 100% !important;
+  }
+}
