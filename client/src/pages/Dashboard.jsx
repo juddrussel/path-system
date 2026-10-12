@@ -3695,6 +3695,57 @@ export default function Dashboard() {
           #path-hero-vivid { display: block !important; }
           #path-hero-vivid > div:last-child { margin-top: 20px !important; }
         }
+        
+        /* Additional mobile improvements */
+        @media (max-width: 640px) {
+          .path-overview-shell {
+            font-size: 13px !important;
+          }
+          
+          .path-overview-shell table {
+            font-size: 12px !important;
+          }
+          
+          /* Ensure table containers are scrollable on mobile */
+          .path-overview-shell .path-content-area > section > article {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          
+          /* Hide desktop-only table columns on mobile */
+          .path-overview-shell table th.hide-mobile,
+          .path-overview-shell table td.hide-mobile {
+            display: none !important;
+          }
+          
+          /* Smaller buttons on mobile */
+          .path-overview-shell button {
+            font-size: 12px !important;
+            padding: 10px 16px !important;
+          }
+          
+          /* Stack action buttons vertically on mobile */
+          .path-overview-heading {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+          }
+          
+          /* Make stat cards more compact on mobile */
+          .faculty-dashboard-stats {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .faculty-dashboard-stats article {
+            min-height: auto !important;
+            padding: 12px !important;
+          }
+          
+          .faculty-dashboard-stats strong {
+            margin-top: 8px !important;
+            font-size: 22px !important;
+          }
+        }
       `}</style>
 
       {/* ── Main ── */}
