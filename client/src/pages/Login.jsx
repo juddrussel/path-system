@@ -17,8 +17,6 @@ const violet = {
 
 const styles = {
   page: {
-    display: "grid",
-    gridTemplateColumns: "minmax(330px, 42%) 1fr",
     minHeight: "100vh",
     overflow: "hidden",
     background: violet.panel,
@@ -27,7 +25,6 @@ const styles = {
   },
   aside: {
     position: "relative",
-    display: "flex",
     minHeight: "100vh",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -178,14 +175,12 @@ const styles = {
     minHeight: "100vh",
     alignItems: "center",
     justifyContent: "center",
-    padding: "54px 56px",
     overflowY: "auto",
   },
   formWrap: {
     width: "min(100%, 462px)",
   },
   mobileBrand: {
-    display: "none",
     alignItems: "center",
     gap: 12,
     marginBottom: 42,
@@ -218,7 +213,6 @@ const styles = {
   headerTitle: {
     margin: "18px 0 12px",
     color: violet.ink,
-    fontSize: 56,
     fontWeight: 800,
     letterSpacing: "-.06em",
     lineHeight: 1.02,
@@ -574,9 +568,107 @@ export default function Login() {
   };
 
   return (
-    <main style={styles.page}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');`}</style>
-      <aside style={styles.aside}>
+    <main style={styles.page} className="login-page">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');
+        
+        /* Responsive Login Page */
+        .login-page {
+          display: grid;
+          grid-template-columns: 1fr;
+          min-height: 100vh;
+        }
+        
+        @media (min-width: 768px) {
+          .login-page {
+            grid-template-columns: minmax(330px, 42%) 1fr;
+          }
+        }
+        
+        .login-aside {
+          display: none;
+        }
+        
+        @media (min-width: 768px) {
+          .login-aside {
+            display: flex;
+          }
+        }
+        
+        .login-main {
+          padding: 24px 20px;
+        }
+        
+        @media (min-width: 640px) {
+          .login-main {
+            padding: 40px 32px;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .login-main {
+            padding: 54px 56px;
+          }
+        }
+        
+        .login-header-title {
+          font-size: 32px;
+        }
+        
+        @media (min-width: 480px) {
+          .login-header-title {
+            font-size: 42px;
+          }
+        }
+        
+        @media (min-width: 640px) {
+          .login-header-title {
+            font-size: 56px;
+          }
+        }
+        
+        .login-mobile-brand {
+          display: flex;
+        }
+        
+        @media (min-width: 768px) {
+          .login-mobile-brand {
+            display: none;
+          }
+        }
+        
+        /* Mobile card adjustments */
+        .login-card-wrapper {
+          width: 100%;
+        }
+        
+        @media (min-width: 640px) {
+          .login-card-wrapper {
+            width: min(100%, 462px);
+          }
+        }
+        
+        /* Mobile form spacing */
+        @media (max-width: 639px) {
+          .login-intro-wrapper {
+            flex-direction: column;
+            gap: 10px;
+          }
+          
+          .login-intro-text {
+            font-size: 10px;
+          }
+          
+          .login-providers-grid {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .login-header-text {
+            font-size: 14px;
+          }
+        }
+      `}</style>
+      <aside className="login-aside" style={styles.aside}>
         <div style={styles.brand}>
           <span style={styles.mark}>
             <img src={logowhite} alt="DS PATH logo" style={styles.markImg} />
@@ -611,27 +703,28 @@ export default function Login() {
         </div>
       </aside>
 
-      <section style={styles.main}>
-        <div style={styles.formWrap}>
-          <div style={{ ...styles.mobileBrand, display: "flex" }}>
+      <section className="login-main" style={styles.main}>
+        <div className="login-card-wrapper" style={styles.formWrap}>
+          <div className="login-mobile-brand" style={styles.mobileBrand}>
             <span style={styles.mobileMark}>
+              <img src={logo} alt="DS PATH logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </span>
-
+            <span style={styles.mobileBrandName}>DS PATH</span>
           </div>
           <header style={styles.header}>
             <span style={{ ...styles.headerKicker, color: violet.muted }}>
               <i style={{ ...styles.kickerDot, background: violet.violet }} />{" "}
               Secure access
             </span>
-            <h2 style={styles.headerTitle}>Welcome back</h2>
-            <p style={styles.headerText}>
+            <h2 className="login-header-title" style={styles.headerTitle}>Welcome back</h2>
+            <p className="login-header-text" style={styles.headerText}>
               Sign in to continue managing your department&apos;s document
               workflow.
             </p>
           </header>
 
           <div style={styles.card}>
-            <div style={styles.intro}>
+            <div className="login-intro-wrapper" style={styles.intro}>
               <span style={styles.introIcon}>
                 <ShieldIcon />
               </span>
@@ -639,7 +732,7 @@ export default function Login() {
                 <strong style={styles.introTitle}>
                   Choose how you&apos;ll sign in
                 </strong>
-                <small style={styles.introText}>
+                <small className="login-intro-text" style={styles.introText}>
                   Use your DS PATH credentials to access your workspace.
                 </small>
               </span>
@@ -864,7 +957,7 @@ export default function Login() {
               <span>or continue with</span>
               <i style={styles.dividerLine} />
             </div>
-            <div style={styles.providers}>
+            <div className="login-providers-grid" style={styles.providers}>
               <button style={styles.provider} type="button"
                 onClick={() => window.location.href = `${BACKEND}/api/auth/google`}>
                 <span style={styles.google}>G</span> Google
