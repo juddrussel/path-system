@@ -23,8 +23,6 @@ const colors = {
 
 const s = {
   page: {
-    display: "grid",
-    gridTemplateColumns: "minmax(360px, 54%) 1fr",
     height: "100vh",
     overflow: "hidden",
     background: colors.bg,
@@ -37,7 +35,6 @@ const s = {
     height: "100%",
     justifyContent: "center",
     overflowY: "auto",
-    padding: "48px 64px 56px",
   },
   wrap: { width: "min(100%, 620px)" },
   kicker: {
@@ -53,7 +50,6 @@ const s = {
   dot: { width: 5, height: 5, borderRadius: "50%", background: colors.violet },
   title: {
     margin: "12px 0 8px",
-    fontSize: 34,
     fontWeight: 800,
     letterSpacing: "-.05em",
     lineHeight: 1.05,
@@ -652,20 +648,90 @@ export default function Register() {
   };
 
   return (
-    <main style={s.page}>
+    <main style={s.page} className="register-page">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap');
+        
+        /* Responsive Register Page */
+        .register-page {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+        
+        @media (min-width: 768px) {
+          .register-page {
+            grid-template-columns: minmax(360px, 54%) 1fr;
+          }
+        }
+        
+        .register-aside {
+          display: none;
+        }
+        
+        @media (min-width: 768px) {
+          .register-aside {
+            display: flex;
+          }
+        }
+        
+        .register-main {
+          padding: 24px 20px 32px;
+        }
+        
+        @media (min-width: 640px) {
+          .register-main {
+            padding: 36px 40px 48px;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .register-main {
+            padding: 48px 64px 56px;
+          }
+        }
+        
+        .register-title {
+          font-size: 28px;
+        }
+        
+        @media (min-width: 480px) {
+          .register-title {
+            font-size: 32px;
+          }
+        }
+        
+        @media (min-width: 640px) {
+          .register-title {
+            font-size: 34px;
+          }
+        }
+        
+        /* Mobile form grid adjustments */
+        @media (max-width: 639px) {
+          .register-form-grid {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .register-actions {
+            flex-direction: column !important;
+          }
+          
+          .register-actions > * {
+            width: 100% !important;
+          }
+        }
+        
         .path-scroll-hide { scrollbar-width: none; -ms-overflow-style: none; }
         .path-scroll-hide::-webkit-scrollbar { display: none; width: 0; height: 0; }
         input:focus, input:focus-visible { outline: none !important; box-shadow: none !important; border: none !important; }
       `}</style>
 
-      <section style={s.main} className="path-scroll-hide">
+      <section style={s.main} className="path-scroll-hide register-main">
         <div style={s.wrap}>
           <span style={s.kicker}>
             <i style={s.dot} /> Workspace access
           </span>
-          <h2 style={s.title}>Create your account</h2>
+          <h2 className="register-title" style={s.title}>Create your account</h2>
           <p style={s.subtitle}>
             Join DS PATH to submit and coordinate academic documents with clear
             ownership and live status.
@@ -896,7 +962,7 @@ export default function Register() {
               </p>
             </aside>
 
-            <div style={s.actions}>
+            <div className="register-actions" style={s.actions}>
               <button
                 style={{ ...s.submit, ...(loading ? s.submitDisabled : {}) }}
                 type="submit"
@@ -935,7 +1001,7 @@ export default function Register() {
         </div>
       </section>
 
-      <aside style={s.aside}>
+      <aside className="register-aside" style={s.aside}>
         <span style={s.orb} aria-hidden="true" />
         <div style={s.brand}>
           <span style={s.mark}>
