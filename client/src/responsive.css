@@ -279,6 +279,26 @@ img {
 }
 
 /* ============================================================================
+   FORMS RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  /* Stats grid - 2 cards per row on mobile */
+  .path-review-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  article.path-review-stat {
+    min-width: 0 !important;
+    width: 100% !important;
+    flex: none !important;
+  }
+}
+
+/* ============================================================================
    LOGIN/REGISTER RESPONSIVE
    ============================================================================ */
 
