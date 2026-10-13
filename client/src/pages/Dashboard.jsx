@@ -2947,7 +2947,7 @@ export default function Dashboard() {
     );
     const top = [...FACULTY_WORKLOAD].sort((a, b) => (b.initiativeScore ?? 0) - (a.initiativeScore ?? 0))[0];
     const lowest = [...FACULTY_WORKLOAD]
-      .filter(f => f.initiativeScore !== null && f.assigned > 0)
+      .filter(f => f.initiativeScore !== null && f.assigned > 0 && f.initiativeScore < 60)
       .sort((a, b) => (a.initiativeScore ?? 0) - (b.initiativeScore ?? 0))[0];
     return {
       ...totals,
