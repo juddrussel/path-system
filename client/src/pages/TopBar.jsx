@@ -1576,25 +1576,27 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
             <button 
               onClick={onOpenSidebar}
               aria-label="Open menu"
-              className="mobile-hamburger-btn"
+              className="mobile-hamburger-topbar-btn"
               style={{
                 display: 'none',
-                width: '44px',
-                height: '44px',
+                minWidth: '48px',
+                minHeight: '48px',
+                width: '48px',
+                height: '48px',
                 border: 'none',
-                borderRadius: '10px',
-                background: 'rgba(255,255,255,0.15)',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.2)',
                 color: '#fff',
                 cursor: 'pointer',
-                padding: 0,
+                padding: '0',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.15s ease',
                 flexShrink: 0,
-                marginRight: '10px'
+                marginRight: '12px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '24px', height: '24px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ width: '28px', height: '28px', display: 'block' }}>
                 <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
               </svg>
             </button>
@@ -1702,14 +1704,14 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
         .tb-badge-pulse { animation: tb-pulse 2.4s ease-out infinite; }
         
         @media (max-width: 768px) {
-          .mobile-hamburger-btn {
+          .mobile-hamburger-topbar-btn {
             display: flex !important;
           }
-          .mobile-hamburger-btn:hover {
-            background: rgba(255,255,255,0.25) !important;
+          .mobile-hamburger-topbar-btn:hover {
+            background: rgba(255,255,255,0.3) !important;
             transform: scale(1.05);
           }
-          .mobile-hamburger-btn:active {
+          .mobile-hamburger-topbar-btn:active {
             transform: scale(0.95);
           }
           
