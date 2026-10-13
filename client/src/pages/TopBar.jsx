@@ -1377,7 +1377,7 @@ const TB = {
 };
 
 // ─── MAIN TOPBAR ─────────────────────────────────────────────────────────────
-export default function TopBar({ children, onLogout }) {
+export default function TopBar({ children, onLogout, onOpenSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showNotif,    setShowNotif]    = useState(false);
@@ -1571,6 +1571,35 @@ export default function TopBar({ children, onLogout }) {
         <div style={TB.bottomAccent} />
         <div style={TB.inner}>
 
+          {/* Mobile hamburger button - only visible on mobile */}
+          {onOpenSidebar && (
+            <button 
+              onClick={onOpenSidebar}
+              aria-label="Open menu"
+              className="mobile-hamburger-btn"
+              style={{
+                display: 'none',
+                width: '38px',
+                height: '38px',
+                border: 'none',
+                borderRadius: '10px',
+                background: 'rgba(255,255,255,0.12)',
+                color: '#ede9fe',
+                cursor: 'pointer',
+                padding: 0,
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease',
+                flexShrink: 0,
+                marginRight: '12px'
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}>
+                <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
+
           {/* Page title + subtitle */}
           <div style={TB.pageMeta}>
             <p style={TB.pageLabel}>{pageMeta.label}</p>
@@ -1671,6 +1700,15 @@ export default function TopBar({ children, onLogout }) {
           100% { transform: scale(2.1); opacity: 0; }
         }
         .tb-badge-pulse { animation: tb-pulse 2.4s ease-out infinite; }
+        
+        @media (max-width: 768px) {
+          .mobile-hamburger-btn {
+            display: flex !important;
+          }
+          .mobile-hamburger-btn:hover {
+            background: rgba(255,255,255,0.18) !important;
+          }
+        }
       `}</style>
 
       {showProfile && (

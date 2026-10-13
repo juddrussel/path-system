@@ -150,40 +150,6 @@ const Icon = {
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;900&display=swap');
   
-  /* Mobile hamburger button */
-  .path-sidebar-mobile-toggle {
-    display: none;
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 1001;
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.92), rgba(107, 33, 168, 0.92));
-    backdrop-filter: blur(8px);
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(107,33,168,0.3);
-    transition: all 0.2s ease;
-  }
-  
-  .path-sidebar-mobile-toggle:hover {
-    transform: scale(1.05);
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.98), rgba(107, 33, 168, 0.98));
-    box-shadow: 0 4px 12px rgba(107,33,168,0.4);
-  }
-  
-  .path-sidebar-mobile-toggle:active {
-    transform: scale(0.95);
-  }
-  
-  .path-sidebar-mobile-toggle svg {
-    width: 18px;
-    height: 18px;
-  }
-  
   /* Mobile overlay */
   .path-sidebar-overlay {
     display: none;
@@ -224,11 +190,6 @@ const styles = `
   
   /* Mobile responsive styles */
   @media (max-width: 768px) {
-    .path-sidebar-mobile-toggle {
-      display: grid;
-      place-items: center;
-    }
-    
     .path-sidebar-overlay {
       display: block;
     }
@@ -472,14 +433,11 @@ const ADMIN_NAV_ITEMS = [
  * Usage: <Sidebar />
  * Optional: <Sidebar activePage="tasks" /> to override auto-detection.
  */
-export default function Sidebar({ activePage, onLogout }) {
+export default function Sidebar({ activePage, onLogout, mobileOpen = false, setMobileOpen = () => {} }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getUser();
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
-
-  // Mobile sidebar state
-  const [mobileOpen, setMobileOpen] = useState(false);
   
   // Mobile profile menu state
   const [showMobileProfileMenu, setShowMobileProfileMenu] = useState(false);
@@ -517,7 +475,7 @@ export default function Sidebar({ activePage, onLogout }) {
   // Close mobile sidebar when route changes
   useEffect(() => {
     setMobileOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, setMobileOpen]);
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -608,21 +566,6 @@ export default function Sidebar({ activePage, onLogout }) {
   return (
     <>
       <style>{styles}</style>
-      
-      {/* Mobile hamburger button */}
-      <button 
-        className="path-sidebar-mobile-toggle" 
-        onClick={() => setMobileOpen(true)}
-        aria-label="Open menu"
-        style={{
-          opacity: mobileOpen ? 0 : 1,
-          pointerEvents: mobileOpen ? 'none' : 'auto'
-        }}
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
-        </svg>
-      </button>
 
       {/* Mobile overlay */}
       <div 
