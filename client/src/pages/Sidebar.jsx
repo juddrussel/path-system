@@ -149,6 +149,56 @@ const Icon = {
 // ── Layout-only CSS (grouped nav, profile footer) ──────────────────────────
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;900&display=swap');
+  
+  /* Mobile hamburger button */
+  .path-sidebar-mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1001;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7c3aed, #6b21a8);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(107,33,168,0.4);
+    transition: all 0.2s ease;
+  }
+  
+  .path-sidebar-mobile-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(107,33,168,0.5);
+  }
+  
+  .path-sidebar-mobile-toggle:active {
+    transform: scale(0.95);
+  }
+  
+  .path-sidebar-mobile-toggle svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Mobile overlay */
+  .path-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  .path-sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
   .path-sidebar {
     box-sizing: border-box;
     width: 250px;
@@ -167,7 +217,64 @@ const styles = `
     height: 100vh;
     flex-shrink: 0;
     overflow: hidden;
+    transition: transform 0.3s ease;
   }
+  
+  /* Mobile responsive styles */
+  @media (max-width: 768px) {
+    .path-sidebar-mobile-toggle {
+      display: grid;
+      place-items: center;
+    }
+    
+    .path-sidebar-overlay {
+      display: block;
+    }
+    
+    .path-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      transform: translateX(-100%);
+      box-shadow: 4px 0 24px rgba(107,33,168,0.6);
+    }
+    
+    .path-sidebar.mobile-open {
+      transform: translateX(0);
+    }
+    
+    /* Close X button in sidebar brand on mobile */
+    .path-sidebar__brand {
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .path-sidebar__brand::after {
+      content: '×';
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      color: #ede9fe;
+      font-size: 28px;
+      font-weight: 300;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .path-sidebar__brand:hover::after {
+      background: rgba(255,255,255,0.15);
+    }
+  }
+  
   /* subtle noise/shimmer overlay */
   .path-sidebar::before {
     content: '';
@@ -337,6 +444,9 @@ export default function Sidebar({ activePage, onLogout }) {
   const user = getUser();
   const canViewAdminNav = ADMIN_NAV_ROLES.includes(user.role);
 
+  // Mobile sidebar state
+  const [mobileOpen, setMobileOpen] = useState(false);
+  
   const [unreadTotal, setUnreadTotal] = useState(0);
   // Seed from the last-known profile (cached in sessionStorage) instead of
   // null, so switching pages — which remounts Sidebar from scratch — shows
@@ -351,6 +461,26 @@ export default function Sidebar({ activePage, onLogout }) {
     }
   });
   const [avatarBlobUrl, setAvatarBlobUrl] = useState(null);
+
+  // Handle body scroll lock when sidebar is open on mobile
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.classList.add('mobile-sidebar-open');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('mobile-sidebar-open');
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.classList.remove('mobile-sidebar-open');
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
+
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -441,9 +571,34 @@ export default function Sidebar({ activePage, onLogout }) {
   return (
     <>
       <style>{styles}</style>
-      <aside className="path-sidebar" aria-label="Main navigation">
+      
+      {/* Mobile hamburger button */}
+      <button 
+        className="path-sidebar-mobile-toggle" 
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open menu"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
+        </svg>
+      </button>
+
+      {/* Mobile overlay */}
+      <div 
+        className={`path-sidebar-overlay ${mobileOpen ? 'active' : ''}`}
+        onClick={() => setMobileOpen(false)}
+      />
+
+      <aside className={`path-sidebar ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Main navigation">
         {/* Brand */}
-        <div className="path-sidebar__brand">
+        <div 
+          className="path-sidebar__brand"
+          onClick={() => {
+            if (window.innerWidth <= 768) {
+              setMobileOpen(false);
+            }
+          }}
+        >
           <img src={logoImg} alt="DS PATH Logo" className="path-sidebar__logo" />
           <span>
             <span className="path-sidebar__name">DS PATH</span>
