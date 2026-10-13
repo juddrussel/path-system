@@ -219,14 +219,17 @@ img {
 
 @media (max-width: 639px) {
   /* Stats grid - 2 cards per row on mobile */
-  .tracking-stat-grid {
+  section.tracking-stat-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
+    width: 100% !important;
   }
 
-  .tracking-stat-card {
+  article.tracking-stat-card {
     min-width: 0 !important;
+    width: 100% !important;
+    flex: none !important;
   }
 
   /* Convert table to cards on mobile */
