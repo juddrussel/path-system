@@ -218,6 +218,17 @@ img {
    ============================================================================ */
 
 @media (max-width: 639px) {
+  /* Stats grid - 2 cards per row on mobile */
+  .tracking-stat-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .tracking-stat-card {
+    min-width: 0 !important;
+  }
+
   /* Convert table to cards on mobile */
   .tracking-table-mobile-card {
     display: block !important;
