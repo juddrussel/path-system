@@ -1580,23 +1580,24 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               style={{
                 display: 'none',
                 position: 'relative',
-                minWidth: '70px',
-                minHeight: '70px',
-                width: '70px',
-                height: '70px',
-                borderRadius: '14px',
+                minWidth: '52px',
+                minHeight: '52px',
+                width: '52px',
+                height: '52px',
+                borderRadius: '12px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
                 background: 'linear-gradient(135deg, #7c3aed, #6b21a8)',
                 border: 'none',
-                padding: '3px',
+                padding: '0',
                 cursor: 'pointer',
                 boxSizing: 'border-box',
                 boxShadow: '0 4px 12px rgba(107,33,168,0.5)',
                 transition: 'all .15s ease',
                 flexShrink: 0,
-                marginRight: '10px'
+                marginRight: '10px',
+                overflow: 'visible'
               }}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '64px', height: '64px', display: 'block' }}>
