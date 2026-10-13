@@ -722,7 +722,18 @@ export default function Tracking() {
   const [statusFilter,setStatusFilter]= useState("All");
   const [selected,    setSelected]    = useState(null);
   const [page,        setPage]        = useState(1);
+  const [isMobile,    setIsMobile]    = useState(false); // Mobile detection
   const PER_PAGE = 5;
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
 
 
@@ -942,7 +953,256 @@ export default function Tracking() {
               <div className="tracking-records">{loading ? <div className="tracking-empty"><Icon.Refresh /><strong>Loading tracking records</strong><span>Syncing the latest document handoffs.</span></div> : paginated.length === 0 ? <div className="tracking-empty"><Icon.Tracking /><strong>No documents match these filters</strong><span>Try another search or lifecycle status.</span></div> : paginated.map((doc) => <button key={doc.id || doc.document_id} type="button" className={"tracking-record " + (selected?.id === doc.id ? "selected" : "")} onClick={() => setSelected(doc)}><div className="tracking-document"><div><span className="tracking-record-id">{doc.document_id}</span><strong>{doc.title}</strong><span>{doc.department}{doc.source_type ? " · " + doc.source_type : ""}</span></div></div><div className="tracking-assignee"><Avatar name={doc.faculty_name || doc.current_handler || "Faculty"} src={doc.faculty_avatar} size={28} color="#7c3aed" /><span>{doc.faculty_name || doc.current_handler || "Faculty"}</span></div><div className="tracking-assignee"><Avatar name={doc.assigned_by_name || doc.assigned_by || "Program Chair"} src={doc.assigned_by_avatar} size={28} color="#a78bfa" /><span>{doc.assigned_by_name || doc.assigned_by || "Program Chair"}</span></div><div className="tracking-stage"><StatusBadge status={doc.status} /><span>{doc.stage || "Current step"}</span></div><div className={"tracking-sla " + (["returned", "rejected"].includes(doc.status?.toLowerCase()) ? "risk" : ["approved", "archived"].includes(doc.status?.toLowerCase()) ? "closed" : "")}><i />{["returned", "rejected"].includes(doc.status?.toLowerCase()) ? "Needs attention" : ["approved", "archived"].includes(doc.status?.toLowerCase()) ? "Completed" : "On track"}</div></button>)}</div>
               <div className="tracking-pagination"><span>{filtered.length ? "Showing " + ((page - 1) * PER_PAGE + 1) + "–" + Math.min(page * PER_PAGE, filtered.length) + " of " + filtered.length + " records" : "No records"}</span><div className="tracking-page-buttons"><button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}><Icon.ChevronL /></button>{Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((p) => <button key={p} type="button" className={p === page ? "active" : ""} onClick={() => setPage(p)}>{p}</button>)}<button type="button" onClick={() => setPage((p) => Math.min(Math.max(1, totalPages), p + 1))} disabled={page >= Math.max(1, totalPages)}><Icon.ChevronR /></button></div></div>
             </article>
-            <aside className="tracking-detail tracking-panel"><div className="tracking-panel-topline"><div><div className="section-kicker">Selected record</div><h3>Current step</h3></div></div>{selected ? <><div className="tracking-detail-title"><span className="tracking-detail-avatar">{fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar) ? <img src={fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar)} alt={selected.submitted_by || selected.current_handler || "User"} onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.nextSibling.style.display = "block"; }} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 11 }} /> : null}<span style={{ display: fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar) ? "none" : "block" }}>{String(selected.submitted_by || selected.current_handler || "PATH").split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()}</span></span><div><strong>{selected.title}</strong><span>{selected.document_id} · {selected.current_handler || "Program Chair"}</span></div></div><div className="tracking-detail-status-card"><span className="section-kicker">Current status</span><strong>{selected.status}</strong><span>{selected.status?.toLowerCase() === "approved" ? "Completed on time" : selected.stage || "Current step"}{selected.submitted_at ? " · due " + new Date(selected.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</span></div><div className="tracking-mini-timeline">{["Submitted", "Screening", "Review", "Decision"].map((stage, index) => { const currentStage = Math.max(0, ["submitted", "screening", "review", "decision"].findIndex((value) => String(selected.stage || selected.status || "").toLowerCase().includes(value))); const complete = selected.status?.toLowerCase() === "approved" || index < currentStage; const current = !complete && index === currentStage; return <div key={stage} className={complete ? "complete" : current ? "current" : ""}><span>{complete ? <Icon.Doc /> : index + 1}</span><div><strong>{stage}</strong><small>{complete ? "Complete" : current ? "Current step" : "Upcoming"}</small></div></div>; })}</div></> : <div className="tracking-empty"><Icon.Tracking /><strong>Select a document</strong><span>Choose a tracked document to see its owner, status, and deadline details.</span></div>}</aside>
+            
+            {/* Desktop: Sidebar detail panel */}
+            {!isMobile && (
+              <aside className="tracking-detail tracking-panel"><div className="tracking-panel-topline"><div><div className="section-kicker">Selected record</div><h3>Current step</h3></div></div>{selected ? <><div className="tracking-detail-title"><span className="tracking-detail-avatar">{fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar) ? <img src={fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar)} alt={selected.submitted_by || selected.current_handler || "User"} onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.nextSibling.style.display = "block"; }} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 11 }} /> : null}<span style={{ display: fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar) ? "none" : "block" }}>{String(selected.submitted_by || selected.current_handler || "PATH").split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()}</span></span><div><strong>{selected.title}</strong><span>{selected.document_id} · {selected.current_handler || "Program Chair"}</span></div></div><div className="tracking-detail-status-card"><span className="section-kicker">Current status</span><strong>{selected.status}</strong><span>{selected.status?.toLowerCase() === "approved" ? "Completed on time" : selected.stage || "Current step"}{selected.submitted_at ? " · due " + new Date(selected.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</span></div><div className="tracking-mini-timeline">{["Submitted", "Screening", "Review", "Decision"].map((stage, index) => { const currentStage = Math.max(0, ["submitted", "screening", "review", "decision"].findIndex((value) => String(selected.stage || selected.status || "").toLowerCase().includes(value))); const complete = selected.status?.toLowerCase() === "approved" || index < currentStage; const current = !complete && index === currentStage; return <div key={stage} className={complete ? "complete" : current ? "current" : ""}><span>{complete ? <Icon.Doc /> : index + 1}</span><div><strong>{stage}</strong><small>{complete ? "Complete" : current ? "Current step" : "Upcoming"}</small></div></div>; })}</div></> : <div className="tracking-empty"><Icon.Tracking /><strong>Select a document</strong><span>Choose a tracked document to see its owner, status, and deadline details.</span></div>}</aside>
+            )}
+            
+            {/* Mobile: Slide-up modal */}
+            {isMobile && selected && (
+              <>
+                {/* Backdrop */}
+                <div 
+                  className="tracking-mobile-backdrop"
+                  onClick={() => setSelected(null)}
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    zIndex: 999,
+                    animation: 'fadeIn 0.3s ease'
+                  }}
+                />
+                
+                {/* Slide-up panel */}
+                <div 
+                  className="tracking-mobile-detail"
+                  style={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    maxHeight: '85vh',
+                    background: '#fff',
+                    borderRadius: '20px 20px 0 0',
+                    boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
+                    zIndex: 1000,
+                    animation: 'slideUp 0.3s ease',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  {/* Handle bar */}
+                  <div style={{ 
+                    padding: '12px 0 8px', 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    borderBottom: '1px solid #f3f4f6'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '4px',
+                      background: '#d1d5db',
+                      borderRadius: '2px'
+                    }} />
+                  </div>
+                  
+                  {/* Content */}
+                  <div style={{ 
+                    padding: '16px 20px 20px', 
+                    overflowY: 'auto',
+                    flex: 1
+                  }}>
+                    {/* Header */}
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      justifyContent: 'space-between',
+                      marginBottom: '16px'
+                    }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ 
+                          fontSize: '10px', 
+                          color: '#9ca3af', 
+                          fontWeight: '700', 
+                          textTransform: 'uppercase', 
+                          letterSpacing: '0.8px', 
+                          marginBottom: '6px' 
+                        }}>
+                          SELECTED RECORD
+                        </div>
+                        <div style={{ 
+                          fontSize: '18px', 
+                          fontWeight: '700', 
+                          color: '#111827',
+                          marginBottom: '4px'
+                        }}>
+                          Current step
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setSelected(null)}
+                        style={{
+                          background: '#f3f4f6',
+                          border: 'none',
+                          borderRadius: '8px',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                          marginLeft: '12px'
+                        }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round">
+                          <path d="M12 4L4 12M4 4l8 8" />
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {/* Document info */}
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '12px',
+                      padding: '16px',
+                      background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+                      borderRadius: '12px',
+                      marginBottom: '16px'
+                    }}>
+                      <span style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '12px',
+                        background: '#ede9fe',
+                        color: '#7c3aed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        flexShrink: 0
+                      }}>
+                        {fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar) ? (
+                          <img 
+                            src={fullAvatarUrl(selected.faculty_avatar || selected.assigned_by_avatar)} 
+                            alt={selected.submitted_by || selected.current_handler || "User"} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} 
+                          />
+                        ) : (
+                          String(selected.submitted_by || selected.current_handler || "PATH").split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()
+                        )}
+                      </span>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>
+                          {selected.title}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                          {selected.document_id} · {selected.current_handler || "Program Chair"}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Status card */}
+                    <div style={{
+                      padding: '16px',
+                      background: '#faf9fc',
+                      border: '1px solid #ede9fe',
+                      borderRadius: '12px',
+                      marginBottom: '16px'
+                    }}>
+                      <div style={{ 
+                        fontSize: '10px', 
+                        color: '#9ca3af', 
+                        fontWeight: '700', 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.8px', 
+                        marginBottom: '8px' 
+                      }}>
+                        CURRENT STATUS
+                      </div>
+                      <div style={{ 
+                        fontSize: '20px', 
+                        fontWeight: '700', 
+                        color: '#7c3aed',
+                        marginBottom: '6px'
+                      }}>
+                        {selected.status}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#6b7280' }}>
+                        {selected.status?.toLowerCase() === "approved" ? "Completed on time" : selected.stage || "Current step"}
+                        {selected.submitted_at ? " · due " + new Date(selected.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
+                      </div>
+                    </div>
+                    
+                    {/* Timeline */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {["Submitted", "Screening", "Review", "Decision"].map((stage, index) => {
+                        const currentStage = Math.max(0, ["submitted", "screening", "review", "decision"].findIndex((value) => String(selected.stage || selected.status || "").toLowerCase().includes(value)));
+                        const complete = selected.status?.toLowerCase() === "approved" || index < currentStage;
+                        const current = !complete && index === currentStage;
+                        
+                        return (
+                          <div 
+                            key={stage}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px'
+                            }}
+                          >
+                            <span style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              background: complete ? '#7c3aed' : current ? '#ede9fe' : '#f3f4f6',
+                              color: complete ? '#fff' : current ? '#7c3aed' : '#9ca3af',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '12px',
+                              fontWeight: '700',
+                              flexShrink: 0,
+                              border: current ? '2px solid #7c3aed' : 'none'
+                            }}>
+                              {complete ? '✓' : index + 1}
+                            </span>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ 
+                                fontSize: '14px', 
+                                fontWeight: '600', 
+                                color: complete ? '#111827' : current ? '#7c3aed' : '#6b7280',
+                                marginBottom: '2px'
+                              }}>
+                                {stage}
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                                {complete ? "Complete" : current ? "Current step" : "Upcoming"}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+                
+                <style>{`
+                  @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                  }
+                  @keyframes slideUp {
+                    from { transform: translateY(100%); }
+                    to { transform: translateY(0); }
+                  }
+                `}</style>
+              </>
+            )}
           </section>
         </main>
       </div>
