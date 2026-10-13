@@ -1579,10 +1579,10 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               className="mobile-hamburger-btn"
               style={{
                 display: 'none',
-                width: '38px',
-                height: '38px',
+                width: '36px',
+                height: '36px',
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: '8px',
                 background: 'rgba(255,255,255,0.12)',
                 color: '#ede9fe',
                 cursor: 'pointer',
@@ -1591,17 +1591,17 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
                 justifyContent: 'center',
                 transition: 'all 0.15s ease',
                 flexShrink: 0,
-                marginRight: '12px'
+                marginRight: '8px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '18px', height: '18px' }}>
                 <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
               </svg>
             </button>
           )}
 
           {/* Page title + subtitle */}
-          <div style={TB.pageMeta}>
+          <div style={TB.pageMeta} className="topbar-page-meta">
             <p style={TB.pageLabel}>{pageMeta.label}</p>
             <p style={TB.pageSub}>{pageMeta.sub}</p>
           </div>
@@ -1707,6 +1707,11 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
           }
           .mobile-hamburger-btn:hover {
             background: rgba(255,255,255,0.18) !important;
+          }
+          
+          /* Hide page title/subtitle on mobile to save space */
+          .topbar-page-meta {
+            display: none !important;
           }
         }
       `}</style>
