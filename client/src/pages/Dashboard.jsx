@@ -4869,7 +4869,7 @@ export default function Dashboard() {
                             statusColor = '#0891b2'; // cyan
                             barColor = '#06b6d4'; // cyan
                           } else if (score >= 60) {
-                            status = hasDelays ? "Needs attention" : "In Progress";
+                            status = hasDelays ? "Needs attention" : "Below Target";
                             risk = hasDelays;
                             statusColor = hasDelays ? '#dc2626' : '#f59e0b'; // red or orange
                             barColor = '#f59e0b'; // orange
