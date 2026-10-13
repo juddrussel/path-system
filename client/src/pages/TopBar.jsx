@@ -1580,24 +1580,26 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               style={{
                 display: 'none',
                 position: 'relative',
-                width: '46px',
-                height: '46px',
-                borderRadius: '12px',
+                minWidth: '52px',
+                minHeight: '52px',
+                width: '52px',
+                height: '52px',
+                borderRadius: '14px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(107, 33, 168, 0.9))',
+                background: 'linear-gradient(135deg, #7c3aed, #6b21a8)',
                 border: 'none',
                 padding: 0,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
-                boxShadow: '0 2px 8px rgba(107,33,168,0.4)',
+                boxShadow: '0 4px 12px rgba(107,33,168,0.5)',
                 transition: 'all .15s ease',
                 flexShrink: 0,
-                marginRight: '8px'
+                marginRight: '10px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '26px', height: '26px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ width: '32px', height: '32px', display: 'block' }}>
                 <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
               </svg>
             </button>
@@ -1708,13 +1710,9 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
           .mobile-hamburger-topbar-btn {
             display: flex !important;
           }
-          .mobile-hamburger-topbar-btn:hover {
-            background: linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(107, 33, 168, 1)) !important;
-            box-shadow: 0 4px 12px rgba(107,33,168,0.6) !important;
-            transform: scale(1.05);
-          }
           .mobile-hamburger-topbar-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.9);
+            box-shadow: 0 2px 6px rgba(107,33,168,0.4) !important;
           }
           
           /* Hide page title/subtitle on mobile to save space */
