@@ -1015,12 +1015,9 @@ export default function Tracking() {
                     overflowY: 'auto',
                     flex: 1
                   }}>
-                    {/* Header */}
+                    {/* Header - Hidden on mobile */}
                     <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'flex-start', 
-                      justifyContent: 'space-between',
-                      marginBottom: '16px'
+                      display: 'none'
                     }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ 

@@ -256,6 +256,12 @@ img {
   .tracking-table-desktop {
     display: none !important;
   }
+
+  /* Hide the right-side detail panel on mobile */
+  .tracking-detail,
+  .tracking-panel {
+    display: none !important;
+  }
 }
 
 @media (min-width: 640px) {
