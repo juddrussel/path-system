@@ -1093,20 +1093,21 @@ export default function Tracking() {
                       <button
                         onClick={closeModalWithAnimation}
                         style={{
-                          background: '#f3f4f6',
+                          background: 'transparent',
                           border: 'none',
                           borderRadius: '8px',
-                          width: '32px',
-                          height: '32px',
+                          width: '36px',
+                          height: '36px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           cursor: 'pointer',
                           flexShrink: 0,
-                          marginLeft: '12px'
+                          marginLeft: '12px',
+                          padding: 0
                         }}
                       >
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round">
+                        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round">
                           <path d="M12 4L4 12M4 4l8 8" />
                         </svg>
                       </button>
