@@ -154,23 +154,25 @@ const styles = `
   .path-sidebar-mobile-toggle {
     display: none;
     position: fixed;
-    top: 16px;
-    left: 16px;
+    top: 12px;
+    left: 12px;
     z-index: 1001;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #7c3aed, #6b21a8);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.92), rgba(107, 33, 168, 0.92));
+    backdrop-filter: blur(8px);
     color: #fff;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(107,33,168,0.4);
+    box-shadow: 0 2px 8px rgba(107,33,168,0.3);
     transition: all 0.2s ease;
   }
   
   .path-sidebar-mobile-toggle:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(107,33,168,0.5);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.98), rgba(107, 33, 168, 0.98));
+    box-shadow: 0 4px 12px rgba(107,33,168,0.4);
   }
   
   .path-sidebar-mobile-toggle:active {
@@ -178,8 +180,8 @@ const styles = `
   }
   
   .path-sidebar-mobile-toggle svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
   
   /* Mobile overlay */
