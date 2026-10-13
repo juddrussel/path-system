@@ -1580,15 +1580,15 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               style={{
                 display: 'none',
                 position: 'relative',
-                minWidth: '44px',
-                minHeight: '44px',
-                width: '44px',
-                height: '44px',
-                borderRadius: '10px',
+                minWidth: '38px',
+                minHeight: '38px',
+                width: '38px',
+                height: '38px',
+                borderRadius: '8px',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fff',
-                background: 'rgba(255, 255, 255, 0.15)',
+                color: 'rgba(255, 255, 255, 0.7)',
+                background: 'rgba(255, 255, 255, 0.08)',
                 border: 'none',
                 padding: '0',
                 cursor: 'pointer',
@@ -1600,12 +1600,18 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
                 marginLeft: '0px',
                 overflow: 'visible'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+              }}
               onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
               onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '24px', height: '24px', minWidth: '24px', minHeight: '24px', maxWidth: 'none', maxHeight: 'none', display: 'block', flexShrink: 0 }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px', minWidth: '20px', minHeight: '20px', maxWidth: 'none', maxHeight: 'none', display: 'block', flexShrink: 0 }}>
                 {/* Sidebar panel */}
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                 <line x1="9" y1="3" x2="9" y2="21"/>
