@@ -723,6 +723,9 @@ export default function Tracking() {
   const [selected,    setSelected]    = useState(null);
   const [page,        setPage]        = useState(1);
   const [isMobile,    setIsMobile]    = useState(false); // Mobile detection
+  const [dragY,       setDragY]       = useState(0); // Swipe position
+  const [isDragging,  setIsDragging]  = useState(false); // Is dragging
+  const [startY,      setStartY]      = useState(0); // Touch start Y position
   const PER_PAGE = 5;
 
   // Detect mobile screen size
@@ -735,6 +738,31 @@ export default function Tracking() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Handle swipe-down gesture to close modal
+  const handleTouchStart = (e) => {
+    setStartY(e.touches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    // Only allow dragging down (positive values)
+    if (diff > 0) {
+      setDragY(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    // If dragged down more than 100px, close the modal
+    if (dragY > 100) {
+      setSelected(null);
+    }
+    // Reset drag position
+    setDragY(0);
+  };
 
 
   const fetchDocs = useCallback(async () => {
@@ -978,6 +1006,9 @@ export default function Tracking() {
                 {/* Slide-up panel */}
                 <div 
                   className="tracking-mobile-detail"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   style={{
                     position: 'fixed',
                     bottom: 0,
@@ -991,7 +1022,9 @@ export default function Tracking() {
                     animation: 'slideUp 0.3s ease',
                     overflow: 'hidden',
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    transform: `translateY(${dragY}px)`,
+                    transition: isDragging ? 'none' : 'transform 0.3s ease'
                   }}
                 >
                   {/* Handle bar */}
