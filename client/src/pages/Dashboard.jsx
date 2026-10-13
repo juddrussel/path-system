@@ -4858,25 +4858,25 @@ export default function Dashboard() {
                             risk = false;
                             statusColor = '#059669'; // dark green
                             barColor = '#059669'; // dark green
-                          } else if (score >= 90) {
+                          } else if (score >= 85) {
                             status = "On Track";
                             risk = false;
                             statusColor = '#059669'; // green
                             barColor = '#10b981'; // green
                           } else if (score >= 70) {
-                            status = "On Track";
+                            status = "Good Progress";
                             risk = false;
-                            statusColor = '#059669'; // green
-                            barColor = '#10b981'; // green
-                          } else if (score >= 40) {
+                            statusColor = '#0891b2'; // cyan
+                            barColor = '#06b6d4'; // cyan
+                          } else if (score >= 60) {
                             status = hasDelays ? "Needs attention" : "In Progress";
                             risk = hasDelays;
                             statusColor = hasDelays ? '#dc2626' : '#f59e0b'; // red or orange
                             barColor = '#f59e0b'; // orange
                           } else {
-                            status = hasDelays ? "Needs attention" : "In Progress";
-                            risk = hasDelays;
-                            statusColor = hasDelays ? '#dc2626' : '#f59e0b'; // red or orange
+                            status = "Needs attention";
+                            risk = true;
+                            statusColor = '#dc2626'; // red
                             barColor = '#ef4444'; // red
                           }
                           
