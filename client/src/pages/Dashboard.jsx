@@ -4840,7 +4840,7 @@ export default function Dashboard() {
                           {FACULTY_WORKLOAD.slice((facultyPage - 1) * FACULTY_PER_PAGE, facultyPage * FACULTY_PER_PAGE).map((f) => {
                           // Initiative score status logic
                           const score = f.initiativeScore;
-                          const hasNoWork = score === null;
+                          const hasNoWork = f.assigned === 0; // Check if they have any tasks assigned
                           const hasDelays = f.delayed > 0;
                           
                           let status = "On Track";
