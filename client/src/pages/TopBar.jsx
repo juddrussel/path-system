@@ -1577,26 +1577,28 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               onClick={onOpenSidebar}
               aria-label="Open menu"
               className="mobile-hamburger-topbar-btn"
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(196,181,253,0.18)"; e.currentTarget.style.color = "#ede9fe"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.4)"; e.currentTarget.style.boxShadow = "0 2px 10px -2px rgba(109,40,217,0.4)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "rgba(237,233,254,0.75)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.18)"; e.currentTarget.style.boxShadow = "none"; }}
               style={{
                 display: 'none',
-                minWidth: '48px',
-                minHeight: '48px',
-                width: '48px',
-                height: '48px',
-                border: 'none',
-                borderRadius: '12px',
-                background: 'rgba(255,255,255,0.2)',
-                color: '#fff',
-                cursor: 'pointer',
-                padding: '0',
+                position: 'relative',
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.15s ease',
+                color: 'rgba(237,233,254,0.75)',
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(196,181,253,0.18)',
+                padding: 0,
+                cursor: 'pointer',
+                boxSizing: 'border-box',
+                transition: 'background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease',
                 flexShrink: 0,
-                marginRight: '12px'
+                marginRight: '4px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ width: '28px', height: '28px', display: 'block' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}>
                 <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
               </svg>
             </button>
@@ -1706,13 +1708,6 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
         @media (max-width: 768px) {
           .mobile-hamburger-topbar-btn {
             display: flex !important;
-          }
-          .mobile-hamburger-topbar-btn:hover {
-            background: rgba(255,255,255,0.3) !important;
-            transform: scale(1.05);
-          }
-          .mobile-hamburger-topbar-btn:active {
-            transform: scale(0.95);
           }
           
           /* Hide page title/subtitle on mobile to save space */
