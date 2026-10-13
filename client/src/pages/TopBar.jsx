@@ -1580,28 +1580,32 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               style={{
                 display: 'none',
                 position: 'relative',
-                minWidth: '52px',
-                minHeight: '52px',
-                width: '52px',
-                height: '52px',
-                borderRadius: '12px',
+                minWidth: '44px',
+                minHeight: '44px',
+                width: '44px',
+                height: '44px',
+                borderRadius: '10px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                background: 'transparent',
+                background: 'rgba(255, 255, 255, 0.15)',
                 border: 'none',
                 padding: '0',
                 cursor: 'pointer',
                 boxSizing: 'border-box',
                 boxShadow: 'none',
-                transition: 'all .15s ease',
+                transition: 'all .2s ease',
                 flexShrink: 0,
-                marginRight: '0px',
-                marginLeft: '-5px',
+                marginRight: '12px',
+                marginLeft: '0px',
                 overflow: 'visible'
               }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '120px', height: '120px', minWidth: '120px', minHeight: '120px', maxWidth: 'none', maxHeight: 'none', display: 'block', flexShrink: 0 }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '24px', height: '24px', minWidth: '24px', minHeight: '24px', maxWidth: 'none', maxHeight: 'none', display: 'block', flexShrink: 0 }}>
                 {/* Sidebar panel */}
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                 <line x1="9" y1="3" x2="9" y2="21"/>
