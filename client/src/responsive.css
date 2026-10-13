@@ -392,16 +392,6 @@ img {
   .path-overview-shell > div:last-child {
     margin-left: 0 !important;
   }
-  
-  /* Add minimal padding to avoid hamburger button overlap - reduced from 70px */
-  .path-topbar,
-  .dashboard-workspace-canvas,
-  .path-tracking-content,
-  .path-task-body,
-  .path-assigned-body,
-  .path-forms-page {
-    padding-left: 16px !important;
-  }
 }
 
 /* Prevent body scroll when mobile sidebar is open */
