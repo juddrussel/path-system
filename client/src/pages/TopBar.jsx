@@ -1579,8 +1579,8 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               className="mobile-hamburger-btn"
               style={{
                 display: 'none',
-                width: '36px',
-                height: '36px',
+                width: '40px',
+                height: '40px',
                 border: 'none',
                 borderRadius: '8px',
                 background: 'rgba(255,255,255,0.12)',
@@ -1594,7 +1594,7 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
                 marginRight: '8px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '18px', height: '18px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '22px', height: '22px' }}>
                 <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
               </svg>
             </button>
