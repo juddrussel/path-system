@@ -759,17 +759,22 @@ export default function Tracking() {
     setIsDragging(false);
     // If dragged down more than 100px, close the modal with animation
     if (dragY > 100) {
-      setIsClosing(true);
-      // Wait for animation to complete before actually closing
-      setTimeout(() => {
-        setSelected(null);
-        setIsClosing(false);
-        setDragY(0);
-      }, 300);
+      closeModalWithAnimation();
     } else {
       // Reset drag position if not closing
       setDragY(0);
     }
+  };
+
+  // Shared function to close modal with smooth animation
+  const closeModalWithAnimation = () => {
+    setIsClosing(true);
+    // Wait for animation to complete before actually closing
+    setTimeout(() => {
+      setSelected(null);
+      setIsClosing(false);
+      setDragY(0);
+    }, 300);
   };
 
 
@@ -1001,7 +1006,7 @@ export default function Tracking() {
                 {/* Backdrop */}
                 <div 
                   className="tracking-mobile-backdrop"
-                  onClick={() => setSelected(null)}
+                  onClick={closeModalWithAnimation}
                   style={{
                     position: 'fixed',
                     inset: 0,
@@ -1086,7 +1091,7 @@ export default function Tracking() {
                         </div>
                       </div>
                       <button
-                        onClick={() => setSelected(null)}
+                        onClick={closeModalWithAnimation}
                         style={{
                           background: '#f3f4f6',
                           border: 'none',
