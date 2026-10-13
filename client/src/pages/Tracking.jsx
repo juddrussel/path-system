@@ -1096,19 +1096,19 @@ export default function Tracking() {
                           background: 'transparent',
                           border: 'none',
                           borderRadius: '8px',
-                          width: '36px',
-                          height: '36px',
+                          width: '44px',
+                          height: '44px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           cursor: 'pointer',
                           flexShrink: 0,
-                          marginLeft: '12px',
+                          marginLeft: '8px',
                           padding: 0
                         }}
                       >
-                        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round">
-                          <path d="M12 4L4 12M4 4l8 8" />
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5" strokeLinecap="round">
+                          <path d="M18 6L6 18M6 6l12 12" />
                         </svg>
                       </button>
                     </div>
