@@ -1580,17 +1580,17 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               style={{
                 display: 'none',
                 position: 'relative',
-                minWidth: '52px',
-                minHeight: '52px',
-                width: '52px',
-                height: '52px',
-                borderRadius: '12px',
+                minWidth: '70px',
+                minHeight: '70px',
+                width: '70px',
+                height: '70px',
+                borderRadius: '14px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
                 background: 'linear-gradient(135deg, #7c3aed, #6b21a8)',
                 border: 'none',
-                padding: '6px',
+                padding: '3px',
                 cursor: 'pointer',
                 boxSizing: 'border-box',
                 boxShadow: '0 4px 12px rgba(107,33,168,0.5)',
@@ -1599,7 +1599,7 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
                 marginRight: '10px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '44px', height: '44px', display: 'block' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '64px', height: '64px', display: 'block' }}>
                 {/* Sidebar panel */}
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                 <line x1="9" y1="3" x2="9" y2="21"/>
