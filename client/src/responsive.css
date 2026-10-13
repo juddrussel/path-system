@@ -382,20 +382,25 @@ img {
    ============================================================================ */
 
 @media (max-width: 768px) {
+  /* Hide topbar profile section on mobile (visible in sidebar instead) */
+  .topbar-profile-section {
+    display: none !important;
+  }
+  
   /* Ensure main content doesn't get margin on mobile since sidebar is overlay */
   .path-layout-main,
   .path-overview-shell > div:last-child {
     margin-left: 0 !important;
   }
   
-  /* Add padding to avoid hamburger button overlap */
+  /* Add minimal padding to avoid hamburger button overlap - reduced from 70px */
   .path-topbar,
   .dashboard-workspace-canvas,
   .path-tracking-content,
   .path-task-body,
   .path-assigned-body,
   .path-forms-page {
-    padding-left: 70px !important;
+    padding-left: 16px !important;
   }
 }
 

@@ -1615,47 +1615,50 @@ export default function TopBar({ children, onLogout }) {
               )}
             </div>
 
-            <div style={TB.divider} />
+            {/* Profile section - hidden on mobile (<768px), visible on desktop */}
+            <div className="topbar-profile-section">
+              <div style={TB.divider} />
 
-            {/* Profile Avatar Button */}
-            <div style={TB.profileWrap} ref={dropRef}>
-              <button
-                onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(196,181,253,0.18)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.45)"; e.currentTarget.style.boxShadow = "0 2px 10px -2px rgba(109,40,217,0.4)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.22)"; e.currentTarget.style.boxShadow = "none"; }}
-                style={TB.profileBtn}
-                title="Account menu"
-              >
-                <span style={TB.avatarRing}>
-                  {avatarBlobUrl ? (
-                    <img src={avatarBlobUrl} alt="" style={TB.avatarImg} />
-                  ) : (
-                    <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
-                      {initials(profile?.full_name)}
-                    </span>
-                  )}
-                  <span style={TB.statusDot} title="Online" />
-                </span>
-                <div className="hidden sm:flex" style={TB.nameBlock}>
-                  <p style={TB.name}>
-                    {profile?.full_name || profile?.username || "User"}
-                  </p>
-                  <span style={{ ...TB.role, color: "#fff", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)" }}>{formatRole(profile?.role)}</span>
-                </div>
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
-                  <path d="M2 4l4 4 4-4" strokeLinecap="round" />
-                </svg>
-              </button>
+              {/* Profile Avatar Button */}
+              <div style={TB.profileWrap} ref={dropRef}>
+                <button
+                  onClick={() => { setShowDropdown(v => !v); setShowNotif(false); }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(196,181,253,0.18)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.45)"; e.currentTarget.style.boxShadow = "0 2px 10px -2px rgba(109,40,217,0.4)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(196,181,253,0.22)"; e.currentTarget.style.boxShadow = "none"; }}
+                  style={TB.profileBtn}
+                  title="Account menu"
+                >
+                  <span style={TB.avatarRing}>
+                    {avatarBlobUrl ? (
+                      <img src={avatarBlobUrl} alt="" style={TB.avatarImg} />
+                    ) : (
+                      <span style={{ ...TB.avatarFallback, background: bg, color: fg }}>
+                        {initials(profile?.full_name)}
+                      </span>
+                    )}
+                    <span style={TB.statusDot} title="Online" />
+                  </span>
+                  <div className="hidden sm:flex" style={TB.nameBlock}>
+                    <p style={TB.name}>
+                      {profile?.full_name || profile?.username || "User"}
+                    </p>
+                    <span style={{ ...TB.role, color: "#fff", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)" }}>{formatRole(profile?.role)}</span>
+                  </div>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="hidden sm:block" style={{ ...TB.chevron, width: "10px", height: "10px", transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)" }}>
+                    <path d="M2 4l4 4 4-4" strokeLinecap="round" />
+                  </svg>
+                </button>
 
-              {showDropdown && (
-                <ProfileDropdown
-                  profile={profile}
-                  avatarBlobUrl={avatarBlobUrl}
-                  onViewProfile={() => setShowProfile(true)}
-                  onLogout={onLogout}
-                  onClose={() => setShowDropdown(false)}
-                />
-              )}
+                {showDropdown && (
+                  <ProfileDropdown
+                    profile={profile}
+                    avatarBlobUrl={avatarBlobUrl}
+                    onViewProfile={() => setShowProfile(true)}
+                    onLogout={onLogout}
+                    onClose={() => setShowDropdown(false)}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>

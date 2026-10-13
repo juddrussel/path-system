@@ -364,6 +364,24 @@ const styles = `
     to   { transform: scale(1);   opacity: 1; }
   }
 
+  /* ── Mobile profile section (bottom of sidebar) ── */
+  .path-sidebar__mobile-profile {
+    display: none; /* Hidden by default (desktop) */
+    align-items: center; gap: 9px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(196,181,253,0.2);
+    border-radius: 12px;
+    padding: 10px 11px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  
+  @media (max-width: 768px) {
+    .path-sidebar__mobile-profile {
+      display: flex; /* Show on mobile */
+    }
+  }
+  
   /* ── Profile footer ── */
   .path-sidebar__profile {
     display: flex; align-items: center; gap: 9px;
@@ -640,6 +658,25 @@ export default function Sidebar({ activePage, onLogout }) {
             );
           })}
         </nav>
+
+        {/* Mobile-only profile section at bottom of sidebar */}
+        <div className="path-sidebar__mobile-profile">
+          <div className="path-sidebar__profile-avatar">
+            {avatarBlobUrl ? (
+              <img src={avatarBlobUrl} alt={profile?.full_name || profile?.name || "User"} />
+            ) : (
+              initials(profile?.full_name || profile?.name || profile?.username || "User")
+            )}
+          </div>
+          <div className="path-sidebar__profile-copy">
+            <span className="path-sidebar__profile-name">
+              {profile?.full_name || profile?.name || profile?.username || "User"}
+            </span>
+            <span className="path-sidebar__profile-role">
+              {formatRole(profile?.role || user.role)}
+            </span>
+          </div>
+        </div>
       </aside>
     </>
   );
