@@ -404,3 +404,45 @@ img {
 body.mobile-sidebar-open {
   overflow: hidden;
 }
+
+/* ============================================================================
+   FACULTY PERFORMANCE RESPONSIVE (Dashboard)
+   ============================================================================ */
+
+@media (max-width: 639px) {
+  /* Faculty performance cards - make them stack vertically */
+  .path-performance-row {
+    grid-template-columns: 1fr !important;
+    padding: 12px 0 !important;
+    gap: 10px !important;
+  }
+  
+  /* Faculty person section - already good, just ensure it wraps */
+  .path-performance-person {
+    width: 100% !important;
+  }
+  
+  /* Progress bar section - make it full width */
+  .path-performance-progress {
+    width: 100% !important;
+    padding-right: 0 !important;
+  }
+  
+  /* Status badge - make it align to the left on mobile */
+  .path-performance-status {
+    justify-content: flex-start !important;
+    margin-top: 4px !important;
+  }
+  
+  /* Team signal card - adjust padding */
+  .path-panel {
+    padding: 16px !important;
+  }
+  
+  /* Faculty workload section heading */
+  .path-section-heading {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+}
