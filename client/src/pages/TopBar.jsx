@@ -1571,38 +1571,44 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
         <div style={TB.bottomAccent} />
         <div style={TB.inner}>
 
-          {/* Mobile hamburger button - only visible on mobile - v2 */}
+          {/* Mobile sidebar toggle button - only visible on mobile */}
           {onOpenSidebar && (
             <button 
               onClick={onOpenSidebar}
               aria-label="Open menu"
-              className="mobile-hamburger-topbar-btn-v2"
+              className="mobile-sidebar-toggle-btn"
               style={{
                 display: 'none',
                 position: 'relative',
-                minWidth: '60px',
-                minHeight: '60px',
-                width: '60px',
-                height: '60px',
-                borderRadius: '15px',
+                minWidth: '48px',
+                minHeight: '48px',
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                background: '#e11d48',
+                background: 'linear-gradient(135deg, #7c3aed, #6b21a8)',
                 border: 'none',
                 padding: 0,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
-                boxShadow: '0 6px 16px rgba(225, 29, 72, 0.6)',
+                boxShadow: '0 4px 12px rgba(107,33,168,0.5)',
                 transition: 'all .15s ease',
                 flexShrink: 0,
-                marginRight: '12px'
+                marginRight: '10px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" style={{ width: '36px', height: '36px', display: 'block' }}>
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '28px', height: '28px', display: 'block' }}>
+                {/* Sidebar panel */}
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="9" y1="3" x2="9" y2="21"/>
+                {/* Menu lines */}
+                <line x1="5" y1="8" x2="7" y2="8"/>
+                <line x1="5" y1="12" x2="7" y2="12"/>
+                <line x1="5" y1="16" x2="7" y2="16"/>
+                {/* Chevron */}
+                <polyline points="14,10 16,12 14,14"/>
               </svg>
             </button>
           )}
@@ -1709,12 +1715,12 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
         .tb-badge-pulse { animation: tb-pulse 2.4s ease-out infinite; }
         
         @media (max-width: 768px) {
-          .mobile-hamburger-topbar-btn-v2 {
+          .mobile-sidebar-toggle-btn {
             display: flex !important;
           }
-          .mobile-hamburger-topbar-btn-v2:active {
+          .mobile-sidebar-toggle-btn:active {
             transform: scale(0.9);
-            box-shadow: 0 3px 8px rgba(225, 29, 72, 0.5) !important;
+            box-shadow: 0 2px 6px rgba(107,33,168,0.4) !important;
           }
           
           /* Hide page title/subtitle on mobile to save space */
