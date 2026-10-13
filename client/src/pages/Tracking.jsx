@@ -726,6 +726,7 @@ export default function Tracking() {
   const [dragY,       setDragY]       = useState(0); // Swipe position
   const [isDragging,  setIsDragging]  = useState(false); // Is dragging
   const [startY,      setStartY]      = useState(0); // Touch start Y position
+  const [isClosing,   setIsClosing]   = useState(false); // Closing animation state
   const PER_PAGE = 5;
 
   // Detect mobile screen size
@@ -756,12 +757,19 @@ export default function Tracking() {
 
   const handleTouchEnd = () => {
     setIsDragging(false);
-    // If dragged down more than 100px, close the modal
+    // If dragged down more than 100px, close the modal with animation
     if (dragY > 100) {
-      setSelected(null);
+      setIsClosing(true);
+      // Wait for animation to complete before actually closing
+      setTimeout(() => {
+        setSelected(null);
+        setIsClosing(false);
+        setDragY(0);
+      }, 300);
+    } else {
+      // Reset drag position if not closing
+      setDragY(0);
     }
-    // Reset drag position
-    setDragY(0);
   };
 
 
@@ -999,7 +1007,9 @@ export default function Tracking() {
                     inset: 0,
                     background: 'rgba(0, 0, 0, 0.5)',
                     zIndex: 999,
-                    animation: 'fadeIn 0.3s ease'
+                    animation: isClosing ? 'fadeOut 0.3s ease' : 'fadeIn 0.3s ease',
+                    opacity: isClosing ? 0 : 1,
+                    transition: 'opacity 0.3s ease'
                   }}
                 />
                 
@@ -1019,11 +1029,11 @@ export default function Tracking() {
                     borderRadius: '20px 20px 0 0',
                     boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
                     zIndex: 1000,
-                    animation: 'slideUp 0.3s ease',
+                    animation: isClosing ? 'none' : 'slideUp 0.3s ease',
                     overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',
-                    transform: `translateY(${dragY}px)`,
+                    transform: isClosing ? 'translateY(100vh)' : `translateY(${dragY}px)`,
                     transition: isDragging ? 'none' : 'transform 0.3s ease'
                   }}
                 >
@@ -1229,9 +1239,17 @@ export default function Tracking() {
                     from { opacity: 0; }
                     to { opacity: 1; }
                   }
+                  @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                  }
                   @keyframes slideUp {
                     from { transform: translateY(100%); }
                     to { transform: translateY(0); }
+                  }
+                  @keyframes slideDown {
+                    from { transform: translateY(0); }
+                    to { transform: translateY(100vh); }
                   }
                 `}</style>
               </>
