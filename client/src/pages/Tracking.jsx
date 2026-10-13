@@ -742,25 +742,37 @@ export default function Tracking() {
   // Disable body scroll when modal is open (mobile only)
   useEffect(() => {
     if (isMobile && selected) {
-      // Prevent body scroll and pull-to-refresh
-      document.body.style.overflow = 'hidden';
+      // Save current scroll position
+      const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.overflow = 'hidden';
       document.body.style.width = '100%';
       document.body.style.touchAction = 'none';
     } else {
-      // Re-enable body scroll
-      document.body.style.overflow = '';
+      // Restore scroll position
+      const scrollY = document.body.style.top;
       document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.overflow = '';
       document.body.style.width = '';
       document.body.style.touchAction = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
     }
     
     return () => {
       // Cleanup on unmount
-      document.body.style.overflow = '';
+      const scrollY = document.body.style.top;
       document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.overflow = '';
       document.body.style.width = '';
       document.body.style.touchAction = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
     };
   }, [isMobile, selected]);
 
