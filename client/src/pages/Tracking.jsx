@@ -1096,8 +1096,10 @@ export default function Tracking() {
                           background: 'transparent',
                           border: 'none',
                           borderRadius: '8px',
-                          width: '44px',
-                          height: '44px',
+                          minWidth: '48px',
+                          minHeight: '48px',
+                          width: '48px',
+                          height: '48px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -1107,7 +1109,16 @@ export default function Tracking() {
                           padding: 0
                         }}
                       >
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5" strokeLinecap="round">
+                        <svg 
+                          width="32" 
+                          height="32" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="#111827" 
+                          strokeWidth="3" 
+                          strokeLinecap="round"
+                          style={{ minWidth: '32px', minHeight: '32px' }}
+                        >
                           <path d="M18 6L6 18M6 6l12 12" />
                         </svg>
                       </button>
