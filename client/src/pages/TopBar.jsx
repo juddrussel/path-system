@@ -1579,22 +1579,22 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               className="mobile-hamburger-btn"
               style={{
                 display: 'none',
-                width: '40px',
-                height: '40px',
+                width: '44px',
+                height: '44px',
                 border: 'none',
-                borderRadius: '8px',
-                background: 'rgba(255,255,255,0.12)',
-                color: '#ede9fe',
+                borderRadius: '10px',
+                background: 'rgba(255,255,255,0.15)',
+                color: '#fff',
                 cursor: 'pointer',
                 padding: 0,
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.15s ease',
                 flexShrink: 0,
-                marginRight: '8px'
+                marginRight: '10px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '22px', height: '22px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '24px', height: '24px' }}>
                 <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
               </svg>
             </button>
@@ -1706,7 +1706,11 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
             display: flex !important;
           }
           .mobile-hamburger-btn:hover {
-            background: rgba(255,255,255,0.18) !important;
+            background: rgba(255,255,255,0.25) !important;
+            transform: scale(1.05);
+          }
+          .mobile-hamburger-btn:active {
+            transform: scale(0.95);
           }
           
           /* Hide page title/subtitle on mobile to save space */
