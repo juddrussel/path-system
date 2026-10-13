@@ -1448,6 +1448,13 @@ export default function Forms() {
   // ── Real-time: pending badge count & toast queue ──────────────────────────
   const [pendingBadge, setPendingBadge] = useState(0);
   const [toasts, setToasts] = useState([]);
+
+  // ── Mobile detection and modal state ─────────────────────────────────────
+  const [isMobile, setIsMobile] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startY, setStartY] = useState(0);
+  const [isClosing, setIsClosing] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
 
@@ -1562,6 +1569,69 @@ export default function Forms() {
       setPendingBadge(0);
     }
   }, [activeTab, isProgramChair]);
+
+  // ── Mobile detection ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // ── Disable body scroll when modal is open (mobile only) ──────────────────
+  useEffect(() => {
+    if (isMobile && selectedQueueForm) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isMobile, selectedQueueForm]);
+
+  // ── Touch handlers for swipe-down gesture ─────────────────────────────────
+  const handleTouchStart = (e) => {
+    setStartY(e.touches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    if (diff > 0) {
+      e.preventDefault();
+      setDragY(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (dragY > 100) {
+      closeModalWithAnimation();
+    } else {
+      setDragY(0);
+    }
+  };
+
+  const closeModalWithAnimation = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelectedQueueForm(null);
+      setIsClosing(false);
+      setDragY(0);
+    }, 300);
+  };
 
   // ── Load Document Categories from the database ───────────────────────────
   // Same /api/categories endpoint DocumentCategories.jsx uses. Only "Active"
@@ -3952,119 +4022,455 @@ export default function Forms() {
                     </div>
                   )}
                 </article>
-                <aside className="path-review-detail">
-                  {reviewSelected ? (
-                    (() => {
-                      const name =
-                        reviewSelected.full_name ||
-                        reviewSelected.submitter_name ||
-                        reviewSelected.student_id ||
-                        "Unknown submitter";
-                      const initials =
-                        name
-                          .split(/\s+/)
-                          .slice(0, 2)
-                          .map((part) => part[0])
-                          .join("")
-                          .toUpperCase() || "?";
-                      return (
-                        <>
-                          <div className="path-review-detail-head">
-                            <div>
-                              <div className="path-forms-kicker">
-                                <i /> Selected review
+
+                {/* Desktop: Sidebar detail panel */}
+                {!isMobile && (
+                  <aside className="path-review-detail">
+                    {reviewSelected ? (
+                      (() => {
+                        const name =
+                          reviewSelected.full_name ||
+                          reviewSelected.submitter_name ||
+                          reviewSelected.student_id ||
+                          "Unknown submitter";
+                        const initials =
+                          name
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((part) => part[0])
+                            .join("")
+                            .toUpperCase() || "?";
+                        return (
+                          <>
+                            <div className="path-review-detail-head">
+                              <div>
+                                <div className="path-forms-kicker">
+                                  <i /> Selected review
+                                </div>
+                                <h3>Decision context</h3>
                               </div>
-                              <h3>Decision context</h3>
                             </div>
-                          </div>
-                          <p>
-                            Confirm submission information before you record the
-                            next workflow decision.
-                          </p>
-                          <div className="path-review-detail-title">
-                            <span className="path-review-detail-avatar">
-                              {initials}
-                            </span>
-                            <div>
-                              <strong>
-                                {reviewSelected.category || "Form submission"}
-                              </strong>
-                              <span>
-                                {reviewSelected.tracking_id ||
-                                  `FORM-${reviewSelected.id}`}{" "}
-                                ·{" "}
-                                {reviewSelected.student_id ||
-                                  "Faculty submission"}
+                            <p>
+                              Confirm submission information before you record the
+                              next workflow decision.
+                            </p>
+                            <div className="path-review-detail-title">
+                              <span className="path-review-detail-avatar">
+                                {initials}
                               </span>
+                              <div>
+                                <strong>
+                                  {reviewSelected.category || "Form submission"}
+                                </strong>
+                                <span>
+                                  {reviewSelected.tracking_id ||
+                                    `FORM-${reviewSelected.id}`}{" "}
+                                  ·{" "}
+                                  {reviewSelected.student_id ||
+                                    "Faculty submission"}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                          <div className="path-review-deadline">
-                            <span>Review deadline</span>
-                            <strong>
-                              {reviewSelected.filing_date || "Review due soon"}
-                            </strong>
-                          </div>
-                          <div className="path-review-meta">
-                            <div>
-                              <span>Submitter</span>
-                              <strong>{name}</strong>
-                            </div>
-                            <div>
-                              <span>Form type</span>
+                            <div className="path-review-deadline">
+                              <span>Review deadline</span>
                               <strong>
-                                {reviewSelected.category || "Unclassified"}
+                                {reviewSelected.filing_date || "Review due soon"}
                               </strong>
                             </div>
-                            <div>
-                              <span>Current status</span>
-                              <strong>
-                                {reviewSelected.status || "Pending"}
-                              </strong>
+                            <div className="path-review-meta">
+                              <div>
+                                <span>Submitter</span>
+                                <strong>{name}</strong>
+                              </div>
+                              <div>
+                                <span>Form type</span>
+                                <strong>
+                                  {reviewSelected.category || "Unclassified"}
+                                </strong>
+                              </div>
+                              <div>
+                                <span>Current status</span>
+                                <strong>
+                                  {reviewSelected.status || "Pending"}
+                                </strong>
+                              </div>
+                              <div>
+                                <span>Student ID</span>
+                                <strong>
+                                  {reviewSelected.student_id || "—"}
+                                </strong>
+                              </div>
                             </div>
-                            <div>
-                              <span>Student ID</span>
-                              <strong>
-                                {reviewSelected.student_id || "—"}
-                              </strong>
+                            <div className="path-review-focus">
+                              <i>✓</i>
+                              <div>
+                                <strong>Reviewer focus</strong>
+                                <span>
+                                  {reviewSelected.review_note ||
+                                    "Confirm required fields and attached evidence before approving this handoff."}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                          <div className="path-review-focus">
-                            <i>✓</i>
-                            <div>
-                              <strong>Reviewer focus</strong>
-                              <span>
-                                {reviewSelected.review_note ||
-                                  "Confirm required fields and attached evidence before approving this handoff."}
-                              </span>
+                            <div className="path-review-actions">
+                              <button
+                                className="primary"
+                                type="button"
+                                onClick={() => handleReview(reviewSelected)}
+                              >
+                                Open form record →
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleReview(reviewSelected)}
+                              >
+                                Review & decide
+                              </button>
                             </div>
-                          </div>
-                          <div className="path-review-actions">
-                            <button
-                              className="primary"
-                              type="button"
-                              onClick={() => handleReview(reviewSelected)}
-                            >
-                              Open form record →
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleReview(reviewSelected)}
-                            >
-                              Review & decide
-                            </button>
-                          </div>
-                        </>
-                      );
-                    })()
-                  ) : (
-                    <div className="path-review-empty">
-                      <strong>Your review queue is clear</strong>
-                      <span>
-                        New assigned form submissions will appear here.
-                      </span>
+                          </>
+                        );
+                      })()
+                    ) : (
+                      <div className="path-review-empty">
+                        <strong>Your review queue is clear</strong>
+                        <span>
+                          New assigned form submissions will appear here.
+                        </span>
+                      </div>
+                    )}
+                  </aside>
+                )}
+
+                {/* Mobile: Slide-up modal */}
+                {isMobile && reviewSelected && (
+                  <>
+                    {/* Backdrop */}
+                    <div
+                      onClick={closeModalWithAnimation}
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 999,
+                        animation: isClosing ? 'fadeOut 0.3s ease' : 'fadeIn 0.3s ease',
+                        opacity: isClosing ? 0 : 1,
+                        transition: 'opacity 0.3s ease',
+                        touchAction: 'none'
+                      }}
+                    />
+
+                    {/* Slide-up panel */}
+                    <div
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
+                      style={{
+                        position: 'fixed',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        maxHeight: '85vh',
+                        background: '#fff',
+                        borderRadius: '20px 20px 0 0',
+                        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
+                        zIndex: 1000,
+                        animation: isClosing ? 'none' : 'slideUp 0.3s ease',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transform: isClosing ? 'translateY(100vh)' : `translateY(${dragY}px)`,
+                        transition: isDragging ? 'none' : 'transform 0.3s ease',
+                        touchAction: 'pan-y',
+                        fontFamily: "'DM Sans', sans-serif"
+                      }}
+                    >
+                      {/* Handle bar */}
+                      <div style={{
+                        padding: '12px 0 8px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        borderBottom: '1px solid #f3f4f6'
+                      }}>
+                        <div style={{
+                          width: '40px',
+                          height: '4px',
+                          background: '#d1d5db',
+                          borderRadius: '2px'
+                        }} />
+                      </div>
+
+                      {/* Content */}
+                      <div style={{
+                        padding: '16px 20px 20px',
+                        overflowY: 'auto',
+                        flex: 1
+                      }}>
+                        {(() => {
+                          const name =
+                            reviewSelected.full_name ||
+                            reviewSelected.submitter_name ||
+                            reviewSelected.student_id ||
+                            "Unknown submitter";
+                          const initials =
+                            name
+                              .split(/\s+/)
+                              .slice(0, 2)
+                              .map((part) => part[0])
+                              .join("")
+                              .toUpperCase() || "?";
+                          return (
+                            <>
+                              {/* Header */}
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                justifyContent: 'space-between',
+                                marginBottom: '16px'
+                              }}>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{
+                                    fontSize: '10px',
+                                    color: '#9ca3af',
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.8px',
+                                    marginBottom: '6px'
+                                  }}>
+                                    SELECTED REVIEW
+                                  </div>
+                                  <div style={{
+                                    fontSize: '18px',
+                                    fontWeight: '700',
+                                    color: '#111827',
+                                    marginBottom: '4px'
+                                  }}>
+                                    Decision context
+                                  </div>
+                                  <p style={{
+                                    fontSize: '13px',
+                                    color: '#6b7280',
+                                    margin: '8px 0 0'
+                                  }}>
+                                    Confirm submission information before you record the next workflow decision.
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={closeModalWithAnimation}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    minWidth: '40px',
+                                    minHeight: '40px',
+                                    width: '40px',
+                                    height: '40px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    flexShrink: 0,
+                                    marginLeft: '8px',
+                                    padding: 0
+                                  }}
+                                >
+                                  <svg
+                                    width="22"
+                                    height="22"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#111827"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    style={{ minWidth: '22px', minHeight: '22px' }}
+                                  >
+                                    <path d="M18 6L6 18M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+
+                              {/* Form info card */}
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+                                borderRadius: '12px',
+                                marginBottom: '16px'
+                              }}>
+                                <span style={{
+                                  width: '48px',
+                                  height: '48px',
+                                  borderRadius: '12px',
+                                  background: '#ede9fe',
+                                  color: '#7c3aed',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '14px',
+                                  fontWeight: '700',
+                                  flexShrink: 0
+                                }}>
+                                  {initials}
+                                </span>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>
+                                    {reviewSelected.category || "Form submission"}
+                                  </div>
+                                  <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                    {reviewSelected.tracking_id || `FORM-${reviewSelected.id}`} · {reviewSelected.student_id || "Faculty submission"}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Review deadline */}
+                              <div style={{
+                                padding: '12px 16px',
+                                background: '#fef3c7',
+                                border: '1px solid #fde68a',
+                                borderRadius: '12px',
+                                marginBottom: '16px'
+                              }}>
+                                <div style={{ fontSize: '11px', color: '#92400e', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
+                                  REVIEW DEADLINE
+                                </div>
+                                <div style={{ fontSize: '16px', fontWeight: '700', color: '#92400e' }}>
+                                  {reviewSelected.filing_date || "Review due soon"}
+                                </div>
+                              </div>
+
+                              {/* Meta information */}
+                              <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                gap: '12px',
+                                marginBottom: '16px'
+                              }}>
+                                <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                                    Submitter
+                                  </div>
+                                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                                    {name}
+                                  </div>
+                                </div>
+                                <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                                    Form type
+                                  </div>
+                                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                                    {reviewSelected.category || "Unclassified"}
+                                  </div>
+                                </div>
+                                <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                                    Current status
+                                  </div>
+                                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                                    {reviewSelected.status || "Pending"}
+                                  </div>
+                                </div>
+                                <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                                    Student ID
+                                  </div>
+                                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                                    {reviewSelected.student_id || "—"}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Reviewer focus */}
+                              <div style={{
+                                display: 'flex',
+                                gap: '12px',
+                                padding: '12px',
+                                background: '#eff6ff',
+                                border: '1px solid #dbeafe',
+                                borderRadius: '12px',
+                                marginBottom: '16px'
+                              }}>
+                                <span style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  background: '#3b82f6',
+                                  color: '#fff',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '14px',
+                                  flexShrink: 0
+                                }}>
+                                  ✓
+                                </span>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#1e40af', marginBottom: '4px' }}>
+                                    Reviewer focus
+                                  </div>
+                                  <div style={{ fontSize: '12px', color: '#1e40af' }}>
+                                    {reviewSelected.review_note || "Confirm required fields and attached evidence before approving this handoff."}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Actions */}
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <button
+                                  onClick={() => handleReview(reviewSelected)}
+                                  style={{
+                                    background: '#7c3aed',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '14px',
+                                    fontSize: '15px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    width: '100%'
+                                  }}
+                                >
+                                  Open form record →
+                                </button>
+                                <button
+                                  onClick={() => handleReview(reviewSelected)}
+                                  style={{
+                                    background: '#f3f4f6',
+                                    color: '#374151',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '14px',
+                                    fontSize: '15px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    width: '100%'
+                                  }}
+                                >
+                                  Review & decide
+                                </button>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
                     </div>
-                  )}
-                </aside>
+
+                    {/* Animations */}
+                    <style>{`
+                      @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                      }
+                      @keyframes fadeOut {
+                        from { opacity: 1; }
+                        to { opacity: 0; }
+                      }
+                      @keyframes slideUp {
+                        from { transform: translateY(100%); }
+                        to { transform: translateY(0); }
+                      }
+                    `}</style>
+                  </>
+                )}
               </section>
             </>
           )}
