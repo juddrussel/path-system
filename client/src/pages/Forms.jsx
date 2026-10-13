@@ -1518,11 +1518,16 @@ export default function Forms() {
   }, [page, search, activeTab]);
   useEffect(() => {
     if (!isProgramChair || activeTab !== "review") return;
+    // Don't auto-select on mobile - let user tap to open modal
+    if (isMobile) {
+      setSelectedQueueForm(null);
+      return;
+    }
     setSelectedQueueForm(
       (previous) =>
         forms.find((form) => form.id === previous?.id) || forms[0] || null,
     );
-  }, [forms, isProgramChair, activeTab]);
+  }, [forms, isProgramChair, activeTab, isMobile]);
 
   // ── Socket.IO setup ───────────────────────────────────────────────────────
   useEffect(() => {
