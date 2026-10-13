@@ -739,6 +739,31 @@ export default function Tracking() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Disable body scroll when modal is open (mobile only)
+  useEffect(() => {
+    if (isMobile && selected) {
+      // Prevent body scroll and pull-to-refresh
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.touchAction = 'none';
+    } else {
+      // Re-enable body scroll
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+    }
+    
+    return () => {
+      // Cleanup on unmount
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isMobile, selected]);
+
   // Handle swipe-down gesture to close modal
   const handleTouchStart = (e) => {
     setStartY(e.touches[0].clientY);
@@ -749,8 +774,11 @@ export default function Tracking() {
     if (!isDragging) return;
     const currentY = e.touches[0].clientY;
     const diff = currentY - startY;
+    
     // Only allow dragging down (positive values)
     if (diff > 0) {
+      // Prevent default to stop pull-to-refresh
+      e.preventDefault();
       setDragY(diff);
     }
   };
@@ -1014,7 +1042,8 @@ export default function Tracking() {
                     zIndex: 999,
                     animation: isClosing ? 'fadeOut 0.3s ease' : 'fadeIn 0.3s ease',
                     opacity: isClosing ? 0 : 1,
-                    transition: 'opacity 0.3s ease'
+                    transition: 'opacity 0.3s ease',
+                    touchAction: 'none'
                   }}
                 />
                 
@@ -1039,7 +1068,8 @@ export default function Tracking() {
                     display: 'flex',
                     flexDirection: 'column',
                     transform: isClosing ? 'translateY(100vh)' : `translateY(${dragY}px)`,
-                    transition: isDragging ? 'none' : 'transform 0.3s ease'
+                    transition: isDragging ? 'none' : 'transform 0.3s ease',
+                    touchAction: 'pan-y'
                   }}
                 >
                   {/* Handle bar */}
