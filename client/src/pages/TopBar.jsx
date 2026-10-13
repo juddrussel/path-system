@@ -1580,11 +1580,11 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
               style={{
                 display: 'none',
                 position: 'relative',
-                minWidth: '52px',
-                minHeight: '52px',
-                width: '52px',
-                height: '52px',
-                borderRadius: '14px',
+                minWidth: '48px',
+                minHeight: '48px',
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
@@ -1599,8 +1599,10 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
                 marginRight: '10px'
               }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ width: '32px', height: '32px', display: 'block' }}>
-                <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" style={{ width: '28px', height: '28px', display: 'block' }}>
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
           )}
