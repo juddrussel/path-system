@@ -4398,10 +4398,11 @@ export default function Forms() {
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  fontSize: '14px',
-                                  flexShrink: 0
+                                  fontSize: '12px',
+                                  flexShrink: 0,
+                                  fontWeight: '700'
                                 }}>
-                                  ✓
+                                  i
                                 </span>
                                 <div style={{ flex: 1 }}>
                                   <div style={{ fontSize: '13px', fontWeight: '700', color: '#1e40af', marginBottom: '4px' }}>
