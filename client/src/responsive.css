@@ -381,6 +381,12 @@ img {
    MOBILE SIDEBAR ADJUSTMENTS
    ============================================================================ */
 
+/* Ensure topbar profile is visible on desktop */
+.topbar-profile-section {
+  display: flex;
+  align-items: center;
+}
+
 @media (max-width: 768px) {
   /* Hide topbar profile section on mobile (visible in sidebar instead) */
   .topbar-profile-section {
