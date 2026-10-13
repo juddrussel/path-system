@@ -1610,7 +1610,10 @@ export default function Forms() {
     const currentY = e.touches[0].clientY;
     const diff = currentY - startY;
     if (diff > 0) {
-      e.preventDefault();
+      // Only prevent default when actually dragging down
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       setDragY(diff);
     }
   };

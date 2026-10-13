@@ -778,7 +778,9 @@ export default function Tracking() {
     // Only allow dragging down (positive values)
     if (diff > 0) {
       // Prevent default to stop pull-to-refresh
-      e.preventDefault();
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       setDragY(diff);
     }
   };
