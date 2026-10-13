@@ -372,9 +372,15 @@ const styles = `
   }
 
   /* ── Mobile profile section (bottom of sidebar) ── */
-  .path-sidebar__mobile-profile {
+  .path-sidebar__mobile-profile-wrapper {
     display: none; /* Hidden by default (desktop) */
-    align-items: center; gap: 9px;
+    position: relative;
+  }
+  
+  .path-sidebar__mobile-profile {
+    display: flex;
+    align-items: center; 
+    gap: 9px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(196,181,253,0.2);
     border-radius: 12px;
@@ -385,8 +391,8 @@ const styles = `
   }
   
   @media (max-width: 768px) {
-    .path-sidebar__mobile-profile {
-      display: flex; /* Show on mobile */
+    .path-sidebar__mobile-profile-wrapper {
+      display: block; /* Show on mobile */
     }
   }
   
@@ -472,6 +478,9 @@ export default function Sidebar({ activePage, onLogout }) {
 
   // Mobile sidebar state
   const [mobileOpen, setMobileOpen] = useState(false);
+  
+  // Mobile profile menu state
+  const [showMobileProfileMenu, setShowMobileProfileMenu] = useState(false);
   
   const [unreadTotal, setUnreadTotal] = useState(0);
   // Seed from the last-known profile (cached in sessionStorage) instead of
@@ -668,22 +677,97 @@ export default function Sidebar({ activePage, onLogout }) {
         </nav>
 
         {/* Mobile-only profile section at bottom of sidebar */}
-        <div className="path-sidebar__mobile-profile">
-          <div className="path-sidebar__profile-avatar">
-            {avatarBlobUrl ? (
-              <img src={avatarBlobUrl} alt={profile?.full_name || profile?.name || "User"} />
-            ) : (
-              initials(profile?.full_name || profile?.name || profile?.username || "User")
-            )}
-          </div>
-          <div className="path-sidebar__profile-copy">
-            <span className="path-sidebar__profile-name">
-              {profile?.full_name || profile?.name || profile?.username || "User"}
-            </span>
-            <span className="path-sidebar__profile-role">
-              {formatRole(profile?.role || user.role)}
-            </span>
-          </div>
+        <div className="path-sidebar__mobile-profile-wrapper" style={{ position: 'relative' }}>
+          <button
+            className="path-sidebar__mobile-profile"
+            onClick={() => setShowMobileProfileMenu(!showMobileProfileMenu)}
+            style={{ 
+              width: '100%', 
+              border: '1px solid rgba(196,181,253,0.2)',
+              background: 'rgba(255,255,255,0.08)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+          >
+            <div className="path-sidebar__profile-avatar">
+              {avatarBlobUrl ? (
+                <img src={avatarBlobUrl} alt={profile?.full_name || profile?.name || "User"} />
+              ) : (
+                initials(profile?.full_name || profile?.name || profile?.username || "User")
+              )}
+            </div>
+            <div className="path-sidebar__profile-copy">
+              <span className="path-sidebar__profile-name">
+                {profile?.full_name || profile?.name || profile?.username || "User"}
+              </span>
+              <span className="path-sidebar__profile-role">
+                {formatRole(profile?.role || user.role)}
+              </span>
+            </div>
+            <svg 
+              viewBox="0 0 12 12" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="1.5"
+              style={{
+                width: '12px',
+                height: '12px',
+                color: 'rgba(196,181,253,0.6)',
+                transform: showMobileProfileMenu ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease',
+                marginLeft: 'auto'
+              }}
+            >
+              <path d="M2 4l4 4 4-4" strokeLinecap="round" />
+            </svg>
+          </button>
+          
+          {/* Mobile profile dropdown menu */}
+          {showMobileProfileMenu && (
+            <div 
+              style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: 0,
+                right: 0,
+                marginBottom: '8px',
+                background: 'rgba(255,255,255,0.95)',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 -4px 16px rgba(0,0,0,0.2)',
+                zIndex: 1001
+              }}
+            >
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setShowMobileProfileMenu(false);
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '12px 16px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#dc2626',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  fontFamily: "'DM Sans', sans-serif",
+                  cursor: 'pointer',
+                  transition: 'background 0.15s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(220,38,38,0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <Icon.Logout />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
