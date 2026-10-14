@@ -774,6 +774,13 @@ export default function TaskAssigned() {
     selectedRef.current = selected;
   }, [selected]);
 
+  // ── Mobile detection and modal state ─────────────────────────────────────
+  const [isMobile, setIsMobile] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startY, setStartY] = useState(0);
+  const [isClosing, setIsClosing] = useState(false);
+
   const PER_PAGE = 8;
 
   // ── Toast helpers ──────────────────────────────────────────────────────────
@@ -1325,6 +1332,83 @@ export default function TaskAssigned() {
     },
     [selected, user],
   );
+
+  // ── Mobile detection ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // ── Disable body scroll when modal is open (mobile only) ──────────────────
+  useEffect(() => {
+    if (isMobile && selected) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.overflow = 'hidden';
+      document.body.style.width = '100%';
+      document.body.style.touchAction = 'none';
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.overflow = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+    return () => {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.overflow = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    };
+  }, [isMobile, selected]);
+
+  // ── Touch handlers for swipe-down gesture ─────────────────────────────────
+  const handleTouchStart = (e) => {
+    setStartY(e.touches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    if (diff > 0) {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      setDragY(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (dragY > 100) {
+      closeModalWithAnimation();
+    } else {
+      setDragY(0);
+    }
+  };
+
+  const closeModalWithAnimation = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelected(null);
+      setIsClosing(false);
+      setDragY(0);
+    }, 300);
+  };
 
   const handleCommentChange = (e) => {
     setComment(e.target.value);
@@ -2345,16 +2429,17 @@ export default function TaskAssigned() {
               </div>
             </div>
 
-            {/* RIGHT: Task Detail Panel */}
-            <div
-              style={{
-                flex: 1,
-                overflow: "hidden",
-                background: "white",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
+            {/* RIGHT: Task Detail Panel - Desktop Only */}
+            {!isMobile && (
+              <div
+                style={{
+                  flex: 1,
+                  overflow: "hidden",
+                  background: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
               {!selected ? (
                 <div
                   style={{
@@ -5401,6 +5486,273 @@ function PathTasksAssignedLayout({
                 )}
               </aside>
             </div>
+            )}
+
+            {/* Mobile: Slide-up modal */}
+            {isMobile && selected && (
+              <>
+                {/* Backdrop */}
+                <div
+                  onClick={closeModalWithAnimation}
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    zIndex: 999,
+                    animation: isClosing ? 'fadeOut 0.3s ease' : 'fadeIn 0.3s ease',
+                    opacity: isClosing ? 0 : 1,
+                    transition: 'opacity 0.3s ease',
+                    touchAction: 'none'
+                  }}
+                />
+
+                {/* Slide-up panel */}
+                <div
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  style={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    maxHeight: '85vh',
+                    background: '#fff',
+                    borderRadius: '20px 20px 0 0',
+                    boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
+                    zIndex: 1000,
+                    animation: isClosing ? 'none' : 'slideUp 0.3s ease',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transform: isClosing ? 'translateY(100vh)' : `translateY(${dragY}px)`,
+                    transition: isDragging ? 'none' : 'transform 0.3s ease',
+                    touchAction: 'pan-y',
+                    fontFamily: "'DM Sans', sans-serif"
+                  }}
+                >
+                  {/* Handle bar */}
+                  <div style={{
+                    padding: '12px 0 8px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    borderBottom: '1px solid #f3f4f6'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '4px',
+                      background: '#d1d5db',
+                      borderRadius: '2px'
+                    }} />
+                  </div>
+
+                  {/* Content */}
+                  <div style={{
+                    padding: '16px 20px 20px',
+                    overflowY: 'auto',
+                    flex: 1
+                  }}>
+                    {/* Header */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'space-between',
+                      marginBottom: '16px'
+                    }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontSize: '10px',
+                          color: '#9ca3af',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.8px',
+                          marginBottom: '6px'
+                        }}>
+                          TASK DETAILS
+                        </div>
+                        <div style={{
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          color: '#111827',
+                          marginBottom: '4px'
+                        }}>
+                          {selected.title || "(No title)"}
+                        </div>
+                      </div>
+                      <button
+                        onClick={closeModalWithAnimation}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          borderRadius: '8px',
+                          minWidth: '40px',
+                          minHeight: '40px',
+                          width: '40px',
+                          height: '40px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                          marginLeft: '8px',
+                          padding: 0
+                        }}
+                      >
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#111827"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          style={{ minWidth: '22px', minHeight: '22px' }}
+                        >
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Task ID Badge */}
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '16px'
+                    }}>
+                      <span style={{
+                        fontSize: '13px',
+                        background: '#e9ddff',
+                        color: '#6b38d4',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontWeight: '700'
+                      }}>
+                        {selected.tracking_id}
+                      </span>
+                      <span style={{
+                        fontSize: '12px',
+                        color: '#6b7280'
+                      }}>
+                        Created {fmtDate(selected.created_at)}
+                      </span>
+                    </div>
+
+                    {/* Meta information grid */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '12px',
+                      marginBottom: '16px'
+                    }}>
+                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                          Assigned to
+                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                          {selected.assigned_to_name || "—"}
+                        </div>
+                      </div>
+                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                          Document Type
+                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                          {selected.doc_type || "—"}
+                        </div>
+                      </div>
+                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                          Priority
+                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                          {selected.priority || "—"}
+                        </div>
+                      </div>
+                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                          Status
+                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                          {selected.status || "—"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Deadline */}
+                    {selected.deadline && (
+                      <div style={{
+                        padding: '12px 16px',
+                        background: '#fef3c7',
+                        border: '1px solid #fde68a',
+                        borderRadius: '12px',
+                        marginBottom: '16px'
+                      }}>
+                        <div style={{ fontSize: '11px', color: '#92400e', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
+                          DEADLINE
+                        </div>
+                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#92400e' }}>
+                          {fmtDate(selected.deadline)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    {selected.description && (
+                      <div style={{
+                        padding: '12px',
+                        background: '#f9fafb',
+                        borderRadius: '12px',
+                        marginBottom: '16px'
+                      }}>
+                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>
+                          DESCRIPTION
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#374151', lineHeight: '1.5' }}>
+                          {selected.description}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <button
+                        onClick={() => navigate(`/task/${selected.id}`)}
+                        style={{
+                          background: '#7c3aed',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '14px',
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          width: '100%'
+                        }}
+                      >
+                        Open full task details →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Animations */}
+                <style>{`
+                  @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                  }
+                  @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                  }
+                  @keyframes slideUp {
+                    from { transform: translateY(100%); }
+                    to { transform: translateY(0); }
+                  }
+                `}</style>
+              </>
+            )}
           </div>
         </div>
       </main>
