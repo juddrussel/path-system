@@ -1505,6 +1505,7 @@ export default function TaskAssigned() {
       returnNote={returnNote}
       showReturnBox={showReturnBox}
       toasts={toasts}
+      isMobile={isMobile}
       onDismissToast={dismissToast}
       onSearchChange={(value) => {
         setSearch(value);
@@ -5345,6 +5346,7 @@ function PathTasksAssignedLayout({
   returnNote,
   showReturnBox,
   toasts,
+  isMobile,
   onDismissToast,
   onSearchChange,
   onStatusChange,
