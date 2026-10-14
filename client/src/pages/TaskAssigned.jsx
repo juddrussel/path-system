@@ -5485,7 +5485,6 @@ function PathTasksAssignedLayout({
                   </div>
                 )}
               </aside>
-            </div>
             )}
 
             {/* Mobile: Slide-up modal */}
