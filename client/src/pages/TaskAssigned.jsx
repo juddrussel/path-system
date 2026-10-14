@@ -5691,83 +5691,85 @@ function PathTasksAssignedLayout({
                 </footer>
               </section>
 
-              <aside className="path-assigned-panel path-assigned-detail">
-                {selected ? (
-                  <>
-                    <div className="path-assigned-selected-label">
-                      <span>Selected handoff</span>
-                      <i className={statusTone(selected.status)} />
-                    </div>
-                    <h2>{selected.title || "Untitled task"}</h2>
-                    <p>{selected.doc_type || "Workflow handoff"}</p>
-                    <div className="path-assigned-owner-card">
-                      <AvatarCircle
-                        name={selected.assigned_to_name}
-                        pictureUrl={avatarUrlFor(selected.assigned_to_name)}
-                        size={27}
-                        background="#efe8fc"
-                        color="#7044ae"
-                        fontSize={11}
-                        style={{ borderRadius: 8 }}
-                      />
-                      <span>
-                        <small>Assigned to</small>
-                        <strong>
-                          {selected.assigned_to_name || "Unassigned"}
-                        </strong>
-                      </span>
-                      <span style={{ color: "#8d67c4", fontSize: 16 }}>⌁</span>
-                    </div>
-                    <div className="path-assigned-info-grid">
-                      <InfoCell
-                        label="Workflow state"
-                        value={selected.status || "Pending"}
-                      />
-                      <InfoCell
-                        label="Due checkpoint"
-                        value={deadline(selected.deadline)}
-                      />
-                      <InfoCell
-                        label="Priority"
-                        value={selected.priority || "Normal"}
-                      />
-                      <InfoCell
-                        label="Submitted files"
-                        value={String(selected.submissions?.length || 0)}
-                      />
-                    </div>
-                    <div className="path-assigned-detail-actions">
-                      <button
-                        className="path-assigned-open"
-                        type="button"
-                        onClick={() => openTask(selected)}
-                      >
-                        ↗ Open task details
-                      </button>
-                      {/approved/i.test(selected?.status || "") && (
+              {!isMobile && (
+                <aside className="path-assigned-panel path-assigned-detail">
+                  {selected ? (
+                    <>
+                      <div className="path-assigned-selected-label">
+                        <span>Selected handoff</span>
+                        <i className={statusTone(selected.status)} />
+                      </div>
+                      <h2>{selected.title || "Untitled task"}</h2>
+                      <p>{selected.doc_type || "Workflow handoff"}</p>
+                      <div className="path-assigned-owner-card">
+                        <AvatarCircle
+                          name={selected.assigned_to_name}
+                          pictureUrl={avatarUrlFor(selected.assigned_to_name)}
+                          size={27}
+                          background="#efe8fc"
+                          color="#7044ae"
+                          fontSize={11}
+                          style={{ borderRadius: 8 }}
+                        />
+                        <span>
+                          <small>Assigned to</small>
+                          <strong>
+                            {selected.assigned_to_name || "Unassigned"}
+                          </strong>
+                        </span>
+                        <span style={{ color: "#8d67c4", fontSize: 16 }}>⌁</span>
+                      </div>
+                      <div className="path-assigned-info-grid">
+                        <InfoCell
+                          label="Workflow state"
+                          value={selected.status || "Pending"}
+                        />
+                        <InfoCell
+                          label="Due checkpoint"
+                          value={deadline(selected.deadline)}
+                        />
+                        <InfoCell
+                          label="Priority"
+                          value={selected.priority || "Normal"}
+                        />
+                        <InfoCell
+                          label="Submitted files"
+                          value={String(selected.submissions?.length || 0)}
+                        />
+                      </div>
+                      <div className="path-assigned-detail-actions">
                         <button
-                          className="path-assigned-secondary"
+                          className="path-assigned-open"
                           type="button"
-                          onClick={() => onArchiveSingle(selected.id)}
-                          disabled={actionLoading === "archive"}
+                          onClick={() => openTask(selected)}
                         >
-                          {actionLoading === "archive"
-                            ? "Archiving…"
-                            : "Archive task"}
+                          ↗ Open task details
                         </button>
-                      )}
+                        {/approved/i.test(selected?.status || "") && (
+                          <button
+                            className="path-assigned-secondary"
+                            type="button"
+                            onClick={() => onArchiveSingle(selected.id)}
+                            disabled={actionLoading === "archive"}
+                          >
+                            {actionLoading === "archive"
+                              ? "Archiving…"
+                              : "Archive task"}
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="path-assigned-empty">
+                      <strong>Select a task to review</strong>
+                      <span>
+                        Its owner, SLA context, files, and decision options will
+                        appear here.
+                      </span>
                     </div>
-                  </>
-                ) : (
-                  <div className="path-assigned-empty">
-                    <strong>Select a task to review</strong>
-                    <span>
-                      Its owner, SLA context, files, and decision options will
-                      appear here.
-                    </span>
-                  </div>
-                )}
-              </aside>
+                  )}
+                </aside>
+              )}
             </div>
           </div>
         </div>
