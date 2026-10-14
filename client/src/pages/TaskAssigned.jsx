@@ -5461,7 +5461,7 @@ function PathTasksAssignedLayout({
                       >
                         ↗ Open task details
                       </button>
-                      {/approved/i.test(selected?.status || "") && (
+                      {(selected?.status || "").toLowerCase().includes("approved") && (
                         <button
                           className="path-assigned-secondary"
                           type="button"
