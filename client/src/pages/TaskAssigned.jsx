@@ -2003,9 +2003,9 @@ export default function TaskAssigned() {
             {/* LEFT: Task Feed */}
             <div
               style={{
-                width: 340,
+                width: isMobile ? '100%' : 340,
                 flexShrink: 0,
-                borderRight: "1px solid #cbc3d7",
+                borderRight: isMobile ? 'none' : "1px solid #cbc3d7",
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
