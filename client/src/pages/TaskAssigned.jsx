@@ -1606,7 +1606,7 @@ export default function TaskAssigned() {
       {/* Toast stack */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* ── Main ── */}
+      {/* -- Main -- */}
       <div
         style={{
           flex: 1,
@@ -2871,7 +2871,7 @@ export default function TaskAssigned() {
                         </div>
                       </div>
 
-                      {/* ── ACTIVITY FEED ─────────────────────────────────────── */}
+                      {/* -- ACTIVITY FEED -- */}
                       {/* Section label */}
                       <div
                         style={{
@@ -4876,7 +4876,7 @@ export default function TaskAssigned() {
         {/* Footer removed */}
       </div>
 
-      {/* ── File Viewer Modal ── */}
+      {/* -- File Viewer Modal -- */}
       {fileViewer && (
         <>
           <div
@@ -5082,29 +5082,38 @@ function PathTasksAssignedLayout({
 }) {
   const total = stats.total ?? tasks.length;
   const active = tasks.filter(
-    (task) => !/approved|done/i.test(task.status || ""),
+    (task) => {
+      const status = (task.status || "").toLowerCase();
+      return !status.includes("approved") && !status.includes("done");
+    }
   ).length;
   const submitted =
     stats.submitted ??
-    tasks.filter((task) => /submitted|for approval/i.test(task.status || ""))
-      .length;
+    tasks.filter((task) => {
+      const status = (task.status || "").toLowerCase();
+      return status.includes("submitted") || status.includes("for approval");
+    }).length;
   const review =
     stats.pendingApproval ??
-    tasks.filter((task) => /approval|review/i.test(task.status || "")).length;
+    tasks.filter((task) => {
+      const status = (task.status || "").toLowerCase();
+      return status.includes("approval") || status.includes("review");
+    }).length;
   const overdue =
     stats.overdue ??
     tasks.filter(
       (task) => task.deadline && new Date(task.deadline) < new Date(),
     ).length;
-  const selectedIsReviewable = /for approval|submitted|in review/i.test(
-    selected?.status || "",
-  );
+  const selectedIsReviewable = (() => {
+    const status = (selected?.status || "").toLowerCase();
+    return status.includes("for approval") || status.includes("submitted") || status.includes("in review");
+  })();
   const statusTone = (statusValue) => {
     const value = String(statusValue || "").toLowerCase();
-    if (/approved|done/.test(value)) return "approved";
-    if (/returned/.test(value)) return "returned";
-    if (/approval|review|submitted/.test(value)) return "review";
-    if (/overdue/.test(value)) return "risk";
+    if (value.includes("approved") || value.includes("done")) return "approved";
+    if (value.includes("returned")) return "returned";
+    if (value.includes("approval") || value.includes("review") || value.includes("submitted")) return "review";
+    if (value.includes("overdue")) return "risk";
     return "progress";
   };
   const initials = (name) =>
@@ -5127,7 +5136,10 @@ function PathTasksAssignedLayout({
   const isLate = (task) =>
     task?.deadline &&
     new Date(task.deadline) < new Date() &&
-    !/approved|done/i.test(task.status || "");
+    (() => {
+      const status = (task.status || "").toLowerCase();
+      return !status.includes("approved") && !status.includes("done");
+    })();
   const openTask = (task) => {
     // Route to collaborative detail page if this is a collaborative task
     let route = `/task-details/${task.id}`;
