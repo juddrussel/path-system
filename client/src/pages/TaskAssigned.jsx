@@ -5568,7 +5568,7 @@ function PathTasksAssignedLayout({
                           letterSpacing: '0.8px',
                           marginBottom: '6px'
                         }}>
-                          TASK DETAILS
+                          SELECTED HANDOFF
                         </div>
                         <div style={{
                           fontSize: '18px',
@@ -5577,6 +5577,12 @@ function PathTasksAssignedLayout({
                           marginBottom: '4px'
                         }}>
                           {selected.title || "(No title)"}
+                        </div>
+                        <div style={{
+                          fontSize: '13px',
+                          color: '#6b7280'
+                        }}>
+                          {selected.doc_type || "Document"}
                         </div>
                       </div>
                       <button
@@ -5613,106 +5619,92 @@ function PathTasksAssignedLayout({
                       </button>
                     </div>
 
-                    {/* Task ID Badge */}
+                    {/* Assigned to card */}
                     <div style={{
-                      display: 'inline-flex',
+                      display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
+                      gap: '12px',
+                      padding: '12px',
+                      background: '#f9fafb',
+                      borderRadius: '12px',
                       marginBottom: '16px'
                     }}>
-                      <span style={{
-                        fontSize: '13px',
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
                         background: '#e9ddff',
                         color: '#6b38d4',
-                        padding: '4px 12px',
-                        borderRadius: '20px',
-                        fontWeight: '700'
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        flexShrink: 0
                       }}>
-                        {selected.tracking_id}
-                      </span>
-                      <span style={{
-                        fontSize: '12px',
-                        color: '#6b7280'
-                      }}>
-                        Created {fmtDate(selected.created_at)}
-                      </span>
-                    </div>
-
-                    {/* Meta information grid */}
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      gap: '12px',
-                      marginBottom: '16px'
-                    }}>
-                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                        {(selected.assigned_to_name || "?").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>
                           Assigned to
                         </div>
                         <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
                           {selected.assigned_to_name || "—"}
                         </div>
                       </div>
-                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
-                          Document Type
+                    </div>
+
+                    {/* Info grid */}
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      marginBottom: '16px'
+                    }}>
+                      <div>
+                        <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                          Workflow state
                         </div>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
-                          {selected.doc_type || "—"}
-                        </div>
-                      </div>
-                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
-                          Priority
-                        </div>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
-                          {selected.priority || "—"}
-                        </div>
-                      </div>
-                      <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
-                          Status
-                        </div>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
+                        <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
                           {selected.status || "—"}
                         </div>
                       </div>
+
+                      {selected.deadline && (
+                        <div>
+                          <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                            Due checkpoint
+                          </div>
+                          <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                            {new Date(selected.deadline).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              hour: 'numeric', 
+                              minute: '2-digit',
+                              hour12: true 
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                          Priority
+                        </div>
+                        <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                          {selected.priority || "—"}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                          Submitted files
+                        </div>
+                        <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                          {selected.submissions?.length || 0}
+                        </div>
+                      </div>
                     </div>
-
-                    {/* Deadline */}
-                    {selected.deadline && (
-                      <div style={{
-                        padding: '12px 16px',
-                        background: '#fef3c7',
-                        border: '1px solid #fde68a',
-                        borderRadius: '12px',
-                        marginBottom: '16px'
-                      }}>
-                        <div style={{ fontSize: '11px', color: '#92400e', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
-                          DEADLINE
-                        </div>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#92400e' }}>
-                          {fmtDate(selected.deadline)}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Description */}
-                    {selected.description && (
-                      <div style={{
-                        padding: '12px',
-                        background: '#f9fafb',
-                        borderRadius: '12px',
-                        marginBottom: '16px'
-                      }}>
-                        <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>
-                          DESCRIPTION
-                        </div>
-                        <div style={{ fontSize: '13px', color: '#374151', lineHeight: '1.5' }}>
-                          {selected.description}
-                        </div>
-                      </div>
-                    )}
 
                     {/* Actions */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -5727,11 +5719,36 @@ function PathTasksAssignedLayout({
                           fontSize: '15px',
                           fontWeight: '600',
                           cursor: 'pointer',
-                          width: '100%'
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
                         }}
                       >
-                        Open full task details →
+                        → Open task details
                       </button>
+                      {/approved/i.test(selected?.status || "") && (
+                        <button
+                          onClick={() => {
+                            closeModalWithAnimation();
+                            // Add archive logic if needed
+                          }}
+                          style={{
+                            background: '#f3f4f6',
+                            color: '#374151',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '14px',
+                            fontSize: '15px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            width: '100%'
+                          }}
+                        >
+                          Archive task
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
