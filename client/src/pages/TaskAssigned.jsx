@@ -1506,6 +1506,13 @@ export default function TaskAssigned() {
       showReturnBox={showReturnBox}
       toasts={toasts}
       isMobile={isMobile}
+      dragY={dragY}
+      isDragging={isDragging}
+      isClosing={isClosing}
+      handleTouchStart={handleTouchStart}
+      handleTouchMove={handleTouchMove}
+      handleTouchEnd={handleTouchEnd}
+      closeModalWithAnimation={closeModalWithAnimation}
       onDismissToast={dismissToast}
       onSearchChange={(value) => {
         setSearch(value);
@@ -5347,6 +5354,13 @@ function PathTasksAssignedLayout({
   showReturnBox,
   toasts,
   isMobile,
+  dragY,
+  isDragging,
+  isClosing,
+  handleTouchStart,
+  handleTouchMove,
+  handleTouchEnd,
+  closeModalWithAnimation,
   onDismissToast,
   onSearchChange,
   onStatusChange,
@@ -5776,6 +5790,287 @@ function PathTasksAssignedLayout({
           </div>
         </div>
       </main>
+
+      {/* Mobile: Slide-up modal */}
+      {isMobile && selected && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={closeModalWithAnimation}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 999,
+              animation: isClosing ? 'fadeOut 0.3s ease' : 'fadeIn 0.3s ease',
+              opacity: isClosing ? 0 : 1,
+              transition: 'opacity 0.3s ease',
+              touchAction: 'none'
+            }}
+          />
+
+          {/* Slide-up panel */}
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              maxHeight: '85vh',
+              background: '#fff',
+              borderRadius: '20px 20px 0 0',
+              boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
+              zIndex: 1000,
+              animation: isClosing ? 'none' : 'slideUp 0.3s ease',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              transform: isClosing ? 'translateY(100vh)' : `translateY(${dragY}px)`,
+              transition: isDragging ? 'none' : 'transform 0.3s ease',
+              touchAction: 'pan-y',
+              fontFamily: "'DM Sans', sans-serif"
+            }}
+          >
+            {/* Handle bar */}
+            <div style={{
+              padding: '12px 0 8px',
+              display: 'flex',
+              justifyContent: 'center',
+              borderBottom: '1px solid #f3f4f6'
+            }}>
+              <div style={{
+                width: '40px',
+                height: '4px',
+                background: '#d1d5db',
+                borderRadius: '2px'
+              }} />
+            </div>
+
+            {/* Content */}
+            <div style={{
+              padding: '16px 20px 20px',
+              overflowY: 'auto',
+              flex: 1
+            }}>
+              {/* Header */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                marginBottom: '16px'
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: '10px',
+                    color: '#9ca3af',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.8px',
+                    marginBottom: '6px'
+                  }}>
+                    SELECTED HANDOFF
+                  </div>
+                  <div style={{
+                    fontSize: '18px',
+                    fontWeight: '700',
+                    color: '#111827',
+                    marginBottom: '4px'
+                  }}>
+                    {selected.title || 'Untitled Task'}
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    color: '#6b7280',
+                    marginTop: '4px'
+                  }}>
+                    {selected.doc_type || 'Document'}
+                  </div>
+                </div>
+                <button
+                  onClick={closeModalWithAnimation}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '8px',
+                    minWidth: '40px',
+                    minHeight: '40px',
+                    width: '40px',
+                    height: '40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    marginLeft: '8px',
+                    padding: 0
+                  }}
+                >
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#6b7280"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Assigned to card */}
+              <div style={{
+                background: '#f9fafb',
+                borderRadius: '12px',
+                padding: '12px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '8px', fontWeight: '600' }}>
+                  Assigned to
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: '#7c3aed',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    flexShrink: 0
+                  }}>
+                    {initials(selected.assigned_to_name)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                      {selected.assigned_to_name || 'Unknown'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                      Faculty
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Info grid */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                <div>
+                  <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                    Workflow state
+                  </div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                    {selected.status || 'Pending'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                    Due checkpoint
+                  </div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                    {deadline(selected.deadline)}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                    Priority
+                  </div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                    {selected.priority || 'Normal'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                    Submitted files
+                  </div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+                    {selected.submissions?.length || 0}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button
+                  onClick={() => openTask(selected)}
+                  style={{
+                    background: '#7c3aed',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '14px',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  → Open task details
+                </button>
+                {(() => {
+                  const statusLower = (selected.status || '').toLowerCase();
+                  const isApproved = statusLower.includes('approved') || statusLower.includes('done');
+                  return isApproved ? (
+                    <button
+                      onClick={() => {
+                        closeModalWithAnimation();
+                        onArchiveSingle(selected.id);
+                      }}
+                      style={{
+                        background: '#f3f4f6',
+                        color: '#374151',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '14px',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        width: '100%'
+                      }}
+                    >
+                      Archive task
+                    </button>
+                  ) : null;
+                })()}
+              </div>
+            </div>
+          </div>
+
+          {/* Animations */}
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+              from { opacity: 1; }
+              to { opacity: 0; }
+            }
+            @keyframes slideUp {
+              from { transform: translateY(100%); }
+              to { transform: translateY(0); }
+            }
+          `}</style>
+        </>
+      )}
     </div>
   );
 }
