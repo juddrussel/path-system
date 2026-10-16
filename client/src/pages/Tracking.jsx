@@ -1017,7 +1017,6 @@ export default function Tracking() {
               <h1>Tracking</h1>
               <p>See where every document is, who owns the next step, and what needs attention.</p>
             </div>
-            <button className="tracking-primary-action" type="button" onClick={() => { const csv = filtered.map((doc) => [doc.document_id, doc.title, doc.status, doc.current_handler].join(",")).join("\\n"); const blob = new Blob(["Document ID,Title,Status,Current Handler\\n" + csv], { type: "text/csv" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "path-tracking-export.csv"; anchor.click(); URL.revokeObjectURL(url); }}><Icon.Reports /> Export view</button>
           </section>
           <section className="tracking-stat-grid">
             <article className="tracking-stat-card"><span>In progress</span><strong>{loading ? "—" : stats.inProgress}</strong><small>Across active workflows</small></article>
