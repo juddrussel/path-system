@@ -56,11 +56,13 @@ const PATH_REPORTS_CSS = `
 
 const PATH_REPORTS_EXACT_CSS = `
   .path-report-tabs { position: relative; }
-  .path-report-tabs::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 40px; background: linear-gradient(to left, rgba(255,255,255,0.95), transparent); pointer-events: none; }
+  .path-report-tabs::after { content: ''; position: absolute; top: 0; right: 0; bottom: 10px; width: 60px; background: linear-gradient(to left, #f8f7ff 0%, #f8f7ff 15%, rgba(248,247,255,0.85) 40%, rgba(248,247,255,0) 100%); pointer-events: none; z-index: 10; }
+  .path-report-tabs::before { content: '›'; position: absolute; top: 50%; right: 8px; transform: translateY(-50%); color: #a098a6; font-size: 18px; font-weight: bold; pointer-events: none; z-index: 11; animation: pulseArrow 2s ease-in-out infinite; }
+  @keyframes pulseArrow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
   .path-report-tabs::-webkit-scrollbar { height: 2px; }
   .path-report-tabs::-webkit-scrollbar-track { background: transparent; }
   .path-report-tabs::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-  @media (min-width: 761px) { .path-report-tabs::after { display: none; } }
+  @media (min-width: 761px) { .path-report-tabs::after, .path-report-tabs::before { display: none; } }
   .path-kpi-grid { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
   .path-transactions-kpi-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; }
   .path-kpi-card { min-height:116px !important; padding:17px 18px !important; }
