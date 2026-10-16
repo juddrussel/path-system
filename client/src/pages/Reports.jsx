@@ -51,10 +51,14 @@ const PATH_REPORTS_CSS = `
   .path-reports-content table thead tr { background:#faf8fd !important; border-bottom-color:#eeeaf3 !important; }
   .path-reports-content table th { color:#a098a6 !important; font-family:'DM Sans',sans-serif !important; font-size:11px !important; letter-spacing:.08em !important; }
   .path-reports-content table td { color:#62536b; font-family:'DM Sans',sans-serif; }
-  @media (max-width:760px) { .path-reports-content { padding:20px 15px 32px !important; }.path-reports-hero { padding:22px 18px !important; }.path-reports-filter { overflow-x:auto; }.path-report-tabs { gap:18px !important; }.path-report-tabs button { font-size:12px !important; }.path-report-card-head { align-items:flex-start !important; }.path-export-buttons { width:100%; }.path-export-buttons button { flex:1; justify-content:center; } }
+  @media (max-width:760px) { .path-reports-content { padding:20px 15px 32px !important; }.path-reports-hero { padding:22px 18px !important; }.path-reports-filter { overflow-x:auto; }.path-report-tabs { gap:14px !important; padding-left:0 !important; }.path-report-tabs button { font-size:12px !important; padding:0 2px 10px !important; }.path-report-card-head { align-items:flex-start !important; }.path-export-buttons { width:100%; }.path-export-buttons button { flex:1; justify-content:center; } }
 `;
 
 const PATH_REPORTS_EXACT_CSS = `
+  .path-report-tabs { position: relative; }
+  .path-report-tabs::-webkit-scrollbar { height: 2px; }
+  .path-report-tabs::-webkit-scrollbar-track { background: transparent; }
+  .path-report-tabs::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
   .path-kpi-grid { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
   .path-transactions-kpi-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; }
   .path-kpi-card { min-height:116px !important; padding:17px 18px !important; }
@@ -2040,7 +2044,7 @@ export default function Reports() {
             </div>
 
             {/* ── Tab Bar ── */}
-            <div className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4 }}>
+            <div className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
               {TABS.map(t => (
                 <button
                   key={t}
@@ -2055,6 +2059,7 @@ export default function Reports() {
                     color: activeTab === t ? "#7c3aed" : "#6b7280",
                     borderBottom: activeTab === t ? "2px solid #7c3aed" : "2px solid transparent",
                     whiteSpace: "nowrap",
+                    flexShrink: 0,
                   }}
                   className={activeTab === t ? "path-tab-active" : ""}
                 >
