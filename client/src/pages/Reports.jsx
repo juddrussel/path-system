@@ -56,8 +56,9 @@ const PATH_REPORTS_CSS = `
 
 const PATH_REPORTS_EXACT_CSS = `
   .path-report-tabs { position: relative; }
-  .path-report-tabs::after { content: ''; position: absolute; top: 0; right: 0; bottom: 10px; width: 60px; background: linear-gradient(to left, #f8f7ff 0%, #f8f7ff 15%, rgba(248,247,255,0.85) 40%, rgba(248,247,255,0) 100%); pointer-events: none; z-index: 10; }
-  .path-report-tabs::before { content: '›'; position: absolute; top: 50%; right: 8px; transform: translateY(-50%); color: #a098a6; font-size: 18px; font-weight: bold; pointer-events: none; z-index: 11; animation: pulseArrow 2s ease-in-out infinite; }
+  .path-report-tabs::after { content: ''; position: absolute; top: 0; right: 0; bottom: 10px; width: 60px; background: linear-gradient(to left, #f8f7ff 0%, #f8f7ff 15%, rgba(248,247,255,0.85) 40%, rgba(248,247,255,0) 100%); pointer-events: none; z-index: 10; transition: opacity 0.3s ease; }
+  .path-report-tabs::before { content: '›'; position: absolute; top: 50%; right: 8px; transform: translateY(-50%); color: #a098a6; font-size: 18px; font-weight: bold; pointer-events: none; z-index: 11; animation: pulseArrow 2s ease-in-out infinite; transition: opacity 0.3s ease; }
+  .path-report-tabs.scrolled-end::after, .path-report-tabs.scrolled-end::before { opacity: 0; }
   @keyframes pulseArrow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
   .path-report-tabs::-webkit-scrollbar { height: 2px; }
   .path-report-tabs::-webkit-scrollbar-track { background: transparent; }
@@ -725,6 +726,31 @@ export default function Reports() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [delayedPage, setDelayedPage] = useState(1);
   const [documentTypes, setDocumentTypes] = useState(["All Document Types"]);
+  
+  // ── Tab scroll detection for gradient indicator ────────────────────────────
+  const tabsRef = useCallback(node => {
+    if (!node) return;
+    
+    const handleScroll = () => {
+      const isAtEnd = node.scrollLeft + node.clientWidth >= node.scrollWidth - 5;
+      if (isAtEnd) {
+        node.classList.add('scrolled-end');
+      } else {
+        node.classList.remove('scrolled-end');
+      }
+    };
+    
+    // Check on mount
+    handleScroll();
+    
+    node.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    return () => {
+      node.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   // ── Active academic period ─────────────────────────────────────────────────
   const [activePeriod, setActivePeriod] = useState(null);
@@ -2048,7 +2074,7 @@ export default function Reports() {
             </div>
 
             {/* ── Tab Bar ── */}
-            <div className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4, paddingRight: 20, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            <div ref={tabsRef} className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4, paddingRight: 20, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
               {TABS.map(t => (
                 <button
                   key={t}
