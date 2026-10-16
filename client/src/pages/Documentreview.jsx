@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { resolveFileUrl, createAuthenticatedBlobUrl } from "../utils/r2ProxyHelper";
+import "./DocumentReview.mobile.css";
 
 const API = import.meta.env.VITE_API_URL;
 const fileUrl = (value) =>
