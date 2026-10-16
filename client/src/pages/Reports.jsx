@@ -731,11 +731,17 @@ export default function Reports() {
     if (!node) return;
     
     const handleScroll = () => {
-      const hasMoreContent = node.scrollLeft + node.clientWidth < node.scrollWidth - 10;
-      if (hasMoreContent) {
-        node.classList.add('show-right-indicator');
-      } else {
+      // Check if there's more content to the right
+      // scrollWidth = total scrollable width
+      // clientWidth = visible width
+      // scrollLeft = how far scrolled from left
+      const scrolledToEnd = Math.abs((node.scrollLeft + node.clientWidth) - node.scrollWidth) <= 2;
+      
+      if (scrolledToEnd) {
         node.classList.remove('show-right-indicator');
+      } else if (node.scrollWidth > node.clientWidth) {
+        // Only show if content actually overflows
+        node.classList.add('show-right-indicator');
       }
     };
     
