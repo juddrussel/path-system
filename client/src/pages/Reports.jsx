@@ -55,14 +55,14 @@ const PATH_REPORTS_CSS = `
 `;
 
 const PATH_REPORTS_EXACT_CSS = `
-  .path-report-tabs { position: relative; }
-  .path-report-tabs::after { content: '›'; position: absolute; top: 50%; right: 8px; transform: translateY(-50%); color: #a098a6; font-size: 18px; font-weight: bold; pointer-events: none; z-index: 11; opacity: 0; transition: opacity 0.3s ease; }
-  .path-report-tabs.show-right-indicator::after { opacity: 0.6; animation: pulseArrow 2s ease-in-out infinite; }
-  @keyframes pulseArrow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+  .path-report-tabs { position: relative; padding-bottom: 18px !important; }
+  .path-report-tabs-dots { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; justify-content: center; padding: 4px 0; }
+  .path-report-tabs-dots span { width: 6px; height: 6px; border-radius: 50%; background: #d1d5db; transition: all 0.3s ease; }
+  .path-report-tabs-dots span.active { width: 20px; border-radius: 10px; background: #7c3aed; }
   .path-report-tabs::-webkit-scrollbar { height: 2px; }
   .path-report-tabs::-webkit-scrollbar-track { background: transparent; }
   .path-report-tabs::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-  @media (min-width: 761px) { .path-report-tabs::after { display: none; } }
+  @media (min-width: 761px) { .path-report-tabs-dots { display: none; } }
   .path-kpi-grid { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
   .path-transactions-kpi-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; }
   .path-kpi-card { min-height:116px !important; padding:17px 18px !important; }
@@ -725,38 +725,43 @@ export default function Reports() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [delayedPage, setDelayedPage] = useState(1);
   const [documentTypes, setDocumentTypes] = useState(["All Document Types"]);
+  const [tabScrollPosition, setTabScrollPosition] = useState(0);
   
-  // ── Tab scroll detection for gradient indicator ────────────────────────────
+  // ── Tab scroll detection for dot indicators ────────────────────────────
   const tabsRef = useCallback(node => {
     if (!node) return;
     
-    const handleScroll = () => {
-      // Check if there's more content to the right
-      // scrollWidth = total scrollable width
-      // clientWidth = visible width
-      // scrollLeft = how far scrolled from left
-      const scrolledToEnd = Math.abs((node.scrollLeft + node.clientWidth) - node.scrollWidth) <= 2;
+    const updateDots = () => {
+      if (node.scrollWidth <= node.clientWidth) {
+        // Content doesn't overflow, no dots needed
+        setTabScrollPosition(-1);
+        return;
+      }
       
-      if (scrolledToEnd) {
-        node.classList.remove('show-right-indicator');
-      } else if (node.scrollWidth > node.clientWidth) {
-        // Only show if content actually overflows
-        node.classList.add('show-right-indicator');
+      // Calculate which "page" of tabs we're viewing (0, 1, or 2 for 3 dots)
+      const scrollPercentage = node.scrollLeft / (node.scrollWidth - node.clientWidth);
+      
+      if (scrollPercentage < 0.33) {
+        setTabScrollPosition(0); // Left
+      } else if (scrollPercentage < 0.67) {
+        setTabScrollPosition(1); // Middle
+      } else {
+        setTabScrollPosition(2); // Right
       }
     };
     
     // Check on mount and when content changes
     const checkInitial = () => {
-      setTimeout(handleScroll, 100);
+      setTimeout(updateDots, 100);
     };
     
     checkInitial();
-    node.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
+    node.addEventListener('scroll', updateDots);
+    window.addEventListener('resize', updateDots);
     
     return () => {
-      node.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      node.removeEventListener('scroll', updateDots);
+      window.removeEventListener('resize', updateDots);
     };
   }, []);
 
@@ -2104,6 +2109,14 @@ export default function Reports() {
                   {t}
                 </button>
               ))}
+              {/* Dot indicators for mobile scroll position */}
+              {tabScrollPosition >= 0 && (
+                <div className="path-report-tabs-dots">
+                  <span className={tabScrollPosition === 0 ? 'active' : ''}></span>
+                  <span className={tabScrollPosition === 1 ? 'active' : ''}></span>
+                  <span className={tabScrollPosition === 2 ? 'active' : ''}></span>
+                </div>
+              )}
             </div>
 
             {/* ── Overview tab ── */}
