@@ -55,8 +55,8 @@ const PATH_REPORTS_CSS = `
 `;
 
 const PATH_REPORTS_EXACT_CSS = `
-  .path-report-tabs { position: relative; padding-bottom: 18px !important; }
-  .path-report-tabs-dots { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; justify-content: center; padding: 4px 0; }
+  .path-report-tabs { position: relative; }
+  .path-report-tabs-dots { position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; justify-content: center; padding: 4px 0; pointer-events: none; z-index: 1; }
   .path-report-tabs-dots span { width: 6px; height: 6px; border-radius: 50%; background: #d1d5db; transition: all 0.3s ease; }
   .path-report-tabs-dots span.active { width: 20px; border-radius: 10px; background: #7c3aed; }
   .path-report-tabs::-webkit-scrollbar { height: 2px; }
@@ -2087,28 +2087,30 @@ export default function Reports() {
             </div>
 
             {/* ── Tab Bar ── */}
-            <div ref={tabsRef} className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4, paddingRight: 20, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-              {TABS.map(t => (
-                <button
-                  key={t}
-                  onClick={() => setActiveTab(t)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: "0 0 10px",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: activeTab === t ? "#7c3aed" : "#6b7280",
-                    borderBottom: activeTab === t ? "2px solid #7c3aed" : "2px solid transparent",
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                  }}
-                  className={activeTab === t ? "path-tab-active" : ""}
-                >
-                  {t}
-                </button>
-              ))}
+            <div style={{ position: 'relative' }}>
+              <div ref={tabsRef} className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4, paddingRight: 20, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                {TABS.map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setActiveTab(t)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "0 0 10px",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: activeTab === t ? "#7c3aed" : "#6b7280",
+                      borderBottom: activeTab === t ? "2px solid #7c3aed" : "2px solid transparent",
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
+                    }}
+                    className={activeTab === t ? "path-tab-active" : ""}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
               {/* Dot indicators for mobile scroll position */}
               {tabScrollPosition >= 0 && (
                 <div className="path-report-tabs-dots">
