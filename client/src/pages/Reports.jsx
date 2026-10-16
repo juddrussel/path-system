@@ -56,9 +56,11 @@ const PATH_REPORTS_CSS = `
 
 const PATH_REPORTS_EXACT_CSS = `
   .path-report-tabs { position: relative; }
+  .path-report-tabs::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 40px; background: linear-gradient(to left, rgba(255,255,255,0.95), transparent); pointer-events: none; }
   .path-report-tabs::-webkit-scrollbar { height: 2px; }
   .path-report-tabs::-webkit-scrollbar-track { background: transparent; }
   .path-report-tabs::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+  @media (min-width: 761px) { .path-report-tabs::after { display: none; } }
   .path-kpi-grid { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
   .path-transactions-kpi-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; }
   .path-kpi-card { min-height:116px !important; padding:17px 18px !important; }
@@ -2044,7 +2046,7 @@ export default function Reports() {
             </div>
 
             {/* ── Tab Bar ── */}
-            <div className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            <div className="path-report-tabs" style={{ display: "flex", gap: 22, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingLeft: 4, paddingRight: 20, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
               {TABS.map(t => (
                 <button
                   key={t}
