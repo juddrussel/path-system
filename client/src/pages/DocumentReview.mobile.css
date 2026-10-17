@@ -1,16 +1,23 @@
 /* DocumentReview Mobile Enhancements */
 
 @media (max-width: 768px) {
-  /* Prevent horizontal overflow */
-  .doc-shell,
-  .doc-main,
-  .doc-page {
+  /* Prevent horizontal overflow and add proper padding */
+  .doc-shell {
     max-width: 100vw !important;
     overflow-x: hidden !important;
   }
+  
+  .doc-main {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    padding-right: 0 !important;
+  }
 
   .doc-page {
-    padding: 16px 14px 34px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    padding: 16px 16px 34px 16px !important;
+    box-sizing: border-box !important;
   }
 
   /* Better text wrapping for long filenames and titles */
@@ -21,7 +28,8 @@
     overflow-wrap: anywhere !important;
     hyphens: auto !important;
     max-width: 100% !important;
-    padding-right: 4px !important;
+    padding-right: 0 !important;
+    margin-right: 0 !important;
   }
 
   .doc-id p {
@@ -35,8 +43,10 @@
     flex-direction: column;
     align-items: flex-start !important;
     gap: 14px !important;
-    padding: 0 12px 18px 12px !important;
+    padding: 0 0 18px 0 !important;
+    margin: 0 0 0 0 !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .doc-id {
@@ -44,7 +54,9 @@
     min-width: 0;
     max-width: 100% !important;
     overflow: hidden !important;
-    padding-right: 4px !important;
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .doc-file {
