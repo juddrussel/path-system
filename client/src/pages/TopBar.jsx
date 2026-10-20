@@ -1565,6 +1565,21 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
   const rc = roleColors(profile?.role);
   const pageMeta = usePageMeta(location.pathname);
 
+  // Pages where the header (title + subtitle) should be hidden
+  const hideHeaderPages = [
+    "/forms",
+    "/tracking",
+    "/notifications",
+    "/reports",
+    "/document-categories",
+    "/users",
+    "/audit",
+    "/tasks"
+  ];
+  const shouldHideHeader = hideHeaderPages.some(page => 
+    location.pathname === page || location.pathname.startsWith(page + "/")
+  );
+
   return (
     <>
       <div style={TB.bar}>
@@ -1625,11 +1640,13 @@ export default function TopBar({ children, onLogout, onOpenSidebar }) {
             </button>
           )}
 
-          {/* Page title + subtitle */}
-          <div style={TB.pageMeta} className="topbar-page-meta">
-            <p style={TB.pageLabel}>{pageMeta.label}</p>
-            <p style={TB.pageSub}>{pageMeta.sub}</p>
-          </div>
+          {/* Page title + subtitle - hidden on specific pages */}
+          {!shouldHideHeader && (
+            <div style={TB.pageMeta} className="topbar-page-meta">
+              <p style={TB.pageLabel}>{pageMeta.label}</p>
+              <p style={TB.pageSub}>{pageMeta.sub}</p>
+            </div>
+          )}
 
           <div style={TB.childrenSlot}>{children}</div>
 
